@@ -1,4 +1,13 @@
 name = "AlgorithmicRecourse"
-uuid = "e5304344-f5d3-4f42-9531-6cbba57c6dbd"
-authors = ["patrickaltmeyer "]
+uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+authors = ["Patrick Altmeyer"]
 version = "0.1.0"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+julia = "1.6"
+
+[targets]
+test = ["Test"]
