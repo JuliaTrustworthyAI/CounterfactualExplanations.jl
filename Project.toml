@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+LossFunctions = "30fc2ffe-d236-52d8-8643-a9d8f7c094a7"
 
 [compat]
 julia = "1.6"

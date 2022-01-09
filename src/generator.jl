@@ -3,52 +3,57 @@
 # Core package functionality that implements algorithmic recourse.
 
 # --------------- Core constructor:
-mutable struct Generator{x<:AbstractFloat, predict<:Function}
-    x̅::Vector{x}
-    𝓜::predict
-    target::Float64
-end;
+abstract type Generator end
 
 # --- Outer methods:
 
 # Generate recourse:
-function generate_recourse(generator::Generator; objective=:default, update=:default, convergence=:default, T=1000, immutable_=[])
+function generate_recourse(generator::Generator, x̅::Vector{x}, 𝓜, target::Float64; T=1000, immutable_=[])
     
     # Setup and allocate memory:
-    x̲ = copy(generator.x̅) # start from factual
+    x̲ = copy(x̅) # start from factual
     D = length(x̲)
     path = reshape(x̲, 1, length(x̲)) # storing the path
 
     # Initialize:
     t = 1 # counter
-    converged = convergence(generator, convergence)
+    converged = convergence(generator, x̅, 𝓜, target, x̲)
 
     # Search:
     while !converged && t < T 
-        x̲ = update(generator, update)
+        x̲ = step(generator, x̅, 𝓜, target, x̲)
         t += 1 # update number of times feature is changed
-        converged = converged(generator) # check if converged
+        converged = convergence(generator, x̅, 𝓜, target, x̲) # check if converged
         path = vcat(path, reshape(x̲, 1, D))
     end
 
     # Output:
-    y̲ = generator.𝓜(x̲)
-    recourse = Recourse(x̲, y̲, path, generator, immutable_) 
+    y̲ = 𝓜(x̲)
+    recourse = Recourse(x̲, y̲, path, generator, immutable_, x̅, 𝓜, target) 
     
     return recourse
     
 end
 
-# Objective function:
-function objective(generator::Generator, fun::Symbol)
+# Generators:
+struct GenericGenerator <: Generator
+    λ::Float64
+    ϵ::Float64
+    τ::Float64
 end
 
-# Update function:
-function update(generator::Generator, fun::Symbol)
+ℓ(generator::GenericGenerator, 𝓜, t) = - (t * log(𝛔(a)) + (1-t) * log(1-𝛔(a)))
+cost(generator::GenericGenerator, x̅, x̲) = norm(x̅,x̲)^2
+objective(generator::GenericGenerator, x̅, 𝓜, target, x̲) = ℓ(generator, a, t) + generator.λ * cost(generator, x̅, x̲) 
+∇(generator::GenericGenerator, x̅, 𝓜, target, x̲) = gradient(() -> objective(generator, a, t, x̅, x̲), params(x̲))
+
+function step(generator::GenericGenerator, x̅, 𝓜, target, x̲) 
+    𝐠ₜ = ∇(generator, x̅, 𝓜, target, x̲)
+    return x̲ - (generator.ϵ .* 𝐠ₜ)
 end
 
-# Convergence condition:
-function convergence(generator::Generator, fun::Symbol)
+function convergence(generator::GenericGenerator, x̅, 𝓜, target, x̲)
+    all(∇(generator, x̅, 𝓜, target, x̲) .< generator.τ)
 end
 
 # --------------- Wachter et al (2018): 
