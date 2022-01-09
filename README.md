@@ -9,7 +9,7 @@ A package for counterfactual explanations (CE) and algorithmic recourse (AR) in 
 
 ## Installation
 
-The package is in early development and not yet registered. In the meantime it can be installed as follows:
+The package is in its early stages of development and not yet registered. In the meantime it can be installed as follows:
 
 ```julia
 using Pkg; Pkg.clone("https://github.com/pat-alt/AlgorithmicRecourse.jl.git")

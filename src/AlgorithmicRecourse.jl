@@ -1,5 +1,12 @@
 module AlgorithmicRecourse
 
-# Write your package code here.
+# Dependencies:
+using Flux
+
+# Exported functions:
 
 end
+
+# Scripts:
+include("generators.jl")
+include("loss.jl")
