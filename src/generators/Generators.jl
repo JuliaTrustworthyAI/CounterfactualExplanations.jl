@@ -3,39 +3,13 @@
 # Core package functionality that implements algorithmic recourse.
 module Generators
 
-include("Models.jl")
-using .Models
+using ..Models
+
+export 
+    Generator
 
 # --------------- Base type for generator:
 abstract type Generator end
-
-# -------- Main method:
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
-    
-    # Setup and allocate memory:
-    x̲ = copy(x̅) # start from factual
-    D = length(x̲)
-    path = reshape(x̲, 1, length(x̲)) # storing the path
-
-    # Initialize:
-    t = 1 # counter
-    converged = convergence(generator, x̲, 𝓜, target, x̅) 
-
-    # Search:
-    while !converged && t < T 
-        x̲ = step(generator, x̲, 𝓜, target, x̅, 𝓘)
-        t += 1 # update number of times feature is changed
-        converged = convergence(generator, x̲, 𝓜, target, x̅) # check if converged
-        path = vcat(path, reshape(x̲, 1, D))
-    end
-
-    # Output:
-    y̲ = round.(probs(𝓜, x̲))[1]
-    recourse = Recourse(x̲, y̲, path, generator, 𝓘, x̅, 𝓜, target) 
-    
-    return recourse
-    
-end
 
 # --------------- Specific generators:
 

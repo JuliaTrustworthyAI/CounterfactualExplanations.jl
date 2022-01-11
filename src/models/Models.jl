@@ -1,6 +1,8 @@
-module Models
 # --------------- Base type for model:
+module Models
+
 abstract type FittedModel end
+
 
 # -------- Linear model:
 # This is an example of how to construct a FittedModel subtype:
