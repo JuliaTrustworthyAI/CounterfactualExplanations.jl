@@ -1,11 +1,14 @@
 # recourse.jl
 
 struct Recourse
-    x̲::Vector{Float64}
+    x̲::AbstractArray
     y̲::Float64
     path::Matrix{Float64}
     generator::Generator
     immutable::AbstractArray
+    x̅::AbstractArray
+    𝓜::FittedModel
+    target::Float64
 end;
 
 # --------------- Outer constructor methods: 

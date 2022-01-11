@@ -3,10 +3,12 @@
 # Core package functionality that implements algorithmic recourse.
 
 # --------------- Base type for generator:
+using Flux
+
 abstract type Generator end
 
 # -------- Main method:
-function generate_recourse(generator::Generator, x̅::Vector{x}, 𝓜::Function, target::Float64; T=1000, 𝓘=[])
+function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::FittedModel, target::Float64; T=1000, 𝓘=[])
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
@@ -15,7 +17,7 @@ function generate_recourse(generator::Generator, x̅::Vector{x}, 𝓜::Function,
 
     # Initialize:
     t = 1 # counter
-    converged = convergence(generator, x̲, 𝓜, target, x̅)
+    converged = convergence(generator, x̲, 𝓜, target, x̅) 
 
     # Search:
     while !converged && t < T 
@@ -26,8 +28,8 @@ function generate_recourse(generator::Generator, x̅::Vector{x}, 𝓜::Function,
     end
 
     # Output:
-    y̲ = 𝓜(x̲)
-    recourse = Recourse(x̲, y̲, path, generator, immutable_, x̅, 𝓜, target) 
+    y̲ = round.(probs(𝓜, x̲))
+    recourse = Recourse(x̲, y̲, path, generator, 𝓘, x̅, 𝓜, target) 
     
     return recourse
     
@@ -42,19 +44,23 @@ struct GenericGenerator <: Generator
     τ::Float64 # tolerance for convergence
 end
 
-ℓ(generator::GenericGenerator, x, 𝓜, t) = - (t * log(𝛔(𝓜(x))) + (1-t) * log(1-𝛔(𝓜(x))))
-complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅,x̲)
-objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complex(generator, x̅, x̲) 
-∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))
+ℓ(generator::GenericGenerator, x, 𝓜, t) = Flux.Losses.logitbinarycrossentropy(logits(𝓜, x), t)
+complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
+objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
+∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
 
 function step(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘) 
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
+    println(𝐠ₜ)
     𝐠ₜ[𝓘] .= 0 # set gradient of immutable features to zero
+    println(𝐠ₜ)
     return x̲ - (generator.ϵ .* 𝐠ₜ)
 end
 
-function convergence(generator::GenericGenerator, x̅, 𝓜, target, x̲)
-    all(∇(generator, x̲, 𝓜, t, x̅) .< generator.τ)
+function convergence(generator::GenericGenerator, x̲, 𝓜, t, x̅)
+    𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
+    println(𝐠ₜ)
+    all(abs.(𝐠ₜ) .< generator.τ)
 end
 
 # -------- Schut et al (2021):
