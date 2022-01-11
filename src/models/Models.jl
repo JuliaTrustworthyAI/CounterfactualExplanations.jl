@@ -1,6 +1,8 @@
 # --------------- Base type for model:
 module Models
 
+using Flux
+
 abstract type FittedModel end
 
 
