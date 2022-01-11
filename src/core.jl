@@ -21,7 +21,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Model
     end
 
     # Output:
-    y̲ = round.(probs(𝓜, x̲))[1]
+    y̲ = round.(Models.probs(𝓜, x̲))[1]
     recourse = Recourse(x̲, y̲, path, generator, 𝓘, x̅, 𝓜, target) 
     
     return recourse

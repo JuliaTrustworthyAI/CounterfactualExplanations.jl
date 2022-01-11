@@ -20,7 +20,7 @@ struct GenericGenerator <: Generator
     τ::Float64 # tolerance for convergence
 end
 
-ℓ(generator::GenericGenerator, x, 𝓜, t) = Flux.Losses.logitbinarycrossentropy(logits(𝓜, x), t)
+ℓ(generator::GenericGenerator, x, 𝓜, t) = Flux.Losses.logitbinarycrossentropy(Models.logits(𝓜, x), t)
 complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
