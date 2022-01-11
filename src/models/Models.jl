@@ -12,8 +12,8 @@ struct LogisticModel <: FittedModel
 end
 
 # What follows are the two required outer methods:
-logits(ℳ::LogisticModel, X::AbstractArray) =  X * 𝓜.w .+ 𝓜.b
-probs(ℳ::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝓜, X))
+logits(𝓜::LogisticModel, X::AbstractArray) = X * 𝓜.w .+ 𝓜.b
+probs(𝓜::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝓜, X))
 
 # -------- Bayesian model:
 struct BayesianLogisticModel <: FittedModel
