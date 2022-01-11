@@ -28,15 +28,12 @@ objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 
 
 function step(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘) 
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    println(𝐠ₜ)
     𝐠ₜ[𝓘] .= 0 # set gradient of immutable features to zero
-    println(𝐠ₜ)
     return x̲ - (generator.ϵ .* 𝐠ₜ)
 end
 
 function convergence(generator::GenericGenerator, x̲, 𝓜, t, x̅)
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    println(𝐠ₜ)
     all(abs.(𝐠ₜ) .< generator.τ)
 end
 
