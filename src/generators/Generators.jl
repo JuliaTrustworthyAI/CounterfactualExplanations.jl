@@ -5,6 +5,7 @@ module Generators
 
 using ..Models
 using Flux
+using LinearAlgebra
 
 export Generator
 
