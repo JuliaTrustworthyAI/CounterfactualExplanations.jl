@@ -4,6 +4,7 @@
 module Generators
 
 using ..Models
+using Flux
 
 export Generator
 
