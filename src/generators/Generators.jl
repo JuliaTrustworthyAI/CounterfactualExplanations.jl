@@ -5,8 +5,7 @@ module Generators
 
 using ..Models
 
-export 
-    Generator
+export Generator
 
 # --------------- Base type for generator:
 abstract type Generator end

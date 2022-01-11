@@ -10,13 +10,13 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Model
 
     # Initialize:
     t = 1 # counter
-    converged = convergence(generator, x̲, 𝓜, target, x̅) 
+    converged = Generators.convergence(generator, x̲, 𝓜, target, x̅) 
 
     # Search:
     while !converged && t < T 
-        x̲ = step(generator, x̲, 𝓜, target, x̅, 𝓘)
+        x̲ = Generators.step(generator, x̲, 𝓜, target, x̅, 𝓘)
         t += 1 # update number of times feature is changed
-        converged = convergence(generator, x̲, 𝓜, target, x̅) # check if converged
+        converged = Generators.convergence(generator, x̲, 𝓜, target, x̅) # check if converged
         path = vcat(path, reshape(x̲, 1, D))
     end
 
