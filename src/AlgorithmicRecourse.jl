@@ -5,8 +5,7 @@ using Flux
 using LinearAlgebra
 
 # Exported functions:
-export 
-    generate_recourse
+export generate_recourse
 
 # Scripts:
 include("models/Models.jl")
