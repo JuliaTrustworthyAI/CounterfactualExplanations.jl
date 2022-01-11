@@ -1,14 +1,16 @@
 # generators.jl
 #
 # Core package functionality that implements algorithmic recourse.
+module Generators
+
+include("Models.jl")
+using .Models
 
 # --------------- Base type for generator:
-using Flux
-
 abstract type Generator end
 
 # -------- Main method:
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::FittedModel, target::Float64; T=1000, 𝓘=[])
+function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
@@ -86,3 +88,4 @@ function convergence(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
     𝓜.confidence(x̲) .> generator.Γ
 end
 
+end

@@ -1,5 +1,4 @@
-using Flux
-
+module Models
 # --------------- Base type for model:
 abstract type FittedModel end
 
@@ -16,4 +15,5 @@ probs(ℳ::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝓜, X))
 
 # -------- Bayesian model:
 struct BayesianLogisticModel <: FittedModel
+end
 end

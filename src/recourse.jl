@@ -1,13 +1,18 @@
 # recourse.jl
 
+include("Generators.jl")
+using .Generators
+include("Models.jl")
+using .Models
+
 struct Recourse
     x̲::AbstractArray
     y̲::Float64
     path::Matrix{Float64}
-    generator::Generator
+    generator::Generators.Generator
     immutable::AbstractArray
     x̅::AbstractArray
-    𝓜::FittedModel
+    𝓜::Models.FittedModel
     target::Float64
 end;
 
