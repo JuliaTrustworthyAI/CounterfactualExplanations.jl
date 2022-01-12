@@ -19,5 +19,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/pat-alt/AlgorithmicRecourse.jl"
+    repo="github.com/pat-alt/AlgorithmicRecourse.jl",
 )
