@@ -20,4 +20,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/pat-alt/AlgorithmicRecourse.jl",
+    devbranch="main"
 )
