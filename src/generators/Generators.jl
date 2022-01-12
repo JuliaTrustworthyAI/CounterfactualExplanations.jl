@@ -7,7 +7,7 @@ using ..Models
 using Flux
 using LinearAlgebra
 
-export Generator
+export Generator, GenericGenerator
 
 """
     Generator
