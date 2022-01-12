@@ -8,7 +8,3 @@ Documentation for [AlgorithmicRecourse.jl](https://github.com/pat-alt/Algorithmi
 
 ```@index
 ```
-
-```@autodocs
-Modules = [AlgorithmicRecourse]
-```

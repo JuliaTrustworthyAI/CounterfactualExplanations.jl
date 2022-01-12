@@ -7,7 +7,13 @@ using ..Models
 using Flux
 using LinearAlgebra
 
-export Generator
+export Generator, GenericGenerator
+
+"""
+    Generator
+
+An abstract type that serves as the base type for recourse generators. 
+"""
 
 # --------------- Base type for generator:
 abstract type Generator end
@@ -15,6 +21,19 @@ abstract type Generator end
 # --------------- Specific generators:
 
 # -------- Wachter et al (2018): 
+
+"""
+    GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)
+
+A constructor for a generic recourse generator. It takes values for the complexity penalty `λ`, the learning rate `ϵ` and the tolerance for convergence `τ`.
+
+# Examples
+```julia-repl
+generator = GenericGenerator(0.1,0.1,1e-5)
+```
+
+See also [`generate_recourse`](@ref)
+"""
 struct GenericGenerator <: Generator
     λ::Float64 # strength of penalty
     ϵ::Float64 # step size

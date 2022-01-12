@@ -9,4 +9,9 @@ CurrentModule = AlgorithmicRecourse
 
 ```@autodocs
 Modules = [AlgorithmicRecourse]
+Private = false
+```
+
+```@docs
+func(x)
 ```

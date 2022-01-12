@@ -20,7 +20,6 @@ recourse = generate_recourse(generator, x̅, 𝓜, target); # generate recourse
 
 See also [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)`](@ref)
 """
-
 function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
     
     # Setup and allocate memory:

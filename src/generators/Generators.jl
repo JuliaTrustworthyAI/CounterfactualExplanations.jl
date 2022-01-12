@@ -9,19 +9,17 @@ using LinearAlgebra
 
 export Generator, GenericGenerator
 
+# --------------- Base type for generator:
 """
     Generator
 
 An abstract type that serves as the base type for recourse generators. 
 """
-
-# --------------- Base type for generator:
 abstract type Generator end
 
 # --------------- Specific generators:
 
 # -------- Wachter et al (2018): 
-
 """
     GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)
 

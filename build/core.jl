@@ -1,6 +1,26 @@
 # core.jl
 
 # -------- Main method:
+"""
+    generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
+
+Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝓜` and the `target` label. Returns the generated recourse (an object of type `Recourse`).
+
+# Examples
+
+```julia-repl
+w = reshape([1.0,-2.0],2,1) # true coefficients
+b = [0]
+x̅ = [-1,0.5]
+target = 1.0
+𝓜 = AlgorithmicRecourse.Models.LogisticModel(w, b);
+generator = GenericGenerator(0.1,0.1,1e-5)
+recourse = generate_recourse(generator, x̅, 𝓜, target); # generate recourse
+```
+
+See also [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)`](@ref)
+"""
+
 function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
     
     # Setup and allocate memory:
