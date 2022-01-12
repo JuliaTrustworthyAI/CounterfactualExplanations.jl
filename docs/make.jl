@@ -17,7 +17,7 @@ makedocs(;
         "Home" => "index.md",
         "Tutorials" =>
             [
-                "Loss functions and gradients" => "tutorial/loss.md"
+                "Loss functions and gradients" => "tutorials/loss.md"
             ],
         "Reference" => "reference.md"
     ],
