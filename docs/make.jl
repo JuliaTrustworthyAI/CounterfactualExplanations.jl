@@ -15,6 +15,11 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Tutorials" =>
+            [
+                "Loss functions and gradients" => "tutorial/loss.md"
+            ],
+        "Reference" => "reference.md"
     ],
 )
 

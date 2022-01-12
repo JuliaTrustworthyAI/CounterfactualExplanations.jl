@@ -4,7 +4,7 @@ CurrentModule = AlgorithmicRecourse
 
 # AlgorithmicRecourse
 
-Documentation for [AlgorithmicRecourse](https://github.com/pat-alt/AlgorithmicRecourse.jl).
+Documentation for [AlgorithmicRecourse.jl](https://github.com/pat-alt/AlgorithmicRecourse.jl).
 
 ```@index
 ```
