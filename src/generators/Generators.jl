@@ -21,13 +21,14 @@ abstract type Generator end
 
 # -------- Wachter et al (2018): 
 """
-    GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)
+    GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol)
 
-A constructor for a generic recourse generator. It takes values for the complexity penalty `λ`, the learning rate `ϵ` and the tolerance for convergence `τ`.
+A constructor for a generic recourse generator. 
+It takes values for the complexity penalty `λ`, the learning rate `ϵ`, the tolerance for convergence `τ` and the type of `loss` function to be used in the recourse objective. 
 
 # Examples
 ```julia-repl
-generator = GenericGenerator(0.1,0.1,1e-5)
+generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy)
 ```
 
 See also [`generate_recourse`](@ref)
@@ -36,9 +37,10 @@ struct GenericGenerator <: Generator
     λ::Float64 # strength of penalty
     ϵ::Float64 # step size
     τ::Float64 # tolerance for convergence
+    loss::Symbol # loss function
 end
 
-ℓ(generator::GenericGenerator, x, 𝓜, t) = Flux.Losses.logitbinarycrossentropy(Models.logits(𝓜, x), t)
+ℓ(generator::GenericGenerator, x, 𝓜, t) = getfield(Flux.Losses, generator.loss)(Models.logits(𝓜, x), t)
 complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
