@@ -8,10 +8,6 @@ CurrentModule = AlgorithmicRecourse
 ```
 
 ```@autodocs
-Modules = [AlgorithmicRecourse]
+Modules = [AlgorithmicRecourse, AlgorithmicRecourse.Generators]
 Private = false
-```
-
-```@docs
-func(x)
 ```
