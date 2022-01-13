@@ -1,7 +1,7 @@
 # --------------- Base type for model:
 module Models
 
-using Flux
+using Flux, LinearAlgebra
 
 abstract type FittedModel end
 
@@ -76,7 +76,7 @@ Constructs a Bayesian logistic classifier based on maximum a posteriori (MAP) es
 # Examples
 
 ```julia-repl
-using Random
+using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
@@ -99,7 +99,7 @@ Computes logits as `[1 X]μ`.
 # Examples
 
 ```julia-repl
-using Random
+using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
@@ -120,7 +120,7 @@ Computes probabilities from logits as `σ([1 X]μ)` where 'σ' is the [sigmoid f
 # Examples
 
 ```julia-repl
-using Random
+using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
@@ -141,7 +141,7 @@ Computes the confidence (posterior predictive) using a Probit approximation.
 # Examples
 
 ```julia-repl
-using Random
+using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix

@@ -1,8 +1,8 @@
 module Losses
 
-using Flux.Losses: binarycrossentropy, mse, mae
+using Flux.Losses: logitbinarycrossentropy, mse, mae
 
-export binarycrossentropy, mse, mae, hinge_loss
+export logitbinarycrossentropy, mse, mae, hinge_loss
 
 include("functions.jl")
 

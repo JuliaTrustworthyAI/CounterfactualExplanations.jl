@@ -8,7 +8,7 @@ using ..Losses
 using Flux
 using LinearAlgebra
 
-export Generator, GenericGenerator
+export Generator, GenericGenerator, GreedyGenerator
 
 # --------------- Base type for generator:
 """
@@ -41,7 +41,7 @@ struct GenericGenerator <: Generator
     loss::Symbol # loss function
 end
 
-ℓ(generator::GenericGenerator, x, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x), t)
+ℓ(generator::GenericGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
 complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
@@ -59,7 +59,7 @@ end
 
 # -------- Schut et al (2021):
 """
-    GreedyGenerator(Γ::Float64, δ::Float64, n::Int64)
+    GreedyGenerator(Γ::Float64, δ::Float64, n::Int64, loss::Symbol)
 
 Constructs a greedy recourse generator for Bayesian models.
 It takes values for the desired level of confidence `Γ`, the perturbation size `δ`, the maximum number of times `n` that any feature can be changed 
@@ -79,8 +79,8 @@ struct GreedyGenerator <: Generator
     loss::Symbol # loss function
 end
 
-objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x), t)
-∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))
+objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
+∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))[x̲]
 
 function step(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘) 
     𝐠ₜ = ∇(generator, x̲, 𝓜, t)
@@ -91,7 +91,7 @@ function step(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
 end
 
 function convergence(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
-    confidence(x̲, 𝓜) .> generator.Γ
+    Models.confidence(𝓜, x̲)[1] > generator.Γ
 end
 
 end
