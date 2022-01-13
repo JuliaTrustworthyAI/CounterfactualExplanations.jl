@@ -4,6 +4,7 @@
 module Generators
 
 using ..Models
+using ..Losses
 using Flux
 using LinearAlgebra
 
@@ -31,7 +32,7 @@ It takes values for the complexity penalty `λ`, the learning rate `ϵ`, the tol
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy)
 ```
 
-See also [`generate_recourse`](@ref)
+See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])`](@ref).
 """
 struct GenericGenerator <: Generator
     λ::Float64 # strength of penalty
@@ -40,7 +41,7 @@ struct GenericGenerator <: Generator
     loss::Symbol # loss function
 end
 
-ℓ(generator::GenericGenerator, x, 𝓜, t) = getfield(Flux.Losses, generator.loss)(Models.logits(𝓜, x), t)
+ℓ(generator::GenericGenerator, x, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x), t)
 complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
@@ -57,14 +58,28 @@ function convergence(generator::GenericGenerator, x̲, 𝓜, t, x̅)
 end
 
 # -------- Schut et al (2021):
+"""
+    GreedyGenerator(Γ::Float64, δ::Float64, n::Int64)
+
+Constructs a greedy recourse generator for Bayesian models.
+It takes values for the desired level of confidence `Γ`, the perturbation size `δ`, the maximum number of times `n` that any feature can be changed 
+and the type of `loss` function to be used in the recourse objective. 
+
+# Examples
+```julia-repl
+generator = GreedyGenerator(0.95,0.01,20,:logitbinarycrossentropy)
+```
+
+See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])`](@ref).
+"""
 struct GreedyGenerator <: Generator
     Γ::Float64 # desired level of confidence 
     δ::Float64 # perturbation size
     n::Int64 # maximum number of times any feature can be changed
+    loss::Symbol # loss function
 end
 
-ℓ(generator::GreedyGenerator, x, 𝓜, t) = - (t * log(𝛔(𝓜(x))) + (1-t) * log(1-𝛔(𝓜(x))))
-objective(generator::GreedyGenerator, x̲, 𝓜, t) = ℓ(generator, x̲, 𝓜, t) 
+objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x), t)
 ∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))
 
 function step(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘) 
@@ -76,7 +91,7 @@ function step(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
 end
 
 function convergence(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
-    𝓜.confidence(x̲) .> generator.Γ
+    confidence(x̲, 𝓜) .> generator.Γ
 end
 
 end

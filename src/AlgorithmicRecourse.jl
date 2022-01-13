@@ -11,6 +11,9 @@ include("generators/Generators.jl")
 using .Generators
 export Generator, GenericGenerator
 
+include("losses/Losses.jl")
+using .Losses
+
 include("core.jl")
 export generate_recourse
 
