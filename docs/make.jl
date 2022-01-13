@@ -19,6 +19,7 @@ makedocs(;
             [
                 "Quick start" => "tutorials/quick.md"
             ],
+        "Exports" => "exported.md",
         "Reference" => "reference.md"
     ],
 )
