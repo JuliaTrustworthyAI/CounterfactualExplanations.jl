@@ -77,7 +77,7 @@ end
         target::Float64
     )
 
-    Collects all variables relevant to the recourse outcome.
+Collects all variables relevant to the recourse outcome. 
 """
 struct Recourse
     x̲::AbstractArray
