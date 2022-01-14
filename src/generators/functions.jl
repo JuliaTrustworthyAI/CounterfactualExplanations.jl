@@ -42,7 +42,7 @@ end
 
 function convergence(generator::GenericGenerator, x̲, 𝓜, γ, t, x̅)
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    all(abs.(𝐠ₜ) .< generator.τ) || abs(Models.probs(𝓜, x̲)[1] - γ) <= abs(t-γ)
+    all(abs.(𝐠ₜ) .< generator.τ) || abs(Models.probs(𝓜, x̲)[1] - t) <= abs(t-γ)
 end
 
 # -------- Schut et al (2021):
