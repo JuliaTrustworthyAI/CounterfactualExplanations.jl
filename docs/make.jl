@@ -21,8 +21,8 @@ makedocs(;
             ],
         "Reference" => 
             [
-                "Exported" => "exported.md",
-                "Full references" => "reference.md"
+                "Exported" => "reference/exported.md",
+                "Full references" => "reference/reference.md"
             ]
     ],
 )
