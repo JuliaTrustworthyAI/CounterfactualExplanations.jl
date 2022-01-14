@@ -42,7 +42,7 @@ end
 
 function convergence(generator::GenericGenerator, x̲, 𝓜, γ, t, x̅)
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    all(abs.(𝐠ₜ) .< generator.τ) || Models.probs(𝓜, x̲)[1] >= γ
+    all(abs.(𝐠ₜ) .< generator.τ) || abs(Models.probs(𝓜, x̲)[1] - γ) <= abs(t-γ)
 end
 
 # -------- Schut et al (2021):
@@ -78,5 +78,5 @@ function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
 end
 
 function convergence(generator::GreedyGenerator, x̲, 𝓜, γ, t, x̅)
-    Models.probs(𝓜, x̲)[1] > γ
+    abs(Models.probs(𝓜, x̲)[1] - γ) <= abs(t-γ)
 end
