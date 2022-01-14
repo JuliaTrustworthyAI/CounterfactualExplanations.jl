@@ -2,7 +2,7 @@
 
 # -------- Main method:
 """
-    generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
+    generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64, γ::Float64; T=1000, 𝓘=[])
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝓜`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
@@ -48,14 +48,14 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Model
 
     # Initialize:
     t = 1 # counter
-    converged = Generators.convergence(generator, x̲, 𝓜, γ, target, x̅) 
+    not_converged = true # convergence condition
 
     # Search:
-    while !converged && t < T 
+    while not_converged
         x̲ = Generators.update_recourse(generator, x̲, 𝓜, target, x̅, 𝓘)
         t += 1 # update number of times feature is changed
-        converged = Generators.convergence(generator, x̲, 𝓜, γ, target, x̅) # check if converged
         path = vcat(path, reshape(x̲, 1, D))
+        not_converged = t < T && !threshold_reached(𝓜, x̲, target, γ) && !Generators.condtions_satisified(generator, x̲, 𝓜, target, x̅)
     end
 
     # Output:
@@ -65,6 +65,13 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Model
     return recourse
     
 end
+
+"""
+    threshold_reached(𝓜::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64)
+
+Checks if confidence threshold has been reached. 
+"""
+threshold_reached(𝓜::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64) = abs(Models.probs(𝓜, x̲)[1] - target) <= abs(target-γ)
 
 """
     Recourse(x̲::AbstractArray, y̲::Float64, path::Matrix{Float64}, generator::Generators.Generator, 𝓘::AbstractArray, x̅::AbstractArray, y̅::Float64, 𝓜::Models.FittedModel, target::Float64)

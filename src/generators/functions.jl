@@ -40,9 +40,9 @@ function update_recourse(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘)
     return x̲ - (generator.ϵ .* 𝐠ₜ)
 end
 
-function convergence(generator::GenericGenerator, x̲, 𝓜, γ, t, x̅)
+function condtions_satisified(generator::GenericGenerator, x̲, 𝓜, t, x̅)
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    all(abs.(𝐠ₜ) .< generator.τ) || abs(Models.probs(𝓜, x̲)[1] - t) <= abs(t-γ)
+    all(abs.(𝐠ₜ) .< generator.τ) 
 end
 
 # -------- Schut et al (2021):
@@ -77,6 +77,6 @@ function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
     return x̲
 end
 
-function convergence(generator::GreedyGenerator, x̲, 𝓜, γ, t, x̅)
-    abs(Models.probs(𝓜, x̲)[1] - t) <= abs(t-γ)
+function condtions_satisified(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
+    return true # Greedy generator only requires confidence threshold to be met
 end
