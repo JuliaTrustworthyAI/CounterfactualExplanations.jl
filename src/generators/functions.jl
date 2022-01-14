@@ -29,7 +29,7 @@ struct GenericGenerator <: Generator
     loss::Symbol # loss function
 end
 
-ℓ(generator::GenericGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.probs(𝓜, x̲), t)
+ℓ(generator::GenericGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
 complexity(x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
@@ -40,34 +40,33 @@ function update_recourse(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘)
     return x̲ - (generator.ϵ .* 𝐠ₜ)
 end
 
-function convergence(generator::GenericGenerator, x̲, 𝓜, t, x̅)
+function convergence(generator::GenericGenerator, x̲, 𝓜, γ, t, x̅)
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
-    all(abs.(𝐠ₜ) .< generator.τ)
+    all(abs.(𝐠ₜ) .< generator.τ) || Models.probs(𝓜, x̲)[1] >= γ
 end
 
 # -------- Schut et al (2021):
 """
-    GreedyGenerator(Γ::Float64, δ::Float64, n::Int64, loss::Symbol)
+    GreedyGenerator(δ::Float64, n::Int64, loss::Symbol)
 
 Constructs a greedy recourse generator for Bayesian models.
-It takes values for the desired level of confidence `Γ`, the perturbation size `δ`, the maximum number of times `n` that any feature can be changed 
+It takes values for the perturbation size `δ`, the maximum number of times `n` that any feature can be changed 
 and the type of `loss` function to be used in the recourse objective. 
 
 # Examples
 ```julia-repl
-generator = GreedyGenerator(0.95,0.01,20,:logitbinarycrossentropy)
+generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy)
 ```
 
 See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])`](@ref).
 """
 struct GreedyGenerator <: Generator
-    Γ::Float64 # desired level of confidence 
     δ::Float64 # perturbation size
     n::Int64 # maximum number of times any feature can be changed
     loss::Symbol # loss function
 end
 
-objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.probs(𝓜, x̲), t)
+objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
 ∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))[x̲]
 
 function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘) 
@@ -78,6 +77,6 @@ function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
     return x̲
 end
 
-function convergence(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
-    Models.confidence(𝓜, x̲)[1] > generator.Γ
+function convergence(generator::GreedyGenerator, x̲, 𝓜, γ, t, x̅)
+    Models.probs(𝓜, x̲)[1] > γ
 end

@@ -53,7 +53,7 @@ logits(𝓜::LogisticModel, X::AbstractArray) = X * 𝓜.w .+ 𝓜.b
 """
     probs(𝓜::LogisticModel, X::AbstractArray)
 
-Computes probabilities from logits as `σ(Xw+b)` where 'σ' is the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). 
+Computes predictive probabilities from logits as `σ(Xw+b)` where 'σ' is the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). 
 
 # Examples
 
@@ -120,7 +120,7 @@ logits(𝓜::BayesianLogisticModel, X::AbstractArray) = hcat(1, X) * 𝓜.μ
 """
     probs(𝓜::BayesianLogisticModel, X::AbstractArray)
 
-Computes probabilities from logits as `σ([1 X]μ)` where 'σ' is the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). 
+Computes predictive probabilities using a Probit approximation. 
 
 # Examples
 
@@ -136,28 +136,7 @@ probs(𝓜, x)
 
 See also [`BayesianLogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
 """
-probs(𝓜::BayesianLogisticModel, X::AbstractArray) = Flux.σ.(logits(𝓜, X))
-
-"""
-    confidence(𝓜::BayesianLogisticModel, X::AbstractArray)
-
-Computes the confidence (posterior predictive) using a Probit approximation. 
-
-# Examples
-
-```julia-repl
-using Random, LinearAlgebra
-Random.seed!(1234)
-μ = [0, 1.0,-2.0] # MAP coefficients
-Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝓜 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
-x = reshape([1,1],1,2)
-confidence(𝓜, x)
-```
-
-See also [`BayesianLogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
-"""
-function confidence(𝓜::BayesianLogisticModel, X::AbstractArray)
+function probs(𝓜::BayesianLogisticModel, X::AbstractArray)
     μ = 𝓜.μ # MAP mean vector
     Σ = 𝓜.Σ # MAP covariance matrix
     if !isa(X, Matrix)
