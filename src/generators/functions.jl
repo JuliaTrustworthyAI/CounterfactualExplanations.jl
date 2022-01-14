@@ -34,7 +34,7 @@ complexity(x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
 
-function step(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘) 
+function update_recourse(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘) 
     𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
     𝐠ₜ[𝓘] .= 0 # set gradient of immutable features to zero
     return x̲ - (generator.ϵ .* 𝐠ₜ)
@@ -70,7 +70,7 @@ end
 objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.probs(𝓜, x̲), t)
 ∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))[x̲]
 
-function step(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘) 
+function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘) 
     𝐠ₜ = ∇(generator, x̲, 𝓜, t)
     𝐠ₜ[𝓘] .= 0 # set gradient of immutable features to zero
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
