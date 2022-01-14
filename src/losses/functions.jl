@@ -7,5 +7,5 @@ Uses [Flux.Losses.hinge_loss](https://fluxml.ai/Flux.jl/stable/models/losses/#Fl
 """
 function hinge_loss(ŷ, y)
     h(y) = ifelse(y==0,-1,1) # adapt in case labels are in {0,1}
-    return Flux.Losses.hinge_loss(ŷ, z(y))
+    return Flux.Losses.hinge_loss(ŷ, h(y))
 end
