@@ -5,6 +5,7 @@ CurrentModule = AlgorithmicRecourse
 # Exported functions and types
 
 ```@index
+Private = false
 ```
 
 ```@autodocs

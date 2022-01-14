@@ -34,7 +34,7 @@ generator = GreedyGenerator(0.95,0.01,20,:logitbinarycrossentropy)
 recourse = generate_recourse(generator, x̅, 𝓜, target); # generate recourse
 ```
 
-See also [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64)`](@ref), [`GreedyGenerator(Γ::Float64, δ::Float64, n::Int64, loss::Symbol)`](@ref).
+See also [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol)`](@ref), [`GreedyGenerator(Γ::Float64, δ::Float64, n::Int64, loss::Symbol)`](@ref).
 """
 function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000, 𝓘=[])
     
@@ -65,17 +65,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Model
 end
 
 """
-    Recourse(
-        x̲::AbstractArray
-        y̲::Float64
-        path::Matrix{Float64}
-        generator::Generators.Generator
-        𝓘::AbstractArray
-        x̅::AbstractArray
-        y̅::Float64
-        𝓜::Models.FittedModel
-        target::Float64
-    )
+    Recourse(x̲::AbstractArray, y̲::Float64, path::Matrix{Float64}, generator::Generators.Generator, 𝓘::AbstractArray, x̅::AbstractArray, y̅::Float64, 𝓜::Models.FittedModel, target::Float64)
 
 Collects all variables relevant to the recourse outcome. 
 """

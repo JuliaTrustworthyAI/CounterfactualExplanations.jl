@@ -42,8 +42,8 @@ struct GenericGenerator <: Generator
 end
 
 ℓ(generator::GenericGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
-complexity(generator::GenericGenerator, x̅, x̲) = norm(x̅-x̲)
-objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(generator, x̅, x̲) 
+complexity(x̅, x̲) = norm(x̅-x̲)
+objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(x̅, x̲) 
 ∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
 
 function step(generator::GenericGenerator, x̲, 𝓜, t, x̅, 𝓘) 

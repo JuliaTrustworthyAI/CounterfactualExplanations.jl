@@ -21,7 +21,9 @@ b = [0] # estimated constant
 𝓜 = AlgorithmicRecourse.Models.LogisticModel(w, b);
 ```
 
-See also [`logits(𝓜::LogisticModel, X::AbstractArray)`](@ref), [`probs(𝓜::LogisticModel, X::AbstractArray)`](@ref).
+See also: 
+- [`logits(𝓜::LogisticModel, X::AbstractArray)`](@ref)
+- [`probs(𝓜::LogisticModel, X::AbstractArray)`](@ref)
 """
 struct LogisticModel <: FittedModel
     w::AbstractArray
@@ -83,7 +85,10 @@ Random.seed!(1234)
 𝓜 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
 ```
 
-See also [`logits(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref), [`probs(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref).
+See also:
+- [`logits(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`probs(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`confidence(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
 struct BayesianLogisticModel <: FittedModel
     μ::AbstractArray

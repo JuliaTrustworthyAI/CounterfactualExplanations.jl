@@ -2,7 +2,7 @@
 CurrentModule = AlgorithmicRecourse 
 ```
 
-# Complete reference
+# All functions and types
 
 ```@index
 ```
