@@ -78,5 +78,5 @@ function update_recourse(generator::GreedyGenerator, x̲, 𝓜, t, x̅, 𝓘)
 end
 
 function convergence(generator::GreedyGenerator, x̲, 𝓜, γ, t, x̅)
-    abs(Models.probs(𝓜, x̲)[1] - γ) <= abs(t-γ)
+    abs(Models.probs(𝓜, x̲)[1] - t) <= abs(t-γ)
 end
