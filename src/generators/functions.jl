@@ -33,22 +33,17 @@ end
 ℓ(generator::GenericGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
 complexity(x̅, x̲) = norm(x̅-x̲)
 objective(generator::GenericGenerator, x̲, 𝑴, t, x̅) = ℓ(generator, x̲, 𝑴, t) + generator.λ * complexity(x̅, x̲) 
+
 ∇(generator::GenericGenerator, x̲, 𝑴, t, x̅) = gradient(() -> objective(generator, x̲, 𝑴, t, x̅), params(x̲))[x̲]
 
-function generate_perturbations(generator::GenericGenerator, x̲, 𝑴, t, x̅) 
+function generate_perturbations(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
     𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
     Δx̲ = - (generator.ϵ .* 𝐠ₜ) # gradient step
     return Δx̲
 end
 
 function mutability_constraints(generator::GenericGenerator, 𝑷)
-    d = length(𝑷)
-    if isnothing(generator.𝑭)
-        𝑭 = [:both for i in 1:d]
-    else 
-        𝑭 = generator.𝑭
-    end
-    return 𝑭
+    return generator.𝑭  # no additional constraints for GenericGenerator
 end 
 
 function conditions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑷)
@@ -78,10 +73,11 @@ struct GreedyGenerator <: Generator
 end
 
 objective(generator::GreedyGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
-∇(generator::GreedyGenerator, x̲, 𝑴, t) = gradient(() -> objective(generator, x̲, 𝑴, t), params(x̲))[x̲]
+∇(generator::GreedyGenerator, x̲, 𝑴, t, x̅) = gradient(() -> objective(generator, x̲, 𝑴, t), params(x̲))[x̲]
 
-function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅) 
-    𝐠ₜ = ∇(generator, x̲, 𝑴, t) # gradient
+function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
+    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
+    𝐠ₜ[𝑭ₜ .== :none] .= 0
     Δx̲ = reshape(zeros(length(x̲)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
     Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
@@ -89,14 +85,9 @@ function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅)
 end
 
 function mutability_constraints(generator::GreedyGenerator, 𝑷)
-    d = length(𝑷)
-    if isnothing(generator.𝑭)
-        𝑭 = [:both for i in 1:d]
-    else 
-        𝑭 = generator.𝑭
-    end
-    𝑭[𝑷 .>= generator.n] .= :none
-    return 𝑭
+    𝑭ₜ = generator.𝑭
+    𝑭ₜ[𝑷 .>= generator.n] .= :none # constraints features that have already been exhausted
+    return 𝑭ₜ
 end 
 
 function conditions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)

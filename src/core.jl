@@ -46,6 +46,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
     D = length(x̲)
     path = reshape(x̲, 1, length(x̲)) # storing the path
     𝑷 = zeros(D) # vector to keep track of number of permutations by feature
+    𝑭ₜ = initialize_mutability(generator) 
 
     # Initialize:
     t = 1 # counter
@@ -55,9 +56,9 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
     while not_converged
 
         # Generate peturbations
-        Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target, x̅)
-        𝑭 = mutability_constraints(generator, 𝑷) # generate mutibility constraint mask
-        Δx̲ = reshape(apply_mutability(Δx̲, 𝑭), size(x̲)) # apply mutability constraints
+        Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target, x̅, 𝑭ₜ)
+        𝑭ₜ = Generators.mutability_constraints(generator, 𝑷) # generate mutibility constraint mask
+        Δx̲ = reshape(apply_mutability(Δx̲, 𝑭ₜ), size(x̲)) # apply mutability constraints
         
         # Updates:
         x̲ += Δx̲ # update counterfactual
@@ -110,6 +111,16 @@ function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
 
     return Δx̲
 
+end
+
+function initialize_mutability(generator::Generator)
+    d = length(generator.𝑭)
+    if isnothing(generator.𝑭)
+        𝑭 = [:both for i in 1:d]
+    else 
+        𝑭 = generator.𝑭
+    end
+    return 𝑭
 end
 
 """
