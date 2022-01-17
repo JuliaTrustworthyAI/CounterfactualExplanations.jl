@@ -64,7 +64,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
         path = vcat(path, reshape(x̲, 1, D)) # update counterfactual path
         𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
         t += 1 # update iteration counter
-        not_converged = t < T && !threshold_reached(𝑴, x̲, target, γ) && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅)
+        not_converged = t < T && !threshold_reached(𝑴, x̲, target, γ) && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅, 𝑷)
 
     end
 
