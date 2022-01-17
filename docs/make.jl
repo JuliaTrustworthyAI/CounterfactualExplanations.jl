@@ -17,7 +17,7 @@ makedocs(;
         "Home" => "index.md",
         "Tutorials" =>
             [
-                "Quick start" => "tutorials/quick.md"
+                "Generate recourse" => "tutorials/generate_recourse.md"
             ],
         "Reference" => 
             [
