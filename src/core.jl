@@ -114,8 +114,8 @@ function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
 end
 
 function initialize_mutability(generator::Generator)
-    d = length(generator.𝑭)
     if isnothing(generator.𝑭)
+        d = length(generator.𝑭)
         𝑭 = [:both for i in 1:d]
     else 
         𝑭 = generator.𝑭
