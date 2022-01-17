@@ -142,7 +142,7 @@ function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
     if !isa(X, Matrix)
         X = reshape(X, 1, length(X))
     end
-    X = hcat(1, X) # add for constant
+    X = hcat(ones(size(X)[1]), X) # add for constant
     # Inner product:
     z = X*μ
     # Probit approximation
