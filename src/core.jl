@@ -46,7 +46,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
     D = length(x̲)
     path = reshape(x̲, 1, length(x̲)) # storing the path
     𝑷 = zeros(D) # vector to keep track of number of permutations by feature
-    𝑭ₜ = initialize_mutability(generator) 
+    𝑭ₜ = initialize_mutability(generator, D) 
 
     # Initialize:
     t = 1 # counter
@@ -113,10 +113,9 @@ function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
 
 end
 
-function initialize_mutability(generator::Generator)
+function initialize_mutability(generator::Generator, D::Int64)
     if isnothing(generator.𝑭)
-        d = length(generator.𝑭)
-        𝑭 = [:both for i in 1:d]
+        𝑭 = [:both for i in 1:D]
     else 
         𝑭 = generator.𝑭
     end
