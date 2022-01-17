@@ -20,7 +20,7 @@ A constructor for a generic recourse generator. It takes values for the complexi
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 ```
 
-See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000)`](@ref).
+See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref).
 """
 struct GenericGenerator <: Generator
     λ::Float64 # strength of penalty
@@ -30,13 +30,13 @@ struct GenericGenerator <: Generator
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
 
-ℓ(generator::GenericGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
+ℓ(generator::GenericGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
 complexity(x̅, x̲) = norm(x̅-x̲)
-objective(generator::GenericGenerator, x̲, 𝓜, t, x̅) = ℓ(generator, x̲, 𝓜, t) + generator.λ * complexity(x̅, x̲) 
-∇(generator::GenericGenerator, x̲, 𝓜, t, x̅) = gradient(() -> objective(generator, x̲, 𝓜, t, x̅), params(x̲))[x̲]
+objective(generator::GenericGenerator, x̲, 𝑴, t, x̅) = ℓ(generator, x̲, 𝑴, t) + generator.λ * complexity(x̅, x̲) 
+∇(generator::GenericGenerator, x̲, 𝑴, t, x̅) = gradient(() -> objective(generator, x̲, 𝑴, t, x̅), params(x̲))[x̲]
 
-function generate_perturbations(generator::GenericGenerator, x̲, 𝓜, t, x̅) 
-    𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅) # gradient
+function generate_perturbations(generator::GenericGenerator, x̲, 𝑴, t, x̅) 
+    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
     Δx̲ = - (generator.ϵ .* 𝐠ₜ) # gradient step
     return Δx̲
 end
@@ -51,8 +51,8 @@ function mutability_constraints(generator::GenericGenerator, 𝑷)
     return 𝑭
 end 
 
-function condtions_satisified(generator::GenericGenerator, x̲, 𝓜, t, x̅)
-    𝐠ₜ = ∇(generator, x̲, 𝓜, t, x̅)
+function condtions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑷)
+    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅)
     all(abs.(𝐠ₜ) .< generator.τ) 
 end
 
@@ -68,7 +68,7 @@ Constructs a greedy recourse generator for Bayesian models. It takes values for 
 generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
 ```
 
-See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝓜::Models.FittedModel, target::Float64; T=1000)`](@ref).
+See also [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref).
 """
 struct GreedyGenerator <: Generator
     δ::Float64 # perturbation size
@@ -77,11 +77,11 @@ struct GreedyGenerator <: Generator
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
 
-objective(generator::GreedyGenerator, x̲, 𝓜, t) = getfield(Losses, generator.loss)(Models.logits(𝓜, x̲), t)
-∇(generator::GreedyGenerator, x̲, 𝓜, t) = gradient(() -> objective(generator, x̲, 𝓜, t), params(x̲))[x̲]
+objective(generator::GreedyGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
+∇(generator::GreedyGenerator, x̲, 𝑴, t) = gradient(() -> objective(generator, x̲, 𝑴, t), params(x̲))[x̲]
 
-function generate_perturbations(generator::GreedyGenerator, x̲, 𝓜, t, x̅) 
-    𝐠ₜ = ∇(generator, x̲, 𝓜, t) # gradient
+function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅) 
+    𝐠ₜ = ∇(generator, x̲, 𝑴, t) # gradient
     Δx̲ = reshape(zeros(length(x̲)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
     Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
@@ -99,6 +99,7 @@ function mutability_constraints(generator::GreedyGenerator, 𝑷)
     return 𝑭
 end 
 
-function condtions_satisified(generator::GreedyGenerator, x̲, 𝓜, t, x̅)
-    return true # Greedy generator only requires confidence threshold to be met
+function condtions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)
+    feature_changes_exhausted = all(𝑷.>=generator.n)
+    return !feature_changes_exhausted 
 end

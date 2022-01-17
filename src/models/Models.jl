@@ -18,12 +18,12 @@ Constructs a logistic classifier based on arrays containing coefficients `w` and
 ```julia-repl
 w = [1.0,-2.0] # estimated coefficients
 b = [0] # estimated constant
-𝓜 = AlgorithmicRecourse.Models.LogisticModel(w, b);
+𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
 ```
 
 See also: 
-- [`logits(𝓜::LogisticModel, X::AbstractArray)`](@ref)
-- [`probs(𝓜::LogisticModel, X::AbstractArray)`](@ref)
+- [`logits(𝑴::LogisticModel, X::AbstractArray)`](@ref)
+- [`probs(𝑴::LogisticModel, X::AbstractArray)`](@ref)
 """
 struct LogisticModel <: FittedModel
     w::AbstractArray
@@ -32,7 +32,7 @@ end
 
 # What follows are the two required outer methods:
 """
-    logits(𝓜::LogisticModel, X::AbstractArray)
+    logits(𝑴::LogisticModel, X::AbstractArray)
 
 Computes logits as `Xw+b`.
 
@@ -41,17 +41,17 @@ Computes logits as `Xw+b`.
 ```julia-repl
 w = [1.0,-2.0] # estimated coefficients
 b = [0] # estimated constant
-𝓜 = AlgorithmicRecourse.Models.LogisticModel(w, b);
+𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
 x = reshape([1,1],1,2)
-logits(𝓜, x)
+logits(𝑴, x)
 ```
 
 See also [LogisticModel(w::AbstractArray,b::AbstractArray)](@ref).
 """
-logits(𝓜::LogisticModel, X::AbstractArray) = X * 𝓜.w .+ 𝓜.b
+logits(𝑴::LogisticModel, X::AbstractArray) = X * 𝑴.w .+ 𝑴.b
 
 """
-    probs(𝓜::LogisticModel, X::AbstractArray)
+    probs(𝑴::LogisticModel, X::AbstractArray)
 
 Computes predictive probabilities from logits as `σ(Xw+b)` where 'σ' is the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). 
 
@@ -60,14 +60,14 @@ Computes predictive probabilities from logits as `σ(Xw+b)` where 'σ' is the [s
 ```julia-repl
 w = [1.0,-2.0] # estimated coefficients
 b = [0] # estimated constant
-𝓜 = AlgorithmicRecourse.Models.LogisticModel(w, b);
+𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
 x = reshape([1,1],1,2)
-probs(𝓜, x)
+probs(𝑴, x)
 ```
 
 See also [`LogisticModel(w::AbstractArray,b::AbstractArray)`](@ref).
 """
-probs(𝓜::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝓜, X))
+probs(𝑴::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝑴, X))
 
 # -------- Bayesian model:
 """
@@ -82,13 +82,13 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝓜 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
 ```
 
 See also:
-- [`logits(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
-- [`probs(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
-- [`confidence(𝓜::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`logits(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`probs(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`confidence(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
 struct BayesianLogisticModel <: FittedModel
     μ::AbstractArray
@@ -97,7 +97,7 @@ end
 
 # What follows are the three required outer methods:
 """
-    logits(𝓜::BayesianLogisticModel, X::AbstractArray)
+    logits(𝑴::BayesianLogisticModel, X::AbstractArray)
 
 Computes logits as `[1 X]μ`.
 
@@ -108,17 +108,17 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝓜 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
 x = reshape([1,1],1,2)
-logits(𝓜, x)
+logits(𝑴, x)
 ```
 
 See also [`BayesianLogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
 """
-logits(𝓜::BayesianLogisticModel, X::AbstractArray) = hcat(1, X) * 𝓜.μ
+logits(𝑴::BayesianLogisticModel, X::AbstractArray) = hcat(1, X) * 𝑴.μ
 
 """
-    probs(𝓜::BayesianLogisticModel, X::AbstractArray)
+    probs(𝑴::BayesianLogisticModel, X::AbstractArray)
 
 Computes predictive probabilities using a Probit approximation. 
 
@@ -129,16 +129,16 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0, 1.0,-2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝓜 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
 x = reshape([1,1],1,2)
-probs(𝓜, x)
+probs(𝑴, x)
 ```
 
 See also [`BayesianLogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
 """
-function probs(𝓜::BayesianLogisticModel, X::AbstractArray)
-    μ = 𝓜.μ # MAP mean vector
-    Σ = 𝓜.Σ # MAP covariance matrix
+function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
+    μ = 𝑴.μ # MAP mean vector
+    Σ = 𝑴.Σ # MAP covariance matrix
     if !isa(X, Matrix)
         X = reshape(X, 1, length(X))
     end

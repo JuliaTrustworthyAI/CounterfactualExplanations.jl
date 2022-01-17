@@ -12,7 +12,7 @@ using .Losses
 
 include("generators/Generators.jl")
 using .Generators
-export Generator, GenericGenerator, GreedyGenerator, generate_perturbations, condtions_satisified, mutability_constraints
+export Generator, GenericGenerator, GreedyGenerator, generate_perturbations, conditions_satisified, mutability_constraints
 
 include("core.jl")
 export generate_recourse

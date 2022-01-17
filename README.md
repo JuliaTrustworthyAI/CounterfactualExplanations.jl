@@ -16,3 +16,10 @@ using Pkg
 Pkg.add("https://github.com/pat-alt/AlgorithmicRecourse.jl")
 ```
 
+To instead install the development version of the package you can run the following command:
+
+```julia
+using Pkg
+Pkg.add(url="https://github.com/pat-alt/AlgorithmicRecourse.jl", rev="dev")
+```
+
