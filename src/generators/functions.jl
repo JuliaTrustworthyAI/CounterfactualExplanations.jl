@@ -51,7 +51,7 @@ function mutability_constraints(generator::GenericGenerator, 𝑷)
     return 𝑭
 end 
 
-function condtions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑷)
+function conditions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑷)
     𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅)
     all(abs.(𝐠ₜ) .< generator.τ) 
 end
@@ -99,7 +99,7 @@ function mutability_constraints(generator::GreedyGenerator, 𝑷)
     return 𝑭
 end 
 
-function condtions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)
+function conditions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)
     feature_changes_exhausted = all(𝑷.>=generator.n)
     return !feature_changes_exhausted 
 end
