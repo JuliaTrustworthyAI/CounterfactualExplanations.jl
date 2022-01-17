@@ -42,8 +42,8 @@ function generate_perturbations(generator::GenericGenerator, x̲, 𝑴, t, x̅, 
     return Δx̲
 end
 
-function mutability_constraints(generator::GenericGenerator, 𝑷)
-    return generator.𝑭  # no additional constraints for GenericGenerator
+function mutability_constraints(generator::GenericGenerator, 𝑭ₜ, 𝑷)
+    return 𝑭ₜ # no additional constraints for GenericGenerator
 end 
 
 function conditions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑷)
@@ -84,8 +84,7 @@ function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅, �
     return Δx̲
 end
 
-function mutability_constraints(generator::GreedyGenerator, 𝑷)
-    𝑭ₜ = generator.𝑭
+function mutability_constraints(generator::GreedyGenerator, 𝑭ₜ, 𝑷)
     𝑭ₜ[𝑷 .>= generator.n] .= :none # constraints features that have already been exhausted
     return 𝑭ₜ
 end 

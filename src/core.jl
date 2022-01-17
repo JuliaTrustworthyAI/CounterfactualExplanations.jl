@@ -57,7 +57,7 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
 
         # Generate peturbations
         Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target, x̅, 𝑭ₜ)
-        𝑭ₜ = Generators.mutability_constraints(generator, 𝑷) # generate mutibility constraint mask
+        𝑭ₜ = Generators.mutability_constraints(generator, 𝑭ₜ, 𝑷) # generate mutibility constraint mask
         Δx̲ = reshape(apply_mutability(Δx̲, 𝑭ₜ), size(x̲)) # apply mutability constraints
         
         # Updates:
