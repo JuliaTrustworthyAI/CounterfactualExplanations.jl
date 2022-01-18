@@ -2,6 +2,8 @@
 CurrentModule = AlgorithmicRecourse 
 ```
 
+# Generating recourse
+
 
 ```julia
 using Flux
@@ -17,13 +19,7 @@ disable_logging(Logging.Info)
     LogLevel(1)
 
 
-# Generating recourse
-
 To understand the core functionality of AlgorithmicRecourse.jl we will look at two example use cases of the `generate_recourse` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
-
-```@docs
-generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
-```
 
 ## Default generators
 

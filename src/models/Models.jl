@@ -46,7 +46,7 @@ x = reshape([1,1],1,2)
 logits(𝑴, x)
 ```
 
-See also [LogisticModel(w::AbstractArray,b::AbstractArray)](@ref).
+See also [`LogisticModel(w::AbstractArray,b::AbstractArray)`](@ref).
 """
 logits(𝑴::LogisticModel, X::AbstractArray) = X * 𝑴.w .+ 𝑴.b
 
@@ -88,7 +88,6 @@ Random.seed!(1234)
 See also:
 - [`logits(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
 - [`probs(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
-- [`confidence(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
 struct BayesianLogisticModel <: FittedModel
     μ::AbstractArray

@@ -17,7 +17,7 @@ x̅ = reshape([-1,0.5],1,2)
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
-generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy, nothing)
+generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
@@ -32,11 +32,14 @@ x̅ = reshape([-1,0.5],1,2)
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
-generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
+generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
-See also [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol)`](@ref), [`GreedyGenerator(Γ::Float64, δ::Float64, n::Int64, loss::Symbol)`](@ref).
+See also:
+
+- [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
+- [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
 function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
     

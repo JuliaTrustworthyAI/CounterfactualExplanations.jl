@@ -17,13 +17,15 @@ makedocs(;
         "Home" => "index.md",
         "Tutorials" =>
             [
-                "Generate recourse" => "tutorials/generate_recourse.md"
+                "Installation" => "tutorials/install.md",
+                "Quick start" => [
+                    "Binary target" => "tutorials/binary.md",
+                    # "Multi-class target" => "tutorials/multi.md"
+                ],
+                # "Models" => "tutorial/models.md",
+                # "Loss functions" => "tutorials/loss.md"
             ],
-        "Reference" => 
-            [
-                "Exported" => "reference/exported.md",
-                "Full references" => "reference/reference.md"
-            ]
+        "Reference" => "reference.md"
     ],
 )
 
