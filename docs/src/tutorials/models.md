@@ -68,19 +68,20 @@ xs = [xt1s; xt0s]
 X = hcat(xs...) # bring into tabular format
 ts = [ones(2*M); zeros(2*M)]
 
-# Plot data points.
-function plot_data()
-    # x1 = map(e -> e[1], xt1s)
-    # y1 = map(e -> e[2], xt1s)
-    # x2 = map(e -> e[1], xt0s)
-    # y2 = map(e -> e[2], xt0s)
+plt = plot()
 
-    # Plots.scatter(x1,y1, color=1, clim = (0,1), label="y=1")
-    # Plots.scatter!(x2,y2, color=0, clim = (0,1), label="y=0")
-    Plots.scatter(X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+# Plot data points.
+function plot_data!(plt)
+    x1 = map(e -> e[1], xt1s)
+    y1 = map(e -> e[2], xt1s)
+    x2 = map(e -> e[1], xt0s)
+    y2 = map(e -> e[2], xt0s)
+
+    Plots.scatter!(plt, x1,y1, color=1, clim = (0,1), label="y=1")
+    Plots.scatter!(plt, x2,y2, color=0, clim = (0,1), label="y=0")
 end
 
-plt = plot_data();
+plt = plot_data!(plt);
 savefig(plt, "www/models_samples.png")
 ```
 
@@ -154,7 +155,7 @@ y_range = collect(range(-6,stop=6,length=25))
 Z = [σ.(nn([x, y]))[1] for x=x_range, y=y_range]
 function plot_contour(;clegend=true, title="")
     plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+    plot_data!(plt)
 end
 plt = plot_contour();
 savefig(plt, "www/models_contour.png")
@@ -228,7 +229,7 @@ gif(anim, "www/models_generic_recourse.gif", fps=5);
 
 In the context of Bayesian classifiers the `GreedyGenerator` can be used since minimizing the predictive uncertainty acts as a proxy for *realism* and *unambiquity*. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. 
 
-One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks. To this end we can use the `build_model` function from above repeatedly to compose an ensemble of $K$ neural networks:
+One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks (also referred to as *deep ensemble*). To this end we can use the `build_model` function from above repeatedly to compose an ensemble of $K$ neural networks:
 
 
 ```julia
@@ -277,7 +278,7 @@ end
     forward_nn (generic function with 1 method)
 
 
-This wrapper function is used as a subrouting in `forward` below. That function returns a on object of type `FittedEnsemble <: Models.FittedModel` for which we extend the `logits` and `probs` functions.
+This wrapper function is used as a subroutine in `forward` below, which returns are an ensemble of fitted neural networks. The animation below shows the training loss for each of them. As we can see the different networks produce different outcomes: their parameters were initialized at different random values. This is how we introduce stochasticity and hence incorporate uncertainty around our estimates.
 
 
 ```julia
@@ -303,12 +304,8 @@ function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=
     end
 
     return 𝓜, anim
-end
+end;
 ```
-
-
-    forward (generic function with 1 method)
-
 
 
 ```julia
@@ -318,39 +315,38 @@ gif(anim, "www/models_ensemble_loss.gif", fps=50);
 
 ![](www/models_ensemble_loss.gif)
 
+Once again it is straight-forward to make the model compatible with the package. Note that for an ensemble model the predicted logits and probabilities are just averages over predictions produced by all $K$ models.
+
 
 ```julia
+# Step 1)
 struct FittedEnsemble <: Models.FittedModel
     𝓜::AbstractArray
 end
-# logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],1))
-# probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1))
+
+# Step 2)
 logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in 𝑴.𝓜],1)),dims=1)
 probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1)),dims=1)
 
-```
-
-
-    probs (generic function with 4 methods)
-
-
-
-```julia
 𝑴=FittedEnsemble(𝓜);
 ```
+
+Again we plot the predicted probabilities in the feature domain. As expected the ensemble is more *conservative* because it incorporates uncertainty: the predicted probabilities splash out more than before, especially in regions that are not populated by samples.
 
 
 ```julia
 Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
 function plot_contour(;clegend=true, title="")
     plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+    plot_data!(plt)
 end
 plt = plot_contour();
 savefig(plt, "www/models_ensemble_contour.png")
 ```
 
 ![](www/models_ensemble_contour.png)
+
+Finally, we use the `GreedyGenerator` for the counterfactual search. For the same desired threshold $\gamma$ as before, the counterfactual ends up somewhat closer to a cluster of original samples. In other words we end up providing more realisitic albeit likely more costly recourse.
 
 
 ```julia
@@ -362,7 +358,7 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 ```julia
 T = size(recourse.path)[1]
 ŷ = probs(recourse.𝑴, recourse.path')
-p1 = plot_contour(;clegend=false, title="Neural network")
+p1 = plot_contour(;clegend=false, title="Deep Ensemble")
 t = 1
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
