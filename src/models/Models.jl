@@ -71,7 +71,7 @@ probs(𝑴::LogisticModel, X::AbstractArray) = Flux.σ.(logits(𝑴, X))
 
 # -------- Bayesian model:
 """
-    BayesianLogisticModel(w::AbstractArray,b::AbstractArray)
+    BayesianLogisticModel(μ::AbstractArray,Σ::AbstractArray)
 
 Constructs a Bayesian logistic classifier based on maximum a posteriori (MAP) estimates `μ` (coefficients including constant term(s)) and `Σ` (covariance matrix). 
 
