@@ -112,4 +112,82 @@ anim = @animate for t in 1:T
     Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Wednesday 19 January 2022 12:25">Wednesday 19 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p><h3 id="Ensemble-of-neural-networks"><a class="docs-heading-anchor" href="#Ensemble-of-neural-networks">Ensemble of neural networks</a><a id="Ensemble-of-neural-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-of-neural-networks" title="Permalink"></a></h3><p>In the context of Bayesian classifiers the <code>GreedyGenerator</code> can be used since minimizing the predictive uncertainty acts as a proxy for <em>realism</em> and <em>unambiquity</em>. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. </p><p>One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks. To this end we can use the <code>build_model</code> function from above repeatedly to compose an ensemble of <span>$K$</span> neural networks:</p><pre><code class="language-julia hljs">K = 50
+
+function build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
+    ensemble = [build_model(;kw...) for i in 1:K]
+    return ensemble
+end
+
+𝓜 = build_ensemble(K);</code></pre><p>Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:</p><pre><code class="language-julia hljs">function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+
+    avg_l = []
+    
+    for epoch = 1:n_epochs
+      for d in data
+        gs = gradient(params(nn)) do
+          l = loss(d...)
+        end
+        update!(opt, params(nn), gs)
+      end
+      if !isnothing(plotting)
+        plt = plotting[1]
+        anim = plotting[2]
+        idx = plotting[3]
+        avg_loss(data) = mean(map(d -&gt; loss(d[1],d[2]), data))
+        avg_l = vcat(avg_l,avg_loss(data))
+        if epoch % plotting[4]==0
+          plot!(plt, avg_l, color=idx, alpha=0.3)
+          frame(anim, plt)
+        end
+      end
+    end
+    
+end</code></pre><pre><code class="nohighlight hljs">forward_nn (generic function with 1 method)</code></pre><p>This wrapper function is used as a subrouting in <code>forward</code> below. That function returns a on object of type <code>FittedEnsemble &lt;: Models.FittedModel</code> for which we extend the <code>logits</code> and <code>probs</code> functions.</p><pre><code class="language-julia hljs">using Statistics
+
+function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
+
+    anim = nothing
+    if plot_loss
+        anim = Animation()
+        plt = plot(ylim=(0,1), xlim=(0,n_epochs), legend=false, xlab=&quot;Epoch&quot;, title=&quot;Average (training) loss&quot;)
+        for i in 1:length(𝓜)
+            nn = 𝓜[i]
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=(plt, anim, i, plot_every))
+        end
+    else
+        plt = nothing
+        for nn in 𝓜
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plt=plt)
+        end
+    end
+
+    return 𝓜, anim
+end</code></pre><pre><code class="nohighlight hljs">forward (generic function with 1 method)</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
+gif(anim, &quot;www/models_ensemble_loss.gif&quot;, fps=50);</code></pre><p><img src="../www/models_ensemble_loss.gif" alt/></p><pre><code class="language-julia hljs">struct FittedEnsemble &lt;: Models.FittedModel
+    𝓜::AbstractArray
+end
+# logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],1))
+# probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1))
+logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in 𝑴.𝓜],1)),dims=1)
+probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1)),dims=1)
+</code></pre><pre><code class="nohighlight hljs">probs (generic function with 4 methods)</code></pre><pre><code class="language-julia hljs">𝑴=FittedEnsemble(𝓜);</code></pre><pre><code class="language-julia hljs">Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
+function plot_contour(;clegend=true, title=&quot;&quot;)
+    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
+    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+end
+plt = plot_contour();
+savefig(plt, &quot;www/models_ensemble_contour.png&quot;)</code></pre><p><img src="../www/models_ensemble_contour.png" alt/></p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
+recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
+ŷ = probs(recourse.𝑴, recourse.path&#39;)
+p1 = plot_contour(;clegend=false, title=&quot;Neural network&quot;)
+t = 1
+anim = @animate for t in 1:T
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=1)&quot;, title=&quot;Validity&quot;)
+    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, &quot;www/models_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Wednesday 19 January 2022 17:23">Wednesday 19 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
