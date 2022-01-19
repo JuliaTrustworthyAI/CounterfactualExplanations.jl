@@ -223,3 +223,154 @@ gif(anim, "www/models_generic_recourse.gif", fps=5);
 ```
 
 ![](www/models_generic_recourse.gif)
+
+### Ensemble of neural networks
+
+In the context of Bayesian classifiers the `GreedyGenerator` can be used since minimizing the predictive uncertainty acts as a proxy for *realism* and *unambiquity*. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. 
+
+One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks. To this end we can use the `build_model` function from above repeatedly to compose an ensemble of $K$ neural networks:
+
+
+```julia
+K = 50
+
+function build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
+    ensemble = [build_model(;kw...) for i in 1:K]
+    return ensemble
+end
+
+𝓜 = build_ensemble(K);
+```
+
+Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:
+
+
+```julia
+function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+
+    avg_l = []
+    
+    for epoch = 1:n_epochs
+      for d in data
+        gs = gradient(params(nn)) do
+          l = loss(d...)
+        end
+        update!(opt, params(nn), gs)
+      end
+      if !isnothing(plotting)
+        plt = plotting[1]
+        anim = plotting[2]
+        idx = plotting[3]
+        avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+        avg_l = vcat(avg_l,avg_loss(data))
+        if epoch % plotting[4]==0
+          plot!(plt, avg_l, color=idx, alpha=0.3)
+          frame(anim, plt)
+        end
+      end
+    end
+    
+end
+```
+
+
+    forward_nn (generic function with 1 method)
+
+
+This wrapper function is used as a subrouting in `forward` below. That function returns a on object of type `FittedEnsemble <: Models.FittedModel` for which we extend the `logits` and `probs` functions.
+
+
+```julia
+using Statistics
+
+function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
+
+    anim = nothing
+    if plot_loss
+        anim = Animation()
+        plt = plot(ylim=(0,1), xlim=(0,n_epochs), legend=false, xlab="Epoch", title="Average (training) loss")
+        for i in 1:length(𝓜)
+            nn = 𝓜[i]
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=(plt, anim, i, plot_every))
+        end
+    else
+        plt = nothing
+        for nn in 𝓜
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plt=plt)
+        end
+    end
+
+    return 𝓜, anim
+end
+```
+
+
+    forward (generic function with 1 method)
+
+
+
+```julia
+𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
+gif(anim, "www/models_ensemble_loss.gif", fps=50);
+```
+
+![](www/models_ensemble_loss.gif)
+
+
+```julia
+struct FittedEnsemble <: Models.FittedModel
+    𝓜::AbstractArray
+end
+# logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],1))
+# probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1))
+logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in 𝑴.𝓜],1)),dims=1)
+probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1)),dims=1)
+
+```
+
+
+    probs (generic function with 4 methods)
+
+
+
+```julia
+𝑴=FittedEnsemble(𝓜);
+```
+
+
+```julia
+Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
+function plot_contour(;clegend=true, title="")
+    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
+    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+end
+plt = plot_contour();
+savefig(plt, "www/models_ensemble_contour.png")
+```
+
+![](www/models_ensemble_contour.png)
+
+
+```julia
+generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
+recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+```
+
+
+```julia
+T = size(recourse.path)[1]
+ŷ = probs(recourse.𝑴, recourse.path')
+p1 = plot_contour(;clegend=false, title="Neural network")
+t = 1
+anim = @animate for t in 1:T
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
+    Plots.abline!(p2,0,γ,label="threshold γ") # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, "www/models_greedy_recourse.gif", fps=5);
+```
+
+![](www/models_greedy_recourse.gif)
