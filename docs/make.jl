@@ -22,7 +22,7 @@ makedocs(;
                     "Binary target" => "tutorials/binary.md",
                     # "Multi-class target" => "tutorials/multi.md"
                 ],
-                # "Models" => "tutorial/models.md",
+                "Models" => "tutorial/models.md",
                 # "Loss functions" => "tutorials/loss.md"
             ],
         "Reference" => "reference.md"
