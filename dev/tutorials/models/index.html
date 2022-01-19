@@ -24,19 +24,20 @@ xs = [xt1s; xt0s]
 X = hcat(xs...) # bring into tabular format
 ts = [ones(2*M); zeros(2*M)]
 
-# Plot data points.
-function plot_data()
-    # x1 = map(e -&gt; e[1], xt1s)
-    # y1 = map(e -&gt; e[2], xt1s)
-    # x2 = map(e -&gt; e[1], xt0s)
-    # y2 = map(e -&gt; e[2], xt0s)
+plt = plot()
 
-    # Plots.scatter(x1,y1, color=1, clim = (0,1), label=&quot;y=1&quot;)
-    # Plots.scatter!(x2,y2, color=0, clim = (0,1), label=&quot;y=0&quot;)
-    Plots.scatter(X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+# Plot data points.
+function plot_data!(plt)
+    x1 = map(e -&gt; e[1], xt1s)
+    y1 = map(e -&gt; e[2], xt1s)
+    x2 = map(e -&gt; e[1], xt0s)
+    y2 = map(e -&gt; e[2], xt0s)
+
+    Plots.scatter!(plt, x1,y1, color=1, clim = (0,1), label=&quot;y=1&quot;)
+    Plots.scatter!(plt, x2,y2, color=0, clim = (0,1), label=&quot;y=0&quot;)
 end
 
-plt = plot_data();
+plt = plot_data!(plt);
 savefig(plt, &quot;www/models_samples.png&quot;)</code></pre><p><img src="../www/models_samples.png" alt/></p><h4 id="Training-the-model"><a class="docs-heading-anchor" href="#Training-the-model">Training the model</a><a id="Training-the-model-1"></a><a class="docs-heading-anchor-permalink" href="#Training-the-model" title="Permalink"></a></h4><p>Instead we will build a simple artificial neural network <code>nn</code> with one hidden layer. For additional resources on how to do deep learning with <a href="https://fluxml.ai/">Flux.jl</a> just have a look at their documentation. </p><pre><code class="language-julia hljs">function build_model(;input_dim=2,n_hidden=32,output_dim=1)
     
     # Params:
@@ -83,7 +84,7 @@ y_range = collect(range(-6,stop=6,length=25))
 Z = [σ.(nn([x, y]))[1] for x=x_range, y=y_range]
 function plot_contour(;clegend=true, title=&quot;&quot;)
     plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+    plot_data!(plt)
 end
 plt = plot_contour();
 savefig(plt, &quot;www/models_contour.png&quot;)</code></pre><p><img src="../www/models_contour.png" alt/></p><h4 id="Generating-recourse"><a class="docs-heading-anchor" href="#Generating-recourse">Generating recourse</a><a id="Generating-recourse-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-recourse" title="Permalink"></a></h4><p>Now it&#39;s game time: we have a fitted model <span>$M: \mathcal{X} \mapsto y$</span> and are interested in generating recourse for some individual <span>$\overline{x}\in\mathcal{X}$</span>. As mentioned above we need to do a bit more work to prepare the model to be used by AlgorithmicRecourse.jl. </p><p>The code below takes care of all of that: in step 1) it declares our model as a subtype of <code>Models.FittedModel</code> and in step 2) it just extends the two functions. </p><pre><code class="language-julia hljs">using AlgorithmicRecourse, AlgorithmicRecourse.Models
@@ -112,7 +113,7 @@ anim = @animate for t in 1:T
     Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p><h3 id="Ensemble-of-neural-networks"><a class="docs-heading-anchor" href="#Ensemble-of-neural-networks">Ensemble of neural networks</a><a id="Ensemble-of-neural-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-of-neural-networks" title="Permalink"></a></h3><p>In the context of Bayesian classifiers the <code>GreedyGenerator</code> can be used since minimizing the predictive uncertainty acts as a proxy for <em>realism</em> and <em>unambiquity</em>. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. </p><p>One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks. To this end we can use the <code>build_model</code> function from above repeatedly to compose an ensemble of <span>$K$</span> neural networks:</p><pre><code class="language-julia hljs">K = 50
+gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p><h3 id="Ensemble-of-neural-networks"><a class="docs-heading-anchor" href="#Ensemble-of-neural-networks">Ensemble of neural networks</a><a id="Ensemble-of-neural-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-of-neural-networks" title="Permalink"></a></h3><p>In the context of Bayesian classifiers the <code>GreedyGenerator</code> can be used since minimizing the predictive uncertainty acts as a proxy for <em>realism</em> and <em>unambiquity</em>. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. </p><p>One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks (also referred to as <em>deep ensemble</em>). To this end we can use the <code>build_model</code> function from above repeatedly to compose an ensemble of <span>$K$</span> neural networks:</p><pre><code class="language-julia hljs">K = 50
 
 function build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
     ensemble = [build_model(;kw...) for i in 1:K]
@@ -143,7 +144,7 @@ end
       end
     end
     
-end</code></pre><pre><code class="nohighlight hljs">forward_nn (generic function with 1 method)</code></pre><p>This wrapper function is used as a subrouting in <code>forward</code> below. That function returns a on object of type <code>FittedEnsemble &lt;: Models.FittedModel</code> for which we extend the <code>logits</code> and <code>probs</code> functions.</p><pre><code class="language-julia hljs">using Statistics
+end</code></pre><pre><code class="nohighlight hljs">forward_nn (generic function with 1 method)</code></pre><p>This wrapper function is used as a subroutine in <code>forward</code> below, which returns are an ensemble of fitted neural networks. The animation below shows the training loss for each of them. As we can see the different networks produce different outcomes: their parameters were initialized at different random values. This is how we introduce stochasticity and hence incorporate uncertainty around our estimates.</p><pre><code class="language-julia hljs">using Statistics
 
 function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
 
@@ -165,24 +166,26 @@ function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=
     end
 
     return 𝓜, anim
-end</code></pre><pre><code class="nohighlight hljs">forward (generic function with 1 method)</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
-gif(anim, &quot;www/models_ensemble_loss.gif&quot;, fps=50);</code></pre><p><img src="../www/models_ensemble_loss.gif" alt/></p><pre><code class="language-julia hljs">struct FittedEnsemble &lt;: Models.FittedModel
+end;</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
+gif(anim, &quot;www/models_ensemble_loss.gif&quot;, fps=50);</code></pre><p><img src="../www/models_ensemble_loss.gif" alt/></p><p>Once again it is straight-forward to make the model compatible with the package. Note that for an ensemble model the predicted logits and probabilities are just averages over predictions produced by all <span>$K$</span> models.</p><pre><code class="language-julia hljs"># Step 1)
+struct FittedEnsemble &lt;: Models.FittedModel
     𝓜::AbstractArray
 end
-# logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],1))
-# probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1))
+
+# Step 2)
 logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in 𝑴.𝓜],1)),dims=1)
 probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1)),dims=1)
-</code></pre><pre><code class="nohighlight hljs">probs (generic function with 4 methods)</code></pre><pre><code class="language-julia hljs">𝑴=FittedEnsemble(𝓜);</code></pre><pre><code class="language-julia hljs">Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
+
+𝑴=FittedEnsemble(𝓜);</code></pre><p>Again we plot the predicted probabilities in the feature domain. As expected the ensemble is more <em>conservative</em> because it incorporates uncertainty: the predicted probabilities splash out more than before, especially in regions that are not populated by samples.</p><pre><code class="language-julia hljs">Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
 function plot_contour(;clegend=true, title=&quot;&quot;)
     plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    scatter!(plt,X[1,:],X[2,:],color=Int.(ts), clim = (0,1), legend=false)
+    plot_data!(plt)
 end
 plt = plot_contour();
-savefig(plt, &quot;www/models_ensemble_contour.png&quot;)</code></pre><p><img src="../www/models_ensemble_contour.png" alt/></p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
+savefig(plt, &quot;www/models_ensemble_contour.png&quot;)</code></pre><p><img src="../www/models_ensemble_contour.png" alt/></p><p>Finally, we use the <code>GreedyGenerator</code> for the counterfactual search. For the same desired threshold <span>$\gamma$</span> as before, the counterfactual ends up somewhat closer to a cluster of original samples. In other words we end up providing more realisitic albeit likely more costly recourse.</p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
 ŷ = probs(recourse.𝑴, recourse.path&#39;)
-p1 = plot_contour(;clegend=false, title=&quot;Neural network&quot;)
+p1 = plot_contour(;clegend=false, title=&quot;Deep Ensemble&quot;)
 t = 1
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
@@ -190,4 +193,4 @@ anim = @animate for t in 1:T
     Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/models_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Wednesday 19 January 2022 17:24">Wednesday 19 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+gif(anim, &quot;www/models_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Wednesday 19 January 2022 19:22">Wednesday 19 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
