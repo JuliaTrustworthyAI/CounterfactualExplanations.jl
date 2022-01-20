@@ -23,7 +23,7 @@ makedocs(;
                     # "Multi-class target" => "tutorials/multi.md"
                 ],
                 "Models" => "tutorials/models.md",
-                # "Loss functions" => "tutorials/loss.md"
+                "Loss functions" => "tutorials/loss.md"
             ],
         "Reference" => "reference.md"
     ],
