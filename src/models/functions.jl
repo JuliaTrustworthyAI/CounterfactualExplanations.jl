@@ -117,10 +117,10 @@ logits(𝑴, x)
 See also [`BayesianLogisticModel(μ::Matrix,Σ::Matrix)`](@ref)
 """
 function logits(𝑴::BayesianLogisticModel, X::AbstractArray)
-    if !isa(X, Matrix)
+    if !isa(X, AbstractMatrix)
         X = reshape(X, length(X), 1)
     end
-    X = vcat(ones(size(X)[2]), X) # add for constant
+    X = vcat(ones(size(X)[2])', X) # add for constant
     return 𝑴.μ * X
 end
 
@@ -150,10 +150,10 @@ function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
     # Inner product:
     z = logits(𝑴, X)
     # Probit approximation
-    if !isa(X, Matrix)
+    if !isa(X, AbstractMatrix)
         X = reshape(X, length(X), 1)
     end
-    X = vcat(ones(size(X)[2]), X) # add for constant
+    X = vcat(ones(size(X)[2])', X) # add for constant
     v = [X[:,n]'Σ*X[:,n] for n=1:size(X)[2]]
     κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
     z = κ .* z
