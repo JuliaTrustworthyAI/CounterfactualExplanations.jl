@@ -2,7 +2,7 @@
 CurrentModule = AlgorithmicRecourse 
 ```
 
-# Generating recourse
+# Recourse for binary targets
 
 
 ```julia
@@ -40,12 +40,12 @@ Let's generate some toy data:
 # Some random data:
 Random.seed!(1234);
 N = 25
-w = reshape([1.0,-2.0],2,1) # true coefficients
+w = [1.0 -2.0]# true coefficients
 b = 0
-X = reshape(randn(2*N),N,2).*1 # random features
-y = Int.(round.(Flux.σ.(X*w .+ b))); # label based on sigmoid
+X = reshape(randn(2*N),2,N).*1 # random features
+y = Int.(round.(Flux.σ.(w*X .+ b))); # label based on sigmoid
 # Choose sample and plot:
-x̅ = reshape(X[5,:],1,2);
+x̅ = X[:,5];
 ```
 
 For this toy data we will now implement algorithmic recourse as follows:
@@ -69,18 +69,18 @@ Now let's plot the resulting counterfactual path in the 2-D feature space (left)
 
 
 ```julia
-x1 = (minimum(X[:,1])-1):0.1:(maximum(X[:,1])+1)
-x2 = (minimum(X[:,2])-1):0.1:(maximum(X[:,2])+1)
+x1 = (minimum(X[1,:])-1):0.1:(maximum(X[1,:])+1)
+x2 = (minimum(X[2,:])-1):0.1:(maximum(X[2,:])+1)
 p1 = Plots.contourf(
-    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, reshape([x,y],(1,2)))[1],
+    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, [x,y])[1],
     color = :viridis,
     linewidth = 0,
     legend=false
 )
-scatter!(p1,X[:,1],X[:,2],legend=false,color=y,title="Logistic Regression") # features
+scatter!(p1,X[1,:],X[2,:],legend=false,color=y,title="Logistic Regression") # features
 Plots.abline!(p1, -w[1]/w[2],0,color="black") # decision boundary
 T = size(recourse.path)[1]
-probs = AlgorithmicRecourse.Models.probs(recourse.𝑴, recourse.path)
+probs = AlgorithmicRecourse.Models.probs(recourse.𝑴, recourse.path')
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
     p2 = plot(1:t, probs[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
@@ -100,26 +100,55 @@ Next we will repeat the exercise above, but instead use the `GreedyGenerator` in
 ```julia
 using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
-μ = vcat(b, w)
+μ = hcat(b, w)
 𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.1,12,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
+
+
+```julia
+recourse.path
+```
+
+
+    20×2 Matrix{Float64}:
+      0.502334   -0.516984
+      0.502334   -0.416984
+      0.502334   -0.316984
+      0.502334   -0.216984
+      0.502334   -0.116984
+      0.502334   -0.0169836
+      0.502334    0.0830164
+      0.502334    0.183016
+      0.502334    0.283016
+      0.502334    0.383016
+      0.502334    0.483016
+      0.502334    0.583016
+      0.502334    0.683016
+      0.502334    0.683016
+      0.402334    0.683016
+      0.302334    0.683016
+      0.202334    0.683016
+      0.102334    0.683016
+      0.0023345   0.683016
+     -0.0976655   0.683016
+
 
 Once again we plot the resulting counterfactual path (left) and changes in the predicted probability (right). For the Bayesian classifier predicted probabilities splash out: uncertainty increases in regions with few samples. Note how the greedy approach selects the same most salient feature over and over again until its exhausted (i.e. it has been chosen `GreedyGenerator.n` times).
 
 
 ```julia
 p1 = Plots.contourf(
-    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, reshape([x,y],(1,2)))[1],
+    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, [x,y])[1],
     color = :viridis,
     linewidth = 0,
     legend=false
 )
-scatter!(p1,X[:,1],X[:,2],legend=false,color=y,title="Bayesian Logistic Regression") # features
+scatter!(p1,X[1,:],X[2,:],legend=false,color=y,title="Bayesian Logistic Regression") # features
 Plots.abline!(p1, -w[1]/w[2],0,color="black") # decision boundary
 T = size(recourse.path)[1]
-probs = AlgorithmicRecourse.Models.probs(recourse.𝑴, recourse.path)
+probs = AlgorithmicRecourse.Models.logits(recourse.𝑴, recourse.path')
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
     p2 = plot(1:t, probs[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
