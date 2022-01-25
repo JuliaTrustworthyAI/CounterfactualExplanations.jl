@@ -154,9 +154,9 @@ function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
         X = reshape(X, length(X), 1)
     end
     X = vcat(ones(size(X)[2])', X) # add for constant
-    v = [X[:,n]'Σ*X[:,n] for n=1:size(X)[2]]
+    v = [X[:,n]'Σ*X[:,n] for n=1:size(X)[2]]    
     κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
-    z = κ .* z
+    z = κ' .* z
     # Compute probabilities
     p = NNlib.σ.(z)
     return p
