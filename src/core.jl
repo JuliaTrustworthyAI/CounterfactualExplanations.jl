@@ -2,18 +2,18 @@
 
 # -------- Main method:
 """
-    generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+    generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
 # Examples
 
-## Generic generators
+## Generic generator
 
 ```julia-repl
-w = [1.0,-2.0] # true coefficients
+w = [1.0 -2.0] # true coefficients
 b = [0]
-x̅ = reshape([-1,0.5],1,2)
+x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
@@ -21,14 +21,14 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
-## Greedy generator for Bayesian model
+## Greedy generator (Bayesian model only)
 
 ```julia-repl
 using Random, LinearAlgebra
 Random.seed!(1234)
-μ = [0, 1.0,-2.0] # MAP coefficients
+μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-x̅ = reshape([-1,0.5],1,2)
+x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
@@ -41,7 +41,7 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
