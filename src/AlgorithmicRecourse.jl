@@ -17,4 +17,7 @@ export Generator, GenericGenerator, GreedyGenerator, generate_perturbations, con
 include("core.jl")
 export generate_recourse
 
+include("utils.jl")
+export plot_data!, plot_contour, toy_data_linear, toy_data_non_linear, build_model, build_ensemble
+
 end
