@@ -2,18 +2,18 @@
 
 # -------- Main method:
 """
-    generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+    generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
 # Examples
 
-## Generic generators
+## Generic generator
 
 ```julia-repl
-w = [1.0,-2.0] # true coefficients
+w = [1.0 -2.0] # true coefficients
 b = [0]
-x̅ = reshape([-1,0.5],1,2)
+x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
@@ -21,14 +21,14 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
-## Greedy generator for Bayesian model
+## Greedy generator (Bayesian model only)
 
 ```julia-repl
 using Random, LinearAlgebra
 Random.seed!(1234)
-μ = [0, 1.0,-2.0] # MAP coefficients
+μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-x̅ = reshape([-1,0.5],1,2)
+x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
 𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
@@ -41,11 +41,14 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
-    y̅ = round.(Models.probs(𝑴, x̅))[1]
+    p̅ = Models.probs(𝑴, x̅)
+    out_dim = size(p̅)[1]
+    y̅ = Flux.onecold(p̅,1:out_dim) 
+    target_hot = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
     D = length(x̲)
     path = reshape(x̲, 1, length(x̲)) # storing the path
     𝑷 = zeros(D) # vector to keep track of number of permutations by feature
@@ -53,13 +56,13 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
 
     # Initialize:
     t = 1 # counter
-    not_converged = true # convergence condition
+    not_finished = true # convergence condition
 
     # Search:
-    while not_converged
+    while not_finished
 
         # Generate peturbations
-        Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target, x̅, 𝑭ₜ)
+        Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target_hot, x̅, 𝑭ₜ)
         𝑭ₜ = Generators.mutability_constraints(generator, 𝑭ₜ, 𝑷) # generate mutibility constraint mask
         Δx̲ = reshape(apply_mutability(Δx̲, 𝑭ₜ), size(x̲)) # apply mutability constraints
         
@@ -68,16 +71,54 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
         path = vcat(path, reshape(x̲, 1, D)) # update counterfactual path
         𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
         t += 1 # update iteration counter
-        not_converged = t < T && !threshold_reached(𝑴, x̲, target, γ) && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅, 𝑷)
+        global converged = threshold_reached(𝑴, x̲, target, γ)
+        not_finished = t < T && !converged && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅, 𝑷)
 
     end
 
     # Output:
-    y̲ = round.(Models.probs(𝑴, x̲))[1]
-    recourse = Recourse(x̲, y̲, path, generator, x̅, y̅, 𝑴, target) 
+    p̲ = Models.probs(𝑴, x̲)
+    y̲ = Flux.onecold(p̲,1:out_dim)
+    recourse = Recourse(x̲, y̲, p̲, path, generator, x̅, y̅, p̅, 𝑴, target, converged) 
     
     return recourse
     
+end
+
+"""
+    target_probs(p, target)
+
+Selects the probabilities of the target class. In case of binary classification problem `p` reflects the probability that `y=1`. In that case `1-p` reflects the probability that `y=0`.
+
+# Examples
+
+```julia-repl
+using AlgorithmicRecourse
+using AlgorithmicRecourse.Models: LogisticModel, probs 
+Random.seed!(1234)
+N = 25
+w = [1.0 1.0]# true coefficients
+b = 0
+x, y = toy_data_linear(N)
+# Logit model:
+𝑴 = LogisticModel(w, [b])
+p = probs(𝑴, x[rand(N)])
+target_probs(p, 0)
+target_probs(p, 1)
+```
+
+"""
+function target_probs(p, target)
+    if size(p)[1] == 1
+        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
+        p = vcat(1.0 .- p, p)
+        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
+        p_target = p[Int(target+1),:]
+    else
+        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
+        p_target = p[Int(target),:]
+    end
+    return p_target
 end
 
 """
@@ -85,7 +126,7 @@ end
 
 Checks if confidence threshold has been reached. 
 """
-threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64) = abs(Models.probs(𝑴, x̲)[1] - target) <= abs(target-γ)
+threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64) = target_probs(Models.probs(𝑴, x̲), target)[1] >= γ
 
 """
     apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
@@ -132,27 +173,14 @@ Collects all variables relevant to the recourse outcome.
 """
 struct Recourse
     x̲::AbstractArray
-    y̲::Float64
+    y̲::Union{Int,AbstractArray}
+    p̲::Any
     path::Matrix{Float64}
     generator::Generators.Generator
     x̅::AbstractArray
-    y̅::Float64
+    y̅::Union{Int,AbstractArray}
+    p̅::Any
     𝑴::Models.FittedModel
     target::Float64
+    converged::Bool
 end;
-
-# # --------------- Outer constructor methods: 
-# # Check if recourse is valid:
-# function valid(recourse::Recourse; 𝑴=nothing)
-#     if isnothing(𝑴)
-#         valid = recourse.y̲ == recourse.target
-#     else 
-#         valid = 𝑴(recourse.x̲) == recourse.target
-#     end
-#     return valid
-# end
-
-# # Compute cost associated with counterfactual:
-# function cost(recourse::Recourse; cost_fun=nothing, cost_fun_kargs)
-#     return cost_fun(recourse.generator.x̅, recourse.x̲; cost_fun_kargs...)
-# end

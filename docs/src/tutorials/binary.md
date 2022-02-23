@@ -2,15 +2,12 @@
 CurrentModule = AlgorithmicRecourse 
 ```
 
-# Generating recourse
+# Recourse for binary targets
 
 
 ```julia
-using Flux
-using Random
-using Plots
-using PlotThemes
-theme(:juno)
+using Flux, Random, Plots, PlotThemes, AlgorithmicRecourse
+theme(:wong)
 using Logging
 disable_logging(Logging.Info)
 ```
@@ -40,13 +37,16 @@ Let's generate some toy data:
 # Some random data:
 Random.seed!(1234);
 N = 25
-w = reshape([1.0,-2.0],2,1) # true coefficients
+w = [1.0 1.0]# true coefficients
 b = 0
-X = reshape(randn(2*N),N,2).*1 # random features
-y = Int.(round.(Flux.σ.(X*w .+ b))); # label based on sigmoid
-# Choose sample and plot:
-x̅ = reshape(X[5,:],1,2);
+x, y = toy_data_linear(N)
+X = hcat(x...)
+plt = plot()
+plt = plot_data!(plt,X',y);
+savefig(plt, "www/binary_samples.png")
 ```
+
+![](www/binary_samples.png)
 
 For this toy data we will now implement algorithmic recourse as follows:
 
@@ -56,41 +56,54 @@ For this toy data we will now implement algorithmic recourse as follows:
 
 
 ```julia
-using AlgorithmicRecourse
-𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, [b]);
-y̅ = round.(AlgorithmicRecourse.Models.probs(𝑴, x̅))[1]
-target = ifelse(y̅==1.0,0.0,1.0)
-γ = ifelse(target==1.0,0.75,0.25)
+using AlgorithmicRecourse.Models: LogisticModel, probs 
+# Logit model:
+𝑴 = LogisticModel(w, [b])
+# Randomly selected factual:
+Random.seed!(123);
+x̅ = X[:,rand(1:size(X)[2])]
+y̅ = round(probs(𝑴, x̅)[1])
+target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
+γ = 0.75 # desired level of confidence
+```
+
+
+    0.75
+
+
+
+```julia
+# Define Generator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+# Generate recourse:
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
+
+
+```julia
+plt = plot_contour(X',y,𝑴;title="Posterior predictive - Plugin")
+savefig(plt, "www/binary_contour.png");
+```
+
+![](www/binary_contour.png)
 
 Now let's plot the resulting counterfactual path in the 2-D feature space (left) and the predicted probability (right):
 
 
 ```julia
-x1 = (minimum(X[:,1])-1):0.1:(maximum(X[:,1])+1)
-x2 = (minimum(X[:,2])-1):0.1:(maximum(X[:,2])+1)
-p1 = Plots.contourf(
-    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, reshape([x,y],(1,2)))[1],
-    color = :viridis,
-    linewidth = 0,
-    legend=false
-)
-scatter!(p1,X[:,1],X[:,2],legend=false,color=y,title="Logistic Regression") # features
-Plots.abline!(p1, -w[1]/w[2],0,color="black") # decision boundary
 T = size(recourse.path)[1]
-probs = AlgorithmicRecourse.Models.probs(recourse.𝑴, recourse.path)
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, probs[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
-    Plots.abline!(p2,0,γ,label="threshold γ") # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, "www/generic_recourse.gif", fps=5);
+gif(anim, "www/binary_generic_recourse.gif", fps=25);
 ```
 
-![](www/generic_recourse.gif)
+![](www/binary_generic_recourse.gif)
 
 ### `GreedyGenerator`
 
@@ -100,9 +113,9 @@ Next we will repeat the exercise above, but instead use the `GreedyGenerator` in
 ```julia
 using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
-μ = vcat(b, w)
+μ = hcat(b, w)
 𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
-generator = GreedyGenerator(0.1,12,:logitbinarycrossentropy,nothing)
+generator = GreedyGenerator(0.25,15,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
@@ -110,23 +123,16 @@ Once again we plot the resulting counterfactual path (left) and changes in the p
 
 
 ```julia
-p1 = Plots.contourf(
-    x1,x2,(x, y) -> AlgorithmicRecourse.Models.probs(recourse.𝑴, reshape([x,y],(1,2)))[1],
-    color = :viridis,
-    linewidth = 0,
-    legend=false
-)
-scatter!(p1,X[:,1],X[:,2],legend=false,color=y,title="Bayesian Logistic Regression") # features
-Plots.abline!(p1, -w[1]/w[2],0,color="black") # decision boundary
 T = size(recourse.path)[1]
-probs = AlgorithmicRecourse.Models.probs(recourse.𝑴, recourse.path)
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
+p1 = plot_contour(X',y,𝑴;clegend=false,title="Posterior predictive - Laplace")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, probs[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
-    Plots.abline!(p2,0,γ,label="threshold γ") # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, "www/greedy_recourse.gif", fps=5);
+gif(anim, "www/binary_greedy_recourse.gif", fps=15);
 ```
 
-![](www/greedy_recourse.gif)
+![](www/binary_greedy_recourse.gif)

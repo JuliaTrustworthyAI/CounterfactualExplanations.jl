@@ -21,7 +21,7 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 ```
 
 See also:
-- [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
+- [`generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
 """
 struct GenericGenerator <: Generator
     λ::Float64 # strength of penalty
@@ -65,7 +65,7 @@ generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
 ```
 
 See also:
-- [`generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
+- [`generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
 """
 struct GreedyGenerator <: Generator
     δ::Float64 # perturbation size

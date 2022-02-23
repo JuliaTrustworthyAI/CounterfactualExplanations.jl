@@ -8,12 +8,15 @@ This is a short tutorial on loss functions and gradients typically involved in c
 
 
 ```julia
-using Zygote
-using Plots
-using PlotThemes
-theme(:juno)
-using LinearAlgebra
+using Zygote, Plots, PlotThemes, LinearAlgebra
+theme(:wong)
+using Logging
+disable_logging(Logging.Info)
 ```
+
+
+    LogLevel(1)
+
 
 ## General setup
 
@@ -84,10 +87,7 @@ hinge(a,t) = max(0,1-a*h(t))
 ```
 
 
-
-
     hinge (generic function with 1 method)
-
 
 
 
@@ -164,10 +164,7 @@ logitbinarycrossentropy(a, t) = - (t * log(𝛔(a)) + (1-t) * log(1-𝛔(a)))
 ```
 
 
-
-
     logitbinarycrossentropy (generic function with 1 method)
-
 
 
 ![](www/loss_grad_log.png)
@@ -224,10 +221,7 @@ mse(a,t) = norm(t - a)^2
 ```
 
 
-
-
     mse (generic function with 1 method)
-
 
 
 **NOTE**: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for $t=0$ the global minimum of the MSE is of course also at $0$. The implication for counterfactual search is that for $t=0$ the search stops when $\mathbf{w}^T\underline{x}=0$. But at this point $\sigma(\mathbf{w}^T\underline{x})=0.5$, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and **DON'T** us distance-based loss functions when optimizing with respect to logits.
@@ -269,10 +263,10 @@ using Flux
 using Random
 Random.seed!(1234);
 N = 25
-w = reshape([1.0,-2.0],2,1) # true coefficients
+w = [1.0 -2.0]# true coefficients
 b = 0
-X = reshape(randn(2*N),N,2).*1 # random features
-y = Int.(round.(Flux.σ.(X*w .+ b))); # label based on sigmoid
+X = reshape(randn(2*N),2,N).*1 # random features
+y = Int.(round.(Flux.σ.(w*X .+ b))); # label based on sigmoid
 ```
 
 The plot below shows the samples coloured by label along with the decision boundary. You can think of this as representing the outcome of some automated decision making system. The highlighted sample was chosen to receive algorithmic recourse in the following: we will search for a counterfactual that leads to a label switch.
@@ -281,21 +275,21 @@ The plot below shows the samples coloured by label along with the decision bound
 ```julia
 # Plot with random sample chose for recourse
 function plot_data(;clegend=true,title="",size=1.2.*(400,300))
-    x_range = collect(range(minimum(X[:,1]),stop=maximum(X[:,1]),length=50))
-    y_range = collect(range(minimum(X[:,2]),stop=maximum(X[:,2]),length=50))
-    Z = [Flux.σ.([x y]*w .+ b)[1] for x=x_range, y=y_range]
+    x_range = collect(range(minimum(X[1,:]),stop=maximum(X[1,:]),length=50))
+    y_range = collect(range(minimum(X[2,:]),stop=maximum(X[2,:]),length=50))
+    Z = [Flux.σ.(w * [x,y] .+ b)[1] for x=x_range, y=y_range]
     plt = contourf(
-        x_range, y_range, Z', color=:viridis, legend=clegend, title=title, size=size
+        x_range, y_range, Z', legend=clegend, title=title, size=size, lw=0.1
     )
-    scatter!(plt, X[reshape(y.==1,25),1],X[reshape(y.==1,25),2],label="y=1",color=1) # features
-    scatter!(plt, X[reshape(y.==0,25),1],X[reshape(y.==0,25),2],label="y=0",color=0) # features
+    scatter!(plt, X[1,reshape(y.==1,25)],X[2,reshape(y.==1,25)],label="y=1",color=1) # features
+    scatter!(plt, X[1,reshape(y.==0,25)],X[2,reshape(y.==0,25)],label="y=0",color=0) # features
     Plots.abline!(plt,0.5,b,color="black",label="",lw=2) # decision boundary
     return plt
 end
 
 plt = plot_data()
-x̅ = reshape(X[5,:],1,2)
-y̅ = round.(Flux.σ.(x̅*w .+ b))[1]
+x̅ = X[:,5]
+y̅ = round.(Flux.σ.(w*x̅ .+ b))[1]
 scatter!(plt,[x̅[1]],[x̅[2]],color=Int.(y̅),markersize=10,label="")
 savefig(plt, "www/loss_examlpe.png")
 ```
@@ -307,11 +301,15 @@ Next we will generating recourse using the AlgorithmicRecourse.jl package. First
 
 ```julia
 using AlgorithmicRecourse
-# import AlgorithmicRecourse: convergence, update_recourse # import explicitly to extend below
-𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, [b]);
+using AlgorithmicRecourse.Models: LogisticModel
+𝑴 = LogisticModel(w, [b]);
 target = ifelse(y̅==1.0,0.0,1.0)
-γ = ifelse(target==1.0,0.75,0.25);
+γ = 0.75
 ```
+
+
+    0.75
+
 
 Now we instantiate different generators for our different loss functions and different choices of $\lambda$. Finally we generate recourse for each of them:
 
@@ -323,7 +321,7 @@ losses = [:hinge_loss, :logitbinarycrossentropy, :mse]
 recourses = []
 for loss in losses
     for λ in Λ
-        gen = GenericGenerator(λ,0.1,1e-5,loss) 
+        gen = GenericGenerator(λ,0.1,1e-5,loss,nothing) 
         rec = generate_recourse(gen, x̅, 𝑴, target, γ, T=25)
         recourses = vcat(recourses, (rec=rec, λ=λ, loss=loss))
     end
@@ -355,10 +353,5 @@ anim = @animate for i in 1:max_path_length
 end
 gif(anim, "www/loss_paths.gif", fps=5);
 ```
-
-    ┌ Info: Saved animation to 
-    │   fn = /Users/FA31DU/OneDrive - Delft University of Technology/git/AlgorithmicRecourse.jl/docs/src/tutorials/www/loss_paths.gif
-    └ @ Plots /Users/FA31DU/.julia/packages/Plots/Zuo5g/src/animation.jl:114
-
 
 ![](www/loss_paths.gif)
