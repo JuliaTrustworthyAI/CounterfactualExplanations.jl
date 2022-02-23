@@ -30,25 +30,26 @@ val_x = x[:,:,:,val_set] |> gpu
 val_y = y[val_set] |> gpu
 data = Flux.DataLoader((data=train_x, label=train_y), batchsize=batch_size) |> gpu
 
-if retrain 
-    # CNN
-    nn = Chain(
-        Conv((5,5), 3=>16, relu),
-        MaxPool((2,2)),
-        Conv((5,5), 16=>8, relu),
-        MaxPool((2,2)),
-        x -> reshape(x, :, size(x, 4)),
-        Dense(200, 120),
-        Dense(120, 84),
-        Dense(84, 1)
-    ) |> gpu
+# CNN
+nn = Chain(
+    Conv((5,5), 3=>16, relu),
+    MaxPool((2,2)),
+    Conv((5,5), 16=>8, relu),
+    MaxPool((2,2)),
+    x -> reshape(x, :, size(x, 4)),
+    Dense(200, 120),
+    Dense(120, 84),
+    Dense(84, 1)
+) |> gpu
 
-    using Flux: Momentum
-    using Flux.Losses: logitbinarycrossentropy
-    loss(x, y) = logitbinarycrossentropy(vec(nn(x)), y)
-    opt = Momentum(0.01)
-    accuracy(x, y) = mean(vec(round.(Flux.σ.(nn(x)))) .== y)
-    avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+using Flux: Momentum
+using Flux.Losses: logitbinarycrossentropy
+loss(x, y) = logitbinarycrossentropy(vec(nn(x)), y)
+opt = Momentum(0.01)
+accuracy(x, y) = mean(vec(round.(Flux.σ.(nn(x)))) .== y)
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+
+if retrain 
 
     # Training
     epochs = 200
