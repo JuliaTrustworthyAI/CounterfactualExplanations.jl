@@ -108,7 +108,7 @@ plot_data!(plt, hcat(X...)', y)
 
 """
 function plot_data!(plt,X,y)
-    Plots.scatter!(plt, X[:,1],X[:,2],group=Int.(y))
+    Plots.scatter!(plt, X[:,1],X[:,2],group=Int.(y),color=Int.(y))
 end
 
 # Plot contour of posterior predictive:
@@ -153,7 +153,7 @@ function plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1,xlim=
     # Plot:
     plt = contourf(
         x_range, y_range, Z'; 
-        legend=clegend, title=title, linewidth=linewidth,
+        colorbar=clegend, title=title, linewidth=linewidth,
         xlim=xlim,
         ylim=ylim
     )
@@ -183,7 +183,7 @@ plot_contour(X, y, 𝑴)
 ```
 
 """
-function plot_contour_multi(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
+function plot_contour_multi(X,y,𝑴;title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
     
     # Surface range:
     if isnothing(xlim)
@@ -208,14 +208,14 @@ function plot_contour_multi(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1
         contour!(
             plt,
             x_range, y_range, Z[d,:]; 
-            legend=clegend, title=title,
+            colorbar=false, title=title,
             xlim=xlim,
             ylim=ylim,
             colour=d
         )
     end
 
-    return plt
+    return plot(plt)
     
 end
 
@@ -234,19 +234,46 @@ nn = build_model()
 """
 function build_model(;input_dim=2,n_hidden=32,output_dim=1)
     
-    # Params:
-    W₁ = input_dim
-    b₁ = n_hidden
-    W₀ = n_hidden
-    b₀ = output_dim
-    
     nn = Chain(
-        Dense(W₁, b₁, σ),
-        Dense(W₀, b₀)
+        Dense(input_dim, n_hidden, relu),
+        Dense(n_hidden, output_dim)
     )  
 
     return nn
 
+end
+
+using Flux
+using Flux.Optimise: update!
+"""
+    forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+
+Wrapper function to train neural network and generate an animation showing the training loss evolution.
+"""
+function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+
+    avg_l = []
+    
+    for epoch = 1:n_epochs
+      for d in data
+        gs = Flux.gradient(Flux.params(nn)) do
+          l = loss(d...)
+        end
+        update!(opt, Flux.params(nn), gs)
+      end
+      if !isnothing(plotting)
+        plt = plotting[1]
+        anim = plotting[2]
+        idx = plotting[3]
+        avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+        avg_l = vcat(avg_l,avg_loss(data))
+        if epoch % plotting[4]==0
+          plot!(plt, avg_l, color=idx)
+          frame(anim, plt)
+        end
+      end
+    end
+    
 end
 
 """
@@ -266,3 +293,31 @@ function build_ensemble(K=5;kw=(input_dim=2,n_hidden=32,output_dim=1))
     ensemble = [build_model(;kw...) for i in 1:K]
     return ensemble
 end
+
+using Statistics
+"""
+    forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
+
+Wrapper function to train deep ensemble and generate an animation showing the training loss evolution.
+"""
+function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=10, plot_every=1) 
+
+    anim = nothing
+    if plot_loss
+        anim = Animation()
+        plt = plot(ylim=(0,1), xlim=(0,n_epochs), legend=false, xlab="Epoch", title="Average (training) loss")
+        for i in 1:length(𝓜)
+            nn = 𝓜[i]
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=(plt, anim, i, plot_every))
+        end
+    else
+        plt = nothing
+        for nn in 𝓜
+            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=plt)
+        end
+    end
+
+    return 𝓜, anim
+end;

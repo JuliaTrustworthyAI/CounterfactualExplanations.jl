@@ -15,14 +15,12 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Installation" => "install.md",
         "Tutorials" =>
             [
-                "Installation" => "tutorials/install.md",
-                "Quick start" => [
-                    "Binary target" => "tutorials/binary.md",
-                    # "Multi-class target" => "tutorials/multi.md"
-                ],
+                "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
+                "Multi-class target" => "tutorials/multi.md",
                 "Loss functions" => "tutorials/loss.md"
             ],
         "Reference" => "reference.md"

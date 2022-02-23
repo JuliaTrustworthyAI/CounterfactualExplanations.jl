@@ -31,8 +31,8 @@ In this example we will build a simple artificial neural network using [Flux.jl]
 
 ```julia
 # Import libraries.
-using Flux, Plots, Random, PlotThemes, Statistics
-theme(:juno)
+using Flux, Plots, Random, PlotThemes, Statistics, AlgorithmicRecourse
+theme(:wong)
 using Logging
 disable_logging(Logging.Info)
 ```
@@ -52,36 +52,10 @@ N = 80
 M = round(Int, N / 4)
 Random.seed!(1234)
 
-# Generate artificial data.
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-xt1s = Array([[x1s[i] + 0.5; x2s[i] + 0.5] for i = 1:M])
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-append!(xt1s, Array([[x1s[i] - 5; x2s[i] - 5] for i = 1:M]))
-
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-xt0s = Array([[x1s[i] + 0.5; x2s[i] - 5] for i = 1:M])
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-append!(xt0s, Array([[x1s[i] - 5; x2s[i] + 0.5] for i = 1:M]))
-
-# Store all the data for later.
-xs = [xt1s; xt0s]
-X = hcat(xs...) # bring into tabular format
-ts = [ones(2*M); zeros(2*M)]
-
+x, y = toy_data_non_linear(N)
+X = hcat(x...)
 plt = plot()
-
-# Plot data points.
-function plot_data!(plt)
-    x1 = map(e -> e[1], xt1s)
-    y1 = map(e -> e[2], xt1s)
-    x2 = map(e -> e[1], xt0s)
-    y2 = map(e -> e[2], xt0s)
-
-    Plots.scatter!(plt, x1,y1, color=1, clim = (0,1), label="y=1")
-    Plots.scatter!(plt, x2,y2, color=0, clim = (0,1), label="y=0")
-end
-
-plt = plot_data!(plt);
+plt = plot_data!(plt,X',y);
 savefig(plt, "www/models_samples.png")
 ```
 
@@ -93,25 +67,10 @@ Instead we will build a simple artificial neural network `nn` with one hidden la
 
 
 ```julia
-function build_model(;input_dim=2,n_hidden=32,output_dim=1)
-    
-    # Params:
-    W₁ = input_dim
-    b₁ = n_hidden
-    W₀ = n_hidden
-    b₀ = output_dim
-    
-    nn = Chain(
-        Dense(W₁, b₁, σ),
-        Dense(W₀, b₀))  
-
-    return nn
-
-end
 nn = build_model()
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 ps = Flux.params(nn)
-data = zip(xs,ts);
+data = zip(x,y);
 ```
 
 The code below trains the neural network for the task at hand. The plot shows the (training) loss over time. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generated recourse for a trained classifier, here we will just keep things very simple.
@@ -120,7 +79,7 @@ The code below trains the neural network for the task at hand. The plot shows th
 ```julia
 using Flux.Optimise: update!, ADAM
 opt = ADAM()
-epochs = 200
+epochs = 10
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 
 using Plots
@@ -145,24 +104,6 @@ gif(anim, "www/models_loss.gif");
 
 ![](www/models_loss.gif)
 
-The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as explected. 
-
-
-```julia
-# Plot the posterior distribution with a contour plot.
-x_range = collect(range(-6,stop=6,length=25))
-y_range = collect(range(-6,stop=6,length=25))
-Z = [σ.(nn([x, y]))[1] for x=x_range, y=y_range]
-function plot_contour(;clegend=true, title="")
-    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    plot_data!(plt)
-end
-plt = plot_contour();
-savefig(plt, "www/models_contour.png")
-```
-
-![](www/models_contour.png)
-
 #### Generating recourse
 
 Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by AlgorithmicRecourse.jl. 
@@ -186,19 +127,30 @@ probs(𝑴::NeuralNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 ```
 
 
-    NeuralNetwork(Chain(Dense(2, 32, σ), Dense(32, 1)))
+    NeuralNetwork(Chain(Dense(2, 32, relu), Dense(32, 1)))
 
+
+The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as expected. 
+
+
+```julia
+# Plot the posterior distribution with a contour plot.
+plt = plot_contour(X',y,𝑴);
+savefig(plt, "www/models_contour.png")
+```
+
+![](www/models_contour.png)
 
 Now we just select a random sample from our data and based on its current label we set as our target the opposite label and desired threshold for the predicted probability.
 
 
 ```julia
 using Random
-Random.seed!(1234)
+Random.seed!(123)
 x̅ = X[:,rand(1:size(X)[2])]
 y̅ = round(probs(𝑴, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
-γ = ifelse(target==1.0,0.75,0.25); # desired threshold based on target
+γ = 0.75; # desired level of confidence
 ```
 
 Then finally we use the `GenericGenerator` to generate recourse. The plot further below shows the resulting counterfactual path.
@@ -212,12 +164,12 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = probs(recourse.𝑴, recourse.path')
-p1 = plot_contour(;clegend=false, title="Neural network")
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Neural network - plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
-    Plots.abline!(p2,0,γ,label="threshold γ") # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
 gif(anim, "www/models_generic_recourse.gif", fps=5);
@@ -233,14 +185,7 @@ One efficient way to produce uncertainty estimates in the context of deep learni
 
 
 ```julia
-K = 50
-
-function build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
-    ensemble = [build_model(;kw...) for i in 1:K]
-    return ensemble
-end
-
-𝓜 = build_ensemble(K);
+𝓜 = build_ensemble(5);
 ```
 
 Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:
@@ -265,7 +210,7 @@ function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
         avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
         avg_l = vcat(avg_l,avg_loss(data))
         if epoch % plotting[4]==0
-          plot!(plt, avg_l, color=idx, alpha=0.3)
+          plot!(plt, avg_l, color=idx)
           frame(anim, plt)
         end
       end
@@ -309,8 +254,8 @@ end;
 
 
 ```julia
-𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
-gif(anim, "www/models_ensemble_loss.gif", fps=50);
+𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
+gif(anim, "www/models_ensemble_loss.gif", fps=10);
 ```
 
 ![](www/models_ensemble_loss.gif)
@@ -335,12 +280,7 @@ Again we plot the predicted probabilities in the feature domain. As expected the
 
 
 ```julia
-Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
-function plot_contour(;clegend=true, title="")
-    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    plot_data!(plt)
-end
-plt = plot_contour();
+plt = plot_contour(X',y,𝑴);
 savefig(plt, "www/models_ensemble_contour.png")
 ```
 
@@ -350,20 +290,19 @@ Finally, we use the `GreedyGenerator` for the counterfactual search. For the sam
 
 
 ```julia
-generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
+generator = GreedyGenerator(0.25,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = probs(recourse.𝑴, recourse.path')
-p1 = plot_contour(;clegend=false, title="Deep Ensemble")
-t = 1
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=1)", title="Validity")
-    Plots.abline!(p2,0,γ,label="threshold γ") # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
 gif(anim, "www/models_greedy_recourse.gif", fps=5);

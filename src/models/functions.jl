@@ -159,5 +159,6 @@ function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
     z = κ' .* z
     # Compute probabilities
     p = NNlib.σ.(z)
+    p = size(p)[2] == 1 ? vec(p) : p
     return p
 end

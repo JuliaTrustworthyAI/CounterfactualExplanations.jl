@@ -11,7 +11,7 @@ This is a short tutorial on loss functions and gradients typically involved in c
 using Zygote
 using Plots
 using PlotThemes
-theme(:juno)
+theme(:wong)
 using LinearAlgebra
 ```
 
@@ -304,6 +304,14 @@ target = ifelse(y̅==1.0,0.0,1.0)
 γ = ifelse(target==1.0,0.75,0.25);
 ```
 
+    [33m[1m┌ [22m[39m[33m[1mWarning: [22m[39mPackage AlgorithmicRecourse does not have Random in its dependencies:
+    [33m[1m│ [22m[39m- If you have AlgorithmicRecourse checked out for development and have
+    [33m[1m│ [22m[39m  added Random as a dependency but haven't updated your primary
+    [33m[1m│ [22m[39m  environment's manifest file, try `Pkg.resolve()`.
+    [33m[1m│ [22m[39m- Otherwise you may need to report an issue with AlgorithmicRecourse
+    [33m[1m└ [22m[39mLoading Random into AlgorithmicRecourse from project dependency, future warnings for AlgorithmicRecourse are suppressed.
+
+
 Now we instantiate different generators for our different loss functions and different choices of $\lambda$. Finally we generate recourse for each of them:
 
 
@@ -348,8 +356,8 @@ gif(anim, "www/loss_paths.gif", fps=5);
 ```
 
     ┌ Info: Saved animation to 
-    │   fn = /Users/FA31DU/OneDrive - Delft University of Technology/git/AlgorithmicRecourse.jl/docs/src/tutorials/www/loss_paths.gif
-    └ @ Plots /Users/FA31DU/.julia/packages/Plots/9C6z9/src/animation.jl:114
+    │   fn = /Users/FA31DU/Documents/code/AlgorithmicRecourse.jl/docs/src/tutorials/www/loss_paths.gif
+    └ @ Plots /Users/FA31DU/.julia/packages/Plots/LI4FE/src/animation.jl:114
 
 
 ![](www/loss_paths.gif)
