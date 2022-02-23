@@ -8,12 +8,15 @@ This is a short tutorial on loss functions and gradients typically involved in c
 
 
 ```julia
-using Zygote
-using Plots
-using PlotThemes
+using Zygote, Plots, PlotThemes, LinearAlgebra
 theme(:wong)
-using LinearAlgebra
+using Logging
+disable_logging(Logging.Info)
 ```
+
+
+    LogLevel(1)
+
 
 ## General setup
 
@@ -276,7 +279,7 @@ function plot_data(;clegend=true,title="",size=1.2.*(400,300))
     y_range = collect(range(minimum(X[2,:]),stop=maximum(X[2,:]),length=50))
     Z = [Flux.σ.(w * [x,y] .+ b)[1] for x=x_range, y=y_range]
     plt = contourf(
-        x_range, y_range, Z', color=:viridis, legend=clegend, title=title, size=size
+        x_range, y_range, Z', legend=clegend, title=title, size=size, lw=0.1
     )
     scatter!(plt, X[1,reshape(y.==1,25)],X[2,reshape(y.==1,25)],label="y=1",color=1) # features
     scatter!(plt, X[1,reshape(y.==0,25)],X[2,reshape(y.==0,25)],label="y=0",color=0) # features
@@ -301,15 +304,11 @@ using AlgorithmicRecourse
 using AlgorithmicRecourse.Models: LogisticModel
 𝑴 = LogisticModel(w, [b]);
 target = ifelse(y̅==1.0,0.0,1.0)
-γ = ifelse(target==1.0,0.75,0.25);
+γ = 0.75
 ```
 
-    [33m[1m┌ [22m[39m[33m[1mWarning: [22m[39mPackage AlgorithmicRecourse does not have Random in its dependencies:
-    [33m[1m│ [22m[39m- If you have AlgorithmicRecourse checked out for development and have
-    [33m[1m│ [22m[39m  added Random as a dependency but haven't updated your primary
-    [33m[1m│ [22m[39m  environment's manifest file, try `Pkg.resolve()`.
-    [33m[1m│ [22m[39m- Otherwise you may need to report an issue with AlgorithmicRecourse
-    [33m[1m└ [22m[39mLoading Random into AlgorithmicRecourse from project dependency, future warnings for AlgorithmicRecourse are suppressed.
+
+    0.75
 
 
 Now we instantiate different generators for our different loss functions and different choices of $\lambda$. Finally we generate recourse for each of them:
@@ -354,10 +353,5 @@ anim = @animate for i in 1:max_path_length
 end
 gif(anim, "www/loss_paths.gif", fps=5);
 ```
-
-    ┌ Info: Saved animation to 
-    │   fn = /Users/FA31DU/Documents/code/AlgorithmicRecourse.jl/docs/src/tutorials/www/loss_paths.gif
-    └ @ Plots /Users/FA31DU/.julia/packages/Plots/LI4FE/src/animation.jl:114
-
 
 ![](www/loss_paths.gif)
