@@ -1,64 +1,23 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Models · AlgorithmicRecourse.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/AlgorithmicRecourse.jl/tutorials/models/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><script src="../../../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AlgorithmicRecourse.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../install/">Installation</a></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Quick start</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../binary/">Binary target</a></li></ul></li><li class="is-active"><a class="tocitem" href>Models</a><ul class="internal"><li><a class="tocitem" href="#Default-models"><span>Default models</span></a></li><li><a class="tocitem" href="#Custom-models"><span>Custom models</span></a></li></ul></li><li><a class="tocitem" href="../loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Models</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Models</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/AlgorithmicRecourse.jl/blob/master/docs/src/tutorials/models.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Models"><a class="docs-heading-anchor" href="#Models">Models</a><a id="Models-1"></a><a class="docs-heading-anchor-permalink" href="#Models" title="Permalink"></a></h1><h2 id="Default-models"><a class="docs-heading-anchor" href="#Default-models">Default models</a><a id="Default-models-1"></a><a class="docs-heading-anchor-permalink" href="#Default-models" title="Permalink"></a></h2><p>There are currently structures for two default models that can be used with AlgorithmicRecourse.jl:</p><ol><li><a href="tutorials/@ref"><code>LogisticModel(w::AbstractArray,b::AbstractArray)</code></a></li><li><a href="tutorials/@ref"><code>BayesianLogisticModel(μ::AbstractArray,Σ::AbstractArray)</code></a></li></ol><p>Both take sets of estimated parameters at the point of instantiation: the constructors will not fit a model for you, but assume that you have already estimated the respective model yourself and have access to its parameter estimates. Based on the supplied parameters methods to predict logits and probabilities are already implemented and used in the counterfactual search. </p><p>For the simple logistic regression model logits are computed as <span>$a=Xw + b$</span> and probabilities are simply <span>$\sigma(a)$</span>. For the Bayesian logistic regression model logits are computed as <span>$X\mu$</span> and the predictive posterior is computed through Laplace approximation.</p><h2 id="Custom-models"><a class="docs-heading-anchor" href="#Custom-models">Custom models</a><a id="Custom-models-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-models" title="Permalink"></a></h2><p>Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with AlgorithmicRecourse.jl:</p><ol><li>The model needs to be declared as a subtype of <code>AlgorithmicRecourse.Models.FittedModel</code>.</li><li>You need to extend the functions <code>AlgorithmicRecourse.Models.logits</code> and <code>AlgorithmicRecourse.Models.probs</code> to accept your custom model.</li></ol><p>Below we will go through a simple example to see how this can be done in practice. </p><h3 id="Neural-network"><a class="docs-heading-anchor" href="#Neural-network">Neural network</a><a id="Neural-network-1"></a><a class="docs-heading-anchor-permalink" href="#Neural-network" title="Permalink"></a></h3><p>In this example we will build a simple artificial neural network using <a href="https://fluxml.ai/">Flux.jl</a> for a binary classification task.</p><pre><code class="language-julia hljs"># Import libraries.
-using Flux, Plots, Random, PlotThemes, Statistics
-theme(:juno)
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Models · AlgorithmicRecourse.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/AlgorithmicRecourse.jl/tutorials/models/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AlgorithmicRecourse.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../install/">Installation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../binary/">Binary target</a></li><li class="is-active"><a class="tocitem" href>Models</a><ul class="internal"><li><a class="tocitem" href="#Default-models"><span>Default models</span></a></li><li><a class="tocitem" href="#Custom-models"><span>Custom models</span></a></li></ul></li><li><a class="tocitem" href="../multi/">Multi-class target</a></li><li><a class="tocitem" href="../loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Models</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Models</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/AlgorithmicRecourse.jl/blob/master/docs/src/tutorials/models.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Models"><a class="docs-heading-anchor" href="#Models">Models</a><a id="Models-1"></a><a class="docs-heading-anchor-permalink" href="#Models" title="Permalink"></a></h1><h2 id="Default-models"><a class="docs-heading-anchor" href="#Default-models">Default models</a><a id="Default-models-1"></a><a class="docs-heading-anchor-permalink" href="#Default-models" title="Permalink"></a></h2><p>There are currently structures for two default models that can be used with AlgorithmicRecourse.jl:</p><ol><li><a href="tutorials/@ref"><code>LogisticModel(w::AbstractArray,b::AbstractArray)</code></a></li><li><a href="tutorials/@ref"><code>BayesianLogisticModel(μ::AbstractArray,Σ::AbstractArray)</code></a></li></ol><p>Both take sets of estimated parameters at the point of instantiation: the constructors will not fit a model for you, but assume that you have already estimated the respective model yourself and have access to its parameter estimates. Based on the supplied parameters methods to predict logits and probabilities are already implemented and used in the counterfactual search. </p><p>For the simple logistic regression model logits are computed as <span>$a=Xw + b$</span> and probabilities are simply <span>$\sigma(a)$</span>. For the Bayesian logistic regression model logits are computed as <span>$X\mu$</span> and the predictive posterior is computed through Laplace approximation.</p><h2 id="Custom-models"><a class="docs-heading-anchor" href="#Custom-models">Custom models</a><a id="Custom-models-1"></a><a class="docs-heading-anchor-permalink" href="#Custom-models" title="Permalink"></a></h2><p>Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with AlgorithmicRecourse.jl:</p><ol><li>The model needs to be declared as a subtype of <code>AlgorithmicRecourse.Models.FittedModel</code>.</li><li>You need to extend the functions <code>AlgorithmicRecourse.Models.logits</code> and <code>AlgorithmicRecourse.Models.probs</code> to accept your custom model.</li></ol><p>Below we will go through a simple example to see how this can be done in practice. </p><h3 id="Neural-network"><a class="docs-heading-anchor" href="#Neural-network">Neural network</a><a id="Neural-network-1"></a><a class="docs-heading-anchor-permalink" href="#Neural-network" title="Permalink"></a></h3><p>In this example we will build a simple artificial neural network using <a href="https://fluxml.ai/">Flux.jl</a> for a binary classification task.</p><pre><code class="language-julia hljs"># Import libraries.
+using Flux, Plots, Random, PlotThemes, Statistics, AlgorithmicRecourse
+theme(:wong)
 using Logging
 disable_logging(Logging.Info)</code></pre><pre><code class="nohighlight hljs">LogLevel(1)</code></pre><p>First we generate some toy data below. The code that generates this data was borrowed from a great tutorial about Bayesian neural networks provided by <a href="https://turing.ml/dev/">Turing.jl</a>, which you may find <a href="https://turing.ml/dev/tutorials/03-bayesian-neural-network/">here</a>. </p><p>The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. Clearly this data is not linearly separable and the default <code>LogisticModel</code> would be ill suited for this classification task.</p><pre><code class="language-julia hljs"># Number of points to generate.
 N = 80
 M = round(Int, N / 4)
 Random.seed!(1234)
 
-# Generate artificial data.
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-xt1s = Array([[x1s[i] + 0.5; x2s[i] + 0.5] for i = 1:M])
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-append!(xt1s, Array([[x1s[i] - 5; x2s[i] - 5] for i = 1:M]))
-
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-xt0s = Array([[x1s[i] + 0.5; x2s[i] - 5] for i = 1:M])
-x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
-append!(xt0s, Array([[x1s[i] - 5; x2s[i] + 0.5] for i = 1:M]))
-
-# Store all the data for later.
-xs = [xt1s; xt0s]
-X = hcat(xs...) # bring into tabular format
-ts = [ones(2*M); zeros(2*M)]
-
+x, y = toy_data_non_linear(N)
+X = hcat(x...)
 plt = plot()
-
-# Plot data points.
-function plot_data!(plt)
-    x1 = map(e -&gt; e[1], xt1s)
-    y1 = map(e -&gt; e[2], xt1s)
-    x2 = map(e -&gt; e[1], xt0s)
-    y2 = map(e -&gt; e[2], xt0s)
-
-    Plots.scatter!(plt, x1,y1, color=1, clim = (0,1), label=&quot;y=1&quot;)
-    Plots.scatter!(plt, x2,y2, color=0, clim = (0,1), label=&quot;y=0&quot;)
-end
-
-plt = plot_data!(plt);
-savefig(plt, &quot;www/models_samples.png&quot;)</code></pre><p><img src="../www/models_samples.png" alt/></p><h4 id="Training-the-model"><a class="docs-heading-anchor" href="#Training-the-model">Training the model</a><a id="Training-the-model-1"></a><a class="docs-heading-anchor-permalink" href="#Training-the-model" title="Permalink"></a></h4><p>Instead we will build a simple artificial neural network <code>nn</code> with one hidden layer. For additional resources on how to do deep learning with <a href="https://fluxml.ai/">Flux.jl</a> just have a look at their documentation. </p><pre><code class="language-julia hljs">function build_model(;input_dim=2,n_hidden=32,output_dim=1)
-    
-    # Params:
-    W₁ = input_dim
-    b₁ = n_hidden
-    W₀ = n_hidden
-    b₀ = output_dim
-    
-    nn = Chain(
-        Dense(W₁, b₁, σ),
-        Dense(W₀, b₀))  
-
-    return nn
-
-end
-nn = build_model()
+plt = plot_data!(plt,X&#39;,y);
+savefig(plt, &quot;www/models_samples.png&quot;)</code></pre><p><img src="../www/models_samples.png" alt/></p><h4 id="Training-the-model"><a class="docs-heading-anchor" href="#Training-the-model">Training the model</a><a id="Training-the-model-1"></a><a class="docs-heading-anchor-permalink" href="#Training-the-model" title="Permalink"></a></h4><p>Instead we will build a simple artificial neural network <code>nn</code> with one hidden layer. For additional resources on how to do deep learning with <a href="https://fluxml.ai/">Flux.jl</a> just have a look at their documentation. </p><pre><code class="language-julia hljs">nn = build_model()
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 ps = Flux.params(nn)
-data = zip(xs,ts);</code></pre><p>The code below trains the neural network for the task at hand. The plot shows the (training) loss over time. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generated recourse for a trained classifier, here we will just keep things very simple.</p><pre><code class="language-julia hljs">using Flux.Optimise: update!, ADAM
+data = zip(x,y);</code></pre><p>The code below trains the neural network for the task at hand. The plot shows the (training) loss over time. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generated recourse for a trained classifier, here we will just keep things very simple.</p><pre><code class="language-julia hljs">using Flux.Optimise: update!, ADAM
 opt = ADAM()
-epochs = 200
+epochs = 10
 avg_loss(data) = mean(map(d -&gt; loss(d[1],d[2]), data))
 
 using Plots
@@ -78,16 +37,7 @@ for epoch = 1:epochs
   frame(anim, plt)
 end
 
-gif(anim, &quot;www/models_loss.gif&quot;);</code></pre><p><img src="../www/models_loss.gif" alt/></p><p>The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as explected. </p><pre><code class="language-julia hljs"># Plot the posterior distribution with a contour plot.
-x_range = collect(range(-6,stop=6,length=25))
-y_range = collect(range(-6,stop=6,length=25))
-Z = [σ.(nn([x, y]))[1] for x=x_range, y=y_range]
-function plot_contour(;clegend=true, title=&quot;&quot;)
-    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    plot_data!(plt)
-end
-plt = plot_contour();
-savefig(plt, &quot;www/models_contour.png&quot;)</code></pre><p><img src="../www/models_contour.png" alt/></p><h4 id="Generating-recourse"><a class="docs-heading-anchor" href="#Generating-recourse">Generating recourse</a><a id="Generating-recourse-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-recourse" title="Permalink"></a></h4><p>Now it&#39;s game time: we have a fitted model <span>$M: \mathcal{X} \mapsto y$</span> and are interested in generating recourse for some individual <span>$\overline{x}\in\mathcal{X}$</span>. As mentioned above we need to do a bit more work to prepare the model to be used by AlgorithmicRecourse.jl. </p><p>The code below takes care of all of that: in step 1) it declares our model as a subtype of <code>Models.FittedModel</code> and in step 2) it just extends the two functions. </p><pre><code class="language-julia hljs">using AlgorithmicRecourse, AlgorithmicRecourse.Models
+gif(anim, &quot;www/models_loss.gif&quot;);</code></pre><p><img src="../www/models_loss.gif" alt/></p><h4 id="Generating-recourse"><a class="docs-heading-anchor" href="#Generating-recourse">Generating recourse</a><a id="Generating-recourse-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-recourse" title="Permalink"></a></h4><p>Now it&#39;s game time: we have a fitted model <span>$M: \mathcal{X} \mapsto y$</span> and are interested in generating recourse for some individual <span>$\overline{x}\in\mathcal{X}$</span>. As mentioned above we need to do a bit more work to prepare the model to be used by AlgorithmicRecourse.jl. </p><p>The code below takes care of all of that: in step 1) it declares our model as a subtype of <code>Models.FittedModel</code> and in step 2) it just extends the two functions. </p><pre><code class="language-julia hljs">using AlgorithmicRecourse, AlgorithmicRecourse.Models
 import AlgorithmicRecourse.Models: logits, probs # import functions in order to extend
 
 # Step 1)
@@ -98,29 +48,24 @@ end
 # Step 2)
 logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
 probs(𝑴::NeuralNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
-𝑴 = NeuralNetwork(nn)</code></pre><pre><code class="nohighlight hljs">NeuralNetwork(Chain(Dense(2, 32, σ), Dense(32, 1)))</code></pre><p>Now we just select a random sample from our data and based on its current label we set as our target the opposite label and desired threshold for the predicted probability.</p><pre><code class="language-julia hljs">using Random
-Random.seed!(1234)
+𝑴 = NeuralNetwork(nn)</code></pre><pre><code class="nohighlight hljs">NeuralNetwork(Chain(Dense(2, 32, relu), Dense(32, 1)))</code></pre><p>The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as expected. </p><pre><code class="language-julia hljs"># Plot the posterior distribution with a contour plot.
+plt = plot_contour(X&#39;,y,𝑴);
+savefig(plt, &quot;www/models_contour.png&quot;)</code></pre><p><img src="../www/models_contour.png" alt/></p><p>Now we just select a random sample from our data and based on its current label we set as our target the opposite label and desired threshold for the predicted probability.</p><pre><code class="language-julia hljs">using Random
+Random.seed!(123)
 x̅ = X[:,rand(1:size(X)[2])]
 y̅ = round(probs(𝑴, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
-γ = ifelse(target==1.0,0.75,0.25); # desired threshold based on target</code></pre><p>Then finally we use the <code>GenericGenerator</code> to generate recourse. The plot further below shows the resulting counterfactual path.</p><pre><code class="language-julia hljs">generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+γ = 0.75; # desired level of confidence</code></pre><p>Then finally we use the <code>GenericGenerator</code> to generate recourse. The plot further below shows the resulting counterfactual path.</p><pre><code class="language-julia hljs">generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
-ŷ = probs(recourse.𝑴, recourse.path&#39;)
-p1 = plot_contour(;clegend=false, title=&quot;Neural network&quot;)
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path&#39;),target)
+p1 = plot_contour(X&#39;,y,𝑴;clegend=false, title=&quot;Neural network - plugin&quot;)
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=1)&quot;, title=&quot;Validity&quot;)
-    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label=&quot;&quot;)
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=&quot; * string(target) * &quot;)&quot;, title=&quot;Validity&quot;, lc=:black)
+    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;, ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p><h3 id="Ensemble-of-neural-networks"><a class="docs-heading-anchor" href="#Ensemble-of-neural-networks">Ensemble of neural networks</a><a id="Ensemble-of-neural-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-of-neural-networks" title="Permalink"></a></h3><p>In the context of Bayesian classifiers the <code>GreedyGenerator</code> can be used since minimizing the predictive uncertainty acts as a proxy for <em>realism</em> and <em>unambiquity</em>. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. </p><p>One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks (also referred to as <em>deep ensemble</em>). To this end we can use the <code>build_model</code> function from above repeatedly to compose an ensemble of <span>$K$</span> neural networks:</p><pre><code class="language-julia hljs">K = 50
-
-function build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
-    ensemble = [build_model(;kw...) for i in 1:K]
-    return ensemble
-end
-
-𝓜 = build_ensemble(K);</code></pre><p>Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:</p><pre><code class="language-julia hljs">function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+gif(anim, &quot;www/models_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_generic_recourse.gif" alt/></p><h3 id="Ensemble-of-neural-networks"><a class="docs-heading-anchor" href="#Ensemble-of-neural-networks">Ensemble of neural networks</a><a id="Ensemble-of-neural-networks-1"></a><a class="docs-heading-anchor-permalink" href="#Ensemble-of-neural-networks" title="Permalink"></a></h3><p>In the context of Bayesian classifiers the <code>GreedyGenerator</code> can be used since minimizing the predictive uncertainty acts as a proxy for <em>realism</em> and <em>unambiquity</em>. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty. </p><p>One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks (also referred to as <em>deep ensemble</em>). To this end we can use the <code>build_model</code> function from above repeatedly to compose an ensemble of <span>$K$</span> neural networks:</p><pre><code class="language-julia hljs">𝓜 = build_ensemble(5);</code></pre><p>Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:</p><pre><code class="language-julia hljs">function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
 
     avg_l = []
     
@@ -138,7 +83,7 @@ end
         avg_loss(data) = mean(map(d -&gt; loss(d[1],d[2]), data))
         avg_l = vcat(avg_l,avg_loss(data))
         if epoch % plotting[4]==0
-          plot!(plt, avg_l, color=idx, alpha=0.3)
+          plot!(plt, avg_l, color=idx)
           frame(anim, plt)
         end
       end
@@ -161,13 +106,13 @@ function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=
         plt = nothing
         for nn in 𝓜
             loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
-            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plt=plt)
+            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=plt)
         end
     end
 
     return 𝓜, anim
-end;</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=100); # fit the ensemble
-gif(anim, &quot;www/models_ensemble_loss.gif&quot;, fps=50);</code></pre><p><img src="../www/models_ensemble_loss.gif" alt/></p><p>Once again it is straight-forward to make the model compatible with the package. Note that for an ensemble model the predicted logits and probabilities are just averages over predictions produced by all <span>$K$</span> models.</p><pre><code class="language-julia hljs"># Step 1)
+end;</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
+gif(anim, &quot;www/models_ensemble_loss.gif&quot;, fps=10);</code></pre><p><img src="../www/models_ensemble_loss.gif" alt/></p><p>Once again it is straight-forward to make the model compatible with the package. Note that for an ensemble model the predicted logits and probabilities are just averages over predictions produced by all <span>$K$</span> models.</p><pre><code class="language-julia hljs"># Step 1)
 struct FittedEnsemble &lt;: Models.FittedModel
     𝓜::AbstractArray
 end
@@ -176,21 +121,15 @@ end
 logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in 𝑴.𝓜],1)),dims=1)
 probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in 𝑴.𝓜],1)),dims=1)
 
-𝑴=FittedEnsemble(𝓜);</code></pre><p>Again we plot the predicted probabilities in the feature domain. As expected the ensemble is more <em>conservative</em> because it incorporates uncertainty: the predicted probabilities splash out more than before, especially in regions that are not populated by samples.</p><pre><code class="language-julia hljs">Z = [probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
-function plot_contour(;clegend=true, title=&quot;&quot;)
-    plt = contourf(x_range, y_range, Z, color=:viridis, legend=clegend, title=title)
-    plot_data!(plt)
-end
-plt = plot_contour();
-savefig(plt, &quot;www/models_ensemble_contour.png&quot;)</code></pre><p><img src="../www/models_ensemble_contour.png" alt/></p><p>Finally, we use the <code>GreedyGenerator</code> for the counterfactual search. For the same desired threshold <span>$\gamma$</span> as before, the counterfactual ends up somewhat closer to a cluster of original samples. In other words we end up providing more realisitic albeit likely more costly recourse.</p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
+𝑴=FittedEnsemble(𝓜);</code></pre><p>Again we plot the predicted probabilities in the feature domain. As expected the ensemble is more <em>conservative</em> because it incorporates uncertainty: the predicted probabilities splash out more than before, especially in regions that are not populated by samples.</p><pre><code class="language-julia hljs">plt = plot_contour(X&#39;,y,𝑴);
+savefig(plt, &quot;www/models_ensemble_contour.png&quot;)</code></pre><p><img src="../www/models_ensemble_contour.png" alt/></p><p>Finally, we use the <code>GreedyGenerator</code> for the counterfactual search. For the same desired threshold <span>$\gamma$</span> as before, the counterfactual ends up somewhat closer to a cluster of original samples. In other words we end up providing more realisitic albeit likely more costly recourse.</p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.25,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
-ŷ = probs(recourse.𝑴, recourse.path&#39;)
-p1 = plot_contour(;clegend=false, title=&quot;Deep Ensemble&quot;)
-t = 1
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path&#39;),target)
+p1 = plot_contour(X&#39;,y,𝑴;clegend=false, title=&quot;Deep ensemble&quot;)
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅))
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=1)&quot;, title=&quot;Validity&quot;)
-    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;) # decision boundary
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label=&quot;&quot;)
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=&quot; * string(target) * &quot;)&quot;, title=&quot;Validity&quot;, lc=:black)
+    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;, ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/models_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../loss/">Loss functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Thursday 20 January 2022 10:46">Thursday 20 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+gif(anim, &quot;www/models_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/models_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../binary/">« Binary target</a><a class="docs-footer-nextpage" href="../multi/">Multi-class target »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.13 on <span class="colophon-date" title="Saturday 26 February 2022 07:43">Saturday 26 February 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

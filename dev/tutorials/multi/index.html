@@ -1,2 +1,91 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Recourse for multi-class targets · AlgorithmicRecourse.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/AlgorithmicRecourse.jl/tutorials/multi/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><script src="../../../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AlgorithmicRecourse.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../install/">Installation</a></li><li><input class="collapse-toggle" id="menuitem-2-2" type="checkbox"/><label class="tocitem" for="menuitem-2-2"><span class="docs-label">Quick start</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../binary/">Binary target</a></li></ul></li><li><a class="tocitem" href="../models/">Models</a></li><li><a class="tocitem" href="../loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Recourse for multi-class targets</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Recourse for multi-class targets</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/AlgorithmicRecourse.jl/blob/master/docs/src/tutorials/multi.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Recourse-for-multi-class-targets"><a class="docs-heading-anchor" href="#Recourse-for-multi-class-targets">Recourse for multi-class targets</a><a id="Recourse-for-multi-class-targets-1"></a><a class="docs-heading-anchor-permalink" href="#Recourse-for-multi-class-targets" title="Permalink"></a></h1><p>TO BE COMPLETED</p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Thursday 20 January 2022 10:46">Thursday 20 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Multi-class target · AlgorithmicRecourse.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/AlgorithmicRecourse.jl/tutorials/multi/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">AlgorithmicRecourse.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../install/">Installation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../binary/">Binary target</a></li><li><a class="tocitem" href="../models/">Models</a></li><li class="is-active"><a class="tocitem" href>Multi-class target</a><ul class="internal"><li><a class="tocitem" href="#Classifier"><span>Classifier</span></a></li><li><a class="tocitem" href="#Deep-ensemble"><span>Deep ensemble</span></a></li></ul></li><li><a class="tocitem" href="../loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Multi-class target</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Multi-class target</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/AlgorithmicRecourse.jl/blob/master/docs/src/tutorials/multi.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Recourse-for-multi-class-targets"><a class="docs-heading-anchor" href="#Recourse-for-multi-class-targets">Recourse for multi-class targets</a><a id="Recourse-for-multi-class-targets-1"></a><a class="docs-heading-anchor-permalink" href="#Recourse-for-multi-class-targets" title="Permalink"></a></h1><pre><code class="language-julia hljs">using Flux, Random, Plots, PlotThemes, AlgorithmicRecourse
+theme(:wong)
+using Logging
+disable_logging(Logging.Info)</code></pre><pre><code class="nohighlight hljs">LogLevel(1)</code></pre><pre><code class="language-julia hljs">x, y = toy_data_multi()
+X = hcat(x...)
+y_train = Flux.onehotbatch(y, unique(y))
+y_train = Flux.unstack(y_train&#39;,1)
+plt = plot()
+plt = plot_data!(plt,X&#39;,y);
+savefig(plt, &quot;www/multi_samples.png&quot;)</code></pre><p><img src="../www/multi_samples.png" alt/></p><h2 id="Classifier"><a class="docs-heading-anchor" href="#Classifier">Classifier</a><a id="Classifier-1"></a><a class="docs-heading-anchor-permalink" href="#Classifier" title="Permalink"></a></h2><pre><code class="language-julia hljs">n_hidden = 32
+out_dim = length(unique(y))
+nn = build_model(output_dim=out_dim)
+loss(x, y) = Flux.Losses.logitcrossentropy(nn(x), y)
+ps = Flux.params(nn)
+data = zip(x,y_train);</code></pre><pre><code class="language-julia hljs">using Flux.Optimise: update!, ADAM
+using Statistics
+opt = ADAM()
+epochs = 10
+avg_loss(data) = mean(map(d -&gt; loss(d[1],d[2]), data))
+
+using Plots
+anim = Animation()
+plt = plot(ylim=(0,avg_loss(data)), xlim=(0,epochs), legend=false, xlab=&quot;Epoch&quot;)
+avg_l = []
+
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(params(nn)) do
+      l = loss(d...)
+    end
+    update!(opt, params(nn), gs)
+  end
+  avg_l = vcat(avg_l,avg_loss(data))
+  plot!(plt, avg_l, color=1, title=&quot;Average (training) loss&quot;)
+  frame(anim, plt)
+end
+
+gif(anim, &quot;www/multi_loss.gif&quot;);</code></pre><p><img src="../www/multi_loss.gif" alt/></p><pre><code class="language-julia hljs">using AlgorithmicRecourse, AlgorithmicRecourse.Models
+import AlgorithmicRecourse.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct NeuralNetwork &lt;: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
+probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
+𝑴 = NeuralNetwork(nn)</code></pre><pre><code class="nohighlight hljs">NeuralNetwork(Chain(Dense(2, 32, relu), Dense(32, 4)))</code></pre><pre><code class="language-julia hljs">plt = plot_contour_multi(X&#39;,y,𝑴);
+savefig(plt, &quot;www/multi_contour.png&quot;)</code></pre><p><img src="../www/multi_contour.png" alt/></p><pre><code class="language-julia hljs"># Randomly selected factual:
+Random.seed!(42);
+x̅ = X[:,rand(1:size(X)[2])]
+y̅ = Flux.onecold(probs(𝑴, x̅),unique(y))
+target = rand(unique(y)[1:end .!= y̅]) # opposite label as target
+γ = 0.75
+# Define Generator:
+generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
+# Generate recourse:
+recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path&#39;),target)
+p1 = plot_contour_multi(X&#39;,y,𝑴;title=&quot;Neural network&quot;)
+anim = @animate for t in 1:T
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label=&quot;&quot;)
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=&quot; * string(target) * &quot;)&quot;, title=&quot;Validity&quot;, lc=:black)
+    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;, ls=:dash) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, &quot;www/multi_generic_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/multi_generic_recourse.gif" alt/></p><h2 id="Deep-ensemble"><a class="docs-heading-anchor" href="#Deep-ensemble">Deep ensemble</a><a id="Deep-ensemble-1"></a><a class="docs-heading-anchor-permalink" href="#Deep-ensemble" title="Permalink"></a></h2><pre><code class="language-julia hljs">𝓜 = build_ensemble(5;kw=(output_dim=out_dim,));</code></pre><pre><code class="language-julia hljs">𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
+gif(anim, &quot;www/multi_ensemble_loss.gif&quot;, fps=10);</code></pre><p><img src="../www/multi_ensemble_loss.gif" alt/></p><pre><code class="language-julia hljs"># Step 1)
+struct FittedEnsemble &lt;: Models.FittedModel
+    𝓜::AbstractArray
+end
+
+# Step 2)
+using Statistics
+logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],3), dims=3)
+probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in 𝑴.𝓜],3),dims=3)
+
+𝑴=FittedEnsemble(𝓜);</code></pre><pre><code class="language-julia hljs">plt = plot_contour_multi(X&#39;,y,𝑴);
+savefig(plt, &quot;www/multi_ensemble_contour.png&quot;)</code></pre><p><img src="../www/multi_ensemble_contour.png" alt/></p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
+recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
+ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path&#39;),target)
+p1 = plot_contour_multi(X&#39;,y,𝑴;title=&quot;Deep ensemble&quot;)
+anim = @animate for t in 1:T
+    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label=&quot;&quot;)
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label=&quot;p(y̲=&quot; * string(target) * &quot;)&quot;, title=&quot;Validity&quot;, lc=:black)
+    Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;, ls=:dash) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, &quot;www/multi_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/multi_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../models/">« Models</a><a class="docs-footer-nextpage" href="../loss/">Loss functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.13 on <span class="colophon-date" title="Saturday 26 February 2022 07:43">Saturday 26 February 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
