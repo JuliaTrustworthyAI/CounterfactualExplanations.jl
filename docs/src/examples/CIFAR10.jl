@@ -48,28 +48,27 @@ loss(x, y) = logitbinarycrossentropy(vec(nn(x)), y)
 opt = Momentum(0.01)
 accuracy(x, y) = mean(vec(round.(Flux.σ.(nn(x)))) .== y)
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+epochs = 200
 
 if retrain 
 
     # Training
-    epochs = 200
     for epoch = 1:epochs
-    for d in data
-        gs = gradient(params(nn)) do
-        l = loss(d...)
+        for d in data
+            gs = gradient(params(nn)) do
+            l = loss(d...)
+            end
+            update!(opt, params(nn), gs)
         end
-        update!(opt, params(nn), gs)
+        @info "Epoch " * string(epoch)
+        println("Training loss:")
+        @show avg_loss(data)
+        println("Training accuracy:")
+        @show accuracy(train_x,train_y)
+        println("Test accuracy:")
+        @show accuracy(val_x, val_y)
+        if epoch % 10 == 0
+            BSON.@save "data/CIFAR10_nn_" * string(epoch) * ".bson" nn
+        end
     end
-    println("Training loss")
-    @show avg_loss(data)
-    println("Training accuracy")
-    @show accuracy(train_x,train_y)
-    println("Test accuracy")
-    @show accuracy(val_x, val_y)
-    end
-
-    BSON.@save "CIFAR10_nn.bson" nn
 end
-
-# Load model
-BSON.@load "CIFAR10_nn.bson" nn

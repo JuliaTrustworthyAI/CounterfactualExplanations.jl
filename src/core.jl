@@ -41,16 +41,16 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
     p̅ = Models.probs(𝑴, x̅)
     out_dim = size(p̅)[1]
-    y̅ = Flux.onecold(p̅,1:out_dim) 
+    y̅ = out_dim == 1 ? round(p̅[1]) : Flux.onecold(p̅,1:out_dim)
     target_hot = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
     D = length(x̲)
-    path = reshape(x̲, 1, length(x̲)) # storing the path
+    path = [x̲]
     𝑷 = zeros(D) # vector to keep track of number of permutations by feature
     𝑭ₜ = initialize_mutability(generator, D) 
 
@@ -60,7 +60,7 @@ function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.Fitte
 
     # Search:
     while not_finished
-
+        # println(t)
         # Generate peturbations
         Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target_hot, x̅, 𝑭ₜ)
         𝑭ₜ = Generators.mutability_constraints(generator, 𝑭ₜ, 𝑷) # generate mutibility constraint mask
@@ -68,7 +68,7 @@ function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.Fitte
         
         # Updates:
         x̲ += Δx̲ # update counterfactual
-        path = vcat(path, reshape(x̲, 1, D)) # update counterfactual path
+        path = [path..., x̲]
         𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
         t += 1 # update iteration counter
         global converged = threshold_reached(𝑴, x̲, target, γ)
@@ -78,7 +78,7 @@ function generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.Fitte
 
     # Output:
     p̲ = Models.probs(𝑴, x̲)
-    y̲ = Flux.onecold(p̲,1:out_dim)
+    y̲ = out_dim == 1 ? round(p̲[1]) : Flux.onecold(p̲,1:out_dim)
     recourse = Recourse(x̲, y̲, p̲, path, generator, x̅, y̅, p̅, 𝑴, target, converged) 
     
     return recourse
@@ -126,7 +126,7 @@ end
 
 Checks if confidence threshold has been reached. 
 """
-threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64) = target_probs(Models.probs(𝑴, x̲), target)[1] >= γ
+threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Real, γ::Real) = target_probs(Models.probs(𝑴, x̲), target)[1] >= γ
 
 """
     apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
@@ -173,14 +173,14 @@ Collects all variables relevant to the recourse outcome.
 """
 struct Recourse
     x̲::AbstractArray
-    y̲::Union{Int,AbstractArray}
+    y̲::Union{Real,AbstractArray}
     p̲::Any
-    path::Matrix{Float64}
+    path::AbstractArray
     generator::Generators.Generator
     x̅::AbstractArray
-    y̅::Union{Int,AbstractArray}
+    y̅::Union{Real,AbstractArray}
     p̅::Any
     𝑴::Models.FittedModel
-    target::Float64
+    target::Real
     converged::Bool
 end;
