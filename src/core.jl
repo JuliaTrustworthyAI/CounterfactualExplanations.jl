@@ -41,13 +41,14 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000)
+function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
     p̅ = Models.probs(𝑴, x̅)
     out_dim = size(p̅)[1]
     y̅ = out_dim == 1 ? round(p̅[1]) : Flux.onecold(p̅,1:out_dim)
+    # If multi-class, onehot-encode target
     target_hot = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
     D = length(x̲)
     path = [x̲]
@@ -68,6 +69,9 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
         
         # Updates:
         x̲ += Δx̲ # update counterfactual
+        if !isnothing(feasible_range)
+            clamp!(x̲, feasible_range[1], feasible_range[2])
+        end
         path = [path..., x̲]
         𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
         t += 1 # update iteration counter

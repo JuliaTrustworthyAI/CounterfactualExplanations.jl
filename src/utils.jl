@@ -321,3 +321,36 @@ function forward(𝓜, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=
 
     return 𝓜, anim
 end;
+
+using BSON: @save
+"""
+    save_ensemble(𝓜::AbstractArray; root="")
+
+Saves all models in ensemble to disk.
+"""
+function save_ensemble(𝓜::AbstractArray; root="")
+    for i in 1:length(𝓜)
+        path = root * "/nn" * string(i) * ".bson"
+        model = 𝓜[i]
+        @save path model
+    end
+end
+
+using BSON: @load
+"""
+    load_ensemble(root="")
+
+Loads all models in `root` folder and stores them in a list.
+"""
+function load_ensemble(;root="")
+    all_files = Base.Filesystem.readdir(root)
+    is_bson_file = map(file -> Base.Filesystem.splitext(file)[2][2:end], all_files) .== "bson"
+    bson_files = all_files[is_bson_file]
+    bson_files = map(file -> root * "/" * file, bson_files)
+    𝓜 = []
+    for file in bson_files
+        @load file model
+        𝓜 = vcat(𝓜, model)
+    end
+    return 𝓜
+end
