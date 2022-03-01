@@ -232,12 +232,21 @@ nn = build_model()
 ```
 
 """
-function build_model(;input_dim=2,n_hidden=32,output_dim=1)
+function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false)
     
-    nn = Chain(
-        Dense(input_dim, n_hidden, relu),
-        Dense(n_hidden, output_dim)
-    )  
+    if batch_norm
+        nn = Chain(
+            Dense(input_dim, n_hidden),
+            BatchNorm(n_hidden, relu),
+            Dense(n_hidden, output_dim),
+            BatchNorm(output_dim)
+        )  
+    else
+        nn = Chain(
+            Dense(input_dim, n_hidden, relu),
+            Dense(n_hidden, output_dim)
+        )  
+    end
 
     return nn
 
