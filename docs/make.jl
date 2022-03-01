@@ -23,6 +23,10 @@ makedocs(;
                 "Multi-class target" => "tutorials/multi.md",
                 "Loss functions" => "tutorials/loss.md"
             ],
+        "Examples" =>
+            [
+                "MNIST" => "examples/MNIST.md"
+            ],
         "Reference" => "reference.md"
     ],
 )
