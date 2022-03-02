@@ -232,18 +232,24 @@ nn = build_model()
 ```
 
 """
-function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false)
+function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false,dropout=false,activation=Flux.relu)
     
     if batch_norm
         nn = Chain(
             Dense(input_dim, n_hidden),
-            BatchNorm(n_hidden, relu),
+            BatchNorm(n_hidden, activation),
             Dense(n_hidden, output_dim),
             BatchNorm(output_dim)
         )  
+    elseif dropout
+        nn = Chain(
+            Dense(input_dim, n_hidden, activation),
+            Dropout(0.1),
+            Dense(n_hidden, output_dim)
+        )  
     else
         nn = Chain(
-            Dense(input_dim, n_hidden, relu),
+            Dense(input_dim, n_hidden, activation),
             Dense(n_hidden, output_dim)
         )  
     end
