@@ -1,31 +1,79 @@
-using Pkg.Artifacts
+using Pkg.Artifacts, LibGit2, ghr_jll
 
-# This is the path to the Artifacts.toml we will manipulate
-artifact_toml = joinpath(@__DIR__, "../..", "Artifacts.toml")
+function generate_artifact(
+    ; 
+    data_dir="../data", 
+    root="../..",
+    artifact_toml=joinpath("../..", "Artifacts.toml"), 
+    deploy=true,
+    tag="data"
+)
 
-data_repo = "https://github.com/pat-alt/AlgorithmicRecourse_data/raw/main"
+    deploy = true
+    if deploy && !haskey(ENV, "GITHUB_TOKEN")
+        error("For automatic github deployment, export GITHUB_TOKEN!")
+    end
 
-function generate_artifact(name; data_repo=data_repo, artifact_toml=artifact_toml)
+    if deploy
+        # Where we will put our tarballs
+        tempdir = mktempdir()
+    
+        function get_git_remote_url(repo_path::String)
+            repo = LibGit2.GitRepo(repo_path)
+            origin = LibGit2.get(LibGit2.GitRemote, repo, "origin")
+            return LibGit2.url(origin)
+        end
+    
+        # Try to detect where we should upload these weights to (or just override
+        # as shown in the commented-out line)
+        origin_url = get_git_remote_url(root)
+        deploy_repo = "$(basename(dirname(origin_url)))/$(splitext(basename(origin_url))[1])"
+    
+        #deploy_repo = "staticfloat/ObjectDetector.jl"
+    end
 
-    hash = artifact_hash(name, artifact_toml)
+    # Collect all BSON files:
+    datafiles = filter(x->endswith(x,".bson"), readdir(data_dir))
 
-    # If the name was not bound, or the hash it was bound to does not exist, create it!
-    if isnothing(hash) || !artifact_exists(hash)
+    # For each BSON file, generate its own artifact:
+    for datafile in datafiles
 
-        # We create the artifact by simply downloading a few files into the new artifact directory
-        url_base = joinpath(data_repo,name)
+        # Name for hash/artifact:
+        name = splitext(datafile)[1]
 
         # create_artifact() returns the content-hash of the artifact directory once we're finished creating it
         hash = create_artifact() do artifact_dir
-            download("$(url_base)/data.bson", joinpath(artifact_dir, "data.bson"))
-            download("$(url_base)/model.bson", joinpath(artifact_dir, "model.bson"))
+            cp(joinpath(data_dir, datafile), joinpath(artifact_dir, datafile))
         end
 
-        # Now bind that hash within our `Artifacts.toml`.  `force = true` means that if it already exists,
-        # just overwrite with the new content-hash.  Unless the source files change, we do not expect
-        # the content hash to change, so this should not cause unnecessary version control churn.
-        bind_artifact!(artifact_toml, name, hash; lazy=true)
+        # Spit tarballs to be hosted out to local temporary directory:
+        if deploy
+            
+            tarball_hash = archive_artifact(hash, joinpath(tempdir, "$(name).tar.gz"))
+
+            # Calculate tarball url
+            tarball_url = "https://github.com/$(deploy_repo)/releases/download/$(tag)/$(name).tar.gz"
+
+            # Bind this to an Artifacts.toml file
+            @info("Binding $(name) in Artifacts.toml...")
+            bind_artifact!(
+                artifact_toml, name, hash; 
+                download_info=[(tarball_url, tarball_hash)], lazy=true, force=true
+            )
+        end
+
     end
+
+    if deploy
+        # Upload tarballs to a special github release
+        @info("Uploading tarballs to $(deploy_repo) tag `$(tag)`")
+        ghr() do ghr_exe
+            run(`$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`)
+        end
+
+        @info("Artifacts.toml file now contains all bound artifact names")
+    end
+
 end
 
-generate_artifact("UCR")
+# generate_artifact()
