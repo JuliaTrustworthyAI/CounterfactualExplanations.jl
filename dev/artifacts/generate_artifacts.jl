@@ -11,7 +11,7 @@ function generate_artifact(
 
     deploy = true
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
-        error("For automatic github deployment, export GITHUB_TOKEN!")
+        @warn "For automatic github deployment, need GITHUB_TOKEN. Not found in ENV, attemptimg global git config."
     end
 
     if deploy
@@ -67,8 +67,9 @@ function generate_artifact(
     if deploy
         # Upload tarballs to a special github release
         @info("Uploading tarballs to $(deploy_repo) tag `$(tag)`")
+
         ghr() do ghr_exe
-            run(`$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`)
+            println(readchomp(`$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`))
         end
 
         @info("Artifacts.toml file now contains all bound artifact names")

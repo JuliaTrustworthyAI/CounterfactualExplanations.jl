@@ -3,7 +3,7 @@ git-tree-sha1 = "6767d796c1f5e75d924f1cd72c0bec2dbaf46dfe"
 lazy = true
 
     [[ucr_data.download]]
-    sha256 = "d80c87a4d002ea74cc468cd9857fd66c09ab15ed0eaf74ec47a52231d72145d2"
+    sha256 = "0a5490c59e68bc55f619d2eda19fba4b054a1f532fd75afa0dba507d53368941"
     url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/ucr_data.tar.gz"
 
 [ucr_model]
@@ -11,5 +11,5 @@ git-tree-sha1 = "4dd4c3dfc47202025b09b06a1d8a8329251bd397"
 lazy = true
 
     [[ucr_model.download]]
-    sha256 = "b8e3a3919b153f40ae7aef28fd075087a66c1ef68be80862f10d5691de08a5c3"
+    sha256 = "aa97a8b5b7d652ec5c7ddba9138e8355146299dc482c52033cae56e405275709"
     url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/ucr_model.tar.gz"
