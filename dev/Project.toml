@@ -1,0 +1,6 @@
+[deps]
+Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
+LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+ghr_jll = "07c12ed4-43bc-5495-8a2a-d5838ef8d533"
