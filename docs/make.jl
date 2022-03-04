@@ -23,6 +23,16 @@ makedocs(;
                 "Multi-class target" => "tutorials/multi.md",
                 "Loss functions" => "tutorials/loss.md"
             ],
+        # "Examples" =>
+        #     [
+        #         "Image data" => [
+        #             "MNIST" => "examples/image/MNIST.md"
+        #         ],
+        #         "Time series" => [
+        #             "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"
+        #         ]
+                
+        #     ],
         "Reference" => "reference.md"
     ],
 )
