@@ -15,10 +15,29 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Installation" => "install.md",
+        "Tutorials" =>
+            [
+                "Binary target" => "tutorials/binary.md",
+                "Models" => "tutorials/models.md",
+                "Multi-class target" => "tutorials/multi.md",
+                "Loss functions" => "tutorials/loss.md"
+            ],
+        # "Examples" =>
+        #     [
+        #         "Image data" => [
+        #             "MNIST" => "examples/image/MNIST.md"
+        #         ],
+        #         "Time series" => [
+        #             "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"
+        #         ]
+                
+        #     ],
+        "Reference" => "reference.md"
     ],
 )
 
 deploydocs(;
     repo="github.com/pat-alt/AlgorithmicRecourse.jl",
-    devbranch="main",
+    devbranch="main"
 )
