@@ -1,7 +1,7 @@
 using Pkg.Artifacts, LibGit2, ghr_jll
 
 function generate_artifact(
-    ; 
+    datafiles; 
     data_dir="../data", 
     root="../..",
     artifact_toml=joinpath("../..", "Artifacts.toml"), 
@@ -9,7 +9,6 @@ function generate_artifact(
     tag="data"
 )
 
-    deploy = true
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
         @warn "For automatic github deployment, need GITHUB_TOKEN. Not found in ENV, attemptimg global git config."
     end
@@ -33,7 +32,7 @@ function generate_artifact(
     end
 
     # Collect all BSON files:
-    datafiles = filter(x->endswith(x,".bson"), readdir(data_dir))
+    # datafiles = filter(x->endswith(x,".bson"), readdir(data_dir))
 
     # For each BSON file, generate its own artifact:
     for datafile in datafiles

@@ -1,9 +1,17 @@
+[cats_dogs_data]
+git-tree-sha1 = "9a272c52b173982900a7c74933590b66df80145c"
+lazy = true
+
+    [[cats_dogs_data.download]]
+    sha256 = "92afbdca69e0c9b94e21093083a70866f2a4896a2145f4bc0642270d7faa3861"
+    url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/cats_dogs_data.tar.gz"
+
 [ucr_data]
 git-tree-sha1 = "6767d796c1f5e75d924f1cd72c0bec2dbaf46dfe"
 lazy = true
 
     [[ucr_data.download]]
-    sha256 = "0a5490c59e68bc55f619d2eda19fba4b054a1f532fd75afa0dba507d53368941"
+    sha256 = "044498747b6095ef73bede5ee272e62e38841cac245e1eeff940d472c4d3ff18"
     url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/ucr_data.tar.gz"
 
 [ucr_model]
@@ -11,5 +19,5 @@ git-tree-sha1 = "4dd4c3dfc47202025b09b06a1d8a8329251bd397"
 lazy = true
 
     [[ucr_model.download]]
-    sha256 = "aa97a8b5b7d652ec5c7ddba9138e8355146299dc482c52033cae56e405275709"
+    sha256 = "236c07a7d0c36f3363c4a015439caa3aaa7372144cead72f4a61402919e246c3"
     url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/ucr_model.tar.gz"
