@@ -1,16 +1,16 @@
-using AlgorithmicRecourse
+using CLEAR
 using Documenter
 
-DocMeta.setdocmeta!(AlgorithmicRecourse, :DocTestSetup, :(using AlgorithmicRecourse); recursive=true)
+DocMeta.setdocmeta!(CLEAR, :DocTestSetup, :(using CLEAR); recursive=true)
 
 makedocs(;
-    modules=[AlgorithmicRecourse],
+    modules=[CLEAR],
     authors="Patrick Altmeyer",
-    repo="https://github.com/pat-alt/AlgorithmicRecourse.jl/blob/{commit}{path}#{line}",
-    sitename="AlgorithmicRecourse.jl",
+    repo="https://github.com/pat-alt/CLEAR.jl/blob/{commit}{path}#{line}",
+    sitename="CLEAR.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://pat-alt.github.io/AlgorithmicRecourse.jl",
+        canonical="https://pat-alt.github.io/CLEAR.jl",
         assets=String[],
     ),
     pages=[
@@ -38,6 +38,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/pat-alt/AlgorithmicRecourse.jl",
+    repo="github.com/pat-alt/CLEAR.jl",
     devbranch="main"
 )

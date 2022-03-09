@@ -1,4 +1,4 @@
-module AlgorithmicRecourse
+module CLEAR
 
 # Dependencies:
 using Flux

@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = AlgorithmicRecourse 
+CurrentModule = CLEAR 
 ```
 
 # Recourse for multi-class targets
 
 
 ```julia
-using Flux, Random, Plots, PlotThemes, AlgorithmicRecourse
+using Flux, Random, Plots, PlotThemes, CLEAR, Statistics
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
@@ -35,7 +35,8 @@ savefig(plt, "www/multi_samples.png")
 ```julia
 n_hidden = 32
 out_dim = length(unique(y))
-nn = build_model(output_dim=out_dim)
+kw = (output_dim=out_dim, dropout=true)
+nn = build_model(;kw...)
 loss(x, y) = Flux.Losses.logitcrossentropy(nn(x), y)
 ps = Flux.params(nn)
 data = zip(x,y_train);
@@ -44,15 +45,10 @@ data = zip(x,y_train);
 
 ```julia
 using Flux.Optimise: update!, ADAM
-using Statistics
 opt = ADAM()
 epochs = 10
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-
-using Plots
-anim = Animation()
-plt = plot(ylim=(0,avg_loss(data)), xlim=(0,epochs), legend=false, xlab="Epoch")
-avg_l = []
+show_every = epochs/10
 
 for epoch = 1:epochs
   for d in data
@@ -61,20 +57,39 @@ for epoch = 1:epochs
     end
     update!(opt, params(nn), gs)
   end
-  avg_l = vcat(avg_l,avg_loss(data))
-  plot!(plt, avg_l, color=1, title="Average (training) loss")
-  frame(anim, plt)
+  if epoch % show_every == 0
+    println("Epoch " * string(epoch))
+    @show avg_loss(data)
+  end
 end
-
-gif(anim, "www/multi_loss.gif");
 ```
 
-![](www/multi_loss.gif)
+    Epoch 1
+    avg_loss(data) = 0.9255239012607264
+    Epoch 2
+    avg_loss(data) = 0.3593051233387213
+    Epoch 3
+    avg_loss(data) = 0.18421732400655624
+    Epoch 4
+    avg_loss(data) = 0.10711486082055025
+    Epoch 5
+    avg_loss(data) = 0.07511142481836484
+    Epoch 6
+    avg_loss(data) = 0.0575109613420611
+    Epoch 7
+    avg_loss(data) = 0.0424017922374355
+    Epoch 8
+    avg_loss(data) = 0.03331096899975358
+    Epoch 9
+    avg_loss(data) = 0.027016712426665555
+    Epoch 10
+    avg_loss(data) = 0.02219848870252177
+
 
 
 ```julia
-using AlgorithmicRecourse, AlgorithmicRecourse.Models
-import AlgorithmicRecourse.Models: logits, probs # import functions in order to extend
+using CLEAR, CLEAR.Models
+import CLEAR.Models: logits, probs # import functions in order to extend
 
 # Step 1)
 struct NeuralNetwork <: Models.FittedModel
@@ -84,12 +99,8 @@ end
 # Step 2)
 logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
 probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
-𝑴 = NeuralNetwork(nn)
+𝑴 = NeuralNetwork(nn);
 ```
-
-
-    NeuralNetwork(Chain(Dense(2, 32, relu), Dense(32, 4)))
-
 
 
 ```julia
@@ -116,10 +127,11 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
-p1 = plot_contour_multi(X',y,𝑴;title="Neural network")
+X_path = reduce(hcat,recourse.path)
+ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label="")
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
@@ -138,6 +150,7 @@ gif(anim, "www/multi_generic_recourse.gif", fps=5);
 
 
 ```julia
+using CLEAR: forward
 𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
 gif(anim, "www/multi_ensemble_loss.gif", fps=10);
 ```
@@ -176,10 +189,11 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
-p1 = plot_contour_multi(X',y,𝑴;title="Deep ensemble")
+X_path = reduce(hcat,recourse.path)
+ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅), label="")
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))

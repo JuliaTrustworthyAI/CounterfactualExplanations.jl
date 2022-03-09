@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = AlgorithmicRecourse 
+CurrentModule = CLEAR 
 ```
 
 # Models
 
 ## Default models
 
-There are currently structures for two default models that can be used with AlgorithmicRecourse.jl:
+There are currently structures for two default models that can be used with CLEAR.jl:
 
 1. [`LogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
 2. [`BayesianLogisticModel(μ::AbstractArray,Σ::AbstractArray)`](@ref)
@@ -17,10 +17,10 @@ For the simple logistic regression model logits are computed as $a=Xw + b$ and p
 
 ## Custom models
 
-Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with AlgorithmicRecourse.jl:
+Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with CLEAR.jl:
 
-1. The model needs to be declared as a subtype of `AlgorithmicRecourse.Models.FittedModel`.
-2. You need to extend the functions `AlgorithmicRecourse.Models.logits` and `AlgorithmicRecourse.Models.probs` to accept your custom model.
+1. The model needs to be declared as a subtype of `CLEAR.Models.FittedModel`.
+2. You need to extend the functions `CLEAR.Models.logits` and `CLEAR.Models.probs` to accept your custom model.
 
 Below we will go through a simple example to see how this can be done in practice. 
 
@@ -31,7 +31,7 @@ In this example we will build a simple artificial neural network using [Flux.jl]
 
 ```julia
 # Import libraries.
-using Flux, Plots, Random, PlotThemes, Statistics, AlgorithmicRecourse
+using Flux, Plots, Random, PlotThemes, Statistics, CLEAR
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
@@ -67,7 +67,7 @@ Instead we will build a simple artificial neural network `nn` with one hidden la
 
 
 ```julia
-nn = build_model()
+nn = build_model(dropout=true,activation=Flux.σ)
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 ps = Flux.params(nn)
 data = zip(x,y);
@@ -79,13 +79,9 @@ The code below trains the neural network for the task at hand. The plot shows th
 ```julia
 using Flux.Optimise: update!, ADAM
 opt = ADAM()
-epochs = 10
+epochs = 100
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-
-using Plots
-anim = Animation()
-plt = plot(ylim=(0,avg_loss(data)), xlim=(0,epochs), legend=false, xlab="Epoch")
-avg_l = []
+show_every = epochs/10
 
 for epoch = 1:epochs
   for d in data
@@ -94,26 +90,45 @@ for epoch = 1:epochs
     end
     update!(opt, params(nn), gs)
   end
-  avg_l = vcat(avg_l,avg_loss(data))
-  plot!(plt, avg_l, color=1, title="Average (training) loss")
-  frame(anim, plt)
+  if epoch % show_every == 0
+    println("Epoch " * string(epoch))
+    @show avg_loss(data)
+  end
 end
-
-gif(anim, "www/models_loss.gif");
 ```
 
-![](www/models_loss.gif)
+    Epoch 10
+    avg_loss(data) = 0.6892187490309944
+    Epoch 20
+    avg_loss(data) = 0.6767634057872471
+    Epoch 30
+    avg_loss(data) = 0.6557134557550864
+    Epoch 40
+    avg_loss(data) = 0.6238793502186495
+    Epoch 50
+    avg_loss(data) = 0.574156178094375
+    Epoch 60
+    avg_loss(data) = 0.5067736276756599
+    Epoch 70
+    avg_loss(data) = 0.42957685824823677
+    Epoch 80
+    avg_loss(data) = 0.3534671179124217
+    Epoch 90
+    avg_loss(data) = 0.2879001871677585
+    Epoch 100
+    avg_loss(data) = 0.23253485574062113
+
 
 #### Generating recourse
 
-Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by AlgorithmicRecourse.jl. 
+Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CLEAR.jl. 
 
 The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.FittedModel` and in step 2) it just extends the two functions. 
 
 
 ```julia
-using AlgorithmicRecourse, AlgorithmicRecourse.Models
-import AlgorithmicRecourse.Models: logits, probs # import functions in order to extend
+using CLEAR, CLEAR.Models
+import CLEAR.Models: logits, probs # import functions in order to extend
 
 # Step 1)
 struct NeuralNetwork <: Models.FittedModel
@@ -127,7 +142,7 @@ probs(𝑴::NeuralNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 ```
 
 
-    NeuralNetwork(Chain(Dense(2, 32, relu), Dense(32, 1)))
+    NeuralNetwork(Chain(Dense(2, 32, σ), Dropout(0.1), Dense(32, 1)))
 
 
 The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as expected. 
@@ -164,16 +179,20 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
-p1 = plot_contour(X',y,𝑴;clegend=false, title="Neural network - plugin")
+X_path = reduce(hcat,recourse.path)
+ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label="")
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
 gif(anim, "www/models_generic_recourse.gif", fps=5);
 ```
+
+    HI
+
 
 ![](www/models_generic_recourse.gif)
 
@@ -185,7 +204,7 @@ One efficient way to produce uncertainty estimates in the context of deep learni
 
 
 ```julia
-𝓜 = build_ensemble(5);
+𝓜 = build_ensemble(5;kw=(dropout=true,activation=Flux.σ));
 ```
 
 Now we need to be able to train this ensemble, which boils down to training each neural network separately. For this purpose will just summarize the process for training a single neural network (as per above) in a wrapper function:
@@ -254,7 +273,7 @@ end;
 
 
 ```julia
-𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
+𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=show_every); # fit the ensemble
 gif(anim, "www/models_ensemble_loss.gif", fps=10);
 ```
 
@@ -297,10 +316,11 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 
 ```julia
 T = size(recourse.path)[1]
-ŷ = AlgorithmicRecourse.target_probs(probs(recourse.𝑴, recourse.path'),target)
+X_path = reduce(hcat,recourse.path)
+ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t,1]], [recourse.path[t,2]], ms=5, color=Int(y̅),label="")
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
