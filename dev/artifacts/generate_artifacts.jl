@@ -28,7 +28,6 @@ function generate_artifact(
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(splitext(basename(origin_url))[1])"
     
-        #deploy_repo = "staticfloat/ObjectDetector.jl"
     end
 
     # Collect all BSON files:

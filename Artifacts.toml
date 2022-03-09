@@ -3,7 +3,7 @@ git-tree-sha1 = "9a272c52b173982900a7c74933590b66df80145c"
 lazy = true
 
     [[cats_dogs_data.download]]
-    sha256 = "92afbdca69e0c9b94e21093083a70866f2a4896a2145f4bc0642270d7faa3861"
+    sha256 = "8ef0b8eef0347e69c85e480d33e2cd07d881d0687b8810b7009687de4940de15"
     url = "https://github.com/pat-alt/AlgorithmicRecourse.jl/releases/download/data/cats_dogs_data.tar.gz"
 
 [ucr_data]
