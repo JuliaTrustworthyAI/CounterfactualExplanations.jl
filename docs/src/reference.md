@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = AlgorithmicRecourse 
+CurrentModule = CLEAR 
 ```
 
 # All functions and types
@@ -10,13 +10,13 @@ CurrentModule = AlgorithmicRecourse
 ## Exported functions
 
 ```@autodocs
-Modules = [AlgorithmicRecourse, AlgorithmicRecourse.Generators, AlgorithmicRecourse.Models, AlgorithmicRecourse.Losses]
+Modules = [CLEAR, CLEAR.Generators, CLEAR.Models, CLEAR.Losses]
 Private = false
 ```
 
 ## Internal functions
 
 ```@autodocs
-Modules = [AlgorithmicRecourse, AlgorithmicRecourse.Generators, AlgorithmicRecourse.Models, AlgorithmicRecourse.Losses]
+Modules = [CLEAR, CLEAR.Generators, CLEAR.Models, CLEAR.Losses]
 Public = false
 ```

@@ -55,9 +55,9 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using AlgorithmicRecourse
-            DocMeta.setdocmeta!(AlgorithmicRecourse, :DocTestSetup, :(using AlgorithmicRecourse); recursive=true)
-            doctest(AlgorithmicRecourse)'
+            using CLEAR
+            DocMeta.setdocmeta!(CLEAR, :DocTestSetup, :(using CLEAR); recursive=true)
+            doctest(CLEAR)'
       - run: julia --project=docs docs/make.jl
         env:
           JULIA_PKG_SERVER: ""

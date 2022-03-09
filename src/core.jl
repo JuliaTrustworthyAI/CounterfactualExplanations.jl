@@ -16,7 +16,7 @@ b = [0]
 x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = AlgorithmicRecourse.Models.LogisticModel(w, b);
+𝑴 = CLEAR.Models.LogisticModel(w, b);
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
@@ -31,7 +31,7 @@ Random.seed!(1234)
 x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = AlgorithmicRecourse.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = CLEAR.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
@@ -97,8 +97,8 @@ Selects the probabilities of the target class. In case of binary classification 
 # Examples
 
 ```julia-repl
-using AlgorithmicRecourse
-using AlgorithmicRecourse.Models: LogisticModel, probs 
+using CLEAR
+using CLEAR.Models: LogisticModel, probs 
 Random.seed!(1234)
 N = 25
 w = [1.0 1.0]# true coefficients

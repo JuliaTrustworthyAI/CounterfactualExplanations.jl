@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = AlgorithmicRecourse 
+CurrentModule = CLEAR 
 ```
 
 # Loss functions and gradients
@@ -296,12 +296,12 @@ savefig(plt, "www/loss_examlpe.png")
 
 ![](www/loss_examlpe.png)
 
-Next we will generating recourse using the AlgorithmicRecourse.jl package. First we intantiate our model and based on the assigned label we identify the target (the opposite label).
+Next we will generating recourse using the CLEAR.jl package. First we intantiate our model and based on the assigned label we identify the target (the opposite label).
 
 
 ```julia
-using AlgorithmicRecourse
-using AlgorithmicRecourse.Models: LogisticModel
+using CLEAR
+using CLEAR.Models: LogisticModel
 𝑴 = LogisticModel(w, [b]);
 target = ifelse(y̅==1.0,0.0,1.0)
 γ = 0.75

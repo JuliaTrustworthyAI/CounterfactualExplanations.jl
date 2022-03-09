@@ -1,6 +1,6 @@
-using AlgorithmicRecourse
+using CLEAR
 using Test
 
-@testset "AlgorithmicRecourse.jl" begin
+@testset "CLEAR.jl" begin
     # Write your tests here.
 end
