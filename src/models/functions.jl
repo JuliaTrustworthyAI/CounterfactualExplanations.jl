@@ -93,6 +93,7 @@ See also:
 struct BayesianLogisticModel <: FittedModel
     μ::Matrix
     Σ::Matrix
+    BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
 end
 
 # What follows are the three required outer methods:
