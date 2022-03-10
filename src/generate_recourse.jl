@@ -114,13 +114,19 @@ target_probs(p, 1)
 ```
 
 """
-function target_probs(p, target)
-    if size(p)[1] == 1
+function target_probs(p::AbstractArray, target::Union{Int,AbstractFloat})
+    if length(p) == 1
+        if target ∉ [0,1]
+            throw(DomainError("For binary classification expecting target to be in {0,1}.")) 
+        end
         # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
         p = vcat(1.0 .- p, p)
         # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
         p_target = p[Int(target+1),:]
     else
+        if target < 1 || target % 1 !=0
+            throw(DomainError("For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.")) 
+        end
         # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
         p_target = p[Int(target),:]
     end
@@ -163,7 +169,7 @@ function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
 
 end
 
-function initialize_mutability(generator::Generator, D::Int64)
+function initialize_mutability(generator::Generator, D::Int)
     if isnothing(generator.𝑭)
         𝑭 = [:both for i in 1:D]
     else 

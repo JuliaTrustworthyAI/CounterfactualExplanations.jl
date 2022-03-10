@@ -47,3 +47,24 @@ Random.seed!(1234)
     end
 
 end
+
+@testset "target_probs" begin
+
+    using CLEAR: target_probs
+
+    @testset "Binary" begin
+        p = [0.25]
+        @test target_probs(p, 1) == [0.25]
+        @test target_probs(p, 0) == [0.75]
+        @test_throws DomainError target_probs(p, 2)
+        @test_throws DomainError target_probs(p, -1)
+    end
+
+    @testset "Multi-class" begin
+        p = [0.25, 0.75]
+        @test target_probs(p, 1) == [0.25]
+        @test target_probs(p, 2) == [0.75]
+        @test_throws DomainError target_probs(p, 0)
+        @test_throws DomainError target_probs(p, 1.1)
+    end
+end
