@@ -5,4 +5,6 @@ using NNlib, LinearAlgebra
 
 include("functions.jl")
 
+export LogisticModel, BayesianLogisticModel, probs, logits
+
 end

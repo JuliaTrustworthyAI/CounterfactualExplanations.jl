@@ -3,11 +3,16 @@ using CLEAR.Losses
 using Random
 
 @testset "Hinge" begin
-    a = rand([-1,1])
-    @test hinge_loss(a,a) == 0.0
 
-    a = rand([0,1])
-    @test hinge_loss(a,a) == 0.0
+    # Equality
+    t = rand([-1,1]) # target
+    a = t # logits
+    @test hinge_loss(a,t) == 0.0
+
+    # Label mapping
+    t = rand([0,1])
+    a = t==0 ? -1 : 1
+    @test hinge_loss(a,t) == 0.0
 
     @test hinge_loss(-1,1) == 2.0
     @test hinge_loss(100,1) == 0.0
