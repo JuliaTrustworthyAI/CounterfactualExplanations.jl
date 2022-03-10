@@ -9,4 +9,12 @@ Random.seed!(0)
         include("utils.jl")
     end
 
+    @testset "Losses" begin
+        include("losses.jl")
+    end
+
+    @testset "Model" begin
+        include("models.jl")
+    end
+
 end
