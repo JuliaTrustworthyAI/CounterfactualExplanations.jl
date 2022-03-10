@@ -148,10 +148,10 @@ Apply mutability constraints to `Δx̲` based on vector of constraints `𝑭`.
 # Examples 
 
 𝑭 = [:both, :increase, :decrease, :none]
-_mutability([-1,1,-1,1], 𝑭) # all but :none pass
-_mutability([-1,-1,-1,1], 𝑭) # all but :increase and :none pass
-_mutability([-1,1,1,1], 𝑭) # all but :decrease and :none pass
-_mutability([-1,-1,1,1], 𝑭) # only :both passes
+apply_mutability([-1,1,-1,1], 𝑭) # all but :none pass
+apply_mutability([-1,-1,-1,1], 𝑭) # all but :increase and :none pass
+apply_mutability([-1,1,1,1], 𝑭) # all but :decrease and :none pass
+apply_mutability([-1,-1,1,1], 𝑭) # only :both passes
 
 """
 function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})

@@ -68,3 +68,43 @@ end
         @test_throws DomainError target_probs(p, 1.1)
     end
 end
+
+@testset "threshold_reached" begin
+    using CLEAR: threshold_reached
+    𝑴 = LogisticModel([1.0 -2.0], [0])
+    x̅ = [-1,0.5]
+    p̅ = probs(𝑴, x̅)
+    y̅ = round(p̅[1])
+    target = y̅ == 1 ? 0 : 1
+    ε = 1e-10
+    
+    @test threshold_reached(𝑴, x̅, y̅, 0.5+ε) == true
+    @test threshold_reached(𝑴, x̅, target, 0.5+ε) == false
+
+end
+
+@testset "apply_mutability" begin
+    using CLEAR: apply_mutability
+    𝑭 = [:both, :increase, :decrease, :none]
+    @test apply_mutability([-1,1,-1,1], 𝑭)[4] == 0
+    @test all(apply_mutability([-1,1,1,1], 𝑭)[[3,4]] .== 0)
+    @test all(apply_mutability([-1,-1,-1,1], 𝑭)[[2,4]] .== 0)
+    @test all(apply_mutability([-1,-1,1,1], 𝑭)[[2,3,4]] .== 0)
+end
+
+@testset "initialize_mutability" begin
+    using CLEAR: initialize_mutability
+    struct SomeGenerator <: Generator
+        𝑭::Union{Nothing,Vector{Symbol}}
+    end
+
+    gen_unconstrained = SomeGenerator(nothing)
+    gen_constrained = SomeGenerator([:none,:increase])
+
+    @test length(initialize_mutability(gen_unconstrained, 1)) == 1
+    @test length(initialize_mutability(gen_unconstrained, 2)) == 2
+    @test all(initialize_mutability(gen_unconstrained, 2) .== :both)
+    @test all(initialize_mutability(gen_constrained, 2) .== [:none,:increase])
+    @test length(initialize_mutability(gen_constrained, 2)) == 2
+
+end
