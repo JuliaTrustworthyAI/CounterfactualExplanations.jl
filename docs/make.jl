@@ -1,16 +1,16 @@
-using CLEAR
+using CounterfactualExplanations
 using Documenter
 
-DocMeta.setdocmeta!(CLEAR, :DocTestSetup, :(using CLEAR); recursive=true)
+DocMeta.setdocmeta!(CounterfactualExplanations, :DocTestSetup, :(using CounterfactualExplanations); recursive=true)
 
 makedocs(;
-    modules=[CLEAR],
+    modules=[CounterfactualExplanations],
     authors="Patrick Altmeyer",
-    repo="https://github.com/pat-alt/CLEAR.jl/blob/{commit}{path}#{line}",
-    sitename="CLEAR.jl",
+    repo="https://github.com/pat-alt/CounterfactualExplanations.jl/blob/{commit}{path}#{line}",
+    sitename="CounterfactualExplanations.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://pat-alt.github.io/CLEAR.jl",
+        canonical="https://pat-alt.github.io/CounterfactualExplanations.jl",
         assets=String[],
     ),
     pages=[
@@ -38,6 +38,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/pat-alt/CLEAR.jl",
+    repo="github.com/pat-alt/CounterfactualExplanations.jl",
     devbranch="main"
 )

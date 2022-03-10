@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = CLEAR 
+CurrentModule = CounterfactualExplanations 
 ```
 
 # Recourse for multi-class targets
 
 
 ```julia
-using Flux, Random, Plots, PlotThemes, CLEAR, Statistics
+using Flux, Random, Plots, PlotThemes, CounterfactualExplanations, Statistics
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
@@ -88,8 +88,8 @@ end
 
 
 ```julia
-using CLEAR, CLEAR.Models
-import CLEAR.Models: logits, probs # import functions in order to extend
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
 struct NeuralNetwork <: Models.FittedModel
@@ -128,7 +128,7 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
@@ -150,7 +150,7 @@ gif(anim, "www/multi_generic_recourse.gif", fps=5);
 
 
 ```julia
-using CLEAR: forward
+using CounterfactualExplanations: forward
 𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
 gif(anim, "www/multi_ensemble_loss.gif", fps=10);
 ```
@@ -190,7 +190,7 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")

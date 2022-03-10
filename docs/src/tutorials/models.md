@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = CLEAR 
+CurrentModule = CounterfactualExplanations 
 ```
 
 # Models
 
 ## Default models
 
-There are currently structures for two default models that can be used with CLEAR.jl:
+There are currently structures for two default models that can be used with CounterfactualExplanations.jl:
 
 1. [`LogisticModel(w::AbstractArray,b::AbstractArray)`](@ref)
 2. [`BayesianLogisticModel(μ::AbstractArray,Σ::AbstractArray)`](@ref)
@@ -17,10 +17,10 @@ For the simple logistic regression model logits are computed as $a=Xw + b$ and p
 
 ## Custom models
 
-Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with CLEAR.jl:
+Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with CounterfactualExplanations.jl:
 
-1. The model needs to be declared as a subtype of `CLEAR.Models.FittedModel`.
-2. You need to extend the functions `CLEAR.Models.logits` and `CLEAR.Models.probs` to accept your custom model.
+1. The model needs to be declared as a subtype of `CounterfactualExplanations.Models.FittedModel`.
+2. You need to extend the functions `CounterfactualExplanations.Models.logits` and `CounterfactualExplanations.Models.probs` to accept your custom model.
 
 Below we will go through a simple example to see how this can be done in practice. 
 
@@ -31,7 +31,7 @@ In this example we will build a simple artificial neural network using [Flux.jl]
 
 ```julia
 # Import libraries.
-using Flux, Plots, Random, PlotThemes, Statistics, CLEAR
+using Flux, Plots, Random, PlotThemes, Statistics, CounterfactualExplanations
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
@@ -43,7 +43,7 @@ disable_logging(Logging.Info)
 
 First we generate some toy data below. The code that generates this data was borrowed from a great tutorial about Bayesian neural networks provided by [Turing.jl](https://turing.ml/dev/), which you may find [here](https://turing.ml/dev/tutorials/03-bayesian-neural-network/). 
 
-The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. Clearly this data is not linearly separable and the default `LogisticModel` would be ill suited for this classification task.
+The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. CounterfactualExplanationsly this data is not linearly separable and the default `LogisticModel` would be ill suited for this classification task.
 
 
 ```julia
@@ -121,14 +121,14 @@ end
 
 #### Generating recourse
 
-Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CLEAR.jl. 
+Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CounterfactualExplanations.jl. 
 
 The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.FittedModel` and in step 2) it just extends the two functions. 
 
 
 ```julia
-using CLEAR, CLEAR.Models
-import CLEAR.Models: logits, probs # import functions in order to extend
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
 struct NeuralNetwork <: Models.FittedModel
@@ -180,7 +180,7 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
@@ -317,7 +317,7 @@ recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recou
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")

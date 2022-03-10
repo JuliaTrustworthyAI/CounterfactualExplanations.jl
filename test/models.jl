@@ -1,5 +1,5 @@
-using CLEAR
-using CLEAR.Models
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
 using Random
 using LinearAlgebra
 using NNlib
@@ -39,9 +39,31 @@ end
 
 @testset "Predictions" begin
 
-    𝑴 = LogisticModel([1 1],[0])
-    x = [1,1]
-    @test logits(𝑴, x)[1] == 2
-    @test probs(𝑴, x)[1] == σ(2)
+    @testset "LogisticModel" begin
+        𝑴 = LogisticModel([1 1],[0])
+        x = [1,1]
+        @test logits(𝑴, x)[1] == 2
+        @test probs(𝑴, x)[1] == σ(2) 
+    end
 
+    @testset "BayesianLogisticModel" begin
+
+        # MLE:
+        μ = [0 1.0 1.0] # vector instead of matrix
+        Σ = zeros(3,3) # MAP covariance matrix
+        𝑴 = BayesianLogisticModel(μ, Σ)
+        x = [1,1]
+        @test logits(𝑴, x)[1] == 2
+        @test probs(𝑴, x)[1] == σ(2)
+
+        # Not MLE:
+        μ = [0 1.0 1.0] # vector instead of matrix
+        Σ = zeros(3,3) + UniformScaling(1) # MAP covariance matrix
+        𝑴 = BayesianLogisticModel(μ, Σ)
+        x = [1,1]
+        @test logits(𝑴, x)[1] == 2
+        @test probs(𝑴, x)[1] != σ(2) # posterior predictive using probit link function
+
+    end
+    
 end

@@ -55,9 +55,9 @@ jobs:
       - run: |
           julia --project=docs -e '
             using Documenter: DocMeta, doctest
-            using CLEAR
-            DocMeta.setdocmeta!(CLEAR, :DocTestSetup, :(using CLEAR); recursive=true)
-            doctest(CLEAR)'
+            using CounterfactualExplanations
+            DocMeta.setdocmeta!(CounterfactualExplanations, :DocTestSetup, :(using CounterfactualExplanations); recursive=true)
+            doctest(CounterfactualExplanations)'
       - run: julia --project=docs docs/make.jl
         env:
           JULIA_PKG_SERVER: ""

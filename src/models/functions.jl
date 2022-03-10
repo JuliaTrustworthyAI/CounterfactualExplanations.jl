@@ -17,7 +17,7 @@ Constructs a logistic classifier based on arrays containing coefficients `w` and
 ```julia-repl
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
-𝑴 = CLEAR.Models.LogisticModel(w, b);
+𝑴 = CounterfactualExplanations.Models.LogisticModel(w, b);
 ```
 
 See also: 
@@ -38,7 +38,7 @@ Computes logits as `WX+b`.
 # Examples
 
 ```julia-repl
-using CLEAR.Models
+using CounterfactualExplanations.Models
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
 𝑴 = LogisticModel(w, b);
@@ -58,7 +58,7 @@ Computes predictive probabilities from logits as `σ(WX+b)` where 'σ' is the [s
 # Examples
 
 ```julia-repl
-using CLEAR.Models
+using CounterfactualExplanations.Models
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
 𝑴 = LogisticModel(w, b);
@@ -83,7 +83,7 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝑴 = CLEAR.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 ```
 
 See also:
@@ -105,7 +105,7 @@ Computes logits as `μ[1ᵀ Xᵀ]ᵀ`.
 # Examples
 
 ```julia-repl
-using CLEAR.Models
+using CounterfactualExplanations.Models
 using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients
@@ -133,7 +133,7 @@ Computes predictive probabilities using a Probit approximation.
 # Examples
 
 ```julia-repl
-using CLEAR.Models
+using CounterfactualExplanations.Models
 using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients

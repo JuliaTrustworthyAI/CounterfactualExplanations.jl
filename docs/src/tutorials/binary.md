@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = CLEAR 
+CurrentModule = CounterfactualExplanations 
 ```
 
 # Recourse for binary targets
 
 
 ```julia
-using Flux, Random, Plots, PlotThemes, CLEAR
+using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
@@ -16,7 +16,7 @@ disable_logging(Logging.Info)
     LogLevel(1)
 
 
-To understand the core functionality of CLEAR.jl we will look at two example use cases of the `generate_recourse` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
+To understand the core functionality of CounterfactualExplanations.jl we will look at two example use cases of the `generate_recourse` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
 
 ## Default generators
 
@@ -50,13 +50,13 @@ savefig(plt, "www/binary_samples.png")
 
 For this toy data we will now implement algorithmic recourse as follows:
 
-- Use the coefficients `w` and `b` to define our model using `CLEAR.Models.LogisticModel(w, b)`.
+- Use the coefficients `w` and `b` to define our model using `CounterfactualExplanations.Models.LogisticModel(w, b)`.
 - Define our `GenericGenerator`.
 - Generate recourse.
 
 
 ```julia
-using CLEAR.Models: LogisticModel, probs 
+using CounterfactualExplanations.Models: LogisticModel, probs 
 # Logit model:
 𝑴 = LogisticModel(w, [b])
 # Randomly selected factual:
@@ -93,7 +93,7 @@ Now let's plot the resulting counterfactual path in the 2-D feature space (left)
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
@@ -115,7 +115,7 @@ Next we will repeat the exercise above, but instead use the `GreedyGenerator` in
 using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
 μ = hcat(b, w)
-𝑴 = CLEAR.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.25,15,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
@@ -126,7 +126,7 @@ Once again we plot the resulting counterfactual path (left) and changes in the p
 ```julia
 T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
-ŷ = CLEAR.target_probs(probs(recourse.𝑴, X_path),target)
+ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Laplace")
 anim = @animate for t in 1:T
     scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")

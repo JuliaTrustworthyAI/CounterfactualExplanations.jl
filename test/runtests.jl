@@ -1,9 +1,9 @@
-using CLEAR
+using CounterfactualExplanations
 using Test
 using Random
 Random.seed!(0)
 
-@testset "CLEAR.jl" begin
+@testset "CounterfactualExplanations.jl" begin
 
     @testset "generate_recourse" begin
         include("generate_recourse.jl")
@@ -19,6 +19,10 @@ Random.seed!(0)
 
     @testset "Model" begin
         include("models.jl")
+    end
+
+    @testset "Data" begin
+        include("data.jl")
     end
 
 end

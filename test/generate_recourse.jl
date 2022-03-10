@@ -1,5 +1,5 @@
-using CLEAR
-using CLEAR.Models
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
 using Random, LinearAlgebra
 Random.seed!(1234)
 
@@ -50,7 +50,7 @@ end
 
 @testset "target_probs" begin
 
-    using CLEAR: target_probs
+    using CounterfactualExplanations: target_probs
 
     @testset "Binary" begin
         p = [0.25]
@@ -70,7 +70,7 @@ end
 end
 
 @testset "threshold_reached" begin
-    using CLEAR: threshold_reached
+    using CounterfactualExplanations: threshold_reached
     𝑴 = LogisticModel([1.0 -2.0], [0])
     x̅ = [-1,0.5]
     p̅ = probs(𝑴, x̅)
@@ -84,7 +84,7 @@ end
 end
 
 @testset "apply_mutability" begin
-    using CLEAR: apply_mutability
+    using CounterfactualExplanations: apply_mutability
     𝑭 = [:both, :increase, :decrease, :none]
     @test apply_mutability([-1,1,-1,1], 𝑭)[4] == 0
     @test all(apply_mutability([-1,1,1,1], 𝑭)[[3,4]] .== 0)
@@ -93,7 +93,7 @@ end
 end
 
 @testset "initialize_mutability" begin
-    using CLEAR: initialize_mutability
+    using CounterfactualExplanations: initialize_mutability
     struct SomeGenerator <: Generator
         𝑭::Union{Nothing,Vector{Symbol}}
     end

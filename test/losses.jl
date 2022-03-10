@@ -1,5 +1,5 @@
-using CLEAR
-using CLEAR.Losses
+using CounterfactualExplanations
+using CounterfactualExplanations.Losses
 using Random
 
 @testset "Hinge" begin

@@ -4,7 +4,7 @@ lazy = true
 
     [[cats_dogs_data.download]]
     sha256 = "404885ed543de55753918bf70767a220043b1366ab53c0c64126be5b5caf2c87"
-    url = "https://github.com/pat-alt/CLEAR.jl/releases/download/data/cats_dogs_data.tar.gz"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_data.tar.gz"
 
 [ucr_data]
 git-tree-sha1 = "6767d796c1f5e75d924f1cd72c0bec2dbaf46dfe"
@@ -12,7 +12,7 @@ lazy = true
 
     [[ucr_data.download]]
     sha256 = "e474c53de1cb8ed974e0a4ccfd13b93a58bd5fe445eee348a0889bc4cc4a0d48"
-    url = "https://github.com/pat-alt/CLEAR.jl/releases/download/data/ucr_data.tar.gz"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/ucr_data.tar.gz"
 
 [ucr_model]
 git-tree-sha1 = "0f66aebcbafc26fbc2e151a02ec527864dbe1206"
@@ -20,4 +20,4 @@ lazy = true
 
     [[ucr_model.download]]
     sha256 = "6b9d8aae8b2e1065494910f0c519d4c60bada9e08b6e0f45e794c36588c20522"
-    url = "https://github.com/pat-alt/CLEAR.jl/releases/download/data/ucr_model.tar.gz"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/ucr_model.tar.gz"

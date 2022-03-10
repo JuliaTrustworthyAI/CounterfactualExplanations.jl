@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = CLEAR 
+CurrentModule = CounterfactualExplanations 
 ```
 
 # All functions and types
@@ -10,13 +10,13 @@ CurrentModule = CLEAR
 ## Exported functions
 
 ```@autodocs
-Modules = [CLEAR, CLEAR.Generators, CLEAR.Models, CLEAR.Losses]
+Modules = [CounterfactualExplanations, CounterfactualExplanations.Generators, CounterfactualExplanations.Models, CounterfactualExplanations.Losses]
 Private = false
 ```
 
 ## Internal functions
 
 ```@autodocs
-Modules = [CLEAR, CLEAR.Generators, CLEAR.Models, CLEAR.Losses]
+Modules = [CounterfactualExplanations, CounterfactualExplanations.Generators, CounterfactualExplanations.Models, CounterfactualExplanations.Losses]
 Public = false
 ```

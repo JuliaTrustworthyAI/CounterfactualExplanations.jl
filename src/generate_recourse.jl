@@ -9,7 +9,7 @@ Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`,
 ## Generic generator
 
 ```julia-repl
-using CLEAR.Models
+using CounterfactualExplanations.Models
 w = [1.0 -2.0] # true coefficients
 b = [0]
 x̅ = [-1,0.5]
@@ -30,7 +30,7 @@ Random.seed!(1234)
 x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = CLEAR.Models.BayesianLogisticModel(μ, Σ);
+𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
@@ -99,8 +99,8 @@ Selects the probabilities of the target class. In case of binary classification 
 # Examples
 
 ```julia-repl
-using CLEAR
-using CLEAR.Models: LogisticModel, probs 
+using CounterfactualExplanations
+using CounterfactualExplanations.Models: LogisticModel, probs 
 Random.seed!(1234)
 N = 25
 w = [1.0 1.0]# true coefficients

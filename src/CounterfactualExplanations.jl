@@ -1,4 +1,4 @@
-module CLEAR
+module CounterfactualExplanations
 
 # Dependencies:
 using Flux

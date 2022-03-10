@@ -1,4 +1,4 @@
-using CLEAR
+using CounterfactualExplanations
 
 @testset "Toy data" begin
     @testset "Linear" begin
