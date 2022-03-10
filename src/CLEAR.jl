@@ -14,7 +14,7 @@ include("generators/Generators.jl")
 using .Generators
 export Generator, GenericGenerator, GreedyGenerator, generate_perturbations, conditions_satisified, mutability_constraints
 
-include("core.jl")
+include("generate_recourse.jl")
 export generate_recourse
 
 include("utils.jl")

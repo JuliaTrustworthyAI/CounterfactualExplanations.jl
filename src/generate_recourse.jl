@@ -1,5 +1,3 @@
-# core.jl
-
 # -------- Main method:
 """
     generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
@@ -11,12 +9,13 @@ Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`,
 ## Generic generator
 
 ```julia-repl
+using CLEAR.Models
 w = [1.0 -2.0] # true coefficients
 b = [0]
 x̅ = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = CLEAR.Models.LogisticModel(w, b);
+𝑴 = LogisticModel(w, b)
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
@@ -57,7 +56,10 @@ function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Model
 
     # Initialize:
     t = 1 # counter
-    not_finished = true # convergence condition
+    not_finished = !threshold_reached(𝑴, x̲, target, γ) # convergence condition
+    if !not_finished
+        @info "Factual already in target class and probability exceeds threshold γ."
+    end
 
     # Search:
     while not_finished

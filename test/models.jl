@@ -2,6 +2,7 @@ using CLEAR
 using CLEAR.Models
 using Random
 using LinearAlgebra
+using NNlib
 
 @testset "Exceptions" begin
     @testset "LogisticModel" begin
@@ -22,4 +23,25 @@ using LinearAlgebra
         @test_throws DimensionMismatch BayesianLogisticModel(μ, Σ)
 
     end
+
+    @testset "logits" begin
+        𝑴(x) = [2 1] * x # model not declared as subtype of FittedModel
+        x = [1,1]
+        @test_throws MethodError logits(𝑴, x)
+    end
+
+    @testset "probs" begin
+        𝑴(x) = [2 1] * x # model not declared as subtype of FittedModel
+        x = [1,1]
+        @test_throws MethodError probs(𝑴, x)
+    end
+end
+
+@testset "Predictions" begin
+
+    𝑴 = LogisticModel([1 1],[0])
+    x = [1,1]
+    @test logits(𝑴, x)[1] == 2
+    @test probs(𝑴, x)[1] == σ(2)
+
 end

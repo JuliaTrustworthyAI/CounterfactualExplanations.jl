@@ -5,6 +5,10 @@ Random.seed!(0)
 
 @testset "CLEAR.jl" begin
 
+    @testset "generate_recourse" begin
+        include("generate_recourse.jl")
+    end
+
     @testset "Utils" begin
         include("utils.jl")
     end
