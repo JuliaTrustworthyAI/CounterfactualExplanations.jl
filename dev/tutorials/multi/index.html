@@ -71,7 +71,7 @@ target = rand(unique(y)[1:end .!= y̅]) # opposite label as target
 # Define Generator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 # Generate recourse:
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X&#39;,y,𝑴;clegend=false, title=&quot;MLP&quot;)
@@ -95,7 +95,7 @@ probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) 
 
 𝑴=FittedEnsemble(𝓜);</code></pre><pre><code class="language-julia hljs">plt = plot_contour_multi(X&#39;,y,𝑴);
 savefig(plt, &quot;www/multi_ensemble_contour.png&quot;)</code></pre><p><img src="../www/multi_ensemble_contour.png" alt/></p><pre><code class="language-julia hljs">generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse</code></pre><pre><code class="language-julia hljs">T = size(recourse.path)[1]
 X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X&#39;,y,𝑴;clegend=false, title=&quot;Deep ensemble&quot;)
@@ -105,4 +105,4 @@ anim = @animate for t in 1:T
     Plots.abline!(p2,0,γ,label=&quot;threshold γ&quot;, ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, &quot;www/multi_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/multi_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../models/">« Models</a><a class="docs-footer-nextpage" href="../loss/">Loss functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.14 on <span class="colophon-date" title="Thursday 10 March 2022 16:06">Thursday 10 March 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+gif(anim, &quot;www/multi_greedy_recourse.gif&quot;, fps=5);</code></pre><p><img src="../www/multi_greedy_recourse.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../models/">« Models</a><a class="docs-footer-nextpage" href="../loss/">Loss functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.14 on <span class="colophon-date" title="Thursday 10 March 2022 17:03">Thursday 10 March 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
