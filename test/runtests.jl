@@ -5,12 +5,8 @@ Random.seed!(0)
 
 @testset "CounterfactualExplanations.jl" begin
 
-    @testset "generate_recourse" begin
-        include("generate_recourse.jl")
-    end
-
-    @testset "Utils" begin
-        include("utils.jl")
+    @testset "generate_counterfactual" begin
+        include("generate_counterfactual.jl")
     end
 
     @testset "Losses" begin

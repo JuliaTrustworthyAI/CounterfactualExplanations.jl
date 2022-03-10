@@ -322,7 +322,7 @@ recourses = []
 for loss in losses
     for λ in Λ
         gen = GenericGenerator(λ,0.1,1e-5,loss,nothing) 
-        rec = generate_recourse(gen, x̅, 𝑴, target, γ, T=25)
+        rec = generate_counterfactual(gen, x̅, 𝑴, target, γ, T=25)
         recourses = vcat(recourses, (rec=rec, λ=λ, loss=loss))
     end
 end

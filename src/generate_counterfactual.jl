@@ -1,6 +1,6 @@
 # -------- Main method:
 """
-    generate_recourse(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+    generate_counterfactual(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
@@ -17,7 +17,7 @@ target = 1.0
 γ = 0.9
 𝑴 = LogisticModel(w, b)
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 ## Greedy generator (Bayesian model only)
@@ -32,7 +32,7 @@ target = 1.0
 γ = 0.9
 𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 See also:
@@ -40,7 +40,7 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_recourse(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
+function generate_counterfactual(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual

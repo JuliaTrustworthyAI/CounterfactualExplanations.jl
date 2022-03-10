@@ -16,7 +16,7 @@ Random.seed!(1234)
     @testset "Predetermined outputs" begin
         γ = 0.9
         target = round(probs(𝑴, x̅)[1])==0 ? 1 : 0 
-        recourse = generate_recourse(generator, x̅, 𝑴, target, γ)
+        recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ)
         @test recourse.target == target
         @test recourse.x̅ == x̅
         @test recourse.y̅ == y̅
@@ -28,7 +28,7 @@ Random.seed!(1234)
         # Already in target and exceeding threshold probability:
         γ = probs(𝑴, x̅)[1]
         target = round(γ)
-        recourse = generate_recourse(generator, x̅, 𝑴, target, γ)
+        recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ)
         @test length(recourse.path)==1
         @test recourse.x̅ == recourse.x̲
         @test recourse.y̅ == recourse.y̲
@@ -39,7 +39,7 @@ Random.seed!(1234)
         γ = 0.9
         target = round(probs(𝑴, x̅)[1])==0 ? 1 : 0 
         T = 1000
-        recourse = generate_recourse(generator, x̅, 𝑴, target, γ; T=T)
+        recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; T=T)
         @test !recourse.converged || recourse.p̲[1] >= γ # either not converged or threshold reached
         @test !recourse.converged || recourse.y̲ >= recourse.y̅ # either not covnerged or in target class
         @test !recourse.converged || length(recourse.path) <= T

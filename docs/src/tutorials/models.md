@@ -173,7 +173,7 @@ Then finally we use the `GenericGenerator` to generate recourse. The plot furthe
 
 ```julia
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -310,7 +310,7 @@ Finally, we use the `GreedyGenerator` for the counterfactual search. For the sam
 
 ```julia
 generator = GreedyGenerator(0.25,20,:logitbinarycrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 

@@ -121,7 +121,7 @@ target = rand(unique(y)[1:end .!= y̅]) # opposite label as target
 # Define Generator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 # Generate recourse:
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -183,7 +183,7 @@ savefig(plt, "www/multi_ensemble_contour.png")
 
 ```julia
 generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 

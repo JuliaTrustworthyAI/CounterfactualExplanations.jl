@@ -16,7 +16,7 @@ disable_logging(Logging.Info)
     LogLevel(1)
 
 
-To understand the core functionality of CounterfactualExplanations.jl we will look at two example use cases of the `generate_recourse` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
+To understand the core functionality of CounterfactualExplanations.jl we will look at two example use cases of the `generate_counterfactual` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
 
 ## Default generators
 
@@ -84,7 +84,7 @@ savefig(plt, "www/binary_contour.png");
 # Define Generator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 Now let's plot the resulting counterfactual path in the 2-D feature space (left) and the predicted probability (right):
@@ -117,7 +117,7 @@ using LinearAlgebra
 μ = hcat(b, w)
 𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.25,15,:logitbinarycrossentropy,nothing)
-recourse = generate_recourse(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
 ```
 
 Once again we plot the resulting counterfactual path (left) and changes in the predicted probability (right). For the Bayesian classifier predicted probabilities splash out: uncertainty increases in regions with few samples. Note how the greedy approach selects the same most salient feature over and over again until its exhausted (i.e. it has been chosen `GreedyGenerator.n` times).
