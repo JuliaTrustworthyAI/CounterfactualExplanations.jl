@@ -25,14 +25,25 @@ end
 # MNIST:
 function mnist_data()
     data_dir = artifact"mnist_data"
-    data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)
+    data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)[:data]
     return data
 end
 
 function mnist_model()
     data_dir = artifact"mnist_model"
-    model = BSON.load(joinpath(data_dir,"mnist_model.bson"),@__MODULE__)
-    return model
+    model = BSON.load(joinpath(data_dir,"mnist_model.bson"),@__MODULE__)[:model]
+    return testmode!(model)
+end
+
+function mnist_ensemble()
+    data_dir = joinpath(artifact"mnist_ensemble","mnist_ensemble")
+    model_files = Base.Filesystem.readdir(data_dir)
+    𝓜 = []
+    for file in model_files
+        model = BSON.load(joinpath(data_dir,file),@__MODULE__)
+        𝓜 = vcat(𝓜, testmode!(model))
+    end
+    return 𝓜
 end
 
 using Random

@@ -30,9 +30,6 @@ function generate_artifact(
     
     end
 
-    # Collect all BSON files:
-    # datafiles = filter(x->endswith(x,".bson"), readdir(data_dir))
-
     # For each BSON file, generate its own artifact:
     for datafile in datafiles
 

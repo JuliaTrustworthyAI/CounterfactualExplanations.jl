@@ -123,6 +123,9 @@ using BSON: @save
 Saves all models in ensemble to disk.
 """
 function save_ensemble(𝓜::AbstractArray; root="")
+    if !isdir(root)
+        mkdir(root)
+    end
     for i in 1:length(𝓜)
         path = root * "/nn" * string(i) * ".bson"
         model = 𝓜[i]
