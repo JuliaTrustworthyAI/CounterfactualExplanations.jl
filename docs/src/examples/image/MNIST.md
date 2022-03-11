@@ -1,19 +1,18 @@
-{class: @meta}
-```
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
-In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. [Figure 1](#fig-samples) shows a random sample of handwritten digits.
+# MNIST
 
-{class: julia, class: cell-code}
-```
+In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. The figure below shows a random sample of handwritten digits.
+
+``` julia
 using CounterfactualExplanations, Plots, MLDatasets
 using MLDatasets.MNIST: convert2image
 using BSON: @save, @load
 ```
 
-{class: julia, class: cell-code}
-```
+``` julia
 train_x, train_y = MNIST.traindata()
 input_dim = prod(size(train_x[:,:,1]))
 using Images, Random, StatsBase
@@ -25,19 +24,16 @@ plt = plot(mosaic, size=(500,260), axis=nothing, background=:transparent)
 savefig(plt, "www/mnist_samples.png")
 ```
 
-{id: fig-samples, alt: "Figure 1: A few random handwritten digits."}
-![](www/mnist_samples.png)
+![A few random handwritten digits.](www/mnist_samples.png)
 
-{id: pre-trained-classifiers}
 ## Pre-trained classifiers
 
 Next we will load two pre-trained deep-learning classifiers:
 
-1. Simple MLP - `model`
-2. Deep ensemble - `𝓜`
+1.  Simple MLP - `model`
+2.  Deep ensemble - `𝓜`
 
-{class: julia, class: cell-code}
-```
+``` julia
 using Flux
 using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
 x,y,data = getindex.(Ref(mnist_data()), ("x", "y", "data"))
@@ -47,8 +43,7 @@ model = mnist_model()
 
 The following code just prepares the models to be used with CounterfactualExplanations.jl:
 
-{class: julia, class: cell-code}
-```
+``` julia
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
@@ -74,25 +69,22 @@ probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) 
 𝑴_ensemble=FittedEnsemble(𝓜);
 ```
 
-{id: generating-counterfactuals}
 ## Generating counterfactuals
 
 We will look at four different approaches here:
 
-1. Generic approach for the MLP (Wachter, Mittelstadt, and Russell 2017).
-2. Greedy approach for the MLP.
-3. Generic approach for the deep ensemble.
-4. Greedy approach for the deep ensemble (Schut et al. 2021).
+1.  Generic approach for the MLP (Wachter, Mittelstadt, and Russell 2017).
+2.  Greedy approach for the MLP.
+3.  Generic approach for the deep ensemble.
+4.  Greedy approach for the deep ensemble (Schut et al. 2021).
 
 They can be implemented using the `GenericGenerator` and the `GreedyGenerator`.
 
-{id: turning-a-9-into-a-4}
 ### Turning a 9 into a 4
 
-We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in [Figure 2](#fig-nine) into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform.
+We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in the figure below into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform.
 
-{class: julia, class: cell-code}
-```
+``` julia
 # Randomly selected factual:
 Random.seed!(1234);
 x̅ = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
@@ -103,13 +95,11 @@ plt_orig = plot(img, title="Original", axis=nothing)
 savefig(plt_orig, "www/mnist_original.png")
 ```
 
-{id: fig-nine, alt: "Figure 2: A random handwritten 9."}
-![](www/mnist_original.png)
+![A random handwritten 9.](www/mnist_original.png)
 
-The code below implements the four different approaches one by one. [Figure 3](#fig-example) shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate coutnerfactuals that look much like adversarial examples.
+The code below implements the four different approaches one by one. The figure below shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate coutnerfactuals that look much like adversarial examples.
 
-{class: julia, class: cell-code}
-```
+``` julia
 # Generic - MLP
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
@@ -139,13 +129,4 @@ plt = plot(plt_list...,layout=(1,length(plt_list)),axis=nothing, size=(1200,240)
 savefig(plt, "www/MNIST_9to4.png")
 ```
 
-{id: fig-example, alt: "Figure 3: Counterfactual explanations for MNIST data: turning a 9 into a
-4"}
-![](www/MNIST_9to4.png)
-
-{id: references, class: unnumbered}
-### References
-
-Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. `“Generating Interpretable Counterfactual Explanations by Implicit Minimisation of Epistemic and Aleatoric Uncertainties.”` In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
-
-Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. `“Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.”` *Harv. JL & Tech.* 31: 841.
+![Counterfactual explanations for MNIST data: turning a 9 into a 4](www/MNIST_9to4.png)

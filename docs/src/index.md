@@ -32,23 +32,13 @@ Algorithms used for automated decision-making such as deep neural networks have 
 >
 > — Cathy O’Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. [Figure 1](#fig-mnist), for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual recourse.
+**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. The figure below, for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual recourse.
 
-```@raw html
-<figure>
-<img src="https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png" id="fig-mnist" alt="Figure 1: Realistic counterfactual explanations for MNIST data: turning a 4 into a 9." />
-<figcaption aria-hidden="true">Figure 1: Realistic counterfactual explanations for MNIST data: turning a 4 into a 9.</figcaption>
-</figure>
-```
+![Realistic counterfactual explanations for MNIST data: turning a 4 into a 9.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png)
 
-**Algorithmic Recourse (AR) offers individuals subject to algorithms a way to turn a negative decision into positive one**. [Figure 2](#fig-cat) illustrates the point of AR through a toy example: it shows the counterfactual path of one sad cat 🐱 that would like to be grouped with her cool dog friends. Unfortunately, based on her tail length and height she was classified as a cat by a black-box classifier. The recourse algorithm perturbs her features in such a way that she ends up crossing the decision boundary into a dense region inside the target class.
+**Algorithmic Recourse (AR) offers individuals subject to algorithms a way to turn a negative decision into positive one**. The figure below illustrates the point of AR through a toy example: it shows the counterfactual path of one sad cat 🐱 that would like to be grouped with her cool dog friends. Unfortunately, based on her tail length and height she was classified as a cat by a black-box classifier. The recourse algorithm perturbs her features in such a way that she ends up crossing the decision boundary into a dense region inside the target class.
 
-```@raw html
-<figure>
-<img src="https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/www/recourse_laplace.gif" id="fig-cat" alt="Figure 2: A sad 🐱 on its counterfactual path to its cool dog friends." />
-<figcaption aria-hidden="true">Figure 2: A sad 🐱 on its counterfactual path to its cool dog friends.</figcaption>
-</figure>
-```
+![A sad 🐱 on its counterfactual path to its cool dog friends.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/www/recourse_laplace.gif)
 
 ## Usage example
 
