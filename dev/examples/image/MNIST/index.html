@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>MNIST · CounterfactualExplanations.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/CounterfactualExplanations.jl/examples/image/MNIST/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">CounterfactualExplanations.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../../tutorials/binary/">Binary target</a></li><li><a class="tocitem" href="../../../tutorials/models/">Models</a></li><li><a class="tocitem" href="../../../tutorials/multi/">Multi-class target</a></li><li><a class="tocitem" href="../../../tutorials/loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>MNIST</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>MNIST</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/CounterfactualExplanations.jl/blob/master/docs/src/examples/image/MNIST.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="MNIST"><a class="docs-heading-anchor" href="#MNIST">MNIST</a><a id="MNIST-1"></a><a class="docs-heading-anchor-permalink" href="#MNIST" title="Permalink"></a></h1><p>In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. <a href="#fig-digits">Figure 1</a> shows a random sample of handwritten digits.</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;37&quot;&gt;</p><pre><code class="language-julia hljs">using CounterfactualExplanations, Plots, MLDatasets
+using MLDatasets.MNIST: convert2image
+using BSON: @save, @load</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;53&quot;&gt;</p><pre><code class="language-julia hljs">train_x, train_y = MNIST.traindata()
+input_dim = prod(size(train_x[:,:,1]))
+using Images, Random, StatsBase
+Random.seed!(1234)
+n_samples = 10
+samples = train_x[:,:,sample(1:end, n_samples, replace=false)]
+mosaicview([convert2image(samples[:,:,i]) for i ∈ 1:n_samples]...,ncol=n_samples)</code></pre><p>&lt;div class=&quot;cell-output-display&quot;&gt;</p><p>&lt;figure&gt; &lt;img src=&quot;MNIST_files/figure-gfm/fig-digits-output-1.png&quot; id=&quot;fig-digits&quot; alt=&quot;Figure 1: A random sample of handwritten digits.&quot; /&gt; &lt;figcaption aria-hidden=&quot;true&quot;&gt;Figure 1: A random sample of handwritten digits.&lt;/figcaption&gt; &lt;/figure&gt;</p><p>&lt;/div&gt;</p><p>&lt;/div&gt;</p><h2 id="Pre-trained-classifiers"><a class="docs-heading-anchor" href="#Pre-trained-classifiers">Pre-trained classifiers</a><a id="Pre-trained-classifiers-1"></a><a class="docs-heading-anchor-permalink" href="#Pre-trained-classifiers" title="Permalink"></a></h2><p>&lt;div class=&quot;cell&quot; execution_count=&quot;54&quot;&gt;</p><pre><code class="language-julia hljs">using Flux
+using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
+x,y,data = getindex.(Ref(mnist_data()), (&quot;x&quot;, &quot;y&quot;, &quot;data&quot;))
+model = mnist_model()
+𝓜 = mnist_ensemble();</code></pre><p>&lt;/div&gt;</p><h4 id="MLP"><a class="docs-heading-anchor" href="#MLP">MLP</a><a id="MLP-1"></a><a class="docs-heading-anchor-permalink" href="#MLP" title="Permalink"></a></h4><p>&lt;div class=&quot;cell&quot; execution_count=&quot;55&quot;&gt;</p><pre><code class="language-julia hljs">using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct NeuralNetwork &lt;: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
+probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
+𝑴 = NeuralNetwork(model);</code></pre><p>&lt;/div&gt;</p><h4 id="Deep-ensemble"><a class="docs-heading-anchor" href="#Deep-ensemble">Deep ensemble</a><a id="Deep-ensemble-1"></a><a class="docs-heading-anchor-permalink" href="#Deep-ensemble" title="Permalink"></a></h4><p>&lt;div class=&quot;cell&quot; execution_count=&quot;56&quot;&gt;</p><pre><code class="language-julia hljs"># Step 1)
+struct FittedEnsemble &lt;: Models.FittedModel
+    𝓜::AbstractArray
+end
+
+# Step 2)
+using Statistics
+logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],3), dims=3)
+probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in 𝑴.𝓜],3),dims=3)
+
+𝑴_ensemble=FittedEnsemble(𝓜);</code></pre><p>&lt;/div&gt;</p><h2 id="Recourse"><a class="docs-heading-anchor" href="#Recourse">Recourse</a><a id="Recourse-1"></a><a class="docs-heading-anchor-permalink" href="#Recourse" title="Permalink"></a></h2><p>We will use four different approaches to generate recourse:</p><ol><li>Wachter for the MLP</li><li>Greedy approach for the MLP</li><li>Wachter for the deep ensemble</li><li>Greedy approach for the deep ensemble (Schut et al.)</li></ol><p>&lt;div class=&quot;cell&quot; execution_count=&quot;57&quot;&gt;</p><pre><code class="language-julia hljs"># Randomly selected factual:
+Random.seed!(1234);
+x̅ = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
+target = 5
+γ = 0.95
+img = convert2image(reshape(x̅,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+plt_orig = plot(img, title=&quot;Original&quot;, axis=nothing)</code></pre><p>&lt;div class=&quot;cell-output-display&quot;&gt;</p><p><img src="MNIST_files/figure-gfm/cell-7-output-1.svg" alt/></p><p>&lt;/div&gt;</p><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;134&quot;&gt;</p><pre><code class="language-julia hljs"># Generic - MLP
+generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+plt_wachter = plot(img, title=&quot;MLP - Wachter&quot;);</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;135&quot;&gt;</p><pre><code class="language-julia hljs"># Greedy - MLP
+generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
+recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+plt_greedy = plot(img, title=&quot;MLP - Greedy&quot;);</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;136&quot;&gt;</p><pre><code class="language-julia hljs"># Generic - Deep Ensemble
+generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
+recourse = generate_counterfactual(generator, x̅, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+plt_wachter_de = plot(img, title=&quot;Ensemble - Wachter&quot;);</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;137&quot;&gt;</p><pre><code class="language-julia hljs"># Greedy
+generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
+recourse = generate_counterfactual(generator, x̅, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+plt_greedy_de = plot(img, title=&quot;Ensemble - Greedy&quot;);</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;138&quot;&gt;</p><pre><code class="language-julia hljs">plt_list = [plt_orig, plt_wachter, plt_greedy, plt_wachter_de, plt_greedy_de]
+plt = plot(plt_list...,layout=(1,length(plt_list)),axis=nothing, size=(1200,240))
+savefig(plt, &quot;www/MNIST_9to4.png&quot;)</code></pre><p>&lt;/div&gt;</p><p><img src="../www/MNIST_9to4.png" alt/></p><h3 id="Multiple"><a class="docs-heading-anchor" href="#Multiple">Multiple</a><a id="Multiple-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple" title="Permalink"></a></h3><p>&lt;div class=&quot;cell&quot; execution_count=&quot;109&quot;&gt;</p><pre><code class="language-julia hljs">using Random
+
+# Single:
+function from_digit_to_digit(from, to, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
+
+    Random.seed!(seed)
+
+    candidates = findall(onecold(y,0:9).==from)
+    x̅ = Flux.unsqueeze(x[:,rand(candidates)],2)
+    target = to + 1
+    recourse = generate_counterfactual(generator, x̅, model, target, γ; feasible_range=(0.0,1.0), T=T)
+
+    return recourse
+end
+
+# Multiple:
+function from_digit_to_digit(from, to, generator::Dict, model::Dict; γ=0.95, x=x, y=y, seed=1234, T=1000)
+
+    Random.seed!(seed)
+
+    candidates = findall(onecold(y,0:9).==from)
+    x̅ = Flux.unsqueeze(x[:,rand(candidates)],2)
+    target = to + 1
+    recourses = Dict()
+
+    for (k_gen,v_gen) ∈ generators
+        for (k_mod,v_mod) ∈ models 
+            k = k_mod * &quot; - &quot; * k_gen
+            recourses[k] = generate_counterfactual(v_gen, x̅, v_mod, target, γ; feasible_range=(0.0,1.0), T=T)
+        end
+    end
+
+    return recourses
+end
+</code></pre><p>&lt;div class=&quot;cell-output-display&quot;&gt;</p><pre><code class="nohighlight hljs">from_digit_to_digit (generic function with 2 methods)</code></pre><p>&lt;/div&gt;</p><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;119&quot;&gt;</p><pre><code class="language-julia hljs">generators = Dict(&quot;Wachter&quot; =&gt; GenericGenerator(0.1,1,1e-5,:logitcrossentropy,nothing),&quot;Greedy&quot; =&gt; GreedyGenerator(0.1,15,:logitcrossentropy,nothing))
+models = Dict(&quot;MLP&quot; =&gt; 𝑴, &quot;Ensemble&quot; =&gt; 𝑴_ensemble);</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;112&quot;&gt;</p><pre><code class="language-julia hljs">from = 3
+to = 8
+recourses = from_digit_to_digit(from,to,generators,models)
+plts =  first(values(recourses)).x̅ |&gt; x -&gt; plot(convert2image(reshape(x,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=&quot;Original&quot;)
+plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=k) for (k,v) in recourses])
+plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,240))
+savefig(plt, &quot;www/MNIST_$(from)to$(to).png&quot;)</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;139&quot;&gt;</p><pre><code class="language-julia hljs">from = 7
+to = 2
+recourses = from_digit_to_digit(from,to,generators,models)
+plts =  first(values(recourses)).x̅ |&gt; x -&gt; plot(convert2image(reshape(x,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=&quot;Original&quot;)
+plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=k) for (k,v) in recourses])
+plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,240))
+savefig(plt, &quot;www/MNIST_$(from)to$(to).png&quot;)</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;140&quot;&gt;</p><pre><code class="language-julia hljs">from = 1
+to = 7
+recourses = from_digit_to_digit(from,to,generators,models)
+plts =  first(values(recourses)).x̅ |&gt; x -&gt; plot(convert2image(reshape(x,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=&quot;Original&quot;)
+plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=k) for (k,v) in recourses])
+plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,240))
+savefig(plt, &quot;www/MNIST_$(from)to$(to).png&quot;)</code></pre><p>&lt;/div&gt;</p><p>&lt;div class=&quot;cell&quot; execution_count=&quot;97&quot;&gt;</p><pre><code class="language-julia hljs">from = 9
+recourses = map(d -&gt; from_digit_to_digit(from,d,GreedyGenerator(0.1,15,:logitcrossentropy,nothing),𝑴_ensemble;T=2500),filter(x -&gt; x!=from, Vector(0:9)))
+plts = [plot(convert2image(reshape(rec.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim)))),title=rec.target-1) for rec in recourses]
+plot(plts...,layout=(1,length(plts)),axis=nothing,size=(1200,500))</code></pre><p>&lt;div class=&quot;cell-output-display&quot;&gt;</p><p><img src="MNIST_files/figure-gfm/cell-18-output-1.svg" alt/></p><p>&lt;/div&gt;</p><p>&lt;/div&gt;</p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.14 on <span class="colophon-date" title="Friday 11 March 2022 16:21">Friday 11 March 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
