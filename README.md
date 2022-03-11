@@ -37,12 +37,9 @@ Algorithms used for automated decision-making such as deep neural networks have 
 <figcaption aria-hidden="true">Figure 1: Realistic counterfactual explanations for MNIST data: turning a 4 into a 9.</figcaption>
 </figure>
 
-**Algorithmic Recourse (AR) offers individuals subject to algorithms a way to turn a negative decision into positive one**. [Figure 2](#fig-cat) illustrates the point of AR through a toy example: it shows the counterfactual path of one sad cat 🐱 that would like to be grouped with her cool dog friends. Unfortunately, based on her tail length and height she was classified as a cat by a black-box classifier. The recourse algorithm perturbs her features in such a way that she ends up crossing the decision boundary into a dense region inside the target class.
+**Algorithmic Recourse (AR) offers individuals subject to algorithms a way to turn a negative decision into positive one**. **?@fig-cat** illustrates the point of AR through a toy example: it shows the counterfactual path of one sad cat 🐱 that would like to be grouped with her cool dog friends. Unfortunately, based on her tail length and height she was classified as a cat by a black-box classifier. The recourse algorithm perturbs her features in such a way that she ends up crossing the decision boundary into a dense region inside the target class.
 
-<figure>
-<img src="https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/www/recourse_laplace.gif" id="fig-cat" alt="Figure 2: A sad 🐱 on its counterfactual path to its cool dog friends." />
-<figcaption aria-hidden="true">Figure 2: A sad 🐱 on its counterfactual path to its cool dog friends.</figcaption>
-</figure>
+`@raw html ![A sad 🐱 on its counterfactual path to its cool dog friends.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/www/recourse_laplace.gif){#fig-cat}`
 
 ## Usage example
 

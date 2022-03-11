@@ -1,6 +1,6 @@
 ---
 format: 
-    gfm:
+    html:
         wrap: none
         self-contained: true
 crossref:
