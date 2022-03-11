@@ -171,7 +171,7 @@ function plot_data!(plt,X,y)
 end
 
 # Plot contour of posterior predictive:
-using Plots, ..Models
+using Plots, CounterfactualExplanations.Models
 """
     plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
@@ -221,7 +221,7 @@ function plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1,xlim=
 end
 
 # Plot contour of posterior predictive:
-using Plots, ..Models
+using Plots, CounterfactualExplanations.Models
 """
     plot_contour_multi(X,y,𝑴;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 

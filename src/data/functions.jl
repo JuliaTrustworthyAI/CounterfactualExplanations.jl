@@ -22,6 +22,19 @@ function cats_dogs()
     return data
 end
 
+# MNIST:
+function mnist_data()
+    data_dir = artifact"mnist_data"
+    data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)
+    return data
+end
+
+function mnist_model()
+    data_dir = artifact"mnist_model"
+    model = BSON.load(joinpath(data_dir,"mnist_model.bson"),@__MODULE__)
+    return model
+end
+
 using Random
 """
     toy_data_linear(N=100)
