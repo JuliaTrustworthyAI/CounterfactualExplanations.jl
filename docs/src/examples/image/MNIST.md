@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 # MNIST
 
-In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. The figure below shows a random sample of handwritten digits.
+In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. [Figure 1](#fig-samples) shows a random sample of handwritten digits.
 
 ``` julia
 using CounterfactualExplanations, Plots, MLDatasets
@@ -24,7 +24,7 @@ plt = plot(mosaic, size=(500,260), axis=nothing, background=:transparent)
 savefig(plt, "www/mnist_samples.png")
 ```
 
-![A few random handwritten digits.](www/mnist_samples.png)
+![Figure 1: A few random handwritten digits.](www/mnist_samples.png)
 
 ## Pre-trained classifiers
 
@@ -82,7 +82,7 @@ They can be implemented using the `GenericGenerator` and the `GreedyGenerator`.
 
 ### Turning a 9 into a 4
 
-We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in the figure below into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform.
+We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in [Figure 2](#fig-nine) into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform.
 
 ``` julia
 # Randomly selected factual:
@@ -95,9 +95,9 @@ plt_orig = plot(img, title="Original", axis=nothing)
 savefig(plt_orig, "www/mnist_original.png")
 ```
 
-![A random handwritten 9.](www/mnist_original.png)
+![Figure 2: A random handwritten 9.](www/mnist_original.png)
 
-The code below implements the four different approaches one by one. The figure below shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate coutnerfactuals that look much like adversarial examples.
+The code below implements the four different approaches one by one. [Figure 3](#fig-example) shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate coutnerfactuals that look much like adversarial examples.
 
 ``` julia
 # Generic - MLP
@@ -129,4 +129,10 @@ plt = plot(plt_list...,layout=(1,length(plt_list)),axis=nothing, size=(1200,240)
 savefig(plt, "www/MNIST_9to4.png")
 ```
 
-![Counterfactual explanations for MNIST data: turning a 9 into a 4](www/MNIST_9to4.png)
+![Figure 3: Counterfactual explanations for MNIST data: turning a 9 into a 4](www/MNIST_9to4.png)
+
+### References
+
+Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations by Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
+
+Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. “Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.” *Harv. JL & Tech.* 31: 841.
