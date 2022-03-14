@@ -8,14 +8,14 @@ CounterfactualExplanations.jl is a Julia package for generating Counterfactual E
 
 ## Installation
 
-The package is in its early stages of development and currently awaiting registry on [Julia’s General Registry](https://github.com/JuliaRegistries/General). In the meantime it can be installed as follows:
+The first release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
 
 ``` julia
 using Pkg
-Pkg.add("https://github.com/pat-alt/CounterfactualExplanations.jl")
+Pkg.add("CounterfactualExplanations")
 ```
 
-To instead install the development version of the package you can run the following command:
+CounterfactualExplanations.jl is currently under active development. To install the development version of the package you can run the following command:
 
 ``` julia
 using Pkg
