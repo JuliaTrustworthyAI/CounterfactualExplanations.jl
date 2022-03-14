@@ -18,7 +18,7 @@ end
 # Cats and dogs:
 function cats_dogs()
     data_dir = artifact"cats_dogs_data"
-    data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)
+    data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)[:data]
     return data
 end
 
