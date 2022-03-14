@@ -9,7 +9,7 @@ using CounterfactualExplanations.Data
         @test !isnothing(CounterfactualExplanations.Data.ucr_model())
     end
     @testset "cats_dogs_data" begin
-        @test !isnothing(CounterfactualExplanations.Data.cats_dogs())
+        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_data())
     end
 end
 
