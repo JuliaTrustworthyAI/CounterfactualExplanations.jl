@@ -16,10 +16,22 @@ function ucr_model()
 end
 
 # Cats and dogs:
-function cats_dogs()
+function cats_dogs_data()
     data_dir = artifact"cats_dogs_data"
     data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)[:data]
     return data
+end
+
+function cats_dogs_model()
+    data_dir = artifact"cats_dogs_model"
+    model = BSON.load(joinpath(data_dir,"cats_dogs_model.bson"),@__MODULE__)[:model]
+    return model
+end
+
+function cats_dogs_lapalce()
+    data_dir = artifact"cats_dogs_data"
+    la = BSON.load(joinpath(data_dir,"cats_dogs_laplace.bson"),@__MODULE__)[:la]
+    return la
 end
 
 # MNIST:

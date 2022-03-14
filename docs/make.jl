@@ -15,7 +15,7 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
-        "Installation" => "install.md",
+        "Motivating example" => "cats_dogs.md",
         "Tutorials" =>
             [
                 "Binary target" => "tutorials/binary.md",
@@ -23,7 +23,7 @@ makedocs(;
                 "Multi-class target" => "tutorials/multi.md",
                 "Loss functions" => "tutorials/loss.md"
             ],
-        "Examples" =>
+        "More examples" =>
             [
                 "Image data" => [
                     "MNIST" => "examples/image/MNIST.md"

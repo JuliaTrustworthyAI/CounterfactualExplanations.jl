@@ -1,6 +1,5 @@
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
-BayesLaplace = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
