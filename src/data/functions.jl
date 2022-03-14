@@ -18,7 +18,7 @@ end
 # Cats and dogs:
 function cats_dogs()
     data_dir = artifact"cats_dogs_data"
-    data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)
+    data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)[:data]
     return data
 end
 
@@ -40,7 +40,7 @@ function mnist_ensemble()
     model_files = Base.Filesystem.readdir(data_dir)
     𝓜 = []
     for file in model_files
-        model = BSON.load(joinpath(data_dir,file),@__MODULE__)
+        model = BSON.load(joinpath(data_dir,file),@__MODULE__)[:model]
         𝓜 = vcat(𝓜, testmode!(model))
     end
     return 𝓜
