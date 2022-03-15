@@ -1,0 +1,38 @@
+---
+format: latex
+bibliography: ref.bib
+---
+
+# Introduction {#sec-intro}
+
+In section @sec-intro
+
+# Methodological background {#sec-method}
+
+Counterfactual search happens in the feature space: we are interested in understanding how we need to change individual attributes in order to change the model output to a desired value or label \cite{molnar2020interpretable}. Typically the underlying methodology is presented in the context of binary classification: $M: \mathcal{X} \mapsto y$ where and $y\in\{0,1\}$. Let $t=1$ be the target class and let $\overline{x}$ denote the factual feature vector of some individual outside of the target class, so $\overline{y}=M(\overline{x})=0$. Then the counterfactual search objective originally proposed by \cite{wachter2017counterfactual} is as follows
+
+$$
+\min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
+$$ {#eq-obj}
+
+where $h(\cdot)$ quantifies how complex or costly it is to go from the factual $\overline{x}$ to the counterfactual $\underline{x}$. To simplify things we can restate this constrained objective (@eq-obj) as the following unconstrained and differentiable problem:
+
+$$
+\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+$$ {#eq-solution}
+
+Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the stength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach in `CounterfactualExplanations`.
+
+That being said, numerous extensions of this simple approach have been developed since counterfactual explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective counterfactual explanations that have been set out. These desiderata include: **closeness** -the average distance between factual and counterfactual features should be small (\cite{wachter2017counterfactual}); **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be plausible to a human (\cite{joshi2019towards}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual (\cite{schut2021generating}); **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible; **robustness** - the counterfactual explanation should be robust to domain and model shifts (\cite{upadhyay2021towards}); **diversity** - ideally multiple diverse counterfactual explanations should be provided (\cite{mothilal2020explaining}); and **causality** - counterfactual explanations reflect the structual causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+
+
+
+# Using `CounterfactualExplanations`
+
+## Counterfactual generators
+
+![Figure](./juliagraphs.png)
+
+# Empirical example 
+
+# Related and future work

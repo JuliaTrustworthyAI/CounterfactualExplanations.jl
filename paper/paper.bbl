@@ -1,4 +1,73 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
+
+\bibitem{joshi2019towards}
+Shalmali Joshi, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep
+  Ghosh.
+Towards realistic individual recourse and actionable explanations in black-box
+  decision making systems.
+{\em arXiv preprint arXiv:1907.09615}, 2019.
+
+\bibitem{karimi2020survey}
+Amir-Hossein Karimi, Gilles Barthe, Bernhard Sch{\"o}lkopf, and Isabel Valera.
+A survey of algorithmic recourse: definitions, formulations, solutions, and
+  prospects.
+{\em arXiv preprint arXiv:2010.04050}, 2020.
+
+\bibitem{karimi2021algorithmic}
+Amir-Hossein Karimi, Bernhard Sch{\"o}lkopf, and Isabel Valera.
+Algorithmic recourse: from counterfactual explanations to interventions.
+In {\em Proceedings of the 2021 ACM Conference on Fairness, Accountability, and
+  Transparency}, pages 353--362, 2021.
+
+\bibitem{karimi2020algorithmic}
+Amir-Hossein Karimi, Julius Von~K{\"u}gelgen, Bernhard Sch{\"o}lkopf, and
+  Isabel Valera.
+Algorithmic recourse under imperfect causal knowledge: a probabilistic
+  approach.
+{\em arXiv preprint arXiv:2006.06831}, 2020.
+
+\bibitem{molnar2020interpretable}
+Christoph Molnar.
+{\em Interpretable machine learning}.
+Lulu. com, 2020.
+
+\bibitem{mothilal2020explaining}
+Ramaravind~K Mothilal, Amit Sharma, and Chenhao Tan.
+Explaining machine learning classifiers through diverse counterfactual
+  explanations.
+In {\em Proceedings of the 2020 Conference on Fairness, Accountability, and
+  Transparency}, pages 607--617, 2020.
+
+\bibitem{poyiadzi2020face}
+Rafael Poyiadzi, Kacper Sokol, Raul Santos-Rodriguez, Tijl De~Bie, and Peter
+  Flach.
+Face: Feasible and actionable counterfactual explanations.
+In {\em Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},
+  pages 344--350, 2020.
+
+\bibitem{schut2021generating}
+Lisa Schut, Oscar Key, Rory Mc~Grath, Luca Costabello, Bogdan Sacaleanu, Yarin
+  Gal, et~al.
+Generating interpretable counterfactual explanations by implicit minimisation
+  of epistemic and aleatoric uncertainties.
+In {\em International Conference on Artificial Intelligence and Statistics},
+  pages 1756--1764. PMLR, 2021.
+
+\bibitem{upadhyay2021towards}
+Sohini Upadhyay, Shalmali Joshi, and Himabindu Lakkaraju.
+Towards robust and reliable algorithmic recourse.
+{\em arXiv preprint arXiv:2102.13620}, 2021.
+
+\bibitem{ustun2019actionable}
+Berk Ustun, Alexander Spangher, and Yang Liu.
+Actionable recourse in linear classification.
+In {\em Proceedings of the Conference on Fairness, Accountability, and
+  Transparency}, pages 10--19, 2019.
+
+\bibitem{verma2020counterfactual}
+Sahil Verma, John Dickerson, and Keegan Hines.
+Counterfactual explanations for machine learning: A review.
+{\em arXiv preprint arXiv:2010.10596}, 2020.
 
 \bibitem{wachter2017counterfactual}
 Sandra Wachter, Brent Mittelstadt, and Chris Russell.

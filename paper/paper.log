@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.15)  15 MAR 2022 12:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.15)  15 MAR 2022 17:33
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -283,24 +283,24 @@ File: l3backend-pdftex.def 2021-03-18 L3 backend support: PDF output (pdfTeX)
 ) (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 6.
-LaTeX Font Info:    ... okay on input line 6.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
  (/usr/local/texlive/2021/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count283
@@ -320,7 +320,7 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2021/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-Package hyperref Info: Link coloring OFF on input line 6.
+Package hyperref Info: Link coloring OFF on input line 4.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
  (/usr/local/texlive/2021/texmf-dist/tex/latex/refcount/refcount.sty
@@ -330,9 +330,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count289
 )
-LaTeX Info: Redefining \ref on input line 6.
-LaTeX Info: Redefining \pageref on input line 6.
-LaTeX Info: Redefining \nameref on input line 6.
+LaTeX Info: Redefining \ref on input line 4.
+LaTeX Info: Redefining \pageref on input line 4.
+LaTeX Info: Redefining \nameref on input line 4.
  (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.out) (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.out)
 \@outlinefile=\write3
 \openout3 = `paper.out'.
@@ -342,27 +342,41 @@ LaTeX Info: Redefining \nameref on input line 6.
 <logojuliacon.pdf, id=32, 430.91032pt x 145.96547pt>
 File: logojuliacon.pdf Graphic file (type pdf)
 <use logojuliacon.pdf>
-Package pdftex.def Info: logojuliacon.pdf  used on input line 10.
+Package pdftex.def Info: logojuliacon.pdf  used on input line 8.
 (pdftex.def)             Requested size: 72.26999pt x 24.4797pt.
-LaTeX Font Info:    Trying to load font information for U+lasy on input line 10.
+LaTeX Font Info:    Trying to load font information for U+lasy on input line 8.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/base/ulasy.fd
 File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 )
-LaTeX Font Info:    Trying to load font information for U+msa on input line 10.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 8.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 10.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 8.
  (/usr/local/texlive/2021/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `U/lasy/b/n' in size <8> not available
-(Font)              Font shape `U/lasy/m/n' tried instead on input line 10.
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 8.
 LaTeX Font Info:    Font shape `U/lasy/b/n' in size <6> not available
-(Font)              Font shape `U/lasy/m/n' tried instead on input line 10.
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 8.
+LaTeX Font Info:    Font shape `U/lasy/b/n' in size <9> not available
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 30.
+LaTeX Font Info:    Font shape `U/lasy/b/n' in size <5> not available
+(Font)              Font shape `U/lasy/m/n' tried instead on input line 30.
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 21.
- (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/bib.tex (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.bbl))
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 89.
+<./juliagraphs.png, id=50, 200.75pt x 200.75pt>
+File: ./juliagraphs.png Graphic file (type png)
+<use ./juliagraphs.png>
+Package pdftex.def Info: ./juliagraphs.png  used on input line 96.
+(pdftex.def)             Requested size: 200.7495pt x 200.7495pt.
+ (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/bib.tex (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.bbl
+Underfull \hbox (badness 4181) in paragraph at lines 17--21
+[]\T1/ptm/m/n/9 Amir-Hossein Karimi, Bern-hard Schölkopf, and Is-abel
+ []
+
+
 Underfull \hbox (badness 10000) has occurred while \output is active
   
  []
@@ -372,24 +386,48 @@ Non-PDF special ignored!
 <special> papersize=8.5in,11in
 
 
+ </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/logojuliacon.pdf>]
+Underfull \hbox (badness 4765) in paragraph at lines 23--28
+[]\T1/ptm/m/n/9 Amir-Hossein Karimi, Julius Von Kügel-gen, Bern-hard
+ []
 
- </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/logojuliacon.pdf>] (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.aux)
+
+Underfull \hbox (badness 1292) in paragraph at lines 30--33
+[]\T1/ptm/m/n/9 Christoph Mol-nar. \T1/ptm/m/it/9 In-ter-pretable ma-chine learn-ing\T1/ptm/m/n/9 . Lulu.
+ []
+
+
+Underfull \hbox (badness 1478) in paragraph at lines 57--60
+\T1/ptm/m/n/9 To-wards ro-bust and re-li-able al-go-rith-mic re-course. \T1/ptm/m/it/9 arXiv
+ []
+
+))
+Overfull \vbox (2.39996pt too high) has occurred while \output is active []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+  \T1/ptm/m/n/9 2
+ []
+
+[2
+
+ </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/./juliagraphs.png>] (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.aux)
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 9A6BE272B29A42416D4FFE4B47002D18;1005.
+(rerunfilecheck)             Checksum: DD358FE6E6C96AF7ECA015AB878CCBE0;1056.
  ) 
 Here is how much of TeX's memory you used:
- 10944 strings out of 478994
- 157767 string characters out of 5858184
- 480725 words of memory out of 5000000
- 28231 multiletter control sequences out of 15000+600000
- 437776 words of font info for 95 fonts, out of 8000000 for 9000
+ 11019 strings out of 478994
+ 158949 string characters out of 5858184
+ 492725 words of memory out of 5000000
+ 28270 multiletter control sequences out of 15000+600000
+ 444769 words of font info for 114 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 86i,7n,88p,946b,342s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.pdf (1 page, 71846 bytes).
+ 86i,11n,88p,946b,447s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on /Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.pdf (2 pages, 160446 bytes).
 PDF statistics:
- 69 PDF objects out of 1000 (max. 8388607)
- 60 compressed objects within 1 object stream
- 12 named destinations out of 1000 (max. 500000)
- 62 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 139 PDF objects out of 1000 (max. 8388607)
+ 121 compressed objects within 2 object streams
+ 35 named destinations out of 1000 (max. 500000)
+ 67 words of extra memory for PDF output out of 10000 (max. 10000000)
 
