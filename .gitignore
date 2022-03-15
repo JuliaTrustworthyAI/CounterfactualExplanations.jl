@@ -27,3 +27,5 @@ Manifest.toml
 *.DS_Store
 dev/data/
 .vscode
+*.Rproj
+.Rproj.user
