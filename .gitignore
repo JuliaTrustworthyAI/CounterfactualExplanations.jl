@@ -26,3 +26,4 @@ Manifest.toml
 # Other:
 *.DS_Store
 dev/data/
+.vscode
