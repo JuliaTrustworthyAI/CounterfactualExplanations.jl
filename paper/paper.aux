@@ -17,6 +17,7 @@
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
 \citation{molnar2020interpretable}
+\citation{molnar2020interpretable}
 \citation{wachter2017counterfactual}
 \citation{verma2020counterfactual}
 \citation{karimi2020survey}
@@ -26,39 +27,75 @@
 \citation{poyiadzi2020face}
 \citation{joshi2019towards}
 \citation{schut2021generating}
+\citation{schut2021generating}
 \citation{upadhyay2021towards}
 \citation{mothilal2020explaining}
 \citation{karimi2020algorithmic}
 \citation{karimi2021algorithmic}
-\bibstyle{juliacon}
-\bibdata{ref.bib}
-\bibcite{joshi2019towards}{1}
-\bibcite{karimi2020survey}{2}
-\bibcite{karimi2021algorithmic}{3}
+\citation{schut2021generating}
 \newlabel{@firstpg}{{}{1}{}{Doc-Start}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
 \newlabel{sec-intro}{{1}{1}{Introduction}{section.1}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {2}Methodological background}{1}{section.2}\protected@file@percent }
 \newlabel{sec-method}{{2}{1}{Methodological background}{section.2}{}}
-\newlabel{eq-obj}{{1}{1}{Methodological background}{equation.2.1}{}}
-\newlabel{eq-solution}{{2}{1}{Methodological background}{equation.2.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Using \texttt  {CounterfactualExplanations}}{1}{section.3}\protected@file@percent }
-\newlabel{using-counterfactualexplanations}{{3}{1}{\texorpdfstring {Using \texttt {CounterfactualExplanations}}{Using CounterfactualExplanations}}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Counterfactual generators}{1}{subsection.3.1}\protected@file@percent }
-\newlabel{counterfactual-generators}{{3.1}{1}{Counterfactual generators}{subsection.3.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Empirical example}{1}{section.4}\protected@file@percent }
-\newlabel{empirical-example}{{4}{1}{Empirical example}{section.4}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Related and future work}{1}{section.5}\protected@file@percent }
-\newlabel{related-and-future-work}{{5}{1}{Related and future work}{section.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}References}{1}{section.6}\protected@file@percent }
-\bibcite{karimi2020algorithmic}{4}
-\bibcite{molnar2020interpretable}{5}
-\bibcite{mothilal2020explaining}{6}
-\bibcite{poyiadzi2020face}{7}
-\bibcite{schut2021generating}{8}
-\bibcite{upadhyay2021towards}{9}
-\bibcite{ustun2019actionable}{10}
-\bibcite{verma2020counterfactual}{11}
-\bibcite{wachter2017counterfactual}{12}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Figure}}{2}{figure.1}\protected@file@percent }
-\gdef \@abspage@last{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Generic framework}{1}{subsection.2.1}\protected@file@percent }
+\newlabel{generic-framework}{{2.1}{1}{Generic framework}{subsection.2.1}{}}
+\newlabel{eq-obj}{{1}{1}{Generic framework}{equation.2.1}{}}
+\newlabel{eq-solution}{{2}{1}{Generic framework}{equation.2.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Counterfactuals for Bayesian models}{1}{subsection.2.2}\protected@file@percent }
+\newlabel{counterfactuals-for-bayesian-models}{{2.2}{1}{Counterfactuals for Bayesian models}{subsection.2.2}{}}
+\citation{schut2021generating}
+\citation{schut2021generating}
+\citation{wachter2017counterfactual}
+\citation{mothilal2020explaining}
+\citation{upadhyay2021towards}
+\citation{karimi2020algorithmic}
+\citation{karimi2021algorithmic}
+\citation{schut2021generating}
+\citation{schut2021generating}
+\citation{gal2016dropout}
+\citation{lakshminarayanan2016simple}
+\citation{daxberger2021laplace}
+\citation{murphy2022probabilistic}
+\newlabel{eq-solution-bayes}{{3}{2}{Counterfactuals for Bayesian models}{equation.2.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Using \texttt  {CounterfactualExplanations}}{2}{section.3}\protected@file@percent }
+\newlabel{using-counterfactualexplanations}{{3}{2}{\texorpdfstring {Using \texttt {CounterfactualExplanations}}{Using CounterfactualExplanations}}{section.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Schematic overview of the \texttt  {FittedModel} base type and its descendants.}}{2}{figure.1}\protected@file@percent }
+\newlabel{fig-models}{{1}{2}{Schematic overview of the \texttt {FittedModel} base type and its descendants}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic overview of the \texttt  {Generator} base type and its descendants.}}{2}{figure.2}\protected@file@percent }
+\newlabel{fig-generators}{{2}{2}{Schematic overview of the \texttt {Generator} base type and its descendants}{figure.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Getting started}{2}{subsection.3.1}\protected@file@percent }
+\newlabel{getting-started}{{3.1}{2}{Getting started}{subsection.3.1}{}}
+\citation{schut2021generating}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Counterfactual path using generic counterfactual generator for conventional binary classifier.}}{3}{figure.3}\protected@file@percent }
+\newlabel{fig-binary}{{3}{3}{Counterfactual path using generic counterfactual generator for conventional binary classifier}{figure.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier.}}{3}{figure.4}\protected@file@percent }
+\newlabel{fig-binary-wrong}{{4}{3}{Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier}{figure.4}{}}
+\bibstyle{juliacon}
+\bibdata{ref.bib}
+\bibcite{daxberger2021laplace}{1}
+\bibcite{gal2016dropout}{2}
+\bibcite{joshi2019towards}{3}
+\bibcite{karimi2020survey}{4}
+\bibcite{karimi2021algorithmic}{5}
+\bibcite{karimi2020algorithmic}{6}
+\bibcite{lakshminarayanan2016simple}{7}
+\bibcite{molnar2020interpretable}{8}
+\bibcite{mothilal2020explaining}{9}
+\bibcite{murphy2022probabilistic}{10}
+\bibcite{poyiadzi2020face}{11}
+\bibcite{schut2021generating}{12}
+\bibcite{upadhyay2021towards}{13}
+\bibcite{ustun2019actionable}{14}
+\bibcite{verma2020counterfactual}{15}
+\bibcite{wachter2017counterfactual}{16}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Counterfactual path using greedy counterfactual generator for Bayesian binary classifier.}}{4}{figure.5}\protected@file@percent }
+\newlabel{fig-binary-laplace}{{5}{4}{Counterfactual path using greedy counterfactual generator for Bayesian binary classifier}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Custom models}{4}{subsection.3.2}\protected@file@percent }
+\newlabel{custom-models}{{3.2}{4}{Custom models}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Empirical example}{4}{section.4}\protected@file@percent }
+\newlabel{empirical-example}{{4}{4}{Empirical example}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Related and future work}{4}{section.5}\protected@file@percent }
+\newlabel{related-and-future-work}{{5}{4}{Related and future work}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}References}{4}{section.6}\protected@file@percent }
+\gdef \@abspage@last{4}

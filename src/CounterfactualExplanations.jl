@@ -6,6 +6,7 @@ using LinearAlgebra
 
 include("models/Models.jl")
 using .Models
+export LogisticModel, BayesianLogisticModel, probs, logits
 
 include("losses/Losses.jl")
 using .Losses

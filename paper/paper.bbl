@@ -1,5 +1,18 @@
 \begin{thebibliography}{10}
 
+\bibitem{daxberger2021laplace}
+Erik Daxberger, Agustinus Kristiadi, Alexander Immer, Runa Eschenhagen,
+  Matthias Bauer, and Philipp Hennig.
+Laplace redux-effortless bayesian deep learning.
+{\em Advances in Neural Information Processing Systems}, 34, 2021.
+
+\bibitem{gal2016dropout}
+Yarin Gal and Zoubin Ghahramani.
+Dropout as a bayesian approximation: Representing model uncertainty in deep
+  learning.
+In {\em international conference on machine learning}, pages 1050--1059. PMLR,
+  2016.
+
 \bibitem{joshi2019towards}
 Shalmali Joshi, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep
   Ghosh.
@@ -26,6 +39,11 @@ Algorithmic recourse under imperfect causal knowledge: a probabilistic
   approach.
 {\em arXiv preprint arXiv:2006.06831}, 2020.
 
+\bibitem{lakshminarayanan2016simple}
+Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell.
+Simple and scalable predictive uncertainty estimation using deep ensembles.
+{\em arXiv preprint arXiv:1612.01474}, 2016.
+
 \bibitem{molnar2020interpretable}
 Christoph Molnar.
 {\em Interpretable machine learning}.
@@ -37,6 +55,11 @@ Explaining machine learning classifiers through diverse counterfactual
   explanations.
 In {\em Proceedings of the 2020 Conference on Fairness, Accountability, and
   Transparency}, pages 607--617, 2020.
+
+\bibitem{murphy2022probabilistic}
+Kevin~P Murphy.
+{\em Probabilistic Machine Learning: An introduction}.
+MIT Press, 2022.
 
 \bibitem{poyiadzi2020face}
 Rafael Poyiadzi, Kacper Sokol, Raul Santos-Rodriguez, Tijl De~Bie, and Peter

@@ -1,7 +1,17 @@
 ---
 format: latex
 bibliography: ref.bib
+execute:
+    eval: false
+    echo: false
 ---
+
+```{julia}
+using CounterfactualExplanations, Plots, PlotThemes, GraphRecipes
+theme(:wong)
+default(size=(500, 375))
+include("paper/utils.jl")
+```
 
 # Introduction {#sec-intro}
 
@@ -9,7 +19,11 @@ In section @sec-intro
 
 # Methodological background {#sec-method}
 
-Counterfactual search happens in the feature space: we are interested in understanding how we need to change individual attributes in order to change the model output to a desired value or label \cite{molnar2020interpretable}. Typically the underlying methodology is presented in the context of binary classification: $M: \mathcal{X} \mapsto y$ where and $y\in\{0,1\}$. Let $t=1$ be the target class and let $\overline{x}$ denote the factual feature vector of some individual outside of the target class, so $\overline{y}=M(\overline{x})=0$. Then the counterfactual search objective originally proposed by \cite{wachter2017counterfactual} is as follows
+Counterfactual search happens in the feature space: we are interested in understanding how we need to change individual attributes in order to change the model output to a desired value or label (\cite{molnar2020interpretable}). Typically the underlying methodology is presented in the context of binary classification: $M: \mathcal{X} \mapsto y$ where and $y\in\{0,1\}$. Let $t=1$ be the target class and let $\overline{x}$ denote the factual feature vector of some individual outside of the target class, so $\overline{y}=M(\overline{x})=0$. We follow this convention here, though it should be noted that the ideas presented here also carry over to multi-class problems and regression (\cite{molnar2020interpretable}). 
+
+## Generic framework
+
+Then the counterfactual search objective originally proposed by \cite{wachter2017counterfactual} is as follows
 
 $$
 \min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
@@ -21,17 +35,169 @@ $$
 \underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
 $$ {#eq-solution}
 
-Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the stength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach in `CounterfactualExplanations`.
+Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the stength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach - `GenericGenerator` - in our package. The hyperparameter $\lambda$ is typically tuned through grid search. Conventional choices for $\ell$ include margin-based losses like cross-entropy loss and hinge loss. It is worth pointing out that the loss function is typically computed with respect to logits rather than predicted probabilities, a convetion that we have chosen to follow.^[While the rationale for this convention is not entirely obvious, implementations of loss functions with respect to logits are often numerically more stable. For example, the `logitbinarycrossentropy(ŷ, y)` implementation in `Flux.Losses` (used here) is more stable than the mathematically equivalent `binarycrossentropy(ŷ, y)`.] 
 
-That being said, numerous extensions of this simple approach have been developed since counterfactual explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective counterfactual explanations that have been set out. These desiderata include: **closeness** -the average distance between factual and counterfactual features should be small (\cite{wachter2017counterfactual}); **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be plausible to a human (\cite{joshi2019towards}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual (\cite{schut2021generating}); **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible; **robustness** - the counterfactual explanation should be robust to domain and model shifts (\cite{upadhyay2021towards}); **diversity** - ideally multiple diverse counterfactual explanations should be provided (\cite{mothilal2020explaining}); and **causality** - counterfactual explanations reflect the structual causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+Numerous - and in some cases competing - extensions to this simple approach have been developed since counterfactual explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective counterfactual explanations that have been set out. These desiderata include: **closeness** - the average distance between factual and counterfactual features should be small (\cite{wachter2017counterfactual}); **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be plausible to a human (\cite{joshi2019towards}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual (\cite{schut2021generating}); **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible (\cite{schut2021generating}); **robustness** - the counterfactual explanation should be robust to domain and model shifts (\cite{upadhyay2021towards}); **diversity** - ideally multiple diverse counterfactual explanations should be provided (\cite{mothilal2020explaining}); and **causality** - counterfactual explanations reflect the structual causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
 
+## Counterfactuals for Bayesian models
 
+For what follows it is worth elaborating on the approach proposed in \cite{schut2021generating}. The authors demonstrate that many of the abovementioned desiderata can be addressed very easily, if the classifier $M$ is Bayesian. In particular, they show that close, realistic, sparse and unambigous counterfactuals can be generated by implicitly minimizing the classifier's predictive uncertainty through a greedy counterfactual search. Formally, they define $h(\cdot)$ as the predictive entropy of the classifier, which captures both **epistemic** and **aleatoric** uncertainty: the former is high on points far away from the training data while the latter is high in regions of the input space that are inherently noisy. Both are regions we want to steer clear off in our counterfactual search and hence predictive entropy is an intuitive choice for a complexity penalty. The authors further point out that any solution that minimizes cross-entropy loss (@eq-solution) also minimizes predictive entropy: $\arg \min _{\underline{x}} \ell(M(\underline{x}),t) \in \arg \min _{\underline{x}} h(\underline{x})$. Let $\mathcal{\widetilde{M}}$ denote the class of binary classifiers that incorporate predictive uncertainty, then the previous observation implies that the optimal solution to counterfactual search (@eq-solution) can be restated as follows:
+
+$$
+\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
+$$ {#eq-solution-bayes}
+
+We can drop the complexity penalty altogether and still generate effective counterfactual explanations. As we will see below, even a fast and greedy counterfactual search proposed in \cite{schut2021generating} yields good results in this setting. The approach has been implemented as `GreedyGenerator` in our package and should only be used with classifiers of type $\mathcal{\widetilde{M}}$. It is worth noting that the findings in \cite{schut2021generating} are not mutually exclusive of many of the other methodologies that have been put foward. On the contrary, we believe that they are complementary: the generic counterfactual search proposed in \cite{wachter2017counterfactual}, for example, can be shown to produce more plausible counterfactuals in the Bayesian setting. Similarly, there is no obvious reason why recent work on diversity (\cite{mothilal2020explaining}), robustness (\cite{upadhyay2021towards}) and causality (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}) could not be complemented by the findings in \cite{schut2021generating}. For this reason we are highlighting \cite{schut2021generating} here and have prioritized it in the development of `CounterfactualExplanations`. While there is no free lunch and $M\in\mathcal{\widetilde{M}}$ may seem like a hard constraint, recent advances in probabilistic machine learning have shown that the computational cost involved in Bayesian model averaging is lower than we may have thought (\cite{gal2016dropout}, \cite{lakshminarayanan2016simple}, \cite{daxberger2021laplace}, \cite{murphy2022probabilistic}).
 
 # Using `CounterfactualExplanations`
 
-## Counterfactual generators
+The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$ while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through a few examples.
 
-![Figure](./juliagraphs.png)
+```{julia}
+plot(code, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
+```
+
+```{julia}
+p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
+savefig(p, "paper/www/models.png")
+```
+
+![Schematic overview of the `FittedModel` base type and its descendants.](www/models.png){#fig-models width=20pc height=15pc}
+
+```{julia}
+p = plot(CounterfactualExplanations.Generator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
+savefig(p, "paper/www/generators.png")
+```
+
+![Schematic overview of the `Generator` base type and its descendants.](www/generators.png){#fig-generators width=20pc height=15pc}
+
+## Getting started
+
+The code below provides a complete example demonstrating how the framework presented in @sec-method can be implemeted in Julia using the `CounterfactualExplantions` package: using a synthetic data set with linearly separable samples we firstly define our model and then generate a counterfactual for a randomly selected sample. @fig-binary shows the resulting counterfactual path in the two-dimensional feature space: features go through iterative perturbations until the desired confidence level is reached as illustrated by the contour in the background, which indicates the classifier's predicted probability that the label is equal to 1.
+
+It may help to go through the relevants parts of the code in some more detail starting from the part involving the model. For illustrative purposes the `Models` module ships with a constructor for a logistic regression model: `LogisticModel(W::Matrix,b::AbstractArray) <: FittedModel`. This constructors does not fit the regression model, but rather takes its underlying parameters as given. In other words, it is generally assumed that the user has already estimated a model. Based on the provided estimates two functions are already implemented that compute logits and probabilities for the model, respectively. Below we will see how users can use multiple dispatch to extend these functions for use with arbitrary models. For now it is enough to note that those methods define how the model makes its predictions $M(x)$ and hence they form an integral part of the counterfactual search. 
+
+With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x_factual`; 2) compute its factual label `y_factual` as predicted by the model ($M(\overline{x})=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(\underline{x})=t$. 
+
+The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. The first three fields of the `GenericGenerator` are reserved for hyperparameters governing the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence. The fourth field accepts a `Symbol` defining the type of loss function $\ell$ to be used. Since we are dealing with a binary classification problem logistic binary cross-entropy is an appropriate choice.^[As mentioned earlier, the loss function is computed with respect to logits and hence it is important to use logistic binary cross-entropy loss  as opposed to just binary cross-entropy.] The fifth and last field can be used to define mutability constraints for the features.   
+
+```{julia}
+# Data:
+using CounterfactualExplanations, Random
+Random.seed!(1234);
+N = 100 # number of data points
+using CounterfactualExplanations.Data
+x, y = toy_data_linear(N) 
+
+# Model:
+using CounterfactualExplanations.Models 
+w = [1.0 1.0]# true coefficients
+b = 0
+M = LogisticModel(w, [b])
+
+# Setup:
+x_factual = x[rand(1:length(x))]
+y_factual = round(probs(M, x_factual)[1])
+target = ifelse(y_factual==1.0,0.0,1.0) 
+confidence = 0.75 
+
+# Counterfactual search:
+generator = GenericGenerator(
+    0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+```
+
+\begin{lstlisting}[language = Julia]
+# Data:
+using CounterfactualExplanations, Random
+Random.seed!(1234);
+N = 100 # number of data points
+using CounterfactualExplanations.Data
+x, y = toy_data_linear(N) 
+
+# Model:
+using CounterfactualExplanations.Models 
+w = [1.0 1.0]# true coefficients
+b = 0
+M = LogisticModel(w, [b])
+
+# Setup:
+x_factual = x[rand(1:length(x))]
+y_factual = round(probs(M, x_factual)[1])
+target = ifelse(y_factual==1.0,0.0,1.0) 
+confidence = 0.75 
+
+# Counterfactual search:
+generator = GenericGenerator(
+    0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+\end{lstlisting}
+
+```{julia}
+X = hcat(x...)
+plt = plot_contour(X',y,M)
+[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
+savefig(plt, "paper/www/ce_binary.png")
+```
+
+![Counterfactual path using generic counterfactual generator for conventional binary classifier.](www/ce_binary.png){#fig-binary width=20pc height=15pc}
+
+In this simple example the generic generator produces an effective counterfactual: the decision boundary is crossed (i.e. the counterfactual explanation is valid) and upon visual inspection the counterfactual seems plausible (@fig-binary). Still, the example also illustrates that things may well go wrong: since the underlying model produces high-confidence predictions in regions free of any data, it is easy to think of scenarios that involve valid but unrealistic or ambiguous counterfactuals. Consider, for example, the scenario illustrated in @fig-binary-wrong, which involves the same logisitic classifier albeit massively overfitted. In this case generic search may yield an unrealistic counterfactual that is well into the yellow region and yet far away from all other samples (red marker) or an ambiguous counterfactual near the decision boundary (black marker).
+
+```{julia}
+w = [100.0 100.0]# true coefficients
+b = 0
+M = LogisticModel(w, [b])
+plt = plot_contour(X',y,M)
+scatter!(plt, [4], [-3], color="red", ms=10, label="Unrealistic CE")
+scatter!(plt, [1e-5], [1e-5], color="purple", ms=10, label="Ambiguous CE")
+savefig(plt, "paper/www/binary_wrong.png")
+```
+
+![Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier.](www/binary_wrong.png){#fig-binary-wrong width=20pc height=15pc}
+
+Among the different approaches that have recently been put forward to deal with such issues is the greedy generator for Bayesian models proposed by \cite{schut2021generating}. For reasons discussed in @sec-method, we have chosen to prioritize this approach in the development of `CounterfactualExplanations`. The code below shows how this approach can be implemented. 
+
+```{julia}
+using LinearAlgebra
+I = UniformScaling(1)
+cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
+w = [1 1]
+params = hcat(b, w)
+M = BayesianLogisticModel(params, cov);
+generator = GreedyGenerator(
+    0.25,20,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+```
+
+\begin{lstlisting}[language = Julia]
+using LinearAlgebra
+I = UniformScaling(1)
+cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
+w = [1 1]
+params = hcat(b, w)
+M = BayesianLogisticModel(params, cov);
+generator = GreedyGenerator(
+    0.25,20,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+\end{lstlisting}
+
+```{julia}
+X = hcat(x...)
+plt = plot_contour(X',y,M)
+[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
+savefig(plt, "paper/www/ce_binary_laplace.png")
+```
+
+![Counterfactual path using greedy counterfactual generator for Bayesian binary classifier.](www/ce_binary_laplace.png){#fig-binary-laplace width=20pc height=15pc}
+
+## Custom models
+
+
 
 # Empirical example 
 
