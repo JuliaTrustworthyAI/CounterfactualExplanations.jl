@@ -71,7 +71,7 @@ savefig(p, "paper/www/generators.png")
 
 ![Schematic overview of the `Generator` base type and its descendants.](www/generators.png){#fig-generators width=20pc height=15pc}
 
-## Getting started
+## Getting started {#sec-start}
 
 The code below provides a complete example demonstrating how the framework presented in @sec-method can be implemeted in Julia using the `CounterfactualExplantions` package: using a synthetic data set with linearly separable samples we firstly define our model and then generate a counterfactual for a randomly selected sample. @fig-binary shows the resulting counterfactual path in the two-dimensional feature space: features go through iterative perturbations until the desired confidence level is reached as illustrated by the contour in the background, which indicates the classifier's predicted probability that the label is equal to 1.
 
@@ -158,15 +158,22 @@ savefig(plt, "paper/www/binary_wrong.png")
 
 ![Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier.](www/binary_wrong.png){#fig-binary-wrong width=20pc height=15pc}
 
-Among the different approaches that have recently been put forward to deal with such issues is the greedy generator for Bayesian models proposed by \cite{schut2021generating}. For reasons discussed in @sec-method, we have chosen to prioritize this approach in the development of `CounterfactualExplanations`. The code below shows how this approach can be implemented. 
+Among the different approaches that have recently been put forward to deal with such issues is the greedy generator for Bayesian models proposed by \cite{schut2021generating}. For reasons discussed in @sec-method, we have chosen to prioritize this approach in the development of `CounterfactualExplanations`. The code below shows how this approach can be implemented. @fig-binary-laplace shows the resulting counterfactual path through the feature space along with the predicted probabilities from the Bayesian classifier. 
+
+Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we use assume that we have fit a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logistic binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes the two moments defining that distribution as its arguments: firstly, the MAP esitmate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logisitic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logisitic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
+
+For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined step size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: Generator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
 
 ```{julia}
+# Model:
 using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
 params = hcat(b, w)
-M = BayesianLogisticModel(params, cov);
+M = BayesianLogisticModel(params, cov)
+
+# Counterfactual search:
 generator = GreedyGenerator(
     0.25,20,:logitbinarycrossentropy,nothing)
 counterfactual = generate_counterfactual(
@@ -174,12 +181,15 @@ counterfactual = generate_counterfactual(
 ```
 
 \begin{lstlisting}[language = Julia]
+# Model:
 using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
 params = hcat(b, w)
-M = BayesianLogisticModel(params, cov);
+M = BayesianLogisticModel(params, cov)
+
+# Counterfactual search:
 generator = GreedyGenerator(
     0.25,20,:logitbinarycrossentropy,nothing)
 counterfactual = generate_counterfactual(
@@ -193,11 +203,18 @@ plt = plot_contour(X',y,M)
 savefig(plt, "paper/www/ce_binary_laplace.png")
 ```
 
+The counterfactual in @fig-binary-laplace is not only valid, but also realistic and unambiguous. In this case it is more difficult to imagine adverse scenarios like in @fig-binary-wrong. Evidently it is easier to avoid pitfalls when generating counterfactual explanations for models that incorporate predictive uncertainty. 
+
 ![Counterfactual path using greedy counterfactual generator for Bayesian binary classifier.](www/ce_binary_laplace.png){#fig-binary-laplace width=20pc height=15pc}
 
 ## Custom models
 
+One of our priorities has been to make `CounterfactualExplanations` scalable and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals. Only two steps are necessary to make any supervised-learning model compatible with our package^[In order for the model to be compatible with the gradient-based default generators presented in @sec-start gradient access is also necessary, but any model can also be complemented with a custom generator.]:
 
+1. The model needs to be declared as a subtype of `FittedModel`.
+2. The functions `logits` and `probs` need to be extended through custom methods for the model in question.
+
+In the following we will go through simple usage examples to see how this can be done in practice.
 
 # Empirical example 
 

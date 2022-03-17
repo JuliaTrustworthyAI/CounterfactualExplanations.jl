@@ -46,6 +46,46 @@
   urlcolor={Blue},
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.48,0.65}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
 \usepackage{longtable,booktabs,array}
 \usepackage{calc} % for calculating minipage widths
 % Correct order of tables after \paragraph or \subparagraph
@@ -105,6 +145,15 @@
 \date{}
 
 \begin{document}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{using CounterfactualExplanations, Plots, PlotThemes, GraphRecipes}
+\NormalTok{theme(:wong)}
+\NormalTok{default(size=(500, 375))}
+\NormalTok{include("paper/utils.jl")}
+\end{Highlighting}
+\end{Shaded}
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -274,6 +323,19 @@ counterfactual search (Equation~\ref{eq-solution} and
 Equation~\ref{eq-solution-bayes}). In the following we will demonstrate
 how to use and extend the package architecture through a few examples.
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot(code, method=:tree, fontsize=8, nodeshape=:rect, axis\_buffer=0.3)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis\_buffer=0.3)}
+\NormalTok{savefig(p, "paper/www/models.png")}
+\end{Highlighting}
+\end{Shaded}
+
 \begin{figure}
 
 {\centering \includegraphics[width=3.33333in,height=2.5in]{www/models.png}
@@ -284,6 +346,13 @@ how to use and extend the package architecture through a few examples.
 \texttt{FittedModel} base type and its descendants.}
 
 \end{figure}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{p = plot(CounterfactualExplanations.Generator, method=:tree, fontsize=8, nodeshape=:rect, axis\_buffer=0.3)}
+\NormalTok{savefig(p, "paper/www/generators.png")}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{figure}
 
@@ -345,6 +414,35 @@ binary cross-entropy is an appropriate choice.\footnote{As mentioned
   opposed to just binary cross-entropy.} The fifth and last field can be
 used to define mutability constraints for the features.
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\# Data:}
+\NormalTok{using CounterfactualExplanations, Random}
+\NormalTok{Random.seed!(1234);}
+\NormalTok{N = 100 \# number of data points}
+\NormalTok{using CounterfactualExplanations.Data}
+\NormalTok{x, y = toy\_data\_linear(N) }
+
+\NormalTok{\# Model:}
+\NormalTok{using CounterfactualExplanations.Models }
+\NormalTok{w = [1.0 1.0]\# true coefficients}
+\NormalTok{b = 0}
+\NormalTok{M = LogisticModel(w, [b])}
+
+\NormalTok{\# Setup:}
+\NormalTok{x\_factual = x[rand(1:length(x))]}
+\NormalTok{y\_factual = round(probs(M, x\_factual)[1])}
+\NormalTok{target = ifelse(y\_factual==1.0,0.0,1.0) }
+\NormalTok{confidence = 0.75 }
+
+\NormalTok{\# Counterfactual search:}
+\NormalTok{generator = GenericGenerator(}
+\NormalTok{    0.1,0.1,1e{-}5,:logitbinarycrossentropy,nothing)}
+\NormalTok{counterfactual = generate\_counterfactual(}
+\NormalTok{    generator, x\_factual, M, target, confidence)}
+\end{Highlighting}
+\end{Shaded}
+
 \begin{lstlisting}[language = Julia]
 # Data:
 using CounterfactualExplanations, Random
@@ -372,6 +470,15 @@ counterfactual = generate_counterfactual(
     generator, x_factual, M, target, confidence)
 \end{lstlisting}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{X = hcat(x...)}
+\NormalTok{plt = plot\_contour(X\textquotesingle{},y,M)}
+\NormalTok{[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y\_factual), label="") for x in counterfactual.path]}
+\NormalTok{savefig(plt, "paper/www/ce\_binary.png")}
+\end{Highlighting}
+\end{Shaded}
+
 \begin{figure}
 
 {\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_binary.png}
@@ -398,6 +505,18 @@ the yellow region and yet far away from all other samples (red marker)
 or an ambiguous counterfactual near the decision boundary (black
 marker).
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{w = [100.0 100.0]\# true coefficients}
+\NormalTok{b = 0}
+\NormalTok{M = LogisticModel(w, [b])}
+\NormalTok{plt = plot\_contour(X\textquotesingle{},y,M)}
+\NormalTok{scatter!(plt, [4], [{-}3], color="red", ms=10, label="Unrealistic CE")}
+\NormalTok{scatter!(plt, [1e{-}5], [1e{-}5], color="purple", ms=10, label="Ambiguous CE")}
+\NormalTok{savefig(plt, "paper/www/binary\_wrong.png")}
+\end{Highlighting}
+\end{Shaded}
+
 \begin{figure}
 
 {\centering \includegraphics[width=3.33333in,height=2.5in]{www/binary_wrong.png}
@@ -416,19 +535,94 @@ proposed by \cite{schut2021generating}. For reasons discussed in
 Section~\ref{sec-method}, we have chosen to prioritize this approach in
 the development of \texttt{CounterfactualExplanations}. The code below
 shows how this approach can be implemented.
+Figure~\ref{fig-binary-laplace} shows the resulting counterfactual path
+through the feature space along with the predicted probabilities from
+the Bayesian classifier.
+
+Once again it is worth dwelling on the code for a moment. We have used
+the same synthetic toy data as before, but this time we use assume that
+we have fit a Bayesian logistic regression model through Laplace
+approximation. This approximation uses the fact the second-order Taylor
+expansion of the logistic binary cross-entropy function evaluated at the
+maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian
+distribution (\cite{murphy2022probabilistic}).\footnote{See also this
+  \href{https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/}{blog
+  post} for a gentle introduction and implementation in Julia.} The
+\texttt{BayesianLogisticModel\ \textless{}:\ FittedModel} constructor
+takes the two moments defining that distribution as its arguments:
+firstly, the MAP esitmate, i.e.~the vector of parameters \(\hat\mu\)
+including the constant term and, secondly, the corresponding covariance
+matrix \(\hat{\Sigma}\). As with logisitic regression above, the package
+ships with methods to compute predictions from instances of type
+\texttt{BayesianLogisticModel}.\footnote{Predictions are computed using
+  a probit approximation.} Contrary to the simple logisitic regression
+model above, predictions from the Bayesian logistic model incorporate
+uncertainty and hence predicted probabilities fan out in regions free of
+any training data (Figure~\ref{fig-binary-laplace}).
+
+For the counterfactual search we use a greedy approach following
+\cite{schut2021generating}. The approach is greedy in the sense that in
+each iteration it selects the most salient feature with respect to our
+objective (Equation~\ref{eq-solution-bayes}) and perturbs it by some
+predetermined step size \(\delta\). Since the gradient
+\(\nabla_{\underline{x}}\ell(M(\underline{x},t))\) is proportional to
+the MAP estimate \(\hat\mu\), the same feature is chosen until a
+predefined maximum number of perturbations \(n\) has been exhausted.
+Those two hyperparameters, \(\delta\) and \(n\), are defined in the
+first two fields of \texttt{GreedyGenerator\ \textless{}:\ Generator} in
+the code below. The third and fourth field are reserved for the loss
+function and mutability constraints. Since we are making use of multiple
+dispatch, the final command that actually runs the counterfactual search
+is the same as before.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\# Model:}
+\NormalTok{using LinearAlgebra}
+\NormalTok{I = UniformScaling(1)}
+\NormalTok{cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) }
+\NormalTok{w = [1 1]}
+\NormalTok{params = hcat(b, w)}
+\NormalTok{M = BayesianLogisticModel(params, cov)}
+
+\NormalTok{\# Counterfactual search:}
+\NormalTok{generator = GreedyGenerator(}
+\NormalTok{    0.25,20,:logitbinarycrossentropy,nothing)}
+\NormalTok{counterfactual = generate\_counterfactual(}
+\NormalTok{    generator, x\_factual, M, target, confidence)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{lstlisting}[language = Julia]
+# Model:
 using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
 params = hcat(b, w)
-M = BayesianLogisticModel(params, cov);
+M = BayesianLogisticModel(params, cov)
+
+# Counterfactual search:
 generator = GreedyGenerator(
     0.25,20,:logitbinarycrossentropy,nothing)
 counterfactual = generate_counterfactual(
     generator, x_factual, M, target, confidence)
 \end{lstlisting}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{X = hcat(x...)}
+\NormalTok{plt = plot\_contour(X\textquotesingle{},y,M)}
+\NormalTok{[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y\_factual), label="") for x in counterfactual.path]}
+\NormalTok{savefig(plt, "paper/www/ce\_binary\_laplace.png")}
+\end{Highlighting}
+\end{Shaded}
+
+The counterfactual in Figure~\ref{fig-binary-laplace} is not only valid,
+but also realistic and unambiguous. In this case it is more difficult to
+imagine adverse scenarios like in Figure~\ref{fig-binary-wrong}.
+Evidently it is easier to avoid pitfalls when generating counterfactual
+explanations for models that incorporate predictive uncertainty.
 
 \begin{figure}
 
