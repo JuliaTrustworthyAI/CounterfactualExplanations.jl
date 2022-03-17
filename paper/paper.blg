@@ -3,9 +3,10 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: paper.aux
 The style file: juliacon.bst
 Database file #1: ref.bib
+Warning--I didn't find a database entry for "innes2018flux"
 You've used 16 entries,
             2314 wiz_defined-function locations,
-            604 strings with 7464 characters,
+            605 strings with 7477 characters,
 and the built_in function-call counts, 6214 in all, are:
 = -- 606
 > -- 326
@@ -44,3 +45,4 @@ warning$ -- 0
 while$ -- 51
 width$ -- 18
 write$ -- 172
+(There was 1 warning)

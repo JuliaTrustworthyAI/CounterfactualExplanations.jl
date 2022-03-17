@@ -2,8 +2,9 @@
 format: latex
 bibliography: ref.bib
 execute:
-    eval: false
-    echo: false
+  eval: false
+  echo: false
+jupyter: julia-1.6
 ---
 
 ```{julia}
@@ -16,6 +17,8 @@ include("paper/utils.jl")
 # Introduction {#sec-intro}
 
 In section @sec-intro
+
+# Related work on explainable ML
 
 # Methodological background {#sec-method}
 
@@ -51,7 +54,7 @@ We can drop the complexity penalty altogether and still generate effective count
 
 # Using `CounterfactualExplanations`
 
-The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$ while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through a few examples.
+The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but camodelot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$ while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through a few examples.
 
 ```{julia}
 plot(code, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
@@ -79,12 +82,12 @@ It may help to go through the relevants parts of the code in some more detail st
 
 With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x_factual`; 2) compute its factual label `y_factual` as predicted by the model ($M(\overline{x})=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(\underline{x})=t$. 
 
-The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. The first three fields of the `GenericGenerator` are reserved for hyperparameters governing the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence. The fourth field accepts a `Symbol` defining the type of loss function $\ell$ to be used. Since we are dealing with a binary classification problem logistic binary cross-entropy is an appropriate choice.^[As mentioned earlier, the loss function is computed with respect to logits and hence it is important to use logistic binary cross-entropy loss  as opposed to just binary cross-entropy.] The fifth and last field can be used to define mutability constraints for the features.   
+The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. The first three fields of the `GenericGenerator` are reserved for hyperparameters governing the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence. The fourth field accepts a `Symbol` defining the type of loss function $\ell$ to be used. Since we are dealing with a binary classification problem logit binary cross-entropy is an appropriate choice.^[As mentioned earlier, the loss function is computed with respect to logits and hence it is important to use logit binary cross-entropy loss  as opposed to just binary cross-entropy.] The fifth and last field can be used to define mutability constraints for the features.   
 
 ```{julia}
 # Data:
 using CounterfactualExplanations, Random
-Random.seed!(1234);
+Random.seed!(1234)
 N = 100 # number of data points
 using CounterfactualExplanations.Data
 x, y = toy_data_linear(N) 
@@ -111,7 +114,7 @@ counterfactual = generate_counterfactual(
 \begin{lstlisting}[language = Julia]
 # Data:
 using CounterfactualExplanations, Random
-Random.seed!(1234);
+Random.seed!(1234)
 N = 100 # number of data points
 using CounterfactualExplanations.Data
 x, y = toy_data_linear(N) 
@@ -160,7 +163,7 @@ savefig(plt, "paper/www/binary_wrong.png")
 
 Among the different approaches that have recently been put forward to deal with such issues is the greedy generator for Bayesian models proposed by \cite{schut2021generating}. For reasons discussed in @sec-method, we have chosen to prioritize this approach in the development of `CounterfactualExplanations`. The code below shows how this approach can be implemented. @fig-binary-laplace shows the resulting counterfactual path through the feature space along with the predicted probabilities from the Bayesian classifier. 
 
-Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we use assume that we have fit a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logistic binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes the two moments defining that distribution as its arguments: firstly, the MAP esitmate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logisitic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logisitic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
+Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we use assume that we have fit a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logit binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes the two moments defining that distribution as its arguments: firstly, the MAP esitmate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logisitic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logisitic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
 
 For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined step size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: Generator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
 
@@ -211,11 +214,140 @@ The counterfactual in @fig-binary-laplace is not only valid, but also realistic 
 
 One of our priorities has been to make `CounterfactualExplanations` scalable and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals. Only two steps are necessary to make any supervised-learning model compatible with our package^[In order for the model to be compatible with the gradient-based default generators presented in @sec-start gradient access is also necessary, but any model can also be complemented with a custom generator.]:
 
-1. The model needs to be declared as a subtype of `FittedModel`.
-2. The functions `logits` and `probs` need to be extended through custom methods for the model in question.
+<!-- \begin{unnumlist}
+\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
+\item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
+\end{unnumlist} -->
 
-In the following we will go through simple usage examples to see how this can be done in practice.
+To demonstrate how this can be done in practice we will now consider another synthetic example. Once again samples are two-dimensional for illustration purposes, but this time they are grouped into four different classes and not linearly separable. To predict class labels based on features we use a simple deep-learning model trained in [Flux.jl](https://fluxml.ai/) (\cite{innes2018flux}). The code below shows the simple model architecture. Note how outputs from the final layer are note passed through a softmax activation function, since counterfactual loss is evaluated with respect to logits as we discussed earlier. The model is trained with dropout for ten training epochs.
+
+```{julia}
+# Data:
+N = 200
+x, y = toy_data_multi(N)
+
+# Flux model setup: 
+using Flux
+y_train = Flux.onehotbatch(y, unique(y))
+y_train = Flux.unstack(y_train',1)
+data = zip(x,y_train)
+n_hidden = 32
+output_dim = length(unique(y))
+input_dim = 2
+model = Chain(
+    Dense(input_dim, n_hidden, σ),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)  
+loss(x, y) = Flux.Losses.logitcrossentropy(model(x), y)
+
+# Flux model training:
+using Flux.Optimise: update!, ADAM
+opt = ADAM()
+epochs = 10
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(params(model)) do
+      l = loss(d...)
+    end
+    update!(opt, params(model), gs)
+  end
+end
+```
+
+\begin{lstlisting}[language = Julia]
+n_hidden = 32
+output_dim = length(unique(y))
+input_dim = 2
+model = Chain(
+    Dense(input_dim, n_hidden, σ),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)  
+\end{lstlisting}
+
+```{julia}
+# Step 1)
+struct NeuralNetwork <: Models.FittedModel
+    model::Any
+end
+
+# Step 2)
+# import functions in order to extend
+import CounterfactualExplanations.Models: logits
+import CounterfactualExplanations.Models: probs 
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray) = softmax(logits(M, X))
+M = NeuralNetwork(model)
+```
+
+The code below implements the two steps that are necessary to make the trained neural network compatible with the package: subtyping and multiple dispatch. Computing logits amounts to just calling the Flux.jl model on inputs. Predicted probabilities for labels can than be computed through softmax. 
+
+\begin{lstlisting}[language = Julia]
+# Step 1)
+struct NeuralNetwork <: Models.FittedModel
+    model::Any
+end
+
+# Step 2)
+# import functions in order to extend
+import CounterfactualExplanations.Models: logits
+import CounterfactualExplanations.Models: probs 
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray) = softmax(logits(M, X))
+M = NeuralNetwork(model)
+\end{lstlisting}
+
+```{julia}
+# Randomly selected factual:
+using Random
+Random.seed!(42)
+x_factual = x[rand(1:length(x))]
+y_factual = Flux.onecold(
+    probs(M, x_factual),unique(y))
+target = rand(unique(y)[1:end .!= y̅]) 
+confidence = 0.75
+
+# Counterfactual search:
+generator = GenericGenerator(
+    0.1,0.1,1e-5,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+```
+
+Finally, the code below draws a random sample and generates a counterfactual in a different target class through generic search. The code very much resembles the earlier examples, with the only notable difference that for the counterfactual loss function we are now using the multi-class logit cross-entropy loss. 
+
+The resulting counterfactual path is shown in @fig-multi.
+
+\begin{lstlisting}[language = Julia]
+# Randomly selected factual:
+using Random
+Random.seed!(42)
+x_factual = x[rand(1:length(x))]
+y_factual = Flux.onecold(
+    probs(M, x_factual),unique(y))
+target = rand(unique(y)[1:end .!= y̅]) 
+confidence = 0.75
+
+# Counterfactual search:
+generator = GenericGenerator(
+    0.1,0.1,1e-5,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence)
+\end{lstlisting}
+
+```{julia}
+X = hcat(x...)
+plt = plot_contour(X',y,M)
+[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
+savefig(plt, "paper/www/ce_multi.png")
+```
+
+![Counterfactual path using generic counterfactual generator for multi-class classifier.](www/ce_multi.png){#fig-multi width=20pc height=15pc}
 
 # Empirical example 
 
-# Related and future work
+# Limitations and future work
+
+# Conclusion
+
