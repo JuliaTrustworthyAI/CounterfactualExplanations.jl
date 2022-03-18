@@ -3,9 +3,9 @@ title: "Explaining black box models through counterfactuals"
 author: Patrick Altmeyer
 format: 
   revealjs:
-    theme: night
     logo: www/afr.svg
     footer: "Explaining black box models through counterfactuals"
+    self-contained: true
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 execute:
   eval: false
@@ -49,9 +49,11 @@ execute:
 
 ## From 🐱 to 🐶 
 
+We have fitted some black box classifier to divide cats and dogs. One 🐱 is friends with a lot of cool 🐶  and wants to remain part of that group. The counterfactual path below shows her how to fool the classifier:
+
 ![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
 
-## On a more serious note though ...
+## On a more serious note ...
 
 :::{.incremental}
 - Ever received an automated rejection email? How was the feedback? 😕 
@@ -64,7 +66,7 @@ execute:
 
 ## Generic counterfactual search 
  
-- Objective originally proposed by @wachter2017counterfactual is as follows:
+- Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
 
 $$
 \min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
@@ -93,12 +95,12 @@ $$ {#eq-solution}
 
 ## The Bayesian approach - a catchall?
 
-- @schut2021generating note that different approaches just work with different version of the regularization, i.e. different $h(\underline{x})$ in @eq-obj
+- @schut2021generating note that different approaches just work with different complexity functions ($h(\underline{x})$ in @eq-obj)
 - They show that for classifiers $\mathcal{\widetilde{M}}$ that incoporate predictive uncertainty we can drop the complexity penalty altogether:
 
 $$
 \underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
-$$
+$$ {#eq-solution-bayes}
 
 # Examples in `CounterfactualExplanations.jl`
 
@@ -106,14 +108,13 @@ $$
 
 > Fast, transparent, beautiful 🔴🟢🟣
 
-`CounterfactualExplanations.jl`
-
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
 [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
 
-- A package for generating counterfactual explanations and aglorithmic recourse.
-- Install:
+`CounterfactualExplanations.jl` is a package for generating counterfactual explanations and aglorithmic recourse.
+
+#### Installation
 
 ```{julia}
 using Pkg
@@ -121,24 +122,32 @@ Pkg.add("CounterfactualExplanations")
 ```
 
 - To be submitted to upcoming JuliaCon 2022, if accepted then publish in proceedings.
-- In Python, use CARLA [@pawelczyk2021carla].
+- In Python 🐍, use CARLA [@pawelczyk2021carla].
 
 ## Usage example
 
-```{.julia code-line-number="8,9"}
-using CounterfactualExplanations.Models
+Using the package, generating counterfactuals is as easy as follows:
+
+```{.julia code-line-numbers="8-16"}
+# Some random example:
 w = [1.0 -2.0] # true coefficients
-b = [0]
-x̅ = [-1,0.5]
-target = 1.0
-γ = 0.9
+b = [0] # true constant
+x̅ = [-1,0.5] # factual in class 0
+target = 1.0 # target
+γ = 0.9 # desired confidence
+
+# Declare model:
+using CounterfactualExplanations.Models
 𝑴 = LogisticModel(w, b)
+
 # Counterfactual search:
 generator = GenericGenerator(
   0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_counterfactual(
   generator, x̅, 𝑴, target, γ)
 ```
+
+Designed to work with any custom model and generator through **multiple dispatch**.
 
 ## Generic search - plugin MLP
 
@@ -181,5 +190,12 @@ recourse = generate_counterfactual(
 - Counterfactual explanations for time series data? 
 - More ideas form your side? 🤗
 :::
+
+## More resources
+
+- Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc),[homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
+- Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples
+- Blog post on effortless Bayesian deep learning [[TDS]((https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b)), [homepage](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/)]
+- [Get in touch](https://www.paltmeyer.com/)!
 
 ## References {.scrollable}
