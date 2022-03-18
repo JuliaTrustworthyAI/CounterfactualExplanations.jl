@@ -508,11 +508,6 @@ supervised-learning model compatible with our package\footnote{In order
   also necessary, but any model can also be complemented with a custom
   generator.}:
 
-\begin{unnumlist}
-\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
-\item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
-\end{unnumlist}
-
 To demonstrate how this can be done in practice we will now consider
 another synthetic example. Once again samples are two-dimensional for
 illustration purposes, but this time they are grouped into four
@@ -549,7 +544,8 @@ end
 
 # Step 2)
 # import functions in order to extend
-import CounterfactualExplanations.Models: logits, probs 
+import CounterfactualExplanations.Models: logits
+import CounterfactualExplanations.Models: probs 
 logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
 probs(M::NeuralNetwork, X::AbstractArray) = softmax(logits(M, X))
 M = NeuralNetwork(model)
@@ -560,14 +556,18 @@ counterfactual in a different target class through generic search. The
 code very much resembles the earlier examples, with the only notable
 difference that for the counterfactual loss function we are now using
 the multi-class logit cross-entropy loss. The resulting counterfactual
-path is shown in Figure~\ref{fig-multi}.
+path is shown in Figure~\ref{fig-multi}. In this case the contour shows
+the predicted probability that the input is in the target class
+(\(t=4\)). Generic search yields a valid, realistic and unambiguous
+counterfactual.
 
 \begin{lstlisting}[language = Julia]
 # Randomly selected factual:
 using Random
 Random.seed!(42)
 x_factual = x[rand(1:length(x))]
-y_factual = Flux.onecold(probs(M, x_factual),unique(y))
+y_factual = Flux.onecold(
+    probs(M, x_factual),unique(y))
 target = rand(unique(y)[1:end .!= y̅]) 
 confidence = 0.75
 
@@ -589,11 +589,71 @@ counterfactual generator for multi-class classifier.}
 
 \end{figure}
 
+As before we will also look at the Bayesian setting. Using Laplace
+approximation (LA) much in the same way as above we can recover a
+Bayesian representation of our neural network in a post-hoc fashion
+(\cite{daxberge2021laplace}). Alternatively, we could have considered
+using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo
+dropout (\cite{gal2016dropout}) or variational inference. Using the
+greedy generator yields the counterfactual path in
+Figure~\ref{fig-multi-laplace}. The code that produces these results
+follows below.
+
+Contrary to the example involving binary classification above, it is
+less clear that counterfactuals for the Bayesian classifier are more
+effective in this case. While predictions from this simple Bayesian
+neural network are overall more conservative, the model fails to only
+produce high-confidence predictions in regions that are abundant with
+training samples. This illustrates that the quality of counterfactual
+explanations may ultimately depend to some degree on the quality of the
+classifier. Put differently, if the quality of the classifier is poor,
+we can expect this to come through in the counterfactual explanation.
+
+\begin{lstlisting}
+# Fitting the Laplace approximation:
+using BayesLaplace
+λ = 10
+la = laplace(model, λ=λ, subset_of_weights=:all)
+fit!(la, data)
+
+# Model:
+# Step 1)
+struct LaplaceNeuralNetwork <: Models.FittedModel
+    la::BayesLaplace.LaplaceRedux
+end
+
+# Step 2)
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
+M = LaplaceNeuralNetwork(la)
+
+# Counterfactual search:
+generator = GreedyGenerator(
+    0.25,30,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence); # generate recourse
+\end{lstlisting}
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_multi_laplace.png}
+
+}
+
+\caption{\label{fig-multi-laplace}Counterfactual path using generic
+counterfactual generator for multi-class classifier with Laplace
+approximation.}
+
+\end{figure}
+
 \hypertarget{empirical-example}{%
 \section{Empirical example}\label{empirical-example}}
 
 \hypertarget{limitations-and-future-work}{%
 \section{Limitations and future
 work}\label{limitations-and-future-work}}
+
+\hypertarget{conclusion}{%
+\section{Conclusion}\label{conclusion}}
 
 \end{document}

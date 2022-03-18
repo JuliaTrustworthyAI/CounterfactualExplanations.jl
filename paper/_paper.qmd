@@ -315,9 +315,7 @@ counterfactual = generate_counterfactual(
     generator, x_factual, M, target, confidence)
 ```
 
-Finally, the code below draws a random sample and generates a counterfactual in a different target class through generic search. The code very much resembles the earlier examples, with the only notable difference that for the counterfactual loss function we are now using the multi-class logit cross-entropy loss. 
-
-The resulting counterfactual path is shown in @fig-multi.
+Finally, the code below draws a random sample and generates a counterfactual in a different target class through generic search. The code very much resembles the earlier examples, with the only notable difference that for the counterfactual loss function we are now using the multi-class logit cross-entropy loss. The resulting counterfactual path is shown in @fig-multi. In this case the contour shows the predicted probability that the input is in the target class ($t=4$). Generic search yields a valid, realistic and unambiguous counterfactual. 
 
 \begin{lstlisting}[language = Julia]
 # Randomly selected factual:
@@ -345,7 +343,72 @@ savefig(plt, "paper/www/ce_multi.png")
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier.](www/ce_multi.png){#fig-multi width=20pc height=15pc}
 
+As before we will also look at the Bayesian setting. Using Laplace approximation (LA) much in the same way as above we can recover a Bayesian representation of our neural network in a post-hoc fashion (\cite{daxberge2021laplace}). Alternatively, we could have considered using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo dropout (\cite{gal2016dropout}) or variational inference. Using the greedy generator yields the counterfactual path in @fig-multi-laplace. The code that produces these results follows below.
+
+Contrary to the example involving binary classification above, it is less clear that counterfactuals for the Bayesian classifier are more effective in this case. While predictions from this simple Bayesian neural network are overall more conservative, the model fails to only produce high-confidence predictions in regions that are abundant with training samples. This illustrates that the quality of counterfactual explanations may ultimately depend to some degree on the quality of the classifier. Put differently, if the quality of the classifier is poor, we can expect this to come through in the counterfactual explanation. 
+
+```{julia}
+# Fitting the Laplace approximation:
+using BayesLaplace
+λ = 10
+la = laplace(model, λ=λ, subset_of_weights=:all)
+fit!(la, data)
+
+# Model:
+# Step 1)
+struct LaplaceNeuralNetwork <: Models.FittedModel
+    la::BayesLaplace.LaplaceRedux
+end
+
+# Step 2)
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
+M = LaplaceNeuralNetwork(la)
+
+# Counterfactual search:
+generator = GreedyGenerator(
+    0.25,30,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence); # generate recourse
+```
+
+\begin{lstlisting}
+# Fitting the Laplace approximation:
+using BayesLaplace
+λ = 10
+la = laplace(model, λ=λ, subset_of_weights=:all)
+fit!(la, data)
+
+# Model:
+# Step 1)
+struct LaplaceNeuralNetwork <: Models.FittedModel
+    la::BayesLaplace.LaplaceRedux
+end
+
+# Step 2)
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
+M = LaplaceNeuralNetwork(la)
+
+# Counterfactual search:
+generator = GreedyGenerator(
+    0.25,30,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence); # generate recourse
+\end{lstlisting}
+
+```{julia}
+plt = plot_contour(X',y,M)
+[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
+savefig(plt, "paper/www/ce_multi_laplace.png")
+```
+
+
+![Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.](www/ce_multi_laplace.png){#fig-multi-laplace width=20pc height=15pc}
+
 # Empirical example 
+
+
 
 # Limitations and future work
 

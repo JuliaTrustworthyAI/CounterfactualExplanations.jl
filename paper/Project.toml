@@ -1,4 +1,5 @@
 [deps]
+BayesLaplace = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 GraphRecipes = "bd48cda9-67a9-57be-86fa-5b3c104eda73"
 IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
