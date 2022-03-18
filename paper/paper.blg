@@ -3,46 +3,51 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: paper.aux
 The style file: juliacon.bst
 Database file #1: ref.bib
-Warning--I didn't find a database entry for "innes2018flux"
-You've used 16 entries,
+Warning--entry type for "oecd2021artificial" isn't style-file defined
+--line 532 of file ref.bib
+Warning--I didn't find a database entry for "buolamwini2018gender"
+Warning--I didn't find a database entry for "hansen2020virtue"
+Warning--I didn't find a database entry for "lecun1998mnist"
+Warning--I didn't find a database entry for "wilson2019case.pdf"
+You've used 19 entries,
             2314 wiz_defined-function locations,
-            605 strings with 7477 characters,
-and the built_in function-call counts, 6214 in all, are:
-= -- 606
-> -- 326
+            623 strings with 7951 characters,
+and the built_in function-call counts, 6975 in all, are:
+= -- 678
+> -- 358
 < -- 6
-+ -- 129
-- -- 112
-* -- 385
-:= -- 1014
-add.period$ -- 50
-call.type$ -- 16
-change.case$ -- 101
++ -- 142
+- -- 122
+* -- 425
+:= -- 1147
+add.period$ -- 58
+call.type$ -- 19
+change.case$ -- 115
 chr.to.int$ -- 0
-cite$ -- 16
-duplicate$ -- 259
-empty$ -- 479
-format.name$ -- 112
-if$ -- 1347
+cite$ -- 19
+duplicate$ -- 290
+empty$ -- 550
+format.name$ -- 122
+if$ -- 1509
 int.to.chr$ -- 0
-int.to.str$ -- 16
-missing$ -- 18
-newline$ -- 83
-num.names$ -- 32
-pop$ -- 139
+int.to.str$ -- 19
+missing$ -- 20
+newline$ -- 97
+num.names$ -- 38
+pop$ -- 159
 preamble$ -- 1
-purify$ -- 87
+purify$ -- 98
 quote$ -- 0
-skip$ -- 205
+skip$ -- 230
 stack$ -- 0
-substring$ -- 290
-swap$ -- 78
+substring$ -- 314
+swap$ -- 81
 text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 60
+type$ -- 72
 warning$ -- 0
-while$ -- 51
-width$ -- 18
-write$ -- 172
-(There was 1 warning)
+while$ -- 58
+width$ -- 21
+write$ -- 201
+(There were 5 warnings)

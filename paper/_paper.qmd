@@ -16,9 +16,19 @@ include("paper/utils.jl")
 
 # Introduction {#sec-intro}
 
-In section @sec-intro
+Advances in technology have typically gone hand in hand with an outsourcing of labour from humans to machines: the printing press succeeded human scribes centuries ago, ATMs replaced bank tellers decades ago and today robots are swarming factory floors.  While these transitions involved a subsitution of manual or repetitive tasks, recent advances in computing and artificial intelligence (AI) have accelerated a new type of transformation: from human to data-driven decision-making. Today, it is more likely than not that your digital loan or employment application will be handled by an algorithm, at least in the first instance. This can in theory be beneficial to you: automation typically leads to increased efficiency and has the potential to remove human bias and error. In reality though, state-of-the-art algorithms are often instable (\cite{goodfellow2014explaining}), encode existing biases (\cite{buolamwini2018gender}) and learn representations that are surprising or even counter-intuitive form a human perspective (**REFERENES?** \cite{}). 
 
-# Related work on explainable ML
+This is made more problematic by the fact that many modern machine learning algorithms tend to be so complex and underspecified in the data, that they are essentially black boxes. While this is a known issue, such models are still used to guide decision-making and research in industry as well as academia. At the time of writing, the largest artificial neural networks are made up of several hundreds of billion neurons. In the context of high-stake decision-making systems, black-box models create undesirable dynamics: the human operators in charge of the system have to rely on it blindy, while those indviduals subject to it generally have no way to challenge an outcome. If your digital loan or employment application gets rejected, for example, that is typically the end of the story.
+
+> “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
+>
+> — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
+
+While the inappropriate abuse of such technologies is arguably the biggest issue, we should also be concerned about missed opportunities. The lack of trustworthiness in machine learning prevents it from being adopted in other fields of research, which might actually benefit from its adoption. Economics and financial markets, for example, are full of complexities and non-linearities that machine learning algorithms are well-equipped to model. But financial practitioners and policy makers are understandably wary of using tools they cannot fully understand (\cite{oecd2021artificial},\cite{hansen2020virtue}). 
+
+In light of all this, a quickly growing body of literature on explainable artificial intelligence has emerged. Counterfactual explanations (CE) and algorithmic recourse (AR) fall into this broader category. Counterfactual explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer individuals subject to algorithms a way to turn a negative decision into positive one. Through the `CounterfactualExplanations` package we aim to contribute a scalable and verstile implementation of CE and AR to the Julia community. The remainder of this article is structured as follows: @sec-related presents related work on explainable AI, @sec-method provides a brief overview of the methodological framework, @sec-use presents the package functionality and @sec-conclude concludes.
+
+# Related work on explainable ML {#sec-related}
 
 # Methodological background {#sec-method}
 
@@ -52,7 +62,7 @@ $$ {#eq-solution-bayes}
 
 We can drop the complexity penalty altogether and still generate effective counterfactual explanations. As we will see below, even a fast and greedy counterfactual search proposed in \cite{schut2021generating} yields good results in this setting. The approach has been implemented as `GreedyGenerator` in our package and should only be used with classifiers of type $\mathcal{\widetilde{M}}$. It is worth noting that the findings in \cite{schut2021generating} are not mutually exclusive of many of the other methodologies that have been put foward. On the contrary, we believe that they are complementary: the generic counterfactual search proposed in \cite{wachter2017counterfactual}, for example, can be shown to produce more plausible counterfactuals in the Bayesian setting. Similarly, there is no obvious reason why recent work on diversity (\cite{mothilal2020explaining}), robustness (\cite{upadhyay2021towards}) and causality (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}) could not be complemented by the findings in \cite{schut2021generating}. For this reason we are highlighting \cite{schut2021generating} here and have prioritized it in the development of `CounterfactualExplanations`. While there is no free lunch and $M\in\mathcal{\widetilde{M}}$ may seem like a hard constraint, recent advances in probabilistic machine learning have shown that the computational cost involved in Bayesian model averaging is lower than we may have thought (\cite{gal2016dropout}, \cite{lakshminarayanan2016simple}, \cite{daxberger2021laplace}, \cite{murphy2022probabilistic}).
 
-# Using `CounterfactualExplanations`
+# Using `CounterfactualExplanations` {#sec-use}
 
 The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but camodelot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$ while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through a few examples.
 
@@ -234,8 +244,9 @@ data = zip(x,y_train)
 n_hidden = 32
 output_dim = length(unique(y))
 input_dim = 2
+activation = σ
 model = Chain(
-    Dense(input_dim, n_hidden, σ),
+    Dense(input_dim, n_hidden, activation),
     Dropout(0.1),
     Dense(n_hidden, output_dim)
 )  
@@ -247,10 +258,10 @@ opt = ADAM()
 epochs = 10
 for epoch = 1:epochs
   for d in data
-    gs = gradient(params(model)) do
+    gs = gradient(Flux.params(model)) do
       l = loss(d...)
     end
-    update!(opt, params(model), gs)
+    update!(opt, Flux.params(model), gs)
   end
 end
 ```
@@ -260,7 +271,7 @@ n_hidden = 32
 output_dim = length(unique(y))
 input_dim = 2
 model = Chain(
-    Dense(input_dim, n_hidden, σ),
+    Dense(input_dim, n_hidden, activation),
     Dropout(0.1),
     Dense(n_hidden, output_dim)
 )  
@@ -305,7 +316,7 @@ Random.seed!(42)
 x_factual = x[rand(1:length(x))]
 y_factual = Flux.onecold(
     probs(M, x_factual),unique(y))
-target = rand(unique(y)[1:end .!= y̅]) 
+target = rand(unique(y)[1:end .!= y_factual]) 
 confidence = 0.75
 
 # Counterfactual search:
@@ -324,7 +335,7 @@ Random.seed!(42)
 x_factual = x[rand(1:length(x))]
 y_factual = Flux.onecold(
     probs(M, x_factual),unique(y))
-target = rand(unique(y)[1:end .!= y̅]) 
+target = rand(unique(y)[1:end .!= y_factual]) 
 confidence = 0.75
 
 # Counterfactual search:
@@ -336,22 +347,21 @@ counterfactual = generate_counterfactual(
 
 ```{julia}
 X = hcat(x...)
-plt = plot_contour(X',y,M)
+plt = plot_contour_multi(X',y,M;target=target)
 [scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
 savefig(plt, "paper/www/ce_multi.png")
 ```
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier.](www/ce_multi.png){#fig-multi width=20pc height=15pc}
 
-As before we will also look at the Bayesian setting. Using Laplace approximation (LA) much in the same way as above we can recover a Bayesian representation of our neural network in a post-hoc fashion (\cite{daxberge2021laplace}). Alternatively, we could have considered using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo dropout (\cite{gal2016dropout}) or variational inference. Using the greedy generator yields the counterfactual path in @fig-multi-laplace. The code that produces these results follows below.
+As before we will also look at the Bayesian setting. Using Laplace approximation (LA) much in the same way as above we can recover a Bayesian representation of our neural network in a post-hoc fashion (\cite{daxberger2021laplace}). Alternatively, we could have considered using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo dropout (\cite{gal2016dropout}) or variational inference. Using the greedy generator yields the counterfactual path in @fig-multi-laplace. The code that produces these results follows below.
 
-Contrary to the example involving binary classification above, it is less clear that counterfactuals for the Bayesian classifier are more effective in this case. While predictions from this simple Bayesian neural network are overall more conservative, the model fails to only produce high-confidence predictions in regions that are abundant with training samples. This illustrates that the quality of counterfactual explanations may ultimately depend to some degree on the quality of the classifier. Put differently, if the quality of the classifier is poor, we can expect this to come through in the counterfactual explanation. 
+Contrary to the example involving binary classification above, it is less clear that counterfactuals for the Bayesian classifier are more effective in this case. While predictions from this simple Bayesian neural network are overall more conservative, the model fails to only produce high-confidence predictions in regions that are abundant with training samples. This illustrates that the quality of counterfactual explanations may ultimately depend to some degree on the quality of the classifier. Put differently, if the quality of the classifier is poor, we may expect this to come through in the counterfactual explanation. 
 
 ```{julia}
 # Fitting the Laplace approximation:
 using BayesLaplace
-λ = 10
-la = laplace(model, λ=λ, subset_of_weights=:all)
+la = laplace(model)
 fit!(la, data)
 
 # Model:
@@ -369,14 +379,13 @@ M = LaplaceNeuralNetwork(la)
 generator = GreedyGenerator(
     0.25,30,:logitcrossentropy,nothing)
 counterfactual = generate_counterfactual(
-    generator, x_factual, M, target, confidence); # generate recourse
+    generator, x_factual, M, target, confidence) 
 ```
 
 \begin{lstlisting}
 # Fitting the Laplace approximation:
 using BayesLaplace
-λ = 10
-la = laplace(model, λ=λ, subset_of_weights=:all)
+la = laplace(model)
 fit!(la, data)
 
 # Model:
@@ -394,7 +403,7 @@ M = LaplaceNeuralNetwork(la)
 generator = GreedyGenerator(
     0.25,30,:logitcrossentropy,nothing)
 counterfactual = generate_counterfactual(
-    generator, x_factual, M, target, confidence); # generate recourse
+    generator, x_factual, M, target, confidence) 
 \end{lstlisting}
 
 ```{julia}
@@ -406,11 +415,113 @@ savefig(plt, "paper/www/ce_multi_laplace.png")
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.](www/ce_multi_laplace.png){#fig-multi-laplace width=20pc height=15pc}
 
-# Empirical example 
+## Empirical example 
+
+Now that we have explained the basic functionality of `CounterfactualExplanations` through a few illustrative toy examples, it is time to consider some real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
+
+On the model side we will use two pre-trained classifiers^[The pre-trained models were
+stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality esimtates of predictve uncertainty for neural networks (\cite{wilson2019case.pdf}, \cite{lakshminarayanan2016simple})). In the previous section we already created the necessary subtype and methods to make the multi-output MLP compatible with our package. The code below implements the two necessary steps for the deep ensemble.
 
 
+```{julia}
+using Flux
+using CounterfactualExplanations.Data: mnist_data
+using CounterfactualExplanations.Data: mnist_model
+using CounterfactualExplanations.Data: mnist_ensemble
+x,y,data = getindex.(
+    Ref(mnist_data()), ("x", "y", "data"))
+model = mnist_model()
+ensemble = mnist_ensemble()
 
-# Limitations and future work
+# MLP:
+# Step 1)
+struct NeuralNetwork <: Models.FittedModel
+    model::Any
+end
+# Step 2)
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
+M = NeuralNetwork(model)
 
-# Conclusion
+# Deep ensemble:
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+```
+
+\begin{lstlisting}
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+\end{lstlisting}
+
+```{julia}
+using Images, MLDatasets.MNIST
+input_dim = 28
+# Randomly selected factual:
+Random.seed!(1234)
+x_factual = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
+img = convert2image(reshape(x_factual,input_dim,input_dim))
+plt_orig = plot(img, axis=nothing)
+savefig(plt_orig, "paper/www/mnist_original.png")
+```
+
+![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
+
+For the counterfactual search we will use four different combinations of classifiers and generators: firstly, the generic approach for the MLP; secondly, the greedy approach for the MLP; thirdly, the generic approach for the deep ensemble; and finally, the greedy approach for the deep ensemble. 
+
+**TBD**
+
+```{julia}
+generators = Dict(
+    "Wachter" => GenericGenerator(0.1,1,1e-5,:logitcrossentropy,nothing),
+    "Greedy" => GreedyGenerator(0.1,15,:logitcrossentropy,nothing))
+models = Dict("MLP" => M, "Ensemble" => M_ensemble);
+```
+
+```{julia}
+using Flux: onecold
+
+# Random:
+function from_digit_to_digit(from::Number, to::Number, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
+    Random.seed!(seed)
+    candidates = findall(onecold(y,0:9).==from)
+    x_factual = Flux.unsqueeze(x[:,rand(candidates)],2)
+    target = to + 1
+    counterfactual = generate_counterfactual(generator, x_factual, model, target, γ; feasible_range=(0.0,1.0), T=T)
+    return counterfactual
+end
+
+# Specific image:
+function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
+    x_factual = Flux.unsqueeze(from,2)
+    target = to + 1
+    counterfactual = generate_counterfactual(generator, x_factual, model, target, γ; feasible_range=(0.0,1.0), T=T)
+    return counterfactual
+end
+```
+
+# Concluding remarks {#sec-conclude}
 

@@ -9,18 +9,81 @@
 
 \begin{abstract}
 
-Machine learning models like deep neural networks have become so complex and opaque over recent years that they are generally considered as black boxes. Nonetheless such models play a key role in modern automated decision-making systems. Counterfactual explanations (CE) can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer individuals subject to algorithms a way to turn a negative decision into positive one. In this article we discuss the usefulness of counterfactual explanations for interpretable machine learning and demonstrate its implementation in Julia using the \verb|CounterfactualExplanations| package.
+Machine learning models like deep neural networks have become so complex and opaque over recent years that they are generally considered as black boxes. Nonetheless such models often play a key role in modern automated decision-making systems. Counterfactual explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse: they offer individuals subject to algorithms a way to turn a negative decision into positive one. In this article we discuss the usefulness of counterfactual explanations for interpretable machine learning and demonstrate its implementation in Julia using the \verb|CounterfactualExplanations| package.
 
 \end{abstract}
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
 
-In section Section~\ref{sec-intro}
+Advances in technology have typically gone hand in hand with an
+outsourcing of labour from humans to machines: the printing press
+succeeded human scribes centuries ago, ATMs replaced bank tellers
+decades ago and today robots are swarming factory floors. While these
+transitions involved a subsitution of manual or repetitive tasks, recent
+advances in computing and artificial intelligence (AI) have accelerated
+a new type of transformation: from human to data-driven decision-making.
+Today, it is more likely than not that your digital loan or employment
+application will be handled by an algorithm, at least in the first
+instance. This can in theory be beneficial to you: automation typically
+leads to increased efficiency and has the potential to remove human bias
+and error. In reality though, state-of-the-art algorithms are often
+instable (\cite{goodfellow2014explaining}), encode existing biases
+(\cite{buolamwini2018gender}) and learn representations that are
+surprising or even counter-intuitive form a human perspective
+(\textbf{REFERENES?} \cite{}).
 
-\hypertarget{related-work-on-explainable-ml}{%
-\section{Related work on explainable
-ML}\label{related-work-on-explainable-ml}}
+This is made more problematic by the fact that many modern machine
+learning algorithms tend to be so complex and underspecified in the
+data, that they are essentially black boxes. While this is a known
+issue, such models are still used to guide decision-making and research
+in industry as well as academia. At the time of writing, the largest
+artificial neural networks are made up of several hundreds of billion
+neurons. In the context of high-stake decision-making systems, black-box
+models create undesirable dynamics: the human operators in charge of the
+system have to rely on it blindy, while those indviduals subject to it
+generally have no way to challenge an outcome. If your digital loan or
+employment application gets rejected, for example, that is typically the
+end of the story.
+
+\begin{quote}
+``You cannot appeal to (algorithms). They do not listen. Nor do they
+bend.''
+
+--- Cathy O'Neil in
+\href{https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction}{\emph{Weapons
+of Math Destruction}}, 2016
+\end{quote}
+
+While the inappropriate abuse of such technologies is arguably the
+biggest issue, we should also be concerned about missed opportunities.
+The lack of trustworthiness in machine learning prevents it from being
+adopted in other fields of research, which might actually benefit from
+its adoption. Economics and financial markets, for example, are full of
+complexities and non-linearities that machine learning algorithms are
+well-equipped to model. But financial practitioners and policy makers
+are understandably wary of using tools they cannot fully understand
+(\cite{oecd2021artificial},\cite{hansen2020virtue}).
+
+In light of all this, a quickly growing body of literature on
+explainable artificial intelligence has emerged. Counterfactual
+explanations (CE) and algorithmic recourse (AR) fall into this broader
+category. Counterfactual explanations can help programmers make sense of
+the systems they build: they explain how inputs into a system need to
+change for it to produce different decisions. Explanations that involve
+realistic and actionable changes can be used for the purpose of
+algorithmic recourse (AR): they offer individuals subject to algorithms
+a way to turn a negative decision into positive one. Through the
+\texttt{CounterfactualExplanations} package we aim to contribute a
+scalable and verstile implementation of CE and AR to the Julia
+community. The remainder of this article is structured as follows:
+Section~\ref{sec-related} presents related work on explainable AI,
+Section~\ref{sec-method} provides a brief overview of the methodological
+framework, Section~\ref{sec-use} presents the package functionality and
+Section~\ref{sec-conclude} concludes.
+
+\hypertarget{sec-related}{%
+\section{Related work on explainable ML}\label{sec-related}}
 
 \hypertarget{sec-method}{%
 \section{Methodological background}\label{sec-method}}
@@ -162,9 +225,9 @@ may have thought (\cite{gal2016dropout},
 \cite{lakshminarayanan2016simple}, \cite{daxberger2021laplace},
 \cite{murphy2022probabilistic}).
 
-\hypertarget{using-counterfactualexplanations}{%
+\hypertarget{sec-use}{%
 \section{\texorpdfstring{Using
-\texttt{CounterfactualExplanations}}{Using CounterfactualExplanations}}\label{using-counterfactualexplanations}}
+\texttt{CounterfactualExplanations}}{Using CounterfactualExplanations}}\label{sec-use}}
 
 The package is built around two modules that are designed to be as
 scalable as possible through multiple dispatch: 1) \texttt{Models} is
@@ -415,11 +478,6 @@ supervised-learning model compatible with our package\footnote{In order
   also necessary, but any model can also be complemented with a custom
   generator.}:
 
-\begin{unnumlist}
-\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
-\item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
-\end{unnumlist}
-
 To demonstrate how this can be done in practice we will now consider
 another synthetic example. Once again samples are two-dimensional for
 illustration purposes, but this time they are grouped into four
@@ -436,7 +494,7 @@ n_hidden = 32
 output_dim = length(unique(y))
 input_dim = 2
 model = Chain(
-    Dense(input_dim, n_hidden, σ),
+    Dense(input_dim, n_hidden, activation),
     Dropout(0.1),
     Dense(n_hidden, output_dim)
 )  
@@ -456,7 +514,8 @@ end
 
 # Step 2)
 # import functions in order to extend
-import CounterfactualExplanations.Models: logits, probs 
+import CounterfactualExplanations.Models: logits
+import CounterfactualExplanations.Models: probs 
 logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
 probs(M::NeuralNetwork, X::AbstractArray) = softmax(logits(M, X))
 M = NeuralNetwork(model)
@@ -467,14 +526,18 @@ counterfactual in a different target class through generic search. The
 code very much resembles the earlier examples, with the only notable
 difference that for the counterfactual loss function we are now using
 the multi-class logit cross-entropy loss. The resulting counterfactual
-path is shown in Figure~\ref{fig-multi}.
+path is shown in Figure~\ref{fig-multi}. In this case the contour shows
+the predicted probability that the input is in the target class
+(\(t=4\)). Generic search yields a valid, realistic and unambiguous
+counterfactual.
 
 \begin{lstlisting}[language = Julia]
 # Randomly selected factual:
 using Random
 Random.seed!(42)
 x_factual = x[rand(1:length(x))]
-y_factual = Flux.onecold(probs(M, x_factual),unique(y))
+y_factual = Flux.onecold(
+    probs(M, x_factual),unique(y))
 target = rand(unique(y)[1:end .!= y_factual]) 
 confidence = 0.75
 
@@ -496,12 +559,132 @@ counterfactual generator for multi-class classifier.}
 
 \end{figure}
 
-\hypertarget{empirical-example}{%
-\section{Empirical example}\label{empirical-example}}
+As before we will also look at the Bayesian setting. Using Laplace
+approximation (LA) much in the same way as above we can recover a
+Bayesian representation of our neural network in a post-hoc fashion
+(\cite{daxberger2021laplace}). Alternatively, we could have considered
+using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo
+dropout (\cite{gal2016dropout}) or variational inference. Using the
+greedy generator yields the counterfactual path in
+Figure~\ref{fig-multi-laplace}. The code that produces these results
+follows below.
 
-\hypertarget{limitations-and-future-work}{%
-\section{Limitations and future
-work}\label{limitations-and-future-work}}
+Contrary to the example involving binary classification above, it is
+less clear that counterfactuals for the Bayesian classifier are more
+effective in this case. While predictions from this simple Bayesian
+neural network are overall more conservative, the model fails to only
+produce high-confidence predictions in regions that are abundant with
+training samples. This illustrates that the quality of counterfactual
+explanations may ultimately depend to some degree on the quality of the
+classifier. Put differently, if the quality of the classifier is poor,
+we may expect this to come through in the counterfactual explanation.
+
+\begin{lstlisting}
+# Fitting the Laplace approximation:
+using BayesLaplace
+la = laplace(model)
+fit!(la, data)
+
+# Model:
+# Step 1)
+struct LaplaceNeuralNetwork <: Models.FittedModel
+    la::BayesLaplace.LaplaceRedux
+end
+
+# Step 2)
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
+M = LaplaceNeuralNetwork(la)
+
+# Counterfactual search:
+generator = GreedyGenerator(
+    0.25,30,:logitcrossentropy,nothing)
+counterfactual = generate_counterfactual(
+    generator, x_factual, M, target, confidence) 
+\end{lstlisting}
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_multi_laplace.png}
+
+}
+
+\caption{\label{fig-multi-laplace}Counterfactual path using generic
+counterfactual generator for multi-class classifier with Laplace
+approximation.}
+
+\end{figure}
+
+\hypertarget{empirical-example}{%
+\subsection{Empirical example}\label{empirical-example}}
+
+Now that we have explained the basic functionality of
+\texttt{CounterfactualExplanations} through a few illustrative toy
+examples, it is time to consider some real data. The MNIST dataset
+contains 60,000 training samples of handwritten digits in the form of
+28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is
+associated with a label indicating the digit (0-9) that the image
+represents. The data makes for an interesting case-study of
+counterfactual explanations, because humans have a good idea of what
+realistic counterfactuals of digits look like. For example, if you were
+asked to pick up an eraser and turn the digit in
+Figure~\ref{fig-mnist-orig} into a four (4) you would know exactly what
+to do: just erase the top part. In \cite{schut2021generating} leverage
+this idea to illustrate to the reader that their methodolgy produces
+effective counterfactuals. In what follows we replicate some of their
+findings. You as the reader are therefore the perfect judge to evaluate
+the quality of the counterfactual explanations presented here.
+
+On the model side we will use two pre-trained classifiers\footnote{The
+  pre-trained models were stored as package artifacts and loaded through
+  helper functions.}: firstly, a simple multi-layer perceptron (MLP)
+and, secondly, a deep ensemble composed of five such MLPs following
+\cite{schut2021generating}. Deep ensembles are approximate Bayesian
+model averages that have been shown to yield high-quality esimtates of
+predictve uncertainty for neural networks (\cite{wilson2019case.pdf},
+\cite{lakshminarayanan2016simple})). In the previous section we already
+created the necessary subtype and methods to make the multi-output MLP
+compatible with our package. The code below implements the two necessary
+steps for the deep ensemble.
+
+\begin{lstlisting}
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+\end{lstlisting}
+
+\begin{figure}
+
+{\centering \includegraphics[width=1.66667in,height=1.25in]{www/mnist_original.png}
+
+}
+
+\caption{\label{fig-mnist-orig}A handwritten nine (9) randomly drawn
+from the MNIST dataset.}
+
+\end{figure}
+
+For the counterfactual search we will use four different combinations of
+classifiers and generators: firstly, the generic approach for the MLP;
+secondly, the greedy approach for the MLP; thirdly, the generic approach
+for the deep ensemble; and finally, the greedy approach for the deep
+ensemble.
+
+\textbf{TBD}
+
+\hypertarget{sec-conclude}{%
+\section{Concluding remarks}\label{sec-conclude}}
 
 \input{bib.tex}
 

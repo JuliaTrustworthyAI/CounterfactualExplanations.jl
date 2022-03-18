@@ -13,6 +13,16 @@ Dropout as a bayesian approximation: Representing model uncertainty in deep
 In {\em international conference on machine learning}, pages 1050--1059. PMLR,
   2016.
 
+\bibitem{goodfellow2014explaining}
+Ian~J Goodfellow, Jonathon Shlens, and Christian Szegedy.
+Explaining and harnessing adversarial examples.
+{\em arXiv preprint arXiv:1412.6572}, 2014.
+
+\bibitem{innes2018flux}
+Mike Innes.
+Flux: Elegant machine learning with julia.
+{\em Journal of Open Source Software}, 3(25):602, 2018.
+
 \bibitem{joshi2019towards}
 Shalmali Joshi, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep
   Ghosh.
@@ -60,6 +70,11 @@ In {\em Proceedings of the 2020 Conference on Fairness, Accountability, and
 Kevin~P Murphy.
 {\em Probabilistic Machine Learning: An introduction}.
 MIT Press, 2022.
+
+\bibitem{oecd2021artificial}
+OECD.
+Artificial intelligence, machine learning and big data in finance:
+  Opportunities, challenges and implications for policy makers, 2021.
 
 \bibitem{poyiadzi2020face}
 Rafael Poyiadzi, Kacper Sokol, Raul Santos-Rodriguez, Tijl De~Bie, and Peter

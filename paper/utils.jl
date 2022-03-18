@@ -91,7 +91,8 @@ plot_contour(X, y, 𝑴)
 ```
 
 """
-function plot_contour_multi(X,y,𝑴;title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
+function plot_contour_multi(X,y,𝑴;
+    target::Union{Nothing,Number}=nothing,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
     
     # Surface range:
     if isnothing(xlim)
@@ -109,18 +110,30 @@ function plot_contour_multi(X,y,𝑴;title="",length_out=50,zoom=-1,xlim=nothing
     Z = reduce(hcat, [Models.probs(𝑴,[x, y]) for x=x_range, y=y_range])
 
     # Plot:
-    plt = plot()
-    plot_data!(plt,X,y)
-    out_dim = size(Z)[1]
-    for d in 1:out_dim
-        contour!(
-            plt,
-            x_range, y_range, Z[d,:]; 
-            colorbar=false, title=title,
+    if isnothing(target)
+        # Plot all contours as lines:
+        plt = plot()
+        plot_data!(plt,X,y)
+        out_dim = size(Z)[1]
+        for d in 1:out_dim
+            contour!(
+                plt,
+                x_range, y_range, Z[d,:]; 
+                colorbar=false, title=title,
+                xlim=xlim,
+                ylim=ylim,
+                colour=d
+            )
+        end
+    else
+        # Print contour fill of target class:
+        plt = contourf(
+            x_range, y_range, Z[Int(target),:]; 
+            colorbar=true, title=title, linewidth=linewidth,
             xlim=xlim,
-            ylim=ylim,
-            colour=d
+            ylim=ylim
         )
+        plot_data!(plt,X,y)
     end
 
     return plot(plt)
