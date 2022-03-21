@@ -28,7 +28,23 @@ While the inappropriate abuse of such technologies is arguably the biggest issue
 
 In light of all this, a quickly growing body of literature on explainable artificial intelligence has emerged. Counterfactual explanations (CE) and algorithmic recourse (AR) fall into this broader category. Counterfactual explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer individuals subject to algorithms a way to turn a negative decision into positive one. Through the `CounterfactualExplanations` package we aim to contribute a scalable and verstile implementation of CE and AR to the Julia community. The remainder of this article is structured as follows: @sec-related presents related work on explainable AI, @sec-method provides a brief overview of the methodological framework, @sec-use presents the package functionality and @sec-conclude concludes.
 
-# Related work on explainable ML {#sec-related}
+# Related work {#sec-related}
+
+## Literature on explainable AI
+
+The field of explainable artificial intelligence (xAI) is still relatively young and made up of a variety of subdomains, definitions, concepts and taxonomies. Covering all of these is beyond the scope of this article, so we will focus only on high-level concepts. The following literature surveys provide more detail: \cite{arrieta2020explainable} provide a broad overview of xAI; \cite{fan2020interpretability} focus on explainability in the context of deep learning; and finally, \cite{karimi2020survey} offer a detailed review of the literature on counterfactual explanations and algorithmic recourse.^[Readers who prefer a text-book approach may also want to consider \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}]. 
+
+The first broad distinction we want to make here is between **interpretable** and **explainable** AI. These terms are often used interchangeably, but this can lead to confusion. We find the distinction made in \cite{rudin2019stop} useful: interpretable AI involves models that are inherently interpretable such as general additive models (GAM), decision trees and rule-based models; explainable AI involves models that are not inherently interpretable, but require additional tools to be explainable to humans. Examples of the latter include ensembles, support vector machines and deep neural networks. Some would argue that we best avoid the second category of models [\cite{rudin2019stop}] and instead focus solely on interpretable AI. While we agree that initial efforts should always be geared towards interpretable models, avoiding black boxes altogether would entail missed opportunities and anyway is probably not very realistic at this point. For that reason, we expect the need for explainable AI to persist in the near future. 
+
+Explainable AI can futher be broadly divided into **global** and **local** explanability.
+
+## Existing software
+
+
+
+```{julia}
+
+```
 
 # Methodological background {#sec-method}
 

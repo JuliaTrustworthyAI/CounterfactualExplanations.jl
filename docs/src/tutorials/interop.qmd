@@ -1,0 +1,26 @@
+---
+format: 
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
+crossref:
+  fig-prefix: Figure
+  tbl-prefix: Table
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+output: asis
+execute: 
+  echo: false
+  eval: false
+jupyter: julia-1.6
+---
+
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+# Interoperability
+
+```{julia}
+using CounterfactualExplanations, PyCall, RCall
+```

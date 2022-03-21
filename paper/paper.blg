@@ -7,47 +7,48 @@ Warning--entry type for "oecd2021artificial" isn't style-file defined
 --line 532 of file ref.bib
 Warning--I didn't find a database entry for "buolamwini2018gender"
 Warning--I didn't find a database entry for "hansen2020virtue"
+Warning--I didn't find a database entry for "varshney2022trustworthy"
 Warning--I didn't find a database entry for "lecun1998mnist"
 Warning--I didn't find a database entry for "wilson2019case.pdf"
-You've used 19 entries,
+You've used 22 entries,
             2314 wiz_defined-function locations,
-            623 strings with 7951 characters,
-and the built_in function-call counts, 6975 in all, are:
-= -- 678
-> -- 358
+            642 strings with 8733 characters,
+and the built_in function-call counts, 8183 in all, are:
+= -- 793
+> -- 441
 < -- 6
-+ -- 142
-- -- 122
-* -- 425
-:= -- 1147
-add.period$ -- 58
-call.type$ -- 19
-change.case$ -- 115
++ -- 175
+- -- 152
+* -- 522
+:= -- 1361
+add.period$ -- 67
+call.type$ -- 22
+change.case$ -- 138
 chr.to.int$ -- 0
-cite$ -- 19
-duplicate$ -- 290
-empty$ -- 550
-format.name$ -- 122
-if$ -- 1509
+cite$ -- 22
+duplicate$ -- 325
+empty$ -- 628
+format.name$ -- 152
+if$ -- 1748
 int.to.chr$ -- 0
-int.to.str$ -- 19
-missing$ -- 20
-newline$ -- 97
-num.names$ -- 38
-pop$ -- 159
+int.to.str$ -- 22
+missing$ -- 23
+newline$ -- 112
+num.names$ -- 44
+pop$ -- 181
 preamble$ -- 1
-purify$ -- 98
+purify$ -- 118
 quote$ -- 0
-skip$ -- 230
+skip$ -- 255
 stack$ -- 0
-substring$ -- 314
-swap$ -- 81
+substring$ -- 376
+swap$ -- 84
 text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 72
+type$ -- 84
 warning$ -- 0
-while$ -- 58
-width$ -- 21
-write$ -- 201
-(There were 5 warnings)
+while$ -- 68
+width$ -- 24
+write$ -- 233
+(There were 6 warnings)

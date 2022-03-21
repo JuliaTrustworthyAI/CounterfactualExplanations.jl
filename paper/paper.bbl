@@ -1,10 +1,23 @@
 \begin{thebibliography}{10}
 
+\bibitem{arrieta2020explainable}
+Alejandro~Barredo Arrieta, Natalia Diaz-Rodriguez, Javier Del~Ser, Adrien
+  Bennetot, Siham Tabik, Alberto Barbado, Salvador Garcia, Sergio Gil-Lopez,
+  Daniel Molina, Richard Benjamins, et~al.
+Explainable artificial intelligence (xai): Concepts, taxonomies, opportunities
+  and challenges toward responsible ai.
+{\em Information Fusion}, 58:82--115, 2020.
+
 \bibitem{daxberger2021laplace}
 Erik Daxberger, Agustinus Kristiadi, Alexander Immer, Runa Eschenhagen,
   Matthias Bauer, and Philipp Hennig.
 Laplace redux-effortless bayesian deep learning.
 {\em Advances in Neural Information Processing Systems}, 34, 2021.
+
+\bibitem{fan2020interpretability}
+Fenglei Fan, Jinjun Xiong, and Ge~Wang.
+On interpretability of artificial neural networks.
+{\em Preprint at https://arxiv. org/abs/2001.02522}, 2020.
 
 \bibitem{gal2016dropout}
 Yarin Gal and Zoubin Ghahramani.
@@ -82,6 +95,12 @@ Rafael Poyiadzi, Kacper Sokol, Raul Santos-Rodriguez, Tijl De~Bie, and Peter
 Face: Feasible and actionable counterfactual explanations.
 In {\em Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},
   pages 344--350, 2020.
+
+\bibitem{rudin2019stop}
+Cynthia Rudin.
+Stop explaining black box machine learning models for high stakes decisions and
+  use interpretable models instead.
+{\em Nature Machine Intelligence}, 1(5):206--215, 2019.
 
 \bibitem{schut2021generating}
 Lisa Schut, Oscar Key, Rory Mc~Grath, Luca Costabello, Bogdan Sacaleanu, Yarin
