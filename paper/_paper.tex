@@ -176,7 +176,47 @@ framework, Section~\ref{sec-use} presents the package functionality and
 Section~\ref{sec-conclude} concludes.
 
 \hypertarget{sec-related}{%
-\section{Related work on explainable ML}\label{sec-related}}
+\section{Related work}\label{sec-related}}
+
+\hypertarget{literature-on-explainable-ai}{%
+\subsection{Literature on explainable
+AI}\label{literature-on-explainable-ai}}
+
+The field of explainable artificial intelligence (xAI) is still
+relatively young and made up of a variety of subdomains, definitions,
+concepts and taxonomies. Covering all of these is beyond the scope of
+this article, so we will focus only on high-level concepts. The
+following literature surveys provide more detail:
+\cite{arrieta2020explainable} provide a broad overview of xAI;
+\cite{fan2020interpretability} focus on explainability in the context of
+deep learning; and finally, \cite{karimi2020survey} offer a detailed
+review of the literature on counterfactual explanations and algorithmic
+recourse.\footnote{Readers who prefer a text-book approach may also want
+  to consider \cite{molnar2020interpretable} and
+  \cite{varshney2022trustworthy}}.
+
+The first broad distinction we want to make here is between
+\textbf{interpretable} and \textbf{explainable} AI. These terms are
+often used interchangeably, but this can lead to confusion. We find the
+distinction made in \cite{rudin2019stop} useful: interpretable AI
+involves models that are inherently interpretable such as general
+additive models (GAM), decision trees and rule-based models; explainable
+AI involves models that are not inherently interpretable, but require
+additional tools to be explainable to humans. Examples of the latter
+include ensembles, support vector machines and deep neural networks.
+Some would argue that we best avoid the second category of models
+{[}\cite{rudin2019stop}{]} and instead focus solely on interpretable AI.
+While we agree that initial efforts should always be geared towards
+interpretable models, avoiding black boxes altogether would entail
+missed opportunities and anyway is probably not very realistic at this
+point. For that reason, we expect the need for explainable AI to persist
+in the near future.
+
+Explainable AI can futher be broadly divided into \textbf{global} and
+\textbf{local} explanability.
+
+\hypertarget{existing-software}{%
+\subsection{Existing software}\label{existing-software}}
 
 \hypertarget{sec-method}{%
 \section{Methodological background}\label{sec-method}}
