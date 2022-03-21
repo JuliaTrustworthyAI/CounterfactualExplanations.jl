@@ -6,6 +6,8 @@ format:
     logo: www/afr.svg
     footer: "Explaining black box models through counterfactuals"
     self-contained: true
+    smaller: true
+    scrollable: true
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 execute:
   eval: false
@@ -80,7 +82,7 @@ $$ {#eq-solution}
 
 > So counterfactual search is just gradient descent in the feature space 💡 Easy right?
 
-## Not so fast ... {.scrollable}
+## Not so fast ... 
 
 > Effective counterfactuals should meet certain criteria ✅
 
@@ -169,7 +171,7 @@ Designed to work with any custom model and generator through **multiple dispatch
 
 # Research questions
 
-## Dynamics of AR {.scrollable}
+## Dynamics of AR 
 
 > What happens once AR has actually been implemented? 👀
 
@@ -186,7 +188,7 @@ Designed to work with any custom model and generator through **multiple dispatch
 
 :::{.incremental}
 - To what extent is the effectiveness of CE dependent on the quality of the classifier?
-- Is CE really more intuitive? Could run a user-based study like in kaur2020interpreting
+- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting
 - Counterfactual explanations for time series data? 
 - More ideas form your side? 🤗
 :::
@@ -198,4 +200,4 @@ Designed to work with any custom model and generator through **multiple dispatch
 - Blog post on effortless Bayesian deep learning [[TDS]((https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b)), [homepage](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/)]
 - [Get in touch](https://www.paltmeyer.com/)!
 
-## References {.scrollable}
+## References 
