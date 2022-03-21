@@ -8,6 +8,13 @@ Explainable artificial intelligence (xai): Concepts, taxonomies, opportunities
   and challenges toward responsible ai.
 {\em Information Fusion}, 58:82--115, 2020.
 
+\bibitem{buolamwini2018gender}
+Joy Buolamwini and Timnit Gebru.
+Gender shades: Intersectional accuracy disparities in commercial gender
+  classification.
+In {\em Conference on fairness, accountability and transparency}, pages 77--91.
+  PMLR, 2018.
+
 \bibitem{daxberger2021laplace}
 Erik Daxberger, Agustinus Kristiadi, Alexander Immer, Runa Eschenhagen,
   Matthias Bauer, and Philipp Hennig.
@@ -30,6 +37,11 @@ In {\em international conference on machine learning}, pages 1050--1059. PMLR,
 Ian~J Goodfellow, Jonathon Shlens, and Christian Szegedy.
 Explaining and harnessing adversarial examples.
 {\em arXiv preprint arXiv:1412.6572}, 2014.
+
+\bibitem{hansen2020virtue}
+Kristian~Bondo Hansen.
+The virtue of simplicity: On machine learning models in algorithmic trading.
+{\em Big Data \& Society}, 7(1):2053951720926558, 2020.
 
 \bibitem{innes2018flux}
 Mike Innes.
@@ -62,10 +74,23 @@ Algorithmic recourse under imperfect causal knowledge: a probabilistic
   approach.
 {\em arXiv preprint arXiv:2006.06831}, 2020.
 
+\bibitem{kaur2020interpreting}
+Harmanpreet Kaur, Harsha Nori, Samuel Jenkins, Rich Caruana, Hanna Wallach, and
+  Jennifer Wortman~Vaughan.
+Interpreting interpretability: understanding data scientists' use of
+  interpretability tools for machine learning.
+In {\em Proceedings of the 2020 CHI conference on human factors in computing
+  systems}, pages 1--14, 2020.
+
 \bibitem{lakshminarayanan2016simple}
 Balaji Lakshminarayanan, Alexander Pritzel, and Charles Blundell.
 Simple and scalable predictive uncertainty estimation using deep ensembles.
 {\em arXiv preprint arXiv:1612.01474}, 2016.
+
+\bibitem{lecun1998mnist}
+Yann LeCun.
+The mnist database of handwritten digits.
+{\em http://yann. lecun. com/exdb/mnist/}, 1998.
 
 \bibitem{molnar2020interpretable}
 Christoph Molnar.
@@ -89,6 +114,13 @@ OECD.
 Artificial intelligence, machine learning and big data in finance:
   Opportunities, challenges and implications for policy makers, 2021.
 
+\bibitem{pawelczyk2021carla}
+Martin Pawelczyk, Sascha Bielawski, Johannes van~den Heuvel, Tobias Richter,
+  and Gjergji Kasneci.
+Carla: a python library to benchmark algorithmic recourse and counterfactual
+  explanation algorithms.
+{\em arXiv preprint arXiv:2108.00783}, 2021.
+
 \bibitem{poyiadzi2020face}
 Rafael Poyiadzi, Kacper Sokol, Raul Santos-Rodriguez, Tijl De~Bie, and Peter
   Flach.
@@ -110,6 +142,11 @@ Generating interpretable counterfactual explanations by implicit minimisation
 In {\em International Conference on Artificial Intelligence and Statistics},
   pages 1756--1764. PMLR, 2021.
 
+\bibitem{slack2021counterfactual}
+Dylan Slack, Anna Hilgard, Himabindu Lakkaraju, and Sameer Singh.
+Counterfactual explanations can be manipulated.
+{\em Advances in Neural Information Processing Systems}, 34, 2021.
+
 \bibitem{upadhyay2021towards}
 Sohini Upadhyay, Shalmali Joshi, and Himabindu Lakkaraju.
 Towards robust and reliable algorithmic recourse.
@@ -120,6 +157,11 @@ Berk Ustun, Alexander Spangher, and Yang Liu.
 Actionable recourse in linear classification.
 In {\em Proceedings of the Conference on Fairness, Accountability, and
   Transparency}, pages 10--19, 2019.
+
+\bibitem{varshney2022trustworthy}
+Kush~R. Varshney.
+{\em Trustworthy Machine Learning}.
+Independently Published, Chappaqua, NY, USA, 2022.
 
 \bibitem{verma2020counterfactual}
 Sahil Verma, John Dickerson, and Keegan Hines.

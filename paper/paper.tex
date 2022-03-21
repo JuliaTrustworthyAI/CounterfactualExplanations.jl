@@ -13,7 +13,6 @@ Machine learning models like deep neural networks have become so complex and opa
 
 \end{abstract}
 
-
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
 
@@ -118,13 +117,95 @@ While we agree that initial efforts should always be geared towards
 interpretable models, avoiding black boxes altogether would entail
 missed opportunities and anyway is probably not very realistic at this
 point. For that reason, we expect the need for explainable AI to persist
-in the near future.
+in the near future. Explainable AI can further be broadly divided into
+\textbf{global} and \textbf{local} explainability: the former is
+concerned with explaining the average behaviour of a model, while the
+latter involves explanations for individual predictions
+\cite{molnar2020interpretable}. Tools for global explainability include
+partial dependence plots (PDP), which involves the computation of
+marginal effects through Monte Carlo, and global surrogates. A surrogate
+model is an interpretable model that is trained to explain the
+predictions of a black-box model.
 
-Explainable AI can futher be broadly divided into \textbf{global} and
-\textbf{local} explanability.
+Counterfactual explanations fall into the category of local methods:
+they explain how individual predictions change in response to individual
+feature perturbations. Among the most popular alternatives to
+counterfactual explanations are local surrogate explainers including
+local interpretable model-agnostic explanations (LIME) and Shapley
+additive explanations (SHAP). They are among the most widely used xAI
+tools today, potentially because they are easily understood, relatively
+fast and implemented in popular programming languages. Proponents of
+surrogate explainers also commonly mention that there is a
+straight-forward way to assess their reliability: a surrogate model that
+generates predictions in line with those produced by the black-box model
+is said to have high fidelity. As intuitive as this notion may be, it
+also points to an obvious shoftfall of surrogate explainers: even a
+highly fidel surrogate model that produces the same predictions as the
+black-box model 99 percent of the time is useless and potentially
+misleading for every 1 out 100 individual predictions. In fact, a recent
+study has shown that even experienced data scientists tend to put too
+much trust in explanations produced by LIME and SHAP
+\cite{kaur2020interpreting}. Another recent work has shown that both
+LIME and SHAP can be easily fooled: both methods depend on random input
+perturbations, a property that be abused by adverse agents to
+essentially whitewash strongly biased black-box models
+\cite{slack2021fooling}. In a related work the same authors find that
+while gradient-based counterfactual explanations can also be
+manipulated, there is a straight-forward way to this in practice
+\cite{slack2021counterfactual}. In the context of quality assessment, it
+is also worth noting that - contrary to surrogate explainers -
+counterfactual explanations always achieve full fidelity by
+construction: counterfactuals are search with respect to the black-box
+classifier, not some approximation of it. That being said,
+counterfactual explanations should also be used with care and research
+around them is still at its early stages. We shall discuss this in more
+detail in Section~\ref{sec-method}.
 
 \hypertarget{existing-software}{%
 \subsection{Existing software}\label{existing-software}}
+
+To the best of our knowledge the \texttt{CounterfactualExplanations.jl}
+package provides the first implementation of counterfactual explanations
+in Julia and therefore represents a novel contribution to the community.
+As for other programming languages, we are only aware of one other
+unifiying framework: CARLA is Python library that was recently
+introduced (\cite{pawelczyk2021carla}). In addition to that, there
+exists open-source code for some specific approaches to counterfactual
+explanations that have been proposed in recent years. The
+approach-specific implementations that we have been able to find are
+generally well documented, but exclusively in Python. For example, a
+PyTorch implementation of a greedy generator for Bayesian models
+proposed in \cite{schut2021generating} can be found
+\href{https://github.com/oscarkey/explanations-by-minimizing-uncertainty}{here}.
+The popular \href{https://github.com/interpretml}{InterpretML} library
+includes an implementation of a diverse counterfactual generator
+proposed by \cite{mothilal2020explaining}.
+
+Generally speaking though, software development in the space of xAI has
+largely focused on various global methods and surrogate explainers:
+implementations of PDP, LIME and SHAP are available for both Python
+(e.g.~\href{https://github.com/marcotcr/lime}{\texttt{lime}},
+\href{https://github.com/slundberg/shap}{\texttt{shap}}) and R
+(e.g.~\href{https://cran.r-project.org/web/packages/lime/index.html}{\texttt{lime}},
+\href{https://cran.r-project.org/web/packages/lime/index.html}{\texttt{iml}},
+\href{https://modeloriented.github.io/shapper/}{\texttt{shapper}},
+\href{https://github.com/bgreenwell/fastshap}{\texttt{fastshap}}). In
+the Julia space, we have only been able to identify one package that
+falls into the broader scope of xAI, namely
+\texttt{ShapML.jl}{]}(https://github.com/nredell/ShapML.jl) which
+provides an implementation of SHAP. We also should not fail to mention
+the comprehensive
+\href{https://docs.interpretable.ai/stable/IAIBase/data/}{Interpretable
+AI} infrastructure, which focuses exclusively on interpretable models.
+Arguably the current availability of tools for explaining black-box
+models in Julia is limited, but it appears that the community is
+invested in changing that. The team behind \texttt{MLJ.jl}, for example,
+is currently recruiting contributors for a project about both
+interpretable and explainable AI. With our work on counterfactual
+expanations we hope to contribute to these efforts. We think that
+because of its unique transperancy the Julia language naturally lends
+itself towards establishing a greater degree of trust in machine
+learning and artificial intelligence.
 
 \hypertarget{sec-method}{%
 \section{Methodological background}\label{sec-method}}

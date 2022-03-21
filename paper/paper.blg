@@ -4,51 +4,48 @@ The top-level auxiliary file: paper.aux
 The style file: juliacon.bst
 Database file #1: ref.bib
 Warning--entry type for "oecd2021artificial" isn't style-file defined
---line 532 of file ref.bib
-Warning--I didn't find a database entry for "buolamwini2018gender"
-Warning--I didn't find a database entry for "hansen2020virtue"
-Warning--I didn't find a database entry for "varshney2022trustworthy"
-Warning--I didn't find a database entry for "lecun1998mnist"
+--line 607 of file ref.bib
+Warning--I didn't find a database entry for "slack2021fooling"
 Warning--I didn't find a database entry for "wilson2019case.pdf"
-You've used 22 entries,
+You've used 29 entries,
             2314 wiz_defined-function locations,
-            642 strings with 8733 characters,
-and the built_in function-call counts, 8183 in all, are:
-= -- 793
-> -- 441
-< -- 6
-+ -- 175
-- -- 152
-* -- 522
-:= -- 1361
-add.period$ -- 67
-call.type$ -- 22
-change.case$ -- 138
+            673 strings with 10012 characters,
+and the built_in function-call counts, 10645 in all, are:
+= -- 1033
+> -- 559
+< -- 8
++ -- 224
+- -- 192
+* -- 677
+:= -- 1771
+add.period$ -- 89
+call.type$ -- 29
+change.case$ -- 178
 chr.to.int$ -- 0
-cite$ -- 22
-duplicate$ -- 325
-empty$ -- 628
-format.name$ -- 152
-if$ -- 1748
+cite$ -- 29
+duplicate$ -- 424
+empty$ -- 830
+format.name$ -- 192
+if$ -- 2276
 int.to.chr$ -- 0
-int.to.str$ -- 22
-missing$ -- 23
-newline$ -- 112
-num.names$ -- 44
-pop$ -- 181
+int.to.str$ -- 29
+missing$ -- 31
+newline$ -- 147
+num.names$ -- 58
+pop$ -- 233
 preamble$ -- 1
-purify$ -- 118
+purify$ -- 152
 quote$ -- 0
-skip$ -- 255
+skip$ -- 327
 stack$ -- 0
-substring$ -- 376
-swap$ -- 84
-text.length$ -- 6
+substring$ -- 504
+swap$ -- 105
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 84
+type$ -- 110
 warning$ -- 0
-while$ -- 68
-width$ -- 24
-write$ -- 233
-(There were 6 warnings)
+while$ -- 89
+width$ -- 31
+write$ -- 309
+(There were 3 warnings)
