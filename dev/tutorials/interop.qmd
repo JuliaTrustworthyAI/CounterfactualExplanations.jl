@@ -21,6 +21,145 @@ CurrentModule = CounterfactualExplanations
 
 # Interoperability
 
+
 ```{julia}
-using CounterfactualExplanations, PyCall, RCall
+using Random
+# Some random data:
+Random.seed!(1234);
+N = 100
+w = [1.0 1.0]# true coefficients
+b = 0
+using CounterfactualExplanations
+using CounterfactualExplanations.Data
+x, y = toy_data_linear(N)
+X = hcat(x...)'
 ```
+
+## Training a `torch` model in R
+
+The first code chunk below builds a simple MLP in R:
+
+```{julia}
+using RCall
+R"""
+# Data
+library(torch)
+X <- torch_tensor($X)
+y <- torch_tensor($y)
+
+# Model:
+mlp <- nn_module(
+  initialize = function() {
+    self$layer1 <- nn_linear(2, 32)
+    self$layer2 <- nn_linear(32, 1)
+  },
+  forward = function(input) {
+    input <- self$layer1(input)
+    input <- nnf_sigmoid(input)
+    input <- self$layer2(input)
+    input
+  }
+)
+model <- mlp()
+optimizer <- optim_adam(model$parameters, lr = 0.1)
+loss_fun <- nnf_binary_cross_entropy_with_logits
+"""
+```
+
+The following code trains the MLP for the binary prediction task at hand:
+
+```{julia}
+R"""
+for (epoch in 1:10) {
+
+  model$train()
+  train_losses <- c()  
+
+  optimizer$zero_grad()
+  output <- model(X)
+  loss <- loss_fun(output[,1], y)
+  loss$backward()
+  optimizer$step()
+  train_losses <- c(train_losses, loss$item())
+  
+  cat(sprintf("Loss at epoch %d: %3f\n", epoch, mean(train_losses)))
+}
+"""
+```
+
+
+## Making the model compatible
+
+```{julia}
+using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct TorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(𝑴::TorchNetwork, X::AbstractArray)
+  nn = 𝑴.nn
+  ŷ = rcopy(R"as_array($nn(torch_tensor($X)))")
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ
+end
+probs(𝑴::TorchNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
+𝑴 = TorchNetwork(R"model")
+```
+
+## Adapting the generator
+
+```{julia}
+import CounterfactualExplanations.Generators: ∇
+using LinearAlgebra
+h(x̅, x̲) = norm(x̅-x̲) # complexity penalty
+∂h(x̅, x̲) = gradient(() -> h(x̅, x̲), params(x̲))[x̲]
+function ∂ℓ(x̲, 𝑴, t) 
+  nn = 𝑴.nn
+  R"""
+  x <- torch_tensor($x̲, requires_grad=TRUE)
+  obj_loss <- nnf_binary_cross_entropy_with_logits($nn(x),$t)
+  obj_loss$backward()
+  """
+  grad = rcopy(R"as_array(x$grad)")
+  return grad
+end
+
+∇(generator::GenericGenerator, x̲, 𝑴::TorchNetwork, t, x̅) = ∂ℓ(x̲, 𝑴, t) + generator.λ * ∂h(x̅, x̲)
+```
+
+```{julia}
+# Randomly selected factual:
+Random.seed!(123)
+x̅ = x[rand(1:length(x))]
+y̅ = round(probs(𝑴, x̅)[1])
+target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
+γ = 0.75 # desired level of confidence
+# Define Generator:
+generator = GenericGenerator(0.0,0.1,1e-5,:logitbinarycrossentropy,nothing)
+# Generate recourse:
+counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+```
+
+
+```{julia}
+include("docs/src/utils.jl")
+using Plots
+T = size(counterfactual.path)[1]
+X_path = reduce(hcat,counterfactual.path)'
+ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.𝑴, X_path)',target)
+p1 = plot_contour(X,y,𝑴;clegend=false, title="Posterior predictive - Plugin")
+anim = @animate for t in 1:T
+    scatter!(p1, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=25)
+```
+
+
