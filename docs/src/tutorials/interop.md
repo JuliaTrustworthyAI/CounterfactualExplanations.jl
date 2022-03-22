@@ -1,21 +1,4 @@
----
-format: 
-  commonmark:
-    variant: -raw_html
-    wrap: none
-    self-contained: true
-crossref:
-  fig-prefix: Figure
-  tbl-prefix: Table
-bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-output: asis
-execute: 
-  echo: true
-  eval: false
-jupyter: julia-1.6
----
-
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
@@ -23,18 +6,7 @@ CurrentModule = CounterfactualExplanations
 
 The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` leverages this functionality. In particular, we will see that through minimal extra effort the package can be used to explain models that were developed in train in Python or R.
 
-!!! warning "Experimental feature"
-    Our work on language interoperability is still in its early stages. What follows is a proof-of-concept.
-
-```{julia}
-#| echo: false
-using Plots, PlotThemes
-theme(:wong)
-```
-
-To get started we will first load some two-dimensional toy data:
-
-```{julia}
+``` julia
 using Random
 # Some random data:
 Random.seed!(1234);
@@ -49,7 +21,7 @@ X = hcat(x...)
 
 The code below builds a simple MLP in R:
 
-```{julia}
+``` julia
 using RCall
 R"""
 # Data
@@ -78,7 +50,7 @@ loss_fun <- nnf_binary_cross_entropy_with_logits
 
 The following code trains the MLP for the binary prediction task at hand:
 
-```{julia}
+``` julia
 R"""
 for (epoch in 1:100) {
 
@@ -97,12 +69,11 @@ for (epoch in 1:100) {
 """
 ```
 
-
 ### Making the model compatible
 
 As always we need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. As evident from the code below, this is actually quite straight-forward: the logits are returned by the `torch` model and copied form R into the Julia environment. Probabilities are then computed in Julia, by passing the logits through the sigmoid function.
 
-```{julia}
+``` julia
 using Flux
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
@@ -125,9 +96,9 @@ probs(𝑴::TorchNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 
 ### Adapting the generator
 
-Next we need to do a tiny bit of work on the `Generator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
+Next we need to do a tiny bit of work on the `Generator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia’s main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`’s autodifferentiation functionality for computing the gradient.
 
-```{julia}
+``` julia
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
@@ -149,7 +120,7 @@ end
 
 From here on onwards we use the `CounterfactualExplanations.jl` functionality as always. Below we choose a random sample, define our generic generator and finally run the search:
 
-```{julia}
+``` julia
 # Randomly selected factual:
 Random.seed!(123)
 x̅ = x[rand(1:length(x))]
@@ -164,7 +135,7 @@ counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
 
 The code below just generates the animation that shows the counterfactual path.
 
-```{julia}
+``` julia
 include("docs/src/utils.jl")
 using Plots
 T = size(counterfactual.path)[1]
@@ -183,14 +154,3 @@ gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=5)
 ```
 
 ![](www/interop_r.gif)
-
-<!-- ## Training a `tensforflow` model in Python 
-
-```{julia}
-using PyCall
-# py"""
-# import torch
-# x = torch.rand(5, 3)
-# print(x)
-# """
-``` -->

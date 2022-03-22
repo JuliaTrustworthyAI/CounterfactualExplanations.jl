@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.15)  21 MAR 2022 12:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.15)  22 MAR 2022 11:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -339,7 +339,7 @@ LaTeX Info: Redefining \nameref on input line 4.
 
 \c@lstlisting=\count290
  (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/header.tex)
-<logojuliacon.pdf, id=56, 430.91032pt x 145.96547pt>
+<logojuliacon.pdf, id=64, 430.91032pt x 145.96547pt>
 File: logojuliacon.pdf Graphic file (type pdf)
 <use logojuliacon.pdf>
 Package pdftex.def Info: logojuliacon.pdf  used on input line 8.
@@ -401,26 +401,29 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 
 [2]
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <10> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 352.
-<www/models.png, id=181, 501.875pt x 376.40625pt>
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 354.
+<www/models.png, id=192, 501.875pt x 376.40625pt>
 File: www/models.png Graphic file (type png)
 <use www/models.png>
-Package pdftex.def Info: www/models.png  used on input line 375.
+Package pdftex.def Info: www/models.png  used on input line 377.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 375--376
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 377--378
  [][] 
  []
 
-<www/generators.png, id=182, 501.875pt x 376.40625pt>
+<www/generators.png, id=193, 501.875pt x 376.40625pt>
 File: www/generators.png Graphic file (type png)
 <use www/generators.png>
-Package pdftex.def Info: www/generators.png  used on input line 386.
+Package pdftex.def Info: www/generators.png  used on input line 388.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 386--387
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 388--389
  [][] 
  []
+
+
+Underfull \vbox (badness 4291) has occurred while \output is active []
 
 
 Overfull \vbox (2.39996pt too high) has occurred while \output is active []
@@ -431,32 +434,32 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 [3 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/models.png>]
-Underfull \hbox (badness 1769) in paragraph at lines 409--423
+Underfull \hbox (badness 1769) in paragraph at lines 411--425
 []\T1/ptm/m/n/9 It may help to go through the rel-e-vants parts of the code
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 409--423
+Underfull \hbox (badness 10000) in paragraph at lines 411--425
 \T1/ptm/m/n/9 in some more de-tail start-ing from the part in-volv-ing
  []
 
 
-Underfull \hbox (badness 7379) in paragraph at lines 409--423
+Underfull \hbox (badness 7379) in paragraph at lines 411--425
 \T1/ptm/m/n/9 the model. For il-lus-tra-tive pur-poses the \T1/cmtt/m/n/9 Models \T1/ptm/m/n/9 mod-ule
  []
 
 
-Underfull \hbox (badness 5133) in paragraph at lines 409--423
+Underfull \hbox (badness 5133) in paragraph at lines 411--425
 \T1/ptm/m/n/9 ships with a con-struc-tor for a lo-gis-tic re-gres-sion model:
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 409--423
+Underfull \hbox (badness 10000) in paragraph at lines 411--425
 \T1/cmtt/m/n/9 LogisticModel(W::Matrix,b::AbstractArray) <:
  []
 
 
-Underfull \hbox (badness 2245) in paragraph at lines 409--423
+Underfull \hbox (badness 2245) in paragraph at lines 411--425
 \T1/cmtt/m/n/9 FittedModel\T1/ptm/m/n/9 . This con-struc-tors does not fit the re-gres-sion
  []
 
@@ -464,24 +467,24 @@ Underfull \hbox (badness 2245) in paragraph at lines 409--423
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 LaTeX Font Info:    Font shape `T1/cmtt/bx/n' in size <7> not available
-(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 446.
-<www/ce_binary.png, id=213, 501.875pt x 376.40625pt>
+(Font)              Font shape `T1/cmtt/m/n' tried instead on input line 448.
+<www/ce_binary.png, id=224, 501.875pt x 376.40625pt>
 File: www/ce_binary.png Graphic file (type png)
 <use www/ce_binary.png>
-Package pdftex.def Info: www/ce_binary.png  used on input line 473.
+Package pdftex.def Info: www/ce_binary.png  used on input line 475.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 473--474
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 475--476
  [][] 
  []
 
-<www/binary_wrong.png, id=216, 501.875pt x 376.40625pt>
+<www/binary_wrong.png, id=227, 501.875pt x 376.40625pt>
 File: www/binary_wrong.png Graphic file (type png)
 <use www/binary_wrong.png>
-Package pdftex.def Info: www/binary_wrong.png  used on input line 499.
+Package pdftex.def Info: www/binary_wrong.png  used on input line 501.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 499--500
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 501--502
  [][] 
  []
 
@@ -494,23 +497,23 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 [4 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/generators.png> </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/ce_binary.png>]
-<www/ce_binary_laplace.png, id=262, 501.875pt x 376.40625pt>
+<www/ce_binary_laplace.png, id=273, 501.875pt x 376.40625pt>
 File: www/ce_binary_laplace.png Graphic file (type png)
 <use www/ce_binary_laplace.png>
-Package pdftex.def Info: www/ce_binary_laplace.png  used on input line 579.
+Package pdftex.def Info: www/ce_binary_laplace.png  used on input line 581.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 579--580
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 581--582
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 591--602
+Underfull \hbox (badness 10000) in paragraph at lines 593--604
 \T1/ptm/m/n/9 One of our pri-or-i-ties has been to make
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 591--602
+Underfull \hbox (badness 10000) in paragraph at lines 593--604
 \T1/cmtt/m/n/9 CounterfactualExplanations \T1/ptm/m/n/9 scal-able and ver-sa-tile. In
  []
 
@@ -523,22 +526,22 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 [5 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/binary_wrong.png> </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/ce_binary_laplace.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 641--642
+Underfull \hbox (badness 10000) in paragraph at lines 643--644
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 642--643
+Underfull \hbox (badness 10000) in paragraph at lines 644--645
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
-<www/ce_multi.png, id=292, 501.875pt x 376.40625pt>
+<www/ce_multi.png, id=303, 501.875pt x 376.40625pt>
 File: www/ce_multi.png Graphic file (type png)
 <use www/ce_multi.png>
-Package pdftex.def Info: www/ce_multi.png  used on input line 675.
+Package pdftex.def Info: www/ce_multi.png  used on input line 677.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 675--676
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 677--678
  [][] 
  []
 
@@ -546,27 +549,27 @@ Overfull \hbox (0.9049pt too wide) in paragraph at lines 675--676
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
-Overfull \hbox (5.64001pt too wide) in paragraph at lines 717--718
+Overfull \hbox (5.64001pt too wide) in paragraph at lines 719--720
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
 
-Overfull \hbox (0.91617pt too wide) in paragraph at lines 718--719
+Overfull \hbox (0.91617pt too wide) in paragraph at lines 720--721
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
-<www/ce_multi_laplace.png, id=297, 501.875pt x 376.40625pt>
+<www/ce_multi_laplace.png, id=308, 501.875pt x 376.40625pt>
 File: www/ce_multi_laplace.png Graphic file (type png)
 <use www/ce_multi_laplace.png>
-Package pdftex.def Info: www/ce_multi_laplace.png  used on input line 730.
+Package pdftex.def Info: www/ce_multi_laplace.png  used on input line 732.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-Overfull \hbox (0.9049pt too wide) in paragraph at lines 730--731
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 732--733
  [][] 
  []
 
 
-Underfull \hbox (badness 7814) in paragraph at lines 743--759
+Underfull \hbox (badness 7814) in paragraph at lines 745--761
 \T1/ptm/m/n/9 Now that we have ex-plained the ba-sic func-tion-al-ity of
  []
 
@@ -583,26 +586,51 @@ Underfull \hbox (badness 10000) has occurred while \output is active
 
 [6 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/ce_multi.png>]
 
-LaTeX Warning: Citation `wilson2019case.pdf' on page 7 undefined on input line 766.
+LaTeX Warning: Citation `wilson2019case.pdf' on page 7 undefined on input line 768.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 780--781
+Underfull \hbox (badness 10000) in paragraph at lines 782--783
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
  []
 
-<www/mnist_original.png, id=371, 501.875pt x 376.40625pt>
+<www/mnist_original.png, id=382, 501.875pt x 376.40625pt>
 File: www/mnist_original.png Graphic file (type png)
 <use www/mnist_original.png>
-Package pdftex.def Info: www/mnist_original.png  used on input line 791.
+Package pdftex.def Info: www/mnist_original.png  used on input line 793.
 (pdftex.def)             Requested size: 120.4448pt x 90.33359pt.
-(/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/bib.tex (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.bbl
-Underfull \hbox (badness 3792) in paragraph at lines 37--40
-\T1/ptm/m/n/9 Ex-plain-ing and har-ness-ing ad-ver-sar-ial ex-am-ples. \T1/ptm/m/it/9 arXiv
+
+Underfull \hbox (badness 2884) in paragraph at lines 813--822
+\T1/ptm/m/n/9 The Ju-lia lan-guage of-fers unique sup-port for pro-gram-ming
  []
 
 
-Underfull \hbox (badness 4181) in paragraph at lines 65--69
-[]\T1/ptm/m/n/9 Amir-Hossein Karimi, Bern-hard Schölkopf, and Is-abel
+Underfull \hbox (badness 3482) in paragraph at lines 813--822
+\T1/ptm/m/n/9 made re-mark-ably easy through \T1/cmtt/m/n/9 RCall.jl \T1/ptm/m/n/9 and \T1/cmtt/m/n/9 PyCall.jl\T1/ptm/m/n/9 ,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 813--822
+\T1/ptm/m/n/9 re-spec-tively. This func-tion-al-ity can be lever-aged to use
+ []
+
+
+Underfull \hbox (badness 3623) in paragraph at lines 813--822
+\T1/cmtt/m/n/9 CounterfactualExplanations.jl \T1/ptm/m/n/9 to gen-er-ate ex-pla-na-tions
+ []
+
+
+Overfull \hbox (15.0877pt too wide) in paragraph at lines 852--853
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 853--854
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][]
+ []
+
+
+Overfull \hbox (24.5354pt too wide) in paragraph at lines 856--857
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
 
@@ -614,6 +642,41 @@ Underfull \hbox (badness 10000) has occurred while \output is active
  []
 
 [7 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/ce_multi_laplace.png> </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_original.png>]
+Overfull \hbox (85.9454pt too wide) in paragraph at lines 881--882
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (0.91617pt too wide) in paragraph at lines 884--885
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+
+Overfull \hbox (48.15463pt too wide) in paragraph at lines 886--887
+[][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
+ []
+
+<www/ce_torch.png, id=428, 501.875pt x 376.40625pt>
+File: www/ce_torch.png Graphic file (type png)
+<use www/ce_torch.png>
+Package pdftex.def Info: www/ce_torch.png  used on input line 901.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+
+Overfull \hbox (0.9049pt too wide) in paragraph at lines 901--902
+ [][] 
+ []
+
+(/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/bib.tex (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.bbl
+Underfull \hbox (badness 3792) in paragraph at lines 37--40
+\T1/ptm/m/n/9 Ex-plain-ing and har-ness-ing ad-ver-sar-ial ex-am-ples. \T1/ptm/m/it/9 arXiv
+ []
+
+
+Underfull \hbox (badness 4181) in paragraph at lines 65--69
+[]\T1/ptm/m/n/9 Amir-Hossein Karimi, Bern-hard Schölkopf, and Is-abel
+ []
+
+
 Underfull \hbox (badness 4765) in paragraph at lines 71--76
 []\T1/ptm/m/n/9 Amir-Hossein Karimi, Julius Von Kügel-gen, Bern-hard
  []
@@ -629,6 +692,14 @@ Underfull \hbox (badness 1292) in paragraph at lines 96--99
  []
 
 
+Overfull \vbox (2.39996pt too high) has occurred while \output is active []
+
+
+Underfull \hbox (badness 10000) has occurred while \output is active
+  \T1/ptm/m/n/9 8
+ []
+
+[8 </Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/www/ce_torch.png>]
 Underfull \hbox (badness 1400) in paragraph at lines 118--123
 []\T1/ptm/m/n/9 Martin Pawel-czyk, Sascha Bielawski, Jo-hannes van den
  []
@@ -648,29 +719,31 @@ Overfull \vbox (2.39996pt too high) has occurred while \output is active []
 
 
 Underfull \hbox (badness 10000) has occurred while \output is active
-  \T1/ptm/m/n/9 8
+  \T1/ptm/m/n/9 9
  []
 
-[8] (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.aux)
+[9
+
+] (/Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.aux)
 
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: B56DF1AB9B1BDAD2EA5DC0348647BCE1;1961.
+(rerunfilecheck)             Checksum: D4EF02A5F90CEDDAF53CB8E809950F2D;2356.
  ) 
 Here is how much of TeX's memory you used:
- 12247 strings out of 478994
- 172808 string characters out of 5858184
- 596994 words of memory out of 5000000
- 29324 multiletter control sequences out of 15000+600000
+ 12306 strings out of 478994
+ 173641 string characters out of 5858184
+ 597249 words of memory out of 5000000
+ 29343 multiletter control sequences out of 15000+600000
  448117 words of font info for 118 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  86i,11n,88p,942b,1835s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmex9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/latxfont/lcircle1.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on /Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.pdf (8 pages, 532478 bytes).
+Output written on /Users/FA31DU/Documents/code/CounterfactualExplanations.jl/paper/paper.pdf (9 pages, 612475 bytes).
 PDF statistics:
- 489 PDF objects out of 1000 (max. 8388607)
- 452 compressed objects within 5 object streams
- 200 named destinations out of 1000 (max. 500000)
- 150 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 553 PDF objects out of 1000 (max. 8388607)
+ 513 compressed objects within 6 object streams
+ 239 named destinations out of 1000 (max. 500000)
+ 171 words of extra memory for PDF output out of 10000 (max. 10000000)
 

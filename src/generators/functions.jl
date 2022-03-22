@@ -31,11 +31,16 @@ struct GenericGenerator <: Generator
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
 
+# Loss:
 ℓ(generator::GenericGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
-complexity(x̅, x̲) = norm(x̅-x̲)
-objective(generator::GenericGenerator, x̲, 𝑴, t, x̅) = ℓ(generator, x̲, 𝑴, t) + generator.λ * complexity(x̅, x̲) 
+∂ℓ(generator::GenericGenerator, x̲, 𝑴, t) = gradient(() -> ℓ(generator, x̲, 𝑴, t), params(x̲))[x̲]
 
-∇(generator::GenericGenerator, x̲, 𝑴, t, x̅) = gradient(() -> objective(generator, x̲, 𝑴, t, x̅), params(x̲))[x̲]
+# Complexity:
+h(x̅, x̲) = norm(x̅-x̲)
+∂h(x̅, x̲) = gradient(() -> h(x̅, x̲), params(x̲))[x̲]
+
+# Gradient:
+∇(generator::GenericGenerator, x̲, 𝑴, t, x̅) = ∂ℓ(generator, x̲, 𝑴, t) + generator.λ * ∂h(x̅, x̲)
 
 function generate_perturbations(generator::GenericGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
     𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
@@ -74,8 +79,11 @@ struct GreedyGenerator <: Generator
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
 
-objective(generator::GreedyGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
-∇(generator::GreedyGenerator, x̲, 𝑴, t, x̅) = gradient(() -> objective(generator, x̲, 𝑴, t), params(x̲))[x̲]
+# Loss:
+ℓ(generator::GreedyGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
+∂ℓ(generator::GreedyGenerator, x̲, 𝑴, t) = gradient(() -> ℓ(generator, x̲, 𝑴, t), params(x̲))[x̲]
+
+∇(generator::GreedyGenerator, x̲, 𝑴, t, x̅) = ∂ℓ(generator, x̲, 𝑴, t)
 
 function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
     𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient

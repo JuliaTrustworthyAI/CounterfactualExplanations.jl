@@ -283,7 +283,7 @@ implementations of PDP, LIME and SHAP are available for both Python
 \href{https://cran.r-project.org/web/packages/lime/index.html}{\texttt{iml}},
 \href{https://modeloriented.github.io/shapper/}{\texttt{shapper}},
 \href{https://github.com/bgreenwell/fastshap}{\texttt{fastshap}}). In
-the Julia space, we have only been able to identify one package that
+the Julia space we have only been able to identify one package that
 falls into the broader scope of xAI, namely
 \texttt{ShapML.jl}{]}(https://github.com/nredell/ShapML.jl) which
 provides an implementation of SHAP. We also should not fail to mention
@@ -294,11 +294,13 @@ Arguably the current availability of tools for explaining black-box
 models in Julia is limited, but it appears that the community is
 invested in changing that. The team behind \texttt{MLJ.jl}, for example,
 is currently recruiting contributors for a project about both
-interpretable and explainable AI. With our work on counterfactual
-expanations we hope to contribute to these efforts. We think that
-because of its unique transperancy the Julia language naturally lends
-itself towards establishing a greater degree of trust in machine
-learning and artificial intelligence.
+interpretable and explainable AI.\footnote{For details, see the Google
+  Summer of Code 2022 project proposal
+  \href{https://julialang.org/jsoc/gsoc/MLJ/\#interpretable_machine_learning_in_julia}{here}.}
+With our work on counterfactual expanations we hope to contribute to
+these efforts. We think that because of its unique transperancy the
+Julia language naturally lends itself towards establishing a greater
+degree of trust in machine learning and artificial intelligence.
 
 \hypertarget{sec-method}{%
 \section{Methodological background}\label{sec-method}}
@@ -678,8 +680,8 @@ counterfactual generator for Bayesian binary classifier.}
 
 \end{figure}
 
-\hypertarget{custom-models}{%
-\subsection{Custom models}\label{custom-models}}
+\hypertarget{sec-custom}{%
+\subsection{Custom models}\label{sec-custom}}
 
 One of our priorities has been to make
 \texttt{CounterfactualExplanations} scalable and versatile. In the long
@@ -830,8 +832,8 @@ approximation.}
 
 \end{figure}
 
-\hypertarget{empirical-example}{%
-\subsection{Empirical example}\label{empirical-example}}
+\hypertarget{sec-emp}{%
+\subsection{Empirical example}\label{sec-emp}}
 
 Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations} through a few illustrative toy
@@ -897,6 +899,106 @@ for the deep ensemble; and finally, the greedy approach for the deep
 ensemble.
 
 \textbf{TBD}
+
+\hypertarget{laguage-interoperability}{%
+\section{Laguage interoperability}\label{laguage-interoperability}}
+
+The Julia language offers unique support for programming language
+interoperability. For example, calling R or Python is made remarkably
+easy through \texttt{RCall.jl} and \texttt{PyCall.jl}, respectively.
+This functionality can be leveraged to use
+\texttt{CounterfactualExplanations.jl} to generate explanations for
+models that were developed in other programming languages. While at the
+time of writing we have not yet implemented out-of-the-box support for
+foreign programming languages, the following example demonstrates how
+versatile our package is.
+
+\hypertarget{explaining-a-model-trained-in-r}{%
+\subsection{\texorpdfstring{Explaining a model trained in
+\texttt{R}}{Explaining a model trained in R}}\label{explaining-a-model-trained-in-r}}
+
+We have trained a simple MLP using the R library \texttt{torch} for
+binary classification task involving a synthetic data set. Inside the R
+working environment the fitted \texttt{torch} model is stored as an
+object called \texttt{model}. That R object can be accessed from Julia
+using \texttt{RCall.jl} by simply calling \texttt{R"model"}. As in
+Section~\ref{sec-custom} and Section~\ref{sec-emp} the first thing
+necessary to make that model compatible with our package is to declare
+it as a subtype of \texttt{Model.FittedModel}. As always we also need to
+extend the \texttt{logits} and \texttt{probs} functions to make the
+model compatible with \texttt{CounterfactualExplanations.jl}. The code
+below shows how this can be done. Logits are returned by the
+\texttt{torch} model and copied from R into the Julia environment.
+Probabilities are then computed in Julia by passing the logits through
+the sigmoid function.
+
+\begin{lstlisting}
+using RCall
+# Step 1)
+struct TorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::TorchNetwork, X::AbstractArray)
+  nn = M.nn
+  y_hat = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+  y_hat = isa(y_hat, AbstractArray) ? y_hat : [y_hat]
+  return y_hat
+end
+probs(M::TorchNetwork, X::AbstractArray)= (logits(M, X))
+M = TorchNetwork(R"model")
+\end{lstlisting}
+
+Next we need to do a tiny bit of work on the \texttt{Generator} side.
+The default methods underlying the counterfactual generators are desiged
+to work with models that have gradient access through
+\texttt{Zygote.jl}, one of Julia's main autodifferentiation packages. Of
+course, \texttt{Zygote.jl} cannot access the gradients of our
+\texttt{torch} model, so we need to adapt the code slightly.
+Fortunately, it turns out that all we need to do is extend the function
+that computes the gradient with respect to the loss function for the
+generic counterfactual search:
+\texttt{∂ℓ(generator::GenericGenerator,\ x\_factual,\ 𝑴,\ t)}. In
+particular, we will extend the function by a method that is specific to
+the \texttt{TorchNetwork} type we defined above. The code below
+implements this: our new method \texttt{∂ℓ} calls R in order to use
+\texttt{torch}'s autodifferentiation functionality for computing the
+gradient.
+
+\begin{lstlisting}
+import CounterfactualExplanations.Generators: 
+using LinearAlgebra
+
+# Countefactual loss:
+function (generator::GenericGenerator, x_factual, M::TorchNetwork, t) 
+  nn = M.nn
+  R"""
+  x <- torch_tensor($x_factual, requires_grad=TRUE)
+  output <- $nn(x)
+  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+  obj_loss$backward()
+  """
+  grad = rcopy(R"as_array(x$grad)")
+  return grad
+end
+\end{lstlisting}
+
+From here on onwards the \texttt{CounterfactualExplanations.jl}
+functionality can be used as always. Figure~\ref{fig-torch} shows the
+counterfactual path for a randomly chosen sample with respect to the MLP
+trained in R.
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_torch.png}
+
+}
+
+\caption{\label{fig-torch}Counterfactual path using generic
+counterfactual generator for a model trained in R.}
+
+\end{figure}
 
 \hypertarget{sec-conclude}{%
 \section{Concluding remarks}\label{sec-conclude}}

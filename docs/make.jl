@@ -21,7 +21,8 @@ makedocs(;
                 "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
-                "Loss functions" => "tutorials/loss.md"
+                "Loss functions" => "tutorials/loss.md",
+                "Interoperability" => "tutorial/interop.md"
             ],
         "More examples" =>
             [
