@@ -21,18 +21,21 @@ CurrentModule = CounterfactualExplanations
 
 # Interoperability
 
+```{julia}
+using Plots, PlotThemes
+theme(:wong)
+```
+
 
 ```{julia}
 using Random
 # Some random data:
 Random.seed!(1234);
 N = 100
-w = [1.0 1.0]# true coefficients
-b = 0
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
-x, y = toy_data_linear(N)
-X = hcat(x...)'
+x, y = toy_data_non_linear(N)
+X = hcat(x...)
 ```
 
 ## Training a `torch` model in R
@@ -44,7 +47,7 @@ using RCall
 R"""
 # Data
 library(torch)
-X <- torch_tensor($X)
+X <- torch_tensor(t($X))
 y <- torch_tensor($y)
 
 # Model:
@@ -70,7 +73,7 @@ The following code trains the MLP for the binary prediction task at hand:
 
 ```{julia}
 R"""
-for (epoch in 1:10) {
+for (epoch in 1:100) {
 
   model$train()
   train_losses <- c()  
@@ -103,7 +106,7 @@ end
 # Step 2)
 function logits(𝑴::TorchNetwork, X::AbstractArray)
   nn = 𝑴.nn
-  ŷ = rcopy(R"as_array($nn(torch_tensor($X)))")
+  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
   return ŷ
 end
@@ -122,7 +125,8 @@ function ∂ℓ(x̲, 𝑴, t)
   nn = 𝑴.nn
   R"""
   x <- torch_tensor($x̲, requires_grad=TRUE)
-  obj_loss <- nnf_binary_cross_entropy_with_logits($nn(x),$t)
+  output <- $nn(x)
+  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
   obj_loss$backward()
   """
   grad = rcopy(R"as_array(x$grad)")
@@ -140,9 +144,9 @@ y̅ = round(probs(𝑴, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
 γ = 0.75 # desired level of confidence
 # Define Generator:
-generator = GenericGenerator(0.0,0.1,1e-5,:logitbinarycrossentropy,nothing)
+generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
-counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
 ```
 
 
@@ -150,16 +154,18 @@ counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ); # ge
 include("docs/src/utils.jl")
 using Plots
 T = size(counterfactual.path)[1]
-X_path = reduce(hcat,counterfactual.path)'
+X_path = reduce(hcat,counterfactual.path)
 ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.𝑴, X_path)',target)
-p1 = plot_contour(X,y,𝑴;clegend=false, title="Posterior predictive - Plugin")
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
+# [scatter!(p1, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="") for t in 1:T]
+# p1
 anim = @animate for t in 1:T
     scatter!(p1, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=25)
+gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=5)
 ```
 
 
