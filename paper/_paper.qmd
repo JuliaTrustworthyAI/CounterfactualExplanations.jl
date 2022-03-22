@@ -81,18 +81,14 @@ We can drop the complexity penalty altogether and still generate effective count
 The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but camodelot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$ while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through a few examples.
 
 ```{julia}
-plot(code, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
-```
-
-```{julia}
-p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
+p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
 savefig(p, "paper/www/models.png")
 ```
 
 ![Schematic overview of the `FittedModel` base type and its descendants.](www/models.png){#fig-models width=20pc height=15pc}
 
 ```{julia}
-p = plot(CounterfactualExplanations.Generator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.3)
+p = plot(CounterfactualExplanations.Generator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
 savefig(p, "paper/www/generators.png")
 ```
 
@@ -189,7 +185,7 @@ Among the different approaches that have recently been put forward to deal with 
 
 Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we use assume that we have fit a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logit binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes the two moments defining that distribution as its arguments: firstly, the MAP esitmate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logisitic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logisitic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
 
-For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined step size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: Generator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
+For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined step size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ in this case is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: Generator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
 
 ```{julia}
 # Model:
@@ -197,8 +193,8 @@ using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
-params = hcat(b, w)
-M = BayesianLogisticModel(params, cov)
+coeffs = hcat(b, w)
+M = BayesianLogisticModel(coeffs, cov)
 
 # Counterfactual search:
 generator = GreedyGenerator(
@@ -213,8 +209,8 @@ using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
-params = hcat(b, w)
-M = BayesianLogisticModel(params, cov)
+coeffs = hcat(b, w)
+M = BayesianLogisticModel(coeffs, cov)
 
 # Counterfactual search:
 generator = GreedyGenerator(
@@ -368,95 +364,65 @@ savefig(plt, "paper/www/ce_multi.png")
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier.](www/ce_multi.png){#fig-multi width=20pc height=15pc}
 
-As before we will also look at the Bayesian setting. Using Laplace approximation (LA) much in the same way as above we can recover a Bayesian representation of our neural network in a post-hoc fashion (\cite{daxberger2021laplace}). Alternatively, we could have considered using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo dropout (\cite{gal2016dropout}) or variational inference. Using the greedy generator yields the counterfactual path in @fig-multi-laplace. The code that produces these results follows below.
-
-Contrary to the example involving binary classification above, it is less clear that counterfactuals for the Bayesian classifier are more effective in this case. While predictions from this simple Bayesian neural network are overall more conservative, the model fails to only produce high-confidence predictions in regions that are abundant with training samples. This illustrates that the quality of counterfactual explanations may ultimately depend to some degree on the quality of the classifier. Put differently, if the quality of the classifier is poor, we may expect this to come through in the counterfactual explanation. 
+As before we will also look at the Bayesian setting. One way to incorporate predictive uncertainty in deep learning is through a deep ensemble (\cite{lakshminarayanan2016simple}). Using  we can recover a Bayesian representation of our neural network in a post-hoc fashion . Alternatively, we could have Monte Carlo dropout (\cite{gal2016dropout}), variational inference or Laplace approximation (LA) much in the same way as above (\cite{daxberger2021laplace}). Using the greedy generator for the deep ensemble yields the counterfactual path in @fig-multi-ensemble. The code that produces these results follows below.
 
 ```{julia}
-# Fitting the Laplace approximation:
-using BayesLaplace
-la = laplace(model)
-fit!(la, data)
+build_model() = Chain(
+    Dense(input_dim, n_hidden, activation),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)  
 
-# Model:
-# Step 1)
-struct LaplaceNeuralNetwork <: Models.FittedModel
-    la::BayesLaplace.LaplaceRedux
+K = 5
+ensemble = [build_model() for i in 1:K]
+
+function forward_nn(nn, loss, data, opt; n_epochs=200)
+    for epoch = 1:n_epochs
+      for d in data
+        gs = gradient(Flux.params(nn)) do
+          l = loss(d...)
+        end
+        update!(opt, Flux.params(nn), gs)
+      end
+    end
 end
 
+function forward(ensemble, data, opt, loss_type; n_epochs=200) 
+    for nn in ensemble
+        loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
+        forward_nn(nn, loss, data, opt; n_epochs=n_epochs)
+    end
+    return ensemble
+end
+
+ensemble = forward(ensemble, data, opt, :logitcrossentropy; n_epochs=epochs)
+```
+
+```{julia}
+# Model:
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
 # Step 2)
-logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
-probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
-M = LaplaceNeuralNetwork(la)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M = FittedEnsemble(ensemble)
 
 # Counterfactual search:
 generator = GreedyGenerator(
-    0.25,30,:logitcrossentropy,nothing)
+    0.25,25,:logitbinarycrossentropy,nothing)
 counterfactual = generate_counterfactual(
-    generator, x_factual, M, target, confidence) 
+    generator, x_factual, M, target, confidence)
 ```
 
 \begin{lstlisting}
-# Fitting the Laplace approximation:
-using BayesLaplace
-la = laplace(model)
-fit!(la, data)
-
-# Model:
-# Step 1)
-struct LaplaceNeuralNetwork <: Models.FittedModel
-    la::BayesLaplace.LaplaceRedux
-end
-
-# Step 2)
-logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
-probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
-M = LaplaceNeuralNetwork(la)
-
-# Counterfactual search:
-generator = GreedyGenerator(
-    0.25,30,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(
-    generator, x_factual, M, target, confidence) 
-\end{lstlisting}
-
-```{julia}
-plt = plot_contour(X',y,M)
-[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
-savefig(plt, "paper/www/ce_multi_laplace.png")
-```
-
-
-![Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.](www/ce_multi_laplace.png){#fig-multi-laplace width=20pc height=15pc}
-
-## Empirical example {#sec-emp}
-
-Now that we have explained the basic functionality of `CounterfactualExplanations` through a few illustrative toy examples, it is time to consider some real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
-
-On the model side we will use two pre-trained classifiers^[The pre-trained models were
-stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality esimtates of predictve uncertainty for neural networks (\cite{wilson2019case.pdf}, \cite{lakshminarayanan2016simple})). In the previous section we already created the necessary subtype and methods to make the multi-output MLP compatible with our package. The code below implements the two necessary steps for the deep ensemble.
-
-
-```{julia}
-using Flux
-using CounterfactualExplanations.Data: mnist_data
-using CounterfactualExplanations.Data: mnist_model
-using CounterfactualExplanations.Data: mnist_ensemble
-x,y,data = getindex.(
-    Ref(mnist_data()), ("x", "y", "data"))
-model = mnist_model()
-ensemble = mnist_ensemble()
-
-# MLP:
-# Step 1)
-struct NeuralNetwork <: Models.FittedModel
-    model::Any
-end
-# Step 2)
-logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
-probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
-M = NeuralNetwork(model)
-
 # Deep ensemble:
 using Flux: stack
 # Step 1)
@@ -472,76 +438,23 @@ probs(M::FittedEnsemble, X::AbstractArray) = mean(
     stack([softmax(m(X)) for m in M.ensemble],3),
     dims=3)
 M_ensemble = FittedEnsemble(ensemble)
-```
-
-\begin{lstlisting}
-using Flux: stack
-# Step 1)
-struct FittedEnsemble <: Models.FittedModel
-    ensemble::AbstractArray
-end
-# Step 2)
-using Statistics
-logits(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([m(X) for m in M.ensemble],3), 
-    dims=3)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([softmax(m(X)) for m in M.ensemble],3),
-    dims=3)
-M_ensemble = FittedEnsemble(ensemble)
 \end{lstlisting}
 
-```{julia}
-using Images, MLDatasets.MNIST
-input_dim = 28
-# Randomly selected factual:
-Random.seed!(1234)
-x_factual = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
-img = convert2image(reshape(x_factual,input_dim,input_dim))
-plt_orig = plot(img, axis=nothing)
-savefig(plt_orig, "paper/www/mnist_original.png")
-```
-
-![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
-
-For the counterfactual search we will use four different combinations of classifiers and generators: firstly, the generic approach for the MLP; secondly, the greedy approach for the MLP; thirdly, the generic approach for the deep ensemble; and finally, the greedy approach for the deep ensemble. 
-
-**TBD**
+Contrary to the example involving binary classification above, it is less clear that counterfactuals for the Bayesian classifier are more effective in this case. Predictions from this simple deep ensemble look very similar to those produced by the MLP: the model fails to only produce high-confidence predictions in regions that are abundant with training samples. This illustrates that the quality of counterfactual explanations may ultimately depend to some degree on the quality of the classifier. Put differently, if the quality of the classifier is poor, we may expect this to come through in the counterfactual explanation. 
 
 ```{julia}
-generators = Dict(
-    "Wachter" => GenericGenerator(0.1,1,1e-5,:logitcrossentropy,nothing),
-    "Greedy" => GreedyGenerator(0.1,15,:logitcrossentropy,nothing))
-models = Dict("MLP" => M, "Ensemble" => M_ensemble);
+plt = plot_contour(X',y,M)
+[scatter!(plt, [x[1]], [x[2]], ms=7.5, color=Int(y_factual), label="") for x in counterfactual.path]
+savefig(plt, "paper/www/ce_multi_ensemble.png")
 ```
 
-```{julia}
-using Flux: onecold
+![Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.](www/ce_multi_ensemble.png){#fig-multi-ensemble width=20pc height=15pc}
 
-# Random:
-function from_digit_to_digit(from::Number, to::Number, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
-    Random.seed!(seed)
-    candidates = findall(onecold(y,0:9).==from)
-    x_factual = Flux.unsqueeze(x[:,rand(candidates)],2)
-    target = to + 1
-    counterfactual = generate_counterfactual(generator, x_factual, model, target, γ; feasible_range=(0.0,1.0), T=T)
-    return counterfactual
-end
-
-# Specific image:
-function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
-    x_factual = Flux.unsqueeze(from,2)
-    target = to + 1
-    counterfactual = generate_counterfactual(generator, x_factual, model, target, γ; feasible_range=(0.0,1.0), T=T)
-    return counterfactual
-end
-```
-
-# Laguage interoperability
+## Laguage interoperability
 
 The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through `RCall.jl` and `PyCall.jl`, respectively. This functionality can be leveraged to use `CounterfactualExplanations.jl` to generate explanations for models that were developed in other programming languages. While at the time of writing we have not yet implemented out-of-the-box support for foreign programming languages, the following example demonstrates how versatile our package is. 
 
-## Explaining a model trained in `R`
+### Explaining a model trained in `R`
 
 ```{julia}
 using Random
@@ -601,7 +514,7 @@ We have trained a simple MLP using the R library `torch` for binary classificati
 ```{julia}
 using Flux
 using CounterfactualExplanations, CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+import CounterfactualExplanations.Models: logits, probs 
 
 # Step 1)
 struct TorchNetwork <: Models.FittedModel
@@ -610,17 +523,18 @@ end
 
 # Step 2)
 function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.nn
-  y_hat = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  y_hat = isa(y_hat, AbstractArray) ? y_hat : [y_hat]
-  return y_hat
+    nn = M.nn
+    y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+    y = isa(y, AbstractArray) ? y : [y]
+    return y
 end
-probs(M::TorchNetwork, X::AbstractArray)= σ.(logits(M, X))
+function probs(M::TorchNetwork, X::AbstractArray)
+    Flux.sigmoid.(logits(M, X))
+end
 M = TorchNetwork(R"model")
 ```
 
 \begin{lstlisting}
-using RCall
 # Step 1)
 struct TorchNetwork <: Models.FittedModel
     nn::Any
@@ -628,28 +542,31 @@ end
 
 # Step 2)
 function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.nn
-  y_hat = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  y_hat = isa(y_hat, AbstractArray) ? y_hat : [y_hat]
-  return y_hat
+    nn = M.nn
+    y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+    y = isa(y, AbstractArray) ? y : [y]
+    return y
 end
-probs(M::TorchNetwork, X::AbstractArray)= (logits(M, X))
+function probs(M::TorchNetwork, X::AbstractArray)
+    Flux.sigmoid.(logits(M, X))
+end
 M = TorchNetwork(R"model")
 \end{lstlisting}
 
-Next we need to do a tiny bit of work on the `Generator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x_factual, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
+Next we need to do a tiny bit of work on the `Generator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
 
 ```{julia}
-import CounterfactualExplanations.Generators: ∂ℓ
+import CounterfactualExplanations.Generators: grad_loss
 using LinearAlgebra
 
 # Countefactual loss:
-function ∂ℓ(generator::GenericGenerator, x_factual, M::TorchNetwork, t) 
+function grad_loss(generator::GenericGenerator, x, M::TorchNetwork, t) 
   nn = M.nn
   R"""
-  x <- torch_tensor($x_factual, requires_grad=TRUE)
+  x <- torch_tensor($x, requires_grad=TRUE)
   output <- $nn(x)
-  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+  loss_fun <- nnf_binary_cross_entropy_with_logits
+  obj_loss <- loss_fun(output,$t)
   obj_loss$backward()
   """
   grad = rcopy(R"as_array(x$grad)")
@@ -658,16 +575,17 @@ end
 ```
 
 \begin{lstlisting}
-import CounterfactualExplanations.Generators: 
+import CounterfactualExplanations.Generators: grad_loss
 using LinearAlgebra
 
 # Countefactual loss:
-function (generator::GenericGenerator, x_factual, M::TorchNetwork, t) 
+function grad_loss(generator::GenericGenerator, x, M::TorchNetwork, t) 
   nn = M.nn
   R"""
-  x <- torch_tensor($x_factual, requires_grad=TRUE)
+  x <- torch_tensor($x, requires_grad=TRUE)
   output <- $nn(x)
-  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+  loss_fun <- nnf_binary_cross_entropy_with_logits
+  obj_loss <- loss_fun(output,$t)
   obj_loss$backward()
   """
   grad = rcopy(R"as_array(x$grad)")
@@ -695,7 +613,7 @@ include("docs/src/utils.jl")
 using Plots
 T = size(counterfactual.path)[1]
 X_path = reduce(hcat,counterfactual.path)
-y_hat = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path)',target)
+y = CounterfactualExplanations.target_probs(probs(counterfactual.𝑴, X_path)',target)
 plt = plot_contour(X',y,M;clegend=false, title="Posterior predictive - Plugin")
 [scatter!(plt, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="") for t in 1:T]
 savefig(plt, "paper/www/ce_torch.png")
@@ -703,5 +621,164 @@ savefig(plt, "paper/www/ce_torch.png")
 
 ![Counterfactual path using generic counterfactual generator for a model trained in R.](www/ce_torch.png){#fig-torch width=20pc height=15pc}
 
+### Explaining a model trained in Python
+
+**TO ADD, MAYBE**
+
+## Empirical example {#sec-emp}
+
+Now that we have explained the basic functionality of `CounterfactualExplanations` through a few illustrative toy examples, it is time to consider some real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
+
+On the model side we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality esimtates of predictve uncertainty for neural networks (\cite{wilson2019case.pdf}, \cite{lakshminarayanan2016simple})). In the previous section we already created the necessary subtype and methods to make the multi-output MLP compatible with our package. The code below implements the two necessary steps for the deep ensemble.
+
+
+```{julia}
+using Flux
+using CounterfactualExplanations.Data: mnist_data
+using CounterfactualExplanations.Data: mnist_model
+using CounterfactualExplanations.Data: mnist_ensemble
+x,y,data = getindex.(
+    Ref(mnist_data()), ("x", "y", "data"))
+model = mnist_model()
+ensemble = mnist_ensemble()
+import CounterfactualExplanations.Models: logits
+import CounterfactualExplanations.Models: probs 
+
+# MLP:
+# Step 1)
+struct NeuralNetwork <: Models.FittedModel
+    model::Any
+end
+# Step 2)
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
+M = NeuralNetwork(model)
+
+# Deep ensemble:
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+```
+
+\begin{lstlisting}
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+\end{lstlisting}
+
+```{julia}
+using Images, MLDatasets.MNIST, Random
+input_dim = 28
+# Randomly selected factual:
+Random.seed!(1234)
+x_factual = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
+img = convert2image(reshape(x_factual,input_dim,input_dim))
+plt_orig = plot(img, axis=nothing)
+savefig(plt_orig, "paper/www/mnist_original.png")
+```
+
+![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
+
+For the counterfactual search we will use four different combinations of classifiers and generators: firstly, the generic approach for the MLP; secondly, the greedy approach for the MLP; thirdly, the generic approach for the deep ensemble; and finally, the greedy approach for the deep ensemble. 
+
+```{julia}
+generators = Dict(
+    "Wachter" => GenericGenerator(0.1,1,1e-5,:logitcrossentropy,nothing),
+    "Greedy" => GreedyGenerator(0.1,15,:logitcrossentropy,nothing))
+models = Dict("MLP" => M, "Ensemble" => M_ensemble);
+```
+
+```{julia}
+using Flux: onecold
+
+# Specific image:
+function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
+    
+    x_factual = from
+    target = to + 1
+    counterfactuals = Dict()
+
+    for (k_gen,v_gen) ∈ generators
+        for (k_mod,v_mod) ∈ models 
+            k = k_mod * " - " * k_gen
+            counterfactuals[k] = generate_counterfactual(v_gen, x_factual, v_mod, target, γ; feasible_range=(0.0,1.0), T=T)
+        end
+    end
+
+    return counterfactuals
+
+end
+
+# Specific digit:
+function from_digit_to_digit(from::Number, to::Number, generator::Dict, model::Dict; γ=0.95, x=x, y=y, seed=1234, T=1000)
+
+    Random.seed!(seed)
+
+    candidates = findall(onecold(y,0:9).==from)
+    x̅ = Flux.unsqueeze(x[:,rand(candidates)],2)
+    target = to + 1
+    counterfactuals = Dict()
+
+    for (k_gen,v_gen) ∈ generators
+        for (k_mod,v_mod) ∈ models 
+            k = k_mod * " - " * k_gen
+            counterfactuals[k] = generate_counterfactual(v_gen, x̅, v_mod, target, γ; feasible_range=(0.0,1.0), T=T)
+        end
+    end
+
+    return counterfactuals
+end
+```
+
+We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 shows the resulting counterfactuals. In every case the desired label switch is in fact achieved, but arguably from a human perspective only the counterfactuals for the deep ensemble look like a four. The generic generator produces mild perturbations in regions that seem irrelevant from a human perspective, but nonetheless yields a coutnerfactual that can pass as a four. The greedy approach (\cite{wacther2021generating}) clearly targets pixels at the top of the handwritten nine and yields the best result overall. For the non-bayesian MLP, both the generic and the greedy approach generate counterfactuals that look much like adversarial examples: they perturb pixels in seemingly random regions on the image. @fig-mnist-3to8 shows another example. This time the goal is to turn a randomly chosen three (3) into an eight (8). Onve again the outcomes for the deep ensemble look more realistic, but overall the generated counterfactuals look less effective than those in @fig-mnist-9to4. The results could likely be improved by using adversarial training for the classifiers as recommended in \cite{wachter2021generating}
+
+```{julia}
+to = 4
+counterfactuals = from_digit_to_digit(x_factual,to,generators,models)
+plts =  first(values(counterfactuals)).x̅ |> x -> plot(convert2image(reshape(x,Int(input_dim),Int(input_dim))),title="Original")
+plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
+plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
+savefig(plt, "paper/www/mnist_9_to_4.png")
+```
+
+![Counterfactual explanations for MNIST: turning a nine (9) into a four (4)](www/mnist_9_to_4.png){#fig-mnist-9to4 width=20pc height=5pc}
+
+Overall, the examples in this section demonstrate two points that we have already made earlier: firstly, the findings in \cite{wachter2021generating} can indeed complement other existing approaches to counterfactual generation; and secondly, the quality of the classifier is clearly reflected in the quality of the counterfactual explanations. In other words, we cannot generate effective counterfactual explanations for a poorly trained model. That is actually desirable: if a model bases its predictions on representations that are not intuitive to a human, we would like that to be evident from the counterfactual explanation. From that perspective, counterfactual explanations can help us to not only understand a black-box model, but potentially also guide us in improving it. 
+
+```{julia}
+from = 3
+to = 8
+counterfactuals = from_digit_to_digit(from,to,generators,models)
+plts =  first(values(counterfactuals)).x̅ |> x -> plot(convert2image(reshape(x,Int(input_dim),Int(input_dim))),title="Original")
+plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
+plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
+savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
+```
+
+![Counterfactual explanations for MNIST: turning a three (3) into an eight (8)](www/mnist_3_to_8.png){#fig-mnist-3to8 width=20pc height=5pc}
+
 # Concluding remarks {#sec-conclude}
 
+In this article has introduced `CounterfactualExplanation.jl`: a package for generating counterfactual explanations and algorithmic recourse in Julia. We have argued that these are particularly promising tools for explaining black-box models. Through various examples we have shown how to use and extend the package. It is designed to allow users to generate counterfactual explanations for their own custom models and using their own custom generators. Thanks to Julia's support for language interoperability, `CounterfactualExplanation.jl` can even explain models that were developed and trained in other programming languages as we have demonstrated through an example of a deep neural network trained in R `torch`. We believe that this package in its current form offers a valuable contribution to ongoing efforts towards explainable artificial intelligence by the broader Julia community. That being said, there is significant scope for further development. At the time of writing the package supports only a few default models and generators natively. Through future work on our side and contributions through the community we plan to expand its functionality further. 

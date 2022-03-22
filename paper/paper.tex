@@ -544,15 +544,16 @@ For the counterfactual search we use a greedy approach following
 each iteration it selects the most salient feature with respect to our
 objective (Equation~\ref{eq-solution-bayes}) and perturbs it by some
 predetermined step size \(\delta\). Since the gradient
-\(\nabla_{\underline{x}}\ell(M(\underline{x},t))\) is proportional to
-the MAP estimate \(\hat\mu\), the same feature is chosen until a
-predefined maximum number of perturbations \(n\) has been exhausted.
-Those two hyperparameters, \(\delta\) and \(n\), are defined in the
-first two fields of \texttt{GreedyGenerator\ \textless{}:\ Generator} in
-the code below. The third and fourth field are reserved for the loss
-function and mutability constraints. Since we are making use of multiple
-dispatch, the final command that actually runs the counterfactual search
-is the same as before.
+\(\nabla_{\underline{x}}\ell(M(\underline{x},t))\) in this case is
+proportional to the MAP estimate \(\hat\mu\), the same feature is chosen
+until a predefined maximum number of perturbations \(n\) has been
+exhausted. Those two hyperparameters, \(\delta\) and \(n\), are defined
+in the first two fields of
+\texttt{GreedyGenerator\ \textless{}:\ Generator} in the code below. The
+third and fourth field are reserved for the loss function and mutability
+constraints. Since we are making use of multiple dispatch, the final
+command that actually runs the counterfactual search is the same as
+before.
 
 \begin{lstlisting}[language = Julia]
 # Model:
@@ -560,8 +561,8 @@ using LinearAlgebra
 I = UniformScaling(1)
 cov = Symmetric(reshape(randn(9),3,3).*0.01 + I) 
 w = [1 1]
-params = hcat(b, w)
-M = BayesianLogisticModel(params, cov)
+coeffs = hcat(b, w)
+M = BayesianLogisticModel(coeffs, cov)
 
 # Counterfactual search:
 generator = GreedyGenerator(
@@ -683,61 +684,162 @@ counterfactual generator for multi-class classifier.}
 
 \end{figure}
 
-As before we will also look at the Bayesian setting. Using Laplace
-approximation (LA) much in the same way as above we can recover a
-Bayesian representation of our neural network in a post-hoc fashion
-(\cite{daxberger2021laplace}). Alternatively, we could have considered
-using a deep ensemble (\cite{lakshminarayanan2016simple}), Monte Carlo
-dropout (\cite{gal2016dropout}) or variational inference. Using the
-greedy generator yields the counterfactual path in
-Figure~\ref{fig-multi-laplace}. The code that produces these results
-follows below.
+As before we will also look at the Bayesian setting. One way to
+incorporate predictive uncertainty in deep learning is through a deep
+ensemble (\cite{lakshminarayanan2016simple}). Using we can recover a
+Bayesian representation of our neural network in a post-hoc fashion .
+Alternatively, we could have Monte Carlo dropout
+(\cite{gal2016dropout}), variational inference or Laplace approximation
+(LA) much in the same way as above (\cite{daxberger2021laplace}). Using
+the greedy generator for the deep ensemble yields the counterfactual
+path in Figure~\ref{fig-multi-ensemble}. The code that produces these
+results follows below.
+
+\begin{lstlisting}
+# Deep ensemble:
+using Flux: stack
+# Step 1)
+struct FittedEnsemble <: Models.FittedModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([m(X) for m in M.ensemble],3), 
+    dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(
+    stack([softmax(m(X)) for m in M.ensemble],3),
+    dims=3)
+M_ensemble = FittedEnsemble(ensemble)
+\end{lstlisting}
 
 Contrary to the example involving binary classification above, it is
 less clear that counterfactuals for the Bayesian classifier are more
-effective in this case. While predictions from this simple Bayesian
-neural network are overall more conservative, the model fails to only
+effective in this case. Predictions from this simple deep ensemble look
+very similar to those produced by the MLP: the model fails to only
 produce high-confidence predictions in regions that are abundant with
 training samples. This illustrates that the quality of counterfactual
 explanations may ultimately depend to some degree on the quality of the
 classifier. Put differently, if the quality of the classifier is poor,
 we may expect this to come through in the counterfactual explanation.
 
-\begin{lstlisting}
-# Fitting the Laplace approximation:
-using BayesLaplace
-la = laplace(model)
-fit!(la, data)
-
-# Model:
-# Step 1)
-struct LaplaceNeuralNetwork <: Models.FittedModel
-    la::BayesLaplace.LaplaceRedux
-end
-
-# Step 2)
-logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
-probs(M::LaplaceNeuralNetwork, X::AbstractArray) = BayesLaplace.predict(M.la, X)
-M = LaplaceNeuralNetwork(la)
-
-# Counterfactual search:
-generator = GreedyGenerator(
-    0.25,30,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(
-    generator, x_factual, M, target, confidence) 
-\end{lstlisting}
-
 \begin{figure}
 
-{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_multi_laplace.png}
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_multi_ensemble.png}
 
 }
 
-\caption{\label{fig-multi-laplace}Counterfactual path using generic
+\caption{\label{fig-multi-ensemble}Counterfactual path using generic
 counterfactual generator for multi-class classifier with Laplace
 approximation.}
 
 \end{figure}
+
+\hypertarget{laguage-interoperability}{%
+\subsection{Laguage interoperability}\label{laguage-interoperability}}
+
+The Julia language offers unique support for programming language
+interoperability. For example, calling R or Python is made remarkably
+easy through \texttt{RCall.jl} and \texttt{PyCall.jl}, respectively.
+This functionality can be leveraged to use
+\texttt{CounterfactualExplanations.jl} to generate explanations for
+models that were developed in other programming languages. While at the
+time of writing we have not yet implemented out-of-the-box support for
+foreign programming languages, the following example demonstrates how
+versatile our package is.
+
+\hypertarget{explaining-a-model-trained-in-r}{%
+\subsubsection{\texorpdfstring{Explaining a model trained in
+\texttt{R}}{Explaining a model trained in R}}\label{explaining-a-model-trained-in-r}}
+
+We have trained a simple MLP using the R library \texttt{torch} for
+binary classification task involving a synthetic data set. Inside the R
+working environment the fitted \texttt{torch} model is stored as an
+object called \texttt{model}. That R object can be accessed from Julia
+using \texttt{RCall.jl} by simply calling \texttt{R"model"}. As in
+Section~\ref{sec-custom} and Section~\ref{sec-emp} the first thing
+necessary to make that model compatible with our package is to declare
+it as a subtype of \texttt{Model.FittedModel}. As always we also need to
+extend the \texttt{logits} and \texttt{probs} functions to make the
+model compatible with \texttt{CounterfactualExplanations.jl}. The code
+below shows how this can be done. Logits are returned by the
+\texttt{torch} model and copied from R into the Julia environment.
+Probabilities are then computed in Julia by passing the logits through
+the sigmoid function.
+
+\begin{lstlisting}
+# Step 1)
+struct TorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::TorchNetwork, X::AbstractArray)
+    nn = M.nn
+    y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+    y = isa(y, AbstractArray) ? y : [y]
+    return y
+end
+function probs(M::TorchNetwork, X::AbstractArray)
+    Flux.sigmoid.(logits(M, X))
+end
+M = TorchNetwork(R"model")
+\end{lstlisting}
+
+Next we need to do a tiny bit of work on the \texttt{Generator} side.
+The default methods underlying the counterfactual generators are desiged
+to work with models that have gradient access through
+\texttt{Zygote.jl}, one of Julia's main autodifferentiation packages. Of
+course, \texttt{Zygote.jl} cannot access the gradients of our
+\texttt{torch} model, so we need to adapt the code slightly.
+Fortunately, it turns out that all we need to do is extend the function
+that computes the gradient with respect to the loss function for the
+generic counterfactual search. In particular, we will extend the
+function by a method that is specific to the \texttt{TorchNetwork} type
+we defined above. The code below implements this: our new method calls R
+in order to use \texttt{torch}'s autodifferentiation functionality for
+computing the gradient.
+
+\begin{lstlisting}
+import CounterfactualExplanations.Generators: grad_loss
+using LinearAlgebra
+
+# Countefactual loss:
+function grad_loss(generator::GenericGenerator, x, M::TorchNetwork, t) 
+  nn = M.nn
+  R"""
+  x <- torch_tensor($x, requires_grad=TRUE)
+  output <- $nn(x)
+  loss_fun <- nnf_binary_cross_entropy_with_logits
+  obj_loss <- loss_fun(output,$t)
+  obj_loss$backward()
+  """
+  grad = rcopy(R"as_array(x$grad)")
+  return grad
+end
+\end{lstlisting}
+
+From here on onwards the \texttt{CounterfactualExplanations.jl}
+functionality can be used as always. Figure~\ref{fig-torch} shows the
+counterfactual path for a randomly chosen sample with respect to the MLP
+trained in R.
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_torch.png}
+
+}
+
+\caption{\label{fig-torch}Counterfactual path using generic
+counterfactual generator for a model trained in R.}
+
+\end{figure}
+
+\hypertarget{explaining-a-model-trained-in-python}{%
+\subsubsection{Explaining a model trained in
+Python}\label{explaining-a-model-trained-in-python}}
+
+\textbf{TO ADD, MAYBE}
 
 \hypertarget{sec-emp}{%
 \subsection{Empirical example}\label{sec-emp}}
@@ -805,110 +907,81 @@ secondly, the greedy approach for the MLP; thirdly, the generic approach
 for the deep ensemble; and finally, the greedy approach for the deep
 ensemble.
 
-\textbf{TBD}
-
-\hypertarget{laguage-interoperability}{%
-\section{Laguage interoperability}\label{laguage-interoperability}}
-
-The Julia language offers unique support for programming language
-interoperability. For example, calling R or Python is made remarkably
-easy through \texttt{RCall.jl} and \texttt{PyCall.jl}, respectively.
-This functionality can be leveraged to use
-\texttt{CounterfactualExplanations.jl} to generate explanations for
-models that were developed in other programming languages. While at the
-time of writing we have not yet implemented out-of-the-box support for
-foreign programming languages, the following example demonstrates how
-versatile our package is.
-
-\hypertarget{explaining-a-model-trained-in-r}{%
-\subsection{\texorpdfstring{Explaining a model trained in
-\texttt{R}}{Explaining a model trained in R}}\label{explaining-a-model-trained-in-r}}
-
-We have trained a simple MLP using the R library \texttt{torch} for
-binary classification task involving a synthetic data set. Inside the R
-working environment the fitted \texttt{torch} model is stored as an
-object called \texttt{model}. That R object can be accessed from Julia
-using \texttt{RCall.jl} by simply calling \texttt{R"model"}. As in
-Section~\ref{sec-custom} and Section~\ref{sec-emp} the first thing
-necessary to make that model compatible with our package is to declare
-it as a subtype of \texttt{Model.FittedModel}. As always we also need to
-extend the \texttt{logits} and \texttt{probs} functions to make the
-model compatible with \texttt{CounterfactualExplanations.jl}. The code
-below shows how this can be done. Logits are returned by the
-\texttt{torch} model and copied from R into the Julia environment.
-Probabilities are then computed in Julia by passing the logits through
-the sigmoid function.
-
-\begin{lstlisting}
-using RCall
-# Step 1)
-struct TorchNetwork <: Models.FittedModel
-    nn::Any
-end
-
-# Step 2)
-function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.nn
-  y_hat = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  y_hat = isa(y_hat, AbstractArray) ? y_hat : [y_hat]
-  return y_hat
-end
-probs(M::TorchNetwork, X::AbstractArray)= (logits(M, X))
-M = TorchNetwork(R"model")
-\end{lstlisting}
-
-Next we need to do a tiny bit of work on the \texttt{Generator} side.
-The default methods underlying the counterfactual generators are desiged
-to work with models that have gradient access through
-\texttt{Zygote.jl}, one of Julia's main autodifferentiation packages. Of
-course, \texttt{Zygote.jl} cannot access the gradients of our
-\texttt{torch} model, so we need to adapt the code slightly.
-Fortunately, it turns out that all we need to do is extend the function
-that computes the gradient with respect to the loss function for the
-generic counterfactual search:
-. In
-particular, we will extend the function by a method that is specific to
-the \texttt{TorchNetwork} type we defined above. The code below
-implements this: our new method calls R in order to use
-\texttt{torch}'s autodifferentiation functionality for computing the
-gradient.
-
-\begin{lstlisting}
-import CounterfactualExplanations.Generators: 
-using LinearAlgebra
-
-# Countefactual loss:
-function (generator::GenericGenerator, x_factual, M::TorchNetwork, t) 
-  nn = M.nn
-  R"""
-  x <- torch_tensor($x_factual, requires_grad=TRUE)
-  output <- $nn(x)
-  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
-  obj_loss$backward()
-  """
-  grad = rcopy(R"as_array(x$grad)")
-  return grad
-end
-\end{lstlisting}
-
-From here on onwards the \texttt{CounterfactualExplanations.jl}
-functionality can be used as always. Figure~\ref{fig-torch} shows the
-counterfactual path for a randomly chosen sample with respect to the MLP
-trained in R.
+We begin by turning the nine in Figure~\ref{fig-mnist-orig} into a four.
+Figure~\ref{fig-mnist-9to4} shows the resulting counterfactuals. In
+every case the desired label switch is in fact achieved, but arguably
+from a human perspective only the counterfactuals for the deep ensemble
+look like a four. The generic generator produces mild perturbations in
+regions that seem irrelevant from a human perspective, but nonetheless
+yields a coutnerfactual that can pass as a four. The greedy approach
+(\cite{wacther2021generating}) clearly targets pixels at the top of the
+handwritten nine and yields the best result overall. For the
+non-bayesian MLP, both the generic and the greedy approach generate
+counterfactuals that look much like adversarial examples: they perturb
+pixels in seemingly random regions on the image.
+Figure~\ref{fig-mnist-3to8} shows another example. This time the goal is
+to turn a randomly chosen three (3) into an eight (8). Onve again the
+outcomes for the deep ensemble look more realistic, but overall the
+generated counterfactuals look less effective than those in
+Figure~\ref{fig-mnist-9to4}. The results could likely be improved by
+using adversarial training for the classifiers as recommended in
+\cite{wachter2021generating}
 
 \begin{figure}
 
-{\centering \includegraphics[width=3.33333in,height=2.5in]{www/ce_torch.png}
+{\centering \includegraphics[width=3.33333in,height=0.83333in]{www/mnist_9_to_4.png}
 
 }
 
-\caption{\label{fig-torch}Counterfactual path using generic
-counterfactual generator for a model trained in R.}
+\caption{\label{fig-mnist-9to4}Counterfactual explanations for MNIST:
+turning a nine (9) into a four (4)}
+
+\end{figure}
+
+Overall, the examples in this section demonstrate two points that we
+have already made earlier: firstly, the findings in
+\cite{wachter2021generating} can indeed complement other existing
+approaches to counterfactual generation; and secondly, the quality of
+the classifier is clearly reflected in the quality of the counterfactual
+explanations. In other words, we cannot generate effective
+counterfactual explanations for a poorly trained model. That is actually
+desirable: if a model bases its predictions on representations that are
+not intuitive to a human, we would like that to be evident from the
+counterfactual explanation. From that perspective, counterfactual
+explanations can help us to not only understand a black-box model, but
+potentially also guide us in improving it.
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=0.83333in]{www/mnist_3_to_8.png}
+
+}
+
+\caption{\label{fig-mnist-3to8}Counterfactual explanations for MNIST:
+turning a three (3) into an eight (8)}
 
 \end{figure}
 
 \hypertarget{sec-conclude}{%
 \section{Concluding remarks}\label{sec-conclude}}
+
+In this article has introduced \texttt{CounterfactualExplanation.jl}: a
+package for generating counterfactual explanations and algorithmic
+recourse in Julia. We have argued that these are particularly promising
+tools for explaining black-box models. Through various examples we have
+shown how to use and extend the package. It is designed to allow users
+to generate counterfactual explanations for their own custom models and
+using their own custom generators. Thanks to Julia's support for
+language interoperability, \texttt{CounterfactualExplanation.jl} can
+even explain models that were developed and trained in other programming
+languages as we have demonstrated through an example of a deep neural
+network trained in R \texttt{torch}. We believe that this package in its
+current form offers a valuable contribution to ongoing efforts towards
+explainable artificial intelligence by the broader Julia community. That
+being said, there is significant scope for further development. At the
+time of writing the package supports only a few default models and
+generators natively. Through future work on our side and contributions
+through the community we plan to expand its functionality further.
 
 \input{bib.tex}
 
