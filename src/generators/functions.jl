@@ -1,4 +1,9 @@
+function build_generator()
+end
+
+################################################################################
 # --------------- Base type for generator:
+################################################################################
 """
     Generator
 
@@ -31,6 +36,8 @@ struct GenericGenerator <: Generator
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
 
+GenericGenerator() = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+
 # Loss:
 ℓ(generator::GenericGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
 ∂ℓ(generator::GenericGenerator, x̲, 𝑴, t) = gradient(() -> ℓ(generator, x̲, 𝑴, t), params(x̲))[x̲]
@@ -57,7 +64,9 @@ function conditions_satisified(generator::GenericGenerator, x̲, 𝑴, t, x̅, �
     all(abs.(𝐠ₜ) .< generator.τ) 
 end
 
+################################################################################
 # -------- Schut et al (2021):
+################################################################################
 """
     GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})
 
@@ -73,11 +82,13 @@ See also:
 - [`generate_counterfactual(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
 """
 struct GreedyGenerator <: Generator
-    δ::Float64 # perturbation size
-    n::Int64 # maximum number of times any feature can be changed
+    δ::AbstractFloat # perturbation size
+    n::Int # maximum number of times any feature can be changed
     loss::Symbol # loss function
     𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
 end
+
+GreedyGenerator() = GreedyGenerator(0.1,10,:logitbinarycrossentropy, nothing)
 
 # Loss:
 ℓ(generator::GreedyGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
@@ -100,6 +111,53 @@ function mutability_constraints(generator::GreedyGenerator, 𝑭ₜ, 𝑷)
 end 
 
 function conditions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)
+    feature_changes_exhausted = all(𝑷.>=generator.n)
+    return feature_changes_exhausted 
+end
+
+
+################################################################################
+# -------- Upadhyay et al (2021):
+################################################################################
+"""
+    RobustGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})
+
+# Examples
+```julia-repl
+generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
+```
+
+See also:
+- [`generate_counterfactual(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64; T=1000)`](@ref)
+"""
+struct RobustGenerator <: Generator
+    δ::Float64 # perturbation size
+    n::Int64 # maximum number of times any feature can be changed
+    loss::Symbol # loss function
+    𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+end
+
+# Loss:
+ℓ(generator::RobustGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
+∂ℓ(generator::RobustGenerator, x̲, 𝑴, t) = gradient(() -> ℓ(generator, x̲, 𝑴, t), params(x̲))[x̲]
+
+∇(generator::RobustGenerator, x̲, 𝑴, t, x̅) = ∂ℓ(generator, x̲, 𝑴, t)
+
+function generate_perturbations(generator::RobustGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
+    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
+    𝐠ₜ[𝑭ₜ .== :none] .= 0
+    Δx̲ = reshape(zeros(length(x̲)), size(𝐠ₜ))
+    iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
+    Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
+    return Δx̲
+end
+
+function mutability_constraints(generator::RobustGenerator, 𝑭ₜ, 𝑷)
+    𝑭ₜ[𝑷 .>= generator.n] .= :none # constraints features that have already been exhausted
+    return 𝑭ₜ
+end 
+
+function conditions_satisified(generator::RobustGenerator, x̲, 𝑴, t, x̅, 𝑷)
     feature_changes_exhausted = all(𝑷.>=generator.n)
     return feature_changes_exhausted 
 end

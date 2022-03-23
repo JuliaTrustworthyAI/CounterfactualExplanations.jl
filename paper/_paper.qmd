@@ -766,7 +766,7 @@ plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_9_to_4.png")
 ```
 
-![Counterfactual explanations for MNIST: turning a nine (9) into a four (4)](www/mnist_9_to_4.png){#fig-mnist-9to4 width=20pc height=5pc}
+![Counterfactual explanations for MNIST: turning a nine (9) into a four (4).](www/mnist_9_to_4.png){#fig-mnist-9to4 width=20pc height=5pc}
 
 Overall, the examples in this section demonstrate two points that we have already made earlier: firstly, the findings in \cite{schut2021generating} can indeed complement other existing approaches to counterfactual generation; and secondly, the quality of the classifier is clearly reflected in the quality of the counterfactual explanations. In other words, we cannot generate effective counterfactual explanations for a poorly trained model. That is actually desirable: if a model bases its predictions on representations that are not intuitive to a human, we would like that to be evident from the counterfactual explanation. From that perspective, counterfactual explanations can help us to not only understand a black-box model, but potentially also guide us in improving it. 
 
@@ -780,7 +780,7 @@ plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
 ```
 
-![Counterfactual explanations for MNIST: turning a three (3) into an eight (8)](www/mnist_3_to_8.png){#fig-mnist-3to8 width=20pc height=5pc}
+![Counterfactual explanations for MNIST: turning a three (3) into an eight (8).](www/mnist_3_to_8.png){#fig-mnist-3to8 width=20pc height=5pc}
 
 # Concluding remarks {#sec-conclude}
 
