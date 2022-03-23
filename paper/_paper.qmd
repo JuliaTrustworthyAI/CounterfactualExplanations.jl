@@ -450,6 +450,18 @@ savefig(plt, "paper/www/ce_multi_ensemble.png")
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.](www/ce_multi_ensemble.png){#fig-multi-ensemble width=20pc height=15pc}
 
+## Custom generators
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. In vel varius nibh, id tincidunt nisl. Suspendisse nibh mauris, tristique at fringilla hendrerit, imperdiet et ex. Praesent tincidunt vehicula nunc ut scelerisque. Nulla sed nisi a mauris pellentesque finibus quis ac risus. Sed dictum vitae nunc quis venenatis. Suspendisse potenti. Duis tempor orci vitae felis molestie, ac commodo risus mollis.
+
+Nulla facilisi. Aenean auctor et elit non molestie. Nulla fermentum cursus neque, ac accumsan sem cursus vitae. Curabitur pulvinar augue magna. Cras rutrum lacinia lobortis. Maecenas nibh eros, accumsan sed ligula nec, bibendum luctus justo. Vestibulum nisl nisl, ornare id consequat et, consequat id velit. Mauris pellentesque metus volutpat, maximus sapien vel, malesuada tellus. Sed vitae turpis quam. Integer arcu erat, viverra ac velit vitae, tempor vestibulum orci. Nulla eleifend nec tellus in euismod. Etiam est tortor, vulputate sit amet interdum vel, dapibus porta est. Nulla at tempus sem, nec elementum odio. Curabitur vitae suscipit magna, eget efficitur lectus.
+
+Nunc molestie magna pulvinar sodales tristique. Suspendisse fringilla tincidunt pretium. Mauris ornare magna at dolor maximus, eu eleifend erat tincidunt. Ut venenatis nibh tellus, vitae accumsan elit convallis in. Proin blandit metus eget odio malesuada mattis. Etiam vel porttitor mauris. Sed hendrerit vehicula efficitur. Maecenas gravida nisi ut lorem ultricies gravida. Cras porta luctus lectus, sit amet rutrum libero convallis in. Etiam elementum, orci et pharetra auctor, velit nulla consequat est, a bibendum dolor libero quis tellus.
+
+Duis a ligula eget tellus sagittis convallis. Nulla feugiat fermentum condimentum. Vestibulum vulputate ante at justo tempus, sed tincidunt eros rutrum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Curabitur maximus, metus quis tincidunt condimentum, lectus velit maximus mauris, in vestibulum tellus neque at ipsum. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sagittis ligula in erat condimentum finibus.
+
+Nunc sollicitudin ornare velit id viverra. Praesent ut quam semper, posuere leo ac, dictum nunc. Praesent sollicitudin sollicitudin nulla, eget dapibus dui mattis placerat. Etiam quis erat imperdiet, elementum metus in, rutrum elit. Vestibulum venenatis vulputate mauris, id egestas massa pretium et. Pellentesque sed mollis nisi. Maecenas at aliquet magna. Nullam id neque in orci posuere maximus. Mauris scelerisque pretium ante, eget auctor est feugiat sit amet.
+
 ## Laguage interoperability
 
 The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through `RCall.jl` and `PyCall.jl`, respectively. This functionality can be leveraged to use `CounterfactualExplanations.jl` to generate explanations for models that were developed in other programming languages. While at the time of writing we have not yet implemented out-of-the-box support for foreign programming languages, the following example demonstrates how versatile our package is. 
@@ -626,7 +638,156 @@ savefig(plt, "paper/www/ce_torch.png")
 
 ### Explaining a model trained in Python
 
-**TO ADD, MAYBE**
+As in the previous example we are working with a pre-trained simple MLP, but this time we have built and trained it in `pytorch`. We can use largely the same code augmentations to make the model compatible with our package. The code block below implemented the necessary type declaration and method dispatch. 
+
+```{julia}
+using PyCall
+py"""
+# Data
+import torch
+from torch import nn
+X = torch.Tensor($X).T
+y = torch.Tensor($y)
+
+class MLP(nn.Module):
+  def __init__(self):
+    super(MLP, self).__init__()
+    self.model = nn.Sequential(
+      nn.Flatten(),
+      nn.Linear(2, 32),
+      nn.Sigmoid(),
+      nn.Linear(32, 1)
+    )
+
+  def forward(self, x):
+    logits = self.model(x)
+    return logits
+
+model = MLP()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = nn.BCEWithLogitsLoss()
+
+for epoch in range(100):
+  # Compute prediction and loss:
+  output = model(X).squeeze()
+  loss = loss_fun(output, y)
+  
+  # Backpropagation:
+  optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  print(f"Loss at epoch {epoch+1}: {loss.item():>7f}")
+"""
+```
+
+```{julia}
+using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct PyTorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::PyTorchNetwork, X::AbstractArray)
+  nn = M.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  y = py"$nn(torch.Tensor($X).T).detach().numpy()"
+  y = isa(y, AbstractArray) ? y : [y]
+  return y
+end
+probs(M::PyTorchNetwork, X::AbstractArray) = Flux.sigmoid.(logits(M, X))
+M = PyTorchNetwork(py"model")
+```
+
+```{julia}
+import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Countefactual loss:
+function ∂ℓ(
+    generator::GenericGenerator, 
+    x_factual, M::PyTorchNetwork, t
+) 
+  nn = M.nn
+  x = reshape(x_factual, 1, length(x_factual))
+  py"""
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  """
+  grad = vec(py"x.grad.detach().numpy()")
+  return grad
+end
+```
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+# Step 1)
+struct PyTorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::PyTorchNetwork, X::AbstractArray)
+  nn = M.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  y = py"$nn(torch.Tensor($X).T).detach().numpy()"
+  y = isa(y, AbstractArray) ? y : [y]
+  return y
+end
+probs(M::PyTorchNetwork, X::AbstractArray) = Flux.sigmoid.(logits(M, X))
+M = PyTorchNetwork(py"model")
+
+# Countefactual loss:
+function @$\partial\ell$@(
+    generator::GenericGenerator, 
+    x_factual, M::PyTorchNetwork, t
+) 
+  nn = M.nn
+  x = reshape(x_factual, 1, length(x_factual))
+  py"""
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  """
+  grad = vec(py"x.grad.detach().numpy()")
+  return grad
+end
+\end{lstlisting}
+
+```{julia}
+Random.seed!(123)
+x̅ = x[rand(1:length(x))]
+y̅ = round(probs(M, x̅)[1])
+target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
+γ = 0.75 # desired level of confidence
+# Define Generator:
+generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+# Generate recourse:
+counterfactual = generate_counterfactual(generator, x̅, M, target, γ)
+```
+
+```{julia}
+include("docs/src/utils.jl")
+using Plots
+T = size(counterfactual.path)[1]
+X_path = reduce(hcat,counterfactual.path)
+plt = plot_contour(X',y,M)
+[scatter!(plt, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=7.5, color=Int(y̅), label="") for t in 1:T]
+savefig(plt, "paper/www/ce_torch_py.png")
+```
 
 ## Empirical example {#sec-emp}
 
@@ -761,7 +922,7 @@ We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 sho
 to = 4
 counterfactuals = from_digit_to_digit(x_factual,to,generators,models)
 plts =  first(values(counterfactuals)).x̅ |> x -> plot(convert2image(reshape(x,Int(input_dim),Int(input_dim))),title="Original")
-plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
+plts = vcat(plts, [plot(convert2image(reshape(v.x_factual,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_9_to_4.png")
 ```
@@ -775,7 +936,7 @@ from = 3
 to = 8
 counterfactuals = from_digit_to_digit(from,to,generators,models)
 plts =  first(values(counterfactuals)).x̅ |> x -> plot(convert2image(reshape(x,Int(input_dim),Int(input_dim))),title="Original")
-plts = vcat(plts, [plot(convert2image(reshape(v.x̲,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
+plts = vcat(plts, [plot(convert2image(reshape(v.x_factual,Int(input_dim),Int(input_dim))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
 ```
