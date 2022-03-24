@@ -126,7 +126,7 @@ probs(𝑴::TorchNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 
 ### Adapting the generator
 
-Next we need to do a tiny bit of work on the `Generator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
+Next we need to do a tiny bit of work on the `AbstractGenerator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
 
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
@@ -157,7 +157,7 @@ x̅ = x[rand(1:length(x))]
 y̅ = round(probs(𝑴, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
 γ = 0.75 # desired level of confidence
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
@@ -277,7 +277,7 @@ end
 ```
 
 ```{julia}
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
