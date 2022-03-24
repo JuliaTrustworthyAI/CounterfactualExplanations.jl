@@ -80,7 +80,7 @@ It is worth pointing that the findings in \cite{schut2021generating} are not mut
 
 # Using `CounterfactualExplanations` {#sec-use}
 
-The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: Generator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through various examples.
+The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: AbstractGenerator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through various examples.
 
 ```{julia}
 p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
@@ -90,11 +90,11 @@ savefig(p, "paper/www/models.png")
 ![Schematic overview of the `FittedModel` base type and its descendants.](www/models.png){#fig-models width=20pc height=15pc}
 
 ```{julia}
-p = plot(CounterfactualExplanations.Generator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
+p = plot(CounterfactualExplanations.AbstractGenerator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
 savefig(p, "paper/www/generators.png")
 ```
 
-![Schematic overview of the `Generator` base type and its descendants.](www/generators.png){#fig-generators width=20pc height=15pc}
+![Schematic overview of the `AbstractGenerator` base type and its descendants.](www/generators.png){#fig-generators width=20pc height=15pc}
 
 ## Getting started {#sec-start}
 
@@ -185,7 +185,7 @@ Among the different approaches that have recently been put forward to deal with 
 
 Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we have fitted a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logit binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes as its arguments the two moments defining that distribution: firstly, the MAP estimate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logistic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logistic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
 
-For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined perturbation size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ in this case is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: Generator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
+For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined perturbation size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ in this case is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: AbstractGenerator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
 
 ```{julia}
 # Model:
@@ -565,7 +565,7 @@ end
 M = TorchNetwork(R"model")
 \end{lstlisting}
 
-Next we need to do a tiny bit of work on the `Generator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. The method itself is then used by the core function `generate_counterfactuals` introduced earlier. From here on onwards the `CounterfactualExplanations.jl` functionality can be used as always. @fig-torch shows the counterfactual path for a randomly chosen sample with respect to the MLP trained in R.
+Next we need to do a tiny bit of work on the `AbstractGenerator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. The method itself is then used by the core function `generate_counterfactuals` introduced earlier. From here on onwards the `CounterfactualExplanations.jl` functionality can be used as always. @fig-torch shows the counterfactual path for a randomly chosen sample with respect to the MLP trained in R.
 
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
@@ -618,7 +618,7 @@ x̅ = x[rand(1:length(x))]
 y̅ = round(probs(M, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
 γ = 0.75 # desired level of confidence
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 counterfactual = generate_counterfactual(generator, x̅, M, target, γ)
@@ -773,7 +773,7 @@ x̅ = x[rand(1:length(x))]
 y̅ = round(probs(M, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
 γ = 0.75 # desired level of confidence
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 counterfactual = generate_counterfactual(generator, x̅, M, target, γ)

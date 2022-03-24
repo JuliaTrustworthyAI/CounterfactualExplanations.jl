@@ -11,7 +11,7 @@ Random.seed!(1234)
     x̅ = [-1,0.5]
     p̅ = probs(𝑴, x̅)
     y̅ = round(p̅[1])
-    generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
+    generator = GenericGenerator()
 
     @testset "Predetermined outputs" begin
         γ = 0.9
@@ -94,7 +94,7 @@ end
 
 @testset "initialize_mutability" begin
     using CounterfactualExplanations: initialize_mutability
-    struct SomeGenerator <: Generator
+    struct SomeGenerator <: AbstractGenerator
         𝑭::Union{Nothing,Vector{Symbol}}
     end
 

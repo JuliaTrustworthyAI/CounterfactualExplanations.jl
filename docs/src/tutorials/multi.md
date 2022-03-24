@@ -118,7 +118,7 @@ x̅ = X[:,rand(1:size(X)[2])]
 y̅ = Flux.onecold(probs(𝑴, x̅),unique(y))
 target = rand(unique(y)[1:end .!= y̅]) # opposite label as target
 γ = 0.75
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 # Generate recourse:
 recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse

@@ -1,6 +1,6 @@
 # -------- Main method:
 """
-    generate_counterfactual(generator::Generator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+    generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
@@ -40,7 +40,7 @@ See also:
 - [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
 - [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_counterfactual(generator::Generator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
+function generate_counterfactual(generator::AbstractGenerator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
     
     # Setup and allocate memory:
     x̲ = copy(x̅) # start from factual
@@ -76,7 +76,7 @@ function generate_counterfactual(generator::Generator, x̅::AbstractArray, 𝑴:
         end
         path = [path..., x̲]
         𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
-        t += 1 # update iteration counter
+        t += 1 # update iteration counter   
         global converged = threshold_reached(𝑴, x̲, target, γ)
         not_finished = t < T && !converged && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅, 𝑷)
 
@@ -169,7 +169,7 @@ function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
 
 end
 
-function initialize_mutability(generator::Generator, D::Int)
+function initialize_mutability(generator::AbstractGenerator, D::Int)
     if isnothing(generator.𝑭)
         𝑭 = [:both for i in 1:D]
     else 
@@ -179,7 +179,7 @@ function initialize_mutability(generator::Generator, D::Int)
 end
 
 """
-    Recourse(x̲::AbstractArray, y̲::Float64, path::Matrix{Float64}, generator::Generators.Generator, x̅::AbstractArray, y̅::Float64, 𝑴::Models.FittedModel, target::Float64)
+    Recourse(x̲::AbstractArray, y̲::Float64, path::Matrix{Float64}, generator::Generators.AbstractGenerator, x̅::AbstractArray, y̅::Float64, 𝑴::Models.FittedModel, target::Float64)
 
 Collects all variables relevant to the recourse outcome. 
 """
@@ -188,7 +188,7 @@ struct Recourse
     y̲::Union{Real,AbstractArray}
     p̲::Any
     path::AbstractArray
-    generator::Generators.Generator
+    generator::Generators.AbstractGenerator
     x̅::AbstractArray
     y̅::Union{Real,AbstractArray}
     p̅::Any

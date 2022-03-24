@@ -16,7 +16,7 @@ disable_logging(Logging.Info)
     LogLevel(1)
 
 
-To understand the core functionality of CounterfactualExplanations.jl we will look at two example use cases of the `generate_counterfactual` function. This function takes a structure of type `Generator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: Generator`, `GreedyGenerator <: Generator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
+To understand the core functionality of CounterfactualExplanations.jl we will look at two example use cases of the `generate_counterfactual` function. This function takes a structure of type `AbstractGenerator` as its main argument. Users can utilize one of the [default generators](#default-generators): `GenericGenerator <: AbstractGenerator`, `GreedyGenerator <: AbstractGenerator`. Alternatively, users can also create their own [custom generator](#custom-generators). 
 
 ## Default generators
 
@@ -81,7 +81,7 @@ savefig(plt, "www/binary_contour.png");
 
 
 ```julia
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse

@@ -372,7 +372,7 @@ search algorithms.\footnote{We have made an effort to keep the code base
 \texttt{generate\_counterfactual} uses an instance of type
 \texttt{T\ \textless{}:\ FittedModel} produced by the \texttt{Models}
 module (Figure~\ref{fig-models}) and an instance of type
-\texttt{T\ \textless{}:\ Generator} produced by the \texttt{Generators}
+\texttt{T\ \textless{}:\ AbstractGenerator} produced by the \texttt{Generators}
 module (Figure~\ref{fig-generators}). Relating this back the methodology
 outlined in Section~\ref{sec-method}, the former instance corresponds to
 the model \(M\), while the latter defines the rules for the
@@ -398,7 +398,7 @@ how to use and extend the package architecture through various examples.
 }
 
 \caption{\label{fig-generators}Schematic overview of the
-\texttt{Generator} base type and its descendants.}
+\texttt{AbstractGenerator} base type and its descendants.}
 
 \end{figure}
 
@@ -556,7 +556,7 @@ proportional to the MAP estimate \(\hat\mu\), the same feature is chosen
 until a predefined maximum number of perturbations \(n\) has been
 exhausted. Those two hyperparameters, \(\delta\) and \(n\), are defined
 in the first two fields of
-\texttt{GreedyGenerator\ \textless{}:\ Generator} in the code below. The
+\texttt{GreedyGenerator\ \textless{}:\ AbstractGenerator} in the code below. The
 third and fourth field are reserved for the loss function and mutability
 constraints. Since we are making use of multiple dispatch, the final
 command that actually runs the counterfactual search is the same as
@@ -843,7 +843,7 @@ end
 M = TorchNetwork(R"model")
 \end{lstlisting}
 
-Next we need to do a tiny bit of work on the \texttt{Generator} side.
+Next we need to do a tiny bit of work on the \texttt{AbstractGenerator} side.
 The default methods underlying the counterfactual generators are desiged
 to work with models that have gradient access through
 \texttt{Zygote.jl}, one of Julia's main autodifferentiation packages. Of

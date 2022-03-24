@@ -8,7 +8,7 @@ using ..Losses
 using Flux
 using LinearAlgebra
 
-export Generator, GenericGenerator, GreedyGenerator, generate_perturbations, conditions_satisified, mutability_constraints
+export AbstractGenerator, GenericGenerator, GreedyGenerator, generate_perturbations, conditions_satisified, mutability_constraints
 
 include("functions.jl")
 

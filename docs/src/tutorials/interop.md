@@ -6,6 +6,10 @@ CurrentModule = CounterfactualExplanations
 
 The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` leverages this functionality. In particular, we will see that through minimal extra effort the package can be used to explain models that were developed in train in Python or R.
 
+!!! warning “Experimental feature” Our work on language interoperability is still in its early stages. What follows is a proof-of-concept.
+
+To get started we will first load some two-dimensional toy data:
+
 ``` julia
 using Random
 # Some random data:
@@ -54,17 +58,18 @@ The following code trains the MLP for the binary prediction task at hand:
 R"""
 for (epoch in 1:100) {
 
-  model$train()
-  train_losses <- c()  
+  model$train()  
 
+  # Compute prediction and loss:
+  output <- model(X)[,1]
+  loss <- loss_fun(output, y)
+
+  # Backpropagation:
   optimizer$zero_grad()
-  output <- model(X)
-  loss <- loss_fun(output[,1], y)
   loss$backward()
   optimizer$step()
-  train_losses <- c(train_losses, loss$item())
   
-  cat(sprintf("Loss at epoch %d: %3f\n", epoch, mean(train_losses)))
+  cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
 }
 """
 ```
@@ -96,7 +101,7 @@ probs(𝑴::TorchNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 
 ### Adapting the generator
 
-Next we need to do a tiny bit of work on the `Generator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia’s main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`’s autodifferentiation functionality for computing the gradient.
+Next we need to do a tiny bit of work on the `AbstractGenerator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia’s main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x̲, 𝑴, t)`. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`’s autodifferentiation functionality for computing the gradient.
 
 ``` julia
 import CounterfactualExplanations.Generators: ∂ℓ
@@ -127,7 +132,7 @@ x̅ = x[rand(1:length(x))]
 y̅ = round(probs(𝑴, x̅)[1])
 target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
 γ = 0.75 # desired level of confidence
-# Define Generator:
+# Define AbstractGenerator:
 generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
 # Generate recourse:
 counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
@@ -154,3 +159,119 @@ gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=5)
 ```
 
 ![](www/interop_r.gif)
+
+## Training a `torch` model in Python
+
+``` julia
+using PyCall
+py"""
+# Data
+import torch
+from torch import nn
+X = torch.Tensor($X).T
+y = torch.Tensor($y)
+
+class MLP(nn.Module):
+  def __init__(self):
+    super(MLP, self).__init__()
+    self.model = nn.Sequential(
+      nn.Flatten(),
+      nn.Linear(2, 32),
+      nn.Sigmoid(),
+      nn.Linear(32, 1)
+    )
+
+  def forward(self, x):
+    logits = self.model(x)
+    return logits
+
+model = MLP()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = nn.BCEWithLogitsLoss()
+"""
+```
+
+``` julia
+py"""
+for epoch in range(100):
+  # Compute prediction and loss:
+  output = model(X).squeeze()
+  loss = loss_fun(output, y)
+  
+  # Backpropagation:
+  optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  print(f"Loss at epoch {epoch+1}: {loss.item():>7f}")
+"""
+```
+
+``` julia
+using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct PyTorchNetwork <: Models.FittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(𝑴::PyTorchNetwork, X::AbstractArray)
+  nn = 𝑴.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ
+end
+probs(𝑴::PyTorchNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
+𝑴 = PyTorchNetwork(py"model")
+```
+
+``` julia
+import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Countefactual loss:
+function ∂ℓ(generator::GenericGenerator, x̲, 𝑴::PyTorchNetwork, t) 
+  nn = 𝑴.nn
+  x = reshape(x̲, 1, length(x̲))
+  py"""
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  """
+  grad = vec(py"x.grad.detach().numpy()")
+  return grad
+end
+```
+
+``` julia
+# Define AbstractGenerator:
+generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
+# Generate recourse:
+counterfactual = generate_counterfactual(generator, x̅, 𝑴, target, γ)
+```
+
+``` julia
+include("docs/src/utils.jl")
+using Plots
+T = size(counterfactual.path)[1]
+X_path = reduce(hcat,counterfactual.path)
+ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.𝑴, X_path)',target)
+p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
+# [scatter!(p1, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="") for t in 1:T]
+# p1
+anim = @animate for t in 1:T
+    scatter!(p1, [counterfactual.path[t][1]], [counterfactual.path[t][2]], ms=5, color=Int(y̅), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, "docs/src/tutorials/www/interop_py.gif", fps=5)
+```
