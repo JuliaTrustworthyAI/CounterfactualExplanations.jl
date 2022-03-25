@@ -23,7 +23,7 @@ using .Generators
 export GenericGenerator, GreedyGenerator, 
     generate_perturbations, conditions_satisified, mutability_constraints
 
-include("counterfactual/Counterfactuals.jl")
+include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals
 export CounterfactualExplanation, initialize!, update!,
     total_steps, converged, terminated, path
