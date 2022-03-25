@@ -7,34 +7,48 @@
 An abstract type that serves as the base type for recourse generators. 
 """
 abstract type AbstractGenerator end
+struct CounterfactualState
+    x̅::AbstractArray
+    target::Number
+    x̲::AbstractArray
+    𝑴::AbstractFittedModel
+    params::Dict
+    search::Union{Dict,Nothing}
+end
 
 # Loss:
-ℓ(generator::AbstractGenerator, x̲, 𝑴, t) = getfield(Losses, generator.loss)(Models.logits(𝑴, x̲), t)
-∂ℓ(generator::AbstractGenerator, x̲, 𝑴, t) = gradient(() -> ℓ(generator, x̲, 𝑴, t), params(x̲))[x̲]
+ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = getfield(Losses, generator.loss)(
+    Models.logits(counterfactual_state.𝑴, counterfactual_state.x̲), counterfactual_state.target
+)
+∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(x̲))[x̲]
 
 # Complexity:
-h(generator::AbstractGenerator, x̅, x̲) = generator.complexity(x̅-x̲)
-∂h(generator::AbstractGenerator, x̅, x̲) = gradient(() -> h(generator::AbstractGenerator, x̅, x̲), params(x̲))[x̲]
+h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x̅-counterfactual_state.x̲)
+∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(x̲))[x̲]
 
-
+################################################################################
+# --------------- Base type for gradient-based generator:
+################################################################################
 abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 # Gradient:
-∇(generator::AbstractGradientBasedGenerator, x̲, 𝑴, t, x̅) = ∂ℓ(generator, x̲, 𝑴, t) + generator.λ * ∂h(generator::AbstractGradientBasedGenerator, x̅, x̲)
+∇(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = ∂ℓ(generator, counterfactual_state) + generator.λ * ∂h(generator, counterfactual_state)
 
-function generate_perturbations(generator::AbstractGradientBasedGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
-    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
+function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
+    𝐠ₜ = ∇(generator, counterfactual_state) # gradient
     Δx̲ = - (generator.ϵ .* 𝐠ₜ) # gradient step
     return Δx̲
 end
 
-function mutability_constraints(generator::AbstractGradientBasedGenerator, 𝑭ₜ, 𝑷)
-    return 𝑭ₜ # no additional constraints for GenericGenerator
+function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState)
+    mutability = counterfactual.params[:mutability]
+    return mutability # no additional constraints for GenericGenerator
 end 
 
-function conditions_satisified(generator::AbstractGradientBasedGenerator, x̲, 𝑴, t, x̅, 𝑷)
-    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅)
-    all(abs.(𝐠ₜ) .< generator.τ) 
+function conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState)
+    𝐠ₜ = ∇(generator, counterfactual_state)
+    status = all(abs.(𝐠ₜ) .< generator.τ) 
+    return status
 end
 
 # --------------- Specific generators:
@@ -52,7 +66,7 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.FittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -80,7 +94,7 @@ generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.FittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -91,23 +105,24 @@ end
 
 GreedyGenerator() = GreedyGenerator(:logitbinarycrossentropy,nothing,0.1,10)
 
-∇(generator::GreedyGenerator, x̲, 𝑴, t, x̅) = ∂ℓ(generator, x̲, 𝑴, t)
+∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState) = ∂ℓ(generator, counterfactual_state)
 
-function generate_perturbations(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑭ₜ) 
-    𝐠ₜ = ∇(generator, x̲, 𝑴, t, x̅) # gradient
-    𝐠ₜ[𝑭ₜ .== :none] .= 0
+function generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState) 
+    𝐠ₜ = ∇(generator, counterfactual_state) # gradient
+    𝐠ₜ[counterfactual.params[:mutability] .== :none] .= 0
     Δx̲ = reshape(zeros(length(x̲)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
     Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
     return Δx̲
 end
 
-function mutability_constraints(generator::GreedyGenerator, 𝑭ₜ, 𝑷)
-    𝑭ₜ[𝑷 .>= generator.n] .= :none # constraints features that have already been exhausted
-    return 𝑭ₜ
+function mutability_constraints(generator::GreedyGenerator, counterfactual_state::CounterfactualState)
+    mutability = counterfactual.params[:mutability]
+    mutability[counterfactual.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
+    return mutability
 end 
 
-function conditions_satisified(generator::GreedyGenerator, x̲, 𝑴, t, x̅, 𝑷)
-    feature_changes_exhausted = all(𝑷.>=generator.n)
-    return feature_changes_exhausted 
+function conditions_satisified(generator::GreedyGenerator, counterfactual_state::CounterfactualState)
+    status = all(counterfactual.search[:times_changed_features].>=generator.n)
+    return status
 end

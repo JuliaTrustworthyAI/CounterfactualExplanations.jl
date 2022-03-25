@@ -80,14 +80,14 @@ It is worth pointing that the findings in \cite{schut2021generating} are not mut
 
 # Using `CounterfactualExplanations` {#sec-use}
 
-The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: FittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: AbstractGenerator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through various examples.
+The package is built around two modules that are designed to be as scalable as possible through multiple dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and scalable as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: AbstractFittedModel` produced by the `Models` module (@fig-models) and an instance of type `T <: AbstractGenerator` produced by the `Generators` module (@fig-generators). Relating this back the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution and @eq-solution-bayes). In the following we will demonstrate how to use and extend the package architecture through various examples.
 
 ```{julia}
-p = plot(CounterfactualExplanations.Models.FittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
+p = plot(CounterfactualExplanations.Models.AbstractFittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
 savefig(p, "paper/www/models.png")
 ```
 
-![Schematic overview of the `FittedModel` base type and its descendants.](www/models.png){#fig-models width=20pc height=15pc}
+![Schematic overview of the `AbstractFittedModel` base type and its descendants.](www/models.png){#fig-models width=20pc height=15pc}
 
 ```{julia}
 p = plot(CounterfactualExplanations.AbstractGenerator, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
@@ -100,7 +100,7 @@ savefig(p, "paper/www/generators.png")
 
 The first code block below provides a complete example demonstrating how the framework presented in @sec-method can be implemented in Julia with our package: using a synthetic data set with linearly separable samples we firstly define our model and then generate a counterfactual for a randomly selected sample. @fig-binary shows the resulting counterfactual path in the two-dimensional feature space. Features go through iterative perturbations until the desired confidence level is reached as illustrated by the contour in the background, which indicates the classifier's predicted probability that the label is equal to 1.
 
-It may help to go through the relevant parts of the code in some more detail starting from the part involving the model. For illustrative purposes the `Models` module ships with a constructor for a logistic regression model: `LogisticModel(W::Matrix,b::AbstractArray) <: FittedModel`. This constructors does not fit the regression model, but rather takes its underlying parameters as given. In other words, it is generally assumed that the user has already estimated a model. Based on the provided estimates two functions are already implemented that compute logits and probabilities for the model, respectively. Below we will see how users can use multiple dispatch to extend these functions for use with arbitrary models. For now it is enough to note that those methods define how the model makes its predictions $M(x)$ and hence they form an integral part of the counterfactual search. With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x_factual`; 2) compute its factual label `y_factual` as predicted by the model ($M(\overline{x})=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(\underline{x})=t$. 
+It may help to go through the relevant parts of the code in some more detail starting from the part involving the model. For illustrative purposes the `Models` module ships with a constructor for a logistic regression model: `LogisticModel(W::Matrix,b::AbstractArray) <: AbstractFittedModel`. This constructors does not fit the regression model, but rather takes its underlying parameters as given. In other words, it is generally assumed that the user has already estimated a model. Based on the provided estimates two functions are already implemented that compute logits and probabilities for the model, respectively. Below we will see how users can use multiple dispatch to extend these functions for use with arbitrary models. For now it is enough to note that those methods define how the model makes its predictions $M(x)$ and hence they form an integral part of the counterfactual search. With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x_factual`; 2) compute its factual label `y_factual` as predicted by the model ($M(\overline{x})=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(\underline{x})=t$. 
 
 The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. The first three fields of the `GenericGenerator` are reserved for hyperparameters governing the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence. The fourth field accepts a `Symbol` defining the type of loss function $\ell$ to be used. Since we are dealing with a binary classification problem, logit binary cross-entropy is an appropriate choice.^[As mentioned earlier, the loss function is computed with respect to logits and hence it is important to use logit binary cross-entropy loss as opposed to just binary cross-entropy.] The fifth and last field can be used to define mutability constraints for the features.   
 
@@ -183,7 +183,7 @@ savefig(plt, "paper/www/binary_wrong.png")
 
 Among the different approaches that have recently been put forward to deal with such issues is the greedy generator for Bayesian models proposed by \cite{schut2021generating}. For reasons discussed in @sec-method, we have chosen to prioritize this approach in the development of `CounterfactualExplanations`. The code below shows how this approach can be implemented. @fig-binary-laplace shows the resulting counterfactual path through the feature space along with the predicted probabilities from the Bayesian classifier. 
 
-Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we have fitted a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logit binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: FittedModel` constructor takes as its arguments the two moments defining that distribution: firstly, the MAP estimate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logistic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logistic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
+Once again it is worth dwelling on the code for a moment. We have used the same synthetic toy data as before, but this time we have fitted a Bayesian logistic regression model through Laplace approximation. This approximation uses the fact the second-order Taylor expansion of the logit binary cross-entropy function evaluated at the maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian distribution (\cite{murphy2022probabilistic}).^[See also this [blog post](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/) for a gentle introduction and implementation in Julia.] The `BayesianLogisticModel <: AbstractFittedModel` constructor takes as its arguments the two moments defining that distribution: firstly, the MAP estimate, i.e. the vector of parameters $\hat\mu$ including the constant term and, secondly, the corresponding covariance matrix $\hat{\Sigma}$. As with logistic regression above, the package ships with methods to compute predictions from instances of type `BayesianLogisticModel`.^[Predictions are computed using a probit approximation.] Contrary to the simple logistic regression model above, predictions from the Bayesian logistic model incorporate uncertainty and hence predicted probabilities fan out in regions free of any training data (@fig-binary-laplace). 
 
 For the counterfactual search we use a greedy approach following \cite{schut2021generating}. The approach is greedy in the sense that in each iteration it selects the most salient feature with respect to our objective (@eq-solution-bayes) and perturbs it by some predetermined perturbation size $\delta$. Since the gradient $\nabla_{\underline{x}}\ell(M(\underline{x},t))$ in this case is proportional to the MAP estimate $\hat\mu$, the same feature is chosen until a predefined maximum number of perturbations $n$ has been exhausted. Those two hyperparameters, $\delta$ and $n$, are defined in the first two fields of `GreedyGenerator <: AbstractGenerator` in the code below. The third and fourth field are reserved for the loss function and mutability constraints. Since we are making use of multiple dispatch, the final command that actually runs the counterfactual search is the same as before.
 
@@ -235,7 +235,7 @@ The counterfactual in @fig-binary-laplace is not only valid, but also realistic 
 One of our priorities has been to make `CounterfactualExplanations` scalable and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals. Only two steps are necessary to make any supervised-learning model compatible with our package^[In order for the model to be compatible with the gradient-based default generators presented in @sec-start gradient access is also necessary, but any model can also be complemented with a custom generator.]:
 
 \begin{unnumlist}
-\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
+\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{AbstractFittedModel}.
 \item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
 \end{unnumlist}
 
@@ -289,7 +289,7 @@ model = Chain(
 
 ```{julia}
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 
@@ -306,7 +306,7 @@ The code below implements the two steps that are necessary to make the trained n
 
 \begin{lstlisting}[language = Julia]
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 
@@ -402,7 +402,7 @@ ensemble = forward(ensemble, data, opt, :logitcrossentropy; n_epochs=epochs)
 # Model:
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)
@@ -426,7 +426,7 @@ counterfactual = generate_counterfactual(
 # Deep ensemble:
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)
@@ -521,7 +521,7 @@ for (epoch in 1:100) {
 """
 ```
 
-We have trained a simple MLP for binary classification task involving a synthetic data set using the R library `torch`. Inside the R working environment the fitted `torch` model is stored as an object called `model`. That R object can be accessed from Julia using `RCall.jl` by simply calling `R"model"`. As in @sec-custom and @sec-emp the first thing necessary to make this model compatible with our package is to declare it as a subtype of `Model.FittedModel`. As always we also need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. The code below shows how this can be done. Logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia by passing the logits through the sigmoid function.
+We have trained a simple MLP for binary classification task involving a synthetic data set using the R library `torch`. Inside the R working environment the fitted `torch` model is stored as an object called `model`. That R object can be accessed from Julia using `RCall.jl` by simply calling `R"model"`. As in @sec-custom and @sec-emp the first thing necessary to make this model compatible with our package is to declare it as a subtype of `Model.AbstractFittedModel`. As always we also need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. The code below shows how this can be done. Logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia by passing the logits through the sigmoid function.
 
 ```{julia}
 using Flux
@@ -529,7 +529,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs 
 
 # Step 1)
-struct TorchNetwork <: Models.FittedModel
+struct TorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -548,7 +548,7 @@ M = TorchNetwork(R"model")
 
 \begin{lstlisting}[language=Julia]
 # Step 1)
-struct TorchNetwork <: Models.FittedModel
+struct TorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -686,7 +686,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct PyTorchNetwork <: Models.FittedModel
+struct PyTorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -730,7 +730,7 @@ end
 
 \begin{lstlisting}[language=Julia, escapechar=@]
 # Step 1)
-struct PyTorchNetwork <: Models.FittedModel
+struct PyTorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -810,7 +810,7 @@ import CounterfactualExplanations.Models: probs
 
 # MLP:
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 # Step 2)
@@ -821,7 +821,7 @@ M = NeuralNetwork(model)
 # Deep ensemble:
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)
@@ -838,7 +838,7 @@ M_ensemble = FittedEnsemble(ensemble)
 \begin{lstlisting}
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)

@@ -19,7 +19,7 @@ In order to make the Flux.jl model compatible with CounterfactualExplanations.jl
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 
@@ -53,7 +53,7 @@ As before we need to make the model compatible with CounterfactualExplanations.j
 
 ``` julia
 # Step 1)
-struct LaplaceNeuralNetwork <: Models.FittedModel
+struct LaplaceNeuralNetwork <: Models.AbstractFittedModel
     la::BayesLaplace.LaplaceRedux
 end
 

@@ -1831,7 +1831,7 @@ my insertion and my current dilemma will both disappear.
 
 
 Underfull \hbox (badness 1394) in paragraph at lines 1072--1087
-[]\T1/lmr/m/n/10.95 (+20) using Flux: stack  Step 1) struct Fit-te-dEnsem-ble <: Mod-els.FittedModel en-sem-
+[]\T1/lmr/m/n/10.95 (+20) using Flux: stack  Step 1) struct Fit-te-dEnsem-ble <: Mod-els.AbstractFittedModel en-sem-
  []
 
 

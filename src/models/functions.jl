@@ -1,12 +1,15 @@
+################################################################################
+# --------------- Base type for model:
+################################################################################
 """
-    FittedModel
+AbstractFittedModel
 
 Base type for fitted models.
 """
-abstract type FittedModel end
+abstract type AbstractFittedModel end
 
 # -------- Linear Logistic Model:
-# This is an example of how to construct a FittedModel subtype:
+# This is an example of how to construct a AbstractFittedModel subtype:
 """
     LogisticModel(W::Matrix,b::AbstractArray)
 
@@ -24,7 +27,7 @@ See also:
 - [`logits(𝑴::LogisticModel, X::AbstractArray)`](@ref)
 - [`probs(𝑴::LogisticModel, X::AbstractArray)`](@ref)
 """
-struct LogisticModel <: FittedModel
+struct LogisticModel <: AbstractFittedModel
     W::Matrix
     b::AbstractArray
 end
@@ -90,7 +93,7 @@ See also:
 - [`logits(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
 - [`probs(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
-struct BayesianLogisticModel <: FittedModel
+struct BayesianLogisticModel <: AbstractFittedModel
     μ::Matrix
     Σ::Matrix
     BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)

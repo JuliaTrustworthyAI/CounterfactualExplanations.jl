@@ -25,13 +25,13 @@ using NNlib
     end
 
     @testset "logits" begin
-        𝑴(x) = [2 1] * x # model not declared as subtype of FittedModel
+        𝑴(x) = [2 1] * x # model not declared as subtype of AbstractFittedModel
         x = [1,1]
         @test_throws MethodError logits(𝑴, x)
     end
 
     @testset "probs" begin
-        𝑴(x) = [2 1] * x # model not declared as subtype of FittedModel
+        𝑴(x) = [2 1] * x # model not declared as subtype of AbstractFittedModel
         x = [1,1]
         @test_throws MethodError probs(𝑴, x)
     end

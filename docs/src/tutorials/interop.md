@@ -84,7 +84,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct TorchNetwork <: Models.FittedModel
+struct TorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -212,7 +212,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct PyTorchNetwork <: Models.FittedModel
+struct PyTorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 

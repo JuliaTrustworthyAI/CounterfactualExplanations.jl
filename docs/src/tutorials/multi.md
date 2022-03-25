@@ -92,7 +92,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -160,7 +160,7 @@ gif(anim, "www/multi_ensemble_loss.gif", fps=10);
 
 ```julia
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     𝓜::AbstractArray
 end
 

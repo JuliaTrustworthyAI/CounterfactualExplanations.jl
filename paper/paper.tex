@@ -370,7 +370,7 @@ search algorithms.\footnote{We have made an effort to keep the code base
   point that really any counterfactual generator can be implemented
   without further adaptation.} The core function of the package
 \texttt{generate\_counterfactual} uses an instance of type
-\texttt{T\ \textless{}:\ FittedModel} produced by the \texttt{Models}
+\texttt{T\ \textless{}:\ AbstractFittedModel} produced by the \texttt{Models}
 module (Figure~\ref{fig-models}) and an instance of type
 \texttt{T\ \textless{}:\ AbstractGenerator} produced by the \texttt{Generators}
 module (Figure~\ref{fig-generators}). Relating this back the methodology
@@ -387,7 +387,7 @@ how to use and extend the package architecture through various examples.
 }
 
 \caption{\label{fig-models}Schematic overview of the
-\texttt{FittedModel} base type and its descendants.}
+\texttt{AbstractFittedModel} base type and its descendants.}
 
 \end{figure}
 
@@ -420,7 +420,7 @@ It may help to go through the relevant parts of the code in some more
 detail starting from the part involving the model. For illustrative
 purposes the \texttt{Models} module ships with a constructor for a
 logistic regression model:
-\texttt{LogisticModel(W::Matrix,b::AbstractArray)\ \textless{}:\ FittedModel}.
+\texttt{LogisticModel(W::Matrix,b::AbstractArray)\ \textless{}:\ AbstractFittedModel}.
 This constructors does not fit the regression model, but rather takes
 its underlying parameters as given. In other words, it is generally
 assumed that the user has already estimated a model. Based on the
@@ -534,7 +534,7 @@ maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian
 distribution (\cite{murphy2022probabilistic}).\footnote{See also this
   \href{https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/}{blog
   post} for a gentle introduction and implementation in Julia.} The
-\texttt{BayesianLogisticModel\ \textless{}:\ FittedModel} constructor
+\texttt{BayesianLogisticModel\ \textless{}:\ AbstractFittedModel} constructor
 takes as its arguments the two moments defining that distribution:
 firstly, the MAP estimate, i.e.~the vector of parameters \(\hat\mu\)
 including the constant term and, secondly, the corresponding covariance
@@ -611,7 +611,7 @@ supervised-learning model compatible with our package\footnote{In order
   generator.}:
 
 \begin{unnumlist}
-\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
+\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{AbstractFittedModel}.
 \item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
 \end{unnumlist}
 
@@ -645,7 +645,7 @@ computed through softmax.
 
 \begin{lstlisting}[language = Julia]
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 
@@ -710,7 +710,7 @@ follows below.
 # Deep ensemble:
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)
@@ -816,7 +816,7 @@ object called \texttt{model}. That R object can be accessed from Julia
 using \texttt{RCall.jl} by simply calling \texttt{R"model"}. As in
 Section~\ref{sec-custom} and Section~\ref{sec-emp} the first thing
 necessary to make this model compatible with our package is to declare
-it as a subtype of \texttt{Model.FittedModel}. As always we also need to
+it as a subtype of \texttt{Model.AbstractFittedModel}. As always we also need to
 extend the \texttt{logits} and \texttt{probs} functions to make the
 model compatible with \texttt{CounterfactualExplanations.jl}. The code
 below shows how this can be done. Logits are returned by the
@@ -826,7 +826,7 @@ the sigmoid function.
 
 \begin{lstlisting}[language=Julia]
 # Step 1)
-struct TorchNetwork <: Models.FittedModel
+struct TorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -906,7 +906,7 @@ declaration and method dispatch.
 
 \begin{lstlisting}[language=Julia, escapechar=@]
 # Step 1)
-struct PyTorchNetwork <: Models.FittedModel
+struct PyTorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -978,7 +978,7 @@ steps for the deep ensemble.
 \begin{lstlisting}
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)

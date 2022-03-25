@@ -19,7 +19,7 @@ For the simple logistic regression model logits are computed as $a=Xw + b$ and p
 
 Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with CounterfactualExplanations.jl:
 
-1. The model needs to be declared as a subtype of `CounterfactualExplanations.Models.FittedModel`.
+1. The model needs to be declared as a subtype of `CounterfactualExplanations.Models.AbstractFittedModel`.
 2. You need to extend the functions `CounterfactualExplanations.Models.logits` and `CounterfactualExplanations.Models.probs` to accept your custom model.
 
 Below we will go through a simple example to see how this can be done in practice. 
@@ -123,7 +123,7 @@ end
 
 Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CounterfactualExplanations.jl. 
 
-The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.FittedModel` and in step 2) it just extends the two functions. 
+The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.AbstractFittedModel` and in step 2) it just extends the two functions. 
 
 
 ```julia
@@ -131,7 +131,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -284,7 +284,7 @@ Once again it is straight-forward to make the model compatible with the package.
 
 ```julia
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     𝓜::AbstractArray
 end
 

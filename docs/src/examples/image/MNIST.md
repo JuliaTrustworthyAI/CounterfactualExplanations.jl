@@ -49,7 +49,7 @@ import CounterfactualExplanations.Models: logits, probs # import functions in or
 
 # MLP:
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 # Step 2)
@@ -59,7 +59,7 @@ probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
 
 # Deep ensemble:
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     𝓜::AbstractArray
 end
 # Step 2)

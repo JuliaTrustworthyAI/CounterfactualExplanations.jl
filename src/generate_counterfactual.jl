@@ -1,6 +1,6 @@
 # -------- Main method:
 """
-    generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.FittedModel, target::Float64, γ::Float64; T=1000)
+    generate_counterfactual(generator::AbstractGenerator, x̅::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat, γ::AbstractFloat; T=1000)
 
 Takes a recourse `generator`, the factual sample `x̅`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
@@ -37,162 +37,22 @@ recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate
 
 See also:
 
-- [`GenericGenerator(λ::Float64, ϵ::Float64, τ::Float64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
-- [`GreedyGenerator(δ::Float64, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
+- [`GenericGenerator(λ::AbstractFloat, ϵ::AbstractFloat, τ::AbstractFloat, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref)
+- [`GreedyGenerator(δ::AbstractFloat, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
-function generate_counterfactual(generator::AbstractGenerator, x̅::AbstractArray, 𝑴::Models.FittedModel, target::Union{Float64,Int}, γ::Float64; T=1000, feasible_range=nothing)
-    
-    # Setup and allocate memory:
-    x̲ = copy(x̅) # start from factual
-    p̅ = Models.probs(𝑴, x̅)
-    out_dim = size(p̅)[1]
-    y̅ = out_dim == 1 ? round(p̅[1]) : Flux.onecold(p̅,1:out_dim)
-    # If multi-class, onehot-encode target
-    target_hot = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
-    D = length(x̲)
-    path = [x̲]
-    𝑷 = zeros(D) # vector to keep track of number of permutations by feature
-    𝑭ₜ = initialize_mutability(generator, D) 
-
+function generate_counterfactual(
+    x̅::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, 𝑴::Models.AbstractFittedModel, generator::AbstractGenerator;
+    γ::AbstractFloat=0.95, T=1000, feasible_range=nothing
+)
     # Initialize:
-    t = 1 # counter
-    not_finished = !threshold_reached(𝑴, x̲, target, γ) # convergence condition
-    if !not_finished
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
+    counterfactual = Counterfactual(x̅, target, data, 𝑴, generator, γ, T)
+    initialize!(counterfactual) 
 
     # Search:
-    while not_finished
-
-        # Generate peturbations:
-        Δx̲ = Generators.generate_perturbations(generator, x̲, 𝑴, target_hot, x̅, 𝑭ₜ)
-        𝑭ₜ = Generators.mutability_constraints(generator, 𝑭ₜ, 𝑷) # generate mutibility constraint mask
-        Δx̲ = reshape(apply_mutability(Δx̲, 𝑭ₜ), size(x̲)) # apply mutability constraints
-        
-        # Updates:
-        x̲ += Δx̲ # update counterfactual
-        if !isnothing(feasible_range)
-            clamp!(x̲, feasible_range[1], feasible_range[2])
-        end
-        path = [path..., x̲]
-        𝑷 += reshape(Δx̲ .!= 0, size(𝑷)) # update number of times feature has been changed
-        t += 1 # update iteration counter   
-        global converged = threshold_reached(𝑴, x̲, target, γ)
-        not_finished = t < T && !converged && !Generators.conditions_satisified(generator, x̲, 𝑴, target, x̅, 𝑷)
-
+    while !counterfactual.search[:terminated]
+        update!(counterfactual)
     end
 
-    # Output:
-    p̲ = Models.probs(𝑴, x̲)
-    y̲ = out_dim == 1 ? round(p̲[1]) : Flux.onecold(p̲,1:out_dim)
-    recourse = Recourse(x̲, y̲, p̲, path, generator, x̅, y̅, p̅, 𝑴, target, converged) 
-    
-    return recourse
+    return counterfactual
     
 end
-
-"""
-    target_probs(p, target)
-
-Selects the probabilities of the target class. In case of binary classification problem `p` reflects the probability that `y=1`. In that case `1-p` reflects the probability that `y=0`.
-
-# Examples
-
-```julia-repl
-using CounterfactualExplanations
-using CounterfactualExplanations.Models: LogisticModel, probs 
-Random.seed!(1234)
-N = 25
-w = [1.0 1.0]# true coefficients
-b = 0
-x, y = toy_data_linear(N)
-# Logit model:
-𝑴 = LogisticModel(w, [b])
-p = probs(𝑴, x[rand(N)])
-target_probs(p, 0)
-target_probs(p, 1)
-```
-
-"""
-function target_probs(p::AbstractArray, target::Union{Int,AbstractFloat})
-    if length(p) == 1
-        if target ∉ [0,1]
-            throw(DomainError("For binary classification expecting target to be in {0,1}.")) 
-        end
-        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
-        p = vcat(1.0 .- p, p)
-        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
-        p_target = p[Int(target+1),:]
-    else
-        if target < 1 || target % 1 !=0
-            throw(DomainError("For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.")) 
-        end
-        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
-        p_target = p[Int(target),:]
-    end
-    return p_target
-end
-
-"""
-    threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Float64, γ::Float64)
-
-Checks if confidence threshold has been reached. 
-"""
-threshold_reached(𝑴::Models.FittedModel, x̲::AbstractArray, target::Real, γ::Real) = target_probs(Models.probs(𝑴, x̲), target)[1] >= γ
-
-"""
-    apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
-
-Apply mutability constraints to `Δx̲` based on vector of constraints `𝑭`.
-
-# Examples 
-
-𝑭 = [:both, :increase, :decrease, :none]
-apply_mutability([-1,1,-1,1], 𝑭) # all but :none pass
-apply_mutability([-1,-1,-1,1], 𝑭) # all but :increase and :none pass
-apply_mutability([-1,1,1,1], 𝑭) # all but :decrease and :none pass
-apply_mutability([-1,-1,1,1], 𝑭) # only :both passes
-
-"""
-function apply_mutability(Δx̲::AbstractArray, 𝑭::Vector{Symbol})
-
-    both(x) = x
-    increase(x) = ifelse(x<0,0,x)
-    decrease(x) = ifelse(x>0,0,x)
-    none(x) = 0
-
-    cases = (both = both, increase = increase, decrease = decrease, none = none)
-
-    Δx̲ = [getfield(cases, 𝑭[d])(Δx̲[d]) for d in 1:length(Δx̲)]
-
-    return Δx̲
-
-end
-
-function initialize_mutability(generator::AbstractGenerator, D::Int)
-    if isnothing(generator.𝑭)
-        𝑭 = [:both for i in 1:D]
-    else 
-        𝑭 = generator.𝑭
-    end
-    return 𝑭
-end
-
-"""
-    Recourse(x̲::AbstractArray, y̲::Float64, path::Matrix{Float64}, generator::Generators.AbstractGenerator, x̅::AbstractArray, y̅::Float64, 𝑴::Models.FittedModel, target::Float64)
-
-Collects all variables relevant to the recourse outcome. 
-"""
-struct Recourse
-    x̲::AbstractArray
-    y̲::Union{Real,AbstractArray}
-    p̲::Any
-    path::AbstractArray
-    generator::Generators.AbstractGenerator
-    x̅::AbstractArray
-    y̅::Union{Real,AbstractArray}
-    p̅::Any
-    𝑴::Models.FittedModel
-    target::Real
-    converged::Bool
-end;
