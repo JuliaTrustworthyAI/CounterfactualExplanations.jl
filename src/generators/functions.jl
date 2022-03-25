@@ -20,11 +20,11 @@ end
 ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = getfield(Losses, generator.loss)(
     Models.logits(counterfactual_state.𝑴, counterfactual_state.x̲), counterfactual_state.target
 )
-∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(x̲))[x̲]
+∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x̲))[counterfactual_state.x̲]
 
 # Complexity:
 h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x̅-counterfactual_state.x̲)
-∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(x̲))[x̲]
+∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x̲))[counterfactual_state.x̲]
 
 ################################################################################
 # --------------- Base type for gradient-based generator:
@@ -41,7 +41,7 @@ function generate_perturbations(generator::AbstractGradientBasedGenerator, count
 end
 
 function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState)
-    mutability = counterfactual.params[:mutability]
+    mutability = counterfactual_state.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
 end 
 
@@ -71,7 +71,7 @@ See also:
 struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
-    𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
     λ::AbstractFloat # strength of penalty
     ϵ::AbstractFloat # step size
     τ::AbstractFloat # tolerance for convergence
@@ -98,31 +98,32 @@ See also:
 """
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
-    𝑭::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
     δ::AbstractFloat # perturbation size
     n::Int # maximum number of times any feature can be changed
 end
 
 GreedyGenerator() = GreedyGenerator(:logitbinarycrossentropy,nothing,0.1,10)
+GreedyGenerator(params::Dict,loss=:logitbinarycrossentropy,mutability=nothing) = GreedyGenerator(loss,mutability,params[:δ],params[:n])
 
 ∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState) = ∂ℓ(generator, counterfactual_state)
 
 function generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState) 
     𝐠ₜ = ∇(generator, counterfactual_state) # gradient
-    𝐠ₜ[counterfactual.params[:mutability] .== :none] .= 0
-    Δx̲ = reshape(zeros(length(x̲)), size(𝐠ₜ))
+    𝐠ₜ[counterfactual_state.params[:mutability] .== :none] .= 0
+    Δx̲ = reshape(zeros(length(counterfactual_state.x̲)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
     Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
     return Δx̲
 end
 
 function mutability_constraints(generator::GreedyGenerator, counterfactual_state::CounterfactualState)
-    mutability = counterfactual.params[:mutability]
-    mutability[counterfactual.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
+    mutability = counterfactual_state.params[:mutability]
+    mutability[counterfactual_state.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
     return mutability
 end 
 
 function conditions_satisified(generator::GreedyGenerator, counterfactual_state::CounterfactualState)
-    status = all(counterfactual.search[:times_changed_features].>=generator.n)
+    status = all(counterfactual_state.search[:times_changed_features].>=generator.n)
     return status
 end

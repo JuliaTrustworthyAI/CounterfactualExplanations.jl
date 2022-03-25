@@ -10,6 +10,21 @@ struct CounterfactualData
     CounterfactualData(X,y,mutability,categorical,continuous,bounds_continuous) = length(size(X)) != 2 ? error("Data should be in tabular format") : new(X,y,mutability,categorical,continuous,bounds_continuous)
 end
 
+"""
+    CounterfactualData(X::AbstractArray, y::AbstractArray)
+
+This function prepares features `X` and labels `y` to be used with the package.
+
+# Examples
+
+```julia-repl
+using CounterfactualExplanations.Data
+x, y = toy_data_linear()
+X = hcat(x...)
+counterfactual_data = CounterfactualData(X,y')
+```
+
+"""
 CounterfactualData(X::AbstractArray, y::AbstractArray) = CounterfactualData(X, y, nothing, nothing, nothing, nothing)
 
 select_factual(cfd::CounterfactualData, index::Int) = cfd.X[:,index]

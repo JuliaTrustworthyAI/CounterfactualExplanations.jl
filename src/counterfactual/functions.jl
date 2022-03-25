@@ -18,9 +18,9 @@ end
 function CounterfactualExplanation(
     x̅::Union{AbstractArray,Int}, 
     target::Union{AbstractFloat,Int}, 
-    data::CounterfactualData, 
-    generator::AbstractGenerator, 
+    data::CounterfactualData,  
     𝑴::Models.AbstractFittedModel,
+    generator::Generators.AbstractGenerator,
     γ::AbstractFloat, 
     T::Int
 ) 
@@ -36,7 +36,7 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
 
-    return CounterfactualExplanation(x̅, target, x̲, data, generator, 𝑴, params, nothing)
+    return CounterfactualExplanation(x̅, target, x̲, data, 𝑴, generator, params, nothing)
 
 end
 
@@ -92,6 +92,8 @@ y̲(counterfactual_explanation::CounterfactualExplanation) = counterfactual_labe
 # 3) Search related methods:
 terminated(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:terminated]
 converged(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:converged]
+total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count]
+path(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:path]
 
 """
     target_probs(p, target)
@@ -116,8 +118,9 @@ target_probs(p, 1)
 ```
 
 """
-function target_probs(counterfactual_explanation::CounterfactualExplanation)
-    p = p̲(counterfactual_explanation) # counterfactual probabilities
+function target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
+    
+    p = !isnothing(x) ? Models.probs(counterfactual_explanation.𝑴, x) : p̲(counterfactual_explanation)
     target = counterfactual_explanation.target
 
     if length(p) == 1
@@ -169,7 +172,8 @@ function apply_mutability(Δx̲::AbstractArray, counterfactual_explanation::Coun
 
 end
 
-threshold_reached(counterfactual_explanation::CounterfactualExplanation) = target_probs(counterfactual_explanation)[1] >= γ
+threshold_reached(counterfactual_explanation::CounterfactualExplanation) = target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count] == counterfactual_explanation.params[:T]
 
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
     counterfactual_state = Generators.CounterfactualState(
@@ -188,19 +192,20 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_state = get_counterfactual_state(counterfactual_explanation)
 
     # Generate peturbations:
-    Δx̲ = Generators.generate_perturbations(generator, counterfactual_state)
+    Δx̲ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
     Δx̲ = apply_mutability(Δx̲, counterfactual_explanation)
     Δx̲ = reshape(Δx̲, size(counterfactual_explanation.x̲))
     counterfactual_explanation.x̲ += Δx̲ # update counterfactual
-    if !isnothing(feasible_range)
-        clamp!(x̲, feasible_range[1], feasible_range[2])
-    end
+    # if !isnothing(feasible_range)
+    #     clamp!(x̲, feasible_range[1], feasible_range[2])
+    # end
     
     # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., x̲]
-    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(generator, counterfactual_state) 
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x̲]
+    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:times_changed_features] += reshape(Δx̲ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
-    counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || t == T || Generators.conditions_satisified(generator, counterfactual_state)
+    counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
 end
+

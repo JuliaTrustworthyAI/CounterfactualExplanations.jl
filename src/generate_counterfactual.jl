@@ -42,10 +42,10 @@ See also:
 """
 function generate_counterfactual(
     x̅::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, 𝑴::Models.AbstractFittedModel, generator::AbstractGenerator;
-    γ::AbstractFloat=0.95, T=1000, feasible_range=nothing
+    γ::AbstractFloat=0.75, T=1000, feasible_range=nothing
 )
     # Initialize:
-    counterfactual = Counterfactual(x̅, target, data, 𝑴, generator, γ, T)
+    counterfactual = CounterfactualExplanation(x̅, target, data, 𝑴, generator, γ, T)
     initialize!(counterfactual) 
 
     # Search:
