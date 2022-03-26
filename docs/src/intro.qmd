@@ -1,4 +1,4 @@
-CounterfactualExplanations.jl is a Julia package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for interpretable machine learning. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
+`CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for interpretable machine learning. While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
 
 ## Installation
 
@@ -36,17 +36,26 @@ Algorithms used for automated decision-making such as deep neural networks have 
 
 Generating counterfactuals will typically look like follows:
 
-```julia
+```{julia}
 using CounterfactualExplanations
-using CounterfactualExplanations.Models
-w = [1.0 -2.0] # true coefficients
-b = [0]
-𝑴 = LogisticModel(w, b)
-x̅ = [-1,0.5]
-target = 1.0
-γ = 0.9
-generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+
+# Raw Data:
+using CounterfactualExplanations.Data: cats_dogs_data
+x, y = cats_dogs_data()
+
+# Data preprocessing:
+counterfactual_data = CounterfactualData(x,y)
+
+# Model (pre-trained):
+using CounterfactualExplanations.Data: cats_dogs_laplace
+import CounterfactualExplanations.Models: probs
+la = cats_dogs_laplace()
+
+# Counterfactual search:
+x̅ = select_factual(counterfactual_data, 1) # factual
+target = round(probs(la, x̅)) == 1.0 ? 0.0 : 1.0
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(x̅, target, counterfactual_data, la, generator)
 ```
 
 We can see that the counterfactual label y̲ corresponds to the target:

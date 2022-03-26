@@ -19,7 +19,8 @@ end
 function cats_dogs_data()
     data_dir = artifact"cats_dogs_data"
     data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)[:data]
-    return data
+    x, y = (data[:x], data[:y])
+    return x, y
 end
 
 function cats_dogs_model()

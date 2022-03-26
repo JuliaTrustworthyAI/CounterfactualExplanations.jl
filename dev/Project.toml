@@ -1,8 +1,8 @@
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
-BayesLaplace = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 Conda = "8f4d0f93-b110-5947-807f-2305c1781a2d"
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
 GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 LibGit2 = "76f85450-5226-5b5a-8eaa-529ad045b433"
