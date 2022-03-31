@@ -1,8 +1,8 @@
 # -------- Main method:
 """
-    generate_counterfactual(generator::AbstractGenerator, x::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat, γ::AbstractFloat; T=1000)
+    generate_counterfactual(generator::AbstractGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat, γ::AbstractFloat; T=1000)
 
-Takes a recourse `generator`, the factual sample `x`, the fitted model `𝑴`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
+Takes a recourse `generator`, the factual sample `x`, the fitted model `M`, the `target` label and its desired threshold probability `γ`. Returns the generated recourse (an object of type `Recourse`).
 
 # Examples
 
@@ -15,9 +15,9 @@ b = [0]
 x = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = LogisticModel(w, b)
+M = LogisticModel(w, b)
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
 ## Greedy generator (Bayesian model only)
@@ -30,9 +30,9 @@ Random.seed!(1234)
 x = [-1,0.5]
 target = 1.0
 γ = 0.9
-𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
+M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
 See also:
@@ -41,11 +41,11 @@ See also:
 - [`GreedyGenerator(δ::AbstractFloat, n::Int64, loss::Symbol, 𝑭::Union{Nothing,Vector{Symbol}})`](@ref).
 """
 function generate_counterfactual(
-    x::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, 𝑴::Models.AbstractFittedModel, generator::AbstractGenerator;
+    x::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
     γ::AbstractFloat=0.75, T=1000, feasible_range=nothing
 )
     # Initialize:
-    counterfactual = CounterfactualExplanation(x, target, data, 𝑴, generator, γ, T)
+    counterfactual = CounterfactualExplanation(x, target, data, M, generator, γ, T)
     initialize!(counterfactual) 
 
     # Search:

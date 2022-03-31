@@ -30,7 +30,7 @@ Algorithms used for automated decision-making such as deep neural networks have 
 >
 > — Cathy O’Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. [Figure 1](#fig-mnist), for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual recourse.
+**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. [Figure 1](#fig-mnist), for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual counterfactual.
 
 <figure>
 <img src="examples/image/www/MNIST_9to4.png" id="fig-mnist" alt="Figure 1: Realistic counterfactual explanations for MNIST data: turning a 4 into a 9." />

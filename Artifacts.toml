@@ -1,25 +1,25 @@
 [cats_dogs_data]
-git-tree-sha1 = "9a272c52b173982900a7c74933590b66df80145c"
+git-tree-sha1 = "353f18d6492ab31cddb0e874e71e38535d49c68e"
 lazy = true
 
     [[cats_dogs_data.download]]
-    sha256 = "15c2b5a26dd616f7d676e21a090d1cc65a9ea03d94fed9cb03e2f57ddadc734a"
+    sha256 = "aca3df23d230a913ad3c2a7e12bd4c10ff7e69230bdee2ecf496b04d9fe25a3f"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_data.tar.gz"
 
 [cats_dogs_images]
-git-tree-sha1 = "44eef753a4f481921741ffc3aac46f56fdb7bd31"
+git-tree-sha1 = "4f62372007fc7f73c108720000861bc412a4b759"
 lazy = true
 
     [[cats_dogs_images.download]]
-    sha256 = "9d5387245a1be998b8487e28e1c4581b18b08eaffdf4b61e34e45ead33eb0f22"
+    sha256 = "2c0a849fbc4e7258399a8b822281d241c1027d9521026d3ef26d9faa7385b05d"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_images.tar.gz"
 
 [cats_dogs_laplace]
-git-tree-sha1 = "cf06212e271b870b3893b6248e0d72bd832e40d2"
+git-tree-sha1 = "79fd6ec6bb5800e775a9680fbbe7d0df046411ea"
 lazy = true
 
     [[cats_dogs_laplace.download]]
-    sha256 = "025ece882ca87336c66571328d904c7ae18de74318ad6c24e8bbc748a5ca36ad"
+    sha256 = "15b0cd4819c63218589a87ad04a2e711d7747bb356b9e6fef2d55eca87a97d55"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_laplace.tar.gz"
 
 [cats_dogs_model]
@@ -27,7 +27,7 @@ git-tree-sha1 = "71fdacce1cd28aa26b3e8dd1c4d3c582dbd674f2"
 lazy = true
 
     [[cats_dogs_model.download]]
-    sha256 = "e44f27808894ec0e4106c089fd660722d6c7e290e53363bad3c79722a57d0261"
+    sha256 = "6f43a710595ecc6f287ba8230a5185202fd3a73a8fd30620db560ca4ef89f335"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
 [mnist_data]

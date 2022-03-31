@@ -20,12 +20,12 @@ Constructs a logistic classifier based on arrays containing coefficients `w` and
 ```julia-repl
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
-𝑴 = CounterfactualExplanations.Models.LogisticModel(w, b);
+M = CounterfactualExplanations.Models.LogisticModel(w, b);
 ```
 
 See also: 
-- [`logits(𝑴::LogisticModel, X::AbstractArray)`](@ref)
-- [`probs(𝑴::LogisticModel, X::AbstractArray)`](@ref)
+- [`logits(M::LogisticModel, X::AbstractArray)`](@ref)
+- [`probs(M::LogisticModel, X::AbstractArray)`](@ref)
 """
 struct LogisticModel <: AbstractFittedModel
     W::Matrix
@@ -34,7 +34,7 @@ end
 
 # What follows are the two required outer methods:
 """
-    logits(𝑴::LogisticModel, X::AbstractArray)
+    logits(M::LogisticModel, X::AbstractArray)
 
 Computes logits as `WX+b`.
 
@@ -44,17 +44,17 @@ Computes logits as `WX+b`.
 using CounterfactualExplanations.Models
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
-𝑴 = LogisticModel(w, b);
+M = LogisticModel(w, b);
 x = [1,1]
-logits(𝑴, x)
+logits(M, x)
 ```
 
 See also [`LogisticModel(W::Matrix,b::AbstractArray)`](@ref).
 """
-logits(𝑴::LogisticModel, X::AbstractArray) = 𝑴.W*X .+ 𝑴.b
+logits(M::LogisticModel, X::AbstractArray) = M.W*X .+ M.b
 
 """
-    probs(𝑴::LogisticModel, X::AbstractArray)
+    probs(M::LogisticModel, X::AbstractArray)
 
 Computes predictive probabilities from logits as `σ(WX+b)` where 'σ' is the [sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function). 
 
@@ -64,14 +64,14 @@ Computes predictive probabilities from logits as `σ(WX+b)` where 'σ' is the [s
 using CounterfactualExplanations.Models
 w = [1.0 -2.0] # estimated coefficients
 b = [0] # estimated constant
-𝑴 = LogisticModel(w, b);
+M = LogisticModel(w, b);
 x = [1,1]
-probs(𝑴, x)
+probs(M, x)
 ```
 
 See also [`LogisticModel(W::Matrix,b::AbstractArray)`](@ref).
 """
-probs(𝑴::LogisticModel, X::AbstractArray) = NNlib.σ.(logits(𝑴, X))
+probs(M::LogisticModel, X::AbstractArray) = NNlib.σ.(logits(M, X))
 
 # -------- Bayesian model:
 """
@@ -86,12 +86,12 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
+M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 ```
 
 See also:
-- [`logits(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
-- [`probs(𝑴::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`logits(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
+- [`probs(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
 struct BayesianLogisticModel <: AbstractFittedModel
     μ::Matrix
@@ -101,7 +101,7 @@ end
 
 # What follows are the three required outer methods:
 """
-    logits(𝑴::BayesianLogisticModel, X::AbstractArray)
+    logits(M::BayesianLogisticModel, X::AbstractArray)
 
 Computes logits as `μ[1ᵀ Xᵀ]ᵀ`.
 
@@ -113,23 +113,23 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝑴 = BayesianLogisticModel(μ, Σ);
+M = BayesianLogisticModel(μ, Σ);
 x = [1,1]
-logits(𝑴, x)
+logits(M, x)
 ```
 
 See also [`BayesianLogisticModel(μ::Matrix,Σ::Matrix)`](@ref)
 """
-function logits(𝑴::BayesianLogisticModel, X::AbstractArray)
+function logits(M::BayesianLogisticModel, X::AbstractArray)
     if !isa(X, AbstractMatrix)
         X = reshape(X, length(X), 1)
     end
     X = vcat(ones(size(X)[2])', X) # add for constant
-    return 𝑴.μ * X
+    return M.μ * X
 end
 
 """
-    probs(𝑴::BayesianLogisticModel, X::AbstractArray)
+    probs(M::BayesianLogisticModel, X::AbstractArray)
 
 Computes predictive probabilities using a Probit approximation. 
 
@@ -141,18 +141,18 @@ using Random, LinearAlgebra
 Random.seed!(1234)
 μ = [0 1.0 -2.0] # MAP coefficients
 Σ = Symmetric(reshape(randn(9),3,3).*0.1 + UniformScaling(1.0)) # MAP covariance matrix
-𝑴 = BayesianLogisticModel(μ, Σ);
+M = BayesianLogisticModel(μ, Σ);
 x = [1,1]
-probs(𝑴, x)
+probs(M, x)
 ```
 
 See also [`BayesianLogisticModel(μ::Matrix,Σ::Matrix)`](@ref)
 """
-function probs(𝑴::BayesianLogisticModel, X::AbstractArray)
-    μ = 𝑴.μ # MAP mean vector
-    Σ = 𝑴.Σ # MAP covariance matrix
+function probs(M::BayesianLogisticModel, X::AbstractArray)
+    μ = M.μ # MAP mean vector
+    Σ = M.Σ # MAP covariance matrix
     # Inner product:
-    z = logits(𝑴, X)
+    z = logits(M, X)
     # Probit approximation
     if !isa(X, AbstractMatrix)
         X = reshape(X, length(X), 1)

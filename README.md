@@ -28,7 +28,7 @@ Algorithms used for automated decision-making such as deep neural networks have 
 >
 > — Cathy O’Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. The figure below, for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual recourse.
+**Counterfactual Explanations can help programmers make sense of the systems they build: they explain how inputs into a system need to change for it to produce a different output**. The figure below, for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual counterfactual.
 
 ![Realistic counterfactual explanations for MNIST data: turning a 4 into a 9.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png)
 
@@ -45,34 +45,34 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Models
 w = [1.0 -2.0] # true coefficients
 b = [0]
-𝑴 = LogisticModel(w, b)
+M = LogisticModel(w, b)
 x = [-1,0.5]
 target = 1.0
 γ = 0.9
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
-We can see that the counterfactual label ỹ corresponds to the target:
+We can see that the counterfactual label y′ corresponds to the target:
 
 ``` julia
-julia> recourse.ỹ
+julia> counterfactual.y′
 1.0
 
-julia> recourse.x
+julia> counterfactual.x
 2-element Vector{Float64}:
  -1.0
   0.5
 
-julia> recourse.y
+julia> counterfactual.y
 0.0
 
-julia> recourse.x̃
+julia> counterfactual.x′
 2-element Vector{Float64}:
  -0.15867040347424893
  -1.182659193051502
 
-julia> recourse.ỹ
+julia> counterfactual.y′
 1.0
 ```
 

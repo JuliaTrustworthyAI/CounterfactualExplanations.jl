@@ -10,21 +10,21 @@ abstract type AbstractGenerator end
 struct CounterfactualState
     x::AbstractArray
     target::Number
-    x̃::AbstractArray
-    𝑴::AbstractFittedModel
+    x′::AbstractArray
+    M::AbstractFittedModel
     params::Dict
     search::Union{Dict,Nothing}
 end
 
 # Loss:
 ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = getfield(Losses, generator.loss)(
-    Models.logits(counterfactual_state.𝑴, counterfactual_state.x̃), counterfactual_state.target
+    Models.logits(counterfactual_state.M, counterfactual_state.x′), counterfactual_state.target
 )
-∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x̃))[counterfactual_state.x̃]
+∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
 
 # Complexity:
-h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x-counterfactual_state.x̃)
-∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x̃))[counterfactual_state.x̃]
+h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x-counterfactual_state.x′)
+∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
 
 ################################################################################
 # --------------- Base type for gradient-based generator:
@@ -66,7 +66,7 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -78,6 +78,15 @@ struct GenericGenerator <: AbstractGradientBasedGenerator
 end
 
 GenericGenerator() = GenericGenerator(:logitbinarycrossentropy,norm,nothing,0.1,0.1,1e-5)
+GenericGenerator(
+    ;
+    loss::Symbol=:logitbinarycrossentropy,
+    complexity::Function=norm,
+    mutability::Union{Nothing,Vector{Symbol}}=nothing,
+    λ::AbstractFloat=0.1,
+    ϵ::AbstractFloat=0.1,
+    τ::AbstractFloat=1e-5
+) = GenericGenerator(loss, complexity, mutability, λ, ϵ, τ)
 
 ################################################################################
 # -------- Schut et al (2021):
@@ -94,7 +103,7 @@ generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, 𝑴::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -111,7 +120,7 @@ GreedyGenerator(params::Dict,loss=:logitbinarycrossentropy,mutability=nothing) =
 function generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState) 
     𝐠ₜ = ∇(generator, counterfactual_state) # gradient
     𝐠ₜ[counterfactual_state.params[:mutability] .== :none] .= 0
-    Δx̲ = reshape(zeros(length(counterfactual_state.x̃)), size(𝐠ₜ))
+    Δx̲ = reshape(zeros(length(counterfactual_state.x′)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
     Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
     return Δx̲

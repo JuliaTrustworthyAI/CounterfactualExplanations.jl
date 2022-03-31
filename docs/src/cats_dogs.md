@@ -10,16 +10,26 @@ Suppose we have a sample of cats and dogs with information about two features: h
 
 ### From basic principles …
 
-Counterfactual search happens in the feature space: we are interested in understanding how we need to change 🐱’s attributes in order to change the output of the black-box classifier. We will start with the first model, that relies on simple plugin estimates to produce its predictions. The model was pre-trained using Flux.jl and can be loaded as follows:
+Counterfactual search happens in the feature space: we are interested in understanding how we need to change 🐱’s attributes in order to change the output of the black-box classifier. We will start with the first model, that relies on simple plugin estimates to produce its predictions. The model was built and pre-trained using Flux and can be loaded as follows:
 
 ``` julia
+using CounterfactualExplanations
 using CounterfactualExplanations.Data: cats_dogs_model
 model = cats_dogs_model()
+```
+
+The training data can be loaded and pre-processed as follows:
+
+``` julia
+using CounterfactualExplanations.Data: cats_dogs_data
+X, ys = cats_dogs_data()
+counterfactual_data = CounterfactualData(X,ys')
 ```
 
 In order to make the Flux.jl model compatible with CounterfactualExplanations.jl we need to run the following (more on this in the [models tutorial](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/models/)):
 
 ``` julia
+using CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
@@ -28,16 +38,18 @@ struct NeuralNetwork <: Models.AbstractFittedModel
 end
 
 # Step 2)
-logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.model(X)
-probs(𝑴::NeuralNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
-𝑴 = NeuralNetwork(model);
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray)= σ.(logits(M, X))
+M = NeuralNetwork(model);
 ```
 
 Let `x` be the 2D-feature vector describing Kitty 🐱. Based on those features she is currently labelled as `y = 0.0`. We have set the target label to `1.0` and the desired confidence in the prediction to `γ = 0.75`. Now we can use the `GenericGenerator` for our counterfactual search as follows:
 
 ``` julia
-generator = GenericGenerator(0.01,2,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ)
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 The `GenericGenerator` implements the search algorithm first proposed by Wachter, Mittelstadt, and Russell (2017). The resulting counterfactual path is shown in [Figure 2](#fig-recourse-mlp) below. We can see that 🐱 travels through the feature space until she reaches a destination where the black-box model predicts that with a probability of more than 75% she is actually a dog. Her counterfactual self is in the target class so the algorithmic recourse objective is satisfied. We have also gained an intuitive understanding of how the black-model arrives at its decisions: increasing height and decreasing tail length both raise the predicted probability that 🐱 is actually a dog.
@@ -62,16 +74,16 @@ struct LaplaceNeuralNetwork <: Models.AbstractFittedModel
 end
 
 # Step 2)
-logits(𝑴::LaplaceNeuralNetwork, X::AbstractArray) = 𝑴.la.model(X)
-probs(𝑴::LaplaceNeuralNetwork, X::AbstractArray)= BayesLaplace.predict(𝑴.la, X)
-𝑴ᴸ = LaplaceNeuralNetwork(la);
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray)= BayesLaplace.predict(M.la, X)
+Mᴸ = LaplaceNeuralNetwork(la);
 ```
 
 Using the same target and desired confidence `γ` as above we finally use the `GreedyGenerator` generator for our counterfactual search:
 
 ``` julia
-generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴ᴸ, target, γ); # generate recourse
+generator = GreedyGenerator(Dict(:δ=>0.1,:n=>15))
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 The `GreedyGenerator` implements the approach proposed in Schut et al. (2021): by maximizing the predicted probability of the Bayesian model in [Figure 3](#fig-recourse-laplace) below, we implicitly minimize the predictive uncertainty around the counterfactual. This way we end up generating a counterfactual that looks more like the individuals 🐶 in the target class and is therefore more realistic.

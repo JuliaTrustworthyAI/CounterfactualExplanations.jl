@@ -18,6 +18,7 @@ makedocs(;
         "Motivating example" => "cats_dogs.md",
         "Tutorials" =>
             [
+                "Overview" => "tutorials/index.md",
                 "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
@@ -34,7 +35,7 @@ makedocs(;
             ],
         "Contributor's Guide" =>
             [
-                "Section overview" => "contributing/index.md",
+                "Overview" => "contributing/index.md",
                 "Loss functions" => "contributing/loss.md"
             ],
         "Reference" => "reference.md"

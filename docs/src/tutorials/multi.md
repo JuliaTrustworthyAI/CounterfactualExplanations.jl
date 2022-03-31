@@ -97,14 +97,14 @@ struct NeuralNetwork <: Models.AbstractFittedModel
 end
 
 # Step 2)
-logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
-probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
-𝑴 = NeuralNetwork(nn);
+logits(M::NeuralNetwork, X::AbstractArray) = M.nn(X)
+probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
+M = NeuralNetwork(nn);
 ```
 
 
 ```julia
-plt = plot_contour_multi(X',y,𝑴);
+plt = plot_contour_multi(X',y,M);
 savefig(plt, "www/multi_contour.png")
 ```
 
@@ -115,24 +115,24 @@ savefig(plt, "www/multi_contour.png")
 # Randomly selected factual:
 Random.seed!(42);
 x = X[:,rand(1:size(X)[2])]
-y = Flux.onecold(probs(𝑴, x),unique(y))
+y = Flux.onecold(probs(M, x),unique(y))
 target = rand(unique(y)[1:end .!= y]) # opposite label as target
 γ = 0.75
 # Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 # Generate recourse:
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
 
 ```julia
-T = size(recourse.path)[1]
-X_path = reduce(hcat,recourse.path)
-ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
-p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path),target)
+p1 = plot_contour(X',y,M;clegend=false, title="MLP")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
@@ -145,13 +145,13 @@ gif(anim, "www/multi_generic_recourse.gif", fps=5);
 
 
 ```julia
-𝓜 = build_ensemble(5;kw=(output_dim=out_dim,));
+ensemble = build_ensemble(5;kw=(output_dim=out_dim,));
 ```
 
 
 ```julia
 using CounterfactualExplanations: forward
-𝓜, anim = forward(𝓜, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
+ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
 gif(anim, "www/multi_ensemble_loss.gif", fps=10);
 ```
 
@@ -161,20 +161,20 @@ gif(anim, "www/multi_ensemble_loss.gif", fps=10);
 ```julia
 # Step 1)
 struct FittedEnsemble <: Models.AbstractFittedModel
-    𝓜::AbstractArray
+    ensemble::AbstractArray
 end
 
 # Step 2)
 using Statistics
-logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],3), dims=3)
-probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in 𝑴.𝓜],3),dims=3)
+logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
 
-𝑴=FittedEnsemble(𝓜);
+M=FittedEnsemble(ensemble);
 ```
 
 
 ```julia
-plt = plot_contour_multi(X',y,𝑴);
+plt = plot_contour_multi(X',y,M);
 savefig(plt, "www/multi_ensemble_contour.png")
 ```
 
@@ -183,18 +183,18 @@ savefig(plt, "www/multi_ensemble_contour.png")
 
 ```julia
 generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
+counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
 
 ```julia
-T = size(recourse.path)[1]
-X_path = reduce(hcat,recourse.path)
-ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
-p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path),target)
+p1 = plot_contour(X',y,M;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end

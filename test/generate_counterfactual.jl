@@ -7,42 +7,42 @@ Random.seed!(1234)
 
     w = [1.0 -2.0] # true coefficients
     b = [0]
-    𝑴 = LogisticModel(w, b)
+    M = LogisticModel(w, b)
     x = [-1,0.5]
-    p̅ = probs(𝑴, x)
+    p̅ = probs(M, x)
     y = round(p̅[1])
     generator = GenericGenerator()
 
     @testset "Predetermined outputs" begin
         γ = 0.9
-        target = round(probs(𝑴, x)[1])==0 ? 1 : 0 
-        recourse = generate_counterfactual(generator, x, 𝑴, target, γ)
-        @test recourse.target == target
-        @test recourse.x == x
-        @test recourse.y == y
-        @test recourse.p̅ == p̅
+        target = round(probs(M, x)[1])==0 ? 1 : 0 
+        counterfactual = generate_counterfactual(generator, x, M, target, γ)
+        @test counterfactual.target == target
+        @test counterfactual.x == x
+        @test counterfactual.y == y
+        @test counterfactual.p̅ == p̅
     end
 
     @testset "Convergence" begin
 
         # Already in target and exceeding threshold probability:
-        γ = probs(𝑴, x)[1]
+        γ = probs(M, x)[1]
         target = round(γ)
-        recourse = generate_counterfactual(generator, x, 𝑴, target, γ)
-        @test length(recourse.path)==1
-        @test recourse.x == recourse.x̃
-        @test recourse.y == recourse.ỹ
-        @test recourse.p̅ == recourse.p̲
-        @test recourse.converged == true
+        counterfactual = generate_counterfactual(generator, x, M, target, γ)
+        @test length(path(counterfactual))==1
+        @test counterfactual.x == counterfactual.x′
+        @test counterfactual.y == counterfactual.y′
+        @test counterfactual.p̅ == counterfactual.p̲
+        @test counterfactual.converged == true
 
         # Threshold reached if converged:
         γ = 0.9
-        target = round(probs(𝑴, x)[1])==0 ? 1 : 0 
+        target = round(probs(M, x)[1])==0 ? 1 : 0 
         T = 1000
-        recourse = generate_counterfactual(generator, x, 𝑴, target, γ; T=T)
-        @test !recourse.converged || recourse.p̲[1] >= γ # either not converged or threshold reached
-        @test !recourse.converged || recourse.ỹ >= recourse.y # either not covnerged or in target class
-        @test !recourse.converged || length(recourse.path) <= T
+        counterfactual = generate_counterfactual(generator, x, M, target, γ; T=T)
+        @test !counterfactual.converged || counterfactual.p̲[1] >= γ # either not converged or threshold reached
+        @test !counterfactual.converged || counterfactual.y′ >= counterfactual.y # either not covnerged or in target class
+        @test !counterfactual.converged || length(path(counterfactual)) <= T
 
     end
 
@@ -71,15 +71,15 @@ end
 
 @testset "threshold_reached" begin
     using CounterfactualExplanations: threshold_reached
-    𝑴 = LogisticModel([1.0 -2.0], [0])
+    M = LogisticModel([1.0 -2.0], [0])
     x = [-1,0.5]
-    p̅ = probs(𝑴, x)
+    p̅ = probs(M, x)
     y = round(p̅[1])
     target = y == 1 ? 0 : 1
     ε = 1e-10
     
-    @test threshold_reached(𝑴, x, y, 0.5+ε) == true
-    @test threshold_reached(𝑴, x, target, 0.5+ε) == false
+    @test threshold_reached(M, x, y, 0.5+ε) == true
+    @test threshold_reached(M, x, target, 0.5+ε) == false
 
 end
 

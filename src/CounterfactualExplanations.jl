@@ -26,7 +26,7 @@ export GenericGenerator, GreedyGenerator,
 include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals
 export CounterfactualExplanation, initialize!, update!,
-    total_steps, converged, terminated, path
+    total_steps, converged, terminated, path, target_probs
 
 include("generate_counterfactual.jl")
 export generate_counterfactual

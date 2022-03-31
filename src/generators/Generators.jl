@@ -1,6 +1,6 @@
 # generators.jl
 #
-# Core package functionality that implements algorithmic recourse.
+# Core package functionality that implements algorithmic counterfactual.
 module Generators
 
 using ..Models

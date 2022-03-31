@@ -31,14 +31,14 @@ savefig(plt, "www/mnist_samples.png")
 Next we will load two pre-trained deep-learning classifiers:
 
 1.  Simple MLP - `model`
-2.  Deep ensemble - `𝓜`
+2.  Deep ensemble - `ensemble`
 
 ``` julia
 using Flux
 using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
 x,y,data = getindex.(Ref(mnist_data()), ("x", "y", "data"))
 model = mnist_model()
-𝓜 = mnist_ensemble();
+ensemble = mnist_ensemble();
 ```
 
 The following code just prepares the models to be used with CounterfactualExplanations.jl:
@@ -53,20 +53,20 @@ struct NeuralNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 # Step 2)
-logits(𝑴::NeuralNetwork, X::AbstractArray) = 𝑴.nn(X)
-probs(𝑴::NeuralNetwork, X::AbstractArray)= softmax(logits(𝑴, X))
-𝑴 = NeuralNetwork(model)
+logits(M::NeuralNetwork, X::AbstractArray) = M.nn(X)
+probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
+M = NeuralNetwork(model)
 
 # Deep ensemble:
 # Step 1)
 struct FittedEnsemble <: Models.AbstractFittedModel
-    𝓜::AbstractArray
+    ensemble::AbstractArray
 end
 # Step 2)
 using Statistics
-logits(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in 𝑴.𝓜],3), dims=3)
-probs(𝑴::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in 𝑴.𝓜],3),dims=3)
-𝑴_ensemble=FittedEnsemble(𝓜);
+logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
+M_ensemble=FittedEnsemble(ensemble);
 ```
 
 ## Generating counterfactuals
@@ -102,26 +102,26 @@ The code below implements the four different approaches one by one. [Figure 3](
 ``` julia
 # Generic - MLP
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(generator, x, M, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_wachter = plot(img, title="MLP - Wachter")
 
 # Greedy - MLP
 generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(generator, x, M, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_greedy = plot(img, title="MLP - Greedy")
 
 # Generic - Deep Ensemble
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(generator, x, M_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_wachter_de = plot(img, title="Ensemble - Wachter")
 
 # Greedy - Deep Ensemble
 generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(generator, x, M_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_greedy_de = plot(img, title="Ensemble - Greedy")
 
 plt_list = [plt_orig, plt_wachter, plt_greedy, plt_wachter_de, plt_greedy_de]

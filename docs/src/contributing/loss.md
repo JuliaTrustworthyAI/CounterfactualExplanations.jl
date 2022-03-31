@@ -20,21 +20,21 @@ disable_logging(Logging.Info)
 
 ## General setup
 
-We begin by restating the general setup for generic counterfactual search. Let $t\in\{0,1\}$ denote the target label, $M$ the model (classifier) and $\tilde{x}\in\mathbb{R}^D$ the vector of counterfactual features (we will assume all features are continuous). Then the differentiable optimization problem in algorithmic recourse is generally of the following form
+We begin by restating the general setup for generic counterfactual search. Let $t\in\{0,1\}$ denote the target label, $M$ the model (classifier) and $x\prime\in\mathbb{R}^D$ the vector of counterfactual features (we will assume all features are continuous). Then the differentiable optimization problem in algorithmic recourse is generally of the following form
 
 ```math
-\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) + \lambda h(\tilde{x})
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
 ```
 
 where $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $h(\cdot)$ acts as a complexity penality generally addressing the *realism* or *cost* of the proposed counterfactual. 
 
 ## Loss function $\ell$
 
-Different choices for $\ell$ come to mind, each potentially leading to very different counterfactual outcomes. In practice, $\ell$ is often implemented with respect to the *logits* $a=\mathbf{w}^Tx$ rather than the probabilities $p(\tilde{y}=1|\tilde{x})=\sigma(a)$ predicted by the classifier. We follow this convention here, but as we shall see *depeding on the label domain this convention does not work well for every type of loss function*. Common choices for $\ell$ in the literature include margin-based loss function like **Hinge** loss and **logit binary crossentropy** (or **log**) loss. Some use distance-based loss such as **mean squared error** loss (MSE).
+Different choices for $\ell$ come to mind, each potentially leading to very different counterfactual outcomes. In practice, $\ell$ is often implemented with respect to the *logits* $a=\mathbf{w}^Tx$ rather than the probabilities $p(y\prime=1|x\prime)=\sigma(a)$ predicted by the classifier. We follow this convention here, but as we shall see *depeding on the label domain this convention does not work well for every type of loss function*. Common choices for $\ell$ in the literature include margin-based loss function like **hinge** loss and **logit binary crossentropy** (or **log**) loss. Some use distance-based loss such as **mean squared error** loss (MSE).
 
-### Hinge loss
+### hinge loss
 
-With respect to the logits $a=\mathbf{w}'x$ Hinge loss can be defined as follows
+With respect to the logits $a=\mathbf{w}'x$ hinge loss can be defined as follows
 
 ```math
 \ell(a,t^*)=(1-a\cdot t^*)_+=\max\{0,1-a\cdot t^*\}
@@ -56,7 +56,7 @@ Then our loss function as function of $t$ can restated as follows:
 \ell(a,t^*)=\ell(a,t)=(1-a\cdot h(t))_+=\max\{0,1-a\cdot h(t)\}
 ```
 
-The first-order derivative of Hinge loss with respect to the logits $a$ is simply
+The first-order derivative of hinge loss with respect to the logits $a$ is simply
 
 ```math
 \begin{aligned}
@@ -70,8 +70,8 @@ In the context of counterfactual search the gradient with respect to the feature
 
 ```math
 \begin{aligned}
-&& \nabla_{\tilde{x}} \ell(a,t)&= \begin{cases}
--h(t)\mathbf{w} && \text{if} && h(t)\mathbf{w}^T\tilde{x}<=1 \\ 0 && \text{otherwise.} 
+&& \nabla_{x\prime} \ell(a,t)&= \begin{cases}
+-h(t)\mathbf{w} && \text{if} && h(t)\mathbf{w}^Tx\prime<=1 \\ 0 && \text{otherwise.} 
 \end{cases}
 \end{aligned}
 ```
@@ -130,11 +130,11 @@ Logit binary crossentropy loss loss (sometimes referred to as log loss) is defin
 
 where $\sigma(a)$ is the logit/sigmoid link function.
 
-Once again for the purpose of counter factual search we are interested in the first-order derivative with respect to our feature vector $\tilde{x}$. You can verify that the partial derivative with respect to feature $\tilde{x}_d$ is as follows:
+Once again for the purpose of counter factual search we are interested in the first-order derivative with respect to our feature vector $x\prime$. You can verify that the partial derivative with respect to feature $x\prime_d$ is as follows:
 
 ```math
 \begin{aligned}
-&& \frac{\partial \ell(a,t)}{\partial \tilde{x}_d}&= (\sigma(a) - t) w_d \\
+&& \frac{\partial \ell(a,t)}{\partial x\prime_d}&= (\sigma(a) - t) w_d \\
 \end{aligned}
 ```
 
@@ -142,7 +142,7 @@ The gradient just corresponds to the stacked vector of partial derivatives:
 
 ```math
 \begin{aligned}
-&& \nabla_{\tilde{x}} \ell(a,t)&= (\sigma(a) - t) \mathbf{w} \\
+&& \nabla_{x\prime} \ell(a,t)&= (\sigma(a) - t) \mathbf{w} \\
 \end{aligned}
 ```
 
@@ -209,7 +209,7 @@ The gradient with respect to the vector of features is then:
 
 ```math
 \begin{aligned}
-&& \nabla_{\tilde{x}} \ell(a,t)&= 2(a - t) \mathbf{w} \\
+&& \nabla_{x\prime} \ell(a,t)&= 2(a - t) \mathbf{w} \\
 \end{aligned}
 ```
 
@@ -224,7 +224,7 @@ mse(a,t) = norm(t - a)^2
     mse (generic function with 1 method)
 
 
-**NOTE**: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for $t=0$ the global minimum of the MSE is of course also at $0$. The implication for counterfactual search is that for $t=0$ the search stops when $\mathbf{w}^T\tilde{x}=0$. But at this point $\sigma(\mathbf{w}^T\tilde{x})=0.5$, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and **DON'T** us distance-based loss functions when optimizing with respect to logits.
+**NOTE**: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for $t=0$ the global minimum of the MSE is of course also at $0$. The implication for counterfactual search is that for $t=0$ the search stops when $\mathbf{w}^Tx\prime=0$. But at this point $\sigma(\mathbf{w}^Tx\prime)=0.5$, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and **DON'T** us distance-based loss functions when optimizing with respect to logits.
 
 
 ```julia
@@ -302,7 +302,7 @@ Next we will generating recourse using the CounterfactualExplanations.jl package
 ```julia
 using CounterfactualExplanations
 using CounterfactualExplanations.Models: LogisticModel
-𝑴 = LogisticModel(w, [b]);
+M = LogisticModel(w, [b]);
 target = ifelse(y==1.0,0.0,1.0)
 γ = 0.75
 ```
@@ -322,7 +322,7 @@ recourses = []
 for loss in losses
     for λ in Λ
         gen = GenericGenerator(λ,0.1,1e-5,loss,nothing) 
-        rec = generate_counterfactual(gen, x, 𝑴, target, γ, T=25)
+        rec = generate_counterfactual(gen, x, M, target, γ, T=25)
         recourses = vcat(recourses, (rec=rec, λ=λ, loss=loss))
     end
 end
@@ -330,11 +330,11 @@ end
 
 The code below plots the resulting counterfactual paths. 
 
-1. **Complexity penalty $\lambda$**: has the expected effect of penalizing *long* counterfactual paths: as the distance between $x$ and $\tilde{x}$ the penalty exerts more and more pressure on the gradient in the opposite direction $\nabla\ell$. For large choices of $\lambda$ valid recourse is not attainable.
+1. **Complexity penalty $\lambda$**: has the expected effect of penalizing *long* counterfactual paths: as the distance between $x$ and $x\prime$ the penalty exerts more and more pressure on the gradient in the opposite direction $\nabla\ell$. For large choices of $\lambda$ valid recourse is not attainable.
 2. **Confidence threshold $\gamma$**: note how for both log loss and hinge loss we overshoot a bit, that is we end up well beyond the decision boundary. This is because above we chose a confidence threshold of $\gamma=0.75$. In the context of recourse this choice matters a lot: we have a longer distance to travel (=higher costs for the individual), but we can be more confident that recourse will remain valid. There is of course an interplay between $\lambda$ and $\gamma$.
 3. **The choice of the loss function matters**: the distance-based MSE does **NOT** work without further ajustments when optimizing with respect to logits, as discussed above. 
 
-Overall, in the context of this toy example log **loss arguably generates the most reasonable outcome**: firstly, we can observe that the step size decreases at an increasing rate as the search approaches convergence (which may be desirable); secondly, it appears that increasing $\lambda$ leads to a roughly proportional decrease in the distance of the final counterfactual. This stands in contrast to the outcome for Hinge loss, where increasing $\lambda$ from $0$ to $1$ barely has any effect at all.
+Overall, in the context of this toy example log **loss arguably generates the most reasonable outcome**: firstly, we can observe that the step size decreases at an increasing rate as the search approaches convergence (which may be desirable); secondly, it appears that increasing $\lambda$ leads to a roughly proportional decrease in the distance of the final counterfactual. This stands in contrast to the outcome for hinge loss, where increasing $\lambda$ from $0$ to $1$ barely has any effect at all.
 
 
 ```julia
