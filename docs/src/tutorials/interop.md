@@ -17,8 +17,9 @@ Random.seed!(1234);
 N = 100
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
-x, y = toy_data_non_linear(N)
-X = hcat(x...)
+xs, ys = Data.toy_data_non_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
 ```
 
 ## `torch` model trained in R
@@ -31,7 +32,7 @@ R"""
 # Data
 library(torch)
 X <- torch_tensor(t($X))
-y <- torch_tensor($y)
+ys <- torch_tensor($ys)
 
 # Model:
 mlp <- nn_module(
@@ -62,7 +63,7 @@ for (epoch in 1:100) {
 
   # Compute prediction and loss:
   output <- model(X)[,1]
-  loss <- loss_fun(output, y)
+  loss <- loss_fun(output, ys)
 
   # Backpropagation:
   optimizer$zero_grad()
@@ -93,7 +94,7 @@ function logits(M::TorchNetwork, X::AbstractArray)
   nn = M.nn
   ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ
+  return ŷ'
 end
 probs(M::TorchNetwork, X::AbstractArray)= σ.(logits(M, X))
 M = TorchNetwork(R"model")
@@ -108,8 +109,11 @@ import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
 # Countefactual loss:
-function ∂ℓ(generator::GenericGenerator, x′, M::TorchNetwork, t) 
+function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
+  M = counterfactual_state.M
   nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
   R"""
   x <- torch_tensor($x′, requires_grad=TRUE)
   output <- $nn(x)
@@ -128,34 +132,16 @@ From here on onwards we use the `CounterfactualExplanations.jl` functionality as
 ``` julia
 # Randomly selected factual:
 Random.seed!(123)
-x = x[rand(1:length(x))]
+x = select_factual(counterfactual_data, rand(1:length(xs))) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-γ = 0.75 # desired level of confidence
-# Define AbstractGenerator:
-generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
-# Generate recourse:
-counterfactual = generate_counterfactual(generator, x, M, target, γ)
 ```
 
-The code below just generates the animation that shows the counterfactual path.
-
 ``` julia
-include("docs/src/utils.jl")
-using Plots
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path)',target)
-p1 = plot_contour(X',y,M;clegend=false, title="Posterior predictive - Plugin")
-# [scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="") for t in 1:T]
-# p1
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, "docs/src/tutorials/www/interop_r.gif", fps=5)
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ![](www/interop_r.gif)
@@ -169,7 +155,7 @@ py"""
 import torch
 from torch import nn
 X = torch.Tensor($X).T
-y = torch.Tensor($y)
+ys = torch.Tensor($ys)
 
 class MLP(nn.Module):
   def __init__(self):
@@ -196,7 +182,7 @@ py"""
 for epoch in range(100):
   # Compute prediction and loss:
   output = model(X).squeeze()
-  loss = loss_fun(output, y)
+  loss = loss_fun(output, ys)
   
   # Backpropagation:
   optimizer.zero_grad()
@@ -235,8 +221,11 @@ import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
 # Countefactual loss:
-function ∂ℓ(generator::GenericGenerator, x′, M::PyTorchNetwork, t) 
+function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
+  M = counterfactual_state.M
   nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
   x = reshape(x′, 1, length(x′))
   py"""
   x = torch.Tensor($x)
@@ -252,26 +241,10 @@ end
 ```
 
 ``` julia
-# Define AbstractGenerator:
-generator = GenericGenerator(0.5,0.1,1e-5,:logitbinarycrossentropy,nothing)
+# Define generator:
+generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(generator, x, M, target, γ)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
-``` julia
-include("docs/src/utils.jl")
-using Plots
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path)',target)
-p1 = plot_contour(X',y,M;clegend=false, title="Posterior predictive - Plugin")
-# [scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="") for t in 1:T]
-# p1
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, "docs/src/tutorials/www/interop_py.gif", fps=5)
-```
+![](www/interop_py.gif)

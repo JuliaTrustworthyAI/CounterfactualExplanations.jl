@@ -2,6 +2,6 @@ module DataPreprocessing
 
 include("functions.jl")
 
-export CounterfactualData, select_factual
+export CounterfactualData, select_factual, apply_domain_constraints
 
 end

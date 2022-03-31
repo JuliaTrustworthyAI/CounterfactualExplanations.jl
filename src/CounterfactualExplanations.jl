@@ -9,7 +9,7 @@ using .Data
 
 include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
-export CounterfactualData, select_factual
+export CounterfactualData, select_factual, apply_domain_constraints
 
 include("models/Models.jl")
 using .Models
@@ -20,8 +20,8 @@ using .Losses
 
 include("generators/Generators.jl")
 using .Generators
-export GenericGenerator, GreedyGenerator, 
-    generate_perturbations, conditions_satisified, mutability_constraints
+export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, CounterfactualState,
+    generate_perturbations, conditions_satisified, mutability_constraints  
 
 include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals

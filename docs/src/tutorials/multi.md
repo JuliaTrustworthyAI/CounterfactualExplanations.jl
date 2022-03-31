@@ -1,49 +1,35 @@
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
 # Recourse for multi-class targets
 
-
-```julia
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations, Statistics
-theme(:wong)
-using Logging
-disable_logging(Logging.Info)
-```
-
-
-    LogLevel(1)
-
-
-
-```julia
-x, y = toy_data_multi()
-X = hcat(x...)
-y_train = Flux.onehotbatch(y, unique(y))
+``` julia
+using CounterfactualExplanations.Data
+xs, ys = Data.toy_data_multi()
+X = hcat(xs...)
+y_train = Flux.onehotbatch(ys, unique(ys))
 y_train = Flux.unstack(y_train',1)
 plt = plot()
-plt = plot_data!(plt,X',y);
-savefig(plt, "www/multi_samples.png")
+plt = plot_data!(plt,X',ys)
+savefig(plt, joinpath(www_path, "multi_samples.png"))
 ```
 
 ![](www/multi_samples.png)
 
 ## Classifier
 
-
-```julia
+``` julia
 n_hidden = 32
-out_dim = length(unique(y))
+out_dim = length(unique(ys))
 kw = (output_dim=out_dim, dropout=true)
 nn = build_model(;kw...)
 loss(x, y) = Flux.Losses.logitcrossentropy(nn(x), y)
 ps = Flux.params(nn)
-data = zip(x,y_train);
+data = zip(xs,y_train)
 ```
 
-
-```julia
+``` julia
 using Flux.Optimise: update!, ADAM
 opt = ADAM()
 epochs = 10
@@ -64,30 +50,7 @@ for epoch = 1:epochs
 end
 ```
 
-    Epoch 1
-    avg_loss(data) = 0.9255239012607264
-    Epoch 2
-    avg_loss(data) = 0.3593051233387213
-    Epoch 3
-    avg_loss(data) = 0.18421732400655624
-    Epoch 4
-    avg_loss(data) = 0.10711486082055025
-    Epoch 5
-    avg_loss(data) = 0.07511142481836484
-    Epoch 6
-    avg_loss(data) = 0.0575109613420611
-    Epoch 7
-    avg_loss(data) = 0.0424017922374355
-    Epoch 8
-    avg_loss(data) = 0.03331096899975358
-    Epoch 9
-    avg_loss(data) = 0.027016712426665555
-    Epoch 10
-    avg_loss(data) = 0.02219848870252177
-
-
-
-```julia
+``` julia
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
@@ -102,63 +65,37 @@ probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
 M = NeuralNetwork(nn);
 ```
 
-
-```julia
-plt = plot_contour_multi(X',y,M);
-savefig(plt, "www/multi_contour.png")
-```
-
 ![](www/multi_contour.png)
 
-
-```julia
-# Randomly selected factual:
-Random.seed!(42);
-x = X[:,rand(1:size(X)[2])]
-y = Flux.onecold(probs(M, x),unique(y))
-target = rand(unique(y)[1:end .!= y]) # opposite label as target
-γ = 0.75
-# Define AbstractGenerator:
-generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-# Generate recourse:
-counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
+``` julia
+counterfactual_data = CounterfactualData(X,ys')
 ```
 
+``` julia
+# Randomly selected factual:
+Random.seed!(42)
+x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
+y = Flux.onecold(probs(M, x),unique(ys))
+target = rand(unique(ys)[1:end .!= y]) # opposite label as target
+```
 
-```julia
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path),target)
-p1 = plot_contour(X',y,M;clegend=false, title="MLP")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, "www/multi_generic_recourse.gif", fps=5);
+``` julia
+# Define generator:
+generator = GenericGenerator(;loss=:logitcrossentropy)
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ![](www/multi_generic_recourse.gif)
 
 ## Deep ensemble
 
-
-```julia
-ensemble = build_ensemble(5;kw=(output_dim=out_dim,));
+``` julia
+ensemble = build_ensemble(5;kw=(output_dim=out_dim,))
+ensemble, = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false)
 ```
 
-
-```julia
-using CounterfactualExplanations: forward
-ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
-gif(anim, "www/multi_ensemble_loss.gif", fps=10);
-```
-
-![](www/multi_ensemble_loss.gif)
-
-
-```julia
+``` julia
 # Step 1)
 struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
@@ -172,33 +109,11 @@ probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for
 M=FittedEnsemble(ensemble);
 ```
 
-
-```julia
-plt = plot_contour_multi(X',y,M);
-savefig(plt, "www/multi_ensemble_contour.png")
-```
-
 ![](www/multi_ensemble_contour.png)
 
-
-```julia
-generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
+``` julia
+generator = GreedyGenerator(loss=:logitcrossentropy,δ=0.25,n=20)
 counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
-```
-
-
-```julia
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path),target)
-p1 = plot_contour(X',y,M;clegend=false, title="Deep ensemble")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, "www/multi_greedy_recourse.gif", fps=5);
 ```
 
 ![](www/multi_greedy_recourse.gif)

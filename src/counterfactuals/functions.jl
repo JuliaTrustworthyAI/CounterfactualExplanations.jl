@@ -6,6 +6,7 @@ Collects all variables relevant to the recourse outcome.
 mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
+    target_encoded::Union{Number, AbstractVector, Nothing}
     x′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
@@ -36,7 +37,7 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
 
-    return CounterfactualExplanation(x, target, x′, data, M, generator, params, nothing)
+    return CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
 
 end
 
@@ -44,7 +45,9 @@ end
 
 # 0) Utils
 output_dim(counterfactual_explanation::CounterfactualExplanation) = size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
-function target_encoded(counterfactual_explanation::CounterfactualExplanation) 
+
+using Flux
+function encode_target(counterfactual_explanation::CounterfactualExplanation) 
     out_dim = output_dim(counterfactual_explanation)
     target = counterfactual_explanation.target
     return out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
@@ -64,6 +67,10 @@ y(counterfactual_explanation::CounterfactualExplanation) = factual_label(counter
 
 # 2) Counterfactual values:
 function initialize!(counterfactual_explanation::CounterfactualExplanation) 
+
+    # Encode target:
+    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
+
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 1,
@@ -142,9 +149,9 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
 end
 
 """
-    apply_mutability(Δx̲::AbstractArray, counterfactual.data::CounterfactualData, generator::AbstractGenerator, counterfactual.search::Dict)
+    apply_mutability(Δx′::AbstractArray, counterfactual.data::CounterfactualData, generator::AbstractGenerator, counterfactual.search::Dict)
 
-Apply mutability constraints to `Δx̲` based on vector of constraints `𝑭`.
+Apply mutability constraints to `Δx′` based on vector of constraints `𝑭`.
 
 # Examples 
 
@@ -155,7 +162,7 @@ apply_mutability([-1,1,1,1], 𝑭) # all but :decrease and :none pass
 apply_mutability([-1,-1,1,1], 𝑭) # only :both passes
 
 """
-function apply_mutability(Δx̲::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
+function apply_mutability(Δx′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
 
     mutability = counterfactual_explanation.params[:mutability]
     # Helper functions:
@@ -166,9 +173,9 @@ function apply_mutability(Δx̲::AbstractArray, counterfactual_explanation::Coun
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
     # Apply:
-    Δx̲ = [getfield(cases, mutability[d])(Δx̲[d]) for d in 1:length(Δx̲)]
+    Δx′ = [getfield(cases, mutability[d])(Δx′[d]) for d in 1:length(Δx′)]
 
-    return Δx̲
+    return Δx′
 
 end
 
@@ -178,7 +185,7 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
     counterfactual_state = Generators.CounterfactualState(
         counterfactual_explanation.x,
-        counterfactual_explanation.target,
+        counterfactual_explanation.target_encoded,
         counterfactual_explanation.x′,
         counterfactual_explanation.M,
         counterfactual_explanation.params,
@@ -192,10 +199,12 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_state = get_counterfactual_state(counterfactual_explanation)
 
     # Generate peturbations:
-    Δx̲ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
-    Δx̲ = apply_mutability(Δx̲, counterfactual_explanation)
-    Δx̲ = reshape(Δx̲, size(counterfactual_explanation.x′))
-    counterfactual_explanation.x′ += Δx̲ # update counterfactual
+    Δx′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
+    Δx′ = apply_mutability(Δx′, counterfactual_explanation)
+    Δx′ = reshape(Δx′, size(counterfactual_explanation.x′))
+    x′ = counterfactual_explanation.x′ + Δx′
+    x′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, x′)
+    counterfactual_explanation.x′ = x′ # update counterfactual
     # if !isnothing(feasible_range)
     #     clamp!(x′, feasible_range[1], feasible_range[2])
     # end
@@ -203,7 +212,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     # Updates:
     counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x′]
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
-    counterfactual_explanation.search[:times_changed_features] += reshape(Δx̲ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.search[:times_changed_features] += reshape(Δx′ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)

@@ -1,4 +1,16 @@
 ################################################################################
+# --------------- Constructor for counterfactual state:
+################################################################################
+struct CounterfactualState
+    x::AbstractArray
+    target_encoded::Union{Number, AbstractVector}
+    x′::AbstractArray
+    M::AbstractFittedModel
+    params::Dict
+    search::Union{Dict,Nothing}
+end
+
+################################################################################
 # --------------- Base type for generator:
 ################################################################################
 """
@@ -7,37 +19,32 @@
 An abstract type that serves as the base type for recourse generators. 
 """
 abstract type AbstractGenerator end
-struct CounterfactualState
-    x::AbstractArray
-    target::Number
-    x′::AbstractArray
-    M::AbstractFittedModel
-    params::Dict
-    search::Union{Dict,Nothing}
-end
 
 # Loss:
 ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = getfield(Losses, generator.loss)(
-    Models.logits(counterfactual_state.M, counterfactual_state.x′), counterfactual_state.target
+    Models.logits(counterfactual_state.M, counterfactual_state.x′), counterfactual_state.target_encoded
 )
-∂ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
 
 # Complexity:
 h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x-counterfactual_state.x′)
-∂h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
+
 
 ################################################################################
 # --------------- Base type for gradient-based generator:
 ################################################################################
 abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
+∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
+
+∂h(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
+
 # Gradient:
 ∇(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = ∂ℓ(generator, counterfactual_state) + generator.λ * ∂h(generator, counterfactual_state)
 
 function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
     𝐠ₜ = ∇(generator, counterfactual_state) # gradient
-    Δx̲ = - (generator.ϵ .* 𝐠ₜ) # gradient step
-    return Δx̲
+    Δx′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    return Δx′
 end
 
 function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState)
@@ -66,7 +73,7 @@ generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGradientBasedGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -77,7 +84,6 @@ struct GenericGenerator <: AbstractGradientBasedGenerator
     τ::AbstractFloat # tolerance for convergence
 end
 
-GenericGenerator() = GenericGenerator(:logitbinarycrossentropy,norm,nothing,0.1,0.1,1e-5)
 GenericGenerator(
     ;
     loss::Symbol=:logitbinarycrossentropy,
@@ -103,7 +109,7 @@ generator = GreedyGenerator(0.01,20,:logitbinarycrossentropy, nothing)
 ```
 
 See also:
-- [`generate_counterfactual(generator::AbstractGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
+- [`generate_counterfactual(generator::AbstractGradientBasedGenerator, x::Vector, M::Models.AbstractFittedModel, target::AbstractFloat; T=1000)`](@ref)
 """
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
@@ -112,18 +118,37 @@ struct GreedyGenerator <: AbstractGradientBasedGenerator
     n::Int # maximum number of times any feature can be changed
 end
 
-GreedyGenerator() = GreedyGenerator(:logitbinarycrossentropy,nothing,0.1,10)
-GreedyGenerator(params::Dict,loss=:logitbinarycrossentropy,mutability=nothing) = GreedyGenerator(loss,mutability,params[:δ],params[:n])
+function GreedyGenerator(
+    ;
+    loss::Symbol=:logitbinarycrossentropy,
+    mutability::Union{Nothing,Vector{Symbol}}=nothing,
+    δ::Union{AbstractFloat,Nothing}=nothing,
+    n::Union{Int,Nothing}=nothing
+) 
+    if all(isnothing.([δ, n])) 
+        δ = 0.1
+        n = 10
+    elseif isnothing(δ) && !isnothing(n)
+        δ = 1/n
+    elseif !isnothing(δ) && isnothing(n)
+        n = 1/δ
+    end
+
+    generator = GreedyGenerator(loss,mutability,δ,n)
+
+    return generator
+end
+
 
 ∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState) = ∂ℓ(generator, counterfactual_state)
 
 function generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState) 
     𝐠ₜ = ∇(generator, counterfactual_state) # gradient
     𝐠ₜ[counterfactual_state.params[:mutability] .== :none] .= 0
-    Δx̲ = reshape(zeros(length(counterfactual_state.x′)), size(𝐠ₜ))
+    Δx′ = reshape(zeros(length(counterfactual_state.x′)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
-    Δx̲[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
-    return Δx̲
+    Δx′[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
+    return Δx′
 end
 
 function mutability_constraints(generator::GreedyGenerator, counterfactual_state::CounterfactualState)

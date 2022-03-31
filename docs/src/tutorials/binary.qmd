@@ -98,7 +98,6 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 Now let's plot the resulting counterfactual path in the 2-D feature space (left) and the predicted probability (right):
 
 ```{julia}
-import CounterfactualExplanations.Counterfactuals: target_probs
 T = total_steps(counterfactual)
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)

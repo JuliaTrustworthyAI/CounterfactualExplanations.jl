@@ -19,7 +19,7 @@ jupyter: julia-1.6
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Recourse for multi-class targets
+# Counterfactuals for multi-class targets
 
 ```{julia}
 #| echo: false
@@ -93,6 +93,7 @@ M = NeuralNetwork(nn);
 ```
 
 ```{julia}
+#| echo: false
 plt = plot_contour_multi(X',ys,M);
 savefig(plt, joinpath(www_path, "multi_contour.png"))
 ```
@@ -123,14 +124,14 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 T = size(path(counterfactual))[1]
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;clegend=false, title="MLP")
+p1 = plot_contour_multi(X',ys,M;target=target,colorbar=false,title="MLP")
 anim = @animate for t in 1:T
     scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=5)
+gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=25)
 ```
 
 ![](www/multi_generic_recourse.gif)
@@ -138,16 +139,9 @@ gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=5)
 ## Deep ensemble
 
 ```{julia}
-ensemble = build_ensemble(5;kw=(output_dim=out_dim,));
+ensemble = build_ensemble(5;kw=(output_dim=out_dim,))
+ensemble, = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false)
 ```
-
-```{julia}
-using CounterfactualExplanations: forward
-ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_every=1); # fit the ensemble
-gif(anim, "www/multi_ensemble_loss.gif", fps=10);
-```
-
-![](www/multi_ensemble_loss.gif)
 
 ```{julia}
 # Step 1)
@@ -164,29 +158,31 @@ M=FittedEnsemble(ensemble);
 ```
 
 ```{julia}
-plt = plot_contour_multi(X',y,M);
-savefig(plt, "www/multi_ensemble_contour.png")
+#| echo: false
+plt = plot_contour_multi(X',ys,M);
+savefig(plt, joinpath(www_path, "multi_ensemble_contour.png"))
 ```
 
 ![](www/multi_ensemble_contour.png)
 
 ```{julia}
-generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
+generator = GreedyGenerator(loss=:logitcrossentropy,δ=0.25,n=20)
 counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
 ```
 
 ```{julia}
+#| echo: false
 T = size(path(counterfactual))[1]
 X_path = reduce(hcat,path(counterfactual))
-ŷ = CounterfactualExplanations.target_probs(probs(counterfactual.M, X_path),target)
-p1 = plot_contour(X',y,M;clegend=false, title="Deep ensemble")
+ŷ = target_probs(counterfactual,X_path)
+p1 = plot_contour_multi(X',ys,M;target=target,colorbar=false,title="Deep ensemble")
 anim = @animate for t in 1:T
     scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
+    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
-gif(anim, "www/multi_greedy_recourse.gif", fps=5);
+gif(anim, joinpath(www_path, "multi_greedy_recourse.gif"), fps=25)
 ```
 
 ![](www/multi_greedy_recourse.gif)
