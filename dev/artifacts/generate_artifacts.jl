@@ -2,9 +2,9 @@ using Pkg.Artifacts, LibGit2, ghr_jll
 
 function generate_artifact(
     datafiles; 
-    data_dir="../data", 
-    root="../..",
-    artifact_toml=joinpath("../..", "Artifacts.toml"), 
+    data_dir="dev/artifacts/data", 
+    root=".",
+    artifact_toml=joinpath(root, "Artifacts.toml"), 
     deploy=true,
     tag="data"
 )

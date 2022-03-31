@@ -19,7 +19,9 @@ end
 function cats_dogs_data()
     data_dir = artifact"cats_dogs_data"
     data = BSON.load(joinpath(data_dir,"cats_dogs_data.bson"),@__MODULE__)[:data]
-    return data
+    X, y = (data[:X], data[:y])
+    print(X)
+    return X, y
 end
 
 function cats_dogs_model()
@@ -28,8 +30,8 @@ function cats_dogs_model()
     return model
 end
 
-function cats_dogs_lapalce()
-    data_dir = artifact"cats_dogs_data"
+function cats_dogs_laplace()
+    data_dir = artifact"cats_dogs_laplace"
     la = BSON.load(joinpath(data_dir,"cats_dogs_laplace.bson"),@__MODULE__)[:la]
     return la
 end
@@ -50,12 +52,12 @@ end
 function mnist_ensemble()
     data_dir = joinpath(artifact"mnist_ensemble","mnist_ensemble")
     model_files = Base.Filesystem.readdir(data_dir)
-    𝓜 = []
+    ensemble = []
     for file in model_files
         model = BSON.load(joinpath(data_dir,file),@__MODULE__)[:model]
-        𝓜 = vcat(𝓜, testmode!(model))
+        ensemble = vcat(ensemble, testmode!(model))
     end
-    return 𝓜
+    return ensemble
 end
 
 using Random

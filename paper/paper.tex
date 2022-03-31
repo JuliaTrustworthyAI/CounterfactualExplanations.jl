@@ -100,7 +100,7 @@ following literature surveys provide more detail:
 \cite{fan2020interpretability} focus on explainability in the context of
 deep learning; and finally, \cite{karimi2020survey} offer a detailed
 review of the literature on counterfactual explanations and algorithmic
-recourse.\footnote{Readers who prefer a text-book approach may also want
+counterfactual.\footnote{Readers who prefer a text-book approach may also want
   to consider \cite{molnar2020interpretable} and
   \cite{varshney2022trustworthy}}.
 
@@ -224,9 +224,9 @@ change the model output to a desired value or label
 is presented in the context of binary classification:
 \(M: \mathcal{X} \mapsto y\) where \(\mathcal{X}\subset\mathbb{R}^D\)
 and \(y\in\{0,1\}\). Further, let \(t=1\) be the target class and let
-\(\overline{x}\) denote the factual feature vector of some individual
+\(x\) denote the factual feature vector of some individual
 sample outside of the target class, so
-\(\overline{y}=M(\overline{x})=0\). We follow this convention here,
+\(y=M(x)=0\). We follow this convention here,
 though it should be noted that the ideas presented here also carry over
 to multi-class problems and regression (\cite{molnar2020interpretable}).
 
@@ -237,17 +237,17 @@ The counterfactual search objective originally proposed by
 \cite{wachter2017counterfactual} is as follows
 
 \begin{equation}\protect\hypertarget{eq-obj}{}{
-\min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
+\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
 }\label{eq-obj}\end{equation}
 
 where \(h(\cdot)\) quantifies how complex or costly it is to go from the
-factual \(\overline{x}\) to the counterfactual \(\underline{x}\). To
+factual \(x\) to the counterfactual \(x\prime\). To
 simplify things we can restate this constrained objective
 (Equation~\ref{eq-obj}) as the following unconstrained and
 differentiable problem:
 
 \begin{equation}\protect\hypertarget{eq-solution}{}{
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
 }\label{eq-solution}\end{equation}
 
 Here \(\ell\) denotes some loss function targeting the deviation between
@@ -319,14 +319,14 @@ hence predictive entropy is an intuitive choice for a complexity
 penalty. The authors further point out that any solution that minimizes
 cross-entropy loss (Equation~\ref{eq-solution}) also minimizes
 predictive entropy:
-\(\arg \min _{\underline{x}} \ell(M(\underline{x}),t) \in \arg \min _{\underline{x}} h(\underline{x})\).
+\(\arg \min _{x\prime} \ell(M(x\prime),t) \in \arg \min _{x\prime} h(x\prime)\).
 Let \(\mathcal{\widetilde{M}}\) denote the class of binary classifiers
 that incorporate predictive uncertainty, then the previous observation
 implies that the optimal solution to counterfactual search
 (Equation~\ref{eq-solution}) can be restated as follows:
 
 \begin{equation}\protect\hypertarget{eq-solution-bayes}{}{
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
 }\label{eq-solution-bayes}\end{equation}
 
 We can drop the complexity penalty altogether and still generate
@@ -370,7 +370,7 @@ search algorithms.\footnote{We have made an effort to keep the code base
   point that really any counterfactual generator can be implemented
   without further adaptation.} The core function of the package
 \texttt{generate\_counterfactual} uses an instance of type
-\texttt{T\ \textless{}:\ FittedModel} produced by the \texttt{Models}
+\texttt{T\ \textless{}:\ AbstractFittedModel} produced by the \texttt{Models}
 module (Figure~\ref{fig-models}) and an instance of type
 \texttt{T\ \textless{}:\ AbstractGenerator} produced by the \texttt{Generators}
 module (Figure~\ref{fig-generators}). Relating this back the methodology
@@ -387,7 +387,7 @@ how to use and extend the package architecture through various examples.
 }
 
 \caption{\label{fig-models}Schematic overview of the
-\texttt{FittedModel} base type and its descendants.}
+\texttt{AbstractFittedModel} base type and its descendants.}
 
 \end{figure}
 
@@ -420,7 +420,7 @@ It may help to go through the relevant parts of the code in some more
 detail starting from the part involving the model. For illustrative
 purposes the \texttt{Models} module ships with a constructor for a
 logistic regression model:
-\texttt{LogisticModel(W::Matrix,b::AbstractArray)\ \textless{}:\ FittedModel}.
+\texttt{LogisticModel(W::Matrix,b::AbstractArray)\ \textless{}:\ AbstractFittedModel}.
 This constructors does not fit the regression model, but rather takes
 its underlying parameters as given. In other words, it is generally
 assumed that the user has already estimated a model. Based on the
@@ -433,9 +433,9 @@ an integral part of the counterfactual search. With the model \(M\)
 defined in the code below we go on to set up the counterfactual search
 as follows: 1) choose a random sample \texttt{x\_factual}; 2) compute
 its factual label \texttt{y\_factual} as predicted by the model
-(\(M(\overline{x})=0\)); and 3) specify the other class as our
+(\(M(x)=0\)); and 3) specify the other class as our
 \texttt{target} label (\(t=1\)) along with a desired level of
-\texttt{confidence} in the final prediction \(M(\underline{x})=t\).
+\texttt{confidence} in the final prediction \(M(x\prime)=t\).
 
 The last two lines of the code below define the counterfactual generator
 and finally run the counterfactual search. The first three fields of the
@@ -534,7 +534,7 @@ maximum-a-posteriori (MAP) estimate amounts to a multivariate Gaussian
 distribution (\cite{murphy2022probabilistic}).\footnote{See also this
   \href{https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/}{blog
   post} for a gentle introduction and implementation in Julia.} The
-\texttt{BayesianLogisticModel\ \textless{}:\ FittedModel} constructor
+\texttt{BayesianLogisticModel\ \textless{}:\ AbstractFittedModel} constructor
 takes as its arguments the two moments defining that distribution:
 firstly, the MAP estimate, i.e.~the vector of parameters \(\hat\mu\)
 including the constant term and, secondly, the corresponding covariance
@@ -551,7 +551,7 @@ For the counterfactual search we use a greedy approach following
 each iteration it selects the most salient feature with respect to our
 objective (Equation~\ref{eq-solution-bayes}) and perturbs it by some
 predetermined perturbation size \(\delta\). Since the gradient
-\(\nabla_{\underline{x}}\ell(M(\underline{x},t))\) in this case is
+\(\nabla_{x\prime}\ell(M(x\prime,t))\) in this case is
 proportional to the MAP estimate \(\hat\mu\), the same feature is chosen
 until a predefined maximum number of perturbations \(n\) has been
 exhausted. Those two hyperparameters, \(\delta\) and \(n\), are defined
@@ -611,7 +611,7 @@ supervised-learning model compatible with our package\footnote{In order
   generator.}:
 
 \begin{unnumlist}
-\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{FittedModel}.
+\item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{AbstractFittedModel}.
 \item \textbf{Multiple dispatch}: the functions \texttt{logits} and \texttt{probs} need to be extended through custom methods for the model in question.
 \end{unnumlist}
 
@@ -645,7 +645,7 @@ computed through softmax.
 
 \begin{lstlisting}[language = Julia]
 # Step 1)
-struct NeuralNetwork <: Models.FittedModel
+struct NeuralNetwork <: Models.AbstractFittedModel
     model::Any
 end
 
@@ -710,7 +710,7 @@ follows below.
 # Deep ensemble:
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)
@@ -816,7 +816,7 @@ object called \texttt{model}. That R object can be accessed from Julia
 using \texttt{RCall.jl} by simply calling \texttt{R"model"}. As in
 Section~\ref{sec-custom} and Section~\ref{sec-emp} the first thing
 necessary to make this model compatible with our package is to declare
-it as a subtype of \texttt{Model.FittedModel}. As always we also need to
+it as a subtype of \texttt{Model.AbstractFittedModel}. As always we also need to
 extend the \texttt{logits} and \texttt{probs} functions to make the
 model compatible with \texttt{CounterfactualExplanations.jl}. The code
 below shows how this can be done. Logits are returned by the
@@ -826,7 +826,7 @@ the sigmoid function.
 
 \begin{lstlisting}[language=Julia]
 # Step 1)
-struct TorchNetwork <: Models.FittedModel
+struct TorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -906,7 +906,7 @@ declaration and method dispatch.
 
 \begin{lstlisting}[language=Julia, escapechar=@]
 # Step 1)
-struct PyTorchNetwork <: Models.FittedModel
+struct PyTorchNetwork <: Models.AbstractFittedModel
     nn::Any
 end
 
@@ -978,7 +978,7 @@ steps for the deep ensemble.
 \begin{lstlisting}
 using Flux: stack
 # Step 1)
-struct FittedEnsemble <: Models.FittedModel
+struct FittedEnsemble <: Models.AbstractFittedModel
     ensemble::AbstractArray
 end
 # Step 2)

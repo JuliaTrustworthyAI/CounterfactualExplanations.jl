@@ -2,7 +2,7 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Losses
 using Random
 
-@testset "Hinge" begin
+@testset "hinge" begin
 
     # Equality
     t = rand([-1,1]) # target

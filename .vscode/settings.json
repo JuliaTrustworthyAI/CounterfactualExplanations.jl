@@ -1,3 +1,12 @@
 {
-    "julia.environmentPath": "/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/docs"
+    "julia.environmentPath": "/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/docs",
+    "cSpell.language": "en,en-GB",
+    "spellright.language": [
+        "en"
+    ],
+    "spellright.documentTypes": [
+        "plaintext",
+        "markdown",
+        "latex"
+    ]
 }

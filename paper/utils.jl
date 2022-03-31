@@ -22,7 +22,7 @@ end
 # Plot contour of posterior predictive:
 using Plots, CounterfactualExplanations.Models
 """
-    plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
+    plot_contour(X,y,M;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
 Generates a contour plot for the posterior predictive surface.  
 
@@ -35,13 +35,13 @@ using CounterfactualExplanations.Utils: plot_contour
 X, y = toy_data_linear(100)
 X = hcat(X...)'
 β = [1,1]
-𝑴 =(β=β,)
-predict(𝑴, X) = σ.(𝑴.β' * X)
-plot_contour(X, y, 𝑴)
+M =(β=β,)
+predict(M, X) = σ.(M.β' * X)
+plot_contour(X, y, M)
 ```
 
 """
-function plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
+function plot_contour(X,y,M;clegend=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
     
     # Surface range:
     if isnothing(xlim)
@@ -56,7 +56,7 @@ function plot_contour(X,y,𝑴;clegend=true,title="",length_out=50,zoom=-1,xlim=
     end
     x_range = collect(range(xlim[1],stop=xlim[2],length=length_out))
     y_range = collect(range(ylim[1],stop=ylim[2],length=length_out))
-    Z = [Models.probs(𝑴,[x, y])[1] for x=x_range, y=y_range]
+    Z = [Models.probs(M,[x, y])[1] for x=x_range, y=y_range]
 
     # Plot:
     plt = contourf(
@@ -72,7 +72,7 @@ end
 # Plot contour of posterior predictive:
 using Plots, CounterfactualExplanations.Models
 """
-    plot_contour_multi(X,y,𝑴;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
+    plot_contour_multi(X,y,M;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
 Generates a contour plot for the posterior predictive surface.  
 
@@ -85,13 +85,13 @@ using NNlib: σ
 X, y = toy_data_linear(100)
 X = hcat(X...)'
 β = [1,1]
-𝑴 =(β=β,)
-predict(𝑴, X) = σ.(𝑴.β' * X)
-plot_contour(X, y, 𝑴)
+M =(β=β,)
+predict(M, X) = σ.(M.β' * X)
+plot_contour(X, y, M)
 ```
 
 """
-function plot_contour_multi(X,y,𝑴;
+function plot_contour_multi(X,y,M;
     target::Union{Nothing,Number}=nothing,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
     
     # Surface range:
@@ -107,7 +107,7 @@ function plot_contour_multi(X,y,𝑴;
     end
     x_range = collect(range(xlim[1],stop=xlim[2],length=length_out))
     y_range = collect(range(ylim[1],stop=ylim[2],length=length_out))
-    Z = reduce(hcat, [Models.probs(𝑴,[x, y]) for x=x_range, y=y_range])
+    Z = reduce(hcat, [Models.probs(M,[x, y]) for x=x_range, y=y_range])
 
     # Plot:
     if isnothing(target)

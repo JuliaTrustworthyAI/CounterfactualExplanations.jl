@@ -71,13 +71,13 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 - Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
 
 $$
-\min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
+\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
 $$ {#eq-obj}
 
 - Typically approximated through regularization:
 
 $$
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
 $$ {#eq-solution}
 
 > So counterfactual search is just gradient descent in the feature space 💡 Easy right?
@@ -97,11 +97,11 @@ $$ {#eq-solution}
 
 ## The Bayesian approach - a catchall?
 
-- @schut2021generating note that different approaches just work with different complexity functions ($h(\underline{x})$ in @eq-obj)
+- @schut2021generating note that different approaches just work with different complexity functions ($h(x\prime)$ in @eq-obj)
 - They show that for classifiers $\mathcal{\widetilde{M}}$ that incoporate predictive uncertainty we can drop the complexity penalty altogether:
 
 $$
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
 $$ {#eq-solution-bayes}
 
 # Examples in `CounterfactualExplanations.jl`
@@ -114,7 +114,7 @@ $$ {#eq-solution-bayes}
 [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
 
-`CounterfactualExplanations.jl` is a package for generating counterfactual explanations and aglorithmic recourse.
+`CounterfactualExplanations.jl` is a package for generating counterfactual explanations and aglorithmic counterfactual.
 
 #### Installation
 
@@ -134,19 +134,19 @@ Using the package, generating counterfactuals is as easy as follows:
 # Some random example:
 w = [1.0 -2.0] # true coefficients
 b = [0] # true constant
-x̅ = [-1,0.5] # factual in class 0
+x = [-1,0.5] # factual in class 0
 target = 1.0 # target
 γ = 0.9 # desired confidence
 
 # Declare model:
 using CounterfactualExplanations.Models
-𝑴 = LogisticModel(w, b)
+M = LogisticModel(w, b)
 
 # Counterfactual search:
 generator = GenericGenerator(
   0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(
-  generator, x̅, 𝑴, target, γ)
+counterfactual = generate_counterfactual(
+  generator, x, M, target, γ)
 ```
 
 Designed to work with any custom model and generator through **multiple dispatch**.
