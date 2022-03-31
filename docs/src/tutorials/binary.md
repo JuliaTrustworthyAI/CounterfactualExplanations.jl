@@ -19,10 +19,10 @@ To understand the core functionality of CounterfactualExplanations.jl we will lo
 
 ### `GenericGenerator`
 
-Let *t* ∈ {0, 1} denote the target label, *M* the model (classifier) and x̲ ∈ ℝᴰ the vector of counterfactual features. In order to generate recourse the `GenericGenerator` optimizes the following objective function through steepest descent
+Let *t* ∈ {0, 1} denote the target label, *M* the model (classifier) and x̃ ∈ ℝᴰ the vector of counterfactual features. In order to generate recourse the `GenericGenerator` optimizes the following objective function through steepest descent
 
 ``` math
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) + \lambda h(\tilde{x})
 ```
 
 where ℓ denotes some loss function targeting the deviation between the target label and the predicted label and *h*(⋅) as a complexity penalty generally addressing the *realism* or *cost* of the proposed counterfactual.
@@ -58,9 +58,9 @@ using CounterfactualExplanations.Models: LogisticModel, probs
 𝑴 = LogisticModel(w, [b])
 # Randomly selected factual:
 Random.seed!(123);
-x̅ = select_factual(counterfactual_data,rand(1:size(X)[2]))
-y̅ = round(probs(𝑴, x̅)[1])
-target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+y = round(probs(𝑴, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 ```
 
 ``` julia
@@ -74,7 +74,7 @@ savefig(plt, joinpath(www_folder, "binary_contour.png"))
 # Define AbstractGenerator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x̅, target, counterfactual_data, 𝑴, generator); # generate recourse
+counterfactual = generate_counterfactual(x, target, counterfactual_data, 𝑴, generator); # generate recourse
 ```
 
 Now let’s plot the resulting counterfactual path in the 2-D feature space (left) and the predicted probability (right):
@@ -86,8 +86,8 @@ X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
@@ -98,10 +98,10 @@ gif(anim, joinpath(www_folder, "binary_generic_recourse.gif"), fps=25)
 
 ### `GreedyGenerator`
 
-Next we will repeat the exercise above, but instead use the `GreedyGenerator` in the context of a Bayesian classifier. This generator is greedy in the sense that it simply chooses the most salient feature {x̲}ᵈ where
+Next we will repeat the exercise above, but instead use the `GreedyGenerator` in the context of a Bayesian classifier. This generator is greedy in the sense that it simply chooses the most salient feature {x̃}ᵈ where
 
 ``` math
-d=\arg\max_{d \in [1,D]} \nabla_{\underline{x}} \ell(M(\underline{x}),t)
+d=\arg\max_{d \in [1,D]} \nabla_{\tilde{x}} \ell(M(\tilde{x}),t)
 ```
 
 and perturbs it by a fixed amount *δ*. In other words, optimization is penalty-free. This is possible in the Bayesian context, because maximizing the predictive probability *γ* corresponds to minimizing the predictive uncertainty: by construction the generated counterfactual will therefore be *realistic* (low epistemic uncertainty) and *unambiguous* (low aleotoric uncertainty).
@@ -112,7 +112,7 @@ using LinearAlgebra
 μ = hcat(b, w)
 𝑴 = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
 generator = GreedyGenerator(Dict(:δ=>0.1,:n=>25))
-counterfactual = generate_counterfactual(x̅, target, counterfactual_data, 𝑴, generator); # generate counterfactual
+counterfactual = generate_counterfactual(x, target, counterfactual_data, 𝑴, generator); # generate counterfactual
 ```
 
 Once again we plot the resulting counterfactual path (left) and changes in the predicted probability (right). For the Bayesian classifier predicted probabilities splash out: uncertainty increases in regions with few samples. Note how the greedy approach selects the same most salient feature over and over again until its exhausted (i.e. it has been chosen `GreedyGenerator.n` times).
@@ -124,8 +124,8 @@ X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end

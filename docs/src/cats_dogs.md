@@ -1,3 +1,7 @@
+``` @meta
+CurrentModule = CounterfactualExplanations
+```
+
 # From 🐱 to 🐶 - a motivating example
 
 Suppose we have a sample of cats and dogs with information about two features: height and tail length. Based on these two features we have trained two black box classifiers to distinguish between cats and dogs: firstly, an artificial neural network with weight regularization and secondly, that same neural network but its Bayesian counterpart ([Figure 1](#fig-predictive) below). One individual cat – let’s call her Kitty 🐱 – is friends with a lot of cool dogs and wants to be part of that group. Let’s see how we can generate counterfactual paths for her.
@@ -29,14 +33,14 @@ probs(𝑴::NeuralNetwork, X::AbstractArray)= σ.(logits(𝑴, X))
 𝑴 = NeuralNetwork(model);
 ```
 
-Let `x̅` be the 2D-feature vector describing Kitty 🐱. Based on those features she is currently labelled as `y̅ = 0.0`. We have set the target label to `1.0` and the desired confidence in the prediction to `γ = 0.75`. Now we can use the `GenericGenerator` for our counterfactual search as follows:
+Let `x` be the 2D-feature vector describing Kitty 🐱. Based on those features she is currently labelled as `y = 0.0`. We have set the target label to `1.0` and the desired confidence in the prediction to `γ = 0.75`. Now we can use the `GenericGenerator` for our counterfactual search as follows:
 
 ``` julia
 generator = GenericGenerator(0.01,2,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ)
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ)
 ```
 
-The `GenericGenerator` implements the search algorithm first proposed by Wachter, Mittelstadt, and Russell (2017). The resulting counterfactual path is shown in [Figure 2](#fig-recourse-mlp) below. We can see that 🐱 travels through the feature space until she reaches a destination where the black-box model predicts that with a probability of \>75% she is actually a dog. Her counterfactual self is in the target class so the algorithmic recourse objective is satisfied. We have also gained an intuitive understanding of how the black-model arrives at its decisions: increasing height and decreasing tail length both raise the predicted probability that 🐱 is actually a dog.
+The `GenericGenerator` implements the search algorithm first proposed by Wachter, Mittelstadt, and Russell (2017). The resulting counterfactual path is shown in [Figure 2](#fig-recourse-mlp) below. We can see that 🐱 travels through the feature space until she reaches a destination where the black-box model predicts that with a probability of more than 75% she is actually a dog. Her counterfactual self is in the target class so the algorithmic recourse objective is satisfied. We have also gained an intuitive understanding of how the black-model arrives at its decisions: increasing height and decreasing tail length both raise the predicted probability that 🐱 is actually a dog.
 
 ![Figure 2: Classification for toy dataset of cats and dogs. The contour indicates confidence in predicted labels. Left: MLP with weight regularization. Right: That same MLP, but with Laplace approximation for posterior predictive.](www/recourse_mlp.gif)
 
@@ -67,7 +71,7 @@ Using the same target and desired confidence `γ` as above we finally use the `G
 
 ``` julia
 generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴ᴸ, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴ᴸ, target, γ); # generate recourse
 ```
 
 The `GreedyGenerator` implements the approach proposed in Schut et al. (2021): by maximizing the predicted probability of the Bayesian model in [Figure 3](#fig-recourse-laplace) below, we implicitly minimize the predictive uncertainty around the counterfactual. This way we end up generating a counterfactual that looks more like the individuals 🐶 in the target class and is therefore more realistic.

@@ -224,9 +224,9 @@ change the model output to a desired value or label
 is presented in the context of binary classification:
 \(M: \mathcal{X} \mapsto y\) where \(\mathcal{X}\subset\mathbb{R}^D\)
 and \(y\in\{0,1\}\). Further, let \(t=1\) be the target class and let
-\(\overline{x}\) denote the factual feature vector of some individual
+\(x\) denote the factual feature vector of some individual
 sample outside of the target class, so
-\(\overline{y}=M(\overline{x})=0\). We follow this convention here,
+\(y=M(x)=0\). We follow this convention here,
 though it should be noted that the ideas presented here also carry over
 to multi-class problems and regression (\cite{molnar2020interpretable}).
 
@@ -237,17 +237,17 @@ The counterfactual search objective originally proposed by
 \cite{wachter2017counterfactual} is as follows
 
 \begin{equation}\protect\hypertarget{eq-obj}{}{
-\min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
+\min_{\tilde{x} \in \mathcal{X}} h(\tilde{x}) \ \ \ \mbox{s. t.} \ \ \ M(\tilde{x}) = t
 }\label{eq-obj}\end{equation}
 
 where \(h(\cdot)\) quantifies how complex or costly it is to go from the
-factual \(\overline{x}\) to the counterfactual \(\underline{x}\). To
+factual \(x\) to the counterfactual \(\tilde{x}\). To
 simplify things we can restate this constrained objective
 (Equation~\ref{eq-obj}) as the following unconstrained and
 differentiable problem:
 
 \begin{equation}\protect\hypertarget{eq-solution}{}{
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) + \lambda h(\tilde{x})
 }\label{eq-solution}\end{equation}
 
 Here \(\ell\) denotes some loss function targeting the deviation between
@@ -319,14 +319,14 @@ hence predictive entropy is an intuitive choice for a complexity
 penalty. The authors further point out that any solution that minimizes
 cross-entropy loss (Equation~\ref{eq-solution}) also minimizes
 predictive entropy:
-\(\arg \min _{\underline{x}} \ell(M(\underline{x}),t) \in \arg \min _{\underline{x}} h(\underline{x})\).
+\(\arg \min _{\tilde{x}} \ell(M(\tilde{x}),t) \in \arg \min _{\tilde{x}} h(\tilde{x})\).
 Let \(\mathcal{\widetilde{M}}\) denote the class of binary classifiers
 that incorporate predictive uncertainty, then the previous observation
 implies that the optimal solution to counterfactual search
 (Equation~\ref{eq-solution}) can be restated as follows:
 
 \begin{equation}\protect\hypertarget{eq-solution-bayes}{}{
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
+\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
 }\label{eq-solution-bayes}\end{equation}
 
 We can drop the complexity penalty altogether and still generate
@@ -433,9 +433,9 @@ an integral part of the counterfactual search. With the model \(M\)
 defined in the code below we go on to set up the counterfactual search
 as follows: 1) choose a random sample \texttt{x\_factual}; 2) compute
 its factual label \texttt{y\_factual} as predicted by the model
-(\(M(\overline{x})=0\)); and 3) specify the other class as our
+(\(M(x)=0\)); and 3) specify the other class as our
 \texttt{target} label (\(t=1\)) along with a desired level of
-\texttt{confidence} in the final prediction \(M(\underline{x})=t\).
+\texttt{confidence} in the final prediction \(M(\tilde{x})=t\).
 
 The last two lines of the code below define the counterfactual generator
 and finally run the counterfactual search. The first three fields of the
@@ -551,7 +551,7 @@ For the counterfactual search we use a greedy approach following
 each iteration it selects the most salient feature with respect to our
 objective (Equation~\ref{eq-solution-bayes}) and perturbs it by some
 predetermined perturbation size \(\delta\). Since the gradient
-\(\nabla_{\underline{x}}\ell(M(\underline{x},t))\) in this case is
+\(\nabla_{\tilde{x}}\ell(M(\tilde{x},t))\) in this case is
 proportional to the MAP estimate \(\hat\mu\), the same feature is chosen
 until a predefined maximum number of perturbations \(n\) has been
 exhausted. Those two hyperparameters, \(\delta\) and \(n\), are defined

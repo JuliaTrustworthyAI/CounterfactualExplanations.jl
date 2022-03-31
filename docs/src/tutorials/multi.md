@@ -114,14 +114,14 @@ savefig(plt, "www/multi_contour.png")
 ```julia
 # Randomly selected factual:
 Random.seed!(42);
-x̅ = X[:,rand(1:size(X)[2])]
-y̅ = Flux.onecold(probs(𝑴, x̅),unique(y))
-target = rand(unique(y)[1:end .!= y̅]) # opposite label as target
+x = X[:,rand(1:size(X)[2])]
+y = Flux.onecold(probs(𝑴, x),unique(y))
+target = rand(unique(y)[1:end .!= y]) # opposite label as target
 γ = 0.75
 # Define AbstractGenerator:
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
 # Generate recourse:
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -131,8 +131,8 @@ X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
@@ -183,7 +183,7 @@ savefig(plt, "www/multi_ensemble_contour.png")
 
 ```julia
 generator = GreedyGenerator(0.25,20,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -193,8 +193,8 @@ X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end

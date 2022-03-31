@@ -204,15 +204,15 @@ save(joinpath(image_dir,"predictive_laplace.png"), fᴸ)
 using Random
 Random.seed!(1234)
 cats = findall(y.==0)
-x̅ = X[:,rand(cats)]
-y̅ = 0.0
+x = X[:,rand(cats)]
+y = 0.0
 target = 1.0 # opposite label as target
 γ = 0.75; # desired level of confidence
 ```
 
 ```{julia}
 generator = GenericGenerator(0.1,0.05,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
 ```{julia}
@@ -239,7 +239,7 @@ end;
 
 ```{julia}
 generator = GreedyGenerator(0.1,20,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴ᴸ, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴ᴸ, target, γ); # generate recourse
 ```
 
 ```{julia}

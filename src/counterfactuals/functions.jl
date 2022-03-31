@@ -1,12 +1,12 @@
 """
-    Recourse(x̲::AbstractArray, y̲::AbstractFloat, path::Matrix{AbstractFloat}, generator::Generators.AbstractGenerator, x̅::AbstractArray, y̅::AbstractFloat, 𝑴::Models.AbstractFittedModel, target::AbstractFloat)
+    Recourse(x̃::AbstractArray, ỹ::AbstractFloat, path::Matrix{AbstractFloat}, generator::Generators.AbstractGenerator, x::AbstractArray, y::AbstractFloat, 𝑴::Models.AbstractFittedModel, target::AbstractFloat)
 
 Collects all variables relevant to the recourse outcome. 
 """
 mutable struct CounterfactualExplanation
-    x̅::AbstractArray
+    x::AbstractArray
     target::Number
-    x̲::AbstractArray
+    x̃::AbstractArray
     data::DataPreprocessing.CounterfactualData
     𝑴::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
@@ -16,7 +16,7 @@ end
 
 # Outer constructor method:
 function CounterfactualExplanation(
-    x̅::Union{AbstractArray,Int}, 
+    x::Union{AbstractArray,Int}, 
     target::Union{AbstractFloat,Int}, 
     data::CounterfactualData,  
     𝑴::Models.AbstractFittedModel,
@@ -25,9 +25,9 @@ function CounterfactualExplanation(
     T::Int
 ) 
     # Factual:
-    x̅ = typeof(x̅) == Int ? select_factual(data, x̅) : x̅
+    x = typeof(x) == Int ? select_factual(data, x) : x
     # Counterfactual:
-    x̲ = copy(x̅)  # start from factual
+    x̃ = copy(x)  # start from factual
 
     # Parameters:
     params = Dict(
@@ -36,14 +36,14 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
 
-    return CounterfactualExplanation(x̅, target, x̲, data, 𝑴, generator, params, nothing)
+    return CounterfactualExplanation(x, target, x̃, data, 𝑴, generator, params, nothing)
 
 end
 
 # Convenience methods:
 
 # 0) Utils
-output_dim(counterfactual_explanation::CounterfactualExplanation) = size(Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x̅))[1]
+output_dim(counterfactual_explanation::CounterfactualExplanation) = size(Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x))[1]
 function target_encoded(counterfactual_explanation::CounterfactualExplanation) 
     out_dim = output_dim(counterfactual_explanation)
     target = counterfactual_explanation.target
@@ -51,8 +51,8 @@ function target_encoded(counterfactual_explanation::CounterfactualExplanation)
 end
 
 # 1) Factual values
-factual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x̅
-factual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x̅)
+factual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x
+factual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x)
 p̅(counterfactual_explanation::CounterfactualExplanation) = factual_probability(counterfactual_explanation)
 function factual_label(counterfactual_explanation::CounterfactualExplanation) 
     p = p̅(counterfactual_explanation)
@@ -60,15 +60,15 @@ function factual_label(counterfactual_explanation::CounterfactualExplanation)
     y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
     return y
 end
-y̅(counterfactual_explanation::CounterfactualExplanation) = factual_label(counterfactual_explanation)
+y(counterfactual_explanation::CounterfactualExplanation) = factual_label(counterfactual_explanation)
 
 # 2) Counterfactual values:
 function initialize!(counterfactual_explanation::CounterfactualExplanation) 
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 1,
-        :times_changed_features => zeros(length(counterfactual_explanation.x̅)),
-        :path => [counterfactual_explanation.x̲],
+        :times_changed_features => zeros(length(counterfactual_explanation.x)),
+        :path => [counterfactual_explanation.x̃],
         :terminated => threshold_reached(counterfactual_explanation),
         :converged => threshold_reached(counterfactual_explanation)
     )
@@ -78,8 +78,8 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
     end
 
 end
-outcome(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x̲
-counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x̲)
+outcome(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x̃
+counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.𝑴, counterfactual_explanation.x̃)
 p̲(counterfactual_explanation::CounterfactualExplanation) = counterfactual_probability(counterfactual_explanation)
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
     p = p̲(counterfactual_explanation)
@@ -87,7 +87,7 @@ function counterfactual_label(counterfactual_explanation::CounterfactualExplanat
     y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
     return y
 end
-y̲(counterfactual_explanation::CounterfactualExplanation) = counterfactual_label(counterfactual_explanation)
+ỹ(counterfactual_explanation::CounterfactualExplanation) = counterfactual_label(counterfactual_explanation)
 
 # 3) Search related methods:
 terminated(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:terminated]
@@ -177,9 +177,9 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
     counterfactual_state = Generators.CounterfactualState(
-        counterfactual_explanation.x̅,
+        counterfactual_explanation.x,
         counterfactual_explanation.target,
-        counterfactual_explanation.x̲,
+        counterfactual_explanation.x̃,
         counterfactual_explanation.𝑴,
         counterfactual_explanation.params,
         counterfactual_explanation.search
@@ -194,14 +194,14 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     # Generate peturbations:
     Δx̲ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
     Δx̲ = apply_mutability(Δx̲, counterfactual_explanation)
-    Δx̲ = reshape(Δx̲, size(counterfactual_explanation.x̲))
-    counterfactual_explanation.x̲ += Δx̲ # update counterfactual
+    Δx̲ = reshape(Δx̲, size(counterfactual_explanation.x̃))
+    counterfactual_explanation.x̃ += Δx̲ # update counterfactual
     # if !isnothing(feasible_range)
-    #     clamp!(x̲, feasible_range[1], feasible_range[2])
+    #     clamp!(x̃, feasible_range[1], feasible_range[2])
     # end
     
     # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x̲]
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x̃]
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:times_changed_features] += reshape(Δx̲ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   

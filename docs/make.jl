@@ -21,7 +21,6 @@ makedocs(;
                 "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
-                "Loss functions" => "tutorials/loss.md",
                 "Interoperability" => "tutorials/interop.md"
             ],
         "More examples" =>
@@ -32,6 +31,11 @@ makedocs(;
                 # "Time series" => [
                 #     "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"
                 # ]
+            ],
+        "Contributor's Guide" =>
+            [
+                "Section overview" => "contributing/index.md",
+                "Loss functions" => "contributing/loss.md"
             ],
         "Reference" => "reference.md"
     ],

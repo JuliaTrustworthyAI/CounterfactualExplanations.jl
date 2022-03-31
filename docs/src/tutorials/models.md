@@ -121,7 +121,7 @@ end
 
 #### Generating recourse
 
-Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $\overline{x}\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CounterfactualExplanations.jl. 
+Now it's game time: we have a fitted model $M: \mathcal{X} \mapsto y$ and are interested in generating recourse for some individual $x\in\mathcal{X}$. As mentioned above we need to do a bit more work to prepare the model to be used by CounterfactualExplanations.jl. 
 
 The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.AbstractFittedModel` and in step 2) it just extends the two functions. 
 
@@ -162,9 +162,9 @@ Now we just select a random sample from our data and based on its current label 
 ```julia
 using Random
 Random.seed!(123)
-x̅ = X[:,rand(1:size(X)[2])]
-y̅ = round(probs(𝑴, x̅)[1])
-target = ifelse(y̅==1.0,0.0,1.0) # opposite label as target
+x = X[:,rand(1:size(X)[2])]
+y = round(probs(𝑴, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 γ = 0.75; # desired level of confidence
 ```
 
@@ -173,7 +173,7 @@ Then finally we use the `GenericGenerator` to generate recourse. The plot furthe
 
 ```julia
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -183,8 +183,8 @@ X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="MLP")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end
@@ -310,7 +310,7 @@ Finally, we use the `GreedyGenerator` for the counterfactual search. For the sam
 
 ```julia
 generator = GreedyGenerator(0.25,20,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
 
@@ -320,8 +320,8 @@ X_path = reduce(hcat,recourse.path)
 ŷ = CounterfactualExplanations.target_probs(probs(recourse.𝑴, X_path),target)
 p1 = plot_contour(X',y,𝑴;clegend=false, title="Deep ensemble")
 anim = @animate for t in 1:T
-    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y̅), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y̲=" * string(target) * ")", title="Validity", lc=:black)
+    scatter!(p1, [recourse.path[t][1]], [recourse.path[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(ỹ=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,γ,label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
 end

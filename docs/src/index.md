@@ -50,33 +50,33 @@ using CounterfactualExplanations.Models
 w = [1.0 -2.0] # true coefficients
 b = [0]
 𝑴 = LogisticModel(w, b)
-x̅ = [-1,0.5]
+x = [-1,0.5]
 target = 1.0
 γ = 0.9
 generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ); # generate recourse
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ); # generate recourse
 ```
 
-We can see that the counterfactual label y̲ corresponds to the target:
+We can see that the counterfactual label ỹ corresponds to the target:
 
 ``` julia
-julia> recourse.y̲
+julia> recourse.ỹ
 1.0
 
-julia> recourse.x̅
+julia> recourse.x
 2-element Vector{Float64}:
  -1.0
   0.5
 
-julia> recourse.y̅
+julia> recourse.y
 0.0
 
-julia> recourse.x̲
+julia> recourse.x̃
 2-element Vector{Float64}:
  -0.15867040347424893
  -1.182659193051502
 
-julia> recourse.y̲
+julia> recourse.ỹ
 1.0
 ```
 

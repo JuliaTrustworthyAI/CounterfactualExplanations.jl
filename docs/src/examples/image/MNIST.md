@@ -87,10 +87,10 @@ We will start with an example that should yield intuitive results: the process o
 ``` julia
 # Randomly selected factual:
 Random.seed!(1234);
-x̅ = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
+x = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
 target = 5
 γ = 0.95
-img = convert2image(reshape(x̅,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+img = convert2image(reshape(x,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_orig = plot(img, title="Original", axis=nothing)
 savefig(plt_orig, "www/mnist_original.png")
 ```
@@ -102,26 +102,26 @@ The code below implements the four different approaches one by one. [Figure 3](
 ``` julia
 # Generic - MLP
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_wachter = plot(img, title="MLP - Wachter")
 
 # Greedy - MLP
 generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+recourse = generate_counterfactual(generator, x, 𝑴, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_greedy = plot(img, title="MLP - Greedy")
 
 # Generic - Deep Ensemble
 generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+recourse = generate_counterfactual(generator, x, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_wachter_de = plot(img, title="Ensemble - Wachter")
 
 # Greedy - Deep Ensemble
 generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-recourse = generate_counterfactual(generator, x̅, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(recourse.x̲,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+recourse = generate_counterfactual(generator, x, 𝑴_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
+img = convert2image(reshape(recourse.x̃,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
 plt_greedy_de = plot(img, title="Ensemble - Greedy")
 
 plt_list = [plt_orig, plt_wachter, plt_greedy, plt_wachter_de, plt_greedy_de]

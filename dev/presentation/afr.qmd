@@ -71,13 +71,13 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 - Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
 
 $$
-\min_{\underline{x} \in \mathcal{X}} h(\underline{x}) \ \ \ \mbox{s. t.} \ \ \ M(\underline{x}) = t
+\min_{\tilde{x} \in \mathcal{X}} h(\tilde{x}) \ \ \ \mbox{s. t.} \ \ \ M(\tilde{x}) = t
 $$ {#eq-obj}
 
 - Typically approximated through regularization:
 
 $$
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) + \lambda h(\underline{x})
+\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) + \lambda h(\tilde{x})
 $$ {#eq-solution}
 
 > So counterfactual search is just gradient descent in the feature space 💡 Easy right?
@@ -97,11 +97,11 @@ $$ {#eq-solution}
 
 ## The Bayesian approach - a catchall?
 
-- @schut2021generating note that different approaches just work with different complexity functions ($h(\underline{x})$ in @eq-obj)
+- @schut2021generating note that different approaches just work with different complexity functions ($h(\tilde{x})$ in @eq-obj)
 - They show that for classifiers $\mathcal{\widetilde{M}}$ that incoporate predictive uncertainty we can drop the complexity penalty altogether:
 
 $$
-\underline{x} = \arg \min_{\underline{x}}  \ell(M(\underline{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
+\tilde{x} = \arg \min_{\tilde{x}}  \ell(M(\tilde{x}),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
 $$ {#eq-solution-bayes}
 
 # Examples in `CounterfactualExplanations.jl`
@@ -134,7 +134,7 @@ Using the package, generating counterfactuals is as easy as follows:
 # Some random example:
 w = [1.0 -2.0] # true coefficients
 b = [0] # true constant
-x̅ = [-1,0.5] # factual in class 0
+x = [-1,0.5] # factual in class 0
 target = 1.0 # target
 γ = 0.9 # desired confidence
 
@@ -146,7 +146,7 @@ using CounterfactualExplanations.Models
 generator = GenericGenerator(
   0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
 recourse = generate_counterfactual(
-  generator, x̅, 𝑴, target, γ)
+  generator, x, 𝑴, target, γ)
 ```
 
 Designed to work with any custom model and generator through **multiple dispatch**.
