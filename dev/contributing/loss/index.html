@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Loss functions · CounterfactualExplanations.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/CounterfactualExplanations.jl/contributing/loss/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">CounterfactualExplanations.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../cats_dogs/">Motivating example</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/">Overview</a></li><li><a class="tocitem" href="../../tutorials/binary/">Binary target</a></li><li><a class="tocitem" href="../../tutorials/models/">Models</a></li><li><a class="tocitem" href="../../tutorials/multi/">Multi-class target</a></li><li><a class="tocitem" href="../../tutorials/interop/">Interoperability</a></li></ul></li><li><span class="tocitem">More examples</span><ul><li><input class="collapse-toggle" id="menuitem-4-1" type="checkbox"/><label class="tocitem" for="menuitem-4-1"><span class="docs-label">Image data</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../examples/image/MNIST/">MNIST</a></li></ul></li></ul></li><li><span class="tocitem">Contributor&#39;s Guide</span><ul><li><a class="tocitem" href="../">Overview</a></li><li class="is-active"><a class="tocitem" href>Loss functions</a><ul class="internal"><li><a class="tocitem" href="#General-setup"><span>General setup</span></a></li><li><a class="tocitem" href="#Loss-function-\\ell"><span>Loss function <span>$\ell$</span></span></a></li><li><a class="tocitem" href="#Example-in-2D"><span>Example in 2D</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Contributor&#39;s Guide</a></li><li class="is-active"><a href>Loss functions</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Loss functions</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/CounterfactualExplanations.jl/blob/master/docs/src/contributing/loss.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Loss-functions-and-gradients"><a class="docs-heading-anchor" href="#Loss-functions-and-gradients">Loss functions and gradients</a><a id="Loss-functions-and-gradients-1"></a><a class="docs-heading-anchor-permalink" href="#Loss-functions-and-gradients" title="Permalink"></a></h1><p>This is a short tutorial on loss functions and gradients typically involved in counterfactual search. It involves more maths than perhaps some of the other tutorials.</p><pre><code class="language-julia hljs">using Zygote, Plots, PlotThemes, LinearAlgebra
+theme(:wong)
+using Logging
+disable_logging(Logging.Info)</code></pre><pre><code class="nohighlight hljs">LogLevel(1)</code></pre><h2 id="General-setup"><a class="docs-heading-anchor" href="#General-setup">General setup</a><a id="General-setup-1"></a><a class="docs-heading-anchor-permalink" href="#General-setup" title="Permalink"></a></h2><p>We begin by restating the general setup for generic counterfactual search. Let <span>$t\in\{0,1\}$</span> denote the target label, <span>$M$</span> the model (classifier) and <span>$x\prime\in\mathbb{R}^D$</span> the vector of counterfactual features (we will assume all features are continuous). Then the differentiable optimization problem in algorithmic recourse is generally of the following form</p><p class="math-container">\[x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)\]</p><p>where <span>$\ell$</span> denotes some loss function targeting the deviation between the target label and the predicted label and <span>$h(\cdot)$</span> acts as a complexity penality generally addressing the <em>realism</em> or <em>cost</em> of the proposed counterfactual. </p><h2 id="Loss-function-\\ell"><a class="docs-heading-anchor" href="#Loss-function-\\ell">Loss function <span>$\ell$</span></a><a id="Loss-function-\\ell-1"></a><a class="docs-heading-anchor-permalink" href="#Loss-function-\\ell" title="Permalink"></a></h2><p>Different choices for <span>$\ell$</span> come to mind, each potentially leading to very different counterfactual outcomes. In practice, <span>$\ell$</span> is often implemented with respect to the <em>logits</em> <span>$a=\mathbf{w}^Tx$</span> rather than the probabilities <span>$p(y\prime=1|x\prime)=\sigma(a)$</span> predicted by the classifier. We follow this convention here, but as we shall see <em>depeding on the label domain this convention does not work well for every type of loss function</em>. Common choices for <span>$\ell$</span> in the literature include margin-based loss function like <strong>hinge</strong> loss and <strong>logit binary crossentropy</strong> (or <strong>log</strong>) loss. Some use distance-based loss such as <strong>mean squared error</strong> loss (MSE).</p><h3 id="hinge-loss"><a class="docs-heading-anchor" href="#hinge-loss">hinge loss</a><a id="hinge-loss-1"></a><a class="docs-heading-anchor-permalink" href="#hinge-loss" title="Permalink"></a></h3><p>With respect to the logits <span>$a=\mathbf{w}&#39;x$</span> hinge loss can be defined as follows</p><p class="math-container">\[\ell(a,t^*)=(1-a\cdot t^*)_+=\max\{0,1-a\cdot t^*\}\]</p><p>where <span>$t^*$</span> is the target label in <span>$\{-1,1\}$</span>. Since above we defined <span>$t\in\{0,1\}$</span> we need a mapping <span>$h: \{0,1\} \mapsto \{-1,1\}$</span>. Specifically, we want to plug in <span>$h(t)=t^*$</span> where <span>$h(\cdot)$</span> is just the following conditional:</p><p class="math-container">\[\begin{aligned}
+h(t)&amp;=\begin{cases}
+-1 &amp;&amp; \text{if} &amp;&amp; t=0 \\ 1 &amp;&amp; \text{if} &amp;&amp; t=1
+\end{cases}
+\end{aligned}\]</p><p>Then our loss function as function of <span>$t$</span> can restated as follows:</p><p class="math-container">\[\ell(a,t^*)=\ell(a,t)=(1-a\cdot h(t))_+=\max\{0,1-a\cdot h(t)\}\]</p><p>The first-order derivative of hinge loss with respect to the logits <span>$a$</span> is simply</p><p class="math-container">\[\begin{aligned}
+\ell&#39;(a,t)&amp;=\begin{cases}
+-h(t) &amp;&amp; \text{if} &amp;&amp; a \cdot h(t)&lt;=1 \\ 0 &amp;&amp; \text{otherwise.} 
+\end{cases}
+\end{aligned}\]</p><p>In the context of counterfactual search the gradient with respect to the feature vector is then:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \nabla_{x\prime} \ell(a,t)&amp;= \begin{cases}
+-h(t)\mathbf{w} &amp;&amp; \text{if} &amp;&amp; h(t)\mathbf{w}^Tx\prime&lt;=1 \\ 0 &amp;&amp; \text{otherwise.} 
+\end{cases}
+\end{aligned}\]</p><p>In practice gradients are commonly computed through autodifferentiation. In this tutorial we use the <a href="https://github.com/FluxML/Zygote.jl">Zygote.jl</a> package which is at the core of <a href="https://fluxml.ai/Flux.jl/stable/models/basics/">Flux.jl</a>, the main deep learning library for Julia.</p><p>The side-by-side plot below visualises the loss function and its derivative. The plot further below serves as a simple sanity check to verify that autodifferentiation indeed yields the same result as the closed-form solution for the gradient.</p><pre><code class="language-julia hljs">h(t) = ifelse(t==1,1,-1)
+hinge(a,t) = max(0,1-a*h(t))</code></pre><pre><code class="nohighlight hljs">hinge (generic function with 1 method)</code></pre><pre><code class="language-julia hljs">default(size=(500,500))
+a = -2:0.05:2
+p1 = plot(a, [hinge(a,1) for a=a], title=&quot;Loss, t=1&quot;, xlab=&quot;logits&quot;)
+p2 = plot(a, [gradient(hinge,a,1)[1] for a=a], title=&quot;Gradient, t=1&quot;, xlab=&quot;logits&quot;)
+p3 = plot(a, [hinge(a,0) for a=a], title=&quot;Loss, t=0&quot;, xlab=&quot;logits&quot;)
+p4 = plot(a, [gradient(hinge,a,0)[1] for a=a], title=&quot;Gradient, t=0&quot;, xlab=&quot;logits&quot;)
+plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
+savefig(&quot;www/loss_grad_hinge.png&quot;)</code></pre><p><img src="../www/loss_grad_hinge.png" alt/></p><pre><code class="language-julia hljs"># Just verifying that the formula for the gradient above indeed yields the same result.
+function gradient_man(x,w,t)
+    𝐠 = ifelse(h(t)*w&#39;x&lt;=1, -h(t)*w, 0)
+    return 𝐠
+end;
+plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label=&quot;Manual&quot;, title=&quot;Gradient&quot;, xlab=&quot;logits&quot;)
+scatter!(a, [gradient(hinge,a,1)[1] for a=a], label=&quot;Autodiff&quot;)
+savefig(&quot;www/loss_grad_hinge_test.png&quot;)</code></pre><p><img src="../www/loss_grad_hinge_test.png" alt/></p><h3 id="Logit-binary-crossentropy-loss"><a class="docs-heading-anchor" href="#Logit-binary-crossentropy-loss">Logit binary crossentropy loss</a><a id="Logit-binary-crossentropy-loss-1"></a><a class="docs-heading-anchor-permalink" href="#Logit-binary-crossentropy-loss" title="Permalink"></a></h3><p>Logit binary crossentropy loss loss (sometimes referred to as log loss) is defined as follows:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \ell(a,t)&amp;=- \left( t \cdot \log(\sigma(a)) + (1-t) \cdot \log (1-\sigma(a)) \right) \\
+\end{aligned}\]</p><p>where <span>$\sigma(a)$</span> is the logit/sigmoid link function.</p><p>Once again for the purpose of counter factual search we are interested in the first-order derivative with respect to our feature vector <span>$x\prime$</span>. You can verify that the partial derivative with respect to feature <span>$x\prime_d$</span> is as follows:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \frac{\partial \ell(a,t)}{\partial x\prime_d}&amp;= (\sigma(a) - t) w_d \\
+\end{aligned}\]</p><p>The gradient just corresponds to the stacked vector of partial derivatives:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \nabla_{x\prime} \ell(a,t)&amp;= (\sigma(a) - t) \mathbf{w} \\
+\end{aligned}\]</p><p>As before implementation below is done through autodifferentiation. As before the side-by-side plot shows the resulting loss function and its gradient and the plot further below is a simple sanity check.</p><pre><code class="language-julia hljs"># sigmoid function:
+function 𝛔(a)
+    trunc = 8.0 # truncation to avoid numerical over/underflow
+    a = clamp.(a,-trunc,trunc)
+    p = exp.(a)
+    p = p ./ (1 .+ p)
+    return p
+end
+
+# Logit binary crossentropy:
+logitbinarycrossentropy(a, t) = - (t * log(𝛔(a)) + (1-t) * log(1-𝛔(a)))</code></pre><pre><code class="nohighlight hljs">logitbinarycrossentropy (generic function with 1 method)</code></pre><p><img src="../www/loss_grad_log.png" alt/></p><pre><code class="language-julia hljs">p1 = plot(a, [logitbinarycrossentropy(a,1) for a=a], title=&quot;Loss, t=1&quot;, xlab=&quot;logits&quot;)
+p2 = plot(a, [gradient(logitbinarycrossentropy,a,1)[1] for a=a], title=&quot;Gradient, t=1&quot;, xlab=&quot;logits&quot;)
+p3 = plot(a, [logitbinarycrossentropy(a,0) for a=a], title=&quot;Loss, t=0&quot;, xlab=&quot;logits&quot;)
+p4 = plot(a, [gradient(logitbinarycrossentropy,a,0)[1] for a=a], title=&quot;Gradient, t=0&quot;, xlab=&quot;logits&quot;)
+plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
+savefig(&quot;www/loss_grad_log.png&quot;)</code></pre><p><img src="../www/loss_grad_log_test.png" alt/></p><pre><code class="language-julia hljs"># Just verifying that the formula for the gradient above indeed yields the same result.
+function gradient_man(x,w,y)
+    𝐠 = (𝛔(w&#39;x) - y) .* w
+    return 𝐠
+end;
+plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label=&quot;Manual&quot;, title=&quot;Gradient&quot;, xlab=&quot;logits&quot;)
+scatter!(a, [gradient(logitbinarycrossentropy,a,1)[1] for a=a], label=&quot;Autodiff&quot;)
+savefig(&quot;www/loss_grad_log_test.png&quot;)</code></pre><h3 id="Mean-squared-error"><a class="docs-heading-anchor" href="#Mean-squared-error">Mean squared error</a><a id="Mean-squared-error-1"></a><a class="docs-heading-anchor-permalink" href="#Mean-squared-error" title="Permalink"></a></h3><p>Some authors work with distance-based loss functions instead. Since in general we are interested in providing valid recourse, that is counterfactual explanations that indeed lead to the desired label switch, using one of the margin-based loss functions introduced above seems like a more natural choice. Nonetheless, we shall briefly introduce one of the common distance-based loss functions as well. </p><p>The mean squared error for counterfactual search implemented with respect to the logits is simply the squared <span>$\ell^2$</span> norm between the target label and <span>$a=\mathbf{w}^Tx$</span>:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \ell(a,t)&amp;= ||t-a||^2
+\end{aligned}\]</p><p>The gradient with respect to the vector of features is then:</p><p class="math-container">\[\begin{aligned}
+&amp;&amp; \nabla_{x\prime} \ell(a,t)&amp;= 2(a - t) \mathbf{w} \\
+\end{aligned}\]</p><p>As before implementation and visualizations follow below.</p><pre><code class="language-julia hljs">mse(a,t) = norm(t - a)^2</code></pre><pre><code class="nohighlight hljs">mse (generic function with 1 method)</code></pre><p><strong>NOTE</strong>: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for <span>$t=0$</span> the global minimum of the MSE is of course also at <span>$0$</span>. The implication for counterfactual search is that for <span>$t=0$</span> the search stops when <span>$\mathbf{w}^Tx\prime=0$</span>. But at this point <span>$\sigma(\mathbf{w}^Tx\prime)=0.5$</span>, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and <strong>DON&#39;T</strong> us distance-based loss functions when optimizing with respect to logits.</p><pre><code class="language-julia hljs">p1 = plot(a, [mse(a,1) for a=a], title=&quot;Loss, t=1&quot;, xlab=&quot;logits&quot;)
+p2 = plot(a, [gradient(mse,a,1)[1] for a=a], title=&quot;Gradient, t=1&quot;, xlab=&quot;logits&quot;)
+p3 = plot(a, [mse(a,0) for a=a], title=&quot;Loss, t=0&quot;, xlab=&quot;logits&quot;)
+p4 = plot(a, [gradient(mse,a,0)[1] for a=a], title=&quot;Gradient, t=0&quot;, xlab=&quot;logits&quot;)
+plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
+savefig(&quot;www/loss_grad_mse.png&quot;)</code></pre><p><img src="../www/loss_grad_mse.png" alt/></p><pre><code class="language-julia hljs"># Just verifying that the formula for the gradient above indeed yields the same result.
+function gradient_man(x,w,y)
+    𝐠 = 2*(w&#39;x - y) .* w
+    return 𝐠
+end;
+plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label=&quot;Manual&quot;, title=&quot;Gradient&quot;, xlab=&quot;logits&quot;)
+scatter!(a, [gradient(mse,a,1)[1] for a=a], label=&quot;Autodiff&quot;)
+savefig(&quot;www/loss_grad_mse_test.png&quot;)</code></pre><p><img src="../www/loss_grad_mse_test.png" alt/></p><h2 id="Example-in-2D"><a class="docs-heading-anchor" href="#Example-in-2D">Example in 2D</a><a id="Example-in-2D-1"></a><a class="docs-heading-anchor-permalink" href="#Example-in-2D" title="Permalink"></a></h2><p>To understand the properties of the different loss functions we will now look at a toy example in 2D. The code below generates some random features and assigns labels based on a fixed vector of coefficients using the sigmoid function.</p><pre><code class="language-julia hljs"># Some random data:
+using Flux
+using Random
+Random.seed!(1234);
+N = 25
+w = [1.0 -2.0]# true coefficients
+b = 0
+X = reshape(randn(2*N),2,N).*1 # random features
+y = Int.(round.(Flux.σ.(w*X .+ b))); # label based on sigmoid</code></pre><p>The plot below shows the samples coloured by label along with the decision boundary. You can think of this as representing the outcome of some automated decision making system. The highlighted sample was chosen to receive algorithmic recourse in the following: we will search for a counterfactual that leads to a label switch.</p><pre><code class="language-julia hljs"># Plot with random sample chose for recourse
+function plot_data(;clegend=true,title=&quot;&quot;,size=1.2.*(400,300))
+    x_range = collect(range(minimum(X[1,:]),stop=maximum(X[1,:]),length=50))
+    y_range = collect(range(minimum(X[2,:]),stop=maximum(X[2,:]),length=50))
+    Z = [Flux.σ.(w * [x,y] .+ b)[1] for x=x_range, y=y_range]
+    plt = contourf(
+        x_range, y_range, Z&#39;, legend=clegend, title=title, size=size, lw=0.1
+    )
+    scatter!(plt, X[1,reshape(y.==1,25)],X[2,reshape(y.==1,25)],label=&quot;y=1&quot;,color=1) # features
+    scatter!(plt, X[1,reshape(y.==0,25)],X[2,reshape(y.==0,25)],label=&quot;y=0&quot;,color=0) # features
+    Plots.abline!(plt,0.5,b,color=&quot;black&quot;,label=&quot;&quot;,lw=2) # decision boundary
+    return plt
+end
+
+plt = plot_data()
+x = X[:,5]
+y = round.(Flux.σ.(w*x .+ b))[1]
+scatter!(plt,[x[1]],[x[2]],color=Int.(y),markersize=10,label=&quot;&quot;)
+savefig(plt, &quot;www/loss_examlpe.png&quot;)</code></pre><p><img src="../www/loss_examlpe.png" alt/></p><p>Next we will generating recourse using the CounterfactualExplanations.jl package. First we intantiate our model and based on the assigned label we identify the target (the opposite label).</p><pre><code class="language-julia hljs">using CounterfactualExplanations
+using CounterfactualExplanations.Models: LogisticModel
+M = LogisticModel(w, [b]);
+target = ifelse(y==1.0,0.0,1.0)
+γ = 0.75</code></pre><pre><code class="nohighlight hljs">0.75</code></pre><p>Now we instantiate different generators for our different loss functions and different choices of <span>$\lambda$</span>. Finally we generate recourse for each of them:</p><pre><code class="language-julia hljs"># Generating recourse
+Λ = [0, 1, 5] # varying complexity penalties
+losses = [:hinge_loss, :logitbinarycrossentropy, :mse]
+recourses = []
+for loss in losses
+    for λ in Λ
+        gen = GenericGenerator(λ,0.1,1e-5,loss,nothing) 
+        rec = generate_counterfactual(gen, x, M, target, γ, T=25)
+        recourses = vcat(recourses, (rec=rec, λ=λ, loss=loss))
+    end
+end</code></pre><p>The code below plots the resulting counterfactual paths. </p><ol><li><strong>Complexity penalty <span>$\lambda$</span></strong>: has the expected effect of penalizing <em>long</em> counterfactual paths: as the distance between <span>$x$</span> and <span>$x\prime$</span> the penalty exerts more and more pressure on the gradient in the opposite direction <span>$\nabla\ell$</span>. For large choices of <span>$\lambda$</span> valid recourse is not attainable.</li><li><strong>Confidence threshold <span>$\gamma$</span></strong>: note how for both log loss and hinge loss we overshoot a bit, that is we end up well beyond the decision boundary. This is because above we chose a confidence threshold of <span>$\gamma=0.75$</span>. In the context of recourse this choice matters a lot: we have a longer distance to travel (=higher costs for the individual), but we can be more confident that recourse will remain valid. There is of course an interplay between <span>$\lambda$</span> and <span>$\gamma$</span>.</li><li><strong>The choice of the loss function matters</strong>: the distance-based MSE does <strong>NOT</strong> work without further ajustments when optimizing with respect to logits, as discussed above. </li></ol><p>Overall, in the context of this toy example log <strong>loss arguably generates the most reasonable outcome</strong>: firstly, we can observe that the step size decreases at an increasing rate as the search approaches convergence (which may be desirable); secondly, it appears that increasing <span>$\lambda$</span> leads to a roughly proportional decrease in the distance of the final counterfactual. This stands in contrast to the outcome for hinge loss, where increasing <span>$\lambda$</span> from <span>$0$</span> to <span>$1$</span> barely has any effect at all.</p><pre><code class="language-julia hljs"># Plotting
+k = length(recourses)
+function plot_recourse(rec, idx)
+    plt = plot_data(clegend=false, size=(floor(sqrt(k)) * 350, ceil(sqrt(k)) * 350))
+    idx_path = minimum([idx, size(rec.rec.path)[1]])
+    scatter!(plt, rec.rec.path[1:idx_path,1], rec.rec.path[1:idx_path,2], color=Int(y))
+    scatter!(plt, [rec.rec.path[idx_path,1]],[rec.rec.path[idx_path,2]],color=Int(y),markersize=10)
+end
+max_path_length = maximum(map(rec -&gt; size(rec.rec.path)[1], recourses))
+anim = @animate for i in 1:max_path_length
+    plots = map(rec -&gt; plot_recourse(rec, i), recourses);
+    plot(plots..., layout = (Int(floor(sqrt(k))), Int(ceil(sqrt(k)))), legend = false, plot_title=&quot;Iteration: &quot; * string(i))
+end
+gif(anim, &quot;www/loss_paths.gif&quot;, fps=5);</code></pre><p><img src="../www/loss_paths.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Overview</a><a class="docs-footer-nextpage" href="../../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Thursday 31 March 2022 15:41">Thursday 31 March 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
