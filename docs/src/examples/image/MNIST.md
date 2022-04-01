@@ -4,25 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 # MNIST
 
-In this examples we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. [Figure 1](#fig-samples) shows a random sample of handwritten digits.
-
-``` julia
-using CounterfactualExplanations, Plots, MLDatasets
-using MLDatasets.MNIST: convert2image
-using BSON: @save, @load
-```
-
-``` julia
-train_x, train_y = MNIST.traindata()
-input_dim = prod(size(train_x[:,:,1]))
-using Images, Random, StatsBase
-Random.seed!(1)
-n_samples = 10
-samples = train_x[:,:,sample(1:end, n_samples, replace=false)]
-mosaic = mosaicview([convert2image(samples[:,:,i]) for i ∈ 1:n_samples]...,ncol=Int(n_samples/2))
-plt = plot(mosaic, size=(500,260), axis=nothing, background=:transparent)
-savefig(plt, "www/mnist_samples.png")
-```
+In this example we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. [Figure 1](#fig-samples) shows a random sample of handwritten digits.
 
 ![Figure 1: A few random handwritten digits.](www/mnist_samples.png)
 
@@ -36,12 +18,12 @@ Next we will load two pre-trained deep-learning classifiers:
 ``` julia
 using Flux
 using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
-x,y,data = getindex.(Ref(mnist_data()), ("x", "y", "data"))
+data, X, ys = mnist_data()
 model = mnist_model()
-ensemble = mnist_ensemble();
+ensemble = mnist_ensemble()
 ```
 
-The following code just prepares the models to be used with CounterfactualExplanations.jl:
+The following code just prepares the models to be used with `CounterfactualExplanations.jl`:
 
 ``` julia
 using CounterfactualExplanations, CounterfactualExplanations.Models
@@ -66,7 +48,7 @@ end
 using Statistics
 logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
 probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
-M_ensemble=FittedEnsemble(ensemble);
+M_ensemble=FittedEnsemble(ensemble)
 ```
 
 ## Generating counterfactuals
@@ -82,51 +64,53 @@ They can be implemented using the `GenericGenerator` and the `GreedyGenerator`.
 
 ### Turning a 9 into a 4
 
-We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in [Figure 2](#fig-nine) into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform.
+We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in [Figure 2](#fig-nine) into a 4 is straight-forward for a human - just erase the top part. Let’s see how the different algorithmic approaches perform. First, we preprocess the data below, where we impose that the features (pixel values) are constrained to the follwoing domain: 𝒳 = \[0,1\] ⊂ ℝ.
+
+``` julia
+counterfactual_data = CounterfactualData(X,ys';domain=(0,1))
+```
+
+Next we choose a random sample for which we will generate counterfactuals in the following:
 
 ``` julia
 # Randomly selected factual:
-Random.seed!(1234);
-x = Flux.unsqueeze(x[:,rand(1:size(x)[2])],2)
+using Random
+Random.seed!(1234)
+x = Flux.unsqueeze(select_factual(counterfactual_data, rand(1:size(X)[2])),2)
 target = 5
 γ = 0.95
-img = convert2image(reshape(x,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
-plt_orig = plot(img, title="Original", axis=nothing)
-savefig(plt_orig, "www/mnist_original.png")
 ```
 
 ![Figure 2: A random handwritten 9.](www/mnist_original.png)
 
-The code below implements the four different approaches one by one. [Figure 3](#fig-example) shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate coutnerfactuals that look much like adversarial examples.
+The code below implements the four different approaches one by one. [Figure 3](#fig-example) shows the resulting counterfactuals. In every case the desired label switch is achieved, that is the corresponding classifier classifies the counterfactual as a four. But arguably from a human perspective only the counterfactuals for the deep ensemble look like a 4. For the MLP, both the generic and the greedy approach generate counterfactuals that look much like adversarial examples.
 
 ``` julia
 # Generic - MLP
-generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(generator, x, M, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+generator = GenericGenerator(;loss=:logitcrossentropy)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
 plt_wachter = plot(img, title="MLP - Wachter")
 
-# Greedy - MLP
-generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(generator, x, M, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
-plt_greedy = plot(img, title="MLP - Greedy")
-
 # Generic - Deep Ensemble
-generator = GenericGenerator(0.1,0.1,1e-5,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(generator, x, M_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M_ensemble, generator; γ=γ)
+img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
 plt_wachter_de = plot(img, title="Ensemble - Wachter")
 
+# Greedy - MLP
+generator = GreedyGenerator(;loss=:logitcrossentropy)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
+plt_greedy = plot(img, title="MLP - Greedy")
+
 # Greedy - Deep Ensemble
-generator = GreedyGenerator(0.1,15,:logitcrossentropy,nothing)
-counterfactual = generate_counterfactual(generator, x, M_ensemble, target, γ; feasible_range=(0.0,1.0)) # generate recourse
-img = convert2image(reshape(counterfactual.x′,Int(sqrt(input_dim)),Int(sqrt(input_dim))))
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M_ensemble, generator; γ=γ)
+img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
 plt_greedy_de = plot(img, title="Ensemble - Greedy")
 
 plt_list = [plt_orig, plt_wachter, plt_greedy, plt_wachter_de, plt_greedy_de]
 plt = plot(plt_list...,layout=(1,length(plt_list)),axis=nothing, size=(1200,240))
-savefig(plt, "www/MNIST_9to4.png")
+savefig(plt, joinpath(www_path, "MNIST_9to4.png"))
 ```
 
 ![Figure 3: Counterfactual explanations for MNIST data: turning a 9 into a 4](www/MNIST_9to4.png)

@@ -1,0 +1,93 @@
+---
+jupyter: julia-1.6
+---
+
+# MNIST pre-trained model
+
+```{julia}
+using Pkg; Pkg.activate("dev")
+include("dev/artifacts/generate_artifacts.jl")
+include("dev/utils.jl")
+data_dir = "dev/artifacts/data"
+artifact_name = "mnist"
+```
+
+### Retrieve data
+
+```{julia}
+using Plots, MLDatasets
+using MLDatasets.MNIST: convert2image
+using BSON
+using BSON: @save, @load
+train_x, train_y = MNIST.traindata()
+train_x = Float32.(train_x)
+train_y = Float32.(train_y);
+```
+
+### Preprocess data
+
+```{julia}
+using Flux
+using Flux: onehotbatch, onecold, DataLoader
+ys = Flux.onehotbatch(train_y, 0:9)
+X = Flux.flatten(train_x)
+bs = Int(round(size(X)[2]/10))
+data_train = DataLoader((X,ys),batchsize=bs)
+data = Dict(
+    :data => DataLoader((X,ys),batchsize=bs),
+    :X => X,
+    :ys => ys
+)
+@save joinpath(data_dir, artifact_name * "_data.bson") data
+```
+
+### Classifier
+
+```{julia}
+data = data_train
+output_dim = 10
+input_dim = prod(size(train_x[:,:,1]))
+hidden_dim = 32
+kw_args = (input_dim=input_dim,n_hidden=hidden_dim,output_dim=output_dim,batch_norm=true)
+model = build_model(;kw_args...)
+loss(x, y) = Flux.Losses.logitcrossentropy(model(x), y)
+
+using Flux.Optimise: update!, ADAM
+using Statistics
+opt = ADAM()
+epochs = 10
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+accuracy(data) = mean(map(d -> mean(onecold(softmax(model(d[1])), 0:9) .== onecold(d[2], 0:9)), data))
+
+if false
+  for epoch = 1:epochs
+    for d in data
+      gs = gradient(params(model)) do
+        l = loss(d...)
+      end
+      update!(opt, params(model), gs)
+    end
+    @info "Epoch " * string(epoch)
+    @show accuracy(data)
+  end
+  @save joinpath(data_dir, artifact_name * "_model.bson") model
+end
+```
+
+### Ensemble classifier
+
+```{julia}
+ensemble = build_ensemble(5;kw=kw_args)
+if false
+    ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false) # fit the ensemble
+    save_ensemble(ensemble;root=joinpath(data_dir, artifact_name * "_ensemble")) 
+end
+```
+
+### Generate artifacts
+
+```{julia}
+datafiles = [artifact_name * "_data.bson",artifact_name * "_model.bson",artifact_name * "_ensemble"]
+generate_artifact(datafiles)
+```
+

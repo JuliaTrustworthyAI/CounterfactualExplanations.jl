@@ -37,7 +37,7 @@ counterfactual_data = CounterfactualData(X,ys';mutability=[:both, :none])
 In some cases we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of 0.5 for our two features. This results in the counterfactual path shown in [Figure 2](#fig-mutability-domain): since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability *γ*.
 
 ``` julia
-counterfactual_data = CounterfactualData(X,ys';bounds_continuous=(-Inf,0.5))
+counterfactual_data = CounterfactualData(X,ys';domain=(-Inf,0.5))
 ```
 
 ![Figure 2: Counterfactual path with domain constraints.](www/mutability_domain.gif)
@@ -45,7 +45,7 @@ counterfactual_data = CounterfactualData(X,ys';bounds_continuous=(-Inf,0.5))
 If we only want to constrain one particular feature to a certain domain we can pass a vector of tuples as below. In this case the resulting counterfactual path shown in [Figure 3](#fig-mutability-domain-2) does converge to the desired threshold *γ*.
 
 ``` julia
-counterfactual_data = CounterfactualData(X,ys';bounds_continuous=[(-Inf,Inf),(-Inf,-0.5)])
+counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 ```
 
 ![Figure 3: Counterfactual path with only one feature constrained to a certain domain.](www/mutability_domain_2.gif)

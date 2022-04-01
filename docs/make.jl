@@ -28,7 +28,7 @@ makedocs(;
         "More examples" =>
             [
                 "Image data" => [
-                    "MNIST" => "examples/image/MNIST.md"
+                    "MNIST" => "examples/image/mnist.md"
                 ],
                 # "Time series" => [
                 #     "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"

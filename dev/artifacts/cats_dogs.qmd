@@ -6,9 +6,6 @@ jupyter: julia-1.6
 
 ```{julia}
 using Pkg; Pkg.activate("dev")
-```
-
-```{julia}
 include("dev/artifacts/generate_artifacts.jl")
 data_dir = "dev/artifacts/data"
 artifact_name = "cats_dogs"
