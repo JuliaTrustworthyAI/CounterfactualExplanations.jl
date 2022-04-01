@@ -2,6 +2,7 @@ module CounterfactualExplanations
 
 # Dependencies:
 using Flux
+import Flux.Losses
 using LinearAlgebra
 
 include("data/Data.jl")
@@ -14,9 +15,6 @@ export CounterfactualData, select_factual, apply_domain_constraints
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, LogisticModel, BayesianLogisticModel, probs, logits
-
-include("losses/Losses.jl")
-using .Losses
 
 include("generators/Generators.jl")
 using .Generators

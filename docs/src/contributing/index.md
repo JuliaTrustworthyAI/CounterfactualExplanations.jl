@@ -9,6 +9,8 @@ CurrentModule = CounterfactualExplanations
 1. Additional counterfactual generators.
 2. Additional predictive models.
 3. More examples to be added to the documentation.
+4. Native support for categorical features.
+5. Support for regression models.
 
 We are also interested in suggestions on how to adjust and improve the inner workings of our package. To facilitate this process the following page explain and justify the package architecture and the design choices we have made. 
 

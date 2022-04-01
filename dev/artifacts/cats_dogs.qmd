@@ -147,7 +147,7 @@ save(joinpath(image_dir,"samples.png"), f);
 
 ```{julia}
 using Makie: contourf!
-function plot_contour_makie(X,y,M;clegend=true,title="",length_out=50,zoom=-0.1,xlim=nothing,ylim=nothing,linewidth=0.1,xlab="",ylab="")
+function plot_contour_makie(X,y,M;colorbar=true,title="",length_out=50,zoom=-0.1,xlim=nothing,ylim=nothing,linewidth=0.1,xlab="",ylab="")
     
     # Surface range:
     if isnothing(xlim)
@@ -172,7 +172,7 @@ function plot_contour_makie(X,y,M;clegend=true,title="",length_out=50,zoom=-0.1,
     # Plot:
     co = contourf!(
         x_range, y_range, Z; 
-        colorbar=clegend, linewidth=linewidth,
+        colorbar=colorbar, linewidth=linewidth,
         xlim=xlim,
         ylim=ylim,
         levels = 0.0:0.05:1.0,

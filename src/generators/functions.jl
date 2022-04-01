@@ -21,9 +21,18 @@ An abstract type that serves as the base type for recourse generators.
 abstract type AbstractGenerator end
 
 # Loss:
-ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = getfield(Losses, generator.loss)(
-    Models.logits(counterfactual_state.M, counterfactual_state.x′), counterfactual_state.target_encoded
-)
+using Flux
+function ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState)
+
+    output = :logits
+
+    loss = getfield(Losses, generator.loss)(
+        getfield(Models, output)(counterfactual_state.M, counterfactual_state.x′), 
+        counterfactual_state.target_encoded
+    )    
+
+    return loss
+end
 
 # Complexity:
 h(generator::AbstractGenerator, counterfactual_state::CounterfactualState) = generator.complexity(counterfactual_state.x-counterfactual_state.x′)

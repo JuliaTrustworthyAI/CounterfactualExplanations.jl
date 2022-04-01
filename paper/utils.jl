@@ -22,7 +22,7 @@ end
 # Plot contour of posterior predictive:
 using Plots, CounterfactualExplanations.Models
 """
-    plot_contour(X,y,M;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
+    plot_contour(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
 Generates a contour plot for the posterior predictive surface.  
 
@@ -41,7 +41,7 @@ plot_contour(X, y, M)
 ```
 
 """
-function plot_contour(X,y,M;clegend=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
+function plot_contour(X,y,M;colorbar=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
     
     # Surface range:
     if isnothing(xlim)
@@ -61,7 +61,7 @@ function plot_contour(X,y,M;clegend=true,title="",length_out=50,zoom=-1,xlim=not
     # Plot:
     plt = contourf(
         x_range, y_range, Z'; 
-        colorbar=clegend, title=title, linewidth=linewidth,
+        colorbar=colorbar, title=title, linewidth=linewidth,
         xlim=xlim,
         ylim=ylim
     )
@@ -72,7 +72,7 @@ end
 # Plot contour of posterior predictive:
 using Plots, CounterfactualExplanations.Models
 """
-    plot_contour_multi(X,y,M;clegend=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
+    plot_contour_multi(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
 Generates a contour plot for the posterior predictive surface.  
 
