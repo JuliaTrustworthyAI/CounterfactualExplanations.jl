@@ -1,4 +1,17 @@
 ---
+format: 
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
+crossref:
+  fig-prefix: Figure
+  tbl-prefix: Table
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+output: asis
+execute: 
+  echo: true
+  eval: false
 jupyter: julia-1.6
 ---
 
@@ -6,15 +19,55 @@ jupyter: julia-1.6
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Loss functions and gradients
+# Loss functions
 
-This is a short tutorial on loss functions and gradients typically involved in counterfactual search. It involves more maths than perhaps some of the other tutorials.
+For the computation of loss functions and their gradients we leverage the functionality already implmented in [Flux](https://fluxml.ai/). All of the loss functions from Flux have been imported: 
+
+```julia-repl
+julia> names(CounterfactualExplanations.Losses)
+19-element Vector{Symbol}:
+ :Losses
+ :binary_focal_loss
+ :binarycrossentropy
+ :crossentropy
+ :ctc_loss
+ :dice_coeff_loss
+ :focal_loss
+ :hinge_loss
+ ⋮
+ :logitbinarycrossentropy
+ :logitcrossentropy
+ :mae
+ :mse
+ :msle
+ :poisson_loss
+ :squared_hinge_loss
+ :tversky_loss
+```
+
+## Classification
+
+For most classification tasks the default `:logitbinarycrossentropy` (binary) and `:logitcrossentropy` should be sufficient. For both choices the package has been tested and works natively. When using other loss functions, some caution is recommended though:
+
+!!! warning "External loss functions"
+    Some margin-based loss functions like hinge loss do not expect inputs in the domain $\mathcal{Y}=\{0,1\}$, but rather $\mathcal{Y}=\{-1,1\}$. In those case one needs to ensure that the training labels $y$ are encoded accordingly. In order to use distance-based loss functions like mean squared error (MSE) loss needs to be computed with respect to probibilities rather than logits. This is currently not supported and we genenerally recommend not to use distance-based loss functions in the classification setting (more on this below).
+
+## Regression
+
+At this point `CounterfactualExplanations.jl` is designed to be used with classification models, since the overwhelming majority of the existing literature on counterfactual explanations is set in this context. By default margin-based loss functions are used and computed with respect to logits (more on this below). To produce counterfactual explanations for regression problems users currently need to binarize the problem: let $t$ denote some target value for the continuous dependent variable $y$ in the regression context, then we could respecify the dependent variable as $\tilde{t}=0$ for all $y<t$ and $\tilde{t}=1$ otherwise. In future work we want to add full support for regression problems.
+
+# Methodological background
+
+This is a short tutorial on loss functions and gradients typically involved in counterfactual search. It involves more maths than perhaps some of the other tutorials. 
 
 ```{julia}
-using Zygote, Plots, PlotThemes, LinearAlgebra
+#| echo: false
+using Zygote, Plots, PlotThemes, LinearAlgebra, CounterfactualExplanations
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)
+include("dev/utils.jl") # some plotting functions
+www_path = "docs/src/contributing/www"
 ```
 
 ## General setup
@@ -31,7 +84,7 @@ where $\ell$ denotes some loss function targeting the deviation between the targ
 
 Different choices for $\ell$ come to mind, each potentially leading to very different counterfactual outcomes. In practice, $\ell$ is often implemented with respect to the *logits* $a=\mathbf{w}^Tx$ rather than the probabilities $p(y\prime=1|x\prime)=\sigma(a)$ predicted by the classifier. We follow this convention here, but as we shall see *depeding on the label domain this convention does not work well for every type of loss function*. Common choices for $\ell$ in the literature include margin-based loss function like **hinge** loss and **logit binary crossentropy** (or **log**) loss. Some use distance-based loss such as **mean squared error** loss (MSE).
 
-### hinge loss
+### Hinge loss
 
 With respect to the logits $a=\mathbf{w}'x$ hinge loss can be defined as follows
 
@@ -92,7 +145,7 @@ p2 = plot(a, [gradient(hinge,a,1)[1] for a=a], title="Gradient, t=1", xlab="logi
 p3 = plot(a, [hinge(a,0) for a=a], title="Loss, t=0", xlab="logits")
 p4 = plot(a, [gradient(hinge,a,0)[1] for a=a], title="Gradient, t=0", xlab="logits")
 plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
-savefig("www/loss_grad_hinge.png")
+savefig(joinpath(www_path, "loss_grad_hinge.png"))
 ```
 
 ![](www/loss_grad_hinge.png)
@@ -105,7 +158,7 @@ function gradient_man(x,w,t)
 end;
 plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label="Manual", title="Gradient", xlab="logits")
 scatter!(a, [gradient(hinge,a,1)[1] for a=a], label="Autodiff")
-savefig("www/loss_grad_hinge_test.png")
+savefig(joinpath(www_path, "loss_grad_hinge_test.png"))
 ```
 
 ![](www/loss_grad_hinge_test.png)
@@ -162,7 +215,7 @@ p2 = plot(a, [gradient(logitbinarycrossentropy,a,1)[1] for a=a], title="Gradient
 p3 = plot(a, [logitbinarycrossentropy(a,0) for a=a], title="Loss, t=0", xlab="logits")
 p4 = plot(a, [gradient(logitbinarycrossentropy,a,0)[1] for a=a], title="Gradient, t=0", xlab="logits")
 plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
-savefig("www/loss_grad_log.png")
+savefig(joinpath(www_path, "loss_grad_log.png"))
 ```
 
 ![](www/loss_grad_log_test.png)
@@ -175,7 +228,7 @@ function gradient_man(x,w,y)
 end;
 plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label="Manual", title="Gradient", xlab="logits")
 scatter!(a, [gradient(logitbinarycrossentropy,a,1)[1] for a=a], label="Autodiff")
-savefig("www/loss_grad_log_test.png")
+savefig(joinpath(www_path, "loss_grad_log_test.png"))
 ```
 
 ### Mean squared error
@@ -204,7 +257,7 @@ As before implementation and visualizations follow below.
 mse(a,t) = norm(t - a)^2
 ```
 
-**NOTE**: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for $t=0$ the global minimum of the MSE is of course also at $0$. The implication for counterfactual search is that for $t=0$ the search stops when $\mathbf{w}^Tx\prime=0$. But at this point $\sigma(\mathbf{w}^Tx\prime)=0.5$, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and **DON'T** us distance-based loss functions when optimizing with respect to logits.
+**NOTE**: I hinted above that the convention of taking derivatives with respect to logits can go wrong depending on the loss function we choose. The plot below demonstrates this point: for $t=0$ the global minimum of the MSE is of course also at $0$. The implication for counterfactual search is that for $t=0$ the search stops when $\mathbf{w}^Tx\prime=0$. But at this point $\sigma(\mathbf{w}^Tx\prime)=0.5$, in other words we stop right at the decision boundary, but never cross it. We will see an example of this below. Key takeaway: carefully think about the choice of your loss function and **DON'T** use distance-based loss functions when optimizing with respect to logits.
 
 ```{julia}
 p1 = plot(a, [mse(a,1) for a=a], title="Loss, t=1", xlab="logits")
@@ -212,7 +265,7 @@ p2 = plot(a, [gradient(mse,a,1)[1] for a=a], title="Gradient, t=1", xlab="logits
 p3 = plot(a, [mse(a,0) for a=a], title="Loss, t=0", xlab="logits")
 p4 = plot(a, [gradient(mse,a,0)[1] for a=a], title="Gradient, t=0", xlab="logits")
 plot(p1, p2, p3, p4, layout = (2, 2), legend = false)
-savefig("www/loss_grad_mse.png")
+savefig(joinpath(www_path, "loss_grad_mse.png"))
 ```
 
 ![](www/loss_grad_mse.png)
@@ -225,7 +278,7 @@ function gradient_man(x,w,y)
 end;
 plot(a, [gradient_man(a,1,1) for a=a], legend=:bottomright, label="Manual", title="Gradient", xlab="logits")
 scatter!(a, [gradient(mse,a,1)[1] for a=a], label="Autodiff")
-savefig("www/loss_grad_mse_test.png")
+savefig(joinpath(www_path, "loss_grad_mse_test.png"))
 ```
 
 ![](www/loss_grad_mse_test.png)
@@ -236,64 +289,51 @@ To understand the properties of the different loss functions we will now look at
 
 ```{julia}
 # Some random data:
-using Flux
-using Random
-Random.seed!(1234);
+using Flux, Random, CounterfactualExplanations.Data
+Random.seed!(1234)
 N = 25
-w = [1.0 -2.0]# true coefficients
+w = [1.0 1.0]# true coefficients
 b = 0
-X = reshape(randn(2*N),2,N).*1 # random features
-y = Int.(round.(Flux.σ.(w*X .+ b))); # label based on sigmoid
+xs, ys = Data.toy_data_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
 ```
 
 The plot below shows the samples coloured by label along with the decision boundary. You can think of this as representing the outcome of some automated decision making system. The highlighted sample was chosen to receive algorithmic recourse in the following: we will search for a counterfactual that leads to a label switch.
 
 ```{julia}
-# Plot with random sample chose for recourse
-function plot_data(;clegend=true,title="",size=1.2.*(400,300))
-    x_range = collect(range(minimum(X[1,:]),stop=maximum(X[1,:]),length=50))
-    y_range = collect(range(minimum(X[2,:]),stop=maximum(X[2,:]),length=50))
-    Z = [Flux.σ.(w * [x,y] .+ b)[1] for x=x_range, y=y_range]
-    plt = contourf(
-        x_range, y_range, Z', legend=clegend, title=title, size=size, lw=0.1
-    )
-    scatter!(plt, X[1,reshape(y.==1,25)],X[2,reshape(y.==1,25)],label="y=1",color=1) # features
-    scatter!(plt, X[1,reshape(y.==0,25)],X[2,reshape(y.==0,25)],label="y=0",color=0) # features
-    Plots.abline!(plt,0.5,b,color="black",label="",lw=2) # decision boundary
-    return plt
-end
-
-plt = plot_data()
-x = X[:,5]
-y = round.(Flux.σ.(w*x .+ b))[1]
-scatter!(plt,[x[1]],[x[2]],color=Int.(y),markersize=10,label="")
-savefig(plt, "www/loss_examlpe.png")
-```
-
-![](www/loss_examlpe.png)
-
-Next we will generating recourse using the CounterfactualExplanations.jl package. First we intantiate our model and based on the assigned label we identify the target (the opposite label).
-
-```{julia}
 using CounterfactualExplanations
 using CounterfactualExplanations.Models: LogisticModel
-M = LogisticModel(w, [b]);
+M = LogisticModel(w, [b])
+
+Random.seed!(1234)
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0)
 γ = 0.75
+
+# Plot with random sample chose for recourse
+plt = plot_contour(X',ys,M)
+scatter!(plt,[x[1]],[x[2]],ms=10,label="", color=Int(y))
+Plots.abline!(plt,-w[2]/w[1],b,color="black",label="",lw=2)
+savefig(joinpath(www_path, "loss_example.png"))
 ```
+
+![](www/loss_example.png)
 
 Now we instantiate different generators for our different loss functions and different choices of $\lambda$. Finally we generate recourse for each of them:
 
 ```{julia}
 # Generating recourse
-Λ = [0, 1, 5] # varying complexity penalties
+Λ = [0.0, 1.0, 5.0] # varying complexity penalties
 losses = [:hinge_loss, :logitbinarycrossentropy, :mse]
-recourses = []
+counterfactuals = []
 for loss in losses
     for λ in Λ
-        gen = GenericGenerator(λ,0.1,1e-5,loss,nothing) 
-        rec = generate_counterfactual(gen, x, M, target, γ, T=25)
-        recourses = vcat(recourses, (rec=rec, λ=λ, loss=loss))
+        generator = GenericGenerator(;loss=loss,λ=λ) 
+        t = loss == :hinge_loss ? h(target) : target # mapping for hinge loss
+        counterfactual = generate_counterfactual(x, t, counterfactual_data, M, generator; γ=γ, T=50)
+        counterfactuals = vcat(counterfactuals, counterfactual)
     end
 end
 ```
@@ -308,19 +348,24 @@ Overall, in the context of this toy example log **loss arguably generates the mo
 
 ```{julia}
 # Plotting
-k = length(recourses)
-function plot_recourse(rec, idx)
-    plt = plot_data(clegend=false, size=(floor(sqrt(k)) * 350, ceil(sqrt(k)) * 350))
-    idx_path = minimum([idx, size(rec.rec.path)[1]])
-    scatter!(plt, rec.rec.path[1:idx_path,1], rec.rec.path[1:idx_path,2], color=Int(y))
-    scatter!(plt, [rec.rec.path[idx_path,1]],[rec.rec.path[idx_path,2]],color=Int(y),markersize=10)
+k = length(counterfactuals)
+function plot_recourse(counterfactual, t)
+    l = string(counterfactual.generator.loss)
+    l = l[1:minimum([5,length(l)])]
+    λ = string(counterfactual.generator.λ)
+    plt = plot_contour(X',ys,M;colorbar=false,title="Loss: $(l), λ: $(λ)")
+    plt = plot(plt, size=(floor(√(k)) * 350, ceil(√(k)) * 350))
+    Plots.abline!(plt,-w[2]/w[1],b,color="black",label="",lw=2)
+    t = minimum([t, total_steps(counterfactual)])
+    scatter!(plt, hcat(path(counterfactual)[1:t]...)[1,:], hcat(path(counterfactual)[1:t]...)[2,:], ms=10, color=Int(y), label="")
+    return plt
 end
-max_path_length = maximum(map(rec -> size(rec.rec.path)[1], recourses))
+max_path_length = maximum(map(counterfactual -> total_steps(counterfactual), counterfactuals))
 anim = @animate for i in 1:max_path_length
-    plots = map(rec -> plot_recourse(rec, i), recourses);
-    plot(plots..., layout = (Int(floor(sqrt(k))), Int(ceil(sqrt(k)))), legend = false, plot_title="Iteration: " * string(i))
+    plots = map(counterfactual -> plot_recourse(counterfactual, i), counterfactuals)
+    plot(plots..., layout = (Int(floor(√(k))), Int(ceil(√(k)))), legend = false, plot_title="Iteration: " * string(i))
 end
-gif(anim, "www/loss_paths.gif", fps=5);
+gif(anim, joinpath(www_path, "loss_paths.gif"), fps=5)
 ```
 
 ![](www/loss_paths.gif)
