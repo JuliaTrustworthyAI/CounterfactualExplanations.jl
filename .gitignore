@@ -29,3 +29,4 @@ dev/artifacts/data/
 .vscode/
 *.Rproj
 .Rproj.user
+.Rhistory
