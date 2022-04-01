@@ -176,7 +176,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 T = size(path(counterfactual))[1]
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;clegend=false, title="MLP")
+p1 = plot_contour(X',ys,M;colorbar=false, title="MLP")
 anim = @animate for t in 1:T
     scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
@@ -244,7 +244,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 T = size(path(counterfactual))[1]
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;clegend=false, title="Deep ensemble")
+p1 = plot_contour(X',ys,M;colorbar=false, title="Deep ensemble")
 anim = @animate for t in 1:T
     scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)

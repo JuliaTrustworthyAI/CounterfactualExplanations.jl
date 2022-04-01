@@ -6,8 +6,8 @@ struct CounterfactualData
     mutability::Union{Vector{Symbol},Nothing}
     categorical::Union{Vector{Int},Nothing}
     continuous::Union{Vector{Int},Nothing}
-    bounds_continuous::Union{Any,Nothing}
-    CounterfactualData(X,y,mutability,categorical,continuous,bounds_continuous) = length(size(X)) != 2 ? error("Data should be in tabular format") : new(X,y,mutability,categorical,continuous,bounds_continuous)
+    domain::Union{Any,Nothing}
+    CounterfactualData(X,y,mutability,categorical,continuous,domain) = length(size(X)) != 2 ? error("Data should be in tabular format") : new(X,y,mutability,categorical,continuous,domain)
 end
 
 """
@@ -30,7 +30,7 @@ function CounterfactualData(
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     categorical::Union{Vector{Int},Nothing}=nothing,
     continuous::Union{Vector{Int},Nothing}=nothing,
-    bounds_continuous::Union{Any,Nothing}=nothing
+    domain::Union{Any,Nothing}=nothing
 )
 
     # If nothing supplied, assume all continuous:
@@ -39,11 +39,11 @@ function CounterfactualData(
     end
 
     # If tuple is supplied, assume it counts for all continuous variables:
-    if typeof(bounds_continuous) <: Tuple
-        bounds_continuous = [bounds_continuous for i in 1:size(X)[1]]
+    if typeof(domain) <: Tuple
+        domain = [domain for i in 1:size(X)[1]]
     end
 
-    counterfactual_data = CounterfactualData(X, y, mutability, categorical, continuous, bounds_continuous)
+    counterfactual_data = CounterfactualData(X, y, mutability, categorical, continuous, domain)
 
     return counterfactual_data
 end
@@ -55,8 +55,10 @@ mutability_constraints(counterfactual_data::CounterfactualData) = isnothing(coun
 function apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 
     
     # Continuous variables:
-    for i in counterfactual_data.continuous
-        x[i] = clamp(x[i], counterfactual_data.bounds_continuous[i][1], counterfactual_data.bounds_continuous[i][2])
+    if !isnothing(counterfactual_data.domain)
+        for i in counterfactual_data.continuous
+            x[i] = clamp(x[i], counterfactual_data.domain[i][1], counterfactual_data.domain[i][2])
+        end
     end
 
     return x

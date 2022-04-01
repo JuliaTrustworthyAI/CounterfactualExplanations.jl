@@ -22,12 +22,13 @@ makedocs(;
                 "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
-                "Interoperability" => "tutorials/interop.md"
+                "Interoperability" => "tutorials/interop.md",
+                "Mutability constraints" => "tutorials/mutability.md"
             ],
         "More examples" =>
             [
                 "Image data" => [
-                    "MNIST" => "examples/image/MNIST.md"
+                    "MNIST" => "examples/image/mnist.md"
                 ],
                 # "Time series" => [
                 #     "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"

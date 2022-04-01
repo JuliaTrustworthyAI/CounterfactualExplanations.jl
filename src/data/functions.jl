@@ -40,7 +40,8 @@ end
 function mnist_data()
     data_dir = artifact"mnist_data"
     data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)[:data]
-    return data
+    data, X, ys = (data[:data], data[:X], data[:ys])
+    return data, X, ys
 end
 
 function mnist_model()
