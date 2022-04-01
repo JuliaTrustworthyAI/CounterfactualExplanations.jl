@@ -22,7 +22,8 @@ makedocs(;
                 "Binary target" => "tutorials/binary.md",
                 "Models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
-                "Interoperability" => "tutorials/interop.md"
+                "Interoperability" => "tutorials/interop.md",
+                "Mutability constraints" => "tutorials/mutability.md"
             ],
         "More examples" =>
             [

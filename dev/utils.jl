@@ -266,19 +266,19 @@ function plot_contour_multi(X,y,M;
     # Plot:
     if isnothing(target)
         # Plot all contours as lines:
-        plt = plot()
-        plot_data!(plt,X,y)
         out_dim = size(Z)[1]
+        p_list = []
         for d in 1:out_dim
-            contour!(
-                plt,
+            plt = contourf(
                 x_range, y_range, Z[d,:]; 
-                colorbar=false, title=title,
+                colorbar=colorbar, title="p(y=$(string(d))|X)", linewidth=linewidth,
                 xlim=xlim,
-                ylim=ylim,
-                colour=d
+                ylim=ylim
             )
+            plot_data!(plt,X,y)
+            p_list = vcat(p_list..., plt)
         end
+        plt = plot(p_list..., layout=Int((out_dim)), plot_title=title)
     else
         # Print contour fill of target class:
         plt = contourf(
@@ -290,6 +290,6 @@ function plot_contour_multi(X,y,M;
         plot_data!(plt,X,y)
     end
 
-    return plot(plt)
+    return plt
     
 end

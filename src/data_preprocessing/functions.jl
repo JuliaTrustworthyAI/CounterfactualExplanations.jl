@@ -55,8 +55,10 @@ mutability_constraints(counterfactual_data::CounterfactualData) = isnothing(coun
 function apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 
     
     # Continuous variables:
-    for i in counterfactual_data.continuous
-        x[i] = clamp(x[i], counterfactual_data.bounds_continuous[i][1], counterfactual_data.bounds_continuous[i][2])
+    if !isnothing(counterfactual_data.bounds_continuous)
+        for i in counterfactual_data.continuous
+            x[i] = clamp(x[i], counterfactual_data.bounds_continuous[i][1], counterfactual_data.bounds_continuous[i][2])
+        end
     end
 
     return x

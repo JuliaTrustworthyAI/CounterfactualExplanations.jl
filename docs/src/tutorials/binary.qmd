@@ -75,7 +75,7 @@ using CounterfactualExplanations.Models: LogisticModel, probs
 # Logit model:
 M = LogisticModel(w, [b])
 # Randomly selected factual:
-Random.seed!(123);
+Random.seed!(123)
 x = select_factual(counterfactual_data,rand(1:size(X)[2]))
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
@@ -98,6 +98,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 Now let's plot the resulting counterfactual path in the 2-D feature space (left) and the predicted probability (right):
 
 ```{julia}
+#| echo: false
 T = total_steps(counterfactual)
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
@@ -135,7 +136,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 Once again we plot the resulting counterfactual path (left) and changes in the predicted probability (right). For the Bayesian classifier predicted probabilities splash out: uncertainty increases in regions with few samples. Note how the greedy approach selects the same most salient feature over and over again until its exhausted (i.e. it has been chosen `GreedyGenerator.n` times).
 
 ```{julia}
-import CounterfactualExplanations.Counterfactuals: target_probs
+#| echo: false
 T = total_steps(counterfactual)
 X_path = reduce(hcat,path(counterfactual))
 ŷ = target_probs(counterfactual,X_path)
