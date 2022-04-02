@@ -171,20 +171,20 @@ savefig(plt, joinpath(www_path, "MNIST_9to4.png"))
 using Random
 
 # Single:
-function from_digit_to_digit(from, to, generator, model; γ=0.95, x=x, y=y, seed=1234, T=1000)
+function from_digit_to_digit(from, to, generator, model; γ=0.95, x=X, y=ys, seed=1234, T=1000)
 
     Random.seed!(seed)
 
     candidates = findall(onecold(y,0:9).==from)
-    x = Flux.unsqueeze(x[:,rand(candidates)],2)
+    x = Flux.unsqueeze(x[rand(candidates)],2)
     target = to + 1
-    counterfactual = generate_counterfactual(generator, x, model, target, γ; feasible_range=(0.0,1.0), T=T)
+    counterfactual = generate_counterfactual(x, target, counterfactual_data, v_mod, v_gen; T=T)
 
     return recourse
 end
 
 # Multiple:
-function from_digit_to_digit(from, to, generator::Dict, model::Dict; γ=0.95, x=x, y=y, seed=1234, T=1000)
+function from_digit_to_digit(from, to, generator::Dict, model::Dict; γ=0.95, x=X, y=ys, seed=1234, T=1000)
 
     Random.seed!(seed)
 
@@ -196,7 +196,7 @@ function from_digit_to_digit(from, to, generator::Dict, model::Dict; γ=0.95, x=
     for (k_gen,v_gen) ∈ generators
         for (k_mod,v_mod) ∈ models 
             k = k_mod * " - " * k_gen
-            counterfactuals[k] = generate_counterfactual(v_gen, x, v_mod, target, γ; feasible_range=(0.0,1.0), T=T)
+            counterfactuals[k] = generate_counterfactual(x, target, counterfactual_data, v_mod, v_gen; T=T)
         end
     end
 

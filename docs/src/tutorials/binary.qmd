@@ -129,7 +129,7 @@ using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
 μ = hcat(b, w)
 M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ);
-generator = GreedyGenerator(Dict(:δ=>0.1,:n=>25))
+generator = GreedyGenerator(;δ=0.1,n=25))
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 

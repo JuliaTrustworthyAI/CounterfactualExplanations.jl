@@ -20,10 +20,11 @@ makedocs(;
             [
                 "Overview" => "tutorials/index.md",
                 "Binary target" => "tutorials/binary.md",
-                "Models" => "tutorials/models.md",
+                "Custom models" => "tutorials/models.md",
                 "Multi-class target" => "tutorials/multi.md",
-                "Interoperability" => "tutorials/interop.md",
-                "Mutability constraints" => "tutorials/mutability.md"
+                "Custom generators" => "tutorials/generators.md",
+                "Mutability constraints" => "tutorials/mutability.md",
+                "Interoperability" => "tutorials/interop.md"
             ],
         "More examples" =>
             [

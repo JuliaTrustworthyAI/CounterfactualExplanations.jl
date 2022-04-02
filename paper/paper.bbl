@@ -147,9 +147,15 @@ Dylan Slack, Anna Hilgard, Himabindu Lakkaraju, and Sameer Singh.
 Counterfactual explanations can be manipulated.
 {\em Advances in Neural Information Processing Systems}, 34, 2021.
 
+\bibitem{slack2020fooling}
+Dylan Slack, Sophie Hilgard, Emily Jia, Sameer Singh, and Himabindu Lakkaraju.
+Fooling lime and shap: Adversarial attacks on post hoc explanation methods.
+In {\em Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},
+  pages 180--186, 2020.
+
 \bibitem{upadhyay2021towards}
 Sohini Upadhyay, Shalmali Joshi, and Himabindu Lakkaraju.
-Towards robust and reliable algorithmic counterfactual.
+Towards robust and reliable algorithmic recourse.
 {\em arXiv preprint arXiv:2102.13620}, 2021.
 
 \bibitem{ustun2019actionable}
