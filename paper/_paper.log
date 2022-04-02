@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.17)  2 APR 2022 13:25
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2021) (preloaded format=pdflatex 2022.3.17)  2 APR 2022 18:44
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -896,127 +896,130 @@ LaTeX Warning: Citation `daxberger2021laplace' on page 6 undefined on input line
 
 LaTeX Warning: Citation `murphy2022probabilistic' on page 6 undefined on input line 474.
 
-LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 478.
 
-LaTeX Warning: Reference `fig-models' on page 6 undefined on input line 490.
+LaTeX Warning: Reference `fig-models' on page 6 undefined on input line 489.
 
 
-LaTeX Warning: Reference `fig-generators' on page 6 undefined on input line 492.
+LaTeX Warning: Reference `fig-generators' on page 6 undefined on input line 491.
 
 
-LaTeX Warning: Reference `sec-method' on page 6 undefined on input line 493.
+LaTeX Warning: Reference `sec-method' on page 6 undefined on input line 492.
 
 
-LaTeX Warning: Reference `eq-solution' on page 6 undefined on input line 495.
+LaTeX Warning: Reference `eq-solution' on page 6 undefined on input line 494.
 
 
-LaTeX Warning: Reference `eq-solution-bayes' on page 6 undefined on input line 496.
+LaTeX Warning: Reference `eq-solution-bayes' on page 6 undefined on input line 495.
 
 <www/models.png, id=91, 501.875pt x 376.40625pt>
 File: www/models.png Graphic file (type png)
 <use www/models.png>
-Package pdftex.def Info: www/models.png  used on input line 501.
+Package pdftex.def Info: www/models.png  used on input line 500.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 <www/generators.png, id=92, 501.875pt x 376.40625pt>
 File: www/generators.png Graphic file (type png)
 <use www/generators.png>
-Package pdftex.def Info: www/generators.png  used on input line 512.
+Package pdftex.def Info: www/generators.png  used on input line 511.
 (pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
 
-LaTeX Warning: Reference `sec-method' on page 6 undefined on input line 525.
+LaTeX Warning: Reference `sec-method' on page 6 undefined on input line 524.
 
 
-LaTeX Warning: Reference `fig-binary' on page 6 undefined on input line 528.
+LaTeX Warning: Reference `fig-binary' on page 6 undefined on input line 527.
 
 [6] [7 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/models.png> </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/generators.png>]
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:569: LaTeX Error: Environment lstlisting undefined.
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:568: LaTeX Error: Environment lstlisting undefined.
 
 See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.569 \begin{lstlisting}
-                        [language = Julia]
+l.568 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:570: You can't use `macro parameter character #' in horizontal mode.
-l.570 #
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:569: You can't use `macro parameter character #' in horizontal mode.
+l.569 #
         Data:
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:573: You can't use `macro parameter character #' in horizontal mode.
-l.573 N = 100 #
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:572: You can't use `macro parameter character #' in horizontal mode.
+l.572 N = 100 #
                 number of data points
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:575: Missing $ inserted.
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:574: Missing $ inserted.
 <inserted text> 
                 $
-l.575 x, y = toy_
-                 data_linear(N)
+l.574 xs, ys = Data.toy_
+                        data_linear(N)
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:576: Missing $ inserted.
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:577: Missing $ inserted.
 <inserted text> 
                 $
-l.576 
+l.577 
       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:577: You can't use `macro parameter character #' in vertical mode.
-l.577 #
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:578: You can't use `macro parameter character #' in vertical mode.
+l.578 #
         Model:
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:579: You can't use `macro parameter character #' in horizontal mode.
-l.579 w = [1.0 1.0]#
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:580: You can't use `macro parameter character #' in horizontal mode.
+l.580 w = [1.0 1.0]#
                      true coefficients
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:583: You can't use `macro parameter character #' in vertical mode.
-l.583 #
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:584: You can't use `macro parameter character #' in vertical mode.
+l.584 #
         Setup:
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
 If you're in the wrong mode, you might be able to
 return to the right one by typing `I}' or `I$' or `I\par'.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:584: Missing $ inserted.
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:585: Missing $ inserted.
 <inserted text> 
                 $
-l.584 x_
-        factual = x[rand(1:length(x))]
+l.585 x = select_
+                 factual(
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:588: Missing $ inserted.
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:589: Missing $ inserted.
 <inserted text> 
                 $
-l.588 
+l.589 
       
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
-/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:589: You can't use `macro parameter character #' in vertical mode.
-l.589 #
+
+Overfull \hbox (37.9892pt too wide) in paragraph at lines 584--589
+[]\T1/lmr/m/n/10.95 (-20) Setup: x = select$[]\OML/lmm/m/it/10.95 actual\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 counterfactual[]ata; rand\OT1/lmr/m/n/10.95 (-20) (1 : \OML/lmm/m/it/10.95 length\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 xs\OT1/lmr/m/n/10.95 (-20) )))\OML/lmm/m/it/10.95 y \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 round\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 probs\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 M; x\OT1/lmr/m/n/10.95 (-20) )[1])\OML/lmm/m/it/10.95 target \OT1/lmr/m/n/10.95 (-20) =
+ []
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:590: You can't use `macro parameter character #' in vertical mode.
+l.590 #
         Counterfactual search:
 Sorry, but I'm not programmed to handle this case;
 I'll just pretend that you didn't ask for it.
@@ -1049,4 +1052,1194 @@ or  <return>  to continue without it.
                 $
 l.594 \end{lstlisting}
                       
-I've inser
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (231.99173pt too wide) in paragraph at lines 590--595
+[]\T1/lmr/m/n/10.95 (-20) Counterfactual search: gen-er-a-tor = Gener-ic-Gen-er-a-tor() coun-ter-fac-tual = generate$[]\OML/lmm/m/it/10.95 ounterfactual\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 x; target; counterfactual[]ata; M; generator\OT1/lmr/m/n/10.95 (-20) )$ 
+ []
+
+<www/ce_binary.png, id=113, 501.875pt x 376.40625pt>
+File: www/ce_binary.png Graphic file (type png)
+<use www/ce_binary.png>
+Package pdftex.def Info: www/ce_binary.png  used on input line 598.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+[8]
+
+LaTeX Warning: Reference `fig-binary' on page 9 undefined on input line 610.
+
+
+LaTeX Warning: Reference `fig-binary-wrong' on page 9 undefined on input line 619.
+
+<www/binary_wrong.png, id=121, 501.875pt x 376.40625pt>
+File: www/binary_wrong.png Graphic file (type png)
+<use www/binary_wrong.png>
+Package pdftex.def Info: www/binary_wrong.png  used on input line 628.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+
+LaTeX Warning: Citation `schut2021generating' on page 9 undefined on input line 640.
+
+
+LaTeX Warning: Reference `sec-method' on page 9 undefined on input line 641.
+
+
+LaTeX Warning: Reference `fig-binary-laplace' on page 9 undefined on input line 644.
+
+
+LaTeX Warning: Citation `murphy2022probabilistic' on page 9 undefined on input line 654.
+
+
+LaTeX Warning: Reference `fig-binary-laplace' on page 9 undefined on input line 667.
+
+[9 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_binary.png>]
+
+LaTeX Warning: Citation `schut2021generating' on page 10 undefined on input line 670.
+
+
+LaTeX Warning: Reference `eq-solution-bayes' on page 10 undefined on input line 672.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:685: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.685 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:686: You can't use `macro parameter character #' in horizontal mode.
+l.686 #
+        Model:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:694: You can't use `macro parameter character #' in vertical mode.
+l.694 #
+        Counterfactual search:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:696: Missing $ inserted.
+<inserted text> 
+                $
+l.696 counterfactual = generate_
+                                counterfactual(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:698: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.698 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:698: Missing $ inserted.
+<inserted text> 
+                $
+l.698 \end{lstlisting}
+                      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+[10 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/binary_wrong.png>]
+
+LaTeX Warning: Reference `fig-binary-laplace' on page 11 undefined on input line 700.
+
+
+LaTeX Warning: Reference `fig-binary-wrong' on page 11 undefined on input line 702.
+
+<www/ce_binary_laplace.png, id=138, 501.875pt x 376.40625pt>
+File: www/ce_binary_laplace.png Graphic file (type png)
+<use www/ce_binary_laplace.png>
+Package pdftex.def Info: www/ce_binary_laplace.png  used on input line 708.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+
+LaTeX Warning: Reference `sec-start' on page 11 undefined on input line 730.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:732: LaTeX Error: Environment unnumlist undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.732 \begin{unnumlist}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:733: LaTeX Error: Lonely \item--perhaps a missing list environment.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.733 \item \textbf
+                   {Subtyping}: the model needs to be declared as a subtype ...
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Underfull \hbox (badness 10000) detected at line 733
+[][]
+ []
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:734: LaTeX Error: Lonely \item--perhaps a missing list environment.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.734 \item \textbf
+                   {Multiple dispatch}: the functions \texttt{logits} and \t...
+Try typing  <return>  to proceed.
+If that doesn't work, type  X <return>  to quit.
+
+
+Underfull \hbox (badness 10000) detected at line 734
+[][]
+ []
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:735: LaTeX Error: \begin{document} ended by \end{unnumlist}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.735 \end{unnumlist}
+                     
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+LaTeX Warning: Citation `innes2018flux' on page 11 undefined on input line 742.
+
+[11 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_binary_laplace.png>]
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:748: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.748 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:749: Missing $ inserted.
+<inserted text> 
+                $
+l.749 n_
+        hidden = 32
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:757: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.757 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:757: Missing $ inserted.
+<inserted text> 
+                $
+l.757 \end{lstlisting}
+                      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (38.51707pt too wide) in paragraph at lines 748--758
+\OT1/lmr/m/n/10.95 (-20) 2\OML/lmm/m/it/10.95 model \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 Chain\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 Dense\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 input[]im; n[]idden; activation\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 ; Dropout\OT1/lmr/m/n/10.95 (-20) (0\OML/lmm/m/it/10.95 :\OT1/lmr/m/n/10.95 (-20) 1)\OML/lmm/m/it/10.95 ; Dense\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 n[]idden; output[]im\OT1/lmr/m/n/10.95 (-20) ))$ 
+ []
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:765: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.765 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:766: You can't use `macro parameter character #' in horizontal mode.
+l.766 #
+        Step 1)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:771: You can't use `macro parameter character #' in vertical mode.
+l.771 #
+        Step 2)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:772: You can't use `macro parameter character #' in horizontal mode.
+l.772 #
+        import functions in order to extend
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:778: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.778 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+LaTeX Warning: Reference `fig-multi' on page 12 undefined on input line 785.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:790: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.790 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:791: You can't use `macro parameter character #' in horizontal mode.
+l.791 #
+        Randomly selected factual:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:794: Missing $ inserted.
+<inserted text> 
+                $
+l.794 x = select_
+                 factual(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:799: Missing $ inserted.
+<inserted text> 
+                $
+l.799 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+Overfull \hbox (76.54082pt too wide) in paragraph at lines 790--799
+\T1/lmr/m/n/10.95 (-20) = select$[]\OML/lmm/m/it/10.95 actual\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 counterfactual[]ata; rand\OT1/lmr/m/n/10.95 (-20) (1 : \OML/lmm/m/it/10.95 length\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 xs\OT1/lmr/m/n/10.95 (-20) )))\OML/lmm/m/it/10.95 y \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 Flux:onecold\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 probs\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 M; x\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 ; unique\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 ys\OT1/lmr/m/n/10.95 (-20) ))\OML/lmm/m/it/10.95 target \OT1/lmr/m/n/10.95 (-20) =
+ []
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:800: You can't use `macro parameter character #' in vertical mode.
+l.800 #
+        Counterfactual search:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:803: Missing $ inserted.
+<inserted text> 
+                $
+l.803 counterfactual = generate_
+                                counterfactual(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:805: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.805 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:805: Missing $ inserted.
+<inserted text> 
+                $
+l.805 \end{lstlisting}
+                      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+<www/ce_multi.png, id=150, 501.875pt x 376.40625pt>
+File: www/ce_multi.png Graphic file (type png)
+<use www/ce_multi.png>
+Package pdftex.def Info: www/ce_multi.png  used on input line 809.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+
+LaTeX Warning: Citation `lakshminarayanan2016simple' on page 12 undefined on input line 820.
+
+
+LaTeX Warning: Citation `gal2016dropout' on page 12 undefined on input line 821.
+
+
+LaTeX Warning: Citation `daxberger2021laplace' on page 12 undefined on input line 823.
+
+
+LaTeX Warning: Reference `fig-multi-ensemble' on page 12 undefined on input line 825.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:828: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.828 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:829: You can't use `macro parameter character #' in horizontal mode.
+l.829 #
+        Model:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:831: You can't use `macro parameter character #' in horizontal mode.
+l.831 #
+        Step 1)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:835: You can't use `macro parameter character #' in horizontal mode.
+l.835 #
+        Step 2)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:845: You can't use `macro parameter character #' in vertical mode.
+l.845 #
+        Counterfactual search:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:848: Missing $ inserted.
+<inserted text> 
+                $
+l.848 counterfactual = generate_
+                                counterfactual(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:850: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.850 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:850: Missing $ inserted.
+<inserted text> 
+                $
+l.850 \end{lstlisting}
+                      
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (29.89937pt too wide) in paragraph at lines 845--851
+[]\T1/lmr/m/n/10.95 (-20) Counterfactual search: gen-er-a-tor = Greedy-Gen-er-a-tor(; loss=:logitbinarycrossentropy,@$\OML/lmm/m/it/10.95 ^^N$\T1/lmr/m/n/10.95 (-20) @=0.25,n=25)
+ []
+
+[12]
+<www/ce_multi_ensemble.png, id=155, 501.875pt x 376.40625pt>
+File: www/ce_multi_ensemble.png Graphic file (type png)
+<use www/ce_multi_ensemble.png>
+Package pdftex.def Info: www/ce_multi_ensemble.png  used on input line 864.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+ [13 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_multi.png> </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_multi_ensemble.png>]
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:899: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.899 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:900: You can't use `macro parameter character #' in horizontal mode.
+l.900 #
+        Abstract suptype:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:903: You can't use `macro parameter character #' in vertical mode.
+l.903 #
+        Constructor:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:905: You can't use `macro parameter character #' in horizontal mode.
+l.905     loss::Symbol #
+                         loss function
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:906: You can't use `macro parameter character #' in horizontal mode.
+l.906     complexity::Function #
+                                 complexity function
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:908: You can't use `macro parameter character #' in horizontal mode.
+l.908     @$\lambda$@::AbstractFloat #
+                                       strength of penalty
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:909: You can't use `macro parameter character #' in horizontal mode.
+l.909     @$\epsilon$@::AbstractFloat #
+                                        step size
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:910: You can't use `macro parameter character #' in horizontal mode.
+l.910     @$\tau$@::AbstractFloat #
+                                    tolerance for convergence
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:911: Missing $ inserted.
+<inserted text> 
+                $
+l.911     p_
+            dropout::AbstractFloat # dropout rate
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:911: You can't use `macro parameter character #' in math mode.
+l.911     p_dropout::AbstractFloat #
+                                     dropout rate
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:913: Missing $ inserted.
+<inserted text> 
+                $
+l.913 
+      
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:914: You can't use `macro parameter character #' in vertical mode.
+l.914 #
+        Instantiate:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:925: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.925 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:931: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.931 \begin{lstlisting}
+                        [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:933: Missing $ inserted.
+<inserted text> 
+                $
+l.933 import Generators: generate_
+                                  perturbations, @$\nabla$@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:933: Missing $ inserted.
+<inserted text> 
+                $
+l.933 ...erators: generate_perturbations, @$\nabla
+                                                  $@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:935: Missing $ inserted.
+<inserted text> 
+                $
+l.935 function generate_
+                        perturbations(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:939: Missing $ inserted.
+<inserted text> 
+                $
+l.939     g_t = @$\nabla
+                        $@(generator, counterfactual_state)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:939: Missing $ inserted.
+<inserted text> 
+                $
+l.939 ...t = @$\nabla$@(generator, counterfactual_
+                                                  state)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:940: You can't use `macro parameter character #' in math mode.
+l.940     #
+            Dropout:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:947: Missing $ inserted.
+<inserted text> 
+                $
+l.947     @$\Delta
+                   x\prime$@ = - (generator.@$\epsilon$@ .* g_t)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:947: Missing $ inserted.
+<inserted text> 
+                $
+l.947 ...prime$@ = - (generator.@$\epsilon$@ .* g_
+                                                  t)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:948: Missing $ inserted.
+<inserted text> 
+                $
+l.948     return @$\Delta
+                          x\prime$@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:950: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.950 \end{lstlisting}
+                      
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (6.67798pt too wide) in paragraph at lines 931--951
+\OML/lmm/m/it/10.95 AbstractDropoutGenerator; counterfactual[]tate \OT1/lmr/m/n/10.95 (-20) :: \OML/lmm/m/it/10.95 CounterfactualState\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 g[] \OT1/lmr/m/n/10.95 (-20) = @$$\OMS/lmsy/m/n/10.95 r$\T1/lmr/m/n/10.95 (-20) @(generator,
+ []
+
+
+Overfull \hbox (13.10551pt too wide) in paragraph at lines 931--951
+\T1/lmr/m/n/10.95 (-20) counterfactual$[]\OML/lmm/m/it/10.95 tate\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 Dropout \OT1/lmr/m/n/10.95 (-20) : \OML/lmm/m/it/10.95 set[]o[]ero \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 sample\OT1/lmr/m/n/10.95 (-20) (1 : \OML/lmm/m/it/10.95 length\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 g[]\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 ; Int\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 round\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 generator:p[]ropout \OMS/lmsy/m/n/10.95 ^^C
+ []
+
+
+LaTeX Warning: Reference `fig-dropout' on page 14 undefined on input line 955.
+
+<www/dropout.png, id=164, 501.875pt x 376.40625pt>
+File: www/dropout.png Graphic file (type png)
+<use www/dropout.png>
+Package pdftex.def Info: www/dropout.png  used on input line 959.
+(pdftex.def)             Requested size: 446.78221pt x 335.08665pt.
+[14] [15 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/dropout.png>]
+
+LaTeX Warning: Reference `fig-mutability' on page 16 undefined on input line 1000.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1004: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1004 \begin{lstlisting}
+                         [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1005: Missing $ inserted.
+<inserted text> 
+                $
+l.1005 counterfactual_
+                      data = CounterfactualData(X,ys';mutability=[:both, :no...
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1006: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1006 \end{lstlisting}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1006: Missing $ inserted.
+<inserted text> 
+                $
+l.1006 \end{lstlisting}
+                       
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (9.90532pt too wide) in paragraph at lines 1004--1007
+[]\T1/lmr/m/n/10.95 (-20) [language=Julia, es-capechar=@] counterfactual$[]\OML/lmm/m/it/10.95 ata \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 CounterfactualData\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 X; ys[]\OT1/lmr/m/n/10.95 (-20) ; \OML/lmm/m/it/10.95 mutability \OT1/lmr/m/n/10.95 (-20) =
+ []
+
+<www/constraint_mutability.png, id=180, 501.875pt x 376.40625pt>
+File: www/constraint_mutability.png Graphic file (type png)
+<use www/constraint_mutability.png>
+Package pdftex.def Info: www/constraint_mutability.png  used on input line 1010.
+(pdftex.def)             Requested size: 446.78221pt x 335.08665pt.
+
+LaTeX Warning: Reference `fig-domain' on page 16 undefined on input line 1027.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1031: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1031 \begin{lstlisting}
+                         [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1032: Missing $ inserted.
+<inserted text> 
+                $
+l.1032 counterfactual_
+                      data = CounterfactualData(
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1034: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1034 \end{lstlisting}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1034: Missing $ inserted.
+<inserted text> 
+                $
+l.1034 \end{lstlisting}
+                       
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+
+Overfull \hbox (9.90532pt too wide) in paragraph at lines 1031--1035
+[]\T1/lmr/m/n/10.95 (-20) [language=Julia, es-capechar=@] counterfactual$[]\OML/lmm/m/it/10.95 ata \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 CounterfactualData\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 X; ys[]\OT1/lmr/m/n/10.95 (-20) ; \OML/lmm/m/it/10.95 mutability \OT1/lmr/m/n/10.95 (-20) =
+ []
+
+<www/constraint_domain.png, id=181, 501.875pt x 376.40625pt>
+File: www/constraint_domain.png Graphic file (type png)
+<use www/constraint_domain.png>
+Package pdftex.def Info: www/constraint_domain.png  used on input line 1038.
+(pdftex.def)             Requested size: 446.78221pt x 335.08665pt.
+[16] [17 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/constraint_mutability.png>] [18 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/constraint_domain.png>]
+
+LaTeX Warning: Reference `sec-custom' on page 19 undefined on input line 1073.
+
+
+LaTeX Warning: Reference `sec-emp' on page 19 undefined on input line 1073.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1083: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1083 \begin{lstlisting}
+                         [language=Julia]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1084: You can't use `macro parameter character #' in horizontal mode.
+l.1084 #
+         Step 1)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1089: You can't use `macro parameter character #' in vertical mode.
+l.1089 #
+         Step 2)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1092: Missing $ inserted.
+<inserted text> 
+                $
+l.1092   y = rcopy(R"as_
+                        array($nn(torch_tensor(t($X))))")
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1092: Missing $ inserted.
+<inserted text> 
+                $
+l.1092   y = rcopy(R"as_array($nn(torch_
+                                        tensor(t($X))))")
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1096: Package inputenc Error: Unicode character σ (U+03C3)
+(inputenc)                not set up for use with LaTeX.
+
+See the inputenc package documentation for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1096 probs(M::TorchNetwork, X::AbstractArray)=σ
+                                                  .(logits(M, X))
+You may provide a definition with
+\DeclareUnicodeCharacter 
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1098: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1098 \end{lstlisting}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Overfull \hbox (103.93639pt too wide) in paragraph at lines 1089--1099
+[]\T1/lmr/m/n/10.95 (-20) Step 2) func-tion log-its(M::TorchNetwork, X::AbstractArray) nn = M.nn y = rcopy(R"as$[]\OML/lmm/m/it/10.95 rray\OT1/lmr/m/n/10.95 (-20) ($\T1/lmr/m/n/10.95 (-20) nn(torch$[]\OML/lmm/m/it/10.95 ensor\OT1/lmr/m/n/10.95 (-20) (\OML/lmm/m/it/10.95 t\OT1/lmr/m/n/10.95 (-20) ($\T1/lmr/m/n/10.95 (-20) X))))")
+ []
+
+
+Overfull \hbox (34.44829pt too wide) in paragraph at lines 1089--1099
+\T1/lmr/m/n/10.95 (-20) y = isa(y, Ab-strac-tAr-ray) ? y : [y] re-turn y' end probs(M::TorchNetwork, X::AbstractArray)=.(logits(M,
+ []
+
+
+LaTeX Warning: Reference `fig-torch' on page 19 undefined on input line 1115.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1118: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1118 \begin{lstlisting}
+                         [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1122: You can't use `macro parameter character #' in vertical mode.
+l.1122 #
+         Countefactual loss:
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+[19]
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1125: Missing $ inserted.
+<inserted text> 
+                $
+l.1125     counterfactual_
+                          state::CounterfactualState)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1128: Missing $ inserted.
+<inserted text> 
+                $
+l.1128   @$x\prime
+                  $@ = counterfactual_state.@$x\prime$@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1128: Missing $ inserted.
+<inserted text> 
+                $
+l.1128   @$x\prime$@ = counterfactual_
+                                      state.@$x\prime$@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1128: Missing $ inserted.
+<inserted text> 
+                $
+l.1128 ...prime$@ = counterfactual_state.@$x\prime
+                                                  $@
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1129: Missing $ inserted.
+<inserted text> 
+                $
+l.1129   t = counterfactual_
+                            state.target_encoded
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1131: Missing $ inserted.
+<inserted text> 
+                $
+l.1131   x <- torch_tensor($@$x\prime$@, requires_
+                                                  grad=TRUE)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1133: Missing $ inserted.
+<inserted text> 
+                $
+l.1133   loss_
+              fun <- nnf_binary_cross_entropy_with_logits
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1135: Missing $ inserted.
+<inserted text> 
+                $
+l.1135   obj_
+             loss$backward()
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1137: Missing $ inserted.
+<inserted text> 
+                $
+l.1137   grad = rcopy(R"as_
+                           array(x$grad)")
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1140: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1140 \end{lstlisting}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1122--1141
+[]\T1/lmr/m/n/10.95 (+20) Countefactual loss: func-tion @$\OML/lmm/m/it/10.95 @`$\T1/lmr/m/n/10.95 (+20) @( gen-er-a-tor::AbstractGradientBasedGenerator,
+ []
+
+
+Overfull \hbox (8.20638pt too wide) in paragraph at lines 1122--1141
+\T1/lmr/m/n/10.95 (-20) requires$[]\OML/lmm/m/it/10.95 rad \OT1/lmr/m/n/10.95 (-20) = \OML/lmm/m/it/10.95 TRUE\OT1/lmr/m/n/10.95 (-20) )\OML/lmm/m/it/10.95 output < \OMS/lmsy/m/n/10.95 ^^@$\T1/lmr/m/n/10.95 (-20) nn(x) loss$[]\OML/lmm/m/it/10.95 un < \OMS/lmsy/m/n/10.95 ^^@\OML/lmm/m/it/10.95 nnf[]inary[]ross[]ntropy[]ith[]ogitsobj[]oss <
+ []
+
+<www/ce_torch.png, id=218, 501.875pt x 376.40625pt>
+File: www/ce_torch.png Graphic file (type png)
+<use www/ce_torch.png>
+Package pdftex.def Info: www/ce_torch.png  used on input line 1144.
+(pdftex.def)             Requested size: 240.9049pt x 180.67868pt.
+
+LaTeX Warning: Citation `lecun1998mnist' on page 20 undefined on input line 1160.
+
+
+LaTeX Warning: Reference `fig-mnist-orig' on page 20 undefined on input line 1166.
+
+
+LaTeX Warning: Citation `schut2021generating' on page 20 undefined on input line 1167.
+
+
+LaTeX Warning: Citation `schut2021generating' on page 20 undefined on input line 1177.
+
+
+LaTeX Warning: Citation `wilson2019case.pdf' on page 20 undefined on input line 1179.
+
+
+LaTeX Warning: Citation `lakshminarayanan2016simple' on page 20 undefined on input line 1180.
+
+[20 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_torch.png>]
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1185: LaTeX Error: Environment lstlisting undefined.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1185 \begin{lstlisting}
+                         [language=Julia, escapechar=@]
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1187: You can't use `macro parameter character #' in horizontal mode.
+l.1187 #
+         Step 1)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1191: You can't use `macro parameter character #' in horizontal mode.
+l.1191 #
+         Step 2)
+Sorry, but I'm not programmed to handle this case;
+I'll just pretend that you didn't ask for it.
+If you're in the wrong mode, you might be able to
+return to the right one by typing `I}' or `I$' or `I\par'.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1199: Missing $ inserted.
+<inserted text> 
+                $
+l.1199 M_
+         ensemble = FittedEnsemble(ensemble)
+I've inserted a begin-math/end-math symbol since I think
+you left one out. Proceed, with fingers crossed.
+
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1200: LaTeX Error: \begin{document} ended by \end{lstlisting}.
+
+See the LaTeX manual or LaTeX Companion for explanation.
+Type  H <return>  for immediate help.
+ ...                                              
+                                                  
+l.1200 \end{lstlisting}
+                       
+Your command was ignored.
+Type  I <command> <return>  to replace it with another command,
+or  <return>  to continue without it.
+
+/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.tex:1200: Missing $ inserted.
+<inserted text> 
+                $
+l.1200 \end{lstlisting}
+                       
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
+
+<www/mnist_original.png, id=229, 501.875pt x 376.40625pt>
+File: www/mnist_original.png Graphic file (type png)
+<use www/mnist_original.png>
+Package pdftex.def Info: www/mnist_original.png  used on input line 1204.
+(pdftex.def)             Requested size: 120.4448pt x 90.33359pt.
+
+LaTeX Warning: Reference `fig-mnist-orig' on page 21 undefined on input line 1219.
+
+
+LaTeX Warning: Reference `fig-mnist-9to4' on page 21 undefined on input line 1220.
+
+
+LaTeX Warning: Citation `schut2021generating' on page 21 undefined on input line 1226.
+
+
+LaTeX Warning: Reference `fig-mnist-3to8' on page 21 undefined on input line 1231.
+
+
+LaTeX Warning: Reference `fig-mnist-9to4' on page 21 undefined on input line 1235.
+
+
+LaTeX Warning: Citation `schut2021generating' on page 21 undefined on input line 1237.
+
+<www/mnist_9_to_4.png, id=230, 1204.5pt x 301.125pt>
+File: www/mnist_9_to_4.png Graphic file (type png)
+<use www/mnist_9_to_4.png>
+Package pdftex.def Info: www/mnist_9_to_4.png  used on input line 1241.
+(pdftex.def)             Requested size: 240.89574pt x 60.22392pt.
+
+LaTeX Warning: Citation `schut2021generating' on page 21 undefined on input line 1252.
+
+[21 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_original.png>]
+<www/mnist_3_to_8.png, id=236, 1204.5pt x 301.125pt>
+File: www/mnist_3_to_8.png Graphic file (type png)
+<use www/mnist_3_to_8.png>
+Package pdftex.def Info: www/mnist_3_to_8.png  used on input line 1265.
+(pdftex.def)             Requested size: 240.89574pt x 60.22392pt.
+ [22 </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_9_to_4.png> </Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_3_to_8.png>]
+
+LaTeX3 Info: Redefining command \BeforeClosingMainAux with sig. 'm' on line
+(LaTeX3)     1295.
+
+
+LaTeX3 Info: Redefining command \BeforeClosingMainAux with sig. 'm' on line
+(LaTeX3)     1295.
+
+ (/Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 17350 strings out of 478994
+ 292414 string characters out of 5858184
+ 779155 words of memory out of 5000000
+ 34264 multiletter control sequences out of 15000+600000
+ 468477 words of font info for 154 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 111i,8n,116p,10703b,470s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/lm/lm-mathex.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/local/texlive/2021/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}</usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmbx10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmbx9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmex10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmmi10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmmi8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmr10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmr8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmr9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmsy8.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/lm/lmtt9.pfb></usr/local/texlive/2021/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/_paper.pdf (22 pages, 845499 bytes).
+PDF statistics:
+ 388 PDF objects out of 1000 (max. 8388607)
+ 330 compressed objects within 4 object streams
+ 112 named destinations out of 1000 (max. 500000)
+ 35039 words of extra memory for PDF output out of 35830 (max. 10000000)
+

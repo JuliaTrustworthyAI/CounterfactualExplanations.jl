@@ -8,6 +8,12 @@ Explainable artificial intelligence (xai): Concepts, taxonomies, opportunities
   and challenges toward responsible ai.
 {\em Information Fusion}, 58:82--115, 2020.
 
+\bibitem{borch2022machine}
+Christian Borch.
+Machine learning, knowledge risk, and principal-agent problems in automated
+  trading.
+{\em Technology in Society}, page 101852, 2022.
+
 \bibitem{buolamwini2018gender}
 Joy Buolamwini and Timnit Gebru.
 Gender shades: Intersectional accuracy disparities in commercial gender
@@ -92,6 +98,11 @@ Yann LeCun.
 The mnist database of handwritten digits.
 {\em http://yann. lecun. com/exdb/mnist/}, 1998.
 
+\bibitem{miller2019explanation}
+Tim Miller.
+Explanation in artificial intelligence: Insights from the social sciences.
+{\em Artificial intelligence}, 267:1--38, 2019.
+
 \bibitem{molnar2020interpretable}
 Christoph Molnar.
 {\em Interpretable machine learning}.
@@ -152,6 +163,12 @@ Dylan Slack, Sophie Hilgard, Emily Jia, Sameer Singh, and Himabindu Lakkaraju.
 Fooling lime and shap: Adversarial attacks on post hoc explanation methods.
 In {\em Proceedings of the AAAI/ACM Conference on AI, Ethics, and Society},
   pages 180--186, 2020.
+
+\bibitem{sturm2014simple}
+Bob~L Sturm.
+A simple method to determine if a music information retrieval system is a
+  ``horse''.
+{\em IEEE Transactions on Multimedia}, 16(6):1636--1644, 2014.
 
 \bibitem{upadhyay2021towards}
 Sohini Upadhyay, Shalmali Joshi, and Himabindu Lakkaraju.

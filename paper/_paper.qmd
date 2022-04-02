@@ -461,7 +461,149 @@ savefig(plt, "paper/www/ce_multi_ensemble.png")
 
 ## Custom generators
 
-**TBD**
+To illustrate how custom generators can be implemented we will consider a simple example of a generator that extends the functionality of our `GenericGenerator`. We have noted elsewhere that the effectiveness of ounterfactual explanations depends to some degree on the quality of the fitted model. Another, perhaps trivial, thing to note is that counterfactual explanations are not unique: there are potentially many valid counterfactual paths. One idea building on these two observations might be to introduce some form of regularization in the counterfactual search. For example, we could use dropout to randomly switch features on and off in each iteration. Without dwelling further on the merit of this idea, we will now briefly show how this can be implemented.
+
+### A generic generator with dropout
+
+The first code chunk below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor similar to the `GenericConstructor`, but with one additional field for the probability of dropout.
+
+```{julia}
+# Abstract suptype:
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+
+# Constructor:
+struct DropoutGenerator <: AbstractDropoutGenerator
+    loss::Symbol # loss function
+    complexity::Function # complexity function
+    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+    λ::AbstractFloat # strength of penalty
+    ϵ::AbstractFloat # step size
+    τ::AbstractFloat # tolerance for convergence
+    p_dropout::AbstractFloat # dropout rate
+end
+
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+```
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+# Abstract suptype:
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+
+# Constructor:
+struct DropoutGenerator <: AbstractDropoutGenerator
+    loss::Symbol # loss function
+    complexity::Function # complexity function
+    mutability::Union{Nothing,Vector{Symbol}}
+    @$\lambda$@::AbstractFloat # strength of penalty
+    @$\epsilon$@::AbstractFloat # step size
+    @$\tau$@::AbstractFloat # tolerance for convergence
+    p_dropout::AbstractFloat # dropout rate
+end
+
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+\end{lstlisting}
+
+Next, we define how feature perturbations are generated for our dropout generator: in particular, we extend the relevant function through a method that implemented the dropout logic.
+
+```{julia}
+using CounterfactualExplanations.Generators
+import .Generators: generate_perturbations, ∇
+using StatsBase
+function generate_perturbations(
+    generator::AbstractDropoutGenerator, 
+    counterfactual_state::CounterfactualState
+)
+    g_t = ∇(generator, counterfactual_state) # gradient
+    # Dropout:
+    set_to_zero = sample(
+        1:length(g_t),
+        Int(round(generator.p_dropout*length(g_t))),
+        replace=false
+    )
+    g_t[set_to_zero] .= 0
+    Δx′ = - (generator.ϵ .* g_t) # gradient step
+    return Δx′
+end
+```
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+using CounterfactualExplanations.Generators
+import Generators: generate_perturbations, @$\nabla$@
+using StatsBase
+function generate_perturbations(
+    generator::AbstractDropoutGenerator, 
+    counterfactual_state::CounterfactualState
+)
+    g_t = @$\nabla$@(generator, counterfactual_state) 
+    # Dropout:
+    set_to_zero = sample(
+        1:length(g_t),
+        Int(round(generator.p_dropout*length(g_t))),
+        replace=false
+    )
+    g_t[set_to_zero] .= 0
+    @$\Delta x\prime$@ = - (generator.@$\epsilon$@ .* g_t) 
+    return @$\Delta x\prime$@
+end
+\end{lstlisting}
+
+Finally, we proceed to generate counterfactuals in the same way we always do. The code below simply generates some toy data, randomly selects a sample and runs the counterfactual search. The resulting counterfactual path is shown in @fig-dropout.
+
+```{julia}
+# Data:
+using CounterfactualExplanations.Data
+Random.seed!(1234)
+N = 25
+w = [1.0 1.0]# true coefficients
+b = 0
+xs, ys = Data.toy_data_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+
+# Model:
+using CounterfactualExplanations.Models: LogisticModel, probs 
+# Logit model:
+M = LogisticModel(w, [b])
+# Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+
+```{julia}
+T = total_steps(counterfactual)
+X_path = reduce(hcat,path(counterfactual))
+plt = plot_contour(X',ys,M)
+[scatter!(plt, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=7.5, color=Int(y), label="") for t in 1:T]
+savefig(plt, joinpath(www_path, "dropout.png"))
+```
+
+![Counterfactual path for a generic generator with dropout.](www/dropout.png){#fig-dropout width=20pc height=15pc}
 
 ## Feature constraints
 
@@ -491,9 +633,9 @@ Below we impose that the second feature is immutable. The resulting counterfactu
 counterfactual_data = CounterfactualData(X,ys';mutability=[:both, :none])
 ```
 
-\begin{listing}[language=Julia, escapechar=@]
+\begin{lstlisting}[language=Julia, escapechar=@]
 counterfactual_data = CounterfactualData(X,ys';mutability=[:both, :none])
-\end{listing}
+\end{lstlisting}
 
 ```{julia}
 # Randomly selected factual:
@@ -519,7 +661,7 @@ plt = plot_contour(X',ys,M)
 savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 ```
 
-![Counterfactual path with immutable feature.](www/constraint_mutability.png){#fig-mutability}
+![Counterfactual path with immutable feature.](www/constraint_mutability.png){#fig-mutability width=20pc height=15pc}
 
 ### Domain constraints
 
@@ -530,10 +672,10 @@ counterfactual_data = CounterfactualData(
     X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 ```
 
-\begin{listing}[language=Julia, escapechar=@]
+\begin{lstlisting}[language=Julia, escapechar=@]
 counterfactual_data = CounterfactualData(
     X,ys';mutability=[:both, :none])
-\end{listing}
+\end{lstlisting}
 
 ```{julia}
 # Randomly selected factual:
@@ -558,7 +700,7 @@ plt = plot_contour(X',ys,M)
 savefig(plt, joinpath(www_path, "constraint_domain.png"))
 ```
 
-![Counterfactual path with only one feature constrained to a certain domain.](www/constraint_domain.png){#fig-domain}
+![Counterfactual path with only one feature constrained to a certain domain.](www/constraint_domain.png){#fig-domain width=20pc height=15pc}
 
 ## Language interoperability
 

@@ -474,8 +474,7 @@ may have thought (\cite{gal2016dropout},
 \cite{murphy2022probabilistic}).
 
 \hypertarget{sec-use}{%
-\section{\texorpdfstring{Using
-\texttt{CounterfactualExplanations}}{Using CounterfactualExplanations}}\label{sec-use}}
+\section{General usage}\label{sec-use}}
 
 The package is built around two core modules that are designed to be as
 scalable as possible through multiple dispatch: 1) \texttt{Models} is
@@ -799,7 +798,8 @@ y = Flux.onecold(
 target = rand(unique(ys)[1:end .!= y]) 
 
 # Counterfactual search:
-generator = GenericGenerator(;loss=:logitcrossentropy)
+generator = GenericGenerator(
+    ;loss=:logitcrossentropy)
 counterfactual = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 \end{lstlisting}
@@ -874,48 +874,175 @@ approximation.}
 \hypertarget{custom-generators}{%
 \subsection{Custom generators}\label{custom-generators}}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. In vel varius
-nibh, id tincidunt nisl. Suspendisse nibh mauris, tristique at fringilla
-hendrerit, imperdiet et ex. Praesent tincidunt vehicula nunc ut
-scelerisque. Nulla sed nisi a mauris pellentesque finibus quis ac risus.
-Sed dictum vitae nunc quis venenatis. Suspendisse potenti. Duis tempor
-orci vitae felis molestie, ac commodo risus mollis.
+To illustrate how custom generators can be implemented we will consider
+a simple example of a generator that extends the functionality of our
+\texttt{GenericGenerator}. We have noted elsewhere that the
+effectiveness of ounterfactual explanations depends to some degree on
+the quality of the fitted model. Another, perhaps trivial, thing to note
+is that counterfactual explanations are not unique: there are
+potentially many valid counterfactual paths. One idea building on these
+two observations might be to introduce some form of regularization in
+the counterfactual search. For example, we could use dropout to randomly
+switch features on and off in each iteration. Without dwelling further
+on the merit of this idea, we will now briefly show how this can be
+implemented.
 
-Nulla facilisi. Aenean auctor et elit non molestie. Nulla fermentum
-cursus neque, ac accumsan sem cursus vitae. Curabitur pulvinar augue
-magna. Cras rutrum lacinia lobortis. Maecenas nibh eros, accumsan sed
-ligula nec, bibendum luctus justo. Vestibulum nisl nisl, ornare id
-consequat et, consequat id velit. Mauris pellentesque metus volutpat,
-maximus sapien vel, malesuada tellus. Sed vitae turpis quam. Integer
-arcu erat, viverra ac velit vitae, tempor vestibulum orci. Nulla
-eleifend nec tellus in euismod. Etiam est tortor, vulputate sit amet
-interdum vel, dapibus porta est. Nulla at tempus sem, nec elementum
-odio. Curabitur vitae suscipit magna, eget efficitur lectus.
+\hypertarget{a-generic-generator-with-dropout}{%
+\subsubsection{A generic generator with
+dropout}\label{a-generic-generator-with-dropout}}
 
-Nunc molestie magna pulvinar sodales tristique. Suspendisse fringilla
-tincidunt pretium. Mauris ornare magna at dolor maximus, eu eleifend
-erat tincidunt. Ut venenatis nibh tellus, vitae accumsan elit convallis
-in. Proin blandit metus eget odio malesuada mattis. Etiam vel porttitor
-mauris. Sed hendrerit vehicula efficitur. Maecenas gravida nisi ut lorem
-ultricies gravida. Cras porta luctus lectus, sit amet rutrum libero
-convallis in. Etiam elementum, orci et pharetra auctor, velit nulla
-consequat est, a bibendum dolor libero quis tellus.
+The first code chunk below implements two important steps: 1) create an
+abstract subtype of the \texttt{AbstractGradientBasedGenerator} and 2)
+create a constructor similar to the \texttt{GenericConstructor}, but
+with one additional field for the probability of dropout.
 
-Duis a ligula eget tellus sagittis convallis. Nulla feugiat fermentum
-condimentum. Vestibulum vulputate ante at justo tempus, sed tincidunt
-eros rutrum. Interdum et malesuada fames ac ante ipsum primis in
-faucibus. Curabitur maximus, metus quis tincidunt condimentum, lectus
-velit maximus mauris, in vestibulum tellus neque at ipsum. Orci varius
-natoque penatibus et magnis dis parturient montes, nascetur ridiculus
-mus. Donec sagittis ligula in erat condimentum finibus.
+\begin{lstlisting}[language=Julia, escapechar=@]
+# Abstract suptype:
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
-Nunc sollicitudin ornare velit id viverra. Praesent ut quam semper,
-posuere leo ac, dictum nunc. Praesent sollicitudin sollicitudin nulla,
-eget dapibus dui mattis placerat. Etiam quis erat imperdiet, elementum
-metus in, rutrum elit. Vestibulum venenatis vulputate mauris, id egestas
-massa pretium et. Pellentesque sed mollis nisi. Maecenas at aliquet
-magna. Nullam id neque in orci posuere maximus. Mauris scelerisque
-pretium ante, eget auctor est feugiat sit amet.
+# Constructor:
+struct DropoutGenerator <: AbstractDropoutGenerator
+    loss::Symbol # loss function
+    complexity::Function # complexity function
+    mutability::Union{Nothing,Vector{Symbol}}
+    @$\lambda$@::AbstractFloat # strength of penalty
+    @$\epsilon$@::AbstractFloat # step size
+    @$\tau$@::AbstractFloat # tolerance for convergence
+    p_dropout::AbstractFloat # dropout rate
+end
+
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+\end{lstlisting}
+
+Next, we define how feature perturbations are generated for our dropout
+generator: in particular, we extend the relevant function through a
+method that implemented the dropout logic.
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+using CounterfactualExplanations.Generators
+import Generators: generate_perturbations, @$\nabla$@
+using StatsBase
+function generate_perturbations(
+    generator::AbstractDropoutGenerator, 
+    counterfactual_state::CounterfactualState
+)
+    g_t = @$\nabla$@(generator, counterfactual_state) 
+    # Dropout:
+    set_to_zero = sample(
+        1:length(g_t),
+        Int(round(generator.p_dropout*length(g_t))),
+        replace=false
+    )
+    g_t[set_to_zero] .= 0
+    @$\Delta x\prime$@ = - (generator.@$\epsilon$@ .* g_t) 
+    return @$\Delta x\prime$@
+end
+\end{lstlisting}
+
+Finally, we proceed to generate counterfactuals in the same way we
+always do. The code below simply generates some toy data, randomly
+selects a sample and runs the counterfactual search. The resulting
+counterfactual path is shown in Figure~\ref{fig-dropout}.
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/dropout.png}
+
+}
+
+\caption{\label{fig-dropout}Counterfactual path for a generic generator
+with dropout.}
+
+\end{figure}
+
+\hypertarget{feature-constraints}{%
+\subsection{Feature constraints}\label{feature-constraints}}
+
+In practice, features usually cannot be perturbed arbitrarily. Suppose,
+for example, that one of the features used by a bank to predict the
+credit worthiness of its clients is \emph{gender}. If a counterfactual
+explanation for the prediction model indicates that female clients
+should change their gender to improve their credit worthiness, then this
+is an interesting insight (it reveals gender bias), but it is not
+usually an actionable transformation in practice. In such cases we may
+want to constrain the mutability of features to ensure actionable and
+realistic recourse. To illustrate how this can be implemented in
+\texttt{CounterfactualExplanations.jl} we will look at the linearly
+separable toy dataset again.
+
+\hypertarget{mutability}{%
+\subsubsection{Mutability}\label{mutability}}
+
+Mutability of features can be defined in terms of four different
+options: 1) the feature is mutable in both directions, 2) the feature
+can only increase (e.g.~\emph{age}), 3) the feature can only decrease
+(e.g.~\emph{time left} until your next deadline) and 4) the feature is
+not mutable (e.g.~\emph{skin colour}, \emph{ethnicity}, \ldots). To
+specify which category a feature belongs to, you can pass a vector of
+symbols containing the mutability constraints at the pre-processing
+stage. For each feature you can choose from these four options:
+\texttt{:both} (mutable in both directions), \texttt{:increase} (only
+up), \texttt{:decrease} (only down) and \texttt{:none} (immutable). By
+default, \texttt{nothing} is passed to that keyword argument and it is
+assumed that all features are mutable in both directions.
+
+Below we impose that the second feature is immutable. The resulting
+counterfactual path is shown in Figure~\ref{fig-mutability} below. Since
+only the first feature can be perturbed, the sample can only move along
+the horizontal axis.
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+counterfactual_data = CounterfactualData(X,ys';mutability=[:both, :none])
+\end{lstlisting}
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/constraint_mutability.png}
+
+}
+
+\caption{\label{fig-mutability}Counterfactual path with immutable
+feature.}
+
+\end{figure}
+
+\hypertarget{domain-constraints}{%
+\subsubsection{Domain constraints}\label{domain-constraints}}
+
+In some cases we may also want to constrain the domain of some feature.
+For example, \emph{age} as a feature is constrained to a range from 0 to
+some upper bound corresponding perhaps to the average life expectancy of
+humans. Applying this concept to our synthetic data, below we impose an
+upper bound of \(-0.5\) for the second feature. This results in the
+kinked counterfactual path shown in Figure~\ref{fig-domain}: since the
+second feature is not allowed to be perturbed beyond the upper bound,
+the sample ends up traversing horizontally after a certain point.
+
+\begin{lstlisting}[language=Julia, escapechar=@]
+counterfactual_data = CounterfactualData(
+    X,ys';mutability=[:both, :none])
+\end{lstlisting}
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=2.5in]{www/constraint_domain.png}
+
+}
+
+\caption{\label{fig-domain}Counterfactual path with only one feature
+constrained to a certain domain.}
+
+\end{figure}
 
 \hypertarget{language-interoperability}{%
 \subsection{Language interoperability}\label{language-interoperability}}

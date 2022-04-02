@@ -87,8 +87,8 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Counterfactuals for Bayesian models}{3}{subsection.3.2}\protected@file@percent }
 \newlabel{counterfactuals-for-bayesian-models}{{3.2}{3}{Counterfactuals for Bayesian models}{subsection.3.2}{}}
 \newlabel{eq-solution-bayes}{{3}{3}{Counterfactuals for Bayesian models}{equation.3.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Using \texttt  {CounterfactualExplanations}}{3}{section.4}\protected@file@percent }
-\newlabel{sec-use}{{4}{3}{\texorpdfstring {Using \texttt {CounterfactualExplanations}}{Using CounterfactualExplanations}}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}General usage}{3}{section.4}\protected@file@percent }
+\newlabel{sec-use}{{4}{3}{General usage}{section.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Schematic overview of the \texttt  {AbstractFittedModel} base type and its descendants.}}{4}{figure.1}\protected@file@percent }
 \newlabel{fig-models}{{1}{4}{Schematic overview of the \texttt {AbstractFittedModel} base type and its descendants}{figure.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic overview of the \texttt  {AbstractGenerator} base type and its descendants.}}{4}{figure.2}\protected@file@percent }
@@ -116,61 +116,78 @@
 \newlabel{fig-multi-ensemble}{{7}{7}{Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation}{figure.7}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Custom generators}{7}{subsection.4.3}\protected@file@percent }
 \newlabel{custom-generators}{{4.3}{7}{Custom generators}{subsection.4.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Language interoperability}{7}{subsection.4.4}\protected@file@percent }
-\newlabel{language-interoperability}{{4.4}{7}{Language interoperability}{subsection.4.4}{}}
-\newlabel{explaining-a-model-trained-in-r}{{\itshape 4.4.1}{7}{Explaining a model trained in R}{subsubsection.4.4.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.4.1}Explaining a model trained in R}{7}{subsubsection.4.4.1}\protected@file@percent }
+\newlabel{a-generic-generator-with-dropout}{{\itshape 4.3.1}{7}{A generic generator with dropout}{subsubsection.4.3.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.3.1}A generic generator with dropout}{7}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Counterfactual path for a generic generator with dropout.}}{8}{figure.8}\protected@file@percent }
+\newlabel{fig-dropout}{{8}{8}{Counterfactual path for a generic generator with dropout}{figure.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Feature constraints}{8}{subsection.4.4}\protected@file@percent }
+\newlabel{feature-constraints}{{4.4}{8}{Feature constraints}{subsection.4.4}{}}
+\newlabel{mutability}{{\itshape 4.4.1}{8}{Mutability}{subsubsection.4.4.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.4.1}Mutability}{8}{subsubsection.4.4.1}\protected@file@percent }
+\newlabel{domain-constraints}{{\itshape 4.4.2}{8}{Domain constraints}{subsubsection.4.4.2}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.4.2}Domain constraints}{8}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Counterfactual path with immutable feature.}}{8}{figure.9}\protected@file@percent }
+\newlabel{fig-mutability}{{9}{8}{Counterfactual path with immutable feature}{figure.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Counterfactual path with only one feature constrained to a certain domain.}}{8}{figure.10}\protected@file@percent }
+\newlabel{fig-domain}{{10}{8}{Counterfactual path with only one feature constrained to a certain domain}{figure.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Language interoperability}{8}{subsection.4.5}\protected@file@percent }
+\newlabel{language-interoperability}{{4.5}{8}{Language interoperability}{subsection.4.5}{}}
 \citation{lecun1998mnist}
 \citation{schut2021generating}
 \citation{schut2021generating}
 \citation{wilson2019case.pdf}
 \citation{lakshminarayanan2016simple}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Empirical example}{8}{subsection.4.5}\protected@file@percent }
-\newlabel{sec-emp}{{4.5}{8}{Empirical example}{subsection.4.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Counterfactual path using the generic counterfactual generator for a model trained in R.}}{8}{figure.8}\protected@file@percent }
-\newlabel{fig-torch}{{8}{8}{Counterfactual path using the generic counterfactual generator for a model trained in R}{figure.8}{}}
+\newlabel{explaining-a-model-trained-in-r}{{\itshape 4.5.1}{9}{Explaining a model trained in R}{subsubsection.4.5.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.5.1}Explaining a model trained in R}{9}{subsubsection.4.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Counterfactual path using the generic counterfactual generator for a model trained in R.}}{9}{figure.11}\protected@file@percent }
+\newlabel{fig-torch}{{11}{9}{Counterfactual path using the generic counterfactual generator for a model trained in R}{figure.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Empirical example}{9}{subsection.4.6}\protected@file@percent }
+\newlabel{sec-emp}{{4.6}{9}{Empirical example}{subsection.4.6}{}}
 \citation{schut2021generating}
 \citation{schut2021generating}
 \citation{schut2021generating}
 \bibstyle{juliacon}
 \bibdata{ref.bib}
 \bibcite{arrieta2020explainable}{1}
-\bibcite{buolamwini2018gender}{2}
-\bibcite{daxberger2021laplace}{3}
-\bibcite{fan2020interpretability}{4}
-\bibcite{gal2016dropout}{5}
-\bibcite{goodfellow2014explaining}{6}
-\bibcite{hansen2020virtue}{7}
-\bibcite{innes2018flux}{8}
-\bibcite{joshi2019towards}{9}
-\bibcite{karimi2020survey}{10}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces A handwritten nine (9) randomly drawn from the MNIST dataset.}}{9}{figure.9}\protected@file@percent }
-\newlabel{fig-mnist-orig}{{9}{9}{A handwritten nine (9) randomly drawn from the MNIST dataset}{figure.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Counterfactual explanations for MNIST: turning a nine (9) into a four (4).}}{9}{figure.10}\protected@file@percent }
-\newlabel{fig-mnist-9to4}{{10}{9}{Counterfactual explanations for MNIST: turning a nine (9) into a four (4)}{figure.10}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Concluding remarks}{9}{section.5}\protected@file@percent }
-\newlabel{sec-conclude}{{5}{9}{Concluding remarks}{section.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Counterfactual explanations for MNIST: turning a three (3) into an eight (8).}}{9}{figure.11}\protected@file@percent }
-\newlabel{fig-mnist-3to8}{{11}{9}{Counterfactual explanations for MNIST: turning a three (3) into an eight (8)}{figure.11}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}References}{9}{section.6}\protected@file@percent }
-\bibcite{karimi2021algorithmic}{11}
-\bibcite{karimi2020algorithmic}{12}
-\bibcite{kaur2020interpreting}{13}
-\bibcite{lakshminarayanan2016simple}{14}
-\bibcite{lecun1998mnist}{15}
-\bibcite{molnar2020interpretable}{16}
-\bibcite{mothilal2020explaining}{17}
-\bibcite{murphy2022probabilistic}{18}
-\bibcite{oecd2021artificial}{19}
-\bibcite{pawelczyk2021carla}{20}
-\bibcite{poyiadzi2020face}{21}
-\bibcite{rudin2019stop}{22}
-\bibcite{schut2021generating}{23}
-\bibcite{slack2021counterfactual}{24}
-\bibcite{slack2020fooling}{25}
-\bibcite{upadhyay2021towards}{26}
-\bibcite{ustun2019actionable}{27}
-\bibcite{varshney2022trustworthy}{28}
-\bibcite{verma2020counterfactual}{29}
-\bibcite{wachter2017counterfactual}{30}
-\gdef \@abspage@last{10}
+\bibcite{borch2022machine}{2}
+\bibcite{buolamwini2018gender}{3}
+\bibcite{daxberger2021laplace}{4}
+\bibcite{fan2020interpretability}{5}
+\bibcite{gal2016dropout}{6}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces A handwritten nine (9) randomly drawn from the MNIST dataset.}}{10}{figure.12}\protected@file@percent }
+\newlabel{fig-mnist-orig}{{12}{10}{A handwritten nine (9) randomly drawn from the MNIST dataset}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Counterfactual explanations for MNIST: turning a nine (9) into a four (4).}}{10}{figure.13}\protected@file@percent }
+\newlabel{fig-mnist-9to4}{{13}{10}{Counterfactual explanations for MNIST: turning a nine (9) into a four (4)}{figure.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Counterfactual explanations for MNIST: turning a three (3) into an eight (8).}}{10}{figure.14}\protected@file@percent }
+\newlabel{fig-mnist-3to8}{{14}{10}{Counterfactual explanations for MNIST: turning a three (3) into an eight (8)}{figure.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Concluding remarks}{10}{section.5}\protected@file@percent }
+\newlabel{sec-conclude}{{5}{10}{Concluding remarks}{section.5}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}References}{10}{section.6}\protected@file@percent }
+\bibcite{goodfellow2014explaining}{7}
+\bibcite{hansen2020virtue}{8}
+\bibcite{innes2018flux}{9}
+\bibcite{joshi2019towards}{10}
+\bibcite{karimi2020survey}{11}
+\bibcite{karimi2021algorithmic}{12}
+\bibcite{karimi2020algorithmic}{13}
+\bibcite{kaur2020interpreting}{14}
+\bibcite{lakshminarayanan2016simple}{15}
+\bibcite{lecun1998mnist}{16}
+\bibcite{miller2019explanation}{17}
+\bibcite{molnar2020interpretable}{18}
+\bibcite{mothilal2020explaining}{19}
+\bibcite{murphy2022probabilistic}{20}
+\bibcite{oecd2021artificial}{21}
+\bibcite{pawelczyk2021carla}{22}
+\bibcite{poyiadzi2020face}{23}
+\bibcite{rudin2019stop}{24}
+\bibcite{schut2021generating}{25}
+\bibcite{slack2021counterfactual}{26}
+\bibcite{slack2020fooling}{27}
+\bibcite{sturm2014simple}{28}
+\bibcite{upadhyay2021towards}{29}
+\bibcite{ustun2019actionable}{30}
+\bibcite{varshney2022trustworthy}{31}
+\bibcite{verma2020counterfactual}{32}
+\bibcite{wachter2017counterfactual}{33}
+\gdef \@abspage@last{11}
