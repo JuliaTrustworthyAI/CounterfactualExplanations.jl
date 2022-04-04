@@ -1,5 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
+import CounterfactualExplanations.Data: toy_data_linear, toy_data_multi, toy_data_non_linear
 
 @testset "Artifacts" begin
     @testset "ucr_data" begin

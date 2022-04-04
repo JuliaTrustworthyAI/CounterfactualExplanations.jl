@@ -4,7 +4,7 @@
 
 ### Abstract
 
-We propose [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/): a package for explaining black-box models through counterfactuals. Counterfactual explanations are based around the simple idea of strategically perturbing model inputs to change model predictions. Our package is novel, very accessible and designed to be scalable. It can be used to explain custom predictive models including those developed and trained in other programming languages.
+We propose [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/): a package for explaining black-box models through counterfactuals. Counterfactual explanations are based around the simple idea of strategically perturbing model inputs to change model predictions. Our package is novel, very accessible and designed to be extensible. It can be used to explain custom predictive models including those developed and trained in other programming languages.
 
 ### Description
 
@@ -13,7 +13,7 @@ Machine learning models like deep neural networks have become so complex, opaque
 > “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
 > — Cathy O'Neil in *Weapons of Math Destruction*, 2016
 
-Counterfactual explanations can help programmers make sense of the systems they build: they explain how inputs into the system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse: they offer individuals subject to algorithms a way to turn a negative decision into a positive one. Through `CounterfactualExplanations.jl` we make these recent and promising approaches to explainable artificial intelligence (xAI) available to the Julia community.
+Counterfactual explanations can help programmers make sense of the systems they build: they explain how inputs into the system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse: they offer individuals subject to algorithms a way to turn a negative decision into a positive one. Through `CounterfactualExplanations.jl` we make these recent and promising approaches to explainable artificial intelligence (XAI) available to the Julia community.
 
 ### What we offer ⭐⭐⭐
 
@@ -35,7 +35,7 @@ Explainable AI is a relatively young field of research made up of a variety of s
 
 Some would argue that we best avoid the second category of models and instead focus solely on interpretable AI. While we agree that initial efforts should always be geared towards interpretable models, it is difficult to see people giving up on black box models altogether. For that reason, we expect the need for explainable AI to persist in the near future. The field can further be broadly divided into **global** and **local** explainability: the former is concerned with explaining the average behavior of a model, while the latter involves explanations for individual predictions. Counterfactual explanations (along with other popular tools like LIME and SHAP) fall into the category of local methods: they explain how individual predictions change in response to individual feature perturbations.  
 
-Software development in the space of xAI has largely focused on various global methods and surrogate explainers with various implementations available for both Python and R. In the Julia space we have only been able to identify one package that falls into the broader scope of xAI, namely [`ShapML.jl`](https://github.com/nredell/ShapML.jl), which provides a fast implementation of SHAP. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, is currently recruiting contributors for a project about interpretable and explainable AI. Through our work on counterfactual explanations we hope to contribute to these broader efforts. Through its unique transparency Julia naturally lends itself towards building greater trust in machine learning.
+Software development in the space of XAI has largely focused on various global methods and surrogate explainers with various implementations available for both Python and R. In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely [`ShapML.jl`](https://github.com/nredell/ShapML.jl), which provides a fast implementation of SHAP. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, is currently recruiting contributors for a project about interpretable and explainable AI. Through our work on counterfactual explanations we hope to contribute to these broader efforts. Through its unique transparency Julia naturally lends itself towards building greater trust in machine learning.
 
 ### Notes
 
