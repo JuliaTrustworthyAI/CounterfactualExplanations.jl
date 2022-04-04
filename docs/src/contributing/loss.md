@@ -32,8 +32,8 @@ julia> names(CounterfactualExplanations.Losses)
 
 For most classification tasks the default `:logitbinarycrossentropy` (binary) and `:logitcrossentropy` should be sufficient. For both choices the package has been tested and works natively. When using other loss functions, some caution is recommended though:
 
-    !!! warning "External loss functions"
-        Some margin-based loss functions like hinge loss do not expect inputs in the domain $\mathcal{Y}=\{0,1\}$, but rather $\mathcal{Y}=\{-1,1\}$. In those case one needs to ensure that the training labels $y$ are encoded accordingly. In order to use distance-based loss functions like mean squared error (MSE) loss needs to be computed with respect to probibilities rather than logits. This is currently not supported and we genenerally recommend not to use distance-based loss functions in the classification setting (more on this below).
+!!! warning "External loss functions"
+    Some margin-based loss functions like hinge loss do not expect inputs in the domain $\mathcal{Y}=\{0,1\}$, but rather $\mathcal{Y}=\{-1,1\}$. In those case one needs to ensure that the training labels $y$ are encoded accordingly. In order to use distance-based loss functions like mean squared error (MSE) loss needs to be computed with respect to probibilities rather than logits. This is currently not supported and we genenerally recommend not to use distance-based loss functions in the classification setting (more on this below).
 
 ## Regression
 
