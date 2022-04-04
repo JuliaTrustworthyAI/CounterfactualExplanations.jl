@@ -1,10 +1,10 @@
 ---
-title: "Explaining black box models through counterfactuals"
+title: "Explaining black-box models through counterfactuals"
 author: Patrick Altmeyer
 format: 
   revealjs:
     logo: www/afr.svg
-    footer: "Explaining black box models through counterfactuals"
+    footer: "Explaining black-box models through counterfactuals"
     self-contained: true
     smaller: true
     scrollable: true
@@ -18,9 +18,12 @@ execute:
 ## Overview
 
 - Intro
-- Methodological background
-- Examples in `CounterfactualExplanations.jl`
+- Background and related work
+- Counterfactual Explanations
+- `CounterfactualExplanations.jl`: getting started
 - Possible research questions
+- Application to MNIST
+- Discussion and Outlook
 
 # Introduction
 
