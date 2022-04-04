@@ -36,7 +36,7 @@ execute:
 - ... worked for the belastingdienst? 🫠
 :::
 
-## The need for explanations
+## The Need for Explanations
 
 - From human to data-driven decision-making:
   - Today, it is more likely than not that your digital loan or employment application will be handled by an algorithm, at least in the first instance.
@@ -48,7 +48,7 @@ execute:
 >
 > — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-## Enter: counterfactual explanations 
+## Enter: Counterfactual Explanations 
 
 #### From 🐱 to 🐶 
 
@@ -56,7 +56,7 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 
 ![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
 
-## Limited software availability  
+## Limited Software Availability  
 
 - Some of the existing approaches scattered across different GitHub repositories (🐍).
 - Only one unifiying Python 🐍 library: CARLA [@pawelczyk2021carla].
@@ -84,7 +84,7 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 - *interpretable* = inherently interpretable model, no extra tools needed (GLM, decision trees, rules, ...)  [@rudin2019stop]
 - *explainable* = inherently not interpretable model, but explainable through XAI
 
-#### Post-hoc explainability:
+#### Post-hoc Explainability:
 - Local **surrogate explainers** like LIME and Shapley: useful and popular, but ... 
     - ... can be easily fooled [@slack2020fooling]
     - ... rely on reasonably interpretable features.
@@ -98,7 +98,7 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 
 # Counterfactual Explanations
 
-## A framework for counterfactual explanations
+## A Framework for Counterfactual Explanations
  
 - Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
 
@@ -127,7 +127,7 @@ $$ {#eq-solution}
 - **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
 - **causality**: counterfactual explanations reflect the structual causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
 
-## The Bayesian approach - a catchall?
+## The Bayesian Approach - a Catchall?
 
 - @schut2021generating note that different approaches just work with different complexity functions ($h(x\prime)$ in @eq-obj)
 - They show that for classifiers $\mathcal{\widetilde{M}}$ that incoporate predictive uncertainty we can drop the complexity penalty altogether:
@@ -152,7 +152,7 @@ Pkg.add("CounterfactualExplanations")
 
 3. Explain your black box 🔮
 
-## A simple generic generator
+## A Simple Generic Generator
 
 ::: {.panel-tabset}
 
@@ -191,7 +191,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 :::
 
 
-## A greedy generator
+## A Greedy Generator
 
 :::{.panel-tabset}
 
@@ -215,7 +215,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 :::
 
-## Custom models and interoperability
+## Custom Models and Interoperability
 
 :::{.panel-tabset}
 
@@ -327,7 +327,7 @@ end
 
 :::
 
-## Custom generators
+## Custom Generators
 
 ::: {.panel-tabset}
 
@@ -384,7 +384,7 @@ end
 
 :::
 
-## Feature constraints
+## Feature Constraints
 
 ::: {.panel-tabset}
 
@@ -404,7 +404,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 
 # Application to MNIST
 
-## Counterfactuals for image data
+## Counterfactuals for Image Data
 
 > This looks nice 🤓
 
@@ -414,9 +414,9 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 
 ![Turning a seven (7) into a (2).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
 
-# Discussion and outlook
+# Discussion and Outlook
 
-## The package 📦
+## The Package 📦
 
 - To be submitted to [JuliaCon 2022](https://juliacon.org/2022/) (today 🫣)
 - Through the help of community contribution we hope to add:
@@ -424,7 +424,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
     - support for non-differentiable models.
     - more generators (DiCE [@mothilal2020explaining], ROAR [@upadhyay2021towards], MINT [@karimi2021algorithmic], CLUE [@antoran2020getting])
 
-## Research topics (1) - student project
+## Research Topics (1) - Student Project
 
 > What happens once AR has actually been implemented? 👀
 
@@ -435,7 +435,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 
 ![](www/bayesian.gif){fig-align="center" width=800px} 
 
-## Research topics (2)
+## Research Topics (2)
 
 :::{.incremental}
 - An effortless way to incorporate model uncertainty (w/o need for expensive generative model): *Laplace Redux*.
@@ -444,7 +444,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 - More ideas form your side? 🤗
 :::
 
-## More resources
+## More Resources
 
 - Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
 - Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples
