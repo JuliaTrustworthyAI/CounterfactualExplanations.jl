@@ -792,6 +792,7 @@ INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/binary_wrong.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/binary_wrong.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/binary_wrong.png
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr8t.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/cm/cmsy10.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/public/latex-fonts/lasy7.tfm
@@ -835,7 +836,6 @@ INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_torch.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_torch.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/ce_torch.png
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr8t.tfm
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_original.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_original.png
 INPUT /Users/patrickaltmeyer/Documents/code/CounterfactualExplanations.jl/paper/www/mnist_original.png

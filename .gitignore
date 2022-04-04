@@ -30,3 +30,14 @@ dev/artifacts/data/
 *.Rproj
 .Rproj.user
 .Rhistory
+
+# Paper:
+paper/paper.pdf
+*.aux
+*.fdb_latexmk
+*.fls
+*.blg
+*.out
+*.bbl
+*.synctex.gz
+*.log

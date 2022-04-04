@@ -12,18 +12,28 @@ bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 execute:
   eval: false
   echo: true
+  fig-align: "center"
 ---
 
 ## Overview
 
-- Motivation
+- Intro
 - Methodological background
 - Examples in `CounterfactualExplanations.jl`
 - Possible research questions
 
-# Motivation
+# Introduction
 
-## An unfortunate reality
+## Have you ever ...
+
+:::{.incremental}
+- ... received an automated rejection email? Why didn't you "mEet tHe sHoRtLisTiNg cRiTeRia"? 🙃
+- ... used deep learning or some other black-box model? 🔮 Could you explain the model behvaiour intuitively? 👀
+- ... used a black-box model at ING to classify counterparties or clients? 🦁
+- ... worked for the belastingdienst? 🫠
+:::
+
+## The need for explanations
 
 - From human to data-driven decision-making:
   - Today, it is more likely than not that your digital loan or employment application will be handled by an algorithm, at least in the first instance.
@@ -35,38 +45,57 @@ execute:
 >
 > — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-## Explainable AI (xAI)
+## Enter: counterfactual explanations 
 
-- *interpretable* = inherently interpretable model, no extra tools needed
-- *explainable* = inherently not interpretable model, but explainable through xAI
-
-#### Ad-hoc interpretability:
-- Just use interpretable models 😠 ! (GLM, decision trees, rules, ...)  [@rudin2019stop]
-- **Proxy methods** construct simple representations of complex models
-
-#### Post-hoc explainability:
-- Local **surrogate explainers** like LIME and Shapley: useful and popular, but can be easily fooled [@slack2020fooling]
-- **Counterfactual explanations** explain how inputs into a system need to change for it to produce different decisions. 
-- Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
-
-## From 🐱 to 🐶 
+#### From 🐱 to 🐶 
 
 We have fitted some black box classifier to divide cats and dogs. One 🐱 is friends with a lot of cool 🐶  and wants to remain part of that group. The counterfactual path below shows her how to fool the classifier:
 
 ![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
 
-## On a more serious note ...
+## Limited software availability  
 
-:::{.incremental}
-- Ever received an automated rejection email? How was the feedback? 😕 
-- What about loan applications? 😔
-- Algorithms to evaluate redivisim risk (COMPAS)? 😓
-- ...
-:::
+- Some of the existing approaches scattered across different GitHub repositories (🐍).
+- Only one unifiying Python 🐍 library: CARLA [@pawelczyk2021carla].
+    - Comprehensive and (somewhat) extensible ...
+    - ... but not language-agnostic and some desirable functionality not supported.
+- Both R and Julia lacking any kind of implementation. Until now ...
 
-# Methodology
+## Enter: `CounterfactualExplanations.jl` 📦
 
-## Generic counterfactual search 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
+[![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
+
+- A unifying framework for generating counterfactual explanations and aglorithmic recourse.
+- Built in Julia, but essentially language agnostic: supporting explanations for models built in Python, R, ...
+- Designed to be easily extensible through multiple dispatch.
+- Native support for differentiable models built and trained in Julia. 
+
+> Julia is fast, transparent, beautiful and open 🔴🟢🟣
+
+# Background and Related Work
+
+## Explainable AI (XAI)
+
+- *interpretable* = inherently interpretable model, no extra tools needed (GLM, decision trees, rules, ...)  [@rudin2019stop]
+- *explainable* = inherently not interpretable model, but explainable through XAI
+
+#### Post-hoc explainability:
+- Local **surrogate explainers** like LIME and Shapley: useful and popular, but ... 
+    - ... can be easily fooled [@slack2020fooling]
+    - ... rely on reasonably interpretable features.
+    - ... rely on the concept of fidelity.
+- **Counterfactual explanations** explain how inputs into a system need to change for it to produce different decisions. 
+    - Always full-fidelity, since no proxy involved. 
+    - Intuitive interpretation and straight-forward implemenation.
+    - Works well with Bayesian models. Clear link to Causal Inference. 
+    - Does not rely on interpretable features.
+- Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
+
+# Counterfactual Explanations
+
+## A framework for counterfactual explanations
  
 - Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
 
@@ -93,7 +122,7 @@ $$ {#eq-solution}
 - **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
 - **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
 - **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
-- **causality**: counterfactual explanations reflect the structual causal model underlying the data generating process (@karimi2020algorithmic,@karimi2021algorithmic)
+- **causality**: counterfactual explanations reflect the structual causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
 
 ## The Bayesian approach - a catchall?
 
@@ -104,74 +133,295 @@ $$
 x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
 $$ {#eq-solution-bayes}
 
-# Examples in `CounterfactualExplanations.jl`
+- See also @antoran2020getting.
 
-## Why Julia?
+# `CounterfactualExplanations.jl`: getting started
 
-> Fast, transparent, beautiful 🔴🟢🟣
+## Installation
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
-[![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
-
-`CounterfactualExplanations.jl` is a package for generating counterfactual explanations and aglorithmic counterfactual.
-
-#### Installation
+1. Install Julia.
+2. Install the package:
 
 ```{julia}
 using Pkg
 Pkg.add("CounterfactualExplanations")
 ```
 
-- To be submitted to upcoming JuliaCon 2022, if accepted then publish in proceedings.
-- In Python 🐍, use CARLA [@pawelczyk2021carla].
+3. Explain your black box 🔮
 
-## Usage example
+## A simple generic generator
 
-Using the package, generating counterfactuals is as easy as follows:
+::: {.panel-tabset}
 
-```{.julia code-line-numbers="8-16"}
-# Some random example:
-w = [1.0 -2.0] # true coefficients
-b = [0] # true constant
-x = [-1,0.5] # factual in class 0
-target = 1.0 # target
-γ = 0.9 # desired confidence
+### Counterfactual path
 
-# Declare model:
-using CounterfactualExplanations.Models
-M = LogisticModel(w, b)
+![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_generic_recourse.gif)
+
+### Code 
+
+```{.julia}
+# Data:
+using CounterfactualExplanations.Data
+Random.seed!(1234)
+N = 25
+xs, ys = Data.toy_data_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+
+# Model
+using CounterfactualExplanations.Models: LogisticModel, probs 
+# Logit model:
+w = [1.0 1.0] # true coefficients
+b = 0
+M = LogisticModel(w, [b])
+
+# Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 
 # Counterfactual search:
-generator = GenericGenerator(
-  0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-counterfactual = generate_counterfactual(
-  generator, x, M, target, γ)
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+:::
+
+
+## A greedy generator
+
+:::{.panel-tabset}
+
+### Counterfactual path
+
+![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_greedy_recourse.gif)
+
+### Code
+
+```{.julia}
+# Model:
+using LinearAlgebra
+Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
+μ = hcat(b, w)
+M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ)
+
+# Counterfactual search:
+generator = GreedyGenerator(;δ=0.1,n=25))
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
-Designed to work with any custom model and generator through **multiple dispatch**.
+:::
 
-## Generic search - plugin MLP
+## Custom models and interoperability
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/multi_generic_recourse.gif)
+:::{.panel-tabset}
 
-## Greedy search - deep ensemble
+### Counterfactual path
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/multi_greedy_recourse.gif)
+![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/interop_r.gif)
 
-## MNIST
+### R
+
+#### Subtyping and dispatch
+
+```{.julia}
+using Flux, RCall
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct TorchNetwork <: Models.AbstractFittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::TorchNetwork, X::AbstractArray)
+  nn = M.nn
+  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ'
+end
+probs(M::TorchNetwork, X::AbstractArray)= σ.(logits(M, X))
+M = TorchNetwork(R"model")
+```
+
+#### Gradient access
+
+```{.julia}
+import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Countefactual loss:
+function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
+  M = counterfactual_state.M
+  nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
+  R"""
+  x <- torch_tensor($x′, requires_grad=TRUE)
+  output <- $nn(x)
+  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+  obj_loss$backward()
+  """
+  grad = rcopy(R"as_array(x$grad)")
+  return grad
+end
+```
+
+### Python
+
+#### Subtyping and dispatch
+
+```{.julia}
+using Flux, PyCall
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct PyTorchNetwork <: Models.AbstractFittedModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::PyTorchNetwork, X::AbstractArray)
+  nn = M.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ
+end
+probs(M::PyTorchNetwork, X::AbstractArray)= σ.(logits(M, X))
+M = PyTorchNetwork(py"model")
+```
+
+#### Gradient access
+
+```{.julia}
+import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Countefactual loss:
+function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
+  M = counterfactual_state.M
+  nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
+  x = reshape(x′, 1, length(x′))
+  py"""
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  """
+  grad = vec(py"x.grad.detach().numpy()")
+  return grad
+end
+```
+
+:::
+
+## Custom generators
+
+::: {.panel-tabset}
+
+### Generic generator with dropout
+
+![](www/dropout_recourse.gif)
+
+### Code
+
+#### Subtyping
+
+```{.julia}
+# Abstract suptype:
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+
+# Constructor:
+struct DropoutGenerator <: AbstractDropoutGenerator
+    loss::Symbol # loss function
+    complexity::Function # complexity function
+    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+    λ::AbstractFloat # strength of penalty
+    ϵ::AbstractFloat # step size
+    τ::AbstractFloat # tolerance for convergence
+    p_dropout::AbstractFloat # dropout rate
+end
+
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+```
+
+#### Dispatch
+
+```{.julia}
+import CounterfactualExplanations.Generators: generate_perturbations, ∇
+using StatsBase
+function generate_perturbations(generator::AbstractDropoutGenerator, counterfactual_state::CounterfactualState)
+    𝐠ₜ = ∇(generator, counterfactual_state) # gradient
+    # Dropout:
+    set_to_zero = sample(1:length(𝐠ₜ),Int(round(generator.p_dropout*length(𝐠ₜ))),replace=false)
+    𝐠ₜ[set_to_zero] .= 0
+    Δx′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    return Δx′
+end
+```
+
+:::
+
+## Feature constraints
+
+::: {.panel-tabset}
+
+### Domain constraint
+
+![](www/mutability_domain_2.gif)
+
+### Code
+
+Mutability constraints can be added at the preprocessing stage:
+
+```{.julia}
+counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
+```
+
+:::
+
+# Application to MNIST
+
+## Counterfactuals for image data
 
 > This looks nice 🤓
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png){fig-align="center"}
+![Turning a nine (9) into a four (4).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png){fig-align="center"}
 
 > And this ... ugh 🥴
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
+![Turning a seven (7) into a (2).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
 
-# Research questions
+# Discussion and outlook
 
-## Dynamics of AR 
+## The package 📦
+
+- To be submitted to [JuliaCon 2022](https://juliacon.org/2022/) (today 🫣)
+- Through the help of community contribution we hope to add:
+    - native support for deep learning models (`Flux`, `torch`, `tensorflow`) and other differentiable models.
+    - support for non-differentiable models.
+    - more generators (DiCE [@mothilal2020explaining], ROAR [@upadhyay2021towards], MINT [@karimi2021algorithmic], CLUE [@antoran2020getting])
+
+## Research topics (1) - student project
 
 > What happens once AR has actually been implemented? 👀
 
@@ -180,22 +430,20 @@ Designed to work with any custom model and generator through **multiple dispatch
 - What about endogenous model shifts?
 :::
 
-## Endogenous shifts in AR
-
 ![](www/bayesian.gif){fig-align="center" width=800px} 
 
-## Other questions
+## Research topics (2)
 
 :::{.incremental}
-- To what extent is the effectiveness of CE dependent on the quality of the classifier?
-- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting
-- Counterfactual explanations for time series data? 
+- An effortless way to incorporate model uncertainty (w/o need for expensive generative model): *Laplace Redux*.
+- Counterfactual explanations for time series data.
+- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting.
 - More ideas form your side? 🤗
 :::
 
 ## More resources
 
-- Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc),[homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
+- Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
 - Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples
 - Blog post on effortless Bayesian deep learning [[TDS]((https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b)), [homepage](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/)]
 - [Get in touch](https://www.paltmeyer.com/)!

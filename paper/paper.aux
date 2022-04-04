@@ -43,8 +43,8 @@
 \citation{mothilal2020explaining}
 \citation{molnar2020interpretable}
 \citation{molnar2020interpretable}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Related work}{2}{section.2}\protected@file@percent }
-\newlabel{sec-related}{{2}{2}{Related work}{section.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Background and related work}{2}{section.2}\protected@file@percent }
+\newlabel{sec-related}{{2}{2}{Background and related work}{section.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Literature on explainable AI}{2}{subsection.2.1}\protected@file@percent }
 \newlabel{literature-on-explainable-ai}{{2.1}{2}{Literature on explainable AI}{subsection.2.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Existing software}{2}{subsection.2.2}\protected@file@percent }
@@ -78,74 +78,90 @@
 \citation{lakshminarayanan2016simple}
 \citation{daxberger2021laplace}
 \citation{murphy2022probabilistic}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Methodological background}{3}{section.3}\protected@file@percent }
-\newlabel{sec-method}{{3}{3}{Methodological background}{section.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Generic framework}{3}{subsection.3.1}\protected@file@percent }
-\newlabel{generic-framework}{{3.1}{3}{Generic framework}{subsection.3.1}{}}
-\newlabel{eq-obj}{{1}{3}{Generic framework}{equation.3.1}{}}
-\newlabel{eq-solution}{{2}{3}{Generic framework}{equation.3.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Counterfactual explanations}{3}{section.3}\protected@file@percent }
+\newlabel{sec-method}{{3}{3}{Counterfactual explanations}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}A framework for Counterfactual Explanations}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{a-framework-for-counterfactual-explanations}{{3.1}{3}{A framework for Counterfactual Explanations}{subsection.3.1}{}}
+\newlabel{eq-obj}{{1}{3}{A framework for Counterfactual Explanations}{equation.3.1}{}}
+\newlabel{eq-solution}{{2}{3}{A framework for Counterfactual Explanations}{equation.3.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Counterfactuals for Bayesian models}{3}{subsection.3.2}\protected@file@percent }
 \newlabel{counterfactuals-for-bayesian-models}{{3.2}{3}{Counterfactuals for Bayesian models}{subsection.3.2}{}}
 \newlabel{eq-solution-bayes}{{3}{3}{Counterfactuals for Bayesian models}{equation.3.3}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}General usage}{3}{section.4}\protected@file@percent }
-\newlabel{sec-use}{{4}{3}{General usage}{section.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}The \texttt  {CounterfactualExplanations.jl} Package}{3}{section.4}\protected@file@percent }
+\newlabel{sec-use}{{4}{3}{\texorpdfstring {The \texttt {CounterfactualExplanations.jl} Package}{The CounterfactualExplanations.jl Package}}{section.4}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Schematic overview of the \texttt  {AbstractFittedModel} base type and its descendants.}}{4}{figure.1}\protected@file@percent }
 \newlabel{fig-models}{{1}{4}{Schematic overview of the \texttt {AbstractFittedModel} base type and its descendants}{figure.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Schematic overview of the \texttt  {AbstractGenerator} base type and its descendants.}}{4}{figure.2}\protected@file@percent }
 \newlabel{fig-generators}{{2}{4}{Schematic overview of the \texttt {AbstractGenerator} base type and its descendants}{figure.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Getting started}{4}{subsection.4.1}\protected@file@percent }
-\newlabel{sec-start}{{4.1}{4}{Getting started}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}\texttt  {CounterfactualExplanations.jl}: Getting Started}{4}{section.5}\protected@file@percent }
+\newlabel{sec-start}{{5}{4}{\texorpdfstring {\texttt {CounterfactualExplanations.jl}: Getting Started}{CounterfactualExplanations.jl: Getting Started}}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}A Simple Generic Generator}{4}{subsection.5.1}\protected@file@percent }
+\newlabel{a-simple-generic-generator}{{5.1}{4}{A Simple Generic Generator}{subsection.5.1}{}}
+\newlabel{lst:generic}{{1}{4}{A simple generic generator}{lstlisting.1}{}}
+\@writefile{lol}{\contentsline {lstlisting}{\numberline {1}A simple generic generator.}{4}{lstlisting.1}\protected@file@percent }
 \citation{schut2021generating}
 \citation{murphy2022probabilistic}
 \citation{schut2021generating}
 \@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Counterfactual path using generic counterfactual generator for conventional binary classifier.}}{5}{figure.3}\protected@file@percent }
 \newlabel{fig-binary}{{3}{5}{Counterfactual path using generic counterfactual generator for conventional binary classifier}{figure.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Using the Greedy Generator}{5}{subsection.5.2}\protected@file@percent }
+\newlabel{using-the-greedy-generator}{{5.2}{5}{Using the Greedy Generator}{subsection.5.2}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier.}}{5}{figure.4}\protected@file@percent }
 \newlabel{fig-binary-wrong}{{4}{5}{Unrealistic and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier}{figure.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Custom models}{5}{subsection.4.2}\protected@file@percent }
-\newlabel{sec-custom}{{4.2}{5}{Custom models}{subsection.4.2}{}}
 \citation{innes2018flux}
 \citation{lakshminarayanan2016simple}
 \citation{gal2016dropout}
 \citation{daxberger2021laplace}
 \@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Counterfactual path using greedy counterfactual generator for Bayesian binary classifier.}}{6}{figure.5}\protected@file@percent }
 \newlabel{fig-binary-laplace}{{5}{6}{Counterfactual path using greedy counterfactual generator for Bayesian binary classifier}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Counterfactual path using generic counterfactual generator for multi-class classifier.}}{6}{figure.6}\protected@file@percent }
-\newlabel{fig-multi}{{6}{6}{Counterfactual path using generic counterfactual generator for multi-class classifier}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Using Custom models}{6}{section.6}\protected@file@percent }
+\newlabel{sec-custom}{{6}{6}{Using Custom models}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Counterfactual path using generic counterfactual generator for multi-class classifier.}}{7}{figure.6}\protected@file@percent }
+\newlabel{fig-multi}{{6}{7}{Counterfactual path using generic counterfactual generator for multi-class classifier}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Using Custom generators}{7}{section.7}\protected@file@percent }
+\newlabel{using-custom-generators}{{7}{7}{Using Custom generators}{section.7}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation.}}{7}{figure.7}\protected@file@percent }
 \newlabel{fig-multi-ensemble}{{7}{7}{Counterfactual path using generic counterfactual generator for multi-class classifier with Laplace approximation}{figure.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Custom generators}{7}{subsection.4.3}\protected@file@percent }
-\newlabel{custom-generators}{{4.3}{7}{Custom generators}{subsection.4.3}{}}
-\newlabel{a-generic-generator-with-dropout}{{\itshape 4.3.1}{7}{A generic generator with dropout}{subsubsection.4.3.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.3.1}A generic generator with dropout}{7}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}A generic generator with dropout}{7}{subsection.7.1}\protected@file@percent }
+\newlabel{a-generic-generator-with-dropout}{{7.1}{7}{A generic generator with dropout}{subsection.7.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Counterfactual path for a generic generator with dropout.}}{8}{figure.8}\protected@file@percent }
 \newlabel{fig-dropout}{{8}{8}{Counterfactual path for a generic generator with dropout}{figure.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Feature constraints}{8}{subsection.4.4}\protected@file@percent }
-\newlabel{feature-constraints}{{4.4}{8}{Feature constraints}{subsection.4.4}{}}
-\newlabel{mutability}{{\itshape 4.4.1}{8}{Mutability}{subsubsection.4.4.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.4.1}Mutability}{8}{subsubsection.4.4.1}\protected@file@percent }
-\newlabel{domain-constraints}{{\itshape 4.4.2}{8}{Domain constraints}{subsubsection.4.4.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.4.2}Domain constraints}{8}{subsubsection.4.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {8}Feature constraints}{8}{section.8}\protected@file@percent }
+\newlabel{feature-constraints}{{8}{8}{Feature constraints}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Mutability}{8}{subsection.8.1}\protected@file@percent }
+\newlabel{mutability}{{8.1}{8}{Mutability}{subsection.8.1}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Counterfactual path with immutable feature.}}{8}{figure.9}\protected@file@percent }
 \newlabel{fig-mutability}{{9}{8}{Counterfactual path with immutable feature}{figure.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Counterfactual path with only one feature constrained to a certain domain.}}{8}{figure.10}\protected@file@percent }
-\newlabel{fig-domain}{{10}{8}{Counterfactual path with only one feature constrained to a certain domain}{figure.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Language interoperability}{8}{subsection.4.5}\protected@file@percent }
-\newlabel{language-interoperability}{{4.5}{8}{Language interoperability}{subsection.4.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Domain constraints}{8}{subsection.8.2}\protected@file@percent }
+\newlabel{domain-constraints}{{8.2}{8}{Domain constraints}{subsection.8.2}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Language interoperability}{8}{section.9}\protected@file@percent }
+\newlabel{language-interoperability}{{9}{8}{Language interoperability}{section.9}{}}
 \citation{lecun1998mnist}
 \citation{schut2021generating}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Counterfactual path with only one feature constrained to a certain domain.}}{9}{figure.10}\protected@file@percent }
+\newlabel{fig-domain}{{10}{9}{Counterfactual path with only one feature constrained to a certain domain}{figure.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Explaining a model trained in R}{9}{subsection.9.1}\protected@file@percent }
+\newlabel{explaining-a-model-trained-in-r}{{9.1}{9}{Explaining a model trained in R}{subsection.9.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Counterfactual path using the generic counterfactual generator for a model trained in R.}}{9}{figure.11}\protected@file@percent }
+\newlabel{fig-torch}{{11}{9}{Counterfactual path using the generic counterfactual generator for a model trained in R}{figure.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Application to MNIST}{9}{section.10}\protected@file@percent }
+\newlabel{sec-emp}{{10}{9}{Application to MNIST}{section.10}{}}
 \citation{schut2021generating}
 \citation{wilson2019case.pdf}
 \citation{lakshminarayanan2016simple}
-\newlabel{explaining-a-model-trained-in-r}{{\itshape 4.5.1}{9}{Explaining a model trained in R}{subsubsection.4.5.1}{}}
-\@writefile{toc}{\contentsline {subsubsection}{\numberline {\itshape 4.5.1}Explaining a model trained in R}{9}{subsubsection.4.5.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Counterfactual path using the generic counterfactual generator for a model trained in R.}}{9}{figure.11}\protected@file@percent }
-\newlabel{fig-torch}{{11}{9}{Counterfactual path using the generic counterfactual generator for a model trained in R}{figure.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Empirical example}{9}{subsection.4.6}\protected@file@percent }
-\newlabel{sec-emp}{{4.6}{9}{Empirical example}{subsection.4.6}{}}
 \citation{schut2021generating}
 \citation{schut2021generating}
 \citation{schut2021generating}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces A handwritten nine (9) randomly drawn from the MNIST dataset.}}{10}{figure.12}\protected@file@percent }
+\newlabel{fig-mnist-orig}{{12}{10}{A handwritten nine (9) randomly drawn from the MNIST dataset}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Counterfactual explanations for MNIST: turning a nine (9) into a four (4).}}{10}{figure.13}\protected@file@percent }
+\newlabel{fig-mnist-9to4}{{13}{10}{Counterfactual explanations for MNIST: turning a nine (9) into a four (4)}{figure.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Counterfactual explanations for MNIST: turning a three (3) into an eight (8).}}{10}{figure.14}\protected@file@percent }
+\newlabel{fig-mnist-3to8}{{14}{10}{Counterfactual explanations for MNIST: turning a three (3) into an eight (8)}{figure.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {11}Discussiong and Outlook}{10}{section.11}\protected@file@percent }
+\newlabel{discussiong-and-outlook}{{11}{10}{Discussiong and Outlook}{section.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {12}Concluding remarks}{10}{section.12}\protected@file@percent }
+\newlabel{sec-conclude}{{12}{10}{Concluding remarks}{section.12}{}}
 \bibstyle{juliacon}
 \bibdata{ref.bib}
 \bibcite{arrieta2020explainable}{1}
@@ -154,15 +170,6 @@
 \bibcite{daxberger2021laplace}{4}
 \bibcite{fan2020interpretability}{5}
 \bibcite{gal2016dropout}{6}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces A handwritten nine (9) randomly drawn from the MNIST dataset.}}{10}{figure.12}\protected@file@percent }
-\newlabel{fig-mnist-orig}{{12}{10}{A handwritten nine (9) randomly drawn from the MNIST dataset}{figure.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Counterfactual explanations for MNIST: turning a nine (9) into a four (4).}}{10}{figure.13}\protected@file@percent }
-\newlabel{fig-mnist-9to4}{{13}{10}{Counterfactual explanations for MNIST: turning a nine (9) into a four (4)}{figure.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Counterfactual explanations for MNIST: turning a three (3) into an eight (8).}}{10}{figure.14}\protected@file@percent }
-\newlabel{fig-mnist-3to8}{{14}{10}{Counterfactual explanations for MNIST: turning a three (3) into an eight (8)}{figure.14}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Concluding remarks}{10}{section.5}\protected@file@percent }
-\newlabel{sec-conclude}{{5}{10}{Concluding remarks}{section.5}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}References}{10}{section.6}\protected@file@percent }
 \bibcite{goodfellow2014explaining}{7}
 \bibcite{hansen2020virtue}{8}
 \bibcite{innes2018flux}{9}
@@ -187,7 +194,8 @@
 \bibcite{sturm2014simple}{28}
 \bibcite{upadhyay2021towards}{29}
 \bibcite{ustun2019actionable}{30}
+\@writefile{toc}{\contentsline {section}{\numberline {13}References}{11}{section.13}\protected@file@percent }
 \bibcite{varshney2022trustworthy}{31}
 \bibcite{verma2020counterfactual}{32}
 \bibcite{wachter2017counterfactual}{33}
-\gdef \@abspage@last{11}
+\gdef \@abspage@last{12}

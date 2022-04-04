@@ -1,0 +1,268 @@
+---
+jupyter: julia-1.6
+---
+
+# Cats and dogs
+
+```{julia}
+using Pkg; Pkg.activate("dev")
+include("dev/artifacts/generate_artifacts.jl")
+data_dir = "dev/artifacts/data"
+artifact_name = "cats_dogs"
+```
+
+### Generate toy data
+
+```{julia}
+using Random
+Random.seed!(1234)
+averages = (dog=[100;20],cat=[50;50])
+D = 2
+N = 1000
+ys = rand([0,1],N)
+dog_label = 1
+cat_label = 0
+X = zeros(D,N)
+dogs = findall(ys.==dog_label)
+cats = findall(ys.==cat_label)
+noise = 0.1
+noise_cats = randn(D,length(cats)) .* noise .*averages.cat 
+noise_dogs = randn(D,length(dogs)) .* noise .*averages.dog 
+X[:,cats] .= averages.cat .+ noise_cats
+X[:,dogs] .= averages.dog .+ noise_dogs;
+```
+
+```{julia}
+using Plots
+scatter(X[1,:],X[2,:],color=Int.(ys),group=Int.(ys))
+```
+
+```{julia}
+data = Dict(
+        :X => X,
+        :y => ys
+    )
+using BSON: @save
+datafile = artifact_name * "_data.bson"
+@save joinpath(data_dir, datafile) data
+```
+
+### Classifiers
+
+```{julia}
+using Flux
+X = Flux.normalise(X,dims=2)
+xs = Flux.unstack(X,2)
+data = zip(xs,ys)
+n_hidden = 32
+model = Chain(
+  Dense(2,n_hidden,σ),
+  Dense(n_hidden,1)
+)
+λ = 0.1
+sqnorm(x) = sum(abs2, x)
+weight_regularization(λ=λ) = 1/2 * λ^2 * sum(sqnorm, Flux.params(model))
+loss(x, y) = Flux.Losses.logitbinarycrossentropy(model(x), y) + weight_regularization()
+
+# Training
+using Flux.Optimise: update!, ADAM
+using Statistics
+opt = ADAM()
+epochs = 10
+
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(params(model)) do
+      l = loss(d...)
+    end
+    update!(opt, params(model), gs)
+  end
+end
+
+# MLP
+modelfile = artifact_name * "_model.bson"
+@save joinpath(data_dir, modelfile) model
+
+# Laplace approximation
+using BayesLaplace
+la = laplace(model, λ=λ, subset_of_weights=:all)
+fit!(la, data)
+laplacefile = artifact_name * "_laplace.bson"
+@save joinpath(data_dir, laplacefile) la
+```
+
+```{julia}
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct NeuralNetwork <: Models.AbstractFittedModel
+    model::Any
+end
+
+# Step 2)
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
+probs(M::NeuralNetwork, X::AbstractArray)= σ.(logits(M, X))
+M = NeuralNetwork(model);
+```
+
+```{julia}
+# Step 1)
+struct LaplaceNeuralNetwork <: Models.AbstractFittedModel
+    la::BayesLaplace.LaplaceRedux
+end
+
+# Step 2)
+logits(M::LaplaceNeuralNetwork, X::AbstractArray) = M.la.model(X)
+probs(M::LaplaceNeuralNetwork, X::AbstractArray)= BayesLaplace.predict(M.la, X)
+Mᴸ = LaplaceNeuralNetwork(la);
+```
+
+### Images
+
+```{julia}
+imagefiles = artifact_name * "_images"
+image_dir = joinpath(data_dir, imagefiles)
+if !isdir(image_dir)
+    mkdir(image_dir)
+end
+cats = findall(ys.==0)
+dogs = findall(ys.==1)
+using Images, FileIO
+cat = load("dev/www/cat.png")
+dog = load("dev/www/dog.png")
+ms = 50
+marker = map(y -> y==0 ? cat : dog,ys);
+```
+
+```{julia}
+using GLMakie
+using GLMakie: scatter!, Axis
+f = Figure()
+ax = Axis(f[1,1],xlabel="Height",ylabel="Tail length")
+scatter!(X[1,cats],X[2,cats],marker=cat,markersize=ms)
+scatter!(X[1,dogs],X[2,dogs],marker=dog,markersize=ms)
+save(joinpath(image_dir,"samples.png"), f);
+```
+
+```{julia}
+using Makie: contourf!
+function plot_contour_makie(X,y,M;colorbar=true,title="",length_out=50,zoom=-0.1,xlim=nothing,ylim=nothing,linewidth=0.1,xlab="",ylab="")
+    
+    # Surface range:
+    if isnothing(xlim)
+        xlim = (minimum(X[:,1]),maximum(X[:,1])).+(zoom,-zoom)
+    else
+        xlim = xlim .+ (zoom,-zoom)
+    end
+    if isnothing(ylim)
+        ylim = (minimum(X[:,2]),maximum(X[:,2])).+(zoom,-zoom)
+    else
+        ylim = ylim .+ (zoom,-zoom)
+    end
+    x_range = collect(range(xlim[1],stop=xlim[2],length=length_out))
+    y_range = collect(range(ylim[1],stop=ylim[2],length=length_out))
+    Z = [Models.probs(M,[x, y])[1] for x=x_range, y=y_range]
+
+    f = Figure()
+    ax = Axis(f[1, 1], title=title, xlabel=xlab, ylabel=ylab)
+    hidedecorations!(ax, label=false)  # hides ticks, grid and lables
+    hidespines!(ax)  # hide the frame
+
+    # Plot:
+    co = contourf!(
+        x_range, y_range, Z; 
+        colorbar=colorbar, linewidth=linewidth,
+        xlim=xlim,
+        ylim=ylim,
+        levels = 0.0:0.05:1.0,
+        extendlow = :auto, extendhigh = :auto
+    )
+
+    Colorbar(f[1,2],co)
+    
+    scatter!(X'[1,cats],X'[2,cats],marker=cat,markersize=ms)
+    scatter!(X'[1,dogs],X'[2,dogs],marker=dog,markersize=ms)
+
+    return f
+end;
+```
+
+```{julia}
+f = plot_contour_makie(X',ys,M,title="MLP",xlab="Height",ylab="Tail length")
+save(joinpath(image_dir,"predictive_mlp.png"), f)
+fᴸ = plot_contour_makie(X',ys,Mᴸ,title="Laplace",xlab="Height",ylab="Tail length")
+save(joinpath(image_dir,"predictive_laplace.png"), fᴸ)
+```
+
+#### Counterfactuals
+
+```{julia}
+using Random
+Random.seed!(1234)
+counterfactual_data = CounterfactualData(X,ys')
+cats = findall(ys.==0)
+x = select_factual(counterfactual_data,rand(cats))
+y = 0.0
+target = 1.0 # opposite label as target
+```
+
+```{julia}
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+plt = plot_contour_makie(X',ys,M,xlab="Height",ylab="Tail length")
+for t in 1:T
+    scatter!([path(counterfactual)[t][1]], [path(counterfactual)[t][2]],marker=cat,markersize=ms)    
+end
+save(joinpath(image_dir,"recourse_mlp.png"),plt)
+```
+
+```{julia}
+fig = plot_contour_makie(X',ys,M,xlab="Height",ylab="Tail length")
+# animation settings
+timestamps = range(1, T, step=1)
+record(fig, joinpath(image_dir,"recourse_mlp.gif"), timestamps; framerate = 10) do t
+    scatter!([path(counterfactual)[Int(t)][1]], [path(counterfactual)[Int(t)][2]],marker=cat,markersize=ms)
+end
+```
+
+### ... towards realistic counterfactuals.
+
+```{julia}
+generator = GreedyGenerator(Dict(:δ=>0.1,:n=>15))
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+plt = plot_contour_makie(X',y,Mᴸ,xlab="Height",ylab="Tail length")
+for t in 1:T
+    scatter!([path(counterfactual)[t][1]], [path(counterfactual)[t][2]],marker=cat,markersize=ms)    
+end
+save(joinpath(image_dir,"recourse_laplace.png"),plt);
+```
+
+```{julia}
+fig = plot_contour_makie(X',y,Mᴸ,xlab="Height",ylab="Tail length")
+# animation settings
+timestamps = range(1, T, step=1)
+record(fig, joinpath(image_dir,"recourse_laplace.gif"), timestamps; framerate = 10) do t
+    scatter!([path(counterfactual)[Int(t)][1]], [path(counterfactual)[Int(t)][2]],marker=cat,markersize=ms)
+end;
+```
+
+### Generate artifacts
+
+```{julia}
+datafiles = [datafile, modelfile, laplacefile, imagefiles]
+generate_artifact(datafiles)
+```
+

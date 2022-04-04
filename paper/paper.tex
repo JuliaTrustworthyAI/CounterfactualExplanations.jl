@@ -102,7 +102,7 @@ Section~\ref{sec-emp} involves an empirical application and
 Section~\ref{sec-conclude} concludes.
 
 \hypertarget{sec-related}{%
-\section{Related work}\label{sec-related}}
+\section{Background and related work}\label{sec-related}}
 
 \hypertarget{literature-on-explainable-ai}{%
 \subsection{Literature on explainable
@@ -239,7 +239,7 @@ Julia language naturally lends itself towards building a greater degree
 of trust in machine learning and artificial intelligence.
 
 \hypertarget{sec-method}{%
-\section{Methodological background}\label{sec-method}}
+\section{Counterfactual explanations}\label{sec-method}}
 
 Counterfactual search happens in the feature space: we are interested in
 understanding how we need to change individual attributes in order to
@@ -254,8 +254,9 @@ vector of some individual sample outside of the target class, so
 that the ideas presented here also carry over to multi-class problems
 and regression (\cite{molnar2020interpretable}).
 
-\hypertarget{generic-framework}{%
-\subsection{Generic framework}\label{generic-framework}}
+\hypertarget{a-framework-for-counterfactual-explanations}{%
+\subsection{A framework for Counterfactual
+Explanations}\label{a-framework-for-counterfactual-explanations}}
 
 The counterfactual search objective originally proposed by
 \cite{wachter2017counterfactual} is as follows
@@ -381,7 +382,8 @@ may have thought (\cite{gal2016dropout},
 \cite{murphy2022probabilistic}).
 
 \hypertarget{sec-use}{%
-\section{General usage}\label{sec-use}}
+\section{\texorpdfstring{The \texttt{CounterfactualExplanations.jl}
+Package}{The CounterfactualExplanations.jl Package}}\label{sec-use}}
 
 The package is built around two core modules that are designed to be as
 scalable as possible through multiple dispatch: 1) \texttt{Models} is
@@ -425,11 +427,16 @@ how to use and extend the package architecture through various examples.
 \end{figure}
 
 \hypertarget{sec-start}{%
-\subsection{Getting started}\label{sec-start}}
+\section{\texorpdfstring{\texttt{CounterfactualExplanations.jl}: Getting
+Started}{CounterfactualExplanations.jl: Getting Started}}\label{sec-start}}
 
-The first code block below provides a complete example demonstrating how
-the framework presented in Section~\ref{sec-method} can be implemented
-in Julia with our package. Using a synthetic data set with linearly
+\hypertarget{a-simple-generic-generator}{%
+\subsection{A Simple Generic
+Generator}\label{a-simple-generic-generator}}
+
+Code \ref{lst:generic} provides a complete example demonstrating how the
+framework presented in Section~\ref{sec-method} can be implemented in
+Julia with our package. Using a synthetic data set with linearly
 separable samples we firstly define our model and then generate a
 counterfactual for a randomly selected sample. Figure~\ref{fig-binary}
 shows the resulting counterfactual path in the two-dimensional feature
@@ -472,7 +479,7 @@ cross-entropy is an appropriate choice.\footnote{As mentioned earlier,
   binary cross-entropy.} The fifth and last field can be used to define
 mutability constraints for the features.
 
-\begin{lstlisting}[language=Julia, escapechar=@]
+\begin{lstlisting}[language=Julia, escapechar=@, caption={A simple generic generator.},label={lst:generic}, captionpos=b] 
 # Data:
 using CounterfactualExplanations, Random
 Random.seed!(1234)
@@ -541,6 +548,10 @@ counterfactuals that may be produced by generic counterfactual search
 for an overfitted conventional binary classifier.}
 
 \end{figure}
+
+\hypertarget{using-the-greedy-generator}{%
+\subsection{Using the Greedy
+Generator}\label{using-the-greedy-generator}}
 
 Among the different approaches that have recently been put forward to
 deal with such issues is the greedy generator for Bayesian models
@@ -622,7 +633,7 @@ counterfactual generator for Bayesian binary classifier.}
 \end{figure}
 
 \hypertarget{sec-custom}{%
-\subsection{Custom models}\label{sec-custom}}
+\section{Using Custom models}\label{sec-custom}}
 
 One of our priorities has been to make
 \texttt{CounterfactualExplanations} scalable and versatile. In the long
@@ -778,8 +789,8 @@ approximation.}
 
 \end{figure}
 
-\hypertarget{custom-generators}{%
-\subsection{Custom generators}\label{custom-generators}}
+\hypertarget{using-custom-generators}{%
+\section{Using Custom generators}\label{using-custom-generators}}
 
 To illustrate how custom generators can be implemented we will consider
 a simple example of a generator that extends the functionality of our
@@ -795,7 +806,7 @@ on the merit of this idea, we will now briefly show how this can be
 implemented.
 
 \hypertarget{a-generic-generator-with-dropout}{%
-\subsubsection{A generic generator with
+\subsection{A generic generator with
 dropout}\label{a-generic-generator-with-dropout}}
 
 The first code chunk below implements two important steps: 1) create an
@@ -873,7 +884,7 @@ with dropout.}
 \end{figure}
 
 \hypertarget{feature-constraints}{%
-\subsection{Feature constraints}\label{feature-constraints}}
+\section{Feature constraints}\label{feature-constraints}}
 
 In practice, features usually cannot be perturbed arbitrarily. Suppose,
 for example, that one of the features used by a bank to predict the
@@ -888,7 +899,7 @@ realistic recourse. To illustrate how this can be implemented in
 separable toy dataset again.
 
 \hypertarget{mutability}{%
-\subsubsection{Mutability}\label{mutability}}
+\subsection{Mutability}\label{mutability}}
 
 Mutability of features can be defined in terms of four different
 options: 1) the feature is mutable in both directions, 2) the feature
@@ -909,7 +920,8 @@ only the first feature can be perturbed, the sample can only move along
 the horizontal axis.
 
 \begin{lstlisting}[language=Julia, escapechar=@]
-counterfactual_data = CounterfactualData(X,ys';mutability=[:both, :none])
+counterfactual_data = CounterfactualData(
+    X,ys';mutability=[:both, :none])
 \end{lstlisting}
 
 \begin{figure}
@@ -924,7 +936,7 @@ feature.}
 \end{figure}
 
 \hypertarget{domain-constraints}{%
-\subsubsection{Domain constraints}\label{domain-constraints}}
+\subsection{Domain constraints}\label{domain-constraints}}
 
 In some cases we may also want to constrain the domain of some feature.
 For example, \emph{age} as a feature is constrained to a range from 0 to
@@ -952,7 +964,7 @@ constrained to a certain domain.}
 \end{figure}
 
 \hypertarget{language-interoperability}{%
-\subsection{Language interoperability}\label{language-interoperability}}
+\section{Language interoperability}\label{language-interoperability}}
 
 The Julia language offers unique support for programming language
 interoperability. For example, calling R or Python is made remarkably
@@ -969,7 +981,7 @@ versatile our package is.\footnote{The corresponding example involving
   \url{https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/}}
 
 \hypertarget{explaining-a-model-trained-in-r}{%
-\subsubsection{Explaining a model trained in
+\subsection{Explaining a model trained in
 R}\label{explaining-a-model-trained-in-r}}
 
 We have trained a simple MLP for binary classification task involving a
@@ -1000,7 +1012,9 @@ function logits(M::TorchNetwork, X::AbstractArray)
   y = isa(y, AbstractArray) ? y : [y]
   return y'
 end
-probs(M::TorchNetwork, X::AbstractArray)=σ.(logits(M, X))
+function probs(M::TorchNetwork, X::AbstractArray)
+  return σ.(logits(M, X))
+end
 M = TorchNetwork(R"model")
 \end{lstlisting}
 
@@ -1058,7 +1072,7 @@ counterfactual generator for a model trained in R.}
 \end{figure}
 
 \hypertarget{sec-emp}{%
-\subsection{Empirical example}\label{sec-emp}}
+\section{Application to MNIST}\label{sec-emp}}
 
 Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations} through a few illustrative toy
@@ -1177,6 +1191,9 @@ potentially also guide us in improving it.
 turning a three (3) into an eight (8).}
 
 \end{figure}
+
+\hypertarget{discussiong-and-outlook}{%
+\section{Discussiong and Outlook}\label{discussiong-and-outlook}}
 
 \hypertarget{sec-conclude}{%
 \section{Concluding remarks}\label{sec-conclude}}
