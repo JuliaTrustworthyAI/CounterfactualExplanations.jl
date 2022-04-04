@@ -53,7 +53,7 @@ We would love to present this work at JuliaCon 22 for the following reasons:
 2. Support for other programming languages also makes this package useful for the broader community working on explainable AI community. **Explaining models programmed in `Python` and `R` through a pure-Julia package is a striking example of Julia's unique support for language interoperability**. We hope that this may help draw attention to Julia from the broader programming community. 
 3. **We are looking for challenge and support from the community**. JuliaCon 22 is a unique opportunity to create awareness. 
 
-Regarding the third point it is worth mentioning that Patrick has only recently moved to Julia following years of programming in R, Python, C++ and MATLAB. While every effort has been made to follow Julian best practices and develop an accessible and scalable package, there is certainly scope for improvement and guidance from more experienced Julians. To this end, we are looking for constructive criticism and also contributors that can help us develop this package further in the future. 
+Regarding the third point it is worth mentioning that Patrick has only recently moved to Julia following years of programming in R, Python, C++ and MATLAB. While every effort has been made to follow Julian best practices and develop an accessible and extensible package, there is certainly scope for improvement and guidance from more experienced Julians. To this end, we are looking for constructive criticism and also contributors that can help us develop this package further in the future. 
 
 Finally, just a quick note that for the session image we have chosen an animated GIF. Should this not work for you, we can send a static PNG instead. 
 

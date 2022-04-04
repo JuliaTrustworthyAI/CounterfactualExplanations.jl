@@ -6,7 +6,7 @@ CurrentModule = CounterfactualExplanations
 
 Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/CounterfactualExplanations.jl).
 
-CounterfactualExplanations.jl is a Julia package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for interpretable machine learning. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
+`CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for interpretable machine learning. While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
 
 ## Installation
 
@@ -46,45 +46,41 @@ Generating counterfactuals will typically look like follows:
 
 ``` julia
 using CounterfactualExplanations
-using CounterfactualExplanations.Models
-w = [1.0 -2.0] # true coefficients
-b = [0]
-M = LogisticModel(w, b)
-x = [-1,0.5]
-target = 1.0
-γ = 0.9
-generator = GenericGenerator(0.1,0.1,1e-5,:logitbinarycrossentropy,nothing)
-counterfactual = generate_counterfactual(generator, x, M, target, γ); # generate recourse
-```
 
-We can see that the counterfactual label y′ corresponds to the target:
+# Raw Data:
+using CounterfactualExplanations.Data: cats_dogs_data
+x, y = cats_dogs_data()
 
-``` julia
-julia> counterfactual.y′
-1.0
+# Data preprocessing:
+counterfactual_data = CounterfactualData(x,y)
 
-julia> counterfactual.x
-2-element Vector{Float64}:
- -1.0
-  0.5
+# Model (pre-trained):
+using CounterfactualExplanations.Data: cats_dogs_laplace
+import CounterfactualExplanations.Models: probs
+la = cats_dogs_laplace()
 
-julia> counterfactual.y
-0.0
-
-julia> counterfactual.x′
-2-element Vector{Float64}:
- -0.15867040347424893
- -1.182659193051502
-
-julia> counterfactual.y′
-1.0
+# Counterfactual search:
+x = select_factual(counterfactual_data, 1) # factual
+target = round(probs(la, x)) == 1.0 ? 0.0 : 1.0
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(x, target, counterfactual_data, la, generator)
 ```
 
 ## Goals and limitations
 
-The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in 100% Julia, which makes it easy for users and developers to understand and contribute to open source code.
+The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python 🐍 library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended, 3) it has not yet gone through a formal review.
 
-Eventually the aim for this project is to be at least at par with the amazing [CARLA](https://github.com/carla-recourse/CARLA) Python library which was presented at NeurIPS 2021. Currently CounterfactualExplanations.jl falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) it lacks a framework for evaluating and benchmarking different generators, 3) it has so far been a one-person effort and not yet gone through a formal review.
+## Contribute
+
+`CounterfactualExplanations.jl` is designed to be extensible: through multiple dispatch and modularization we hope to make it as straight-forward as possible for members of the community to contribute to its functionality. At the moment we are primarily looking for the following contributions:
+
+1.  Additional counterfactual generators.
+2.  Additional predictive models.
+3.  More examples to be added to the documentation.
+4.  Native support for categorical features.
+5.  Support for regression models.
+
+For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/).
 
 ## Citation
 

@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 # Contributing
 
-`CounterfactualExplanations.jl` is designed to be scalable: through multiple dispatch and modularization we hope to make it as straight-forward as possible for members of the community to contribute to its functionality. At the moment we are primarily looking for the following contributions:
+`CounterfactualExplanations.jl` is designed to be extensible: through multiple dispatch and modularization we hope to make it as straight-forward as possible for members of the community to contribute to its functionality. At the moment we are primarily looking for the following contributions:
 
 1. Additional counterfactual generators.
 2. Additional predictive models.

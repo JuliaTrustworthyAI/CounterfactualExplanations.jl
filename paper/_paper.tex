@@ -183,7 +183,7 @@ actionable feedback to their clients or adjust their system in case they
 detect biases or errors.
 
 Through our package, \texttt{CounterfactualExplanations.jl}, we aim to
-contribute a scalable and versatile implementation of CE and AR to the
+contribute a extensible and versatile implementation of CE and AR to the
 Julia community. Through its applicability to systems built in other
 programming languages we hope that this library may ultimately also
 benefit the broader community engaged in data-driven decision making.
@@ -479,11 +479,11 @@ may have thought (\cite{gal2016dropout},
 Package}{The CounterfactualExplanations.jl Package}}\label{sec-use}}
 
 The package is built around two core modules that are designed to be as
-scalable as possible through multiple dispatch: 1) \texttt{Models} is
+extensible as possible through multiple dispatch: 1) \texttt{Models} is
 concerned with making any arbitrary model compatible with the package;
 2) \texttt{Generators} is used to implement arbitrary counterfactual
 search algorithms.\footnote{We have made an effort to keep the code base
-  a flexible and scalable as possible, but cannot guarantee at this
+  a flexible and extensible as possible, but cannot guarantee at this
   point that really any counterfactual generator can be implemented
   without further adaptation.} The core function of the package
 \texttt{generate\_counterfactual} uses an instance of type
@@ -729,7 +729,7 @@ counterfactual generator for Bayesian binary classifier.}
 \section{Using Custom models}\label{sec-custom}}
 
 One of our priorities has been to make
-\texttt{CounterfactualExplanations} scalable and versatile. In the long
+\texttt{CounterfactualExplanations} extensible and versatile. In the long
 term we aim to add support for more default models and counterfactual
 generators. In the short term it is designed to allow users to integrate
 models and generators themselves. Ideally, these community efforts will
