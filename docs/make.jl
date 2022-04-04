@@ -44,7 +44,6 @@ makedocs(;
     ],
 )
 
-deploydocs(;
-    repo="github.com/pat-alt/CounterfactualExplanations.jl",
-    devbranch="main"
+deploydocs(
+    repo="github.com/pat-alt/CounterfactualExplanations.jl.git"
 )

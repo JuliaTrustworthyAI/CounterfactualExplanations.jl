@@ -42,8 +42,10 @@ Software development in the space of XAI has largely focused on various global m
 The package has been developed by Patrick during the first few months of his PhD in Trustworthy Artificial Intelligence at Delft University of Technology. Its first version has been registered on the General registry for a few weeks, but updates can be expected ahead of JuliaCon as Patrick continues to develop the package for his own research. Below is a list of links pointing to additional resources related to the package including the source code, its documentation, a draft proceedings paper and more:
 
 - [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl)
-- [Docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/)
+- Docs: [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
 - [Draft paper](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/paper/paper/paper.pdf)
+- [Poster]()
 - [Preliminary slides](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/dev/dev/presentation/juliacon.html)
 - [Preliminary video presentation]()
 
