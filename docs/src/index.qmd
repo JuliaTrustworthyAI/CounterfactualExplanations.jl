@@ -1,11 +1,14 @@
 ---
 format: 
-    gfm:
-        wrap: none
-        self-contained: true
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
 crossref:
   fig-prefix: Figure
   tbl-prefix: Table
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+output: asis
 ---
 
 ```@meta
