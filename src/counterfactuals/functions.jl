@@ -1,8 +1,3 @@
-"""
-    Recourse(x′::AbstractArray, y′::AbstractFloat, path::Matrix{AbstractFloat}, generator::Generators.AbstractGenerator, x::AbstractArray, y::AbstractFloat, M::Models.AbstractFittedModel, target::AbstractFloat)
-
-Collects all variables relevant to the recourse outcome. 
-"""
 mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
@@ -13,6 +8,25 @@ mutable struct CounterfactualExplanation
     generator::Generators.AbstractGenerator
     params::Dict
     search::Union{Dict,Nothing}
+end
+
+using .Counterfactuals
+function Base.show(io::IO, z::CounterfactualExplanation)
+
+    printstyled(io, "Factual: ", bold=true)
+    println(io, "x=$(z.x), y=$(Counterfactuals.factual_label(z)), p=$(Counterfactuals.factual_probability(z))")
+    printstyled(io, "Target: ", bold=true)
+    println(io, "target=$(z.target), γ=$(z.params[:γ])")
+
+    if !isnothing(z.search)
+        printstyled(io, "Counterfactual outcome: ", bold=true)
+        println(io, "x′=$(z.x′), y′=$(Counterfactuals.counterfactual_label(z)), p′=$(Counterfactuals.counterfactual_probability(z))")
+        printstyled(io, "Converged: $(Counterfactuals.converged(z) ? "✅"  : "❌") ", bold=true)
+        println("after $(Counterfactuals.total_steps(z)) steps.")
+    else
+        @info "Search not yet initatiated."
+    end
+
 end
 
 """
@@ -92,30 +106,16 @@ A convenience method to compute the class probabilities of the factual value.
 factual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual_explanation.x)
 
 """
-    p̅(counterfactual_explanation::CounterfactualExplanation)
-
-An alias for [`factual_probability(counterfactual_explanation::CounterfactualExplanation)`](@ref).
-"""
-p̅(counterfactual_explanation::CounterfactualExplanation) = factual_probability(counterfactual_explanation)
-
-"""
     factual_label(counterfactual_explanation::CounterfactualExplanation)  
 
 A convenience method to get the predicted label associated with the factual value.
 """
 function factual_label(counterfactual_explanation::CounterfactualExplanation) 
-    p = p̅(counterfactual_explanation)
+    p = factual_probability(counterfactual_explanation)
     out_dim = size(p)[1]
     y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
     return y
 end
-
-"""
-    y(counterfactual_explanation::CounterfactualExplanation)
-
-An alias for [`factual_label(counterfactual_explanation::CounterfactualExplanation)`](@ref).
-"""
-y(counterfactual_explanation::CounterfactualExplanation) = factual_label(counterfactual_explanation)
 
 # 2) Counterfactual values:
 """
@@ -144,11 +144,11 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
 end
 
 """
-    outcome(counterfactual_explanation::CounterfactualExplanation)
+    counterfactual(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method to get the counterfactual value.
 """
-outcome(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x′
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x′
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
@@ -158,30 +158,16 @@ A convenience method to compute the class probabilities of the counterfactual va
 counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual_explanation.x′)
 
 """
-    p̲(counterfactual_explanation::CounterfactualExplanation)
-
-An alias for [`counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)`](@ref).
-"""
-p̲(counterfactual_explanation::CounterfactualExplanation) = counterfactual_probability(counterfactual_explanation)
-
-"""
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
 
 A convenience method to get the predicted label associated with the counterfactual value.
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
-    p = p̲(counterfactual_explanation)
+    p = counterfactual_probability(counterfactual_explanation)
     out_dim = size(p)[1]
     y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
     return y
 end
-
-"""
-    y′(counterfactual_explanation::CounterfactualExplanation)
-
-An alias for [`counterfactual_label(counterfactual_explanation::CounterfactualExplanation)`](@ref).
-"""
-y′(counterfactual_explanation::CounterfactualExplanation) = counterfactual_label(counterfactual_explanation)
 
 # 3) Search related methods:
 """
@@ -219,7 +205,7 @@ Returns the predicted probability of the target class for `x`. If `x` is `nothin
 """
 function target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
     
-    p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : p̲(counterfactual_explanation)
+    p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
     target = counterfactual_explanation.target
 
     if length(p) == 1

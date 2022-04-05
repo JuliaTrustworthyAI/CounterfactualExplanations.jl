@@ -52,8 +52,8 @@ Random.seed!(1234)
         target = round(probs(M, x)[1])==0 ? 1 : 0 
         T = 1000
         counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
-        import CounterfactualExplanations.Counterfactuals: p̲
-        @test !converged(counterfactual) || p̲(counterfactual)[1] >= γ # either not converged or threshold reached
+        import CounterfactualExplanations.Counterfactuals: p
+        @test !converged(counterfactual) || counterfactual_probability(counterfactual)[1] >= γ # either not converged or threshold reached
         @test !converged(counterfactual) || length(path(counterfactual)) <= T
 
     end
