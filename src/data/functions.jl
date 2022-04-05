@@ -1,8 +1,6 @@
 using Pkg.Artifacts
 using Flux
 using BSON
-using BayesLaplace
-using LinearAlgebra
 
 # UCR data:
 """

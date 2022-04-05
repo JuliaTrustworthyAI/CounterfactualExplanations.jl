@@ -11,7 +11,7 @@ import CounterfactualExplanations.Data: toy_data_linear, toy_data_multi, toy_dat
     @testset "cats_dogs" begin
         @test !isnothing(CounterfactualExplanations.Data.cats_dogs_data())
         @test !isnothing(CounterfactualExplanations.Data.cats_dogs_model())
-        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_laplace())
+        # @test !isnothing(CounterfactualExplanations.Data.cats_dogs_laplace())
     end
 
     @testset "MNIST" begin
