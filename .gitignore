@@ -41,3 +41,6 @@ paper/paper.pdf
 *.bbl
 *.synctex.gz
 *.log
+
+# Dev:
+dev/resources/*.html
