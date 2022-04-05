@@ -31,9 +31,6 @@ makedocs(;
                 "Image data" => [
                     "MNIST" => "examples/image/MNIST.md"
                 ],
-                # "Time series" => [
-                #     "UCR ECG200" => "examples/timeseries/UCR_ECG200.md"
-                # ]
             ],
         "Contributor's Guide" =>
             [
@@ -44,6 +41,6 @@ makedocs(;
     ],
 )
 
-deploydocs(
+deploydocs(;
     repo="github.com/pat-alt/CounterfactualExplanations.jl.git"
 )
