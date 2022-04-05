@@ -10,13 +10,29 @@ CurrentModule = CounterfactualExplanations
 ## Exported functions
 
 ```@autodocs
-Modules = [CounterfactualExplanations, CounterfactualExplanations.Generators, CounterfactualExplanations.Models, CounterfactualExplanations.Losses]
+Modules = [
+    CounterfactualExplanations, 
+    CounterfactualExplanations.Data,
+    CounterfactualExplanations.DataPreprocessing,
+    CounterfactualExplanations.Counterfactuals, 
+    CounterfactualExplanations.Models, 
+    CounterfactualExplanations.Generators, 
+    CounterfactualExplanations.Losses
+]
 Private = false
 ```
 
 ## Internal functions
 
 ```@autodocs
-Modules = [CounterfactualExplanations, CounterfactualExplanations.Generators, CounterfactualExplanations.Models, CounterfactualExplanations.Losses]
+Modules = [
+    CounterfactualExplanations, 
+    CounterfactualExplanations.Data,
+    CounterfactualExplanations.DataPreprocessing,
+    CounterfactualExplanations.Counterfactuals, 
+    CounterfactualExplanations.Models, 
+    CounterfactualExplanations.Generators, 
+    CounterfactualExplanations.Losses
+]
 Public = false
 ```

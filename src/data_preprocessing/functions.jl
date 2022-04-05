@@ -1,19 +1,32 @@
 using Flux
 
 struct CounterfactualData
-    X::AbstractArray
-    y::AbstractArray
+    X::AbstractMatrix
+    y::AbstractMatrix
     mutability::Union{Vector{Symbol},Nothing}
     categorical::Union{Vector{Int},Nothing}
     continuous::Union{Vector{Int},Nothing}
     domain::Union{Any,Nothing}
-    CounterfactualData(X,y,mutability,categorical,continuous,domain) = length(size(X)) != 2 ? error("Data should be in tabular format") : new(X,y,mutability,categorical,continuous,domain)
+    function CounterfactualData(X,y,mutability,categorical,continuous,domain)
+        conditions = []
+        conditions = vcat(conditions..., length(size(X)) != 2 ? error("Data should be in tabular format") : true)
+        conditions = vcat(conditions..., size(X)[2] != size(y)[2] ? throw(DimensionMismatch("Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])")) : true)
+        if all(conditions)
+            new(X,y,mutability,categorical,continuous,domain)
+        end
+    end
 end
 
 """
-    CounterfactualData(X::AbstractArray, y::AbstractArray)
+    CounterfactualData(
+        X::AbstractArray, y::AbstractArray;
+        mutability::Union{Vector{Symbol},Nothing}=nothing,
+        domain::Union{Any,Nothing}=nothing,
+        categorical::Union{Vector{Int},Nothing}=nothing,
+        continuous::Union{Vector{Int},Nothing}=nothing,
+    )
 
-This function prepares features `X` and labels `y` to be used with the package.
+This outer constructor method prepares features `X` and labels `y` to be used with the package. Mutability and domain constraints can be added for the features. The function also accepts arguments that specify which features are categorical and which are continues. These arguments are currently not used. 
 
 # Examples
 
@@ -28,9 +41,9 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractArray, y::AbstractArray;
     mutability::Union{Vector{Symbol},Nothing}=nothing,
+    domain::Union{Any,Nothing}=nothing,
     categorical::Union{Vector{Int},Nothing}=nothing,
     continuous::Union{Vector{Int},Nothing}=nothing,
-    domain::Union{Any,Nothing}=nothing
 )
 
     # If nothing supplied, assume all continuous:
@@ -48,10 +61,25 @@ function CounterfactualData(
     return counterfactual_data
 end
 
+"""
+    select_factual(counterfactual_data::CounterfactualData, index::Int)
+
+A convenience method that can be used to access the the feature matrix.
+"""
 select_factual(counterfactual_data::CounterfactualData, index::Int) = counterfactual_data.X[:,index]
 
+"""
+    mutability_constraints(counterfactual_data::CounterfactualData)
+
+A convience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
+"""
 mutability_constraints(counterfactual_data::CounterfactualData) = isnothing(counterfactual_data.mutability) ? [:both for i in 1:size(counterfactual_data.X)[1]] : counterfactual_data.mutability
 
+"""
+    apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 
+
+A subroutine that is used to apply the predetermined domain constraints.
+"""
 function apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 
     
     # Continuous variables:

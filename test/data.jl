@@ -5,20 +5,24 @@ import CounterfactualExplanations.Data: toy_data_linear, toy_data_multi, toy_dat
 @testset "Artifacts" begin
     @testset "ucr_data" begin
         @test !isnothing(CounterfactualExplanations.Data.ucr_data())
-    end
-    @testset "ucr_model" begin
         @test !isnothing(CounterfactualExplanations.Data.ucr_model())
     end
-    @testset "cats_dogs_data" begin
+    
+    @testset "cats_dogs" begin
         @test !isnothing(CounterfactualExplanations.Data.cats_dogs_data())
+        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_model())
+        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_laplace())
+    end
+
+    @testset "MNIST" begin
+        @test !isnothing(CounterfactualExplanations.Data.mnist_data())
+        @test !isnothing(CounterfactualExplanations.Data.mnist_model())
+        @test !isnothing(CounterfactualExplanations.Data.mnist_ensemble())
     end
 end
 
 @testset "Toy data" begin
-    @testset "toy_data_linear" begin
-        @test length(toy_data_linear()) == 2
-    end
-    @testset "toy_data_non_linear" begin
-        @test length(toy_data_non_linear()) == 2
-    end
+    @test length(toy_data_linear()) == 2
+    @test length(toy_data_non_linear()) == 2
+    @test length(toy_data_multi()) == 2
 end

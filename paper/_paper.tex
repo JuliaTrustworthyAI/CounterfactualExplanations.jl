@@ -572,7 +572,7 @@ cross-entropy is an appropriate choice.\footnote{As mentioned earlier,
   binary cross-entropy.} The fifth and last field can be used to define
 mutability constraints for the features.
 
-\begin{lstlisting}[language=Julia, escapechar=@, caption={A simple generic generator.},label={lst:generic}, captionpos=b] 
+\begin{lstlisting}[language=Julia, escapechar=@,label={lst:generic}] 
 # Data:
 using CounterfactualExplanations, Random
 Random.seed!(1234)
@@ -729,16 +729,16 @@ counterfactual generator for Bayesian binary classifier.}
 \section{Using Custom models}\label{sec-custom}}
 
 One of our priorities has been to make
-\texttt{CounterfactualExplanations} extensible and versatile. In the long
-term we aim to add support for more default models and counterfactual
-generators. In the short term it is designed to allow users to integrate
-models and generators themselves. Ideally, these community efforts will
-facilitate our long-term goals. Only two steps are necessary to make any
-supervised learning model compatible with our package\footnote{In order
-  for the model to be compatible with the gradient-based default
-  generators presented in Section~\ref{sec-start} gradient access is
-  also necessary, but any model can also be complemented with a custom
-  generator.}:
+\texttt{CounterfactualExplanations} extensible and versatile. In the
+long term we aim to add support for more default models and
+counterfactual generators. In the short term it is designed to allow
+users to integrate models and generators themselves. Ideally, these
+community efforts will facilitate our long-term goals. Only two steps
+are necessary to make any supervised learning model compatible with our
+package\footnote{In order for the model to be compatible with the
+  gradient-based default generators presented in Section~\ref{sec-start}
+  gradient access is also necessary, but any model can also be
+  complemented with a custom generator.}:
 
 \begin{unnumlist}
 \item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{AbstractFittedModel}.

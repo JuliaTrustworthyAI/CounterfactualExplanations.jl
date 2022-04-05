@@ -1,20 +1,37 @@
 using Pkg.Artifacts
 using Flux
 using BSON
+using BayesLaplace
+using LinearAlgebra
 
 # UCR data:
+"""
+    ucr_data()
+
+A convenience function to load UCR time series data.
+"""
 function ucr_data()
     data_dir = artifact"ucr_data"
     data = BSON.load(joinpath(data_dir,"ucr_data.bson"),@__MODULE__)
     return data
 end
 
+"""
+    ucr_model()
+
+A convenience function to load a pre-trained classification model for the UCR time series data.
+"""
 function ucr_model()
     data_dir = artifact"ucr_model"
     model = BSON.load(joinpath(data_dir,"ucr_model.bson"),@__MODULE__)
     return model
 end
 
+"""
+    cats_dogs_data()
+
+A convenience function to load the cats and dogs toy dataset.
+"""
 # Cats and dogs:
 function cats_dogs_data()
     data_dir = artifact"cats_dogs_data"
@@ -24,12 +41,22 @@ function cats_dogs_data()
     return X, y
 end
 
+"""
+    cats_dogs_model()
+
+A convenience function to load the pre-trained MLP to classify cats and dogs.
+"""
 function cats_dogs_model()
     data_dir = artifact"cats_dogs_model"
     model = BSON.load(joinpath(data_dir,"cats_dogs_model.bson"),@__MODULE__)[:model]
     return model
 end
 
+"""
+    cats_dogs_laplace()
+
+A convenience function to load the pre-trained MLP with Laplace approximation to classify cats and dogs.
+"""
 function cats_dogs_laplace()
     data_dir = artifact"cats_dogs_laplace"
     la = BSON.load(joinpath(data_dir,"cats_dogs_laplace.bson"),@__MODULE__)[:la]
@@ -37,6 +64,12 @@ function cats_dogs_laplace()
 end
 
 # MNIST:
+
+"""
+    mnist_data()
+
+A convenience function to load MNIST training data.
+"""
 function mnist_data()
     data_dir = artifact"mnist_data"
     data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)[:data]
@@ -44,12 +77,22 @@ function mnist_data()
     return data, X, ys
 end
 
+"""
+    mnist_model()
+
+A convenience function to load the pre-trained MLP for MNIST training data.
+"""
 function mnist_model()
     data_dir = artifact"mnist_model"
     model = BSON.load(joinpath(data_dir,"mnist_model.bson"),@__MODULE__)[:model]
     return testmode!(model)
 end
 
+"""
+    mnist_ensemble()
+
+A convenience function to load the pre-trained deep ensemble of MLPs for MNIST training data.
+"""
 function mnist_ensemble()
     data_dir = joinpath(artifact"mnist_ensemble","mnist_ensemble")
     model_files = Base.Filesystem.readdir(data_dir)
@@ -64,6 +107,8 @@ end
 using Random
 """
     toy_data_linear(N=100)
+
+A convenience function to load linearly separable synthetic data.
 
 # Examples
 
@@ -91,6 +136,8 @@ end
 using Random
 """
     toy_data_non_linear(N=100)
+
+A convenience function to load synthetic data that are not linearly separable.
 
 # Examples
 
@@ -124,6 +171,8 @@ end
 using Random
 """
     toy_data_multi(N=100)
+
+A convenience function to load multi-class synthetic data.
 
 # Examples
 

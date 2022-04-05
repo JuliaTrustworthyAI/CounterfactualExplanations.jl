@@ -138,7 +138,7 @@ counterfactual = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@,label={lst:generic}] 
+\begin{lstlisting}[language=Julia, escapechar=@] 
 # Data:
 using CounterfactualExplanations, Random
 Random.seed!(1234)
