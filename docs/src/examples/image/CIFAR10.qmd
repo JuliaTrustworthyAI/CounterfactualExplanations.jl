@@ -1,0 +1,134 @@
+---
+jupyter: julia-1.6
+---
+
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+# From cat to dog
+
+```{julia}
+using Plots, CounterfactualExplanations, Random
+using Logging
+disable_logging(Logging.Info)
+```
+
+```{julia}
+retrain = false
+include("CIFAR10.jl")
+# Load model
+n_epochs = 200
+BSON.@load "data/CIFAR10_nn_" * string(n_epochs) * ".bson" nn
+println("Training accuracy: " * string(accuracy(train_x, train_y)))
+println("Validation accuracy: " * string(accuracy(val_x, val_y)))
+```
+
+```{julia}
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct NeuralNetwork <: Models.AbstractFittedModel
+    nn::Any
+end
+
+# Step 2)
+logits(M::NeuralNetwork, X::AbstractArray) = M.nn(X)
+probs(M::NeuralNetwork, X::AbstractArray)= σ.(logits(M, X))
+M = NeuralNetwork(nn);
+```
+
+```{julia}
+ŷ = vec(round.(probs(M, train_x))) # predicted class
+# ŷ = CIFAR10.trainlabels()[1:1000]
+cats = findall(ŷ .== 0)
+dogs = findall(ŷ .== 1)
+# Plot random samples:
+using Plots
+Random.seed!(123)
+n_samples = 10
+using StatsBase
+random_cats = sample(cats, n_samples, replace=false)
+random_dogs = sample(dogs, n_samples, replace=false)
+conv2image(x) = colorview(RGB, permutedims(x, (3, 2, 1)))
+p_list = [plot(conv2image(train_x[:,:,:,i]), size=(100,100), axis=nothing, title=ifelse(train_y[i]==ŷ[i],"Correct","Wrong")) for i ∈ vcat(random_cats, random_dogs)];
+```
+
+```{julia}
+plt = plot(p_list...,layout=(2,n_samples), size=(1000,200))
+savefig(plt, "www/CIFAR10_predictions.png")
+```
+
+![](www/CIFAR10_predictions.png)
+
+```{julia}
+using Images, FileIO
+sad_cat = load("www/cat.png")
+happy_dog = load("www/dog.png");
+```
+
+```{julia}
+using ImageTransformations
+ratio = 32/size(happy_dog)[1]
+happy_dog = imresize(happy_dog, ratio=ratio)
+```
+
+```{julia}
+cat_rgb = RGB.(sad_cat)
+```
+
+```{julia}
+cat_CHW = channelview(cat_rgb);
+cat_WHC = permutedims(cat_CHW, (3,2,1))
+cat_train = reshape(cat_CHW, (size(cat_WHC)...,1))
+cat_train = convert(Array{Float32},cat_train)
+probs(M,cat_train)
+```
+
+```{julia}
+dog_rgb = RGB.(happy_dog)
+```
+
+```{julia}
+dog_CHW = channelview(dog_rgb);
+dog_WHC = permutedims(dog_CHW, (3,2,1))
+dog_train = reshape(dog_CHW, (size(dog_WHC)...,1))
+# dog_train = convert(Array{Float32},dog_train)
+probs(M,dog_train)
+```
+
+## Recourse
+
+```{julia}
+chosen_sample = train_x[:,:,:,random_cats[1]]
+x = reshape(chosen_sample,(size(chosen_sample)...,1))
+conv2image(x[:,:,:,1])
+```
+
+```{julia}
+y = round(probs(M, x)[1])
+target = 1.0
+γ = 0.95; # desired level of confidence
+```
+
+```{julia}
+generator = GenericGenerator(1,1,1e-5,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(generator, x, M, target, γ, feasible_range=(0.0,1.0)); # generate recourse
+```
+
+```{julia}
+conv2image(counterfactual.x′[:,:,:,1])
+```
+
+### Greedy
+
+```{julia}
+generator = GreedyGenerator(0.25,20,:logitbinarycrossentropy,nothing)
+counterfactual = generate_counterfactual(generator, x, M, target, γ,feasible_range=(0.0,1.0)); # generate recourse
+```
+
+```{julia}
+conv2image(counterfactual.x′[:,:,:,1])
+```
+

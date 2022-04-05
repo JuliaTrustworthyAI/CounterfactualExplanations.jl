@@ -1,5 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
+using CounterfactualExplanations.Counterfactuals
 using Random, LinearAlgebra
 Random.seed!(1234)
 
@@ -52,7 +53,7 @@ Random.seed!(1234)
         target = round(probs(M, x)[1])==0 ? 1 : 0 
         T = 1000
         counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
-        import CounterfactualExplanations.Counterfactuals: p
+        import CounterfactualExplanations.Counterfactuals: counterfactual_probability
         @test !converged(counterfactual) || counterfactual_probability(counterfactual)[1] >= γ # either not converged or threshold reached
         @test !converged(counterfactual) || length(path(counterfactual)) <= T
 
