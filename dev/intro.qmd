@@ -65,7 +65,7 @@ generator = GenericGenerator()
 
 Running the counterfactual search yields:
 
-```julia-repl
+```zsh
 julia> counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 Factual: x=[-4.950923496639821, -3.1936074559828267], y=0.0, p=[0.0002902345324396253]
 Target: target=1, γ=0.75
