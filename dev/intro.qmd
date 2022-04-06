@@ -16,16 +16,19 @@ using Pkg
 Pkg.add(url="https://github.com/pat-alt/CounterfactualExplanations.jl", rev="dev")
 ```
 
-## Background and motivation 🔮
+## Background and motivation 
 
-Algorithms used for automated decision-making such as deep neural networks have become so complex and opaque over recent years that they are generally considered as black boxes. This creates the following undesirable scenario: the human operators in charge of the black-box decision-making system do not understand how it works and essentially rely on it blindly. Conversely, those individuals who are subject to the decisions produced by such systems typically have no way of challenging them.  
+#### The Need for Explainability ⬛
+
+Machine learning models like deep neural networks have become so complex, opaque and underspecified in the data that they are generally considered as black boxes. Nonetheless, such models often play a key role in data-driven decision-making systems. This often creates the following problem: human operators in charge of such systems have to rely on them blindly, while those individuals subject to them generally have no way of challenging an undesirable outcome:
 
 > “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
 >
-> — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
+> — Cathy O’Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
+
+#### Enter: Counterfactual Explanations 🔮
 
 Counterfactual Explanations can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. The figure below, for example, shows various counterfactuals generated through different approaches that all turn the predicted label of some classifier from a 9 into a 4. CEs that involve realistic and actionable changes such as the one on the far right can be used for the purpose of individual counterfactual.
-
 
 
 ![Realistic counterfactual explanations for MNIST data: turning a 4 into a 9.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png)
@@ -100,7 +103,7 @@ For more details on how to contribute see [here](https://www.paltmeyer.com/Count
 
 ## Citation 🎓
 
-If you want to use this codebase, please cite:
+If you want to use this codebase, please consider citing:
 
 ```
 @software{altmeyer2022CounterfactualExplanations,

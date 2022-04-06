@@ -25,12 +25,15 @@ Suppose we have a sample of cats and dogs with information about two features: h
 
 ```{julia}
 #| echo: false
+# RUN IN REPL
 using Pkg.Artifacts
-img_path = joinpath(artifact_path(artifact_hash("cats_dogs_images", "Artifacts.toml")), "cats_dogs_images")
-if !isdir("www")
-    mkdir("www")
+www_path = "docs/src/www"
+artifact_dir = artifact"cats_dogs_images"
+img_path = joinpath(artifact_dir, "cats_dogs_images")
+if !isdir(www_path)
+    mkdir(www_path)
 end
-[cp(joinpath(img_path, file), joinpath("www", file), force=true) for file in readdir(img_path)];
+[cp(joinpath(img_path, file), joinpath(www_path, file), force=true) for file in readdir(img_path)]
 ```
 
 ```{julia}
@@ -39,7 +42,7 @@ using Images
 mlp = load(joinpath(img_path, "predictive_mlp.png"))
 la = load(joinpath(img_path, "predictive_laplace.png"))
 img = mosaic(mlp, la, ncol=2)
-save("www/predictive.png",img)
+save(joinpath(www_path,"predictive.png"),img)
 ```
 
 ![Classification for toy dataset of cats and dogs. The contour indicates confidence in predicted labels. Left: MLP with weight regularization. Right: That same MLP, but with Laplace approximation for posterior predictive.](www/predictive.png){#fig-predictive}
@@ -94,9 +97,17 @@ The `GenericGenerator` implements the search algorithm first proposed by @wachte
 
 ### ... towards realistic counterfactuals.
 
-The generic search above yielded a counterfactual sample that is still quite distinct from all other individuals in the target class. While we successfully fooled the black-box model, a human might look at 🐱's counterfactual self and get a little suspicious. One of the requirements for algorithmic recourse is that counterfactuals are realistic and unambigous. A straight-forward way to meet this requirement is to generate counterfactuals by implicitly minimizing predictive uncertainty [@schut2021generating]. The simple neural network does not incorporate uncertainty, but its Bayesian counterpart does: note how in @fig-predictive above the contours for the Bayesian neural network (Laplace) fan out away from the sample. As before we will be using a pre-trained model. Laplace approximation was implemented using [BayesLaplace.jl](https://www.paltmeyer.com/BayesLaplace.jl/dev/) (see [here](https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b) for an introduction). The pre-trained Bayesian model can be loaded as follows:
+The generic search above yielded a counterfactual sample that is still quite distinct from all other individuals in the target class. While we successfully fooled the black-box model, a human might look at 🐱's counterfactual self and get a little suspicious. One of the requirements for algorithmic recourse is that counterfactuals are realistic and unambigous. A straight-forward way to meet this requirement is to generate counterfactuals by implicitly minimizing predictive uncertainty [@schut2021generating]. The simple neural network does not incorporate uncertainty, but its Bayesian counterpart does: note how in @fig-predictive above the contours for the Bayesian neural network (Laplace) fan out away from the sample. As before we will be using a pre-trained model. Laplace approximation was implemented using [BayesLaplace.jl](https://www.paltmeyer.com/BayesLaplace.jl/dev/) (see [here](https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b) for an introduction). 
+
+```
+!!! info "BayesLaplace"
+    The `BayesLaplace.jl` is not yet registered and therefore not currently a dependency of this library. The example below will therefore only run if you install the BayesLaplace package from Github and then uncomment the first line below.
+```
+
+The pre-trained Bayesian model can be loaded as follows:
 
 ```{julia}
+# using BayesLaplace, LinearAlgebra # uncomment this line to run code involving Laplace.
 using CounterfactualExplanations.Data: cats_dogs_laplace
 la = cats_dogs_laplace()
 ```

@@ -192,7 +192,9 @@ gif(anim, joinpath(www_path, "interop_r.gif"), fps=5)
 
 ![](www/interop_r.gif)
 
-## Training a `torch` model in Python 
+## `torch` model in Python 
+
+The steps involved are largely analogous to the above, so we leave the following code uncommented.
 
 ```{julia}
 using PyCall
