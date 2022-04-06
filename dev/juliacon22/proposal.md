@@ -17,11 +17,11 @@ Machine learning models like deep neural networks have become so complex, opaque
 
 ### Enter: Counterfactual Explanations 🔮
 
-Counterfactual Explanations can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer human stakeholders a way to not only understand the system's behaviour, but also react to it or adjust it. Counterfactual Explanations have certain advantages over related tools for explainable artificial intelligence (XAI) like surrogate eplainers (LIME and SHAP). These include:
+Counterfactual Explanations can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer human stakeholders a way to not only understand the system's behaviour, but also strategically react to it. Counterfactual Explanations have certain advantages over related tools for explainable artificial intelligence (XAI) like surrogate eplainers (LIME and SHAP). These include:
 
 - Full fidelity to the black-box model, since no proxy is involved. 
-- No need for (reasonably) interpretable features as opposed to LIME and SHAP.
 - Clear link to Causal Inference and Bayesian Machine Learning.
+- No need for (reasonably) interpretable features.
 - Less susceptible to adversarial attacks than LIME and SHAP.
 ### Problem: Limited Availability in Julia Ecosystem 😔
 
@@ -32,18 +32,18 @@ Through this project we aim to close that gap and thereby contribute to broader 
 
 - **Simple and intuitive interface** to generate counterfactual explanations for differentiable classification models trained in Julia.
 - **Detailed documentation** providing examples involving linear classifiers and deep learning models trained in [Flux](https://fluxml.ai/) for binary and multi-class prediction tasks.
+- **Interoperability** with other popular programming languages as demonstrated through examples involving deep learning models trained in Python and R (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)).
 - **Easily extensible** through custom models and counterfactual generators: a carefully designed package architecture allows for seamless extension through multiple dispatch (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/models/)). 
-- **Interoperability** with other popular programming languages as demonstrated through examples involving deep learning models trained in `Python` and `R` (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)).
+
 
 ### Ambitions for the Package 🎯
 
-Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of features we would like to add in the future:
+Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
 
-1. Additional counterfactual generators.
-2. Additional predictive models.
-3. More examples to be added to the documentation.
-4. Native support for categorical features.
-5. Support for regression models.
+1. Additional counterfactual generators and predictive models.
+1. Additional datasets for testing, evaluation and benchmarking.
+2. Improved preprocessing including native support for categorical features.
+3. Support for regression models.
 
 The package is designed to be extensible, which should facilitate contributions through the community.
 ### Further Resources 📚
@@ -55,7 +55,9 @@ For some additional colour you may find the following resources helpful:
 
 ## Notes
 
-The package has been developed by Patrick during the first few months of his PhD in Trustworthy Artificial Intelligence at Delft University of Technology. Its first version has been registered on the General registry for a few weeks, but updates can be expected ahead of JuliaCon as Patrick continues to develop the package for his own research. Below is a list of links pointing to additional resources related to the package:
+The package has been developed by [presenter] during the first few months of their PhD in Trustworthy Artificial Intelligence at Delft University of Technology. It has already been registered on the General registry, but updates can be expected ahead of JuliaCon and beyond as [presenter] continues to develop the package for their own research. 
+
+Below is a list of links pointing to additional resources related to the package:
 
 - [Companion Paper](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/paper) for JuliaCon proceedings (draft)
 - [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl)
@@ -64,10 +66,10 @@ The package has been developed by Patrick during the first few months of his PhD
 We would love to present this work at JuliaCon 22 for the following reasons:
 
 1. **We think that our package is a timely and valuable contribution to the Julia community**. Explainable AI tools are crucial for (re-)building trust in machine learning and counterfactual explanations are among the most promising approaches. To the best of our knowledge our package offers its first implementation in Julia.
-2. Support for other programming languages also makes this package useful for the broader community working on explainable AI community. **Explaining models programmed in `Python` and `R` through a pure-Julia package is a striking example of Julia's unique support for language interoperability**. We hope that this may help draw attention to Julia from the broader programming community. 
+2. Support for other programming languages also makes this package useful for the broader community working on explainable AI community. **Explaining models programmed in Python and R through a pure-Julia package is a striking example of Julia's unique support for language interoperability**. We hope that this may help draw attention to Julia from the broader programming community. 
 3. **We are looking for challenge and support from the community**. JuliaCon 22 is a unique opportunity to create awareness. 
 
-Regarding the third point it is worth mentioning that Patrick has only recently moved to Julia following years of programming in R, Python, C++ and MATLAB. While every effort has been made to follow Julian best practices and develop an accessible and extensible package, there is certainly scope for improvement and guidance from more experienced Julians. To this end, we are looking for constructive criticism and also contributors that can help us develop this package further in the future. 
+Regarding the third point it is worth mentioning that [presenter] has only recently moved to Julia following years of programming in R, Python, C++ and MATLAB. While every effort has been made to follow Julian best practices and develop an accessible and extensible package, there is certainly scope for improvement and guidance from more experienced Julians. To this end, we are looking for constructive criticism and also contributors that can help us develop this package further in the future. 
 
 Finally, just a quick note that for the session image we have chosen an animated GIF. Should this not work for you, we can send a static PNG instead. 
 

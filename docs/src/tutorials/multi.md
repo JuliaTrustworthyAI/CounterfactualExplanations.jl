@@ -2,7 +2,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Counterfactuals for multi-class targets
+# Multi-class targets
 
 In the existing literature counterfactual explanations have typically been applied in the binary classification setting (Verma, Dickerson, and Hines 2020). Research on algorithmic recourse in particular typically involves real-world datasets with an obvious target class - e.g. individual receives credit - and an adverse outcome - e.g. individual is denied loan (Karimi et al. 2020). Still, counterfactual explanations are very much also applicable in the multi-class setting. In this tutorial we will go through an illustrative example involving the toy dataset shown in [Figure 1](#fig-multi) below.
 

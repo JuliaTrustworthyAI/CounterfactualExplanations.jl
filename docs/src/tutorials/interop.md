@@ -4,8 +4,8 @@ CurrentModule = CounterfactualExplanations
 
 # Interoperability
 
-!!! warning "Experimental feature"
-    Our work on language interoperability is still in its early stages. What follows is a proof-of-concept.
+    !!! warning "Experimental feature" 
+        Our work on language interoperability is still in its early stages. What follows is a proof-of-concept.
 
 The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` leverages this functionality. In particular, we will see that through minimal extra effort the package can be used to explain models that were developed in train in Python or R.
 
@@ -147,7 +147,9 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ![](www/interop_r.gif)
 
-## Training a `torch` model in Python
+## `torch` model in Python
+
+The steps involved are largely analogous to the above, so we leave the following code uncommented.
 
 ``` julia
 using PyCall

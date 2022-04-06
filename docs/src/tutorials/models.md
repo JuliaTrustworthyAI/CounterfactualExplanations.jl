@@ -8,30 +8,22 @@ CurrentModule = CounterfactualExplanations
 
 There are currently constructors for two default models, which mainly serve illustrative purposes ([Figure 1](#fig-models) below). Both take sets of estimated parameters at the point of instantiation: the constructors will not fit a model for you, but assume that you have already estimated the respective model yourself and have access to its parameter estimates. Based on the supplied parameters methods to predict logits and probabilities are already implemented and used in the counterfactual search.
 
-``` julia
-using GraphRecipes
-p = plot(CounterfactualExplanations.Models.AbstractFittedModel, method=:tree, fontsize=8, nodeshape=:rect, axis_buffer=0.4, nodecolor=:white)
-savefig(p, joinpath(www_path,"models.png"))
-```
+![Figure 1: Schematic overview of classes in `Models` module.](www/models_uml.png)
 
-![Figure 1: Schematic overview of classes in `Models` module.](www/models.png)
-
-For the simple logistic regression model logits are computed as *a* = *X**w* + *b* and probabilities are simply *σ*(*a*). For the Bayesian logistic regression model logits are computed as *X**μ* and the predictive posterior is computed through Laplace approximation.
+For the simple logistic regression model logits are computed as *a* = *X**w* + *b* and probabilities are simply *σ*(*a*). For the Bayesian logistic regression model logits are computed as *X**μ* and the predictive posterior is computed through Laplace and Probit approximation.
 
 ## Custom models
 
-Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own model compatible with CounterfactualExplanations.jl:
+Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own Julia model compatible with this package:
 
 1.  The model needs to be declared as a subtype of `CounterfactualExplanations.Models.AbstractFittedModel`.
 2.  You need to extend the functions `CounterfactualExplanations.Models.logits` and `CounterfactualExplanations.Models.probs` to accept your custom model.
 
-Below we will go through a simple example to see how this can be done in practice.
+Below we will go through a simple example to see how this can be done in practice. In one of the following sections we will also see how to make model built and trained in other programming languages compatible with this library.
 
 ### Neural network
 
-In this example we will build a simple artificial neural network using [Flux.jl](https://fluxml.ai/) for a binary classification task. First we generate some toy data below. The code that generates this data was borrowed from a great tutorial about Bayesian neural networks provided by [Turing.jl](https://turing.ml/dev/), which you may find [here](https://turing.ml/dev/tutorials/03-bayesian-neural-network/).
-
-The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. CounterfactualExplanationsly this data is not linearly separable and the default `LogisticModel` would be ill suited for this classification task.
+In this example we will build a simple artificial neural network using [Flux](https://fluxml.ai/) for a binary classification task. First we generate some toy data below. The code that generates this data was borrowed from a great tutorial about Bayesian neural networks provided by [Turing.jl](https://turing.ml/dev/), which you may find [here](https://turing.ml/dev/tutorials/03-bayesian-neural-network/).
 
 ``` julia
 # Number of points to generate.
@@ -44,11 +36,13 @@ xs, ys = Data.toy_data_non_linear(N)
 X = hcat(xs...)
 ```
 
+The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. CounterfactualExplanationsly this data is not linearly separable and the default `LogisticModel` would be ill-suited for this classification task.
+
 ![](www/models_samples.png)
 
 #### Training the model
 
-Instead we will build a simple artificial neural network `nn` with one hidden layer. For additional resources on how to do deep learning with [Flux.jl](https://fluxml.ai/) just have a look at their documentation.
+Instead, we will build a simple artificial neural network `nn` with one hidden layer using a simple helper function `build_model`.[1] For additional resources on how to do deep learning with [Flux](https://fluxml.ai/) just have a look at their documentation.
 
 ``` julia
 nn = build_model(dropout=true,activation=Flux.σ)
@@ -57,7 +51,7 @@ ps = Flux.params(nn)
 data = zip(xs,ys);
 ```
 
-The code below trains the neural network for the task at hand. The plot shows the (training) loss over time. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generated recourse for a trained classifier, here we will just keep things very simple.
+The code below trains the neural network for the task at hand while keeping track of the training loss. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generating counterfactual explanations for a trained classifier here, we will just keep things very simple on the training side.
 
 ``` julia
 using Flux.Optimise: update!, ADAM
@@ -82,7 +76,7 @@ end
 
 #### Generating counterfactuals
 
-Now it’s game time: we have a fitted model *M* : 𝒳 ↦ 𝒴 and are interested in generating recourse for some individual *x* ∈ 𝒳. As mentioned above we need to do a bit more work to prepare the model to be used by CounterfactualExplanations.jl.
+Now it’s game time: we have a fitted model *M* : 𝒳 ↦ 𝒴 and are interested in generating recourse for some individual *x* ∈ 𝒳. As mentioned above we need to do a bit more work to prepare the model for use with our package.
 
 The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.AbstractFittedModel` and in step 2) it just extends the two functions.
 
@@ -101,17 +95,17 @@ probs(M::NeuralNetwork, X::AbstractArray)= σ.(logits(M, X))
 M = NeuralNetwork(nn)
 ```
 
-The plot below shows the predicted probabilities in the feature domain. Evidently our simple neural network is doing very well on the training data, as expected.
+The plot below shows the predicted probabilities in the feature domain. Evidently, our simple neural network is doing well on the training data.
 
 ![](www/models_contour.png)
 
-To preprocess the data we simply run the following:
+To preprocess the data for use with our package we simply run the following:
 
 ``` julia
 counterfactual_data = CounterfactualData(X,ys')
 ```
 
-Now we just select a random sample from our data and based on its current label we set as our target the opposite label and desired threshold for the predicted probability.
+Now we just select a random sample from our data and based on its current label we set as our target the opposite label.
 
 ``` julia
 using Random
@@ -136,7 +130,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 In the context of Bayesian classifiers the `GreedyGenerator` can be used since minimizing the predictive uncertainty acts as a proxy for *realism* and *unambiquity*. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty.
 
-One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks (also referred to as *deep ensemble*). To this end we can use the `build_model` function from above repeatedly to compose an ensemble of *K* neural networks:
+One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks, also referred to as *deep ensemble* (Lakshminarayanan, Pritzel, and Blundell 2016). To this end, we can use the `build_model` function from above repeatedly to compose an ensemble of *K* neural networks:
 
 ``` julia
 ensemble = build_ensemble(5;kw=(dropout=true,activation=Flux.σ))
@@ -170,7 +164,7 @@ Again we plot the predicted probabilities in the feature domain. As expected the
 
 ![](www/models_ensemble_contour.png)
 
-Finally, we use the `GreedyGenerator` for the counterfactual search. For the same desired threshold *γ* as before, the counterfactual ends up somewhat closer to a cluster of original samples. In other words we end up providing more realisitic albeit likely more costly counterfactual.
+Finally, we use the `GreedyGenerator` for the counterfactual search.
 
 ``` julia
 generator = GreedyGenerator(Dict(:δ=>0.1,:n=>30))
@@ -178,3 +172,9 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 ```
 
 ![](www/models_greedy_recourse.gif)
+
+# References
+
+Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” *arXiv Preprint arXiv:1612.01474*.
+
+[1] Helper functions like this one are not part of our package functionality. They can be found [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/main/dev/utils.jl).

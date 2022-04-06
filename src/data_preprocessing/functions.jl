@@ -1,29 +1,33 @@
 using Flux
+using StatsBase
 
 struct CounterfactualData
     X::AbstractMatrix
     y::AbstractMatrix
     mutability::Union{Vector{Symbol},Nothing}
+    domain::Union{Any,Nothing}
     categorical::Union{Vector{Int},Nothing}
     continuous::Union{Vector{Int},Nothing}
-    domain::Union{Any,Nothing}
-    function CounterfactualData(X,y,mutability,categorical,continuous,domain)
+    standardize::Bool
+    dt::StatsBase.AbstractDataTransform
+    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt)
         conditions = []
         conditions = vcat(conditions..., length(size(X)) != 2 ? error("Data should be in tabular format") : true)
         conditions = vcat(conditions..., size(X)[2] != size(y)[2] ? throw(DimensionMismatch("Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])")) : true)
         if all(conditions)
-            new(X,y,mutability,categorical,continuous,domain)
+            new(X,y,mutability,domain,categorical,continuous,standardize,dt)
         end
     end
 end
 
 """
     CounterfactualData(
-        X::AbstractArray, y::AbstractArray;
+        X::AbstractMatrix, y::AbstractMatrix;
         mutability::Union{Vector{Symbol},Nothing}=nothing,
         domain::Union{Any,Nothing}=nothing,
         categorical::Union{Vector{Int},Nothing}=nothing,
         continuous::Union{Vector{Int},Nothing}=nothing,
+        standardize::Bool=false
     )
 
 This outer constructor method prepares features `X` and labels `y` to be used with the package. Mutability and domain constraints can be added for the features. The function also accepts arguments that specify which features are categorical and which are continues. These arguments are currently not used. 
@@ -39,11 +43,12 @@ counterfactual_data = CounterfactualData(X,y')
 
 """
 function CounterfactualData(
-    X::AbstractArray, y::AbstractArray;
+    X::AbstractMatrix, y::AbstractMatrix;
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     categorical::Union{Vector{Int},Nothing}=nothing,
     continuous::Union{Vector{Int},Nothing}=nothing,
+    standardize::Bool=false
 )
 
     # If nothing supplied, assume all continuous:
@@ -56,7 +61,10 @@ function CounterfactualData(
         domain = [domain for i in 1:size(X)[1]]
     end
 
-    counterfactual_data = CounterfactualData(X, y, mutability, categorical, continuous, domain)
+    # Data transformer:
+    dt = fit(ZScoreTransform, X, dims=2)
+
+    counterfactual_data = CounterfactualData(X, y, mutability, domain, categorical, continuous, standardize, dt)
 
     return counterfactual_data
 end

@@ -58,9 +58,15 @@ The `GenericGenerator` implements the search algorithm first proposed by Wachter
 
 ### … towards realistic counterfactuals.
 
-The generic search above yielded a counterfactual sample that is still quite distinct from all other individuals in the target class. While we successfully fooled the black-box model, a human might look at 🐱’s counterfactual self and get a little suspicious. One of the requirements for algorithmic recourse is that counterfactuals are realistic and unambigous. A straight-forward way to meet this requirement is to generate counterfactuals by implicitly minimizing predictive uncertainty (Schut et al. 2021). The simple neural network does not incorporate uncertainty, but its Bayesian counterpart does: note how in [Figure 1](#fig-predictive) above the contours for the Bayesian neural network (Laplace) fan out away from the sample. As before we will be using a pre-trained model. Laplace approximation was implemented using [BayesLaplace.jl](https://www.paltmeyer.com/BayesLaplace.jl/dev/) (see [here](https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b) for an introduction). The pre-trained Bayesian model can be loaded as follows:
+The generic search above yielded a counterfactual sample that is still quite distinct from all other individuals in the target class. While we successfully fooled the black-box model, a human might look at 🐱’s counterfactual self and get a little suspicious. One of the requirements for algorithmic recourse is that counterfactuals are realistic and unambigous. A straight-forward way to meet this requirement is to generate counterfactuals by implicitly minimizing predictive uncertainty (Schut et al. 2021). The simple neural network does not incorporate uncertainty, but its Bayesian counterpart does: note how in [Figure 1](#fig-predictive) above the contours for the Bayesian neural network (Laplace) fan out away from the sample. As before we will be using a pre-trained model. Laplace approximation was implemented using [BayesLaplace.jl](https://www.paltmeyer.com/BayesLaplace.jl/dev/) (see [here](https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b) for an introduction).
+
+!!! info "BayesLaplace"
+    The `BayesLaplace.jl` is not yet registered and therefore not currently a dependency of this library. The example below will therefore only run if you install the BayesLaplace package from Github and then uncomment the first line below.
+
+The pre-trained Bayesian model can be loaded as follows:
 
 ``` julia
+# using BayesLaplace, LinearAlgebra # uncomment this line to run code involving Laplace.
 using CounterfactualExplanations.Data: cats_dogs_laplace
 la = cats_dogs_laplace()
 ```

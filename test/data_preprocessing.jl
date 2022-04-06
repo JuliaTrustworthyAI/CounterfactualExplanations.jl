@@ -10,7 +10,7 @@ import CounterfactualExplanations.DataPreprocessing
     @test typeof(CounterfactualData(X, ys')) == CounterfactualData
 
     # X not tabular:
-    @test_throws ErrorException CounterfactualData(xs, ys)
+    @test_throws MethodError CounterfactualData(xs, ys)
 
     # Dimension mismatch:
     @test_throws DimensionMismatch typeof(CounterfactualData(X[:,2:end], ys'))
