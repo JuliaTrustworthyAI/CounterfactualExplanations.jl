@@ -118,7 +118,6 @@ end
 struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
-    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
     λ::AbstractFloat # strength of penalty
     ϵ::AbstractFloat # step size
     τ::AbstractFloat # tolerance for convergence
@@ -129,7 +128,6 @@ end
         ;
         loss::Symbol=:logitbinarycrossentropy,
         complexity::Function=norm,
-        mutability::Union{Nothing,Vector{Symbol}}=nothing,
         λ::AbstractFloat=0.1,
         ϵ::AbstractFloat=0.1,
         τ::AbstractFloat=1e-5
@@ -146,16 +144,14 @@ GenericGenerator(
     ;
     loss::Symbol=:logitbinarycrossentropy,
     complexity::Function=norm,
-    mutability::Union{Nothing,Vector{Symbol}}=nothing,
     λ::AbstractFloat=0.1,
     ϵ::AbstractFloat=0.1,
     τ::AbstractFloat=1e-5
-) = GenericGenerator(loss, complexity, mutability, λ, ϵ, τ)
+) = GenericGenerator(loss, complexity, λ, ϵ, τ)
 
 # -------- Schut et al (2020): 
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
-    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
     δ::AbstractFloat # perturbation size
     n::Int # maximum number of times any feature can be changed
 end
@@ -164,7 +160,6 @@ end
     GreedyGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
-        mutability::Union{Nothing,Vector{Symbol}}=nothing,
         δ::Union{AbstractFloat,Nothing}=nothing,
         n::Union{Int,Nothing}=nothing
     )
@@ -180,7 +175,6 @@ generator = GreedyGenerator()
 function GreedyGenerator(
     ;
     loss::Symbol=:logitbinarycrossentropy,
-    mutability::Union{Nothing,Vector{Symbol}}=nothing,
     δ::Union{AbstractFloat,Nothing}=nothing,
     n::Union{Int,Nothing}=nothing
 ) 
@@ -193,7 +187,7 @@ function GreedyGenerator(
         n = 1/δ
     end
 
-    generator = GreedyGenerator(loss,mutability,δ,n)
+    generator = GreedyGenerator(loss,δ,n)
 
     return generator
 end
