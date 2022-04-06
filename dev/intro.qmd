@@ -77,7 +77,7 @@ generator = GenericGenerator()
 
 Running the counterfactual search yields:
 
-```zsh
+```julia-repl
 julia> counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 Factual: x=[-4.950923496639821, -3.1936074559828267], y=0.0, p=[0.0002902345324396253]
 Target: target=1, γ=0.75
@@ -87,7 +87,7 @@ Converged: ✅ after 70 steps.
 
 ## Goals and limitations 🎯
 
-The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python 🐍 library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended, 3) it has not yet gone through a formal review.
+The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended, 3) it has not yet gone through a formal review.
 
 ## Contribute 🛠
 
@@ -109,7 +109,7 @@ If you want to use this codebase, please consider citing:
   author = {Patrick Altmeyer},
   title = {{CounterfactualExplanations.jl - a Julia package for Counterfactual Explanations and Algorithmic Recourse}},
   url = {https://github.com/pat-alt/CounterfactualExplanations.jl},
-  version = {0.1.0},
+  version = {0.1.1},
   year = {2022}
 }
 ```
