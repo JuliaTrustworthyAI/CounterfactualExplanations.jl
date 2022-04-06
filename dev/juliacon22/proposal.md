@@ -41,9 +41,9 @@ Through this project we aim to close that gap and thereby contribute to broader 
 Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
 
 1. Additional counterfactual generators and predictive models.
-1. Additional datasets for testing, evaluation and benchmarking.
-2. Improved preprocessing including native support for categorical features.
-3. Support for regression models.
+2. Additional datasets for testing, evaluation and benchmarking.
+3. Improved preprocessing including native support for categorical features.
+4. Support for regression models.
 
 The package is designed to be extensible, which should facilitate contributions through the community.
 ### Further Resources 📚

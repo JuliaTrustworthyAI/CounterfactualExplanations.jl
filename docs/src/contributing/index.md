@@ -4,13 +4,12 @@ CurrentModule = CounterfactualExplanations
 
 # Contributing
 
-`CounterfactualExplanations.jl` is designed to be extensible: through multiple dispatch and modularization we hope to make it as straight-forward as possible for members of the community to contribute to its functionality. At the moment we are primarily looking for the following contributions:
+Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
 
-1. Additional counterfactual generators.
-2. Additional predictive models.
-3. More examples to be added to the documentation.
-4. Native support for categorical features.
-5. Support for regression models.
+1. Additional counterfactual generators and predictive models.
+2. Additional datasets for testing, evaluation and benchmarking.
+3. Improved preprocessing including native support for categorical features.
+4. Support for regression models.
 
 We are also interested in suggestions on how to adjust and improve the inner workings of our package. To facilitate this process the following page explain and justify the package architecture and the design choices we have made. 
 
