@@ -313,11 +313,9 @@ end
 
 The code below plots the resulting counterfactual paths.
 
-1.  **Complexity penalty *λ***: has the expected effect of penalizing *long* counterfactual paths: as the distance between *x* and *x*′ the penalty exerts more and more pressure on the gradient in the opposite direction ∇ℓ. For large choices of *λ* valid recourse is not attainable.
-2.  **Confidence threshold *γ***: note how for both log loss and hinge loss we overshoot a bit, that is we end up well beyond the decision boundary. This is because above we chose a confidence threshold of *γ* = 0.75. In the context of recourse this choice matters a lot: we have a longer distance to travel (=higher costs for the individual), but we can be more confident that recourse will remain valid. There is of course an interplay between *λ* and *γ*.
+1.  **Complexity penalty** (*λ*): has the expected effect of penalizing *long* counterfactual paths: as the distance between *x* and *x*′ the penalty exerts more and more pressure on the gradient in the opposite direction ∇ℓ. For large choices of *λ* valid recourse is not attainable.
+2.  **Confidence threshold** (*γ*): note how for both log loss and hinge loss we overshoot a bit, that is we end up well beyond the decision boundary. This is because above we chose a confidence threshold of *γ* = 0.75. In the context of recourse this choice matters a lot: we have a longer distance to travel (=higher costs for the individual), but we can be more confident that recourse will remain valid. There is of course an interplay between *λ* and *γ*.
 3.  **The choice of the loss function matters**: the distance-based MSE does **NOT** work without further ajustments when optimizing with respect to logits, as discussed above.
-
-Overall, in the context of this toy example log **loss arguably generates the most reasonable outcome**: firstly, we can observe that the step size decreases at an increasing rate as the search approaches convergence (which may be desirable); secondly, it appears that increasing *λ* leads to a roughly proportional decrease in the distance of the final counterfactual. This stands in contrast to the outcome for hinge loss, where increasing *λ* from 0 to 1 barely has any effect at all.
 
 ``` julia
 # Plotting
