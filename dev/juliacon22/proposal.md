@@ -51,7 +51,8 @@ The package is designed to be extensible, which should facilitate contributions 
 For some additional colour you may find the following resources helpful:
 
 - [Blog post](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc) and [motivating example](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/cats_dogs/).
-- [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl) and [package docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/).
+- Package docs: [[stable]](https://pat-alt.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
+- [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl).
 
 ## Notes
 
