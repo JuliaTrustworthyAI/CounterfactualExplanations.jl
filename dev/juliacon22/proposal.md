@@ -4,13 +4,13 @@
 
 ## Abstract
 
-We propose [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/): a package for explaining black-box models through counterfactuals. Counterfactual explanations are based around the simple idea of strategically perturbing model inputs to change model predictions. Our package is novel, very accessible and designed to be extensible. It can be used to explain custom predictive models including those developed and trained in other programming languages.
+We propose [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/): a package for explaining black-box models through counterfactuals. Counterfactual explanations are based on the simple idea of strategically perturbing model inputs to change model predictions. Our package is novel, very accessible and designed to be extensible. It can be used to explain custom predictive models including those developed and trained in other programming languages.
 
 ## Description
 
 ### The Need for Explainability ⬛
 
-Machine learning models like deep neural networks have become so complex, opaque and underspecified in the data that they are generally considered as black boxes. Nonetheless, such models often play a key role in data-driven decision-making systems. This often creates the following problem: human operators in charge of such systems have to rely on them blindly, while those individuals subject to them generally have no way of challenging an undesirable outcome:
+Machine learning models like deep neural networks have become so complex, opaque and underspecified in the data that they are generally considered as black boxes. Nonetheless, they often form the basis for data-driven decision-making systems. This creates the following problem: human operators in charge of such systems have to rely on them blindly, while those individuals subject to them generally have no way of challenging an undesirable outcome:
 
 > “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
 > — Cathy O'Neil in *Weapons of Math Destruction*, 2016
@@ -23,18 +23,19 @@ Counterfactual Explanations can help human stakeholders make sense of the system
 - Clear link to Causal Inference and Bayesian Machine Learning.
 - No need for (reasonably) interpretable features.
 - Less susceptible to adversarial attacks than LIME and SHAP.
+
 ### Problem: Limited Availability in Julia Ecosystem 😔
 
 Software development in the space of XAI has largely focused on various global methods and surrogate explainers with implementations available for both Python and R. In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely [`ShapML.jl`](https://github.com/nredell/ShapML.jl). Support for Counterfactual Explanations has so far not been implemented in Julia. 
+
 ### Solution: `CounterfactualExplanations.jl` 🎉
 
 Through this project we aim to close that gap and thereby contribute to broader community efforts towards explainable AI. Highlights of our new package include:
 
 - **Simple and intuitive interface** to generate counterfactual explanations for differentiable classification models trained in Julia.
-- **Detailed documentation** providing examples involving linear classifiers and deep learning models trained in [Flux](https://fluxml.ai/) for binary and multi-class prediction tasks.
+- **Detailed documentation** involving illustrative example datasets, linear classifiers and deep learning models trained in [Flux](https://fluxml.ai/) and counterfactual generators for binary and multi-class prediction tasks.
 - **Interoperability** with other popular programming languages as demonstrated through examples involving deep learning models trained in Python and R (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)).
-- **Easily extensible** through custom models and counterfactual generators: a carefully designed package architecture allows for seamless extension through multiple dispatch (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/models/)). 
-
+- **Seamless extensibility** through custom models and counterfactual generators (see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/models/)). 
 
 ### Ambitions for the Package 🎯
 
@@ -62,7 +63,7 @@ Below is a list of links pointing to additional resources related to the package
 
 - [Companion Paper](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/paper) for JuliaCon proceedings (draft)
 - [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl)
-- [Docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
+- Package docs: [[stable]](https://pat-alt.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
 
 We would love to present this work at JuliaCon 22 for the following reasons:
 

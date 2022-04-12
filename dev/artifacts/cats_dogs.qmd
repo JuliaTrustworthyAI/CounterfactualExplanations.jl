@@ -170,16 +170,28 @@ function plot_contour_makie(X,y,M;colorbar=true,title="",length_out=50,zoom=-0.1
     hidespines!(ax)  # hide the frame
 
     # Plot:
-    co = contourf!(
-        x_range, y_range, Z; 
-        colorbar=colorbar, linewidth=linewidth,
-        xlim=xlim,
-        ylim=ylim,
-        levels = 0.0:0.05:1.0,
-        extendlow = :auto, extendhigh = :auto
-    )
+    
 
-    Colorbar(f[1,2],co)
+    if colorbar
+        Colorbar(f[1,2],co)
+
+        co = contourf!(
+            x_range, y_range, Z; 
+            linewidth=linewidth,
+            xlim=xlim,
+            ylim=ylim,
+            levels = 0.0:0.05:1.0,
+            extendlow = :auto, extendhigh = :auto
+        )
+    else
+        co = contourf!(
+            x_range, y_range, Z; 
+            linewidth=linewidth,
+            xlim=xlim,
+            ylim=ylim,
+            levels=50
+        )
+    end
     
     scatter!(X'[1,cats],X'[2,cats],marker=cat,markersize=ms)
     scatter!(X'[1,dogs],X'[2,dogs],marker=dog,markersize=ms)
@@ -236,7 +248,7 @@ end
 ### ... towards realistic counterfactuals.
 
 ```{julia}
-generator = GreedyGenerator(Dict(:δ=>0.1,:n=>15))
+generator = GreedyGenerator(;δ=0.1,n=15)
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
@@ -256,7 +268,26 @@ fig = plot_contour_makie(X',y,Mᴸ,xlab="Height",ylab="Tail length")
 timestamps = range(1, T, step=1)
 record(fig, joinpath(image_dir,"recourse_laplace.gif"), timestamps; framerate = 10) do t
     scatter!([path(counterfactual)[Int(t)][1]], [path(counterfactual)[Int(t)][2]],marker=cat,markersize=ms)
-end;
+end
+```
+
+```{julia}
+plt = plot_contour_makie(X',y,Mᴸ,colorbar=false)
+for t in 1:T
+    scatter!([path(counterfactual)[t][1]], [path(counterfactual)[t][2]],marker=cat,markersize=ms)    
+end
+save(joinpath(image_dir,"juliacon.png"),plt);
+```
+
+```{julia}
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+fig = plot_contour_makie(X',y,Mᴸ,colorbar=false)
+# animation settings
+timestamps = range(1, T, step=1)
+record(fig, joinpath(image_dir,"juliacon.gif"), timestamps; framerate = 10) do t
+    scatter!([path(counterfactual)[Int(t)][1]], [path(counterfactual)[Int(t)][2]],marker=cat,markersize=ms)
+end
 ```
 
 ### Generate artifacts
