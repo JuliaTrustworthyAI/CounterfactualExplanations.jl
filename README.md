@@ -2,7 +2,11 @@
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
 
-`CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
+`CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for short introduction or dive straight into one of the following resources:
+
+- Package docs: [[stable]](https://pat-alt.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
+- Blog post introducing the package: [[TDS]](https://towardsdatascience.com/a-new-tool-for-explainable-ai-65834e757c28), [[Patrick's blog]](https://www.paltmeyer.com/blog/posts/a-new-tool-for-explainable-ai/).
+- Blog post introducing the topic of CE in an accessible manner: [[TDS]](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [[Patrick's blog]](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/).
 
 ## Installation 🚩
 
