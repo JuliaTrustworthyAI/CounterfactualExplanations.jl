@@ -19,5 +19,4 @@ CurrentModule = CounterfactualExplanations
 
 Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/CounterfactualExplanations.jl).
 
-```{r, child='intro.qmd'}
-```
+{{< include intro.qmd >}}
