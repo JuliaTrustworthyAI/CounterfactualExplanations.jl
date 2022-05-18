@@ -14,7 +14,10 @@ export CounterfactualData, select_factual, apply_domain_constraints
 
 include("models/Models.jl")
 using .Models
-export AbstractFittedModel, LogisticModel, BayesianLogisticModel, probs, logits
+export AbstractFittedModel, AbstractDifferentiableModel, 
+    LogisticModel, BayesianLogisticModel,
+    RTorchModel, PyTorchModel,
+    probs, logits
 
 include("generators/Generators.jl")
 using .Generators

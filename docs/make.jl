@@ -35,6 +35,7 @@ makedocs(;
         "Contributor's Guide" =>
             [
                 "Overview" => "contributing/index.md",
+                "Interoperability" => "contributing/interop.md",
                 "Loss functions" => "contributing/loss.md"
             ],
         "Reference" => "reference.md"

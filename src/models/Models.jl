@@ -5,6 +5,9 @@ using NNlib, LinearAlgebra
 
 include("functions.jl")
 
-export AbstractFittedModel, LogisticModel, BayesianLogisticModel, probs, logits
+export AbstractFittedModel, AbstractDifferentiableModel, 
+    LogisticModel, BayesianLogisticModel,
+    RTorchModel, PyTorchModel,
+    probs, logits
 
 end
