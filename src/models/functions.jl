@@ -8,8 +8,12 @@ Base type for fitted models.
 """
 abstract type AbstractFittedModel end
 
+################################################################################
+# --------------- Base type for differentiable model:
+################################################################################
+abstract type AbstractDifferentiableModel <: AbstractFittedModel end
+
 # -------- Linear Logistic Model:
-# This is an example of how to construct a AbstractFittedModel subtype:
 """
     LogisticModel(W::Matrix,b::AbstractArray)
 
@@ -27,7 +31,7 @@ See also:
 - [`logits(M::LogisticModel, X::AbstractArray)`](@ref)
 - [`probs(M::LogisticModel, X::AbstractArray)`](@ref)
 """
-struct LogisticModel <: AbstractFittedModel
+struct LogisticModel <: AbstractDifferentiableModel
     W::Matrix
     b::AbstractArray
 end
@@ -93,7 +97,7 @@ See also:
 - [`logits(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
 - [`probs(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
-struct BayesianLogisticModel <: AbstractFittedModel
+struct BayesianLogisticModel <: AbstractDifferentiableModel
     μ::Matrix
     Σ::Matrix
     BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
@@ -166,3 +170,47 @@ function probs(M::BayesianLogisticModel, X::AbstractArray)
     p = size(p)[2] == 1 ? vec(p) : p
     return p
 end
+
+# ----- RTorch Model ----- #
+using RCall
+
+"""
+    RTorchModel
+
+Contructor for RTorch neural network.
+
+"""
+struct RTorchModel <: AbstractDifferentiableModel
+    nn::Any
+end
+
+function logits(M::RTorchModel, X::AbstractArray)
+  nn = M.nn
+  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ'
+end
+
+probs(M::RTorchModel, X::AbstractArray)= σ.(logits(M, X))
+
+# ----- PyTorch Model ----- #
+using PyCall
+struct PyTorchModel <: AbstractDifferentiableModel
+    nn::Any
+end
+
+function logits(M::PyTorchModel, X::AbstractArray)
+    py"""
+    import torch
+    from torch import nn
+    """
+    nn = M.nn
+    if !isa(X, Matrix)
+      X = reshape(X, length(X), 1)
+    end
+    ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+    ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+    return ŷ'
+end
+
+probs(M::PyTorchModel, X::AbstractArray)= σ.(logits(M, X))
