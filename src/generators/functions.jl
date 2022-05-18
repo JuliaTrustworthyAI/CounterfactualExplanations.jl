@@ -77,10 +77,10 @@ The default method to compute the gradient of the loss function at the current c
 """
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState) 
     nn = M.nn
-    x′ = counterfactual_state.x′
+    x_cf = counterfactual_state.x′
     t = counterfactual_state.target_encoded
     R"""
-    x <- torch_tensor($x′, requires_grad=TRUE)
+    x <- torch_tensor($x_cf, requires_grad=TRUE)
     output <- $nn(x)
     obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
     obj_loss$backward()
