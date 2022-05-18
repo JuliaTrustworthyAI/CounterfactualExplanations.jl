@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Interoperability · CounterfactualExplanations.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://pat-alt.github.io/CounterfactualExplanations.jl/contributing/interop/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">CounterfactualExplanations.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../cats_dogs/">Motivating example</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../tutorials/">Overview</a></li><li><a class="tocitem" href="../../tutorials/binary/">Binary target</a></li><li><a class="tocitem" href="../../tutorials/models/">Custom models</a></li><li><a class="tocitem" href="../../tutorials/multi/">Multi-class target</a></li><li><a class="tocitem" href="../../tutorials/generators/">Custom generators</a></li><li><a class="tocitem" href="../../tutorials/mutability/">Mutability constraints</a></li><li><a class="tocitem" href="../../tutorials/interop/">Interoperability</a></li></ul></li><li><span class="tocitem">More examples</span><ul><li><input class="collapse-toggle" id="menuitem-4-1" type="checkbox"/><label class="tocitem" for="menuitem-4-1"><span class="docs-label">Image data</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../examples/image/MNIST/">MNIST</a></li></ul></li></ul></li><li><span class="tocitem">Contributor&#39;s Guide</span><ul><li><a class="tocitem" href="../">Overview</a></li><li class="is-active"><a class="tocitem" href>Interoperability</a><ul class="internal"><li><a class="tocitem" href="#torch-model-trained-in-R"><span><code>torch</code> model trained in R</span></a></li><li><a class="tocitem" href="#torch-model-in-Python"><span><code>torch</code> model in Python</span></a></li></ul></li><li><a class="tocitem" href="../loss/">Loss functions</a></li></ul></li><li><a class="tocitem" href="../../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Contributor&#39;s Guide</a></li><li class="is-active"><a href>Interoperability</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Interoperability</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/pat-alt/CounterfactualExplanations.jl/blob/master/docs/src/contributing/interop.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Interoperability"><a class="docs-heading-anchor" href="#Interoperability">Interoperability</a><a id="Interoperability-1"></a><a class="docs-heading-anchor-permalink" href="#Interoperability" title="Permalink"></a></h1><div class="admonition is-info"><header class="admonition-header">Contributor&#39;s Guide</header><div class="admonition-body"><p>Our work on language interoperability is still in its early stages. In this tutorial we demonstrate how the package has been extended to accommodate <code>torch</code> models trained in R and Python. The goal here is to provide a template and/or starting point for contributors that would like to add support for other models trained in foreign programming languages.  If you are only interested usage examples involving <code>torch</code> models, see this <a href="../../tutorials/interop/">tutorial</a>.</p></div></div><p>The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through <code>PyCall.jl</code> and <code>RCall.jl</code>. In this tutorial we will see how <code>CounterfactualExplanations.jl</code> leverages this functionality. In particular, we will see that through minimal extra effort the package has been extended to accommodate models that were developed and trained in R or Python.</p><p>To get started we will first load some two-dimensional toy data:</p><pre><code class="language-julia hljs">using Random
+# Some random data:
+Random.seed!(1234);
+N = 100
+using CounterfactualExplanations
+using CounterfactualExplanations.Data
+xs, ys = Data.toy_data_non_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys&#39;)</code></pre><h2 id="torch-model-trained-in-R"><a class="docs-heading-anchor" href="#torch-model-trained-in-R"><code>torch</code> model trained in R</a><a id="torch-model-trained-in-R-1"></a><a class="docs-heading-anchor-permalink" href="#torch-model-trained-in-R" title="Permalink"></a></h2><p>The code below builds a simple MLP in R:</p><pre><code class="language-julia hljs">using RCall
+R&quot;&quot;&quot;
+# Data
+library(torch)
+X &lt;- torch_tensor(t($X))
+ys &lt;- torch_tensor($ys)
+
+# Model:
+mlp &lt;- nn_module(
+  initialize = function() {
+    self$layer1 &lt;- nn_linear(2, 32)
+    self$layer2 &lt;- nn_linear(32, 1)
+  },
+  forward = function(input) {
+    input &lt;- self$layer1(input)
+    input &lt;- nnf_sigmoid(input)
+    input &lt;- self$layer2(input)
+    input
+  }
+)
+model &lt;- mlp()
+optimizer &lt;- optim_adam(model$parameters, lr = 0.1)
+loss_fun &lt;- nnf_binary_cross_entropy_with_logits
+&quot;&quot;&quot;</code></pre><p>The following code trains the MLP for the binary prediction task at hand:</p><pre><code class="language-julia hljs">R&quot;&quot;&quot;
+for (epoch in 1:100) {
+
+  model$train()  
+
+  # Compute prediction and loss:
+  output &lt;- model(X)[,1]
+  loss &lt;- loss_fun(output, ys)
+
+  # Backpropagation:
+  optimizer$zero_grad()
+  loss$backward()
+  optimizer$step()
+  
+  cat(sprintf(&quot;Loss at epoch %d: %7f\n&quot;, epoch, loss$item()))
+}
+&quot;&quot;&quot;</code></pre><pre><code class="language-julia hljs">M = RTorchModel(R&quot;model&quot;)</code></pre><h3 id="Making-the-model-compatible"><a class="docs-heading-anchor" href="#Making-the-model-compatible">Making the model compatible</a><a id="Making-the-model-compatible-1"></a><a class="docs-heading-anchor-permalink" href="#Making-the-model-compatible" title="Permalink"></a></h3><p>As always we need to extend the <code>logits</code> and <code>probs</code> functions to make the model compatible with <code>CounterfactualExplanations.jl</code>. As evident from the code below, this is actually quite straight-forward: the logits are returned by the <code>torch</code> model and copied form R into the Julia environment. Probabilities are then computed in Julia, by passing the logits through the sigmoid function.</p><pre><code class="language-julia hljs">using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct MyRTorchModel &lt;: Models.AbstractDifferentiableModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::MyRTorchModel, X::AbstractArray)
+  nn = M.nn
+  ŷ = rcopy(R&quot;as_array($nn(torch_tensor(t($X))))&quot;)
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ&#39;
+end
+probs(M::MyRTorchModel, X::AbstractArray)= σ.(logits(M, X))
+M = MyRTorchModel(R&quot;model&quot;)</code></pre><h3 id="Adapting-the-generator"><a class="docs-heading-anchor" href="#Adapting-the-generator">Adapting the generator</a><a id="Adapting-the-generator-1"></a><a class="docs-heading-anchor-permalink" href="#Adapting-the-generator" title="Permalink"></a></h3><p>Next we need to do a tiny bit of work on the <code>AbstractGenerator</code> side. By default methods underlying the <code>GenericGenerator</code> are desiged to work with models that have gradient access through <code>Zygote.jl</code>, one of Julia’s main autodifferentiation packages. Of course, <code>Zygote.jl</code> cannot access the gradients of our <code>torch</code> model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: <code>∂ℓ(generator::GenericGenerator, x′, M, t)</code>. In particular, we will extend the function by a method that is specific to the <code>MyRTorchModel</code> type we defined above. The code below implements this: our new method <code>∂ℓ</code> calls R in order to use <code>torch</code>’s autodifferentiation functionality for computing the gradient.</p><pre><code class="language-julia hljs">import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Counterfactual loss:
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyRTorchModel, counterfactual_state::CounterfactualState) 
+  nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
+  R&quot;&quot;&quot;
+  x &lt;- torch_tensor($x′, requires_grad=TRUE)
+  output &lt;- $nn(x)
+  obj_loss &lt;- nnf_binary_cross_entropy_with_logits(output,$t)
+  obj_loss$backward()
+  &quot;&quot;&quot;
+  grad = rcopy(R&quot;as_array(x$grad)&quot;)
+  return grad
+end</code></pre><h3 id="Generating-counterfactuals"><a class="docs-heading-anchor" href="#Generating-counterfactuals">Generating counterfactuals</a><a id="Generating-counterfactuals-1"></a><a class="docs-heading-anchor-permalink" href="#Generating-counterfactuals" title="Permalink"></a></h3><p>From here on onwards we use the <code>CounterfactualExplanations.jl</code> functionality as always. Below we choose a random sample, define our generic generator and finally run the search:</p><pre><code class="language-julia hljs"># Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data, rand(1:length(xs))) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target</code></pre><pre><code class="language-julia hljs"># Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)</code></pre><p><img src="../www/interop_r.gif" alt/></p><h2 id="torch-model-in-Python"><a class="docs-heading-anchor" href="#torch-model-in-Python"><code>torch</code> model in Python</a><a id="torch-model-in-Python-1"></a><a class="docs-heading-anchor-permalink" href="#torch-model-in-Python" title="Permalink"></a></h2><div class="admonition is-warning"><header class="admonition-header">&#39;PyTorch&#39; and &#39;torch for R&#39; interplay</header><div class="admonition-body"><p>We have noted that using both <a href="https://pytorch.org/">&#39;PyTorch&#39;</a> through <code>PyCall.jl</code> and <a href="https://torch.mlverse.org/packages">&#39;torch for R&#39;</a> through <code>RCall.jl</code> in the same Julia session causes issues. In particular, loading &#39;PyTorch&#39; after loading &#39;torch for R&#39; cause the Julia session to crash and vice versa. For the time being, we therefore advise not to use both <code>RTorchModel()</code> and <code>PyTorchModel</code> in the same session.</p></div></div><p>The steps involved are largely analogous to the above, so we leave the following code uncommented.</p><pre><code class="language-julia hljs">using PyCall
+py&quot;&quot;&quot;
+# Data
+import torch
+from torch import nn
+X = torch.Tensor($X).T
+ys = torch.Tensor($ys)
+
+class MLP(nn.Module):
+  def __init__(self):
+    super(MLP, self).__init__()
+    self.model = nn.Sequential(
+      nn.Flatten(),
+      nn.Linear(2, 32),
+      nn.Sigmoid(),
+      nn.Linear(32, 1)
+    )
+
+  def forward(self, x):
+    logits = self.model(x)
+    return logits
+
+model = MLP()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = nn.BCEWithLogitsLoss()
+&quot;&quot;&quot;</code></pre><pre><code class="language-julia hljs">py&quot;&quot;&quot;
+for epoch in range(100):
+  # Compute prediction and loss:
+  output = model(X).squeeze()
+  loss = loss_fun(output, ys)
+  
+  # Backpropagation:
+  optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  print(f&quot;Loss at epoch {epoch+1}: {loss.item():&gt;7f}&quot;)
+&quot;&quot;&quot;</code></pre><pre><code class="language-julia hljs">using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Step 1)
+struct MyPyTorchModel &lt;: Models.AbstractDifferentiableModel
+    nn::Any
+end
+
+# Step 2)
+function logits(M::MyPyTorchModel, X::AbstractArray)
+  nn = M.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  ŷ = py&quot;$nn(torch.Tensor($X).T).detach().numpy()&quot;
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ&#39;
+end
+probs(M::MyPyTorchModel, X::AbstractArray)= σ.(logits(M, X))
+M = MyPyTorchModel(py&quot;model&quot;)</code></pre><pre><code class="language-julia hljs">import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+
+# Countefactual loss:
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualState) 
+  nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
+  x = reshape(x′, 1, length(x′))
+  py&quot;&quot;&quot;
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  &quot;&quot;&quot;
+  grad = vec(py&quot;x.grad.detach().numpy()&quot;)
+  return grad
+end</code></pre><pre><code class="language-julia hljs"># Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data, rand(1:length(xs))) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target</code></pre><pre><code class="language-julia hljs"># Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)</code></pre><p><img src="../www/interop_py.gif" alt/></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Overview</a><a class="docs-footer-nextpage" href="../loss/">Loss functions »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.17 on <span class="colophon-date" title="Wednesday 18 May 2022 10:41">Wednesday 18 May 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
