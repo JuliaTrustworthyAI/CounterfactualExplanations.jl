@@ -3,10 +3,10 @@ module Models
 
 using NNlib, LinearAlgebra
 
-include("functions.jl")
+include("base.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel, 
-    LogisticModel, BayesianLogisticModel,
+    FluxModel, LogisticModel, BayesianLogisticModel,
     RTorchModel, PyTorchModel,
     probs, logits
 

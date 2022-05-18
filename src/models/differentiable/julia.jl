@@ -1,17 +1,47 @@
-################################################################################
-# --------------- Base type for model:
-################################################################################
-"""
-AbstractFittedModel
+#############################################################################
+# Flux models
+#############################################################################
+abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel end
 
-Base type for fitted models.
-"""
-abstract type AbstractFittedModel end
+using Flux
+# Constructor
+struct FluxModel <: Models.AbstractDifferentiableJuliaModel
+    nn::Any
+    type::Symbol
+    function FluxModel(nn, type)
+        if type ∈ [:classification_binary,:classification_binary]
+            new(nn, type)
+        else
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_binary]`"))
+        end
+    end
+end
 
-################################################################################
-# --------------- Base type for differentiable model:
-################################################################################
-abstract type AbstractDifferentiableModel <: AbstractFittedModel end
+# Outer constructor method:
+function FluxModel(nn; type::Symbol=:classification_binary)
+    FluxModel(nn, type)
+end
+
+# Methods
+function logits(M::FluxModel, X::AbstractArray)
+    if M.type == :classification_binary || :classification_multi 
+        output = M.nn(X)
+    end
+    return output
+end
+
+function probs(M::FluxModel, X::AbstractArray)
+    if M.type == :classification_binary
+        output = σ.(logits(M, X))
+    elseif M.type == :classification_multi
+        output = softmax(logits(M, X))
+    end
+    return output
+end
+
+#############################################################################
+# Baseline classifiers for illustrative purposes 
+#############################################################################
 
 # -------- Linear Logistic Model:
 """
@@ -31,7 +61,7 @@ See also:
 - [`logits(M::LogisticModel, X::AbstractArray)`](@ref)
 - [`probs(M::LogisticModel, X::AbstractArray)`](@ref)
 """
-struct LogisticModel <: AbstractDifferentiableModel
+struct LogisticModel <: Models.AbstractDifferentiableJuliaModel
     W::Matrix
     b::AbstractArray
 end
@@ -97,7 +127,7 @@ See also:
 - [`logits(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
 - [`probs(M::BayesianLogisticModel, X::AbstractArray)`](@ref)
 """
-struct BayesianLogisticModel <: AbstractDifferentiableModel
+struct BayesianLogisticModel <: Models.AbstractDifferentiableJuliaModel
     μ::Matrix
     Σ::Matrix
     BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
@@ -171,46 +201,5 @@ function probs(M::BayesianLogisticModel, X::AbstractArray)
     return p
 end
 
-# ----- RTorch Model ----- #
-using RCall
 
-"""
-    RTorchModel
 
-Contructor for RTorch neural network.
-
-"""
-struct RTorchModel <: AbstractDifferentiableModel
-    nn::Any
-end
-
-function logits(M::RTorchModel, X::AbstractArray)
-  nn = M.nn
-  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ'
-end
-
-probs(M::RTorchModel, X::AbstractArray)= σ.(logits(M, X))
-
-# ----- PyTorch Model ----- #
-using PyCall
-struct PyTorchModel <: AbstractDifferentiableModel
-    nn::Any
-end
-
-function logits(M::PyTorchModel, X::AbstractArray)
-    py"""
-    import torch
-    from torch import nn
-    """
-    nn = M.nn
-    if !isa(X, Matrix)
-      X = reshape(X, length(X), 1)
-    end
-    ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
-    ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-    return ŷ'
-end
-
-probs(M::PyTorchModel, X::AbstractArray)= σ.(logits(M, X))
