@@ -2,29 +2,6 @@ using Pkg.Artifacts
 using Flux
 using BSON
 
-# UCR data:
-"""
-    ucr_data()
-
-A convenience function to load UCR time series data.
-"""
-function ucr_data()
-    data_dir = artifact"ucr_data"
-    data = BSON.load(joinpath(data_dir,"ucr_data.bson"),@__MODULE__)
-    return data
-end
-
-"""
-    ucr_model()
-
-A convenience function to load a pre-trained classification model for the UCR time series data.
-"""
-function ucr_model()
-    data_dir = artifact"ucr_model"
-    model = BSON.load(joinpath(data_dir,"ucr_model.bson"),@__MODULE__)
-    return model
-end
-
 """
     cats_dogs_data()
 
