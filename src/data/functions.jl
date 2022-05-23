@@ -38,7 +38,6 @@ function cats_dogs_laplace()
 end
 
 # MNIST:
-
 """
     mnist_data()
 
