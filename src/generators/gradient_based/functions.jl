@@ -15,7 +15,7 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual_state::CounterfactualState)
-    gradient(() -> ℓ(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
+    gradient(() -> ℓ(generator, counterfactual_state), Flux.params(counterfactual_state.x′))[counterfactual_state.x′]
 end
 
 # ----- RTorch model -----
@@ -72,7 +72,7 @@ end
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-∂h(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), params(counterfactual_state.x′))[counterfactual_state.x′]
+∂h(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) = gradient(() -> h(generator, counterfactual_state), Flux.params(counterfactual_state.x′))[counterfactual_state.x′]
 
 # Gradient:
 """
