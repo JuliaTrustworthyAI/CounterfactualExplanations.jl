@@ -16,4 +16,3 @@ ghr_jll = "07c12ed4-43bc-5495-8a2a-d5838ef8d533"
 
 [compat]
 BSON = "0.3"
-Flux = "0.12, 0.13"

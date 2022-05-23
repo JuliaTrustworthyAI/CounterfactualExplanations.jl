@@ -1,5 +1,5 @@
 ---
-jupyter: julia-1.6
+jupyter: julia-1.7
 ---
 
 # MNIST pre-trained model
@@ -28,12 +28,11 @@ train_x, train_y = data_train[:]
 ```{julia}
 using Flux
 using Flux: onehotbatch, onecold, DataLoader
-ys = Int.(Flux.onehotbatch(train_y, 0:9))
+ys = Flux.onehotbatch(train_y, 0:9)
 X = Flux.flatten(train_x)
 bs = Int(round(size(X)[2]/10))
 data_train = DataLoader((X,ys),batchsize=bs)
 data = Dict(
-    :data => DataLoader((X,ys),batchsize=bs),
     :X => X,
     :ys => ys
 )

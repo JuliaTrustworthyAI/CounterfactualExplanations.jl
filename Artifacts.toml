@@ -31,27 +31,27 @@ lazy = true
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
 [mnist_data]
-git-tree-sha1 = "78908eccbbe1bf669926d3d795461024d335f405"
+git-tree-sha1 = "57053f5d58979856be84cac48992177fc01f6f73"
 lazy = true
 
     [[mnist_data.download]]
-    sha256 = "331ca6db035f50e6ce25fffa467c504a13a634eb710a5d3a4be5c4cf77b5aee7"
+    sha256 = "d4015651dbf225b665afb8127754288154a908a713b7729ce4b85f9719fe4feb"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_data.tar.gz"
 
 [mnist_ensemble]
-git-tree-sha1 = "e8ab401a0c96316c979e79c896020a3c705329c3"
+git-tree-sha1 = "0e3da48162ef41f773188cddff6e33cea907acf3"
 lazy = true
 
     [[mnist_ensemble.download]]
-    sha256 = "499e3eae9a6d4c3224fb770694715ecefae4e50c7e5a700817893d9f9576aff8"
+    sha256 = "16b7b5b9b8c041f77a3467f160a4b7d0846401c3c4450d369f7b629121907141"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_ensemble.tar.gz"
 
 [mnist_model]
-git-tree-sha1 = "c3ee946800a78e53e880363a6fd0fa054ab0ca19"
+git-tree-sha1 = "f50f427bbbee546d402de6053912ba3d4fd227bc"
 lazy = true
 
     [[mnist_model.download]]
-    sha256 = "f3380a5a3357f168f4f1e1d9e887ea726937e5ddbb78fa7476a5bf6a49571ad1"
+    sha256 = "6a696e6477ddd1a4a1d60e792becfd657014358bfbb72048be28d1d05880d8e0"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_model.tar.gz"
 
 [ucr_data]
