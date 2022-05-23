@@ -1,7 +1,7 @@
 # --------------- Base type for model:
 module Models
 
-using NNlib, LinearAlgebra
+using Flux, LinearAlgebra
 
 include("base.jl")
 

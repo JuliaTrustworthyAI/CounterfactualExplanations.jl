@@ -2,7 +2,7 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using Random
 using LinearAlgebra
-using NNlib
+using Flux
 
 @testset "Exceptions" begin
     @testset "LogisticModel" begin

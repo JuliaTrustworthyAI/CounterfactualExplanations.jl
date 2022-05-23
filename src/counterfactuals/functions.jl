@@ -134,7 +134,8 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
         :times_changed_features => zeros(length(counterfactual_explanation.x)),
         :path => [counterfactual_explanation.x′],
         :terminated => threshold_reached(counterfactual_explanation),
-        :converged => threshold_reached(counterfactual_explanation)
+        :converged => threshold_reached(counterfactual_explanation),
+        :other => nothing
     )
 
     if counterfactual_explanation.search[:terminated]

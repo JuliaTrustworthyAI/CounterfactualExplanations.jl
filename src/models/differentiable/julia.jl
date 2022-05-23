@@ -105,7 +105,7 @@ probs(M, x)
 
 See also [`LogisticModel(W::Matrix,b::AbstractArray)`](@ref).
 """
-probs(M::LogisticModel, X::AbstractArray) = NNlib.σ.(logits(M, X))
+probs(M::LogisticModel, X::AbstractArray) = Flux.σ.(logits(M, X))
 
 # -------- Bayesian model:
 """
@@ -196,7 +196,7 @@ function probs(M::BayesianLogisticModel, X::AbstractArray)
     κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
     z = κ' .* z
     # Compute probabilities
-    p = NNlib.σ.(z)
+    p = Flux.σ.(z)
     p = size(p)[2] == 1 ? vec(p) : p
     return p
 end

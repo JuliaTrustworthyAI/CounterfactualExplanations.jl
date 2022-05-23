@@ -11,6 +11,6 @@ using LinearAlgebra
 export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, CounterfactualState,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
-include("functions.jl")
+include("base.jl")
 
 end
