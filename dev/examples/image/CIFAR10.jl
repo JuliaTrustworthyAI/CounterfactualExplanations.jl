@@ -55,10 +55,10 @@ if retrain
     # Training
     for epoch = 1:epochs
         for d in data
-            gs = gradient(params(nn)) do
+            gs = gradient(Flux.params(nn)) do
             l = loss(d...)
             end
-            update!(opt, params(nn), gs)
+            update!(opt, Flux.params(nn), gs)
         end
         @info "Epoch " * string(epoch)
         println("Training loss:")
