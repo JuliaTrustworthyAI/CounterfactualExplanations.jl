@@ -11,7 +11,7 @@ import CounterfactualExplanations.Data: toy_data_linear, toy_data_multi, toy_dat
     end
 
     @testset "MNIST" begin
-        @test CounterfactualExplanations.Data.mnist_data()
+        @test !isnothing(CounterfactualExplanations.Data.mnist_data())
         @test !isnothing(CounterfactualExplanations.Data.mnist_model())
         @test !isnothing(CounterfactualExplanations.Data.mnist_ensemble())
     end

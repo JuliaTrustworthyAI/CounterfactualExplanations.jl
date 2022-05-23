@@ -28,7 +28,7 @@ train_x, train_y = data_train[:]
 ```{julia}
 using Flux
 using Flux: onehotbatch, onecold, DataLoader
-ys = Flux.onehotbatch(train_y, 0:9)
+ys = Int.(Flux.onehotbatch(train_y, 0:9))
 X = Flux.flatten(train_x)
 bs = Int(round(size(X)[2]/10))
 data_train = DataLoader((X,ys),batchsize=bs)
