@@ -1,5 +1,5 @@
 ---
-jupyter: julia-1.6
+jupyter: julia-1.7
 ---
 
 # MNIST pre-trained model
@@ -16,12 +16,11 @@ artifact_name = "mnist"
 
 ```{julia}
 using Plots, MLDatasets
-using MLDatasets.MNIST: convert2image
+using MLDatasets: convert2image
 using BSON
 using BSON: @save, @load
-train_x, train_y = MNIST.traindata()
-train_x = Float32.(train_x)
-train_y = Float32.(train_y);
+data_train = MNIST(:train)
+train_x, train_y = data_train[:]
 ```
 
 ### Preprocess data
@@ -34,7 +33,6 @@ X = Flux.flatten(train_x)
 bs = Int(round(size(X)[2]/10))
 data_train = DataLoader((X,ys),batchsize=bs)
 data = Dict(
-    :data => DataLoader((X,ys),batchsize=bs),
     :X => X,
     :ys => ys
 )
@@ -59,29 +57,25 @@ epochs = 10
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 accuracy(data) = mean(map(d -> mean(onecold(softmax(model(d[1])), 0:9) .== onecold(d[2], 0:9)), data))
 
-if false
-  for epoch = 1:epochs
-    for d in data
-      gs = gradient(params(model)) do
-        l = loss(d...)
-      end
-      update!(opt, params(model), gs)
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(params(model)) do
+      l = loss(d...)
     end
-    @info "Epoch " * string(epoch)
-    @show accuracy(data)
+    update!(opt, params(model), gs)
   end
-  @save joinpath(data_dir, artifact_name * "_model.bson") model
+  @info "Epoch " * string(epoch)
+  @show accuracy(data)
 end
+@save joinpath(data_dir, artifact_name * "_model.bson") model
 ```
 
 ### Ensemble classifier
 
 ```{julia}
 ensemble = build_ensemble(5;kw=kw_args)
-if false
-    ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false) # fit the ensemble
-    save_ensemble(ensemble;root=joinpath(data_dir, artifact_name * "_ensemble")) 
-end
+ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false) # fit the ensemble
+save_ensemble(ensemble;root=joinpath(data_dir, artifact_name * "_ensemble")) 
 ```
 
 ### Generate artifacts

@@ -60,7 +60,7 @@ Next we will load two pre-trained deep-learning classifiers:
 ```{julia}
 using Flux
 using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
-data, X, ys = mnist_data()
+X, ys = mnist_data()
 model = mnist_model()
 ensemble = mnist_ensemble()
 ```

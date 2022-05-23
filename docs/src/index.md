@@ -14,6 +14,8 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 Below is a list of exciting developments we have been working on since latest stable release:
 
 1.  Native support for `torch` models trained in R or Python. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/32)
+2.  Native support for Flux models.
+3.  Bumbed up package compatibility (e.g. Flux).
 
 ## Installation 🚩
 

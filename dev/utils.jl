@@ -235,7 +235,7 @@ Generates a contour plot for the posterior predictive surface.
 ```julia-repl
 using BayesLaplace, Plots
 import BayesLaplace: predict
-using NNlib: σ
+using Flux: σ
 X, y = toy_data_linear(100)
 X = hcat(X...)'
 β = [1,1]

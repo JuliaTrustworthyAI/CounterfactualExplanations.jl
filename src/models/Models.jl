@@ -1,12 +1,12 @@
 # --------------- Base type for model:
 module Models
 
-using NNlib, LinearAlgebra
+using Flux, LinearAlgebra
 
-include("functions.jl")
+include("base.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel, 
-    LogisticModel, BayesianLogisticModel,
+    FluxModel, LogisticModel, BayesianLogisticModel,
     RTorchModel, PyTorchModel,
     probs, logits
 
