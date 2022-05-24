@@ -5,6 +5,7 @@ module Generators
 
 using ..Models
 using ..Losses
+using ..GenerativeModels
 using Flux
 using LinearAlgebra
 

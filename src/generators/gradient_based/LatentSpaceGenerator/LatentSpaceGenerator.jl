@@ -1,7 +1,4 @@
-# using GenerativeModels, LinearAlgebra
-
-# -------- Joshi et al (2019): 
-struct REVISEGenerator <: AbstractGradientBasedGenerator
+struct LatentSpaceGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
@@ -10,7 +7,7 @@ struct REVISEGenerator <: AbstractGradientBasedGenerator
     # generative_model::Union{Nothing,GenerativeModels.AbstractGM} # variational autoencoder
 end
 
-# function REVISEGenerator(
+# function LatentSpaceGenerator(
 #     ;
 #     loss::Symbol=:logitbinarycrossentropy,
 #     complexity::Function=norm,
@@ -23,18 +20,18 @@ end
 #     # Default Generative Model - Variational Autoencoder
 
 
-#     REVISEGenerator(loss, complexity, λ, ϵ, τ, vae)
+#     LatentSpaceGenerator(loss, complexity, λ, ϵ, τ, vae)
 # end
 
 
 # Loss:
 using Flux
 """
-    ℓ(generator::REVISEGenerator, counterfactual_state::CounterfactualState)
+    ℓ(generator::LatentSpaceGenerator, counterfactual_state::CounterfactualState)
 
 The default method to apply the generator loss function to the current counterfactual state for any generator.
 """
-function ℓ(generator::REVISEGenerator, counterfactual_state::CounterfactualState)
+function ℓ(generator::LatentSpaceGenerator, counterfactual_state::CounterfactualState)
 
     output = :logits # currently counterfactual loss is always computed with respect to logits
 

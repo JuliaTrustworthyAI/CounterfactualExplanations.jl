@@ -12,6 +12,10 @@ include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
 export CounterfactualData, select_factual, apply_domain_constraints
 
+include("generative_models/GenerativeModels.jl")
+using .GenerativeModels
+export vae
+
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel, 

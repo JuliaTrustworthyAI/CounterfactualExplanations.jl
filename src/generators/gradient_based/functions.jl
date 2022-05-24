@@ -1,3 +1,4 @@
+
 ################################################################################
 # --------------- Base type for gradient-based generator:
 ################################################################################
@@ -118,6 +119,6 @@ end
 # Specific Generators
 ##################################################
 
-include("GenericGenerator.jl") # Wachter et al. (2017)
-include("GreedyGenerator.jl") # Schut et al. (2021)
-include("REVISEGenerator.jl") # Joshi et al. (2019)
+include("GenericGenerator/GenericGenerator.jl") # Wachter et al. (2017)
+include("GreedyGenerator/GreedyGenerator.jl") # Schut et al. (2021)
+include("LatentSpaceGenerator/LatentSpaceGenerator.jl") # Joshi et al. (2019)
