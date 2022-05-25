@@ -46,7 +46,7 @@ Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int) = Chain(
 )
 
 # VAE:
-struct VAE{enc<:Encoder,dec<:Any} 
+struct VAE{enc<:Encoder,dec<:Any} <: AbstractGenerativeModel
     encoder::enc
     decoder::dec
 end

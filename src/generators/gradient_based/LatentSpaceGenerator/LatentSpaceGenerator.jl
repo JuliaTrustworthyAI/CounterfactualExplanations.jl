@@ -4,24 +4,24 @@ struct LatentSpaceGenerator <: AbstractGradientBasedGenerator
     λ::AbstractFloat # strength of penalty
     ϵ::AbstractFloat # step size
     τ::AbstractFloat # tolerance for convergence
-    # generative_model::Union{Nothing,GenerativeModels.AbstractGM} # variational autoencoder
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # variational autoencoder
+    train_gm::Bool # should generative model be trained at initialization
 end
 
-# function LatentSpaceGenerator(
-#     ;
-#     loss::Symbol=:logitbinarycrossentropy,
-#     complexity::Function=norm,
-#     λ::AbstractFloat=0.1,
-#     ϵ::AbstractFloat=0.1,
-#     τ::AbstractFloat=1e-5,
-#     generative_model::Union{Nothing,GenerativeModels.AbstractGM}=nothing
-# )
+function LatentSpaceGenerator(
+    ;
+    loss::Symbol=:logitbinarycrossentropy,
+    complexity::Function=norm,
+    λ::AbstractFloat=0.1,
+    ϵ::AbstractFloat=0.1,
+    τ::AbstractFloat=1e-5,
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing,
+    train_gm::Bool=true # by defaul generative model is trained at initialization
+)
 
-#     # Default Generative Model - Variational Autoencoder
+    return LatentSpaceGenerator(loss, complexity, λ, ϵ, τ, generative_model, train_gm)
 
-
-#     LatentSpaceGenerator(loss, complexity, λ, ϵ, τ, vae)
-# end
+end
 
 
 # Loss:
