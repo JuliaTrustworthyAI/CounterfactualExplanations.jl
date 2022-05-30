@@ -1,6 +1,6 @@
 module Counterfactuals
 
-using ..Models, ..Generators, ..DataPreprocessing
+using ..Models, ..Generators, ..DataPreprocessing, ..GenerativeModels
 
 include("functions.jl")
 export CounterfactualExplanation, initialize!, update!,

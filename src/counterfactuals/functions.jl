@@ -67,6 +67,7 @@ function CounterfactualExplanation(
     # Instantiate: 
     counterfactual_explantion = CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
 
+    # Initialize:
     initialize!(counterfactual_explantion) 
 
     return counterfactual_explantion
@@ -154,7 +155,7 @@ end
 
 Default subroutine that intializes the counterfactual search.
 """
-function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::LatentSpaceGenerator) 
+function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::Generators.LatentSpaceGenerator) 
 
     # Encode target:
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
@@ -174,9 +175,19 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation, gene
     end
 
     # Generative model:
-    if generator.train_gm
-        @info "Training generative model."
-        GenerativeModels.train(generator.generative_model)
+    if generator.generative_model isa Symbol
+        @info "Initializing generative model."
+        input_dim = DataPreprocessing.input_dim(counterfactual_explanation.data)
+        generator.generative_model = getfield(GenerativeModels, generator.generative_model)(input_dim; generator.gm_params...)
+    end
+
+    if generator.gm_train
+        @info "Begin training of generative model."
+        X = counterfactual_explanation.data.X
+        y = counterfactual_explanation.data.y
+        GenerativeModels.train!(generator.generative_model, X, y; generator.gm_params...)
+        @info "Training of generative model completed."
+        generator.gm_train = false
     else 
         @info "Skipping training of generative model."
     end

@@ -40,46 +40,19 @@ function (encoder::Encoder)(x)
     encoder.μ(h), encoder.logσ(h)
 end
 
+function rand(encoder::Encoder, x, device=cpu)
+    μ, logσ = encoder(x)
+    z = μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
+    return z, μ, logσ
+end
+
+
 Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int) = Chain(
     Dense(latent_dim, hidden_dim, tanh),
     Dense(hidden_dim, input_dim)
 )
 
-# VAE:
-struct VAE{enc<:Encoder,dec<:Any} <: AbstractGenerativeModel
-    encoder::enc
-    decoder::dec
-end
-
-VAE(enc::Encoder, dec::Any) = VAE(enc, dec)
-
-Flux.@functor VAE
-
-function Flux.trainable(m::VAE)
-    (encoder=m.encoder, decoder=m.decoder)
-end
-
-function reconstuct(m::VAE, x, device)
-    μ, logσ = m.encoder(x)
-    z = μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
-    μ, logσ, m.decoder(z)
-end
-
-function model_loss(m::VAE, λ, x, device)
-    μ, logσ, decoder_z = reconstuct(m, x, device)
-    len = size(x)[end]
-    # KL-divergence
-    kl_q_p = 0.5f0 * sum(@. (exp(2f0 * logσ) + μ^2 -1f0 - 2f0 * logσ)) / len
-
-    logp_x_z = -logitbinarycrossentropy(decoder_z, x, agg=sum) / len
-    # regularization
-    reg = λ * sum(x->sum(x.^2), Flux.params(m.decoder))
-    
-    -logp_x_z + kl_q_p + reg
-end
-
-# arguments for the `train` function 
-@with_kw mutable struct VAEParams
+@with_kw mutable struct VAEParams <: AbstractGMParams
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization paramater
     batch_size = 128        # batch size
@@ -87,6 +60,7 @@ end
     epochs = 20             # number of epochs
     seed = 0                # random seed
     cuda = true             # use GPU
+    device = gpu            # default device
     latent_dim = 2          # latent dimension
     hidden_dim = 500        # hidden dimension
     verbose_freq = 10       # logging for every verbose_freq iterations
@@ -94,36 +68,73 @@ end
     opt = ADAM(η)
 end
 
-function train(m::VAE, X::AbstractArray, y::AbstractArray; kws...)
+# VAE:
+struct VAE <: AbstractGenerativeModel
+    encoder::Encoder
+    decoder::Any
+    params::VAEParams
+end
+
+function VAE(input_dim;kws...)
+
     # load hyperparamters
-    args = Args(; kws...)
-    args.seed > 0 && Random.seed!(args.seed)
+    args = VAEParams(;kws...)
 
     # GPU config
     if args.cuda && CUDA.has_cuda()
-        device = gpu
-        @info "Training on GPU"
+        args.device = gpu
+        @info "Moving to GPU"
     else
-        device = cpu
-        @info "Training on CPU"
+        args.device = cpu
+        @info "Moving to CPU"
     end
+
+    # initialize encoder and decoder
+    encoder = Encoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
+    decoder = Decoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
+
+    VAE(encoder, decoder, args)
+
+end
+
+Flux.@functor VAE
+
+function Flux.trainable(generative_model::VAE)
+    (encoder=generative_model.encoder, decoder=generative_model.decoder)
+end
+
+function reconstruct(generative_model::VAE, x, device=cpu)
+    z, μ, logσ = rand(generative_model.encoder, x, device)
+    generative_model.decoder(z), μ, logσ
+end
+
+function model_loss(generative_model::VAE, λ, x, device)
+    μ, logσ, decoder_z = reconstruct(generative_model, x, device)
+    len = size(x)[end]
+    # KL-divergence
+    kl_q_p = 0.5f0 * sum(@. (exp(2f0 * logσ) + μ^2 -1f0 - 2f0 * logσ)) / len
+
+    logp_x_z = -logitbinarycrossentropy(decoder_z, x, agg=sum) / len
+    # regularization
+    reg = λ * sum(x->sum(x.^2), Flux.params(generative_model.decoder))
+    
+    -logp_x_z + kl_q_p + reg
+end
+
+function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
+    # load hyperparamters
+    args = generative_model.params
+    args.seed > 0 && Random.seed!(args.seed)
 
     # load data
     loader = get_data(X, y, args.batch_size)
     
-    # initialize encoder and decoder
-    encoder = m.enc(args.input_dim, args.latent_dim, args.hidden_dim) |> device
-    decoder = m.dec(args.input_dim, args.latent_dim, args.hidden_dim) |> device
-
-    # ADAM optimizer
-    opt = ADAM(args.η)
-    
     # parameters
-    ps = Flux.params(model)
+    ps = Flux.params(generative_model)
 
     # training
     train_steps = 0
-    @info "Start Training, total $(args.epochs) epochs"
+    @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
         progress = Progress(length(loader))
@@ -131,10 +142,11 @@ function train(m::VAE, X::AbstractArray, y::AbstractArray; kws...)
         for (x, _) in loader 
             
             loss, back = Flux.pullback(ps) do
-                model_loss(m, args.λ, x |> device, device)
+                model_loss(generative_model, args.λ, x |> args.device, args.device)
             end
+            @info "Loss: $loss"
             grad = back(1f0)
-            Flux.Optimise.update!(opt, ps, grad)
+            Flux.Optimise.update!(args.opt, ps, grad)
 
             # progress meter
             next!(progress; showvalues=[(:loss, loss)]) 
