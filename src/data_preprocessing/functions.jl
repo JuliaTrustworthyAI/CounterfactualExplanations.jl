@@ -100,3 +100,11 @@ function apply_domain_constraints(counterfactual_data::CounterfactualData, x::Ab
     return x
     
 end
+
+"""
+    input_dim(counterfactual_data::CounterfactualData)
+
+Helper function that returns the input dimension (number of features) of the data. 
+
+"""
+input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]

@@ -64,7 +64,13 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
 
-    return CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
+    # Instantiate: 
+    counterfactual_explantion = CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
+
+    # Initialize:
+    initialize!(counterfactual_explantion) 
+
+    return counterfactual_explantion
 
 end
 
@@ -119,11 +125,11 @@ end
 
 # 2) Counterfactual values:
 """
-    initialize!(counterfactual_explanation::CounterfactualExplanation)
+    initialize!(counterfactual_explanation::CounterfactualExplanation, generator::AbstractGenerator) 
 
-A subroutine that intializes the counterfactual search.
+Default subroutine that intializes the counterfactual search.
 """
-function initialize!(counterfactual_explanation::CounterfactualExplanation) 
+function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::AbstractGenerator) 
 
     # Encode target:
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
@@ -143,6 +149,53 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
     end
 
 end
+
+"""
+    initialize!(counterfactual_explanation::CounterfactualExplanation, generator::LatentSpaceGenerator) 
+
+Default subroutine that intializes the counterfactual search.
+"""
+function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::Generators.LatentSpaceGenerator) 
+
+    # Encode target:
+    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
+
+    # Initialize search:
+    counterfactual_explanation.search = Dict(
+        :iteration_count => 1,
+        :times_changed_features => zeros(length(counterfactual_explanation.x)),
+        :path => [counterfactual_explanation.x′],
+        :terminated => threshold_reached(counterfactual_explanation),
+        :converged => threshold_reached(counterfactual_explanation),
+        :other => nothing
+    )
+
+    if counterfactual_explanation.search[:terminated]
+        @info "Factual already in target class and probability exceeds threshold γ."
+    end
+
+    # Generative model:
+    if generator.generative_model isa Symbol
+        @info "Initializing generative model."
+        input_dim = DataPreprocessing.input_dim(counterfactual_explanation.data)
+        generator.generative_model = getfield(GenerativeModels, generator.generative_model)(input_dim; generator.gm_params...)
+    end
+
+    if generator.gm_train
+        @info "Begin training of generative model."
+        X = counterfactual_explanation.data.X
+        y = counterfactual_explanation.data.y
+        GenerativeModels.train!(generator.generative_model, X, y; generator.gm_params...)
+        @info "Training of generative model completed."
+        generator.gm_train = false
+    else 
+        @info "Skipping training of generative model."
+    end
+
+end
+
+# Just a wrapper for the outer API (following https://discourse.julialang.org/t/best-way-to-dispatch-on-type-field/4024/2)
+initialize!(counterfactual_explanation::CounterfactualExplanation) = initialize!(counterfactual_explanation, counterfactual_explanation.generator)
 
 """
     counterfactual(counterfactual_explanation::CounterfactualExplanation)

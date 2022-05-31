@@ -45,7 +45,6 @@ function generate_counterfactual(
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(x, target, data, M, generator, γ, T)
-    initialize!(counterfactual) 
 
     # Search:
     while !counterfactual.search[:terminated]
