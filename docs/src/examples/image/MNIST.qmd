@@ -37,13 +37,14 @@ www_path = "docs/src/examples/image/www"
 
 ```{julia}
 #| echo: false
-train_x, train_y = MNIST.traindata()
+data_train = MNIST(:train)
+train_x, train_y = data_train[:]
 input_dim = prod(size(train_x[:,:,1]))
 using Images, Random, StatsBase
 Random.seed!(1)
 n_samples = 10
 samples = train_x[:,:,sample(1:end, n_samples, replace=false)]
-mosaic = mosaicview([convert2image(samples[:,:,i]) for i ∈ 1:n_samples]...,ncol=Int(n_samples/2))
+mosaic = mosaicview([convert2image(MNIST, samples[:,:,i]) for i ∈ 1:n_samples]...,ncol=Int(n_samples/2))
 plt = plot(mosaic, size=(500,260), axis=nothing, background=:transparent)
 savefig(plt, joinpath(www_path, "mnist_samples.png"))
 ```

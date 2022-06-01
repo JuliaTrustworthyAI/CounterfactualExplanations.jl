@@ -109,12 +109,12 @@ function reconstruct(generative_model::VAE, x, device=cpu)
 end
 
 function model_loss(generative_model::VAE, λ, x, device)
-    μ, logσ, decoder_z = reconstruct(generative_model, x, device)
+    z, μ, logσ = reconstruct(generative_model, x, device)
     len = size(x)[end]
     # KL-divergence
     kl_q_p = 0.5f0 * sum(@. (exp(2f0 * logσ) + μ^2 -1f0 - 2f0 * logσ)) / len
 
-    logp_x_z = -logitbinarycrossentropy(decoder_z, x, agg=sum) / len
+    logp_x_z = -logitbinarycrossentropy(z, x, agg=sum) / len
     # regularization
     reg = λ * sum(x->sum(x.^2), Flux.params(generative_model.decoder))
     
