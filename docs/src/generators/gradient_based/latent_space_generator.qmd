@@ -18,14 +18,43 @@ jupyter: julia-1.7
 ```@meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+## Variational Autoencoder
+
+### Synthetic data
+
+```{julia}
+input_dim = 3
+n = 100
+η = 10
+μ₀ = rand(-input_dim:input_dim,input_dim) .* η
+μ₁ = rand(-input_dim:input_dim,input_dim) .* η
+X₀ = μ₀ .+ randn(input_dim, n) 
+X₁ = μ₁ .+ randn(input_dim, n) 
+X = hcat(X₀, X₁)
+ys = hcat(zeros(1,n), ones(1,n))
+```
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct, plot
+vae = VAE(input_dim; epochs=100)
+train!(vae, X, ys)
+```
+
+```{julia}
+plot(vae, X, ys)
+```
+
+
+
+### MNIST data
+
 ```{julia}
 #| echo: false
 using CounterfactualExplanations, Plots, MLDatasets
 using MLDatasets: convert2image
 using BSON: @save, @load
 theme(:wong)
-using Logging
-disable_logging(Logging.Info)
 include("dev/utils.jl") # some plotting functions
 www_path = "docs/src/generators/www"
 ```
@@ -50,10 +79,14 @@ using CounterfactualExplanations.Data: mnist_data
 X, ys = mnist_data()
 ```
 
-## Variational Autoencoder
-
 ```{julia}
 using CounterfactualExplanations.GenerativeModels: VAE, train!
 vae = VAE(input_dim)
 train!(vae, X, ys)
+```
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels
+plt = GenerativeModels.plot(vae, X, ys)
+savefig(plt, joinpath(www_path, "vae_output.png"))
 ```

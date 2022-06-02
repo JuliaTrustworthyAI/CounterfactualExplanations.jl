@@ -41,8 +41,8 @@ function ℓ(generator::LatentSpaceGenerator, counterfactual_state::Counterfactu
 
     output = :logits # currently counterfactual loss is always computed with respect to logits
 
-    # 1. Encode counterfactual
-    # z = rand(VAE.encoder, counterfactual_state.x′)
+    # 1. Encode counterfactual: z′ ∼ p(z|x)
+    z′ = rand(VAE.encoder, counterfactual_state.x′)
 
     loss = getfield(Losses, generator.loss)(
         getfield(Models, output)(counterfactual_state.M, counterfactual_state.x′), 

@@ -8,6 +8,7 @@ mutable struct CounterfactualExplanation
     generator::Generators.AbstractGenerator
     params::Dict
     search::Union{Dict,Nothing}
+    latent_space::Union{Dict,Nothing}
 end
 
 using .Counterfactuals
@@ -191,6 +192,13 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation, gene
     else 
         @info "Skipping training of generative model."
     end
+
+    # Generative model:
+    encoder = generator.generative_model.encoder
+    decoder = generator.generative_model.decoder
+
+    # 1. Encode counterfactual: z′ ∼ p(z|x)
+    z′ = rand(encoder, counterfactual_state.x′)
 
 end
 
