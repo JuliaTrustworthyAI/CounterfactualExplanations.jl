@@ -7,6 +7,8 @@
 
 ## News 📣
 
+This package is under active developemnt ⚠. The API may still change in future stable releases. Below is a list of recent exciting developments. 
+
 ### Beta
 
 Below is a list of exciting developments we have been working on since latest stable release:
@@ -23,7 +25,7 @@ Most recent developments can be found in the [`develop` branch](https://github.c
 
 ## Installation 🚩
 
-The first release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
+The first stable release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
 
 ``` julia
 using Pkg
