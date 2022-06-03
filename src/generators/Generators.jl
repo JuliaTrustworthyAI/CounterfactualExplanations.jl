@@ -9,7 +9,7 @@ using ..GenerativeModels
 using Flux
 using LinearAlgebra
 
-export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, CounterfactualState,
+export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, Counterfactual,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
 include("base.jl")

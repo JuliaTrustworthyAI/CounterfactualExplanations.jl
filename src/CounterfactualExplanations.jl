@@ -5,15 +5,26 @@ using Flux
 import Flux.Losses
 using LinearAlgebra
 
+### Data 
+# 𝒟 = {(x,y)}ₙ
+###
+
+# Example data sets:
 include("data/Data.jl")
 using .Data
 
+# Generative models for latent space search:
+include("generative_models/GenerativeModels.jl")
+using .GenerativeModels
+
+# Data preprocessing:
 include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
 export CounterfactualData, select_factual, apply_domain_constraints
 
-include("generative_models/GenerativeModels.jl")
-using .GenerativeModels
+### Models 
+# ℳ[𝒟] : x ↦ y
+###
 
 include("models/Models.jl")
 using .Models
@@ -22,10 +33,23 @@ export AbstractFittedModel, AbstractDifferentiableModel,
     RTorchModel, PyTorchModel,
     probs, logits
 
+### Counterfactual state 
+# ( ℳ[𝒟] , xᵢ ∈ x )
+###
+
+include("counterfactual/Counterfactual.jl")
+
+### Generators
+# ℓ( ℳ[𝒟](xᵢ) , target )
+###
 include("generators/Generators.jl")
 using .Generators
-export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, CounterfactualState,
+export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, Counterfactual,
     generate_perturbations, conditions_satisified, mutability_constraints  
+
+### CounterfactualExplanation
+# argmin 
+###
 
 include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals

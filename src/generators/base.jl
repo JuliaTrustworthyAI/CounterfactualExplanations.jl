@@ -1,17 +1,4 @@
 ################################################################################
-# --------------- Constructor for counterfactual state:
-################################################################################
-struct CounterfactualState
-    x::AbstractArray
-    target_encoded::Union{Number, AbstractVector}
-    x′::AbstractArray
-    z′::Union{AbstractArray, Nothing}
-    M::AbstractFittedModel
-    params::Dict
-    search::Union{Dict,Nothing}
-end
-
-################################################################################
 # --------------- Base type for generator:
 ################################################################################
 """

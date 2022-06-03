@@ -110,6 +110,7 @@ struct VAE <: AbstractGenerativeModel
     encoder::Encoder
     decoder::Any
     params::VAEParams
+    trained::Bool
 end
 
 """
@@ -135,7 +136,7 @@ function VAE(input_dim;kws...)
     encoder = Encoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
     decoder = Decoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
 
-    VAE(encoder, decoder, args)
+    VAE(encoder, decoder, args, false)
 
 end
 
@@ -213,6 +214,10 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
         avg_loss = mean(avg_loss)
         @info "Loss (avg): $avg_loss"
     end
+
+    # Set training status to true:
+    generative_model.trained = true
+    
 end
 
 function convert_to_image(x, y_size)

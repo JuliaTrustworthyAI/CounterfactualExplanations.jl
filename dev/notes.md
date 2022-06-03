@@ -1,4 +1,7 @@
 
+## Package architecture
+
+![](www/architecture.png)
 ## Latent space search
 
 Latent space search is implemented by recourse generators like REVISE and CLUE. Searching counterfactuals in a latent space has at least two benefits:

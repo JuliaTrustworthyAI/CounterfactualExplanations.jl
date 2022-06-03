@@ -2,32 +2,13 @@ mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
     target_encoded::Union{Number, AbstractVector, Nothing}
-    x′::AbstractArray
+    s′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
+    latent_space::Bool
     params::Dict
     search::Union{Dict,Nothing}
-    latent_space::Union{Dict,Nothing}
-end
-
-using .Counterfactuals
-function Base.show(io::IO, z::CounterfactualExplanation)
-
-    printstyled(io, "Factual: ", bold=true)
-    println(io, "x=$(z.x), y=$(Counterfactuals.factual_label(z)), p=$(Counterfactuals.factual_probability(z))")
-    printstyled(io, "Target: ", bold=true)
-    println(io, "target=$(z.target), γ=$(z.params[:γ])")
-
-    if !isnothing(z.search)
-        printstyled(io, "Counterfactual outcome: ", bold=true)
-        println(io, "x′=$(z.x′), y′=$(Counterfactuals.counterfactual_label(z)), p′=$(Counterfactuals.counterfactual_probability(z))")
-        printstyled(io, "Converged: $(Counterfactuals.converged(z) ? "✅"  : "❌") ", bold=true)
-        println("after $(Counterfactuals.total_steps(z)) steps.")
-    else
-        @info "Search not yet initatiated."
-    end
-
 end
 
 """
@@ -45,18 +26,20 @@ Outer method to construct a `CounterfactualExplanation` structure.
 """
 # Outer constructor method:
 function CounterfactualExplanation(
+    ;
     x::Union{AbstractArray,Int}, 
     target::Union{AbstractFloat,Int}, 
     data::CounterfactualData,  
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
-    γ::AbstractFloat, 
-    T::Int
+    γ::AbstractFloat=0.75, 
+    T::Int=100,
+    latent_space::Bool=DataPreprocessing.has_pretrained_generative_model(data)
 ) 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
-    # Counterfactual:
-    x′ = copy(x)  # start from factual
+    # Counterfactual state variable:
+    s′ = copy(x)  # start from factual
 
     # Parameters:
     params = Dict(
@@ -66,10 +49,32 @@ function CounterfactualExplanation(
     )
 
     # Instantiate: 
-    counterfactual_explantion = CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
+    counterfactual_explantion = CounterfactualExplanation(x, target, nothing, s′, data, M, generator, latent_space, params, nothing)
 
-    # Initialize:
-    initialize!(counterfactual_explantion) 
+    # Encode target:
+    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
+
+    # Check for redundancy:
+    if threshold_reached(counterfactual_explanation)
+        @info "Factual already in target class and probability exceeds threshold γ."
+    end
+
+    # Latent space:
+    if counterfactual_explantion.latent_space
+        @info "Searching in latent space using generative model."
+        generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
+        # map counterfactual to latent space: s′=z′∼p(z|x)
+        counterfactual_explantion.s′ = rand(generative_model.encoder, counterfactual_explantion.x)
+    end
+
+    # Initialize search:
+    counterfactual_explanation.search = Dict(
+        :iteration_count => 1,
+        :times_changed_features => zeros(length(counterfactual_explanation.x)),
+        :path => [counterfactual_explanation.s′],
+        :terminated => threshold_reached(counterfactual_explanation),
+        :converged => threshold_reached(counterfactual_explanation),
+    )
 
     return counterfactual_explantion
 
@@ -125,86 +130,6 @@ function factual_label(counterfactual_explanation::CounterfactualExplanation)
 end
 
 # 2) Counterfactual values:
-"""
-    initialize!(counterfactual_explanation::CounterfactualExplanation, generator::AbstractGenerator) 
-
-Default subroutine that intializes the counterfactual search.
-"""
-function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::AbstractGenerator) 
-
-    # Encode target:
-    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
-
-    # Initialize search:
-    counterfactual_explanation.search = Dict(
-        :iteration_count => 1,
-        :times_changed_features => zeros(length(counterfactual_explanation.x)),
-        :path => [counterfactual_explanation.x′],
-        :terminated => threshold_reached(counterfactual_explanation),
-        :converged => threshold_reached(counterfactual_explanation),
-        :other => nothing
-    )
-
-    if counterfactual_explanation.search[:terminated]
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
-
-end
-
-"""
-    initialize!(counterfactual_explanation::CounterfactualExplanation, generator::LatentSpaceGenerator) 
-
-Default subroutine that intializes the counterfactual search.
-"""
-function initialize!(counterfactual_explanation::CounterfactualExplanation, generator::Generators.LatentSpaceGenerator) 
-
-    # Encode target:
-    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
-
-    # Initialize search:
-    counterfactual_explanation.search = Dict(
-        :iteration_count => 1,
-        :times_changed_features => zeros(length(counterfactual_explanation.x)),
-        :path => [counterfactual_explanation.x′],
-        :terminated => threshold_reached(counterfactual_explanation),
-        :converged => threshold_reached(counterfactual_explanation),
-        :other => nothing
-    )
-
-    if counterfactual_explanation.search[:terminated]
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
-
-    # Generative model:
-    if generator.generative_model isa Symbol
-        @info "Initializing generative model."
-        input_dim = DataPreprocessing.input_dim(counterfactual_explanation.data)
-        generator.generative_model = getfield(GenerativeModels, generator.generative_model)(input_dim; generator.gm_params...)
-    end
-
-    if generator.gm_train
-        @info "Begin training of generative model."
-        X = counterfactual_explanation.data.X
-        y = counterfactual_explanation.data.y
-        GenerativeModels.train!(generator.generative_model, X, y; generator.gm_params...)
-        @info "Training of generative model completed."
-        generator.gm_train = false
-    else 
-        @info "Skipping training of generative model."
-    end
-
-    # Generative model:
-    encoder = generator.generative_model.encoder
-    decoder = generator.generative_model.decoder
-
-    # 1. Encode counterfactual: z′ ∼ p(z|x)
-    z′ = rand(encoder, counterfactual_state.x′)
-
-end
-
-# Just a wrapper for the outer API (following https://discourse.julialang.org/t/best-way-to-dispatch-on-type-field/4024/2)
-initialize!(counterfactual_explanation::CounterfactualExplanation) = initialize!(counterfactual_explanation, counterfactual_explanation.generator)
-
 """
     counterfactual(counterfactual_explanation::CounterfactualExplanation)
 
@@ -331,10 +256,9 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 A subroutine that is used to take a snapshot of the current counterfactual search state. This snapshot is passed to the counterfactual generator.
 """
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
-    counterfactual_state = Generators.CounterfactualState(
-        counterfactual_explanation.x,
-        counterfactual_explanation.target_encoded,
+    counterfactual_state = CounterfactualState(
         counterfactual_explanation.x′,
+        counterfactual_explanation.target_encoded,
         counterfactual_explanation.M,
         counterfactual_explanation.params,
         counterfactual_explanation.search
@@ -368,3 +292,20 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
 end
 
+function Base.show(io::IO, z::CounterfactualExplanation)
+
+    printstyled(io, "Factual: ", bold=true)
+    println(io, "x=$(z.x), y=$(factual_label(z)), p=$(factual_probability(z))")
+    printstyled(io, "Target: ", bold=true)
+    println(io, "target=$(z.target), γ=$(z.params[:γ])")
+
+    if !isnothing(z.search)
+        printstyled(io, "Counterfactual outcome: ", bold=true)
+        println(io, "x′=$(z.x′), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
+        printstyled(io, "Converged: $(converged(z) ? "✅"  : "❌") ", bold=true)
+        println("after $(total_steps(z)) steps.")
+    else
+        @info "Search not yet initatiated."
+    end
+
+end
