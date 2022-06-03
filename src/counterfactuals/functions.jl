@@ -3,6 +3,7 @@ mutable struct CounterfactualExplanation
     target::Number
     target_encoded::Union{Number, AbstractVector, Nothing}
     s′::AbstractArray
+    f::Function
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
@@ -38,8 +39,10 @@ function CounterfactualExplanation(
 ) 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
+
     # Counterfactual state variable:
     s′ = copy(x)  # start from factual
+    f(s) = s # default mapping to feature space 
 
     # Parameters:
     params = Dict(
@@ -49,7 +52,10 @@ function CounterfactualExplanation(
     )
 
     # Instantiate: 
-    counterfactual_explantion = CounterfactualExplanation(x, target, nothing, s′, data, M, generator, latent_space, params, nothing)
+    counterfactual_explantion = CounterfactualExplanation(
+        x, target, nothing, s′, f, 
+        data, M, generator, latent_space, params, nothing
+    )
 
     # Encode target:
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
@@ -65,6 +71,8 @@ function CounterfactualExplanation(
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
         # map counterfactual to latent space: s′=z′∼p(z|x)
         counterfactual_explantion.s′ = rand(generative_model.encoder, counterfactual_explantion.x)
+        f(s) = generative_model.decoder(s) # mapping from latent space
+        counterfactual_explantion.f = f
     end
 
     # Initialize search:
@@ -135,14 +143,14 @@ end
 
 A convenience method to get the counterfactual value.
 """
-counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x′
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.f(counterfactual_explanation.z′)
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method to compute the class probabilities of the counterfactual value.
 """
-counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual_explanation.x′)
+counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
 
 """
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
@@ -219,7 +227,7 @@ end
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(Δx′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
+function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
 
     mutability = counterfactual_explanation.params[:mutability]
     # Helper functions:
@@ -230,9 +238,9 @@ function apply_mutability(Δx′::AbstractArray, counterfactual_explanation::Cou
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
     # Apply:
-    Δx′ = [getfield(cases, mutability[d])(Δx′[d]) for d in 1:length(Δx′)]
+    Δs′ = [getfield(cases, mutability[d])(counterfactual_explanation.f(Δs′[d])) for d in 1:length(Δs′)]
 
-    return Δx′
+    return Δs′
 
 end
 
@@ -256,8 +264,9 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 A subroutine that is used to take a snapshot of the current counterfactual search state. This snapshot is passed to the counterfactual generator.
 """
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
-    counterfactual_state = CounterfactualState(
-        counterfactual_explanation.x′,
+    counterfactual_state = CounterfactualState.State(
+        counterfactual_explanation.s′,
+        counterfactual_explanation.f,
         counterfactual_explanation.target_encoded,
         counterfactual_explanation.M,
         counterfactual_explanation.params,
@@ -276,17 +285,17 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_state = get_counterfactual_state(counterfactual_explanation)
 
     # Generate peturbations:
-    Δx′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
-    Δx′ = apply_mutability(Δx′, counterfactual_explanation)
-    Δx′ = reshape(Δx′, size(counterfactual_explanation.x′))
-    x′ = counterfactual_explanation.x′ + Δx′
-    x′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, x′)
-    counterfactual_explanation.x′ = x′ # update counterfactual
+    Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
+    Δs′ = apply_mutability(Δs′, counterfactual_explanation)
+    Δs′ = reshape(Δs′, size(counterfactual_explanation.s′))
+    s′ = counterfactual_explanation.s′ + Δs′
+    # x′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, x′)
+    counterfactual_explanation.s′ = s′ # update counterfactual
     
     # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x′]
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
-    counterfactual_explanation.search[:times_changed_features] += reshape(Δx′ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.search[:times_changed_features] += reshape(Δs′ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)

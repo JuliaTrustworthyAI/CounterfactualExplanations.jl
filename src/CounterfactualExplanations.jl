@@ -37,14 +37,15 @@ export AbstractFittedModel, AbstractDifferentiableModel,
 # ( ℳ[𝒟] , xᵢ ∈ x )
 ###
 
-include("counterfactual/Counterfactual.jl")
+include("counterfactual/CounterfactualState.jl")
+using .CounterfactualState
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )
 ###
 include("generators/Generators.jl")
 using .Generators
-export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, Counterfactual,
+export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, 
     generate_perturbations, conditions_satisified, mutability_constraints  
 
 ### CounterfactualExplanation

@@ -11,27 +11,27 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 # ----- Julia models -----
 """
-    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, counterfactual::Counterfactual)
+    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, counterfactual_state::CounterfactualState.State)
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual::Counterfactual)
-    gradient(() -> ℓ(generator, counterfactual), Flux.params(counterfactual.x′))[counterfactual.x′]
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual_state::CounterfactualState.State)
+    gradient(() -> ℓ(generator, counterfactual_state), Flux.params(counterfactual_state.s′))[counterfactual_state.s′]
 end
 
 # ----- RTorch model -----
 using RCall
 """
-    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual::Counterfactual)
+    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState.State)
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual::Counterfactual) 
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState.State) 
     nn = M.nn
-    x_cf = counterfactual.x′
-    t = counterfactual.target_encoded
+    s_cf = counterfactual_state.s′
+    t = counterfactual_state.target_encoded
     R"""
-    x <- torch_tensor($x_cf, requires_grad=TRUE)
+    x <- torch_tensor($s_cf, requires_grad=TRUE)
     output <- $nn(x)
     obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
     obj_loss$backward()
@@ -43,19 +43,19 @@ end
 # ----- PyTorch model -----
 using PyCall
 """
-    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual::Counterfactual)
+    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState.State)
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchModel, counterfactual::Counterfactual) 
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchModel, counterfactual_state::CounterfactualState.State) 
     py"""
     import torch
     from torch import nn
     """
     nn = M.nn
-    x′ = counterfactual.x′
-    t = counterfactual.target_encoded
-    x = reshape(x′, 1, length(x′))
+    s′ = counterfactual_state.s′
+    t = counterfactual_state.target_encoded
+    x = reshape(s′, 1, length(s′))
     py"""
     x = torch.Tensor($x)
     x.requires_grad = True
@@ -69,48 +69,48 @@ function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchMode
 end
 
 """
-    ∂h(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
+    ∂h(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-∂h(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual) = gradient(() -> h(generator, counterfactual), Flux.params(counterfactual.x′))[counterfactual.x′]
+∂h(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) = gradient(() -> h(generator, counterfactual_state), Flux.params(counterfactual_state.s′))[counterfactual_state.s′]
 
 # Gradient:
 """
-    ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual::Counterfactual)
+    ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
 
 The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 """
-∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual::Counterfactual) = ∂ℓ(generator, M, counterfactual) + generator.λ * ∂h(generator, counterfactual)
+∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + generator.λ * ∂h(generator, counterfactual_state)
 
 """
-    generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
+    generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
-function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual) 
-    𝐠ₜ = ∇(generator, counterfactual.M, counterfactual) # gradient
+function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) 
+    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
     Δx′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
     return Δx′
 end
 
 """
-    mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
+    mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to return mutability constraints that are dependent on the current counterfactual search state. For generic gradient-based generators, no state-dependent constraints are added.
 """
-function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
-    mutability = counterfactual.params[:mutability]
+function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+    mutability = counterfactual_state.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
 end 
 
 """
-    conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
+    conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
 """
-function conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual::Counterfactual)
-    𝐠ₜ = ∇(generator, counterfactual.M, counterfactual)
+function conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state)
     status = all(abs.(𝐠ₜ) .< generator.τ) 
     return status
 end
