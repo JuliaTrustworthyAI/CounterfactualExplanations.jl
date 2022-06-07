@@ -191,7 +191,13 @@ total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfact
 
 A convenience method that returns the entire counterfactual path.
 """
-path(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:path]
+function path(counterfactual_explanation::CounterfactualExplanation; feature_space=true)
+    path = counterfactual_explanation.search[:path]
+    if feature_space
+        path = [counterfactual_explanation.f(z) for z ∈ path]
+    end
+    return path
+end
 
 """
     target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)

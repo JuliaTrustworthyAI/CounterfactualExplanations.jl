@@ -23,6 +23,100 @@ CurrentModule = CounterfactualExplanations
 
 ### Synthetic data
 
+#### 2D
+
+```{julia}
+using CounterfactualExplanations
+using Random
+input_dim = 2
+n = 100
+η = 5
+μ₀ = rand(-input_dim:input_dim,input_dim) .* η
+μ₁ = rand(-input_dim:input_dim,input_dim) .* η
+X₀ = μ₀ .+ randn(input_dim, n) 
+X₁ = μ₁ .+ randn(input_dim, n) 
+X = hcat(X₀, X₁)
+using MLUtils
+xs = MLUtils.unstack(X,dims=2)
+ys = hcat(zeros(1,n), ones(1,n))
+```
+
+```{julia}
+using Flux
+n_hidden = 50
+nn = Chain(
+    Dense(input_dim, n_hidden, relu),
+    Dense(n_hidden, 1)
+)  
+loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
+data = zip(xs,ys)
+```
+
+```{julia}
+using Flux.Optimise: update!, ADAM
+opt = ADAM()
+epochs = 100
+using Statistics: mean
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+show_every = epochs/10
+
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(Flux.params(nn)) do
+      l = loss(d...)
+    end
+    update!(opt, Flux.params(nn), gs)
+  end
+  if epoch % show_every == 0
+    println("Epoch " * string(epoch))
+    @show avg_loss(data)
+  end
+end
+
+M = FluxModel(nn)
+```
+
+```{julia}
+counterfactual_data = CounterfactualData(X,ys)
+```
+
+```{julia}
+using Random
+# Random.seed!(123)
+x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+```{julia}
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
+counterfactual_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
+```
+
+```{julia}
+#| echo: false
+T = maximum([size(path(counterfactual))[1],size(path(counterfactual_latent))[1]])
+p1 = plot_contour(X',vec(ys),M;colorbar=false, title="Standard")
+p2 = plot_contour(X',vec(ys),M;colorbar=false, title="Latent")
+anim = @animate for t in 1:T
+    path_ = path(counterfactual)
+    if t <= length(path_)
+        scatter!(p1, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
+    end
+    path_ = path(counterfactual_latent)
+    if t <= length(path_)
+        scatter!(p2, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
+    end
+    plot(p1,p2,size=(800,400))
+end
+gif(anim)
+```
+
+#### 3D
+
 ```{julia}
 using CounterfactualExplanations
 using Random
@@ -95,9 +189,9 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 
 ```{julia}
 # Define generator:
-generator = GenericGenerator()
+generator = GenericGenerator(λ=0.0)
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=0.9)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=1.0)
 ```
 
 ```{julia}
