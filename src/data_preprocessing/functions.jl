@@ -1,7 +1,7 @@
 using Flux
 using StatsBase
 
-struct CounterfactualData
+mutable struct CounterfactualData
     X::AbstractMatrix
     y::AbstractMatrix
     mutability::Union{Vector{Symbol},Nothing}
@@ -11,7 +11,7 @@ struct CounterfactualData
     standardize::Bool
     dt::StatsBase.AbstractDataTransform
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
-    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt)
+    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,generative_model)
         conditions = []
         conditions = vcat(conditions..., length(size(X)) != 2 ? error("Data should be in tabular format") : true)
         conditions = vcat(conditions..., size(X)[2] != size(y)[2] ? throw(DimensionMismatch("Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])")) : true)
@@ -127,15 +127,16 @@ Returns the underlying generative model. If there is no existing model available
 """
 function get_generative_model(counterfactual_data::CounterfactualData)
     if !has_pretrained_generative_model(counterfactual_data) 
-        if isnothing(counterfactual_data.generative_model) 
-            @warn "The provided generative model has not been trained. Latent space search is likely to perform poorly." 
-        end
         @info "No pre-trained generative model found. Using default generative model. Begin training."
-        counterfactual_data.generative_model = GenerativeModels.VAE(input_dim(counterfactual_data); GenerativeModels.VAEParams...)
+        counterfactual_data.generative_model = GenerativeModels.VAE(input_dim(counterfactual_data))
         X = counterfactual_data.X
         y = counterfactual_data.y
-        GenerativeModels.train!(counterfactual_data.generative_model, X, y; GenerativeModels.VAEParams...)
+        GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."
+    else
+        if !counterfactual_data.generative_model.trained
+            @warn "The provided generative model has not been trained. Latent space search is likely to perform poorly." 
+        end
     end
     return counterfactual_data.generative_model
 end

@@ -30,3 +30,9 @@ How can we achieve this?
     - Gradients can then just always be computed with respect to $s$.
     - Mutability constraints can also be implemented with respect to $s$, since $\Delta f(s)=0$ for $\Delta s=0$.
     - Domain constraints may be more difficult, but this can be parked for now. 
+
+## Want-to-have
+
+- Domain constraints for latent space search:
+  - Through [latent space constraints](https://openreview.net/forum?id=Sy8XvGb0-)?
+  - Through invertible neural nets?

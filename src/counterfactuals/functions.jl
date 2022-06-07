@@ -52,7 +52,7 @@ function CounterfactualExplanation(
     )
 
     # Instantiate: 
-    counterfactual_explantion = CounterfactualExplanation(
+    counterfactual_explanation = CounterfactualExplanation(
         x, target, nothing, s′, f, 
         data, M, generator, latent_space, params, nothing
     )
@@ -66,13 +66,13 @@ function CounterfactualExplanation(
     end
 
     # Latent space:
-    if counterfactual_explantion.latent_space
+    if counterfactual_explanation.latent_space
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
         # map counterfactual to latent space: s′=z′∼p(z|x)
-        counterfactual_explantion.s′ = rand(generative_model.encoder, counterfactual_explantion.x)
-        f(s) = generative_model.decoder(s) # mapping from latent space
-        counterfactual_explantion.f = f
+        counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.x)
+        dec(s) = generative_model.decoder(s)
+        counterfactual_explanation.f = dec # mapping from latent space
     end
 
     # Initialize search:
@@ -84,7 +84,7 @@ function CounterfactualExplanation(
         :converged => threshold_reached(counterfactual_explanation),
     )
 
-    return counterfactual_explantion
+    return counterfactual_explanation
 
 end
 
@@ -143,7 +143,7 @@ end
 
 A convenience method to get the counterfactual value.
 """
-counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.f(counterfactual_explanation.z′)
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.f(counterfactual_explanation.s′)
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
@@ -203,7 +203,7 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
     p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
     target = counterfactual_explanation.target
 
-    if length(p) == 1
+    if !all(size(p) .> 1)
         h(x) = ifelse(x==-1,0,x)
         if target ∉ [0,1] && target ∉ [-1,1]
             throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
@@ -238,7 +238,7 @@ function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::Cou
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
     # Apply:
-    Δs′ = [getfield(cases, mutability[d])(counterfactual_explanation.f(Δs′[d])) for d in 1:length(Δs′)]
+    Δs′ = [getfield(cases, mutability[d])(counterfactual_explanation.f(Δs′)[d]) for d in 1:length(Δs′)]
 
     return Δs′
 
@@ -265,6 +265,7 @@ A subroutine that is used to take a snapshot of the current counterfactual searc
 """
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
     counterfactual_state = CounterfactualState.State(
+        counterfactual_explanation.x,
         counterfactual_explanation.s′,
         counterfactual_explanation.f,
         counterfactual_explanation.target_encoded,
@@ -286,16 +287,28 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
 
     # Generate peturbations:
     Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
-    Δs′ = apply_mutability(Δs′, counterfactual_explanation)
+    if !counterfactual_explanation.latent_space
+        Δs′ = apply_mutability(Δs′, counterfactual_explanation)
+    else
+        if !all(counterfactual_explanation.params[:mutability].==:both)
+            @warn "Mutability constraints not currently implemented for latent space search."
+        end
+    end
     Δs′ = reshape(Δs′, size(counterfactual_explanation.s′))
     s′ = counterfactual_explanation.s′ + Δs′
-    # x′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, x′)
+    if !counterfactual_explanation.latent_space
+        s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    else
+        if !isnothing(counterfactual_explanation.data.domain)
+            @warn "Domain constraints not currently implemented for latent space search."
+        end
+    end
     counterfactual_explanation.s′ = s′ # update counterfactual
     
     # Updates:
     counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
-    counterfactual_explanation.search[:times_changed_features] += reshape(Δs′ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
@@ -310,7 +323,7 @@ function Base.show(io::IO, z::CounterfactualExplanation)
 
     if !isnothing(z.search)
         printstyled(io, "Counterfactual outcome: ", bold=true)
-        println(io, "x′=$(z.x′), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
+        println(io, "x′=$(counterfactual(z)), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
         printstyled(io, "Converged: $(converged(z) ? "✅"  : "❌") ", bold=true)
         println("after $(total_steps(z)) steps.")
     else

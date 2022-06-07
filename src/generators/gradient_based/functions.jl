@@ -90,8 +90,8 @@ The default method to generate feature perturbations for gradient-based generato
 """
 function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) 
     𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
-    Δx′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
-    return Δx′
+    Δs′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    return Δs′
 end
 
 """

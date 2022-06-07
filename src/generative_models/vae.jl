@@ -90,7 +90,7 @@ The default VAE parameters describing both the encoder/decoder architecture and 
     λ = 0.01f0              # regularization paramater
     batch_size = 128        # batch size
     sample_size = 10        # sampling size for output    
-    epochs = 20             # number of epochs
+    epochs = 50            # number of epochs
     seed = 0                # random seed
     cuda = true             # use GPU
     device = gpu            # default device
@@ -106,7 +106,7 @@ end
 
 Constructrs the Variational Autoencoder. The VAE is a subtype of `AbstractGenerativeModel`. Any (sub-)type of `AbstractGenerativeModel` is accepted by latent space generators. 
 """
-struct VAE <: AbstractGenerativeModel
+mutable struct VAE <: AbstractGenerativeModel
     encoder::Encoder
     decoder::Any
     params::VAEParams
@@ -224,59 +224,3 @@ function convert_to_image(x, y_size)
     Gray.(permutedims(vcat(reshape.(chunk(x |> cpu, y_size), 28, :)...), (2, 1)))
 end
 
-using Plots
-import Plots: plot
-function plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
-    args = generative_model.params
-    device = args.device
-    encoder, decoder = generative_model.encoder |> device, generative_model.decoder |> device
-    
-    # load data
-    loader = get_data(X,y,args.batch_size)
-    labels = []
-    μ_1 = []
-    μ_2 = []
-
-    # clustering in the latent space
-    # visualize first two dims
-    out_dim = size(y)[1]
-    pal = out_dim > 1 ? cgrad(:rainbow, out_dim, categorical = true) : :rainbow
-    println(pal)
-    plt_clustering = scatter(palette=pal, title="Latent space clustering")
-    for (i, (x, y)) in enumerate(loader)
-        i < 20 || break
-        μ_i, _ = encoder(x |> device)
-        μ_1 = vcat(μ_1, μ_i[1, :])
-        μ_2 = vcat(μ_2, μ_i[2, :])
-        
-        y = out_dim == 1 ? y : Flux.onecold(y,1:(out_dim))
-        labels = Int.(vcat(labels, vec(y)))
-    end
-
-    scatter!(
-        μ_1, μ_2, 
-        markerstrokewidth=0, markeralpha=0.8,
-        aspect_ratio=1,
-        markercolor=labels,
-        group=labels
-    )
-
-    if image_data 
-        z = range(-2.0, stop=2.0, length=11)
-        len = Base.length(z)
-        z1 = repeat(z, len)
-        z2 = sort(z1)
-        x = zeros(Float32, args.latent_dim, len^2) |> device
-        x[1, :] = z1
-        x[2, :] = z2
-        samples = decoder(x)
-        samples = sigmoid.(samples)
-        samples = convert_to_image(samples, len)
-        plt_manifold = Plots.plot(samples, axis=nothing, title="2D Manifold")
-        plt = Plots.plot(plt_clustering, plt_manifold)
-    else
-        plt = plt_clustering
-    end
-
-    return plt
-end

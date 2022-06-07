@@ -24,6 +24,9 @@ CurrentModule = CounterfactualExplanations
 ### Synthetic data
 
 ```{julia}
+using CounterfactualExplanations
+using Random
+Random.seed!(123)
 input_dim = 3
 n = 100
 η = 10
@@ -32,19 +35,80 @@ n = 100
 X₀ = μ₀ .+ randn(input_dim, n) 
 X₁ = μ₁ .+ randn(input_dim, n) 
 X = hcat(X₀, X₁)
+using MLUtils
+xs = MLUtils.unstack(X,dims=2)
 ys = hcat(zeros(1,n), ones(1,n))
 ```
 
 ```{julia}
-using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct, plot
+using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct
 vae = VAE(input_dim; epochs=100)
 train!(vae, X, ys)
 ```
 
 ```{julia}
-plot(vae, X, ys)
+using Flux
+n_hidden = 50
+nn = Chain(
+    Dense(input_dim, n_hidden, relu),
+    Dense(n_hidden, 1)
+)  
+loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
+data = zip(xs,ys)
 ```
 
+```{julia}
+using Flux.Optimise: update!, ADAM
+opt = ADAM()
+epochs = 100
+using Statistics: mean
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+show_every = epochs/10
+
+for epoch = 1:epochs
+  for d in data
+    gs = gradient(Flux.params(nn)) do
+      l = loss(d...)
+    end
+    update!(opt, Flux.params(nn), gs)
+  end
+  if epoch % show_every == 0
+    println("Epoch " * string(epoch))
+    @show avg_loss(data)
+  end
+end
+
+M = FluxModel(nn)
+```
+
+```{julia}
+counterfactual_data = CounterfactualData(X,ys)
+```
+
+```{julia}
+using Random
+Random.seed!(123)
+x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+```{julia}
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=0.9)
+```
+
+```{julia}
+#| echo: false
+include("docs/src/utils.jl")
+plt = plot(counterfactual.data.generative_model, X, ys)
+T = size(path(counterfactual))[1]
+X_path = reduce(hcat,path(counterfactual))
+scatter!([X_path[1,1]],[X_path[2,1]],colour=:yellow,ms=5,label="")
+scatter!([X_path[1,2:end]],[X_path[2,2:end]],colour=:yellow,ms=5,label="")
+```
 
 
 ### MNIST data

@@ -47,7 +47,7 @@ end
 he default method to compute the gradient of the counterfactual search objective for a greedy generator. Since no complexity penalty is needed, this gradients just correponds to the partial derivative with respect to the loss function.
 
 """
-∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, counterfactual_state)
+∇(generator::GreedyGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state)
 
 """
     generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
@@ -57,10 +57,10 @@ The default method to generate perturbations for a greedy generator. Only the mo
 function generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State) 
     𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
     𝐠ₜ[counterfactual_state.params[:mutability] .== :none] .= 0
-    Δx′ = reshape(zeros(length(counterfactual_state.x′)), size(𝐠ₜ))
+    Δs′ = reshape(zeros(length(counterfactual_state.s′)), size(𝐠ₜ))
     iₜ = argmax(abs.(𝐠ₜ)) # choose most salient feature
-    Δx′[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
-    return Δx′
+    Δs′[iₜ] -= generator.δ * sign(𝐠ₜ[iₜ]) # counterfactual update
+    return Δs′
 end
 
 """
