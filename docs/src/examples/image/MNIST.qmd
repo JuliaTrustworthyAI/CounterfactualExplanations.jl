@@ -26,7 +26,7 @@ In this example we will see how different counterfactual generators can be used 
 ```{julia}
 #| echo: false
 using CounterfactualExplanations, Plots, MLDatasets
-using MLDatasets.MNIST: convert2image
+using MLDatasets: convert2image
 using BSON: @save, @load
 theme(:wong)
 using Logging
@@ -72,15 +72,7 @@ The following code just prepares the models to be used with `CounterfactualExpla
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
-# MLP:
-# Step 1)
-struct NeuralNetwork <: Models.AbstractFittedModel
-    nn::Any
-end
-# Step 2)
-logits(M::NeuralNetwork, X::AbstractArray) = M.nn(X)
-probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
-M = NeuralNetwork(model)
+M = FluxModel(model, type=:classification_multi)
 
 # Deep ensemble:
 # Step 1)
@@ -110,7 +102,7 @@ They can be implemented using the `GenericGenerator` and the `GreedyGenerator`.
 We will start with an example that should yield intuitive results: the process of turning a handwritten 9 in @fig-nine into a 4 is straight-forward for a human - just erase the top part. Let's see how the different algorithmic approaches perform. First, we preprocess the data below, where we impose that the features (pixel values) are constrained to the follwoing domain: $\mathcal{X}=[0,1]\subset\mathbb{R}$.
 
 ```{julia}
-counterfactual_data = CounterfactualData(X,ys';domain=(0,1))
+counterfactual_data = CounterfactualData(X,ys;domain=(0,1))
 ```
 
 Next we choose a random sample for which we will generate counterfactuals in the following:
@@ -118,8 +110,8 @@ Next we choose a random sample for which we will generate counterfactuals in the
 ```{julia}
 # Randomly selected factual:
 using Random
-Random.seed!(1234)
-x = Flux.unsqueeze(select_factual(counterfactual_data, rand(1:size(X)[2])),2)
+Random.seed!(42)
+x = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==9))],input_dim,1)
 target = 5
 γ = 0.95
 ```
@@ -128,7 +120,7 @@ target = 5
 #| echo: false
 using Images
 input_dim = size(X)[1]
-img = convert2image(reshape(x,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim))))
 plt_orig = plot(img, title="Original", axis=nothing)
 savefig(plt_orig, joinpath(www_path, "mnist_original.png"))
 ```
@@ -141,23 +133,23 @@ The code below implements the four different approaches one by one. @fig-example
 # Generic - MLP
 generator = GenericGenerator(;loss=:logitcrossentropy)
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
-img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST,reshape(counterfactual(counterfactual),Int(√(input_dim)),Int(√(input_dim))))
 plt_wachter = plot(img, title="MLP - Wachter")
 
 # Generic - Deep Ensemble
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M_ensemble, generator; γ=γ)
-img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST,reshape(counterfactual(counterfactual),Int(√(input_dim)),Int(√(input_dim))))
 plt_wachter_de = plot(img, title="Ensemble - Wachter")
 
 # Greedy - MLP
 generator = GreedyGenerator(;loss=:logitcrossentropy)
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
-img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST,reshape(counterfactual(counterfactual),Int(√(input_dim)),Int(√(input_dim))))
 plt_greedy = plot(img, title="MLP - Greedy")
 
 # Greedy - Deep Ensemble
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M_ensemble, generator; γ=γ)
-img = convert2image(reshape(counterfactual.x′,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST,reshape(counterfactual(counterfactual),Int(√(input_dim)),Int(√(input_dim))))
 plt_greedy_de = plot(img, title="Ensemble - Greedy")
 
 plt_list = [plt_orig, plt_wachter, plt_greedy, plt_wachter_de, plt_greedy_de]

@@ -9,10 +9,10 @@ struct FluxModel <: Models.AbstractDifferentiableJuliaModel
     nn::Any
     type::Symbol
     function FluxModel(nn, type)
-        if type ∈ [:classification_binary,:classification_binary]
+        if type ∈ [:classification_binary,:classification_multi]
             new(nn, type)
         else
-            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_binary]`"))
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
         end
     end
 end
@@ -24,10 +24,7 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    if M.type == :classification_binary || :classification_multi 
-        output = M.nn(X)
-    end
-    return output
+    return M.nn(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)

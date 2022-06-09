@@ -36,3 +36,10 @@ How can we achieve this?
 - Domain constraints for latent space search:
   - Through [latent space constraints](https://openreview.net/forum?id=Sy8XvGb0-)?
   - Through invertible neural nets?
+- Optimizers: move to Flux optimizers
+- Option to save VAE
+- VAE more easy to tweak 
+
+## Observations
+
+- Latent space search seems to struggle with local optima

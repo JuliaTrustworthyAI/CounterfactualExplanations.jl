@@ -283,6 +283,7 @@ end
 
 using Plots
 import Plots: plot
+using CounterfactualExplanations.GenerativeModels: VAE, train!
 function plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
     args = generative_model.params
     device = args.device
@@ -298,7 +299,7 @@ function plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_d
     # visualize first two dims
     out_dim = size(y)[1]
     pal = out_dim > 1 ? cgrad(:rainbow, out_dim, categorical = true) : :rainbow
-    plt_clustering = scatter(palette=pal, title="Latent space clustering")
+    plt_clustering = scatter(palette=pal; kws...)
     for (i, (x, y)) in enumerate(loader)
         i < 20 || break
         μ_i, _ = encoder(x |> device)
@@ -313,7 +314,7 @@ function plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_d
         μ_1, μ_2, 
         markerstrokewidth=0, markeralpha=0.8,
         aspect_ratio=1,
-        markercolor=labels,
+        # markercolor=labels,
         group=labels
     )
 

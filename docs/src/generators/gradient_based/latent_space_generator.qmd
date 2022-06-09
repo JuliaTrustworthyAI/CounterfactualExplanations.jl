@@ -19,6 +19,12 @@ jupyter: julia-1.7
 CurrentModule = CounterfactualExplanations 
 ```
 
+```{julia}
+www_path = "docs/src/generators/www/"
+include("docs/src/utils.jl")
+```
+
+
 ## Variational Autoencoder
 
 ### Synthetic data
@@ -120,10 +126,9 @@ gif(anim)
 ```{julia}
 using CounterfactualExplanations
 using Random
-Random.seed!(123)
 input_dim = 3
 n = 100
-η = 10
+η = 3
 μ₀ = rand(-input_dim:input_dim,input_dim) .* η
 μ₁ = rand(-input_dim:input_dim,input_dim) .* η
 X₀ = μ₀ .+ randn(input_dim, n) 
@@ -132,12 +137,6 @@ X = hcat(X₀, X₁)
 using MLUtils
 xs = MLUtils.unstack(X,dims=2)
 ys = hcat(zeros(1,n), ones(1,n))
-```
-
-```{julia}
-using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct
-vae = VAE(input_dim; epochs=100)
-train!(vae, X, ys)
 ```
 
 ```{julia}
@@ -189,62 +188,184 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 
 ```{julia}
 # Define generator:
-generator = GenericGenerator(λ=0.0)
+generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=1.0)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
 ```
 
 ```{julia}
 #| echo: false
-include("docs/src/utils.jl")
-plt = plot(counterfactual.data.generative_model, X, ys)
-T = size(path(counterfactual))[1]
+
+# Feature:
+p1 = scatter3d(X[1,:],X[2,:],X[3,:],group=vec(Int.(ys)), title="Feature space (3d)", palette=:rainbow)
 X_path = reduce(hcat,path(counterfactual))
-scatter!([X_path[1,1]],[X_path[2,1]],colour=:yellow,ms=5,label="")
-scatter!([X_path[1,2:end]],[X_path[2,2:end]],colour=:yellow,ms=5,label="")
+scatter3d!([X_path[1,end]],[X_path[2,end]],[X_path[3,end]],colour=:yellow,ms=10,label="Counterfactual")
+scatter3d!(X_path[1,1:(end-1)],X_path[2,1:(end-1)],X_path[3,1:(end-1)],colour=:yellow,ms=5,label="")
+
+# Latent:
+p2 = plot(counterfactual.data.generative_model, X, ys; title="Latent space (2d)")
+X_path = reduce(hcat,path(counterfactual, feature_space=false))
+scatter!([X_path[1,end]],[X_path[2,end]],colour=:yellow,ms=10,label="Counterfactual")
+scatter!([X_path[1,1:(end-1)]],[X_path[2,1:(end-1)]],colour=:yellow,ms=5,label="")
+
+plt = plot(p1,p2, legend=false, size=(800,400))
+savefig(plt, joinpath(www_path, "example_3d.png"))
 ```
 
 
 ### MNIST data
 
 ```{julia}
-#| echo: false
-using CounterfactualExplanations, Plots, MLDatasets
-using MLDatasets: convert2image
-using BSON: @save, @load
-theme(:wong)
-include("dev/utils.jl") # some plotting functions
-www_path = "docs/src/generators/www"
-```
-
-```{julia}
-#| echo: false
-data_train = MNIST(:train)
-train_x, train_y = data_train[:]
-input_dim = prod(size(train_x[:,:,1]))
-using Images, Random, StatsBase
-Random.seed!(1)
-n_samples = 10
-samples = train_x[:,:,sample(1:end, n_samples, replace=false)]
-mosaic = mosaicview([convert2image(MNIST, samples[:,:,i]) for i ∈ 1:n_samples]...,ncol=Int(n_samples/2))
-plt = plot(mosaic, size=(500,260), axis=nothing, background=:transparent)
-savefig(plt, joinpath(www_path, "mnist_samples.png"))
-```
-
-```{julia}
 using Flux
-using CounterfactualExplanations.Data: mnist_data
+using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
 X, ys = mnist_data()
+model = mnist_model()
+ensemble = mnist_ensemble()
+M = FluxModel(model, type=:classification_multi)
 ```
+
+```{julia}
+data_test = MNIST(:test)
+test_x, test_y = data_test[:]
+ys_test = Flux.onehotbatch(test_y, 0:9)
+X_test = Flux.flatten(test_x)
+bs = Int(round(size(X)[2]/10))
+data_test = DataLoader((X_test,ys_test),batchsize=bs)
+accuracy(data) = mean(map(d -> mean(Flux.onecold(Flux.softmax(model(d[1])), 0:9) .== Flux.onecold(d[2], 0:9)), data))
+accuracy(data_test)
+```
+
+
+### Training the VAE
 
 ```{julia}
 using CounterfactualExplanations.GenerativeModels: VAE, train!
-vae = VAE(input_dim)
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
 train!(vae, X, ys)
 ```
 
 ```{julia}
-using CounterfactualExplanations.GenerativeModels
-plt = GenerativeModels.plot(vae, X, ys)
-savefig(plt, joinpath(www_path, "vae_output.png"))
+draw_mnist(i) = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==i))],input_dim,1)
+reconstruct_mnist(x) = σ.(CounterfactualExplanations.GenerativeModels.reconstruct(vae,x)[1]) 
+reshape_mnist(x) = reshape(x,28,28)
+plt_list = []
+for i in 0:9
+  x = draw_mnist(i)
+  x_rec = reconstruct_mnist(x)
+  img = plot(convert2image(MNIST,reshape_mnist(x)), title="Original", axis=nothing)
+  img_rec = plot(convert2image(MNIST,reshape_mnist(x_rec)), title="Rec", axis=nothing)
+  plt = plot(img, img_rec)
+  plt_list = vcat(plt_list, plt)
+end
+plt = plot(plt_list..., layout=(10,1), size=(200,1000))
+savefig(plt, joinpath(www_path, "vae_reconstruct.png"))
+```
+
+### Counterfactual search
+
+```{julia}
+counterfactual_data = CounterfactualData(X,ys)
+counterfactual_data.generative_model = vae # assign generative model
+```
+
+```{julia}
+# Randomly selected factual:
+factual = 10
+using Random
+Random.seed!(1234)
+x = reshape(X[:,rand(findall(Flux.onecold(ys,1:10).==factual))],input_dim,1)
+target = 5
+γ = 0.90
+```
+
+#### MLP
+
+```{julia}
+# Define generator:
+generator = GenericGenerator(;ϵ=1.0,λ=0.0)
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=γ)
+```
+
+```{julia}
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+target_prob = round(target_probs(counterfactual)[1],digits=2)
+ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+p2 = plot(
+  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+  axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
+)
+plt = plot(p1,p2,size=(500,200))
+savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_latent.png"))
+```
+
+```{julia}
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false, γ=0.95)
+```
+
+```{julia}
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+target_prob = round(target_probs(counterfactual)[1],digits=2)
+ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+p2 = plot(
+  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+  axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
+)
+plt = plot(p1,p2,size=(500,200))
+savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_wachter.png"))
+```
+
+#### Deep Ensemble
+
+```{julia}
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+
+# Deep ensemble:
+# Step 1)
+struct FittedEnsemble <: Models.AbstractDifferentiableModel
+    ensemble::AbstractArray
+end
+# Step 2)
+using Statistics
+logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
+M=FittedEnsemble(ensemble)
+```
+
+```{julia}
+# Define generator:
+generator = GenericGenerator(;ϵ=1.0,λ=0.0)
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=γ)
+```
+
+```{julia}
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+target_prob = round(target_probs(counterfactual)[1],digits=2)
+ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+p2 = plot(
+  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+  axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
+)
+plt = plot(p1,p2,size=(500,200))
+savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_ensemble_latent.png"))
+```
+
+```{julia}
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false, γ=0.95)
+```
+
+```{julia}
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+target_prob = round(target_probs(counterfactual)[1],digits=2)
+ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+p2 = plot(
+  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+  axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
+)
+plt = plot(p1,p2,size=(500,200))
+savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_ensemble_wachter.png"))
 ```

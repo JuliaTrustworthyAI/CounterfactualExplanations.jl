@@ -71,8 +71,13 @@ function CounterfactualExplanation(
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
         # map counterfactual to latent space: s′=z′∼p(z|x)
         counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.x)
-        dec(s) = generative_model.decoder(s)
-        counterfactual_explanation.f = dec # mapping from latent space
+
+        # NOTE! This is not very clean, will be improved.
+        if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
+            counterfactual_explanation.f = function(s) Flux.σ.(generative_model.decoder(s)) end
+        else
+            counterfactual_explanation.f = function(s) generative_model.decoder(s) end
+        end
     end
 
     # Initialize search:
@@ -209,7 +214,7 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
     p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
     target = counterfactual_explanation.target
 
-    if !all(size(p) .> 1)
+    if size(p)[1] == 1
         h(x) = ifelse(x==-1,0,x)
         if target ∉ [0,1] && target ∉ [-1,1]
             throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
@@ -255,7 +260,9 @@ end
 
 A convenience method that determines of the predefined threshold for the target class probability has been reached.
 """
-threshold_reached(counterfactual_explanation::CounterfactualExplanation) = target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
+    target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+end
 
 """
     steps_exhausted(counterfactual_explanation::CounterfactualExplanation) 
@@ -296,7 +303,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     if !counterfactual_explanation.latent_space
         Δs′ = apply_mutability(Δs′, counterfactual_explanation)
     else
-        if !all(counterfactual_explanation.params[:mutability].==:both)
+        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 1
             @warn "Mutability constraints not currently implemented for latent space search."
         end
     end
@@ -305,7 +312,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     if !counterfactual_explanation.latent_space
         s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
     else
-        if !isnothing(counterfactual_explanation.data.domain)
+        if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 1
             @warn "Domain constraints not currently implemented for latent space search."
         end
     end
@@ -330,7 +337,7 @@ function Base.show(io::IO, z::CounterfactualExplanation)
     if !isnothing(z.search)
         printstyled(io, "Counterfactual outcome: ", bold=true)
         println(io, "x′=$(counterfactual(z)), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
-        printstyled(io, "Converged: $(converged(z) ? "✅"  : "❌") ", bold=true)
+        printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
         println("after $(total_steps(z)) steps.")
     else
         @info "Search not yet initatiated."

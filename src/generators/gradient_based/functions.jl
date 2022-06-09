@@ -15,7 +15,7 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual_state::CounterfactualState.State)
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
     gradient(() -> ℓ(generator, counterfactual_state), Flux.params(counterfactual_state.s′))[counterfactual_state.s′]
 end
 
