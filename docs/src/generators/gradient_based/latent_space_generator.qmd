@@ -225,6 +225,7 @@ M = FluxModel(model, type=:classification_multi)
 ```
 
 ```{julia}
+using MLDatasets
 data_test = MNIST(:test)
 test_x, test_y = data_test[:]
 ys_test = Flux.onehotbatch(test_y, 0:9)
@@ -239,15 +240,22 @@ accuracy(data_test)
 ### Training the VAE
 
 ```{julia}
+#| eval: false
+input_dim = size(X)[1]
 using CounterfactualExplanations.GenerativeModels: VAE, train!
 vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
 train!(vae, X, ys)
 ```
 
 ```{julia}
+using BSON: @save
+@save joinpath(www_path, "vae.bson") vae
+```
+
+
+```{julia}
 draw_mnist(i) = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==i))],input_dim,1)
-reconstruct_mnist(x) = σ.(CounterfactualExplanations.GenerativeModels.reconstruct(vae,x)[1]) 
-reshape_mnist(x) = reshape(x,28,28)
+reconstruct_mnist(x) = σ.(CounterfactualExplanations.GenerativeModels.reconstruct(vae,x)[1]) reshape_mnist(x) = reshape(x,28,28)
 plt_list = []
 for i in 0:9
   x = draw_mnist(i)

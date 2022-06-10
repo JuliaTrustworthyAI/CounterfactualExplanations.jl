@@ -223,30 +223,3 @@ end
 function convert_to_image(x, y_size)
     Gray.(permutedims(vcat(reshape.(chunk(x |> cpu, y_size), 28, :)...), (2, 1)))
 end
-
-using BSON
-function save_gm(vae::VAE; path="") 
-    if !isdir(path)
-        mkdir(path)
-    end
-    BSON.bson(joinpath(path, "encoder.bson"), vae.encoder)
-    BSON.bson(joinpath(path, "decoder.bson"), vae.decoder)
-    BSON.bson(joinpath(path, "params.bson"), vae.params)
-    BSON.bson(joinpath(path, "trained.bson"), vae.trained)
-end
-
-using BSON: @load
-function load_gm(vae::VAE; path="")
-    @assert !isdir(path) "Supplied path does not exist"
-    all_files = Base.Filesystem.readdir(root)
-    is_bson_file = map(file -> Base.Filesystem.splitext(file)[2][2:end], all_files) .== "bson"
-    bson_files = all_files[is_bson_file]
-    @assert all(["encoder.bson", "decoder.bson", "params.bson", "trained.bson"] .∈ bson_files) "Some files seem to be missing."
-    @load joinpath(path, "encoder.bson") encoder
-    @load joinpath(path, "decoder.bson") decoder
-    @load joinpath(path, "params.bson") params
-    @load joinpath(path, "train.bson") train
-    vae = VAE(encoder, decoder, params, train)
-    return vae
-end
-
