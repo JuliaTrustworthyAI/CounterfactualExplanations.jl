@@ -2,31 +2,14 @@ mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
     target_encoded::Union{Number, AbstractVector, Nothing}
-    x′::AbstractArray
+    s′::AbstractArray
+    f::Function
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
+    latent_space::Bool
     params::Dict
     search::Union{Dict,Nothing}
-end
-
-using .Counterfactuals
-function Base.show(io::IO, z::CounterfactualExplanation)
-
-    printstyled(io, "Factual: ", bold=true)
-    println(io, "x=$(z.x), y=$(Counterfactuals.factual_label(z)), p=$(Counterfactuals.factual_probability(z))")
-    printstyled(io, "Target: ", bold=true)
-    println(io, "target=$(z.target), γ=$(z.params[:γ])")
-
-    if !isnothing(z.search)
-        printstyled(io, "Counterfactual outcome: ", bold=true)
-        println(io, "x′=$(z.x′), y′=$(Counterfactuals.counterfactual_label(z)), p′=$(Counterfactuals.counterfactual_probability(z))")
-        printstyled(io, "Converged: $(Counterfactuals.converged(z) ? "✅"  : "❌") ", bold=true)
-        println("after $(Counterfactuals.total_steps(z)) steps.")
-    else
-        @info "Search not yet initatiated."
-    end
-
 end
 
 """
@@ -44,18 +27,22 @@ Outer method to construct a `CounterfactualExplanation` structure.
 """
 # Outer constructor method:
 function CounterfactualExplanation(
+    ;
     x::Union{AbstractArray,Int}, 
     target::Union{AbstractFloat,Int}, 
     data::CounterfactualData,  
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
-    γ::AbstractFloat, 
-    T::Int
+    γ::AbstractFloat=0.75, 
+    T::Int=100,
+    latent_space::Bool=DataPreprocessing.has_pretrained_generative_model(data)
 ) 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
-    # Counterfactual:
-    x′ = copy(x)  # start from factual
+
+    # Counterfactual state variable:
+    s′ = copy(x)  # start from factual
+    f(s) = s # default mapping to feature space 
 
     # Parameters:
     params = Dict(
@@ -64,7 +51,45 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
 
-    return CounterfactualExplanation(x, target, nothing, x′, data, M, generator, params, nothing)
+    # Instantiate: 
+    counterfactual_explanation = CounterfactualExplanation(
+        x, target, nothing, s′, f, 
+        data, M, generator, latent_space, params, nothing
+    )
+
+    # Encode target:
+    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
+
+    # Check for redundancy:
+    if threshold_reached(counterfactual_explanation)
+        @info "Factual already in target class and probability exceeds threshold γ."
+    end
+
+    # Latent space:
+    if counterfactual_explanation.latent_space
+        @info "Searching in latent space using generative model."
+        generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
+        # map counterfactual to latent space: s′=z′∼p(z|x)
+        counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.x)
+
+        # NOTE! This is not very clean, will be improved.
+        if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
+            counterfactual_explanation.f = function(s) Flux.σ.(generative_model.decoder(s)) end
+        else
+            counterfactual_explanation.f = function(s) generative_model.decoder(s) end
+        end
+    end
+
+    # Initialize search:
+    counterfactual_explanation.search = Dict(
+        :iteration_count => 1,
+        :times_changed_features => zeros(length(counterfactual_explanation.x)),
+        :path => [counterfactual_explanation.s′],
+        :terminated => threshold_reached(counterfactual_explanation),
+        :converged => threshold_reached(counterfactual_explanation),
+    )
+
+    return counterfactual_explanation
 
 end
 
@@ -119,44 +144,18 @@ end
 
 # 2) Counterfactual values:
 """
-    initialize!(counterfactual_explanation::CounterfactualExplanation)
-
-A subroutine that intializes the counterfactual search.
-"""
-function initialize!(counterfactual_explanation::CounterfactualExplanation) 
-
-    # Encode target:
-    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
-
-    # Initialize search:
-    counterfactual_explanation.search = Dict(
-        :iteration_count => 1,
-        :times_changed_features => zeros(length(counterfactual_explanation.x)),
-        :path => [counterfactual_explanation.x′],
-        :terminated => threshold_reached(counterfactual_explanation),
-        :converged => threshold_reached(counterfactual_explanation),
-        :other => nothing
-    )
-
-    if counterfactual_explanation.search[:terminated]
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
-
-end
-
-"""
     counterfactual(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method to get the counterfactual value.
 """
-counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.x′
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.f(counterfactual_explanation.s′)
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method to compute the class probabilities of the counterfactual value.
 """
-counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual_explanation.x′)
+counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
 
 """
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
@@ -197,7 +196,13 @@ total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfact
 
 A convenience method that returns the entire counterfactual path.
 """
-path(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:path]
+function path(counterfactual_explanation::CounterfactualExplanation; feature_space=true)
+    path = counterfactual_explanation.search[:path]
+    if feature_space
+        path = [counterfactual_explanation.f(z) for z ∈ path]
+    end
+    return path
+end
 
 """
     target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
@@ -209,7 +214,7 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
     p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
     target = counterfactual_explanation.target
 
-    if length(p) == 1
+    if size(p)[1] == 1
         h(x) = ifelse(x==-1,0,x)
         if target ∉ [0,1] && target ∉ [-1,1]
             throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
@@ -233,7 +238,7 @@ end
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(Δx′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
+function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
 
     mutability = counterfactual_explanation.params[:mutability]
     # Helper functions:
@@ -244,9 +249,9 @@ function apply_mutability(Δx′::AbstractArray, counterfactual_explanation::Cou
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
     # Apply:
-    Δx′ = [getfield(cases, mutability[d])(Δx′[d]) for d in 1:length(Δx′)]
+    Δs′ = [getfield(cases, mutability[d])(counterfactual_explanation.f(Δs′)[d]) for d in 1:length(Δs′)]
 
-    return Δx′
+    return Δs′
 
 end
 
@@ -255,7 +260,9 @@ end
 
 A convenience method that determines of the predefined threshold for the target class probability has been reached.
 """
-threshold_reached(counterfactual_explanation::CounterfactualExplanation) = target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
+    target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+end
 
 """
     steps_exhausted(counterfactual_explanation::CounterfactualExplanation) 
@@ -270,10 +277,11 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 A subroutine that is used to take a snapshot of the current counterfactual search state. This snapshot is passed to the counterfactual generator.
 """
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
-    counterfactual_state = Generators.CounterfactualState(
+    counterfactual_state = CounterfactualState.State(
         counterfactual_explanation.x,
+        counterfactual_explanation.s′,
+        counterfactual_explanation.f,
         counterfactual_explanation.target_encoded,
-        counterfactual_explanation.x′,
         counterfactual_explanation.M,
         counterfactual_explanation.params,
         counterfactual_explanation.search
@@ -291,19 +299,48 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_state = get_counterfactual_state(counterfactual_explanation)
 
     # Generate peturbations:
-    Δx′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
-    Δx′ = apply_mutability(Δx′, counterfactual_explanation)
-    Δx′ = reshape(Δx′, size(counterfactual_explanation.x′))
-    x′ = counterfactual_explanation.x′ + Δx′
-    x′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, x′)
-    counterfactual_explanation.x′ = x′ # update counterfactual
+    Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
+    if !counterfactual_explanation.latent_space
+        Δs′ = apply_mutability(Δs′, counterfactual_explanation)
+    else
+        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 1
+            @warn "Mutability constraints not currently implemented for latent space search."
+        end
+    end
+    Δs′ = reshape(Δs′, size(counterfactual_explanation.s′))
+    s′ = counterfactual_explanation.s′ + Δs′
+    if !counterfactual_explanation.latent_space
+        s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    else
+        if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 1
+            @warn "Domain constraints not currently implemented for latent space search."
+        end
+    end
+    counterfactual_explanation.s′ = s′ # update counterfactual
     
     # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.x′]
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
-    counterfactual_explanation.search[:times_changed_features] += reshape(Δx′ .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
 end
 
+function Base.show(io::IO, z::CounterfactualExplanation)
+
+    printstyled(io, "Factual: ", bold=true)
+    println(io, "x=$(z.x), y=$(factual_label(z)), p=$(factual_probability(z))")
+    printstyled(io, "Target: ", bold=true)
+    println(io, "target=$(z.target), γ=$(z.params[:γ])")
+
+    if !isnothing(z.search)
+        printstyled(io, "Counterfactual outcome: ", bold=true)
+        println(io, "x′=$(counterfactual(z)), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
+        printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
+        println("after $(total_steps(z)) steps.")
+    else
+        @info "Search not yet initatiated."
+    end
+
+end
