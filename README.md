@@ -7,25 +7,18 @@
 
 ## News 📣
 
-This package is under active developemnt ⚠. The API may still change in future stable releases. Below is a list of recent exciting developments. 
-
-### Beta
-
 Below is a list of exciting developments we have been working on since latest stable release:
 
 1.  Native support for `torch` models trained in R or Python. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/32)
 2.  Native support for Flux models. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/37)
 3.  Bumbed up package compatibility (e.g. Flux). [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/37)
+4.  Added support for latent space search using generative model. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/38)
 
 These are only available in the dev version (see below). Additional developments sometimes lead to a temporary drop in the test coverage ratio. This is addressed before every stable release.
 
-### Alpha
-
-Most recent developments can be found in the [`develop` branch](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/develop). This is only of interest to contributing developers.
-
 ## Installation 🚩
 
-The first stable release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
+The first release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
 
 ``` julia
 using Pkg

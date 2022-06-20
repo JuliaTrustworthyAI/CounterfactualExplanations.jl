@@ -16,6 +16,7 @@ Below is a list of exciting developments we have been working on since latest st
 1.  Native support for `torch` models trained in R or Python. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/32)
 2.  Native support for Flux models. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/37)
 3.  Bumbed up package compatibility (e.g. Flux). [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/37)
+4.  Added support for latent space search using generative model. [\[PR\]](https://github.com/pat-alt/CounterfactualExplanations.jl/pull/38)
 
 These are only available in the dev version (see below). Additional developments sometimes lead to a temporary drop in the test coverage ratio. This is addressed before every stable release.
 
