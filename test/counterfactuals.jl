@@ -46,7 +46,7 @@ Random.seed!(1234)
             target = round(γ)
             counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
             @test length(path(counterfactual))==1
-            @test counterfactual.x == counterfactual.x′
+            @test counterfactual.x == counterfactual.f(counterfactual.s′)
             @test converged(counterfactual) == true
 
             # Threshold reached if converged:

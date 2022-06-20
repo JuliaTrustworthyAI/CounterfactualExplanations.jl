@@ -26,6 +26,10 @@ makedocs(;
                 "Mutability constraints" => "tutorials/mutability.md",
                 "Interoperability" => "tutorials/interop.md"
             ],
+        "Counterfactual Generators" =>
+            [
+                "Latent Space Search" => "generators/gradient_based/latent_space_generator.md"
+            ],
         "More examples" =>
             [
                 "Image data" => [

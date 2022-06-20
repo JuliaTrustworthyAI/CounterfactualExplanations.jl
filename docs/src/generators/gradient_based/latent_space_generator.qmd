@@ -354,3 +354,5 @@ savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_wachter.png"))
 ```
 
 ![](../www/mnist_9to4_latent.png)
+
+## References

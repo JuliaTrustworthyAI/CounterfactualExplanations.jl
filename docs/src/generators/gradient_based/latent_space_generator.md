@@ -288,6 +288,8 @@ savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_wachter.png"))
 
 ![](../www/mnist_9to4_latent.png)
 
+## References
+
 Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” *arXiv Preprint arXiv:1907.09615*.
 
 [1] In general, we believe that there may be a trade-off between creating counterfactuals that respect the DGP vs. counterfactuals reflect the behaviour of the black-model in question - both accurately and complete.
