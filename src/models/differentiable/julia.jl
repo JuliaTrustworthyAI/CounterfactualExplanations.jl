@@ -24,6 +24,12 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
+    if size(X)[1] == 1
+        X = X'
+    end
+    if !isa(X, Matrix)
+        X = reshape(X, length(X), 1)
+    end
     return M.model(X)
 end
 

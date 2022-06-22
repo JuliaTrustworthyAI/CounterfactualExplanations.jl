@@ -16,6 +16,9 @@ function logits(M::PyTorchModel, X::AbstractArray)
     from torch import nn
     """
     model = M.model
+    if size(X)[1] == 1
+        X = X'
+    end
     if !isa(X, Matrix)
       X = reshape(X, length(X), 1)
     end

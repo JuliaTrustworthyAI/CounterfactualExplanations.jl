@@ -19,6 +19,12 @@ end
 
 function logits(M::RTorchModel, X::AbstractArray)
   model = M.model
+  if size(X)[1] == 1
+      X = X'
+  end
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
   ŷ = rcopy(R"as_array($model(torch_tensor(t($X))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
   return ŷ'

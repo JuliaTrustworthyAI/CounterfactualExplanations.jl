@@ -2,7 +2,7 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Counterfactuals
 using CounterfactualExplanations.Generators
-using Random, LinearAlgebra
+using Random, LinearAlgebra, MLUtils, Flux
 Random.seed!(1234)
 
 # Set up:
@@ -12,23 +12,91 @@ generators = Dict(
     :revise => Generators.REVISEGenerator
 )
 
-# Data:
-using CounterfactualExplanations.Data
-using Random
-Random.seed!(1234)
-N = 25
-xs, ys = Data.toy_data_linear(N)
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
-
 for (key, generator_) ∈ generators
     name = uppercasefirst(string(key))
     @testset "$name" begin
     
         # Generator:
         generator = generator_()
+
+        @testset "Models for synthetic data" begin
+             ### Load synthetic data and models
+            unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
+            synthetic = CounterfactualExplanations.Data.load_synthetic()
+
+            for (key, value) ∈ synthetic
+                name = string(key)
+                @testset "$name" begin
+                    X, ys = unzip(value[:data])
+                    X = MLUtils.stack(X,dims=2)
+                    ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : nothing
+                    counterfactual_data = CounterfactualData(X,ys')
+                    for (likelihood, model) ∈ value[:models]
+                        name = string(likelihood)
+                        @testset "$name" begin
+                            M = model[:model]
+                            # Randomly selected factual:
+                            Random.seed!(123)
+                            x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+                            
+                            @testset "Predetermined outputs" begin
+                                γ = 0.9
+                                p_ = probs(M, x)
+                                if size(p_)[1] > 1
+                                    y = Flux.onecold(p_,unique(ys_cold))
+                                    target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
+                                else
+                                    target = round(p_[1])==0 ? 1 : 0 
+                                end
+                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+                                @test counterfactual.target == target
+                                @test counterfactual.x == x
+                            end
+                    
+                            @testset "Convergence" begin
+                    
+                                # # Already in target and exceeding threshold probability:
+                                # γ = probs(M, x)[1]
+                                # target = round(γ)
+                                # counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                                # @test length(path(counterfactual))==1
+                                # @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                                # @test converged(counterfactual) == true
+                    
+                                # Threshold reached if converged:
+                                γ = 0.9
+                                p_ = probs(M, x)
+                                if size(p_)[1] > 1
+                                    y = Flux.onecold(p_,unique(ys_cold))
+                                    target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
+                                else
+                                    target = round(p_[1])==0 ? 1 : 0 
+                                end
+                                T = 1000
+                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
+                                import CounterfactualExplanations.Counterfactuals: counterfactual_probability
+                                @test !converged(counterfactual) || counterfactual_probability(counterfactual)[1] >= γ # either not converged or threshold reached
+                                @test !converged(counterfactual) || length(path(counterfactual)) <= T
+                    
+                            end
+                        end
+                    end
+                end
+            end
+            
+        end
     
         @testset "LogisticModel" begin
+
+            # Data:
+            using CounterfactualExplanations.Data
+            using Random
+            Random.seed!(1234)
+            N = 25
+            xs, ys = Data.toy_data_linear(N)
+            X = hcat(xs...)
+            counterfactual_data = CounterfactualData(X,ys')
+
             # Model
             using CounterfactualExplanations.Models: LogisticModel, probs 
             # Logit model:

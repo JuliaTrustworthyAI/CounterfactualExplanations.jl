@@ -27,7 +27,7 @@ using RCall
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState.State) 
-    nn = M.nn
+    nn = M.model
     s_cf = counterfactual_state.s′
     t = counterfactual_state.target_encoded
     R"""
@@ -52,7 +52,7 @@ function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchMode
     import torch
     from torch import nn
     """
-    nn = M.nn
+    nn = M.model
     s′ = counterfactual_state.s′
     t = counterfactual_state.target_encoded
     x = reshape(s′, 1, length(s′))

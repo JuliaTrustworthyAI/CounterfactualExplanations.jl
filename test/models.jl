@@ -18,8 +18,14 @@ synthetic = CounterfactualExplanations.Data.load_synthetic()
             for (likelihood, model) ∈ value[:models]
                 name = string(likelihood)
                 @testset "$name" begin
-                    @test size(logits(model[:model],X))[2] == size(X)[2] 
-                    @test size(probs(model[:model],X))[2] == size(X)[2] 
+                    @testset "Matrix of inputs" begin
+                        @test size(logits(model[:model],X))[2] == size(X)[2] 
+                        @test size(probs(model[:model],X))[2] == size(X)[2] 
+                    end
+                    @testset "Vector of inputs" begin
+                        @test size(logits(model[:model],X[:,1]))[2] == 1
+                        @test size(probs(model[:model],X[:,1]))[2] == 1
+                    end
                 end
             end
         end
