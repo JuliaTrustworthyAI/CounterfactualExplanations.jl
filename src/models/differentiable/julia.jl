@@ -64,7 +64,7 @@ struct LogisticModel <: Models.AbstractDifferentiableJuliaModel
     type::Symbol
 end
 
-LogisticModel(W,b) = LogisticModel(W,b,:classification_binary)
+LogisticModel(W,b,model_type=:classification_binary) = LogisticModel(W,b,model_type)
 
 # What follows are the two required outer methods:
 """
@@ -131,10 +131,10 @@ struct BayesianLogisticModel <: Models.AbstractDifferentiableJuliaModel
     μ::Matrix
     Σ::Matrix
     type::Symbol
-    BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
+    BayesianLogisticModel(μ, Σ, type) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ, type)
 end
 
-BayesianLogisticModel(μ,Σ) = BayesianLogisticModel(μ,Σ,:classification_binary)
+BayesianLogisticModel(μ,Σ;model_type=:classification_binary) = BayesianLogisticModel(μ,Σ,model_type)
 
 # What follows are the three required outer methods:
 """

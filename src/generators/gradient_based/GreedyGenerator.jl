@@ -53,7 +53,7 @@ GreedyGenerator(
     loss::Union{Nothing,Symbol}=nothing,
     complexity::Nothing=nothing,
     λ::Nothing=nothing,
-    params::GreedyGeneratorParams
+    params::GreedyGeneratorParams=GreedyGeneratorParams()
 ) = GreedyGenerator(loss=loss, δ=params.δ, n=params.n)
 
 """

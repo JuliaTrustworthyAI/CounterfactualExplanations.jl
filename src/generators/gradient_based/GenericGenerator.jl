@@ -47,5 +47,5 @@ GenericGenerator(
     loss::Union{Nothing,Symbol}=nothing,
     complexity::Function=norm,
     λ::AbstractFloat=0.1,
-    params::GenericGeneratorParams
+    params::GenericGeneratorParams=GenericGeneratorParams()
 ) = GenericGenerator(loss, complexity, λ, params.ϵ, params.τ)

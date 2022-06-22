@@ -5,6 +5,9 @@ using Flux
 import Flux.Losses
 using LinearAlgebra
 
+# Interop dependencies:
+include("interop.jl")
+
 ### Data 
 # 𝒟 = {(x,y)}ₙ
 ###
