@@ -35,7 +35,7 @@ function CounterfactualExplanation(
     generator::Generators.AbstractGenerator,
     γ::AbstractFloat=0.75, 
     T::Int=100,
-    latent_space::Bool=DataPreprocessing.has_pretrained_generative_model(data)
+    latent_space::Bool=( DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) == AbstractLatentSpaceGenerator )
 ) 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x

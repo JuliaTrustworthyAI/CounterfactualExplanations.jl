@@ -8,11 +8,6 @@ using LinearAlgebra
 ### Data 
 # 𝒟 = {(x,y)}ₙ
 ###
-
-# Example data sets:
-include("data/Data.jl")
-using .Data
-
 # Generative models for latent space search:
 include("generative_models/GenerativeModels.jl")
 using .GenerativeModels
@@ -37,7 +32,7 @@ export AbstractFittedModel, AbstractDifferentiableModel,
 # ( ℳ[𝒟] , xᵢ ∈ x )
 ###
 
-include("counterfactual/CounterfactualState.jl")
+include("counterfactual_state/CounterfactualState.jl")
 using .CounterfactualState
 
 ### Generators
@@ -56,6 +51,11 @@ include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals
 export CounterfactualExplanation, initialize!, update!,
     total_steps, converged, terminated, path, target_probs
+
+### Other
+# Example data sets:
+include("data/Data.jl")
+using .Data
 
 include("generate_counterfactual.jl")
 export generate_counterfactual

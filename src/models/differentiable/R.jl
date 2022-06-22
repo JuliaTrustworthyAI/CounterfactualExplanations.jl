@@ -8,14 +8,27 @@ Contructor for RTorch neural network.
 
 """
 struct RTorchModel <: AbstractDifferentiableModel
-    nn::Any
+    model::Any
+    type::Symbol
+end
+
+# Outer constructor method:
+function RTorchModel(model; type::Symbol=:classification_binary)
+  RTorchModel(model, type)
 end
 
 function logits(M::RTorchModel, X::AbstractArray)
-  nn = M.nn
-  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+  model = M.model
+  ŷ = rcopy(R"as_array($model(torch_tensor(t($X))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
   return ŷ'
 end
 
-probs(M::RTorchModel, X::AbstractArray)= σ.(logits(M, X))
+function probs(M::RTorchModel, X::AbstractArray)
+  if M.type == :classification_binary
+      output = σ.(logits(M, X))
+  elseif M.type == :classification_multi
+      output = softmax(logits(M, X))
+  end
+  return output
+end

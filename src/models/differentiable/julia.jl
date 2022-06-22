@@ -6,11 +6,11 @@ abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel en
 using Flux
 # Constructor
 struct FluxModel <: Models.AbstractDifferentiableJuliaModel
-    nn::Any
+    model::Any
     type::Symbol
-    function FluxModel(nn, type)
+    function FluxModel(model, type)
         if type ∈ [:classification_binary,:classification_multi]
-            new(nn, type)
+            new(model, type)
         else
             throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
         end
@@ -18,13 +18,13 @@ struct FluxModel <: Models.AbstractDifferentiableJuliaModel
 end
 
 # Outer constructor method:
-function FluxModel(nn; type::Symbol=:classification_binary)
-    FluxModel(nn, type)
+function FluxModel(model; type::Symbol=:classification_binary)
+    FluxModel(model, type)
 end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    return M.nn(X)
+    return M.model(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)
@@ -61,7 +61,10 @@ See also:
 struct LogisticModel <: Models.AbstractDifferentiableJuliaModel
     W::Matrix
     b::AbstractArray
+    type::Symbol
 end
+
+LogisticModel(W,b) = LogisticModel(W,b,:classification_binary)
 
 # What follows are the two required outer methods:
 """
@@ -127,8 +130,11 @@ See also:
 struct BayesianLogisticModel <: Models.AbstractDifferentiableJuliaModel
     μ::Matrix
     Σ::Matrix
+    type::Symbol
     BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
 end
+
+BayesianLogisticModel(μ,Σ) = BayesianLogisticModel(μ,Σ,:classification_binary)
 
 # What follows are the three required outer methods:
 """

@@ -10,9 +10,9 @@ using ..CounterfactualState
 using Flux
 using LinearAlgebra
 
+include("base.jl")
+
 export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator,
     generate_perturbations, conditions_satisified, mutability_constraints   
-
-include("base.jl")
 
 end

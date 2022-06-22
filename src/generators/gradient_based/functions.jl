@@ -119,5 +119,16 @@ end
 # Specific Generators
 ##################################################
 
-include("GenericGenerator/GenericGenerator.jl") # Wachter et al. (2017)
-include("GreedyGenerator/GreedyGenerator.jl") # Schut et al. (2021)
+# Baseline
+include("GenericGenerator.jl") # Wachter et al. (2017)
+include("GreedyGenerator.jl") # Schut et al. (2021)
+
+# Latent space
+"""
+    AbstractLatentSpaceGenerator
+
+An abstract type that serves as the base type for gradient-based counterfactual generators that search in a latent space. 
+"""
+abstract type AbstractLatentSpaceGenerator <: AbstractGradientBasedGenerator end
+
+include("REVISEGenerator.jl") # Joshi et al. (2019)

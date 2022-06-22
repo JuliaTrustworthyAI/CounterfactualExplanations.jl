@@ -17,10 +17,10 @@ The default method to apply the generator loss function to the current counterfa
 """
 function ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
 
-    output = :logits # currently counterfactual loss is always computed with respect to logits
-
-    loss = getfield(Losses, generator.loss)(
-        getfield(Models, output)(counterfactual_state.M, counterfactual_state.f(counterfactual_state.s′)), 
+    loss_fun = !isnothing(generator.loss) ? getfield(Losses, generator.loss) : CounterfactualState.guess_loss(counterfactual_state)
+    @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
+    loss = loss_fun(
+        getfield(Models, :logits)(counterfactual_state.M, counterfactual_state.f(counterfactual_state.s′)), 
         counterfactual_state.target_encoded
     )    
 
