@@ -54,60 +54,28 @@ lazy = true
     sha256 = "6a696e6477ddd1a4a1d60e792becfd657014358bfbb72048be28d1d05880d8e0"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_model.tar.gz"
 
-[models_flux]
-git-tree-sha1 = "6d78dc08a773cd6b54536413f2acc9a66419042d"
-lazy = true
-
-    [[models_flux.download]]
-    sha256 = "cbf11e30709c04ce417652e88e5bb007d4b4907465d7db6a1777efe0e8402337"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/models_flux.tar.gz"
-
-[models_models]
-git-tree-sha1 = "a47e8a6ba2cbc0950b7be184d2c7b0c550c80f50"
-lazy = true
-
-    [[models_models.download]]
-    sha256 = "9440819cdf0bafae648e73fc32f0cb5bdd799bce67ab8174a6d6f106ae1a605d"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/models_models.tar.gz"
-
-[models_r]
-git-tree-sha1 = "d58ff24bd87b1291a8421142f3ac17259b6a1887"
-lazy = true
-
-    [[models_r.download]]
-    sha256 = "4f59d90a11a2a26d38c0dd08297710768623cf8696c2c93b8875fd3828207400"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/models_r.tar.gz"
-
-[models_r_torch]
-git-tree-sha1 = "ce37867b98fcee44a78aeda3a96157de8a8646be"
-lazy = true
-
-    [[models_r_torch.download]]
-    sha256 = "204041a1e9aaf7a5f13def21703acb1db8275b796fe513b1c9f0af4194032b53"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/models_r_torch.tar.gz"
-
 [synthetic_data]
 git-tree-sha1 = "7b9bfa45ce592f574f825986b7408258c9d773ea"
 lazy = true
 
     [[synthetic_data.download]]
-    sha256 = "af01647d9c16b7df76de727691cf2b508fb2cec363d9305fa09036de7768d1c2"
+    sha256 = "976992503797a7c76f4c607abd70952dde395d6ca2dc8e8ae3a8ed4b4648e6a2"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_data.tar.gz"
 
 [synthetic_flux]
-git-tree-sha1 = "f506561e34a38cc4e778c32640e10882c8849639"
+git-tree-sha1 = "b1d77c45e9e697d18c4c4395a52fc4e27dc5c8dc"
 lazy = true
 
     [[synthetic_flux.download]]
-    sha256 = "08517aa5e213773146a6dfce7ad3995e19d49a0e9953fff123228e0b4f775a32"
+    sha256 = "624d5b7d930c76bd910537f47edeb082f3b2acb13b7bef62eb6ea6d88aac6d78"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_flux.tar.gz"
 
 [synthetic_r_torch]
-git-tree-sha1 = "a2a49a7c7d9133c21b429c5ed133deeb29339436"
+git-tree-sha1 = "f7f0eb103fc1e3289315484bbad7c30a81677753"
 lazy = true
 
     [[synthetic_r_torch.download]]
-    sha256 = "1776a77209237087d6fa4b0d68e1c22d29b507da2fe8515086b829f4c03d00e2"
+    sha256 = "1faf5848a3f6f4d9527b72c6510239493cdaf9a87c31ee60228c95c414b3967e"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_r_torch.tar.gz"
 
 [ucr_data]

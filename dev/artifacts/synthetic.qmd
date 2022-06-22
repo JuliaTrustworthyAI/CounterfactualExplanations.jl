@@ -7,6 +7,9 @@ using Pkg; Pkg.activate("dev")
 include("dev/artifacts/generate_artifacts.jl")
 include("dev/utils.jl")
 data_dir = "dev/artifacts/data"
+if !isdir(data_dir)
+    mkdir(data_dir)
+end
 artifact_name = "synthetic"
 using BSON
 using BSON: @save, @load

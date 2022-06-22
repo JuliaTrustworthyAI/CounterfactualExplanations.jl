@@ -209,8 +209,8 @@ function load_synthetic(models=[:flux, :r_torch])
         R"""
         library(torch)
         """
-        data_dir = artifact"models_r_torch"
-        data_dir = joinpath(data_dir,"models_r_torch")
+        data_dir = artifact"synthetic_r_torch"
+        data_dir = joinpath(data_dir,"synthetic_r_torch")
         model_names = readdir(data_dir)
         model_paths = map(sub_dir -> joinpath(data_dir,sub_dir,"model.pt"),model_names)
         model_info = zip(model_names, model_paths)
