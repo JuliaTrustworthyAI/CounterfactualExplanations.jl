@@ -31,9 +31,11 @@ function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel
     s_cf = counterfactual_state.s′
     t = counterfactual_state.target_encoded
     R"""
+    library(torch)
     x <- torch_tensor($s_cf, requires_grad=TRUE)
+    t <- torch_tensor($t, dtype=torch_float())
     output <- $nn(x)
-    obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+    obj_loss <- nnf_binary_cross_entropy_with_logits(output,t)
     obj_loss$backward()
     """
     grad = rcopy(R"as_array(x$grad)")

@@ -1,6 +1,8 @@
 # -------- Schut et al (2020): 
 struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
+    complexity::Function # complexity function
+    λ::AbstractFloat # strength of penalty
     δ::AbstractFloat # perturbation size
     n::Int # maximum number of times any feature can be changed
 end
@@ -36,7 +38,7 @@ function GreedyGenerator(
         n = 1/δ
     end
 
-    generator = GreedyGenerator(loss,δ,n)
+    generator = GreedyGenerator(loss,norm,0.0,δ,n)
 
     return generator
 end
@@ -51,10 +53,8 @@ end
 GreedyGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
-    complexity::Nothing=nothing,
-    λ::Nothing=nothing,
     params::GreedyGeneratorParams=GreedyGeneratorParams()
-) = GreedyGenerator(loss=loss, δ=params.δ, n=params.n)
+) = GreedyGenerator(loss,norm,0.0,params.δ,params.n)
 
 """
     ∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)    

@@ -4,6 +4,7 @@ using CounterfactualExplanations.Counterfactuals
 using CounterfactualExplanations.Generators
 using Random, LinearAlgebra, MLUtils, Flux
 Random.seed!(1234)
+unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
 
 # Set up:
 generators = Dict(
@@ -21,8 +22,8 @@ for (key, generator_) ∈ generators
 
         @testset "Models for synthetic data" begin
              ### Load synthetic data and models
-            unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
             synthetic = CounterfactualExplanations.Data.load_synthetic()
+            # synthetic = Dict(:classification_binary => synthetic[:classification_binary])
 
             for (key, value) ∈ synthetic
                 name = string(key)
@@ -55,13 +56,18 @@ for (key, generator_) ∈ generators
                     
                             @testset "Convergence" begin
                     
-                                # # Already in target and exceeding threshold probability:
-                                # γ = probs(M, x)[1]
-                                # target = round(γ)
-                                # counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-                                # @test length(path(counterfactual))==1
-                                # @test counterfactual.x == counterfactual.f(counterfactual.s′)
-                                # @test converged(counterfactual) == true
+                                # Already in target and exceeding threshold probability:
+                                p_ = probs(M, x)
+                                if size(p_)[1] > 1
+                                    y = Flux.onecold(p_,unique(ys_cold))[1]
+                                    target = y
+                                else
+                                    target = round(p_[1])==0 ? 0 : 1 
+                                end
+                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                                @test length(path(counterfactual))==1
+                                @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                                @test converged(counterfactual) == true
                     
                                 # Threshold reached if converged:
                                 γ = 0.9
@@ -75,7 +81,7 @@ for (key, generator_) ∈ generators
                                 T = 1000
                                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
                                 import CounterfactualExplanations.Counterfactuals: counterfactual_probability
-                                @test !converged(counterfactual) || counterfactual_probability(counterfactual)[1] >= γ # either not converged or threshold reached
+                                @test !converged(counterfactual) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                 @test !converged(counterfactual) || length(path(counterfactual)) <= T
                     
                             end
@@ -133,7 +139,7 @@ for (key, generator_) ∈ generators
                 T = 1000
                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
                 import CounterfactualExplanations.Counterfactuals: counterfactual_probability
-                @test !converged(counterfactual) || counterfactual_probability(counterfactual)[1] >= γ # either not converged or threshold reached
+                @test !converged(counterfactual) || (target_probs(counterfactual)[1] >= γ) # either not converged or threshold reached
                 @test !converged(counterfactual) || length(path(counterfactual)) <= T
     
             end
