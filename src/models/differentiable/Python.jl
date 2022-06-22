@@ -2,12 +2,12 @@
 using PyCall
 struct PyTorchModel <: AbstractDifferentiableModel
     model::Any
-    type::Symbol
+    likelihood::Symbol
 end
 
 # Outer constructor method:
-function PyTorchModel(model; type::Symbol=:classification_binary)
-  PyTorchModel(model, type)
+function PyTorchModel(model; likelihood::Symbol=:classification_binary)
+  PyTorchModel(model, likelihood)
 end
 
 function logits(M::PyTorchModel, X::AbstractArray)
@@ -25,9 +25,9 @@ function logits(M::PyTorchModel, X::AbstractArray)
 end
 
 function probs(M::PyTorchModel, X::AbstractArray)
-    if M.type == :classification_binary
+    if M.likelihood == :classification_binary
         output = σ.(logits(M, X))
-    elseif M.type == :classification_multi
+    elseif M.likelihood == :classification_multi
         output = softmax(logits(M, X))
     end
     return output

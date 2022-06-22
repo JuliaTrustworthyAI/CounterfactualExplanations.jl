@@ -15,8 +15,8 @@ synthetic = CounterfactualExplanations.Data.load_synthetic()
         @testset "$name" begin
             X = unzip(value[:data])[1]
             X = MLUtils.stack(X,dims=2)
-            for (model_type, model) ∈ value[:models]
-                name = string(model_type)
+            for (likelihood, model) ∈ value[:models]
+                name = string(likelihood)
                 @testset "$name" begin
                     @test size(logits(model[:model],X))[2] == size(X)[2] 
                     @test size(probs(model[:model],X))[2] == size(X)[2] 

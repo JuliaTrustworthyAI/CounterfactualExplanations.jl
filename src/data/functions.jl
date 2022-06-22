@@ -190,18 +190,18 @@ function load_synthetic(models=[:flux, :r_torch])
     # Data
     data_dir = artifact"synthetic_data"
     data_dict = BSON.load(joinpath(data_dir,"synthetic_data.bson"),@__MODULE__)[:data_dict]
-    for (model_type, data) ∈ data_dict
-        synthetic_dict[model_type] = Dict()
-        synthetic_dict[model_type][:data] = data
-        synthetic_dict[model_type][:models] = Dict()
+    for (likelihood, data) ∈ data_dict
+        synthetic_dict[likelihood] = Dict()
+        synthetic_dict[likelihood][:data] = data
+        synthetic_dict[likelihood][:models] = Dict()
     end
     # Flux
     if :flux ∈ models
         data_dir = artifact"synthetic_flux"
         models_ = BSON.load(joinpath(data_dir,"synthetic_flux.bson"),@__MODULE__)[:flux_models]
-        for (model_type, model) ∈ models_
-            synthetic_dict[model_type][:models][:flux] = model
-            synthetic_dict[model_type][:models][:flux][:model] = Models.FluxModel(model[:raw_model],type=model_type)
+        for (likelihood, model) ∈ models_
+            synthetic_dict[likelihood][:models][:flux] = model
+            synthetic_dict[likelihood][:models][:flux][:model] = Models.FluxModel(model[:raw_model],likelihood=likelihood)
         end
     end
     # R torch
@@ -215,11 +215,11 @@ function load_synthetic(models=[:flux, :r_torch])
         model_paths = map(sub_dir -> joinpath(data_dir,sub_dir,"model.pt"),model_names)
         model_info = zip(model_names, model_paths)
         for (name,path) ∈ model_info
-            model_type = Symbol(name)
-            synthetic_dict[model_type][:models][:r_torch] = Dict()
+            likelihood = Symbol(name)
+            synthetic_dict[likelihood][:models][:r_torch] = Dict()
             M = R"torch_load($path)"
-            synthetic_dict[model_type][:models][:r_torch][:raw_model] = M
-            synthetic_dict[model_type][:models][:r_torch][:model] = Models.RTorchModel(M, type=model_type)
+            synthetic_dict[likelihood][:models][:r_torch][:raw_model] = M
+            synthetic_dict[likelihood][:models][:r_torch][:model] = Models.RTorchModel(M, likelihood=likelihood)
         end
     end
     return synthetic_dict

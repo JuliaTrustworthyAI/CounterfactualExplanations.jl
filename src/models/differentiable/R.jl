@@ -9,12 +9,12 @@ Contructor for RTorch neural network.
 """
 struct RTorchModel <: AbstractDifferentiableModel
     model::Any
-    type::Symbol
+    likelihood::Symbol
 end
 
 # Outer constructor method:
-function RTorchModel(model; type::Symbol=:classification_binary)
-  RTorchModel(model, type)
+function RTorchModel(model; likelihood::Symbol=:classification_binary)
+  RTorchModel(model, likelihood)
 end
 
 function logits(M::RTorchModel, X::AbstractArray)
@@ -25,9 +25,9 @@ function logits(M::RTorchModel, X::AbstractArray)
 end
 
 function probs(M::RTorchModel, X::AbstractArray)
-  if M.type == :classification_binary
+  if M.likelihood == :classification_binary
       output = σ.(logits(M, X))
-  elseif M.type == :classification_multi
+  elseif M.likelihood == :classification_multi
       output = softmax(logits(M, X))
   end
   return output

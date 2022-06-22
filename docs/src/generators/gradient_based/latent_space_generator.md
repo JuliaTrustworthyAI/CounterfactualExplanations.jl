@@ -183,7 +183,7 @@ using CounterfactualExplanations.Data: mnist_data, mnist_model
 X, ys = mnist_data()
 model = mnist_model()
 ensemble = mnist_ensemble()
-M = FluxModel(model, type=:classification_multi)
+M = FluxModel(model, likelihood=:classification_multi)
 ```
 
 ``` julia

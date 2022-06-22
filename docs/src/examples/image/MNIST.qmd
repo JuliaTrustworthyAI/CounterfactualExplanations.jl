@@ -72,7 +72,7 @@ The following code just prepares the models to be used with `CounterfactualExpla
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
-M = FluxModel(model, type=:classification_multi)
+M = FluxModel(model, likelihood=:classification_multi)
 
 # Deep ensemble:
 # Step 1)
