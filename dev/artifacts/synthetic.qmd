@@ -43,9 +43,6 @@ end
 ## Binary Classification
 
 ```{julia}
-using Random
-# Some random data:
-Random.seed!(1234);
 N = 100
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
