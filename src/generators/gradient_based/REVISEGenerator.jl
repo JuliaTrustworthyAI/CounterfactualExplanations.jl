@@ -9,6 +9,13 @@ struct REVISEGenerator <: AbstractLatentSpaceGenerator
     τ::AbstractFloat # tolerance for convergence
 end
 
+# API streamlining:
+using Parameters
+@with_kw struct REVISEGeneratorParams
+    ϵ::AbstractFloat=0.1
+    τ::AbstractFloat=1e-5
+end
+
 """
     REVISEGenerator(
         ;
@@ -26,22 +33,6 @@ An outer constructor method that instantiates a REVISE generator.
 generator = REVISEGenerator()
 ```
 """
-REVISEGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::AbstractFloat=0.1,
-    ϵ::AbstractFloat=0.1,
-    τ::AbstractFloat=1e-5
-) = REVISEGenerator(loss, complexity, λ, ϵ, τ)
-
-# API streamlining:
-using Parameters
-@with_kw struct REVISEGeneratorParams
-    ϵ::AbstractFloat=0.1
-    τ::AbstractFloat=1e-5
-end
-
 REVISEGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,

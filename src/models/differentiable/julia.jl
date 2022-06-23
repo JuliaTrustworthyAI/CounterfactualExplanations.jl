@@ -70,7 +70,7 @@ struct LogisticModel <: Models.AbstractDifferentiableJuliaModel
     likelihood::Symbol
 end
 
-LogisticModel(W,b,likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
+LogisticModel(W,b;likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
 
 # What follows are the two required outer methods:
 """

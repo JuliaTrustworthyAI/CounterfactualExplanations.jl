@@ -7,6 +7,13 @@ struct GreedyGenerator <: AbstractGradientBasedGenerator
     n::Int # maximum number of times any feature can be changed
 end
 
+# API streamlining:
+using Parameters
+@with_kw struct GreedyGeneratorParams
+    δ::Union{AbstractFloat,Nothing}=nothing
+    n::Union{Int,Nothing}=nothing
+end
+
 """
     GreedyGenerator(
         ;
@@ -26,9 +33,12 @@ generator = GreedyGenerator()
 function GreedyGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
-    δ::Union{AbstractFloat,Nothing}=nothing,
-    n::Union{Int,Nothing}=nothing
-) 
+    complexity::Function=norm, # complexity function
+    λ::AbstractFloat=0.0, # strength of penalty
+    params::GreedyGeneratorParams=GreedyGeneratorParams()
+)
+    δ = params.δ
+    n = params.n
     if all(isnothing.([δ, n])) 
         δ = 0.1
         n = 10
@@ -42,19 +52,6 @@ function GreedyGenerator(
 
     return generator
 end
-
-# API streamlining:
-using Parameters
-@with_kw struct GreedyGeneratorParams
-    δ::AbstractFloat=nothing
-    n::AbstractFloat=nothing
-end
-
-GreedyGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    params::GreedyGeneratorParams=GreedyGeneratorParams()
-) = GreedyGenerator(loss,norm,0.0,params.δ,params.n)
 
 """
     ∇(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)    

@@ -9,6 +9,13 @@ struct GenericGenerator <: AbstractGradientBasedGenerator
     τ::AbstractFloat # tolerance for convergence
 end
 
+# API streamlining:
+using Parameters
+@with_kw struct GenericGeneratorParams
+    ϵ::AbstractFloat=0.1
+    τ::AbstractFloat=1e-5
+end
+
 """
     GenericGenerator(
         ;
@@ -26,22 +33,6 @@ An outer constructor method that instantiates a generic generator.
 generator = GenericGenerator()
 ```
 """
-GenericGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::AbstractFloat=0.1,
-    ϵ::AbstractFloat=0.1,
-    τ::AbstractFloat=1e-5
-) = GenericGenerator(loss, complexity, λ, ϵ, τ)
-
-# API streamlining:
-using Parameters
-@with_kw struct GenericGeneratorParams
-    ϵ::AbstractFloat=0.1
-    τ::AbstractFloat=1e-5
-end
-
 GenericGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
