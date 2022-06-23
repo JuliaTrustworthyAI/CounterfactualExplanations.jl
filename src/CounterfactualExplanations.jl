@@ -8,6 +8,7 @@ using LinearAlgebra
 # Interop dependencies:
 include("interoperability/Interoperability.jl")
 using .Interoperability
+export InteropError
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ

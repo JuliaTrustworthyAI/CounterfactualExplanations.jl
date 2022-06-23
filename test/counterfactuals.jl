@@ -21,9 +21,8 @@ for (key, generator_) ∈ generators
         generator = generator_()
 
         @testset "Models for synthetic data" begin
-             ### Load synthetic data and models
-            synthetic = CounterfactualExplanations.Data.load_synthetic()
-            # synthetic = Dict(:classification_binary => synthetic[:classification_binary])
+            ### Load synthetic data and models
+            synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])
 
             for (key, value) ∈ synthetic
                 name = string(key)

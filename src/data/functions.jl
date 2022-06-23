@@ -185,7 +185,8 @@ using Flux, RCall
 
 Helper function that loads dictionary of pretrained models.
 """
-function load_synthetic(models=[:r_torch])
+function load_synthetic(models=[:flux, :r_torch])
+
     synthetic_dict = Dict()
     # Data
     data_dir = artifact"synthetic_data"

@@ -7,7 +7,7 @@ using MLUtils
 
 ### Models for synthetic data
 unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
-synthetic = CounterfactualExplanations.Data.load_synthetic()
+synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])
 
 @testset "Models for synthetic data" begin
     for (key, value) ∈ synthetic
