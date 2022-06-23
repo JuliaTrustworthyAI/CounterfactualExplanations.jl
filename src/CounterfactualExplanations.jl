@@ -6,7 +6,8 @@ import Flux.Losses
 using LinearAlgebra
 
 # Interop dependencies:
-include("interop.jl")
+include("interoperability/Interoperability.jl")
+using .Interoperability
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ

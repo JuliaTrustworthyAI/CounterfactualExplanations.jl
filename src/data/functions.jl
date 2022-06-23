@@ -206,9 +206,7 @@ function load_synthetic(models=[:r_torch])
     end
     # R torch
     if :r_torch ∈ models
-        R"""
-        library(torch)
-        """
+        Interoperability.prep_R_session()
         data_dir = artifact"synthetic_r_torch"
         data_dir = joinpath(data_dir,"synthetic_r_torch")
         model_names = readdir(data_dir)

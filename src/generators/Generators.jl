@@ -7,6 +7,7 @@ using ..Models
 using ..Losses
 using ..GenerativeModels
 using ..CounterfactualState
+using ..Interoperability
 using Flux
 using LinearAlgebra
 

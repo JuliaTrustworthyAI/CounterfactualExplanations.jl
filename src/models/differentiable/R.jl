@@ -14,6 +14,7 @@ end
 
 # Outer constructor method:
 function RTorchModel(model; likelihood::Symbol=:classification_binary)
+  Interoperability.prep_R_session()
   RTorchModel(model, likelihood)
 end
 

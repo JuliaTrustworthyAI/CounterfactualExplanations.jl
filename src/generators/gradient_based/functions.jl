@@ -30,8 +30,8 @@ function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel
     nn = M.model
     s_cf = counterfactual_state.s′
     t = counterfactual_state.target_encoded
+    Interoperability.prep_R_session()
     R"""
-    library(torch)
     x <- torch_tensor($s_cf, requires_grad=TRUE)
     t <- torch_tensor($t, dtype=torch_float())
     output <- $nn(x)

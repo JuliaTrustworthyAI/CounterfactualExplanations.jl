@@ -2,6 +2,7 @@
 module Models
 
 using Flux, LinearAlgebra
+using ..Interoperability
 
 include("base.jl")
 
