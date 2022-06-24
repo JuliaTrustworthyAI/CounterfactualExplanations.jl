@@ -53,14 +53,17 @@ for (key, generator_) ∈ generators
                                     y = Flux.onecold(p_,unique(ys_cold))
                                     target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
                                 else
-                                    target = round(p_[1])==0 ? 1 : 0 
+                                    y = round(p_[1])
+                                    target = y ==0 ? 1 : 0 
                                 end
                                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
                                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                     @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
-                                @test counterfactual.x == x
+                                @test counterfactual.x == x && Counterfactuals.factual(counterfactual) == x
+                                @test Counterfactuals.factual_label(counterfactual) == y
+                                @test Counterfactuals.factual_probability(counterfactual) == p_
                             end
                     
                             @testset "Convergence" begin
@@ -81,7 +84,9 @@ for (key, generator_) ∈ generators
                                 else
                                     @test counterfactual.x == counterfactual.f(counterfactual.s′)
                                 end
-                                @test converged(counterfactual) == true
+                                @test converged(counterfactual)
+                                @test Counterfactuals.terminated(counterfactual)
+                                @test Counterfactuals.total_steps(counterfactual) == 0
                     
                                 # Threshold reached if converged:
                                 γ = 0.9

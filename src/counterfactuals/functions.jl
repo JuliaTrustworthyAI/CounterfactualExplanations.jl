@@ -87,7 +87,7 @@ function CounterfactualExplanation(
 
     # Initialize search:
     counterfactual_explanation.search = Dict(
-        :iteration_count => 1,
+        :iteration_count => 0,
         :times_changed_features => zeros(length(counterfactual_explanation.x)),
         :path => [counterfactual_explanation.s′],
         :terminated => threshold_reached(counterfactual_explanation),
