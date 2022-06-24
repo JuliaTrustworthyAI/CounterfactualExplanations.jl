@@ -1,10 +1,11 @@
 ---
-title: "Explaining black-box models through counterfactuals"
+title: Explaining Black-Box Models through Counterfactuals
+subtitle: JuliaCon 2022
 author: Patrick Altmeyer
 format: 
   revealjs:
-    logo: www/afr.svg
-    footer: "Explaining black-box models through counterfactuals"
+    logo: www/delft_logo.png
+    footer: JuliaCon 2022 - Explaining Black-Box Models through Counterfactuals
     self-contained: true
     smaller: true
     scrollable: true
