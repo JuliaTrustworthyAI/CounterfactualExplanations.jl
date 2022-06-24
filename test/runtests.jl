@@ -25,8 +25,4 @@ Random.seed!(0)
         include("models.jl")
     end
 
-    @testset "Interoperability" begin
-        include("interoperability.jl")
-    end
-
 end

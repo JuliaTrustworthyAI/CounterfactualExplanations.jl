@@ -1,4 +1,4 @@
-**Title**: Explaining black-box models through counterfactuals
+**Title**: Explaining Black-Box Models through Counterfactuals
 **Type**: Talk (30 minutes)
 **Track**: JuliaCon
 
