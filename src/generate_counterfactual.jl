@@ -41,7 +41,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 """
 function generate_counterfactual(
     x::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-    γ::AbstractFloat=0.75, T::Int=1000, latent_space::Bool=DataPreprocessing.has_pretrained_generative_model(data)
+    γ::AbstractFloat=0.75, T::Int=1000, latent_space::Union{Nothing, Bool}=nothing
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(x=x, target=target, data=data, M=M, generator=generator, γ=γ, T=T, latent_space=latent_space)

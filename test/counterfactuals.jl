@@ -49,6 +49,9 @@ for (key, generator_) ∈ generators
                                     target = round(p_[1])==0 ? 1 : 0 
                                 end
                                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+                                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                    @test counterfactual.latent_space
+                                end
                                 @test counterfactual.target == target
                                 @test counterfactual.x == x
                             end
@@ -65,7 +68,12 @@ for (key, generator_) ∈ generators
                                 end
                                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
                                 @test length(path(counterfactual))==1
-                                @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                    # In case of latent space search, there is a reconstruction error:
+                                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < 1.0
+                                else
+                                    @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                                end
                                 @test converged(counterfactual) == true
                     
                                 # Threshold reached if converged:
@@ -129,7 +137,12 @@ for (key, generator_) ∈ generators
                 target = round(γ)
                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
                 @test length(path(counterfactual))==1
-                @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                    # In case of latent space search, there is a reconstruction error:
+                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < 1.0
+                else
+                    @test counterfactual.x == counterfactual.f(counterfactual.s′)
+                end
                 @test converged(counterfactual) == true
     
                 # Threshold reached if converged:

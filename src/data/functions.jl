@@ -77,7 +77,6 @@ function mnist_ensemble()
     return ensemble
 end
 
-using Random
 """
     toy_data_linear(N=100)
 
@@ -93,7 +92,6 @@ toy_data_linear()
 function toy_data_linear(N=100)
     # Number of points to generate.
     M = round(Int, N / 2)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -106,7 +104,6 @@ function toy_data_linear(N=100)
     return xs, ts
 end
 
-using Random
 """
     toy_data_non_linear(N=100)
 
@@ -122,7 +119,6 @@ toy_data_non_linear()
 function toy_data_non_linear(N=100)
     # Number of points to generate.
     M = round(Int, N / 4)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -141,7 +137,6 @@ function toy_data_non_linear(N=100)
     return xs, ts
 end
 
-using Random
 """
     toy_data_multi(N=100)
 
@@ -157,7 +152,6 @@ toy_data_multi()
 function toy_data_multi(N=100)
     # Number of points to generate.
     M = round(Int, N / 4)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -179,8 +173,7 @@ end
 ###########################
 # Synthetic data
 ###########################
-using Flux, RCall, Random
-using Random: TaskLocalRNG
+using Flux, RCall
 """
     load_synthetic()
 
