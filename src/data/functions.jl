@@ -179,7 +179,8 @@ end
 ###########################
 # Synthetic data
 ###########################
-using Flux, RCall
+using Flux, RCall, Random
+using Random: TaskLocalRNG
 """
     load_synthetic()
 
