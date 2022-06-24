@@ -1,3 +1,9 @@
+# NOTE:
+# This is probably the most important/useful test script, because it runs through the whole process of: 
+# - loading artifacts
+# - setting up counterfactual search for various models and generators
+# - running counterfactual search
+
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Counterfactuals
