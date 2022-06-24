@@ -5,6 +5,7 @@ using CounterfactualExplanations.Generators
 using Random, LinearAlgebra, MLUtils, Flux
 Random.seed!(1234)
 unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
+max_reconstruction_error = 2.0
 
 # Set up:
 generators = Dict(
@@ -70,7 +71,7 @@ for (key, generator_) ∈ generators
                                 @test length(path(counterfactual))==1
                                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                     # In case of latent space search, there is a reconstruction error:
-                                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < 1.0
+                                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < max_reconstruction_error
                                 else
                                     @test counterfactual.x == counterfactual.f(counterfactual.s′)
                                 end
@@ -139,7 +140,7 @@ for (key, generator_) ∈ generators
                 @test length(path(counterfactual))==1
                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                     # In case of latent space search, there is a reconstruction error:
-                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < 1.0
+                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < max_reconstruction_error
                 else
                     @test counterfactual.x == counterfactual.f(counterfactual.s′)
                 end

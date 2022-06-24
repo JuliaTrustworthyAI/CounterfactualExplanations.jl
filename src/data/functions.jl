@@ -1,6 +1,7 @@
 using Pkg.Artifacts
 using Flux
 using BSON
+using Random
 
 """
     cats_dogs_data()
