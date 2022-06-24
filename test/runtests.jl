@@ -13,10 +13,6 @@ Random.seed!(0)
         include("data_preprocessing.jl")
     end
 
-    @testset "Generative Models" begin
-        include("generative_models.jl")
-    end
-
     @testset "Counterfactuals" begin
         include("counterfactuals.jl")
     end
