@@ -35,8 +35,9 @@ function CounterfactualExplanation(
     generator::Generators.AbstractGenerator,
     γ::AbstractFloat=0.75, 
     T::Int=100,
-    latent_space::Bool=DataPreprocessing.has_pretrained_generative_model(data)
+    latent_space::Union{Nothing, Bool}=nothing
 ) 
+
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
 
@@ -50,6 +51,10 @@ function CounterfactualExplanation(
         :T => T,
         :mutability => DataPreprocessing.mutability_constraints(data)
     )
+
+    # Latent space:
+    wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
 
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(

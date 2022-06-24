@@ -1,7 +1,13 @@
 # ----- PyTorch Model ----- #
 using PyCall
 struct PyTorchModel <: AbstractDifferentiableModel
-    nn::Any
+    model::Any
+    likelihood::Symbol
+end
+
+# Outer constructor method:
+function PyTorchModel(model; likelihood::Symbol=:classification_binary)
+  PyTorchModel(model, likelihood)
 end
 
 function logits(M::PyTorchModel, X::AbstractArray)
@@ -9,13 +15,23 @@ function logits(M::PyTorchModel, X::AbstractArray)
     import torch
     from torch import nn
     """
-    nn = M.nn
+    model = M.model
+    if size(X)[1] == 1
+        X = X'
+    end
     if !isa(X, Matrix)
       X = reshape(X, length(X), 1)
     end
-    ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+    ŷ = py"$model(torch.Tensor($X).T).detach().numpy()"
     ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
     return ŷ'
 end
 
-probs(M::PyTorchModel, X::AbstractArray)= σ.(logits(M, X))
+function probs(M::PyTorchModel, X::AbstractArray)
+    if M.likelihood == :classification_binary
+        output = σ.(logits(M, X))
+    elseif M.likelihood == :classification_multi
+        output = softmax(logits(M, X))
+    end
+    return output
+end

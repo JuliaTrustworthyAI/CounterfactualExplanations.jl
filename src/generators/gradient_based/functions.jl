@@ -27,13 +27,15 @@ using RCall
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.RTorchModel, counterfactual_state::CounterfactualState.State) 
-    nn = M.nn
+    nn = M.model
     s_cf = counterfactual_state.s′
     t = counterfactual_state.target_encoded
+    Interoperability.prep_R_session()
     R"""
     x <- torch_tensor($s_cf, requires_grad=TRUE)
+    t <- torch_tensor($t, dtype=torch_float())
     output <- $nn(x)
-    obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+    obj_loss <- nnf_binary_cross_entropy_with_logits(output,t)
     obj_loss$backward()
     """
     grad = rcopy(R"as_array(x$grad)")
@@ -52,7 +54,7 @@ function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchMode
     import torch
     from torch import nn
     """
-    nn = M.nn
+    nn = M.model
     s′ = counterfactual_state.s′
     t = counterfactual_state.target_encoded
     x = reshape(s′, 1, length(s′))
@@ -119,5 +121,16 @@ end
 # Specific Generators
 ##################################################
 
-include("GenericGenerator/GenericGenerator.jl") # Wachter et al. (2017)
-include("GreedyGenerator/GreedyGenerator.jl") # Schut et al. (2021)
+# Baseline
+include("GenericGenerator.jl") # Wachter et al. (2017)
+include("GreedyGenerator.jl") # Schut et al. (2021)
+
+# Latent space
+"""
+    AbstractLatentSpaceGenerator
+
+An abstract type that serves as the base type for gradient-based counterfactual generators that search in a latent space. 
+"""
+abstract type AbstractLatentSpaceGenerator <: AbstractGradientBasedGenerator end
+
+include("REVISEGenerator.jl") # Joshi et al. (2019)

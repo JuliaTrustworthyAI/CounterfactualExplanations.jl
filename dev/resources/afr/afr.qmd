@@ -234,12 +234,12 @@ import CounterfactualExplanations.Models: logits, probs # import functions in or
 
 # Step 1)
 struct TorchNetwork <: Models.AbstractFittedModel
-    nn::Any
+    model::Any
 end
 
 # Step 2)
 function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.nn
+  nn = M.model
   ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
   return ŷ'
@@ -257,7 +257,7 @@ using LinearAlgebra
 # Countefactual loss:
 function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
   M = counterfactual_state.M
-  nn = M.nn
+  nn = M.model
   x′ = counterfactual_state.x′
   t = counterfactual_state.target_encoded
   R"""
@@ -282,12 +282,12 @@ import CounterfactualExplanations.Models: logits, probs # import functions in or
 
 # Step 1)
 struct PyTorchNetwork <: Models.AbstractFittedModel
-    nn::Any
+    model::Any
 end
 
 # Step 2)
 function logits(M::PyTorchNetwork, X::AbstractArray)
-  nn = M.nn
+  nn = M.model
   if !isa(X, Matrix)
     X = reshape(X, length(X), 1)
   end
@@ -308,7 +308,7 @@ using LinearAlgebra
 # Countefactual loss:
 function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
   M = counterfactual_state.M
-  nn = M.nn
+  nn = M.model
   x′ = counterfactual_state.x′
   t = counterfactual_state.target_encoded
   x = reshape(x′, 1, length(x′))

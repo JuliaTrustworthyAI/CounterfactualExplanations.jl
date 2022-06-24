@@ -32,10 +32,10 @@ import CounterfactualExplanations.Models: logits, probs # import functions in or
 # MLP:
 # Step 1)
 struct NeuralNetwork <: Models.AbstractFittedModel
-    nn::Any
+    model::Any
 end
 # Step 2)
-logits(M::NeuralNetwork, X::AbstractArray) = M.nn(X)
+logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
 probs(M::NeuralNetwork, X::AbstractArray)= softmax(logits(M, X))
 M = NeuralNetwork(model)
 

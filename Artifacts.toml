@@ -54,6 +54,30 @@ lazy = true
     sha256 = "6a696e6477ddd1a4a1d60e792becfd657014358bfbb72048be28d1d05880d8e0"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_model.tar.gz"
 
+[synthetic_data]
+git-tree-sha1 = "dabee0e417bb7c1271def93a662916499286b69c"
+lazy = true
+
+    [[synthetic_data.download]]
+    sha256 = "77d917d5dea5e3c1ff5c56f0fe4aeee5b75668de668cdf485d630e8a8722c138"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_data.tar.gz"
+
+[synthetic_flux]
+git-tree-sha1 = "0879c44f7dc2258f873da4366aeb7c30a327d49e"
+lazy = true
+
+    [[synthetic_flux.download]]
+    sha256 = "540238f2b345038d5cbea27cfd0e17eeb611e13650cd788c6f9b8b5f786c52c8"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_flux.tar.gz"
+
+[synthetic_r_torch]
+git-tree-sha1 = "be52f56533a66e433cd26f03627ca1b686680a95"
+lazy = true
+
+    [[synthetic_r_torch.download]]
+    sha256 = "9b3ae52a09c6f39fcdaec3aedbd272df97d7c89dd965af5b234451cf1d823abf"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_r_torch.tar.gz"
+
 [ucr_data]
 git-tree-sha1 = "6767d796c1f5e75d924f1cd72c0bec2dbaf46dfe"
 lazy = true

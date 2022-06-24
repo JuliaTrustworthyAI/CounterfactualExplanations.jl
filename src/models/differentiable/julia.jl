@@ -6,11 +6,11 @@ abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel en
 using Flux
 # Constructor
 struct FluxModel <: Models.AbstractDifferentiableJuliaModel
-    nn::Any
-    type::Symbol
-    function FluxModel(nn, type)
-        if type ∈ [:classification_binary,:classification_multi]
-            new(nn, type)
+    model::Any
+    likelihood::Symbol
+    function FluxModel(model, likelihood)
+        if likelihood ∈ [:classification_binary,:classification_multi]
+            new(model, likelihood)
         else
             throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
         end
@@ -18,19 +18,25 @@ struct FluxModel <: Models.AbstractDifferentiableJuliaModel
 end
 
 # Outer constructor method:
-function FluxModel(nn; type::Symbol=:classification_binary)
-    FluxModel(nn, type)
+function FluxModel(model; likelihood::Symbol=:classification_binary)
+    FluxModel(model, likelihood)
 end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    return M.nn(X)
+    if size(X)[1] == 1
+        X = X'
+    end
+    if !isa(X, Matrix)
+        X = reshape(X, length(X), 1)
+    end
+    return M.model(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)
-    if M.type == :classification_binary
+    if M.likelihood == :classification_binary
         output = σ.(logits(M, X))
-    elseif M.type == :classification_multi
+    elseif M.likelihood == :classification_multi
         output = softmax(logits(M, X))
     end
     return output
@@ -61,7 +67,10 @@ See also:
 struct LogisticModel <: Models.AbstractDifferentiableJuliaModel
     W::Matrix
     b::AbstractArray
+    likelihood::Symbol
 end
+
+LogisticModel(W,b;likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
 
 # What follows are the two required outer methods:
 """
@@ -127,8 +136,11 @@ See also:
 struct BayesianLogisticModel <: Models.AbstractDifferentiableJuliaModel
     μ::Matrix
     Σ::Matrix
-    BayesianLogisticModel(μ, Σ) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ)
+    likelihood::Symbol
+    BayesianLogisticModel(μ, Σ, likelihood) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ, likelihood)
 end
+
+BayesianLogisticModel(μ,Σ;likelihood=:classification_binary) = BayesianLogisticModel(μ,Σ,likelihood)
 
 # What follows are the three required outer methods:
 """

@@ -1,6 +1,7 @@
 using Pkg.Artifacts
 using Flux
 using BSON
+using Random
 
 """
     cats_dogs_data()
@@ -77,7 +78,6 @@ function mnist_ensemble()
     return ensemble
 end
 
-using Random
 """
     toy_data_linear(N=100)
 
@@ -93,7 +93,6 @@ toy_data_linear()
 function toy_data_linear(N=100)
     # Number of points to generate.
     M = round(Int, N / 2)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -106,7 +105,6 @@ function toy_data_linear(N=100)
     return xs, ts
 end
 
-using Random
 """
     toy_data_non_linear(N=100)
 
@@ -122,7 +120,6 @@ toy_data_non_linear()
 function toy_data_non_linear(N=100)
     # Number of points to generate.
     M = round(Int, N / 4)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -141,7 +138,6 @@ function toy_data_non_linear(N=100)
     return xs, ts
 end
 
-using Random
 """
     toy_data_multi(N=100)
 
@@ -157,7 +153,6 @@ toy_data_multi()
 function toy_data_multi(N=100)
     # Number of points to generate.
     M = round(Int, N / 4)
-    Random.seed!(1234)
 
     # Generate artificial data.
     x1s = rand(M) * 4.5; x2s = rand(M) * 4.5; 
@@ -175,3 +170,52 @@ function toy_data_multi(N=100)
     ts = [ones(M); ones(M).*2; ones(M).*3; ones(M).*4];
     return xs, ts
 end
+
+###########################
+# Synthetic data
+###########################
+using Flux, RCall
+"""
+    load_synthetic()
+
+Helper function that loads dictionary of pretrained models.
+"""
+function load_synthetic(models=[:flux, :r_torch])
+
+    synthetic_dict = Dict()
+    # Data
+    data_dir = artifact"synthetic_data"
+    data_dict = BSON.load(joinpath(data_dir,"synthetic_data.bson"),@__MODULE__)[:data_dict]
+    for (likelihood, data) ∈ data_dict
+        synthetic_dict[likelihood] = Dict()
+        synthetic_dict[likelihood][:data] = data
+        synthetic_dict[likelihood][:models] = Dict()
+    end
+    # Flux
+    if :flux ∈ models
+        data_dir = artifact"synthetic_flux"
+        models_ = BSON.load(joinpath(data_dir,"synthetic_flux.bson"),@__MODULE__)[:flux_models]
+        for (likelihood, model) ∈ models_
+            synthetic_dict[likelihood][:models][:flux] = model
+            synthetic_dict[likelihood][:models][:flux][:model] = Models.FluxModel(model[:raw_model],likelihood=likelihood)
+        end
+    end
+    # R torch
+    if :r_torch ∈ models
+        Interoperability.prep_R_session()
+        data_dir = artifact"synthetic_r_torch"
+        data_dir = joinpath(data_dir,"synthetic_r_torch")
+        model_names = readdir(data_dir)
+        model_paths = map(sub_dir -> joinpath(data_dir,sub_dir,"model.pt"),model_names)
+        model_info = zip(model_names, model_paths)
+        for (name,path) ∈ model_info
+            likelihood = Symbol(name)
+            synthetic_dict[likelihood][:models][:r_torch] = Dict()
+            M = R"torch_load($path)"
+            synthetic_dict[likelihood][:models][:r_torch][:raw_model] = M
+            synthetic_dict[likelihood][:models][:r_torch][:model] = Models.RTorchModel(M, likelihood=likelihood)
+        end
+    end
+    return synthetic_dict
+end
+
