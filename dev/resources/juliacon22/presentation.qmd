@@ -71,32 +71,34 @@ execute:
 
 ## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
 
-::: {.r-stack}
-::: {data-id="box1" style="background: #2780e3; width: 350px; height: 350px; border-radius: 200px;"}
-Counterfactual Reasoning
+::: {.r-hstack}
+
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Data
 :::
 
-::: {data-id="box2" style="background: #3fb618; width: 250px; height: 250px; border-radius: 200px;"}
+
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Probabilistic Models
 :::
 
-::: {data-id="box3" style="background: #e83e8c; width: 150px; height: 150px; border-radius: 200px;"}
-Data
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Counterfactual Reasoning
 :::
 :::
 
 ## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: {.r-hstack}
-::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px;"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Data
 :::
 
-::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Probabilistic Models
 :::
 
-::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Counterfactual Reasoning
 :::
 :::
@@ -105,16 +107,16 @@ Counterfactual Reasoning
 
 ## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
 
-::: {.r-hstack}
-::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {.r-hstack style="text-align: center;"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Data
 :::
 
-::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px"}
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Probabilistic Models
 :::
 
-::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Counterfactual Reasoning
 :::
 :::
@@ -141,15 +143,15 @@ Counterfactual Reasoning
 ## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: {.r-hstack}
-::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Data
 :::
 
-::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Probabilistic Models
 :::
 
-::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px"}
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; align-items: center;"}
 Counterfactual Reasoning
 :::
 :::
@@ -263,14 +265,15 @@ $$
 
 :::
 
-# [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/) in Julia (and beyond!) 📦
+# Counterfactual Explanations in Julia (and beyond!)
 
 ## Limited Software Availability  
 
 - Some of the existing approaches scattered across different GitHub repositories (🐍).
-- Only one unifiying Python 🐍 library: CARLA [@pawelczyk2021carla].
+- Only one unifying Python 🐍 library: CARLA [@pawelczyk2021carla].
     - Comprehensive and (somewhat) extensible ...
     - ... but not language-agnostic and some desirable functionality not supported.
+    - Also not composable: each generator is treated as different class/entity.
 - Both R and Julia lacking any kind of implementation. Until now ...
 
 ## Enter: `CounterfactualExplanations.jl` 📦
@@ -279,24 +282,17 @@ $$
 [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
 
-- A unifying framework for generating counterfactual explanations and aglorithmic recourse.
-- Built in Julia, but essentially language agnostic: supporting explanations for models built in Python, R, ...
-- Designed to be easily extensible through multiple dispatch.
-- Native support for differentiable models built and trained in Julia. 
+:::{.incremental}
+- A unifying framework for generating Counterfactual Explanations.
+- Built in Julia, but essentially language agnostic:
+    - Currently supporting explanations for differentiable models built in Julia (e.g. Flux) and torch (R and Python).
+- Designed to be easily extensible through dispatch.
+- Designed to be composable allowing users and developers to combine different counterfactual generators.
+:::
 
-> Julia is fast, transparent, beautiful and open 🔴🟢🟣
+. . .
 
-## Installation
-
-1. Install Julia.
-2. Install the package:
-
-```{julia}
-using Pkg
-Pkg.add("CounterfactualExplanations")
-```
-
-3. Explain your black box 🔮
+> Julia has an edge with respect to Trustworthy AI, because it's open-source, uniquely transparent and interoperable 🔴🟢🟣
 
 ## A Simple Generic Generator
 
@@ -570,26 +566,6 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
     - support for non-differentiable models.
     - more generators (DiCE [@mothilal2020explaining], ROAR [@upadhyay2021towards], MINT [@karimi2021algorithmic], CLUE [@antoran2020getting])
 
-## Research Topics (1) - Student Project
-
-> What happens once AR has actually been implemented? 👀
-
-:::{.incremental}
-- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
-- What about endogenous model shifts?
-:::
-
-![](www/bayesian.gif){fig-align="center" width=800px} 
-
-## Research Topics (2)
-
-:::{.incremental}
-- An effortless way to incorporate model uncertainty (w/o need for expensive generative model): *Laplace Redux*.
-- Counterfactual explanations for time series data.
-- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting.
-- More ideas form your side? 🤗
-:::
-
 ## More Resources
 
 - Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
@@ -615,5 +591,25 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
     - Works well with Bayesian models. Clear link to Causal Inference. 
     - Does not rely on interpretable features.
 - Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
+
+## Research Topics (1) - Student Project
+
+> What happens once AR has actually been implemented? 👀
+
+:::{.incremental}
+- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
+- What about endogenous model shifts?
+:::
+
+![](www/bayesian.gif){fig-align="center" width=800px} 
+
+## Research Topics (2)
+
+:::{.incremental}
+- An effortless way to incorporate model uncertainty (w/o need for expensive generative model): *Laplace Redux*.
+- Counterfactual explanations for time series data.
+- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting.
+- More ideas form your side? 🤗
+:::
 
 ## References 
