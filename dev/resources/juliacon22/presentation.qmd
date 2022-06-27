@@ -9,53 +9,261 @@ format:
     self-contained: true
     smaller: true
     scrollable: true
+    preview-links: auto
+    fig-align: center
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 execute:
   eval: false
   echo: true
-  fig-align: "center"
 ---
 
 ## Overview
 
-- Intro
-- Background and related work
-- Counterfactual Explanations
-- `CounterfactualExplanations.jl`: getting started
-- Possible research questions
-- Application to MNIST
-- Discussion and Outlook
-
-# Introduction
-
-## Have you ever ...
-
 :::{.incremental}
-- ... received an automated rejection email? Why didn't you "mEet tHe sHoRtLisTiNg cRiTeRia"? 🙃
-- ... used deep learning or some other black-box model? 🔮 Could you explain the model behvaiour intuitively? 👀
-- ... used a black-box model at ING to classify counterparties or clients? 🦁
-- ... worked for the belastingdienst? 🫠
+- The Problem with Black Boxes ⬛
+    - What are black-box models? Why do we need explainability?
+- Enter: Counterfactual Explanations 🔮
+    - What are counterfactuals? What are they not?
+- [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/) in Julia (and beyond!) 📦
+    - What can it do?
+    - Usage examples
+    - Design choices
+- Goals and Ambitions 🎯
+    - Where can it go?
+    - How to contribute
 :::
 
-## The Need for Explanations
+# The Problem with Black Boxes ⬛
+
+## Of Short Lists, Pandas and Gibbons
 
 - From human to data-driven decision-making:
-  - Today, it is more likely than not that your digital loan or employment application will be handled by an algorithm, at least in the first instance.
-- Black-box models create undesirable dynamics: 
-  - Human operators in charge of the system have to rely on it blindy.
-  - Those indviduals subject to it generally have no way to challenge an outcome.
+  - Black-box models like deep neural networks are being deployed virtually everywhere.
+  - More likely than not that your loan or employment application is handled by an algorithm.
+  - Includes critical domains: health care, autonomous driving, finance, ... 
+
+. . .
+
+> A recipe for disaster ...
+
+. . .
+
+- We have no idea what exactly we're cooking up ...
+    - Have you received an automated rejection email? Why didn't you "mEet tHe sHoRtLisTiNg cRiTeRia"? 🙃
+
+. . .
+
+- ... but we do know that some of it is junk. 
+
+![Adversarial attacks on deep neural networks. Source: @goodfellow2014explaining](www/panda.png){#fig-panda width=60%}
+
+## "Weapons of Math Destruction"
+
+- If left unchallenged, these properties of black-box models can create undesirable dynamics: 
+  - Human operators in charge of the system have to rely on it blindly.
+  - Those individuals subject to it generally have no way to challenge an outcome.
 
 > “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
 >
 > — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-## Enter: Counterfactual Explanations 
+![Cathy O’Neil. Source: Cathy O’Neil](www/cathy.webp){#fig-cathy width=60%}
 
-#### From 🐱 to 🐶 
+## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
 
-We have fitted some black box classifier to divide cats and dogs. One 🐱 is friends with a lot of cool 🐶  and wants to remain part of that group. The counterfactual path below shows her how to fool the classifier:
+::: {.r-stack}
+::: {data-id="box1" style="background: #2780e3; width: 350px; height: 350px; border-radius: 200px;"}
+Counterfactual Reasoning
+:::
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
+::: {data-id="box2" style="background: #3fb618; width: 250px; height: 250px; border-radius: 200px;"}
+Probabilistic Models
+:::
+
+::: {data-id="box3" style="background: #e83e8c; width: 150px; height: 150px; border-radius: 200px;"}
+Data
+:::
+:::
+
+## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px;"}
+Data
+:::
+
+::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Counterfactual Reasoning
+:::
+:::
+
+- The journey towards Trustworthy AI starts with trustworthy data ...
+
+## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Data
+:::
+
+::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Counterfactual Reasoning
+:::
+:::
+
+**Model objective**: maximize $p(\mathcal{D}|\theta)$ where $\mathcal{D}=\{(x,y)\}_{i=1}^n$ (supervised)
+
+:::{.incremental}
+- In an ideal world we can rely on parsimonious and interpretable models.
+- In practice these models have their limitation.
+- Black-box models like deep neural network are the very opposite of parsimonious.
+:::
+
+. . .
+
+> [...] deep neural networks are typically very underspecified by the available data, and [...] parameters [therefore] correspond to a diverse variety of compelling explanations for the data. 
+> [@wilson2020case]
+
+- In this setting it is often crucial to treat models probabilistically!
+
+. . .
+
+- Probabilistic models covered briefly today. More in my other talk ...
+
+## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+::: {data-id="box3" style="background: #e83e8c; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Data
+:::
+
+::: {data-id="box2" style="background: #3fb618; width: 200px; height: 150px; margin: 10px; opacity: 0.5"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #2780e3; width: 200px; height: 150px; margin: 10px"}
+Counterfactual Reasoning
+:::
+:::
+
+:::{.incremental}
+- Counterfactual reasoning boils down to simple questions: what if $x \Rightarrow x\prime$?
+- By (strategically) perturbing features and checking the model output, we can (begin to) understand how the model makes its decisions.
+:::
+
+. . .
+
+> Even though [...] interpretability is of great importance and should be pursued, explanations can, in principle, be offered without opening the “black box”.
+> [@wachter2017counterfactual]
+
+# Enter: Counterfactual Explanations 🔮
+
+## A Framework for Counterfactual Explanations
+ 
+- Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
+
+$$
+\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
+$$ {#eq-obj}
+
+- Typically approximated through regularization:
+
+$$
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
+$$ {#eq-solution} 
+
+## Toy example
+
+#### A simple counterfactual path from 🐱 to 🐶 
+
+We have fitted some black-box classifier to divide cats and dogs. One 🐱 is friends with a lot of cool 🐶  and wants to remain part of that group. The counterfactual path below shows her how to fool the classifier:
+
+![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
+
+## Counterfactuals ... as in Adversarial Examples?
+
+> Yes and no! 
+
+While both are methodologically very similar, adversarial examples are meant to go undetected while CEs ought to be meaningful.
+
+- Effective counterfactuals should meet certain criteria ✅
+
+- **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
+- **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
+- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
+- **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
+- **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
+- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
+- **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
+- **causality**: counterfactual explanations reflect the structural causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
+
+## Counterfactuals ... as in Causal Inference?
+
+> NO!
+
+:::{.incremental}
+- In causal inference (Potential Outcome Framework), counterfactuals are unobserved states of the world that we would like to observe in order to establish causality.
+  - For example, in drug trials we would love to observe the **actual outcome** under treatment ($y_i|T=1$) and non-treatment ($y_i|T=0$) for the **same** individual.
+  - Instead we estimate an average treatment effect as: 
+- CE involves perturbing features **after** some model has been trained.
+  - We end up comparing **modeled outcomes** $f(x_i)$ and $f(x_i\prime)$.
+- The two are **NOT** the same!
+:::
+
+. . .
+
+> Well, maybe ...
+
+There is nonetheless an intriguing link between the two domains:
+
+:::{.incremental}
+- If we do have causal knowledge, let's leverage it: from minimal **perturbations** to minimal **interventions** (@karimi2020algorithmic, @karimi2021algorithmic)
+- If CEs that rely on minimal interventions fail, does that not provide some evidence that the assumed causal graph is inaccurate?
+- Very much a open research field ...
+:::
+
+
+## Probabilistic Methods for Counterfactual Explanations
+
+When people say that counterfactuals should look **realistic** or **plausible**, they really mean that counterfactuals should be generated by the same Data Generating Process (DGP) as the factuals:
+
+$$
+x\prime \sim p(x)
+$$
+
+- How do we estimate $p(x)$? Two probabilistic approaches ...
+
+::: {.panel-tabset}
+
+### APPROACH 1: use the model itself
+
+- @schut2021generating note that by maximizing predictive probabilities $\sigma(M(x\prime))$ for **probabilistic** models $M\in\mathcal{\widetilde{M}}$ one implicitly minimizes **epistemic** and **aleotoric** uncertainty.
+
+![Generating a counterfactual for 🐱 following @schut2021generating. The contour shows the predictions of a simple MLP with Laplace Approximation.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){#fig-cat-laplace}
+
+![Counterfactual explanations for MNIST data. Turning a nine (9) into a four (4).](www/MNIST_9to4.png){#fig-mnist-schut}
+
+- See also @antoran2020getting.
+
+### APPROACH 2: use some generative model
+
+- Instead of perturbing samples directly, some have proposed to instead traverse a lower-dimensional latent embedding learned through a generative model.
+
+![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019towards. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d}
+
+![Turning a nine (9) into a four (4) using generic search in the feature space. It appears that the VAE is well-specified in this case.](www/mnist_9to4_latent.png){#fig-mnist-latent}
+
+:::
+
+# [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/) in Julia (and beyond!) 📦
 
 ## Limited Software Availability  
 
@@ -77,69 +285,6 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 - Native support for differentiable models built and trained in Julia. 
 
 > Julia is fast, transparent, beautiful and open 🔴🟢🟣
-
-# Background and Related Work
-
-## Explainable AI (XAI)
-
-- *interpretable* = inherently interpretable model, no extra tools needed (GLM, decision trees, rules, ...)  [@rudin2019stop]
-- *explainable* = inherently not interpretable model, but explainable through XAI
-
-#### Post-hoc Explainability:
-- Local **surrogate explainers** like LIME and Shapley: useful and popular, but ... 
-    - ... can be easily fooled [@slack2020fooling]
-    - ... rely on reasonably interpretable features.
-    - ... rely on the concept of fidelity.
-- **Counterfactual explanations** explain how inputs into a system need to change for it to produce different decisions. 
-    - Always full-fidelity, since no proxy involved. 
-    - Intuitive interpretation and straight-forward implemenation.
-    - Works well with Bayesian models. Clear link to Causal Inference. 
-    - Does not rely on interpretable features.
-- Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
-
-# Counterfactual Explanations
-
-## A Framework for Counterfactual Explanations
- 
-- Objective originally proposed by @wachter2017counterfactual is as follows where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier:
-
-$$
-\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
-$$ {#eq-obj}
-
-- Typically approximated through regularization:
-
-$$
-x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
-$$ {#eq-solution}
-
-> So counterfactual search is just gradient descent in the feature space 💡 Easy right?
-
-## Not so fast ... 
-
-> Effective counterfactuals should meet certain criteria ✅
-
-- **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
-- **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
-- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
-- **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
-- **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
-- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
-- **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
-- **causality**: counterfactual explanations reflect the structual causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
-
-## The Bayesian Approach - a Catchall?
-
-- @schut2021generating note that different approaches just work with different complexity functions ($h(x\prime)$ in @eq-obj)
-- They show that for classifiers $\mathcal{\widetilde{M}}$ that incoporate predictive uncertainty we can drop the complexity penalty altogether:
-
-$$
-x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) \ \ , \ \  \forall M\in\mathcal{\widetilde{M}}
-$$ {#eq-solution-bayes}
-
-- See also @antoran2020getting.
-
-# `CounterfactualExplanations.jl`: getting started
 
 ## Installation
 
@@ -415,7 +560,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 
 ![Turning a seven (7) into a (2).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
 
-# Discussion and Outlook
+# Goals and Ambitions 🎯
 
 ## The Package 📦
 
@@ -451,5 +596,24 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 - Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples
 - Blog post on effortless Bayesian deep learning [[TDS]((https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b)), [homepage](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/)]
 - [Get in touch](https://www.paltmeyer.com/)!
+
+# Hidden
+
+## Explainable AI (XAI)
+
+- *interpretable* = inherently interpretable model, no extra tools needed (GLM, decision trees, rules, ...)  [@rudin2019stop]
+- *explainable* = inherently not interpretable model, but explainable through XAI
+
+#### Post-hoc Explainability:
+- Local **surrogate explainers** like LIME and Shapley: useful and popular, but ... 
+    - ... can be easily fooled [@slack2020fooling]
+    - ... rely on reasonably interpretable features.
+    - ... rely on the concept of fidelity.
+- **Counterfactual explanations** explain how inputs into a system need to change for it to produce different decisions. 
+    - Always full-fidelity, since no proxy involved. 
+    - Intuitive interpretation and straight-forward implemenation.
+    - Works well with Bayesian models. Clear link to Causal Inference. 
+    - Does not rely on interpretable features.
+- Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
 
 ## References 
