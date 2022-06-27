@@ -69,14 +69,13 @@ execute:
 
 ![Cathy O’Neil. Source: Cathy O’Neil](www/cathy.webp){#fig-cathy width=60%}
 
-## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: {.r-hstack}
 
 ::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Data
 :::
-
 
 ::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Probabilistic Models
@@ -87,25 +86,7 @@ Counterfactual Reasoning
 :::
 :::
 
-## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
-
-::: {.r-hstack}
-::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
-Data
-:::
-
-::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
-Probabilistic Models
-:::
-
-::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
-Counterfactual Reasoning
-:::
-:::
-
-- The journey towards Trustworthy AI starts with trustworthy data ...
-
-## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: {.r-hstack style="text-align: center;"}
 ::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
@@ -140,7 +121,7 @@ Counterfactual Reasoning
 
 - Probabilistic models covered briefly today. More in my other talk ...
 
-## Towards Trustworthy Artificial Intelligence {auto-animate=true auto-animate-easing="ease-in-out"}
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
 ::: {.r-hstack}
 ::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
@@ -294,7 +275,7 @@ $$
 
 > Julia has an edge with respect to Trustworthy AI, because it's open-source, uniquely transparent and interoperable 🔴🟢🟣
 
-## A Simple Generic Generator
+## Generic Generator
 
 ::: {.panel-tabset}
 
@@ -333,7 +314,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 :::
 
 
-## A Greedy Generator
+## Greedy Generator
 
 :::{.panel-tabset}
 
