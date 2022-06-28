@@ -33,13 +33,13 @@ www_path = "dev/resources/juliacon22/www"
     - What are black-box models? Why do we need explainability?
 - Enter: Counterfactual Explanations 🔮
     - What are counterfactuals? What are they not?
-- [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/) in Julia (and beyond!) 📦
-    - What can it do?
-    - Usage examples
-    - Design choices
+- Counterfactual Explanations in Julia (and beyond!) 📦
+    - Introducing: [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/).
+    - Package architecture
+    - Usage examples - what can it do?
 - Goals and Ambitions 🎯
-    - Where can it go?
-    - How to contribute
+    - Future developments - where can it go?
+    - Contributor's guide
 :::
 
 # The Problem with Black Boxes ⬛
@@ -451,96 +451,180 @@ gif(anim, joinpath(www_path, "example_revise.gif"), fps=2)
 
 ::::
 
-## A more involved example
+## MNIST - Latent Space Search
 
-![Counterfactual explanations for MNIST data. Turning a nine (9) into a four (4).](www/MNIST_9to4.png){#fig-mnist-schut}
+:::: {.columns}
 
-![Turning a nine (9) into a four (4) using generic search in the feature space. It appears that the VAE is well-specified in this case.](www/mnist_9to4_latent.png){#fig-mnist-latent}
+::: {.column width="50%"}
 
-But things can go wrong ...
+#### Good VAE
 
-![](www/mnist_7to9_latent.png)
+. . .
 
-![](www/mnist_7to9_wachter.png)
+Loading pre-trained classifiers and VAE ...
+
+```{julia}
+using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
+X, ys = mnist_data() 
+model = mnist_model() # simple MLP
+```
+
+. . .
+
+... instantiating model and attaching VAE.
+
+```{julia}
+M = FluxModel(model, likelihood=:classification_multi)
+counterfactual_data = CounterfactualData(X,ys)
+counterfactual_data.generative_model = vae
+```
+
+. . .
+
+> The results in @fig-mnist-latent look great!
+
+![Turning a nine (9) into a four (4) using REVISE. It appears that the VAE is well-specified in this case.](www/mnist_9to4_latent.png){#fig-mnist-latent width="80%"}
+
+:::
+
+::: {.column width="50%"}
+
+#### Bad VAE
+
+. . .
+
+> But things can also go wrong ...
+
+The VAE used to generate the counterfactual in @fig-latent-fail is not expressive enough.
+
+![Turning a seven (7) into a nine (9) using REVISE with a weak VAE.](www/mnist_7to9_latent.png){#fig-latent-fail width="60%"}
+
+. . .
+
+> The counterfactual in @fig-wachter-fail is also valid ... what to do?
+
+![Turning a seven (7) into a nine (9) using generic search.](www/mnist_7to9_wachter.png){#fig-wachter-fail width="60%"}
+:::
+
+::::
 
 # Customization
 
-## Custom Models
+## Custom Models - Deep Ensemble
 
-:::{.panel-tabset}
+. . . 
 
-### Counterfactual path
+Loading the pre-trained deep ensemble ...
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/interop_r.gif)
-
-### R
-
-#### Subtyping and dispatch
-
-```{.julia}
-using Flux, RCall
-using CounterfactualExplanations, CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
-
-# Step 1)
-struct TorchNetwork <: Models.AbstractFittedModel
-    model::Any
-end
-
-# Step 2)
-function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.model
-  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ'
-end
-probs(M::TorchNetwork, X::AbstractArray)= σ.(logits(M, X))
-M = TorchNetwork(R"model")
+```{julia}
+ensemble = mnist_ensemble() # deep ensemble
 ```
 
-#### Gradient access
+. . .
 
-```{.julia}
-import CounterfactualExplanations.Generators: ∂ℓ
-using LinearAlgebra
+**Step 1**: add composite type as subtype of `AbstractFittedModel`.
 
-# Countefactual loss:
-function ∂ℓ(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState) 
-  M = counterfactual_state.M
-  nn = M.model
-  x′ = counterfactual_state.x′
-  t = counterfactual_state.target_encoded
-  R"""
-  x <- torch_tensor($x′, requires_grad=TRUE)
-  output <- $nn(x)
-  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
-  obj_loss$backward()
-  """
-  grad = rcopy(R"as_array(x$grad)")
-  return grad
+```{julia}
+struct FittedEnsemble <: Models.AbstractFittedModel
+    ensemble::AbstractArray
 end
+```
+
+. . .
+
+**Step 2**: dispatch `logits` and `probs` methods for new model type.
+
+```{julia}
+using Statistics
+import CounterfactualExplanations.Models: logits, probs
+logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
+M = FittedEnsemble(ensemble)
+```
+
+. . .
+
+> Results for a simple deep ensemble also look convincing!
+
+![Turning a nine (9) into a four (4) using generic (Wachter) and greedy search for MLP and deep ensemble.](www/MNIST_9to4.png){#fig-mnist-schut width="80%"}
+
+## Custom Models - Interoperability
+
+Adding support for `torch` models was easy! Here's how I implemented it for `torch` classifiers trained in R.
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Source code
+
+. . .
+
+**Step 1**: add composite type as subtype of `AbstractFittedModel`
+
+> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10).
+
+**Step 2**: dispatch `logits` and `probs` methods for new model type.
+
+> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21).
+
+. . .
+
+**Step 3**: add gradient access.
+
+> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22).
+
+:::
+
+::: {.column width="40%"}
+
+#### Unchanged API
+
+. . . 
+
+```{julia}
+using RCall
+synthetic = load_synthetic([:r_torch])
+model = synthetic[:classification_binary][:models][:r_torch][:raw_model]
+M = RTorchModel(model)
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_interop.gif"), fps=25)
 ```
 
 :::
 
+::::
+
 ## Custom Generators
 
-::: {.panel-tabset}
+Idea 💡: let's implement a generic generator with dropout!
 
-### Generic generator with dropout
+. . . 
 
-![](www/dropout_recourse.gif)
+:::: {.columns}
 
-### Code
+::: {.column width="50%"}
+#### Dispatch
 
-#### Subtyping
+. . .
 
-```{.julia}
-# Abstract suptype:
-abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+**Step 1**: create a subtype of `AbstractGradientBasedGenerator` (adhering to some basic rules).
 
+```{julia}
 # Constructor:
-struct DropoutGenerator <: AbstractDropoutGenerator
+struct DropoutGenerator <: AbstractGradientBasedGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
     mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
@@ -549,23 +633,13 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     τ::AbstractFloat # tolerance for convergence
     p_dropout::AbstractFloat # dropout rate
 end
-
-# Instantiate:
-using LinearAlgebra
-generator = DropoutGenerator(
-    :logitbinarycrossentropy,
-    norm,
-    nothing,
-    0.1,
-    0.1,
-    1e-5,
-    0.5
-)
 ```
 
-#### Dispatch
+. . . 
 
-```{.julia}
+**Step 2**: implement logic for generating perturbations.
+
+```{julia}
 import CounterfactualExplanations.Generators: generate_perturbations, ∇
 using StatsBase
 function generate_perturbations(generator::AbstractDropoutGenerator, counterfactual_state::CounterfactualState)
@@ -577,8 +651,41 @@ function generate_perturbations(generator::AbstractDropoutGenerator, counterfact
     return Δx′
 end
 ```
+:::
+
+::: {.column width="50%"}
+#### Unchanged API
+
+. . .
+
+```{julia}
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_dropout.gif"), fps=25)
+```
+
+![](www/dropout_recourse.gif)
 
 :::
+
+::::
 
 # Goals and Ambitions 🎯
 
