@@ -19,6 +19,8 @@ execute:
 
 ```{julia}
 using Pkg; Pkg.activate("dev")
+using PlotThemes
+theme(:wong)
 include("dev/utils.jl")
 www_path = "dev/resources/juliacon22/www"
 ```
@@ -241,6 +243,8 @@ $$
 
 - Instead of perturbing samples directly, some have proposed to instead traverse a lower-dimensional latent embedding learned through a generative model.
 
+![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019towards. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d}
+
 :::
 
 # Counterfactual Explanations in Julia (and beyond!)
@@ -272,17 +276,15 @@ $$
 
 > Julia has an edge with respect to Trustworthy AI: it's open-source, uniquely transparent and interoperable 🔴🟢🟣
 
-## Package Architecture
+# Package Architecture
 
 > Modular, composable, scalable! 
 
-::: {.panel-tabset}
-
-### Overview
+## Overview
 
 ![Overview of package architecture. Modules are shown in red, structs in green and functions in blue.](../pkg_architecture.png){#fig-architecture width="70%"}
 
-### Generators 
+## Generators 
 
 ```{julia}
 using CounterfactualExplanations, Plots, GraphRecipes
@@ -292,7 +294,7 @@ savefig(plt, joinpath(www_path,"generators.png"))
 
 ![Type tree for `AbstractGenerator`.](www/generators.png){#fig-generators width="60%"}
 
-### Models
+## Models
 
 ```{julia}
 plt = plot(AbstractFittedModel, method=:tree, fontsize=10, nodeshape=:rect, size=(1000,700))
@@ -301,98 +303,153 @@ savefig(plt, joinpath(www_path,"models.png"))
 
 ![Type tree for `AbstractFittedModel`.](www/models.png){#fig-models width="60%"}
 
-:::
+# Basic Usage
 
-For more detail, check out the [repo](https://github.com/pat-alt/CounterfactualExplanations.jl) directly
+## A simple example
 
-## Generic Generator
+1. Load and prepare some toy data.
+2. Select a random sample.
+3. Generate counterfactuals using different approaches.
 
-::: {.panel-tabset}
-
-### Counterfactual path
-
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_generic_recourse.gif)
-
-### Code 
-
-```{.julia}
+```{julia}
 # Data:
 using CounterfactualExplanations.Data
-Random.seed!(1234)
-N = 25
+N = 100
 xs, ys = Data.toy_data_linear(N)
 X = hcat(xs...)
 counterfactual_data = CounterfactualData(X,ys')
 
-# Model
-using CounterfactualExplanations.Models: LogisticModel, probs 
-# Logit model:
-w = [1.0 1.0] # true coefficients
-b = 0
-M = LogisticModel(w, [b])
-
 # Randomly selected factual:
-Random.seed!(123)
 x = select_factual(counterfactual_data,rand(1:size(X)[2]))
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+
+## Generic Generator
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Code 
+
+```{julia}
+# Model
+using CounterfactualExplanations.Models: LogisticModel
+w = [1.0 1.0] # estimated coefficients
+b = 0 # estimated bias
+M = LogisticModel(w, [b])
 
 # Counterfactual search:
 generator = GenericGenerator()
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+function anim_path(counterfactual)
+    T = total_steps(counterfactual)
+    X_path = reduce(hcat,path(counterfactual))
+    ŷ = target_probs(counterfactual,X_path)
+    p1 = plot_contour(X',ys,M;colorbar=false, title="Counterfactual Path")
+    anim = @animate for t in 1:T
+        scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+        p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
+        Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
+        plot(p1,p2,size=(800,400))
+    end
+end
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "binary_generic_recourse.gif"), fps=25)
 ```
 :::
 
+::: {.column width="60%"}
+#### Output
+
+![Counterfactual path (left) and predicted probability (right) for `GenericGenerator`.](www/binary_generic_recourse.gif){#fig-generic}
+:::
+
+::::
 
 ## Greedy Generator
 
-:::{.panel-tabset}
+:::: {.columns}
 
-### Counterfactual path
+::: {.column width="40%"}
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_greedy_recourse.gif)
+#### Code 
 
-### Code
-
-```{.julia}
-# Model:
+```{julia}
 using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
 μ = hcat(b, w)
 M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ)
 
 # Counterfactual search:
-generator = GreedyGenerator(;δ=0.1,n=25))
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+generator = GreedyGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
 ```
 
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_greedy.gif"), fps=25)
+```
 :::
+
+::: {.column width="60%"}
+#### Output
+
+![Counterfactual path (left) and predicted probability (right) for `GreedyGenerator`.](www/example_greedy.gif){#fig-greedy}
+:::
+
+::::
 
 ## REVISE Generator
 
-:::{.panel-tabset}
+:::: {.columns}
 
-### Counterfactual path
+::: {.column width="40%"}
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_greedy_recourse.gif)
+#### Code 
 
-![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019towards. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d}
-
-### Code
-
-```{.julia}
-# Model:
-using LinearAlgebra
-Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
-μ = hcat(b, w)
-M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ)
-
+```{julia}
 # Counterfactual search:
-generator = GreedyGenerator(;δ=0.1,n=25))
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+generator = REVISEGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
 ```
 
+```{julia}
+# Counterfactual search:
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator,
+  latent_space=true
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_revise.gif"), fps=2)
+```
 :::
+
+::: {.column width="60%"}
+#### Output
+
+![Counterfactual path (left) and predicted probability (right) for `REVISEGenerator`.](www/example_revise.gif){#fig-greedy}
+:::
+
+::::
 
 ## A more involved example
 
@@ -406,7 +463,9 @@ But things can go wrong ...
 
 ![](www/mnist_7to9_wachter.png)
 
-## Custom Models and Interoperability
+# Customization
+
+## Custom Models
 
 :::{.panel-tabset}
 
