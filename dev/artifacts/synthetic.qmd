@@ -58,7 +58,11 @@ nn = build_model(activation=Flux.σ)
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 ps = Flux.params(nn)
 data = zip(xs,ys)
-data_dict[:classification_binary] = data
+data_dict[:classification_binary] = Dict(
+  :xs => xs,
+  :ys => ys,
+  :data => data
+)
 ```
 
 ```{julia}
@@ -123,7 +127,11 @@ nn = build_model(;kw...)
 loss(x, y) = Flux.Losses.logitcrossentropy(nn(x), y)
 ps = Flux.params(nn)
 data = zip(xs,y_train)
-data_dict[:classification_multi] = data
+data_dict[:classification_multi] = Dict(
+  :xs => xs,
+  :ys => ys,
+  :data => data
+)
 ```
 
 ```{julia}

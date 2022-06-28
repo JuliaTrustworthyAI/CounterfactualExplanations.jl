@@ -79,6 +79,17 @@ function mnist_ensemble()
 end
 
 """
+    mnist_vae()
+
+A convenience function to load the pre-trained VAE for MNIST training data.
+"""
+function mnist_vae()
+    data_dir = artifact"mnist_vae"
+    vae = BSON.load(joinpath(data_dir,"mnist_vae.bson"),@__MODULE__)[:vae]
+    return testmode!(model)
+end
+
+"""
     toy_data_linear(N=100)
 
 A convenience function to load linearly separable synthetic data.

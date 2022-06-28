@@ -59,10 +59,10 @@ accuracy(data) = mean(map(d -> mean(onecold(softmax(model(d[1])), 0:9) .== oneco
 
 for epoch = 1:epochs
   for d in data
-    gs = gradient(params(model)) do
+    gs = gradient(Flux.params(model)) do
       l = loss(d...)
     end
-    update!(opt, params(model), gs)
+    update!(opt, Flux.params(model), gs)
   end
   @info "Epoch " * string(epoch)
   @show accuracy(data)
@@ -78,10 +78,22 @@ ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false) 
 save_ensemble(ensemble;root=joinpath(data_dir, artifact_name * "_ensemble")) 
 ```
 
+### VAE
+
+```{julia}
+input_dim = size(X)[1]
+using CounterfactualExplanations.GenerativeModels: VAE, train!
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
+train!(vae, X, ys)
+using BSON: @save
+@save joinpath(data_dir, artifact_name * "_vae.bson") vae
+```
+
+
 ### Generate artifacts
 
 ```{julia}
-datafiles = [artifact_name * "_data.bson",artifact_name * "_model.bson",artifact_name * "_ensemble"]
+datafiles = [artifact_name * "_data.bson",artifact_name * "_model.bson",artifact_name * "_ensemble",artifact_name * "_vae.bson"]
 generate_artifact(datafiles)
 ```
 

@@ -13,7 +13,10 @@ using LinearAlgebra
 
 include("base.jl")
 
-export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator,
+export AbstractGenerator, AbstractGradientBasedGenerator, 
+    GenericGenerator, GenericGeneratorParams,
+    GreedyGenerator, GreedyGeneratorParams,
+    REVISEGenerator, REVISEGeneratorParams,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
 end
