@@ -86,7 +86,7 @@ for (key, generator_) ∈ generators
                                 end
                                 @test converged(counterfactual)
                                 @test Counterfactuals.terminated(counterfactual)
-                                @test Counterfactuals.total_steps(counterfactual) == 0
+                                @test Counterfactuals.total_steps(counterfactual) == 1
                     
                                 # Threshold reached if converged:
                                 γ = 0.9

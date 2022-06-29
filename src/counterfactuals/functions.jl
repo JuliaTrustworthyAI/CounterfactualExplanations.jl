@@ -194,7 +194,7 @@ converged(counterfactual_explanation::CounterfactualExplanation) = counterfactua
 
 A convenience method that returns the total number of steps of the counterfactual search.
 """
-total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count]
+total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count]+1
 
 """
     path(counterfactual_explanation::CounterfactualExplanation)

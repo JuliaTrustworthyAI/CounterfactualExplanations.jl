@@ -39,6 +39,7 @@ export AbstractFittedModel, AbstractDifferentiableModel,
 
 include("counterfactual_state/CounterfactualState.jl")
 using .CounterfactualState
+export State
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )

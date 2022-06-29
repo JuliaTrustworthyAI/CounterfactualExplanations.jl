@@ -6,37 +6,15 @@ format:
   revealjs:
     logo: www/delft_logo.png
     footer: |
-      Explaining Black-Box Models through Counterfactuals -- Patrick Altmeyer
-      <p style="display: inline; vertical-align: middle;"> 
-        <a href="https://www.linkedin.com/in/patrick-altmeyer-a2a25494/" style="display: inline-block; color: rgb(207, 142, 255) !important;">
-          <font style="">
-            <img width="40" height="40" src="https://s1g.s3.amazonaws.com/d0fc399dee4218d1e0e0399b8947acab.png" alt="LinkedIn (Personal)" style="border: none; max-width: 100%; height: 40px !important;">
-          </font>
-        </a>
-        <a href="https://twitter.com/paltmey" style="display: inline-block; color: rgb(207, 142, 255) !important;">
-          <font style="">
-            <img width="40" height="40" src="https://s1g.s3.amazonaws.com/3949237f892004c237021ac9e3182b1d.png" alt="Twitter" style="border: none; max-width: 100%; height: 40px !important;">
-          </font>
-        </a>
-        <a href="https://github.com/pat-alt" style="display: inline-block; color: rgb(207, 142, 255) !important;">
-          <font style="">
-            <img width="40" height="40" src="https://s1g.s3.amazonaws.com/47f4eb2d0082a8a3611d614b75a09db8.png" alt="Github" style="border: none; max-width: 100%; height: 40px !important;">
-          </font>
-        </a>
-        <a href="https://medium.com/@patrick.altmeyer" style="display: inline-block; color: rgb(207, 142, 255) !important;">
-          <font style="">
-            <img width="40" height="40" src="https://s1g.s3.amazonaws.com/175f49662614345cb7dbb95fce3f88af.png" alt="Medium" style="border: none; max-width: 100%; height: 40px !important;">
-          </font>
-        </a>
-      </p>
+      Explaining Black-Box Models through Counterfactuals -- JuliaCon 2022 -- Patrick Altmeyer
     self-contained: true
     smaller: true
     scrollable: true
     preview-links: auto
-    fig-align: center
     slide-number: true
     transition: slide
     background-transition: fade
+    fig-align: center
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 execute:
   eval: false
@@ -410,27 +388,53 @@ where $dec(\cdot)$ is the decoder function.
 
 ## Limited Software Availability  
 
-- Some of the existing approaches scattered across different GitHub repositories (🐍).
-- Only one unifying Python 🐍 library: CARLA [@pawelczyk2021carla].
-    - Comprehensive and (somewhat) extensible ...
-    - ... but not language-agnostic and some desirable functionality not supported.
-    - Also not composable: each generator is treated as different class/entity.
-- Both R and Julia lacking any kind of implementation. Until now ...
+> Work currently scattered across different GitHub repositories ...
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+:::{.incremental}
+
+- Only one unifying Python library: CARLA [@pawelczyk2021carla].
+  - Comprehensive and (somewhat) extensible.
+  - But not language-agnostic and some desirable functionality not supported.
+  - Also not composable: each generator is treated as different class/entity.
+- Both R and Julia lacking any kind of implementation. 
+
+:::
+:::
+
+:::{.column width="50%"}
+![Photo by [Volodymyr Hryshchenko](https://unsplash.com/@lunarts?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/rubiks-cube?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText).](www/software.jpeg)
+:::
+
+::::
+
 
 ## Enter: `CounterfactualExplanations.jl` 📦
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
-[![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
 
-> A unifying framework for generating Counterfactual Explanations.
+> ... until now!
 
+::::{.columns}
+
+:::{.column width="50%"}
 :::{.incremental}
+- A unifying framework for generating Counterfactual Explanations.
 - Built in Julia, but essentially language agnostic:
     - Currently supporting explanations for differentiable models built in Julia (e.g. Flux) and torch (R and Python).
 - Designed to be easily extensible through dispatch.
 - Designed to be composable allowing users and developers to combine different counterfactual generators.
 :::
+:::
+
+:::{.column width="50%"}
+![Photo by [Denise Jans](https://unsplash.com/@dmjdenise?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/rubiks-cube?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText).](www/software2.jpeg){width=80%}
+:::
+
+::::
 
 . . .
 
@@ -492,7 +496,6 @@ x = select_factual(counterfactual_data,rand(1:size(X)[2]))
 :::{.column width="50%"}
 ```{julia}
 #| echo: false
-X = hcat(xs...)
 pyplot()
 plt = plot()
 plt = plot_data!(plt,X',ys)
@@ -515,17 +518,32 @@ gr()
 
 #### Code 
 
+. . .
+
+We begin by instatiating the fitted model ...
+
 ```{julia}
 # Model
-using CounterfactualExplanations.Models: LogisticModel
 w = [1.0 1.0] # estimated coefficients
 b = 0 # estimated bias
 M = LogisticModel(w, [b])
+```
 
+. . .
+
+... then based on its prediction for $x$ we choose the opposite label as our target ...
+
+```{julia}
 # Select target class:
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
 
+. . .
+
+... and finally generate the counterfactual.
+
+```{julia}
 # Counterfactual search:
 generator = GenericGenerator()
 counterfactual = generate_counterfactual(
@@ -535,25 +553,31 @@ counterfactual = generate_counterfactual(
 
 ```{julia}
 #| echo: false
-function anim_path(counterfactual)
+function anim_path(counterfactual; x=X', y=ys)
     T = total_steps(counterfactual)
     X_path = reduce(hcat,path(counterfactual))
-    ŷ = target_probs(counterfactual,X_path)
+    p̂ = target_probs(counterfactual,X_path)
+    target = counterfactual.target
     p1 = plot_contour(X',ys,M;colorbar=false, title="Counterfactual Path")
     anim = @animate for t in 1:T
-        scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-        p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
+        ŷ = target == 1.0 ? Int(round(p̂[t])) : Int(round(1-p̂[t]))
+        scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=10, color=ŷ, label="")
+        p2 = plot(1:t, p̂[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
         Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
         plot(p1,p2,size=(800,400))
     end
 end
 anim = anim_path(counterfactual)
-gif(anim, joinpath(www_path, "example_generic.gif"), fps=25)
+gif(anim, joinpath(www_path, "example_generic.gif"), fps=15)
 ```
 :::
 
 ::: {.column width="60%"}
 #### Output
+
+. . .
+
+> ... et voilà!
 
 ![Counterfactual path (left) and predicted probability (right) for `GenericGenerator`. The contour (left) shows the predicted probabilities of the classifier (Logistic Regression).](www/example_generic.gif){#fig-generic}
 :::
@@ -567,17 +591,33 @@ gif(anim, joinpath(www_path, "example_generic.gif"), fps=25)
 ::: {.column width="40%"}
 
 #### Code 
+ 
+. . .
+
+This time we use a Bayesian classifier ...
 
 ```{julia}
 using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
 μ = hcat(b, w)
-M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ)
+M = BayesianLogisticModel(μ, Σ)
+```
 
+. . .
+
+... and once again choose our target label as before ...
+
+```{julia}
 # Select target class:
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
 
+. . .
+
+... to then finally use greedy search to find a counterfactual.
+
+```{julia}
 # Counterfactual search:
 params = GreedyGeneratorParams(
   δ = 0.5,
@@ -592,12 +632,16 @@ counterfactual = generate_counterfactual(
 ```{julia}
 #| echo: false
 anim = anim_path(counterfactual)
-gif(anim, joinpath(www_path, "example_greedy.gif"), fps=15)
+gif(anim, joinpath(www_path, "example_greedy.gif"), fps=5)
 ```
 :::
 
 ::: {.column width="60%"}
 #### Output
+
+. . .
+
+> In this case the Bayesian approach yields a similar outcome.
 
 ![Counterfactual path (left) and predicted probability (right) for `GreedyGenerator`. The contour (left) shows the predicted probabilities of the classifier (Bayesian Logistic Regression).](www/example_greedy.gif){#fig-greedy}
 :::
@@ -612,7 +656,7 @@ gif(anim, joinpath(www_path, "example_greedy.gif"), fps=15)
 
 #### Code 
 
-We can either use the specific `REVISEGenerator` ...
+Using the same classifier as before we can either use the specific `REVISEGenerator` ...
 
 ```{julia}
 # Counterfactual search:
@@ -638,12 +682,16 @@ counterfactual = generate_counterfactual(
 ```{julia}
 #| echo: false
 anim = anim_path(counterfactual)
-gif(anim, joinpath(www_path, "example_revise.gif"), fps=10)
+gif(anim, joinpath(www_path, "example_revise.gif"), fps=5)
 ```
 :::
 
 ::: {.column width="60%"}
 #### Output
+
+. . . 
+
+> We have essentially combined latent search with a probabilisitc classifier (as in @antoran2020getting). 
 
 ![Counterfactual path (left) and predicted probability (right) for `REVISEGenerator`.](www/example_revise.gif){#fig-greedy}
 :::
@@ -784,10 +832,23 @@ Adding support for `torch` models was easy! Here's how I implemented it for `tor
 . . . 
 
 ```{julia}
+#| echo: false
 using RCall
-synthetic = load_synthetic([:r_torch])
-model = synthetic[:classification_binary][:models][:r_torch][:raw_model]
+Random.seed!(123)
+synthetic = load_synthetic([:r_torch])[:classification_binary]
+model = synthetic[:models][:r_torch][:raw_model]
+xs, ys = (synthetic[:data][:xs], synthetic[:data][:ys])
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+# Randomly selected factual:
+x = select_factual(counterfactual_data,rand(1:length(xs)))
+```
+
+```{julia}
 M = RTorchModel(model)
+# Select target class:
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
@@ -796,11 +857,14 @@ counterfactual = generate_counterfactual(
 )
 ```
 
+
 ```{julia}
 #| echo: false
 anim = anim_path(counterfactual)
-gif(anim, joinpath(www_path, "example_interop.gif"), fps=25)
+gif(anim, joinpath(www_path, "example_interop.gif"), fps=2)
 ```
+
+![Counterfactual path (left) and predicted probability (right) for `GenericGenerator` and `RTorchModel`.](www/example_interop.gif){#fig-interop}
 
 :::
 
@@ -823,7 +887,8 @@ Idea 💡: let's implement a generic generator with dropout!
 
 ```{julia}
 # Constructor:
-struct DropoutGenerator <: AbstractGradientBasedGenerator
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
     mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
@@ -841,8 +906,8 @@ end
 ```{julia}
 import CounterfactualExplanations.Generators: generate_perturbations, ∇
 using StatsBase
-function generate_perturbations(generator::AbstractDropoutGenerator, counterfactual_state::CounterfactualState)
-    𝐠ₜ = ∇(generator, counterfactual_state) # gradient
+function generate_perturbations(generator::AbstractDropoutGenerator, counterfactual_state::State)
+    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
     # Dropout:
     set_to_zero = sample(1:length(𝐠ₜ),Int(round(generator.p_dropout*length(𝐠ₜ))),replace=false)
     𝐠ₜ[set_to_zero] .= 0
@@ -876,11 +941,11 @@ counterfactual = generate_counterfactual(
 
 ```{julia}
 #| echo: false
-anim = anim_path(counterfactual)
-gif(anim, joinpath(www_path, "example_dropout.gif"), fps=25)
+anim = anim_path(counterfactual, x=X', y=ys)
+gif(anim, joinpath(www_path, "example_dropout.gif"), fps=5)
 ```
 
-![](www/dropout_recourse.gif)
+![Counterfactual path (left) and predicted probability (right) for custom `DropoutGenerator` and `RTorchModel`.](www/example_dropout.gif){#fig-dropout}
 
 :::
 
@@ -943,27 +1008,58 @@ Add latent space search.
 :::
 
 :::{.column width="50%"}
-![Source: Ivan Diaz on [Unsplash](https://unsplash.com/photos/YOy-ek-aBR0)](www/launch.jpeg){width="70%"}
+![Photo by [Ivan Diaz](https://unsplash.com/@ivvndiaz?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)](www/launch.jpeg){width="70%"}
 :::
 
 ::::
 
-## Contributor's Guide
-
-## More Resources
+## More Resources 📚
 
 ::::{.columns}
 
-:::{.column width="50%"}
-- Introductory [blog post: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)]
-- Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples
-- Blog post on effortless Bayesian deep learning [[TDS]((https://towardsdatascience.com/go-deep-but-also-go-bayesian-ab25efa6f7b)), [homepage](https://www.paltmeyer.com/blog/posts/effortsless-bayesian-dl/)]
+:::{.column width="60%"}
+> Read on ...
 
-> ... or get in touch 🤗
+- Blog post introducing CE: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)].
+- Blog post introducing package: [[TDS](https://towardsdatascience.com/a-new-tool-for-explainable-ai-65834e757c28), [homepage](https://www.paltmeyer.com/blog/posts/a-new-tool-for-explainable-ai/)].
+- Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples.
+
+> ... or get involved! 🤗
+
+- [Contributor's Guide](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/)
+
 :::
 
-:::{.column width="50%"}
-![](www/profile.jpg)
+:::{.column width="40%"}
+
+<img src="www/profile.jpg" height="auto" width="250" style="border-radius:50%; display: block; margin-left: auto; margin-right: auto;">
+
+<div style="text-align: center;">
+  <p style="display: inline; vertical-align: middle"> 
+    <a href="https://www.linkedin.com/in/patrick-altmeyer-a2a25494/" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/d0fc399dee4218d1e0e0399b8947acab.png" alt="LinkedIn (Personal)" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://twitter.com/paltmey" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/3949237f892004c237021ac9e3182b1d.png" alt="Twitter" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://github.com/pat-alt" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/47f4eb2d0082a8a3611d614b75a09db8.png" alt="Github" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://medium.com/@patrick.altmeyer" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/175f49662614345cb7dbb95fce3f88af.png" alt="Medium" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+  </p>
+</div>
+
+<img src="www/qr.png" height="auto" width="100" style="display: block; margin-left: auto; margin-right: auto;">
 :::
 
 ::::
