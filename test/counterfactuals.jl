@@ -10,7 +10,6 @@ using CounterfactualExplanations.Counterfactuals
 using CounterfactualExplanations.Generators
 using Random, LinearAlgebra, MLUtils, Flux
 Random.seed!(1234)
-unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
 max_reconstruction_error = 2.0
 
 # Set up:
@@ -34,9 +33,9 @@ for (key, generator_) ∈ generators
             for (key, value) ∈ synthetic
                 name = string(key)
                 @testset "$name" begin
-                    X, ys = unzip(value[:data])
+                    X, ys = (value[:data][:xs],value[:data][:ys])
                     X = MLUtils.stack(X,dims=2)
-                    ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : nothing
+                    ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : ys
                     counterfactual_data = CounterfactualData(X,ys')
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -86,7 +85,7 @@ for (key, generator_) ∈ generators
                                 end
                                 @test converged(counterfactual)
                                 @test Counterfactuals.terminated(counterfactual)
-                                @test Counterfactuals.total_steps(counterfactual) == 0
+                                @test Counterfactuals.total_steps(counterfactual) == 1
                     
                                 # Threshold reached if converged:
                                 γ = 0.9

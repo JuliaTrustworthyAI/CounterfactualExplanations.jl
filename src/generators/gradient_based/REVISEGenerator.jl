@@ -38,5 +38,5 @@ REVISEGenerator(
     loss::Union{Nothing,Symbol}=nothing,
     complexity::Function=norm,
     λ::AbstractFloat=0.1,
-    params::REVISEGeneratorParams=REVISEGeneratorParams()
+    params::Union{NamedTuple,REVISEGeneratorParams}=REVISEGeneratorParams()
 ) = REVISEGenerator(loss, complexity, λ, params.ϵ, params.τ)

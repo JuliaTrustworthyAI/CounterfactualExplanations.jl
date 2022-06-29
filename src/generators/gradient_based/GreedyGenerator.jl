@@ -35,7 +35,7 @@ function GreedyGenerator(
     loss::Union{Nothing,Symbol}=nothing,
     complexity::Function=norm, # complexity function
     λ::AbstractFloat=0.0, # strength of penalty
-    params::GreedyGeneratorParams=GreedyGeneratorParams()
+    params::Union{NamedTuple,GreedyGeneratorParams}=GreedyGeneratorParams()
 )
     δ = params.δ
     n = params.n

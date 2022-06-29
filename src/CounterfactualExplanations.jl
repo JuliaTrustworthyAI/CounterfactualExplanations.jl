@@ -39,14 +39,18 @@ export AbstractFittedModel, AbstractDifferentiableModel,
 
 include("counterfactual_state/CounterfactualState.jl")
 using .CounterfactualState
+export State
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )
 ###
 include("generators/Generators.jl")
 using .Generators
-export AbstractGenerator, AbstractGradientBasedGenerator, GenericGenerator, GreedyGenerator, 
-    generate_perturbations, conditions_satisified, mutability_constraints  
+export AbstractGenerator, AbstractGradientBasedGenerator, 
+    GenericGenerator, GenericGeneratorParams,
+    GreedyGenerator, GreedyGeneratorParams,
+    REVISEGenerator, REVISEGeneratorParams,
+    generate_perturbations, conditions_satisified, mutability_constraints   
 
 ### CounterfactualExplanation
 # argmin 
@@ -61,6 +65,9 @@ export CounterfactualExplanation, initialize!, update!,
 # Example data sets:
 include("data/Data.jl")
 using .Data
+export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear,
+    mnist_data, mnist_ensemble, mnist_model, mnist_vae,
+    cats_dogs_data, cats_dogs_model
 
 include("generate_counterfactual.jl")
 export generate_counterfactual

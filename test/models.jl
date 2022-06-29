@@ -6,14 +6,13 @@ using Flux
 using MLUtils
 
 ### Models for synthetic data
-unzip(a) = map(x->getfield.(a, x), fieldnames(eltype(a)))
 synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])
 
 @testset "Models for synthetic data" begin
     for (key, value) ∈ synthetic
         name = string(key)
         @testset "$name" begin
-            X = unzip(value[:data])[1]
+            X = value[:data][:xs]
             X = MLUtils.stack(X,dims=2)
             for (likelihood, model) ∈ value[:models]
                 name = string(likelihood)
