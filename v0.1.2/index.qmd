@@ -1,0 +1,22 @@
+---
+format: 
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
+crossref:
+  fig-prefix: Figure
+  tbl-prefix: Table
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+output: asis
+---
+
+```@meta
+CurrentModule = CounterfactualExplanations
+```
+
+# CounterfactualExplanations
+
+Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/CounterfactualExplanations.jl).
+
+{{< include intro.qmd >}}
