@@ -37,9 +37,9 @@ www_path = "dev/resources/juliacon22/www"
 - The Problem with Black Boxes ⬛
     - What are black-box models? Why do we need explainability?
 - Enter: Counterfactual Explanations 🔮
-    - What are counterfactuals? What are they not?
+    - What are they? What are they not?
 - Counterfactual Explanations in Julia (and beyond!) 📦
-    - Introducing: [`CounterfactualExplanations.jl`](https://www.paltmeyer.com/CounterfactualExplanations.jl/stable/).
+    - Introducing: [`CounterfactualExplanations.jl`](https://github.com/pat-alt/CounterfactualExplanations.jl){preview-link="false"}
     - Package architecture
     - Usage examples - what can it do?
 - Goals and Ambitions 🎯
@@ -53,21 +53,17 @@ www_path = "dev/resources/juliacon22/www"
 
 > From **human** to **data-driven** decision-making ...
 
-. . . 
-
 :::{.incremental}
 
 - Black-box models like deep neural networks are being deployed virtually everywhere.
+- Includes safety-critical and public domains: health care, autonomous driving, finance, ... 
 - More likely than not that your loan or employment application is handled by an algorithm.
-- Includes critical domains: health care, autonomous driving, finance, ... 
 
 ::: 
 
 . . .
 
 > ... where black boxes are recipe for disaster.
-
-. . .
 
 :::{.incremental}
 - We have no idea what exactly we're cooking up ...
@@ -89,16 +85,16 @@ www_path = "dev/resources/juliacon22/www"
 >
 > — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
 
-![Cathy O’Neil. Source: Cathy O’Neil](www/cathy.webp){#fig-cathy width=60%}
+![Cathy O’Neil. Source: Cathy O’Neil a.k.a. [mathbabe](https://mathbabe.org/contact/).](www/cathy.webp){#fig-cathy width=60%}
 
 :::
 
 :::{.column width="30%"}
 
 :::{.incremental}
-- If left unchallenged, these properties of black-box models can create undesirable dynamics.
-- Human operators in charge of the model have to rely on it blindly.
-- Individuals subject to the model's decisions generally have no way to challenge an outcome.
+- If left unchallenged, these properties of black-box models can create undesirable dynamics in automated decision-making systems:
+  - Human operators in charge of the system have to rely on it blindly.
+  - Individuals subject to the decisions generally have no way to challenge their outcome.
 :::
 
 :::
@@ -124,13 +120,12 @@ Counterfactual Reasoning
 
 ## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
-::: {.r-hstack}
-
-::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+::: {.r-hstack style="text-align: center;"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Ground Truthing
 :::
 
-::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
 Probabilistic Models
 :::
 
@@ -139,17 +134,26 @@ Counterfactual Reasoning
 :::
 :::
 
+#### Current Standard in ML
+
+We typically want to maximize the likelihood of observing $\mathcal{D}_n$ under given parameters [@murphy2022probabilistic]:
+
+$$
+\theta^* = \arg \max_{\theta} p(\mathcal{D}_n|\theta)
+$$ {#eq-mle}
+
+Compute an MLE (or MAP) point estimate $\hat\theta = \mathbb{E} \theta^*$ and use **plugin** approximation for prediction:
+
+$$
+p(y|x,\mathcal{D}_n) \approx p(y|x,\hat\theta)
+$$ {#eq-plugin}
+
+- In an ideal world we can just use parsimonious and interpretable models like GLM [@rudin2019stop], for which in many cases we can rely on asymptotic properties of $\theta$ to quantify uncertainty.
+- In practice these models often have performance limitations.
+- Black-box models like deep neural networks are popular, but they are also the very opposite of parsimonious.
+
+
 #### Objective
-
-Let $\mathcal{D}={(x,y)}$ denote our true population of input-output pairs. Then we want to find a subsample of the true population
-
-$$\mathcal{D}_n \subset \mathcal{D}$$
-
-such that 
-
-$$\mathcal{D}_n \sim p(\mathcal{D})$$
-
-> Lots of open questions and work to be done, but not here and today.
 
 ## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
@@ -169,16 +173,6 @@ Counterfactual Reasoning
 
 #### Objective
 
-Let $p(\mathcal{D}_n|\theta)$ denote the likelihood of observing our subsample $\mathcal{D}_n$ under some model parameterized by $\theta$. Then we typically want to maximize this likelihood with respect to the parameters [@murphy2022probabilistic]:
-
-$$\arg \max_{\theta} p(\mathcal{D}_n|\theta)$$
-
-:::{.incremental}
-- In an ideal world we can rely on parsimonious and interpretable models [@rudin2019stop].
-- In practice these models often have performance limitations.
-- Black-box models like deep neural networks are popular, but also the very opposite of parsimonious.
-:::
-
 . . .
 
 > [...] deep neural networks are typically very underspecified by the available data, and [...] parameters [therefore] correspond to a diverse variety of compelling explanations for the data. 
@@ -186,9 +180,13 @@ $$\arg \max_{\theta} p(\mathcal{D}_n|\theta)$$
 
 In this setting it is often crucial to treat models probabilistically!
 
+$$
+p(y|x,\mathcal{D}_n) = \int p(y|x,\theta)p(\theta|\mathcal{D}_n)d\theta
+$$ {#eq-bma}
+
 . . .
 
-> Probabilistic models covered briefly today. More in my other talk 
+> Probabilistic models covered briefly today. More in my other talk on Laplace Redux ...
 
 ## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
@@ -206,22 +204,27 @@ Counterfactual Reasoning
 :::
 :::
 
-> We can now make predictions - great! But do we know how the predictions are actually made?
+> We can now make predictions -- great! But do we know how the predictions are actually being made?
 
 . . .
 
 #### Objective
 
-Let $\hat\theta$ denote our MLE estimate (or MAP in the probabilistic setting). Then we are interested in understanding how predictions of our model change with respect to input changes.
+With the model trained for its task, we are interested in understanding how its predictions change in response to input changes.
 
-$$\nabla_x p(y|x,\mathcal{D}_n)$$
+$$
+\nabla_x p(y|x,\mathcal{D}_n;\hat\theta)
+$$ {#eq-ce-objective}
 
 :::{.incremental}
-- Counterfactual reasoning boils down to simple questions: what if $x \Rightarrow x\prime$?
-- By (strategically) perturbing features and checking the model output, we can (begin to) understand how the model makes its decisions.
+- Counterfactual reasoning (in this context) boils down to simple questions: what if $x$ (factual) $\Rightarrow$ $x\prime$ (counterfactual)?
+- By strategically perturbing features and checking the model output, we can (begin to) understand how the model makes its decisions.
+- Counterfactual Explanations always have full fidelity by construction (as opposed to surrogate explanations, for example).
 :::
 
 . . .
+
+> Important to realize that we are keeping $\hat\theta$ constant!
 
 # Enter: Counterfactual Explanations 🔮
 
@@ -264,7 +267,7 @@ $$ {#eq-solution}
 
 . . .
 
-![A cat performing gradient descent in the feature space à la @wachter2017counterfactual](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
+![A cat performing gradient descent in the feature space à la @wachter2017counterfactual.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
 
 :::
 ::::
@@ -293,36 +296,26 @@ While both are methodologically very similar, adversarial examples are meant to 
 
 ## Counterfactuals ... as in Causal Inference?
 
-. . .
-
 > NO!
 
+::::{.columns}::::
+:::{.column width='60%'}
 **Causal inference**: counterfactuals are thought of as unobserved states of the world that we would like to observe in order to establish causality.
 
-:::{.incremental}
 - The only way to do this is by actually interfering with the state of the world: $p(y|do(x),\theta)$. 
 - In practice we can only move some individuals to the counterfactual state of the world and compare their outcomes to a control group. 
 - Provided we have controlled for confounders, properly randomized, ... we can estimate an average treatment effect: $\hat\theta$. 
-:::
-
-. . .
 
 **Counterfactual Explanations**: involves perturbing features **after** some model has been trained.
 
-:::{.incremental}
 - We end up comparing **modeled outcomes** $p(y|x,\hat\phi)$ and $p(y|x\prime,\hat\phi)$ for individuals.
 - We have **not** magically solved causality.
+
 :::
-
-. . .
-
-> But still ... there is an intriguing link between the two domains.
-
-:::{.incremental}
-- If we do have causal knowledge, let's leverage it: from minimal **perturbations** to minimal **interventions** (@karimi2020algorithmic, @karimi2021algorithmic)
-- If CEs that rely on minimal interventions fail, does that not provide some evidence that the assumed causal graph is inaccurate?
-- Very much a open research field ...
+:::{.column width='40%'}
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">The number of ostensibly pro data scientists confusing themselves into believing that &quot;counterfactual explanations&quot; capture real-world causality is just staggering🤦‍♀️. Where do we go from here? How can a community that doesn&#39;t even understand what&#39;s already known make advances?</p>&mdash; Zachary Lipton (\@zacharylipton) <a href="https://twitter.com/zacharylipton/status/1538952312781168640?ref_src=twsrc%5Etfw">June 20, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 :::
+::::
 
 
 ## Probabilistic Methods for Counterfactual Explanations
@@ -520,7 +513,7 @@ gr()
 
 . . .
 
-We begin by instatiating the fitted model ...
+We begin by instantiating the fitted model ...
 
 ```{julia}
 # Model
@@ -691,7 +684,7 @@ gif(anim, joinpath(www_path, "example_revise.gif"), fps=5)
 
 . . . 
 
-> We have essentially combined latent search with a probabilisitc classifier (as in @antoran2020getting). 
+> We have essentially combined latent search with a probabilistic classifier (as in @antoran2020getting). 
 
 ![Counterfactual path (left) and predicted probability (right) for `REVISEGenerator`.](www/example_revise.gif){#fig-greedy}
 :::
@@ -811,17 +804,17 @@ Adding support for `torch` models was easy! Here's how I implemented it for `tor
 
 **Step 1**: add composite type as subtype of `AbstractFittedModel`
 
-> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10).
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10){preview-link="false"}.
 
 **Step 2**: dispatch `logits` and `probs` methods for new model type.
 
-> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21).
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21){preview-link="false"}.
 
 . . .
 
 **Step 3**: add gradient access.
 
-> Done [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22).
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22){preview-link="false"}.
 
 :::
 
