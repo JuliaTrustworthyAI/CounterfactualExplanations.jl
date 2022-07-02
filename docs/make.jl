@@ -42,7 +42,8 @@ makedocs(;
                 "Interoperability" => "contributing/interop.md",
                 "Loss functions" => "contributing/loss.md"
             ],
-        "Reference" => "reference.md"
+        "Reference" => "reference.md",
+        "Additional Resources" => "resources/resources.md"
     ],
 )
 

@@ -120,35 +120,6 @@ Counterfactual Reasoning
 
 ## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
 
-::: {.r-hstack}
-
-::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
-Ground Truthing
-:::
-
-::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
-Probabilistic Models
-:::
-
-::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
-Counterfactual Reasoning
-:::
-:::
-
-#### Objective
-
-Let $\mathcal{D}={(x,y)}$ denote our true population of input-output pairs. Then we want to find a subsample of the true population
-
-$$\mathcal{D}_n \subset \mathcal{D}$$
-
-such that 
-
-$$\mathcal{D}_n \sim p(\mathcal{D})$$
-
-> Lots of open questions and great work being done including by colleagues in my lab. But not the focus of today ...
-
-## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
-
 ::: {.r-hstack style="text-align: center;"}
 ::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
 Ground Truthing
@@ -177,11 +148,10 @@ $$
 p(y|x,\mathcal{D}_n) \approx p(y|x,\hat\theta)
 $$ {#eq-plugin}
 
-:::{.incremental}
 - In an ideal world we can just use parsimonious and interpretable models like GLM [@rudin2019stop], for which in many cases we can rely on asymptotic properties of $\theta$ to quantify uncertainty.
 - In practice these models often have performance limitations.
 - Black-box models like deep neural networks are popular, but they are also the very opposite of parsimonious.
-:::
+
 
 #### Objective
 
@@ -332,18 +302,15 @@ While both are methodologically very similar, adversarial examples are meant to 
 :::{.column width='60%'}
 **Causal inference**: counterfactuals are thought of as unobserved states of the world that we would like to observe in order to establish causality.
 
-:::{.incremental}
 - The only way to do this is by actually interfering with the state of the world: $p(y|do(x),\theta)$. 
 - In practice we can only move some individuals to the counterfactual state of the world and compare their outcomes to a control group. 
 - Provided we have controlled for confounders, properly randomized, ... we can estimate an average treatment effect: $\hat\theta$. 
-:::
 
 **Counterfactual Explanations**: involves perturbing features **after** some model has been trained.
 
-:::{.incremental}
 - We end up comparing **modeled outcomes** $p(y|x,\hat\phi)$ and $p(y|x\prime,\hat\phi)$ for individuals.
 - We have **not** magically solved causality.
-:::
+
 :::
 :::{.column width='40%'}
 <blockquote class="twitter-tweet"><p lang="en" dir="ltr">The number of ostensibly pro data scientists confusing themselves into believing that &quot;counterfactual explanations&quot; capture real-world causality is just staggering🤦‍♀️. Where do we go from here? How can a community that doesn&#39;t even understand what&#39;s already known make advances?</p>&mdash; Zachary Lipton (\@zacharylipton) <a href="https://twitter.com/zacharylipton/status/1538952312781168640?ref_src=twsrc%5Etfw">June 20, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
@@ -717,7 +684,7 @@ gif(anim, joinpath(www_path, "example_revise.gif"), fps=5)
 
 . . . 
 
-> We have essentially combined latent search with a probabilisitc classifier (as in @antoran2020getting). 
+> We have essentially combined latent search with a probabilistic classifier (as in @antoran2020getting). 
 
 ![Counterfactual path (left) and predicted probability (right) for `REVISEGenerator`.](www/example_revise.gif){#fig-greedy}
 :::
