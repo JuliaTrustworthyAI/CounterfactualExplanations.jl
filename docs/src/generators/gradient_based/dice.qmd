@@ -1,0 +1,75 @@
+---
+format: 
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
+crossref:
+  fig-prefix: Figure
+  tbl-prefix: Table
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+output: asis
+execute: 
+  eval: false
+  echo: true
+jupyter: julia-1.7
+---
+
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+using Pkg
+Pkg.activate("docs/")
+using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
+theme(:wong)
+www_path = "docs/src/generators/www/"
+include("docs/src/utils.jl")
+```
+
+## Diversity
+
+![](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2)
+
+
+```{julia}
+function ddp_diversity(X::AbstractArray{<:Real, 3})
+    xs = eachslice(X, dims = ndims(X))
+    K = [1/(1 + norm(x .- y)) for x in xs, y in xs]
+    return det(K)
+end
+```
+
+```{julia}
+theme(:dracula)
+lims = 5
+N = 5
+X = rand(2,1,N)
+T = 50
+η = 0.1
+anim = @animate for t in 1:T
+    X .+= gradient(ddp_diversity, X)[1]
+    Z = reshape(X,2,N)
+    scatter(
+        Z[1,:],Z[2,:],ms=25, 
+        xlims=(-lims,lims),ylims=(-lims,lims),
+        label="",colour=1:N,
+        size=(500,500),
+        title="Diverse Counterfactuals"
+    )
+end
+gif(anim, joinpath(www_path, "dice_intro.gif"))
+```
+
+![](../www/dice_intro.gif)
+
+## DiCE
+
+```{julia}
+
+```
+
+
+

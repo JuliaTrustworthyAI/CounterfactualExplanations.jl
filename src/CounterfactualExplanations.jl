@@ -50,6 +50,7 @@ export AbstractGenerator, AbstractGradientBasedGenerator,
     GenericGenerator, GenericGeneratorParams,
     GreedyGenerator, GreedyGeneratorParams,
     REVISEGenerator, REVISEGeneratorParams,
+    DiCEGenerator, DiCEGeneratorParams,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
 ### CounterfactualExplanation

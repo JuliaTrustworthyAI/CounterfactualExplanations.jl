@@ -24,12 +24,6 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    if size(X)[1] == 1
-        X = X'
-    end
-    if !isa(X, Matrix)
-        X = reshape(X, length(X), 1)
-    end
     return M.model(X)
 end
 
@@ -72,6 +66,7 @@ end
 
 LogisticModel(W,b;likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
 
+using MLUtils
 # What follows are the two required outer methods:
 """
     logits(M::LogisticModel, X::AbstractArray)
@@ -91,7 +86,15 @@ logits(M, x)
 
 See also [`LogisticModel(W::Matrix,b::AbstractArray)`](@ref).
 """
-logits(M::LogisticModel, X::AbstractArray) = M.W*X .+ M.b
+function logits(M::LogisticModel, X::AbstractArray)
+    if ndims(X) == 3
+        n = size(X,3)
+        reshape(map(x -> (M.W*x .+ M.b)[1], [X[:,:,i] for i ∈ 1:n]),1,1,n)
+        # mapslices(x -> M.W*x .+ M.b, X, dims=(1,2)) 
+    else
+        M.W*X .+ M.b
+    end
+end
 
 """
     probs(M::LogisticModel, X::AbstractArray)

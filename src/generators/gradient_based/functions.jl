@@ -124,6 +124,7 @@ end
 # Baseline
 include("GenericGenerator.jl") # Wachter et al. (2017)
 include("GreedyGenerator.jl") # Schut et al. (2021)
+include("DiCEGenerator.jl") # Mothilal et al. (2020)
 
 # Latent space
 """

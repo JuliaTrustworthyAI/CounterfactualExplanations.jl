@@ -10,8 +10,11 @@ mutable struct CounterfactualExplanation
     latent_space::Bool
     params::Dict
     search::Union{Dict,Nothing}
+    num_counterfactuals::Int
+    initialization::Symbol
 end
 
+using Statistics
 """
     CounterfactualExplanation(
         x::Union{AbstractArray,Int}, 
@@ -28,21 +31,32 @@ Outer method to construct a `CounterfactualExplanation` structure.
 # Outer constructor method:
 function CounterfactualExplanation(
     ;
-    x::Union{AbstractArray,Int}, 
+    x::AbstractArray, 
     target::Union{AbstractFloat,Int}, 
     data::CounterfactualData,  
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
     γ::AbstractFloat=0.75, 
     T::Int=100,
-    latent_space::Union{Nothing, Bool}=nothing
+    latent_space::Union{Nothing, Bool}=nothing,
+    num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation
 ) 
+
+    @assert initialization ∈ [:identity, :add_perturbation]  
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
 
     # Counterfactual state variable:
     s′ = copy(x)  # start from factual
+    s′ = repeat(x, outer=[1,1,num_counterfactuals])
+    # Initialization
+    if initialization == :add_perturbation
+        scale = std(data.X, dims=2)
+        Δ = scale .* randn(size(scale,1))
+        s′ = mapslices(s -> s .+ scale .* randn(size(scale,1)), s′, dims=(1,2))
+    end
     f(s) = s # default mapping to feature space 
 
     # Parameters:
@@ -59,7 +73,7 @@ function CounterfactualExplanation(
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(
         x, target, nothing, s′, f, 
-        data, M, generator, latent_space, params, nothing
+        data, M, generator, latent_space, params, nothing, num_counterfactuals, initialization
     )
 
     # Encode target:
@@ -75,7 +89,7 @@ function CounterfactualExplanation(
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
         # map counterfactual to latent space: s′=z′∼p(z|x)
-        counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.x)
+        counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.s′)
 
         # NOTE! This is not very clean, will be improved.
         if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
@@ -88,7 +102,7 @@ function CounterfactualExplanation(
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
-        :times_changed_features => zeros(length(counterfactual_explanation.x)),
+        :times_changed_features => zeros(size(counterfactual_explanation.s′)),
         :path => [counterfactual_explanation.s′],
         :terminated => threshold_reached(counterfactual_explanation),
         :converged => threshold_reached(counterfactual_explanation),
@@ -219,7 +233,7 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
     p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
     target = counterfactual_explanation.target
 
-    if size(p)[1] == 1
+    if size(p,1) == 1
         h(x) = ifelse(x==-1,0,x)
         if target ∉ [0,1] && target ∉ [-1,1]
             throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
@@ -227,13 +241,13 @@ function target_probs(counterfactual_explanation::CounterfactualExplanation, x::
         # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
         p = vcat(1.0 .- p, p)
         # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
-        p_target = p[Int(h(target)+1),:]
+        p_target = selectdim(p,1,Int(h(target)+1))
     else
         if target < 1 || target % 1 !=0
             throw(DomainError("For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.")) 
         end
         # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
-        p_target = p[Int(target),:]
+        p_target = selectdim(p,1,Int(target)) 
     end
     return p_target
 end
@@ -253,8 +267,10 @@ function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::Cou
     none(x) = 0
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
+    D = size(Δs′,1)
+    num_counterfactuals = size(Δs′,3)
     # Apply:
-    Δs′ = [getfield(cases, mutability[d])(counterfactual_explanation.f(Δs′)[d]) for d in 1:length(Δs′)]
+    Δs′ = mapslices(s -> [getfield(cases, mutability[d])(counterfactual_explanation.f(s)[d]) for d in 1:D], Δs′, dims=(1,2))
 
     return Δs′
 
@@ -266,7 +282,7 @@ end
 A convenience method that determines of the predefined threshold for the target class probability has been reached.
 """
 function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
-    target_probs(counterfactual_explanation)[1] >= counterfactual_explanation.params[:γ]
+    all(target_probs(counterfactual_explanation) .>= counterfactual_explanation.params[:γ])
 end
 
 """
@@ -339,7 +355,7 @@ function Base.show(io::IO, z::CounterfactualExplanation)
     printstyled(io, "Target: ", bold=true)
     println(io, "target=$(z.target), γ=$(z.params[:γ])")
 
-    if !isnothing(z.search)
+    if  z.search[:iteration_count]>0
         printstyled(io, "Counterfactual outcome: ", bold=true)
         println(io, "x′=$(counterfactual(z)), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
         printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
