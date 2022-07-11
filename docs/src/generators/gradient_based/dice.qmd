@@ -12,7 +12,7 @@ output: asis
 execute: 
   eval: false
   echo: true
-jupyter: Julia 1.7
+jupyter: julia-1.7
 ---
 
 ```@meta
@@ -39,7 +39,7 @@ Counterfactual Explanations are not unique and there are therefore many differen
 
 To ensure that the generates counterfactuals are diverse @mothilal2020explaining add a diversity constraint to the counterfactual search objective. In particular, they define diversity in terms of ...
 
-We can implement this metric in Julia as follows:
+We can implement this metric in Julia as follows:^[With thanks to the respondents on [Discourse](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2.png)]
 
 ```{julia}
 using LinearAlgebra
@@ -142,4 +142,6 @@ gif(anim, joinpath(www_path, "dice.gif"))
 ```
 
 ![Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.](../www/dice.gif){#fig-dice}
+
+# References
 
