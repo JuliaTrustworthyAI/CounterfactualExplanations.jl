@@ -4,7 +4,7 @@ using LinearAlgebra
 struct DiCEGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
-    λ::AbstractFloat # strength of penalty
+    λ::Union{AbstractFloat,AbstractVector} # strength of penalty
     ϵ::AbstractFloat # learning rate
     τ::AbstractFloat # tolerance for convergence
 end
@@ -37,7 +37,7 @@ DiCEGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
     complexity::Function=norm,
-    λ::AbstractFloat=0.1,
+    λ::Union{AbstractFloat,AbstractVector}=0.1,
     params::Union{NamedTuple,DiCEGeneratorParams}=DiCEGeneratorParams()
 ) = DiCEGenerator(loss, complexity, λ, params.ϵ, params.τ)
 
@@ -59,5 +59,12 @@ The default method to apply the generator complexity penalty to the current coun
 function h(generator::DiCEGenerator, counterfactual_state::CounterfactualState.State)
     dist_ = generator.complexity(counterfactual_state.x .- counterfactual_state.f(counterfactual_state.s′))
     ddp_ = ddp_diversity(counterfactual_state)
-    return dist_ .- ddp_
+    if length(generator.λ)==1
+        penalty = generator.λ * (dist_ .- ddp_)
+    else
+        penalty = generator.λ[1] * dist_ .- generator.λ[2] * ddp_
+    end
+    return penalty
 end
+
+

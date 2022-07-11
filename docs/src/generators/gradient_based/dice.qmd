@@ -29,12 +29,22 @@ www_path = "docs/src/generators/www/"
 include("docs/src/utils.jl")
 ```
 
-## Diversity
+
+
+# Diversity
+
+Counterfactual Explanations are not unique and there are therefore many different ways through which valid counterfactuals can be generated. In the context of Algorithmic Recourse this can be leveraged to offer individuals not one, but possibly many different ways to change a negative outcome into a positive one. One might argue that it makes sense for those different options to be as diverse as possible. This idea is at the core of **DiCE**, a counterfactual generator introduce by @mothilal2020explaining that generate a diverse set of counterfactual explanations.
 
 ![](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2)
 
+## Adding a diversity constraint
+
+To ensure that the generates counterfactuals are diverse @mothilal2020explaining add a diversity constraint to the counterfactual search objective. In particular, they define diversity in terms of ...
+
+We can implement this metric in Julia as follows:
 
 ```{julia}
+using LinearAlgebra
 function ddp_diversity(X::AbstractArray{<:Real, 3})
     xs = eachslice(X, dims = ndims(X))
     K = [1/(1 + norm(x .- y)) for x in xs, y in xs]
@@ -42,8 +52,10 @@ function ddp_diversity(X::AbstractArray{<:Real, 3})
 end
 ```
 
+Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in @fig-intro, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function. 
+
 ```{julia}
-theme(:dracula)
+theme(:dark)
 lims = 5
 N = 5
 X = rand(2,1,N)
@@ -63,13 +75,73 @@ end
 gif(anim, joinpath(www_path, "dice_intro.gif"))
 ```
 
-![](../www/dice_intro.gif)
+![Diversifying an array of points.](../www/dice_intro.gif){#fig-intro}
 
-## DiCE
+## DiCE 
+
+Now let's see how this concept carries over to our `DiCEGenerator`. Below we first load a simple synthetic data set and instantiate a linear classifier that perfectly separate the two classes. 
 
 ```{julia}
-
+# Some random data:
+using CounterfactualExplanations.Data
+Random.seed!(1234)
+N = 25
+w = [1.0 1.0]# true coefficients
+b = 0
+xs, ys = Data.toy_data_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+M = LogisticModel(w, [b])
+# Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 ```
+
+We then use DiCE to generate multiple counterfactuals for varying degrees of $\lambda_2$, that is the hyperparameter that governs the strength of the penalty for non-diverse outcomes.
+
+```{julia}
+Λ₂ = [0.1, 1, 5]
+counterfactuals = []
+n_cf = 5
+for λ₂ ∈ Λ₂  
+    λ = [0.1, λ₂]
+    generator = DiCEGenerator(λ=λ)
+    counterfactuals = vcat(
+      counterfactuals...,
+      generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, num_counterfactuals=n_cf)
+    )
+end
+```
+
+@fig-dice shows the resulting counterfactual paths. As expected, the resulting counterfactuals are more dispersed across the feature domain for higher choices of $\lambda_2$
+
+```{julia}
+theme(:wong)
+T = maximum(map(x-> total_steps(x),counterfactuals)) - 1
+p1 = plot_contour(X',ys,M;colorbar=false)
+anim = @animate for t ∈ 1:T
+    plts = []
+    for i ∈ 1:length(Λ₂)
+        λ₂ = Λ₂[i]
+        counterfactual = counterfactuals[i]  
+        plt = plot_contour(X',ys,M;colorbar=false, title="λ₂=$λ₂")
+        idx = minimum([total_steps(counterfactual),t])
+        x1 = vec(mapslices(X -> X[1], path(counterfactual)[idx], dims=(1,2)))
+        x2 = vec(mapslices(X -> X[2], path(counterfactual)[idx], dims=(1,2)))
+        y = vec(round.(probs(M, hcat(x1,x2)')))
+        scatter!(plt, x1, x2, ms=10, color=Int.(y), label="")
+        plts = vcat(plts..., plt)
+    end
+    plot(plts..., plot_title="t=$t", size=(1200,400), layout=(1,3))
+end
+gif(anim, joinpath(www_path, "dice.gif"), fps=64)
+```
+
+![Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.](../www/dice.gif){#fig-dice}
+
+
 
 
 

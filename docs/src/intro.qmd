@@ -4,6 +4,12 @@
 
 **JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: [[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)]
 
+### Developmemts since v0.1.2
+
+- Added support for generating multiple counterfactuals instead of just one. 
+- Implemented DiCE [@mothilal2020explaining].
+- Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE [@slack2021counterfactual].
+
 ## Installation 🚩
 
 The first release of this package is now on [Julia's General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:

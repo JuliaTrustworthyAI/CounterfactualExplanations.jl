@@ -59,7 +59,7 @@ end
 he default method to compute the gradient of the counterfactual search objective for a greedy generator. Since no complexity penalty is needed, this gradients just correponds to the partial derivative with respect to the loss function.
 
 """
-∇(generator::GreedyGenerator, M::Models.Models.AbstractDifferentiableJuliaModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state)
+∇(generator::GreedyGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state)
 
 """
     generate_perturbations(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
