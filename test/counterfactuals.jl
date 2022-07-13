@@ -23,27 +23,27 @@ generators = Dict(
     # :dice => Generators.DiCEGenerator
 )
 
-# # Quick one - Generic:
-# generator = generators[:dice]()
-# value = synthetic[:classification_binary]
-# X, ys = (value[:data][:xs],value[:data][:ys])
-# X = MLUtils.stack(X,dims=2)
-# ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : ys
-# counterfactual_data = CounterfactualData(X,ys')
-# M = value[:models][:flux][:model]
-# # Randomly selected factual:
-# Random.seed!(123)
-# x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-# γ = 0.9
-# p_ = probs(M, x)
-# if size(p_)[1] > 1
-#     y = Flux.onecold(p_,unique(ys_cold))
-#     target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
-# else
-#     y = round(p_[1])
-#     target = y ==0 ? 1 : 0 
-# end
-# counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, num_counterfactuals=2)
+# Quick one - Generic:
+generator = generators[:greedy]()
+value = synthetic[:classification_binary]
+X, ys = (value[:data][:xs],value[:data][:ys])
+X = MLUtils.stack(X,dims=2)
+ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : ys
+counterfactual_data = CounterfactualData(X,ys')
+M = value[:models][:flux][:model]
+# Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+γ = 0.9
+p_ = probs(M, x)
+if size(p_)[1] > 1
+    y = Flux.onecold(p_,unique(ys_cold))
+    target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
+else
+    y = round(p_[1])
+    target = y ==0 ? 1 : 0 
+end
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, num_counterfactuals=2)
 
 # LOOP:
 for (key, generator_) ∈ generators

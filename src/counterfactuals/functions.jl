@@ -53,7 +53,7 @@ function CounterfactualExplanation(
     s′ = repeat(x, outer=[1,1,num_counterfactuals])
     # Initialization
     if initialization == :add_perturbation
-        scale = std(data.X, dims=2)
+        scale = std(data.X, dims=2) .* 0.5
         Δ = scale .* randn(size(scale,1))
         s′ = mapslices(s -> s .+ scale .* randn(size(scale,1)), s′, dims=(1,2))
     end
@@ -63,7 +63,7 @@ function CounterfactualExplanation(
     params = Dict(
         :γ => γ,
         :T => T,
-        :mutability => DataPreprocessing.mutability_constraints(data)
+        :mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=[1,1,num_counterfactuals])
     )
 
     # Latent space:
@@ -208,7 +208,7 @@ converged(counterfactual_explanation::CounterfactualExplanation) = counterfactua
 
 A convenience method that returns the total number of steps of the counterfactual search.
 """
-total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count]+1
+total_steps(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count]
 
 """
     path(counterfactual_explanation::CounterfactualExplanation)
@@ -262,15 +262,13 @@ function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::Cou
     mutability = counterfactual_explanation.params[:mutability]
     # Helper functions:
     both(x) = x
-    increase(x) = ifelse(x<0,0,x)
-    decrease(x) = ifelse(x>0,0,x)
-    none(x) = 0
+    increase(x) = ifelse(x<0.0,0.0,x)
+    decrease(x) = ifelse(x>0.0,0.0,x)
+    none(x) = 0.0
     cases = (both = both, increase = increase, decrease = decrease, none = none)
 
-    D = size(Δs′,1)
-    num_counterfactuals = size(Δs′,3)
     # Apply:
-    Δs′ = mapslices(s -> [getfield(cases, mutability[d])(counterfactual_explanation.f(s)[d]) for d in 1:D], Δs′, dims=(1,2))
+    Δs′ = map((case,s) -> getfield(cases,case)(s),mutability,Δs′)
 
     return Δs′
 
@@ -321,19 +319,20 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
 
     # Generate peturbations:
     Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
+    
     if !counterfactual_explanation.latent_space
         Δs′ = apply_mutability(Δs′, counterfactual_explanation)
     else
-        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 1
+        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 0
             @warn "Mutability constraints not currently implemented for latent space search."
         end
     end
-    Δs′ = reshape(Δs′, size(counterfactual_explanation.s′))
+
     s′ = counterfactual_explanation.s′ + Δs′
     if !counterfactual_explanation.latent_space
         s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
     else
-        if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 1
+        if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 0
             @warn "Domain constraints not currently implemented for latent space search."
         end
     end
@@ -341,8 +340,8 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     
     # Updates:
     counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
-    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)

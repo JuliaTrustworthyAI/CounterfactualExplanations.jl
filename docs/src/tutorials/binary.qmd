@@ -23,6 +23,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
+using Pkg; Pkg.activate("docs")
 using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
 theme(:wong)
 using Logging
@@ -52,13 +53,13 @@ Let's generate some toy data:
 using CounterfactualExplanations.Data
 Random.seed!(1234)
 N = 25
-w = [1.0 1.0]# true coefficients
+w = [1.01 1.0]# true coefficients
 b = 0
 xs, ys = Data.toy_data_linear(N)
 X = hcat(xs...)
 counterfactual_data = CounterfactualData(X,ys')
 plt = plot()
-plt = plot_data!(plt,X',ys);
+plt = scatter!(counterfactual_data)
 savefig(plt, joinpath(www_path, "binary_samples.png"))
 ```
 
@@ -89,7 +90,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ```{julia}
 #| echo: false
-plt = plot_contour(X',ys,M;title="Posterior predictive - Plugin")
+plt = plot(M,counterfactual_data;title="Posterior predictive - Plugin")
 savefig(plt, joinpath(www_path, "binary_contour.png"))
 ```
 
@@ -101,10 +102,11 @@ The animation below shows the resulting counterfactual path in the feature space
 #| echo: false
 T = total_steps(counterfactual)
 X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive - Plugin")
+ŷ = target_probs(counterfactual,X_path[:,:,1])
+p1 = plot(M,counterfactual_data;
+  colorbar=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    scatter!(p1, [X_path[:,t,:][1]], [X_path[:,t,:][2]], ms=10, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))
@@ -129,7 +131,7 @@ using LinearAlgebra
 Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
 μ = hcat(b, w)
 M = CounterfactualExplanations.Models.BayesianLogisticModel(μ, Σ)
-generator = GreedyGenerator(;δ=0.1,n=25))
+generator = GreedyGenerator(;δ=0.1,n=30)
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
@@ -139,10 +141,11 @@ Once again we plot the resulting counterfactual path (left) and changes in the p
 #| echo: false
 T = total_steps(counterfactual)
 X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive - Plugin")
+ŷ = target_probs(counterfactual,X_path[:,:,1])
+p1 = plot(M,counterfactual_data;
+  colorbar=false, title="Posterior predictive - Plugin")
 anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    scatter!(p1, [X_path[:,t,:][1]], [X_path[:,t,:][2]], ms=10, color=Int(y), label="")
     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
     plot(p1,p2,size=(800,400))

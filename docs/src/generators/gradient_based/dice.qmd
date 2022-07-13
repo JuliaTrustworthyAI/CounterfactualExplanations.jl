@@ -105,7 +105,7 @@ counterfactuals = []
 n_cf = 5
 for λ₂ ∈ Λ₂  
     λ = [0.1, λ₂]
-    generator = DiCEGenerator(λ=λ; params=DiCEGeneratorParams(ϵ=1))
+    generator = DiCEGenerator(λ=λ; ϵ=1)
     counterfactuals = vcat(
       counterfactuals...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)

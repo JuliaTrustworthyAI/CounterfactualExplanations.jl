@@ -33,13 +33,10 @@ An outer constructor method that instantiates a generic generator.
 generator = DiCEGenerator()
 ```
 """
-DiCEGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::Union{AbstractFloat,AbstractVector}=0.1,
-    params::Union{NamedTuple,DiCEGeneratorParams}=DiCEGeneratorParams()
-) = DiCEGenerator(loss, complexity, λ, params.ϵ, params.τ)
+function DiCEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::Union{AbstractFloat,AbstractVector}=0.1,kwargs...)
+    params = DiCEGeneratorParams(;kwargs...)
+    DiCEGenerator(loss, complexity, λ, params.ϵ, params.τ)
+end
 
 # Complexity:
 # With thanks to various respondents here: https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/3

@@ -33,10 +33,7 @@ An outer constructor method that instantiates a REVISE generator.
 generator = REVISEGenerator()
 ```
 """
-REVISEGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::AbstractFloat=0.1,
-    params::Union{NamedTuple,REVISEGeneratorParams}=REVISEGeneratorParams()
-) = REVISEGenerator(loss, complexity, λ, params.ϵ, params.τ)
+function REVISEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::AbstractFloat=0.1,kwargs...)
+    params = REVISEGeneratorParams(;kwargs...)
+    REVISEGenerator(loss, complexity, λ, params.ϵ, params.τ)
+end

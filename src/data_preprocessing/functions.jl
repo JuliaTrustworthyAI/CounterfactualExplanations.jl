@@ -76,7 +76,7 @@ end
 
 A convenience method that can be used to access the the feature matrix.
 """
-select_factual(counterfactual_data::CounterfactualData, index::Int) = counterfactual_data.X[:,index]
+select_factual(counterfactual_data::CounterfactualData, index::Int) = selectdim(counterfactual_data.X,2,index)
 
 """
     mutability_constraints(counterfactual_data::CounterfactualData)
@@ -110,6 +110,15 @@ Helper function that returns the input dimension (number of features) of the dat
 
 """
 input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
+
+"""
+    unpack(data::CounterfactualData)
+
+Helper function that unpacks data.
+"""
+function unpack(data::CounterfactualData)
+    return data.X, data.y
+end
 
 
 """

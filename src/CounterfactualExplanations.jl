@@ -73,4 +73,7 @@ export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear,
 include("generate_counterfactual.jl")
 export generate_counterfactual
 
+include("benchmark/Benchmark.jl")
+using .Benchmark
+
 end
