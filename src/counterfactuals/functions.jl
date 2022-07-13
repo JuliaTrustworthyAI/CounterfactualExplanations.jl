@@ -364,3 +364,19 @@ function Base.show(io::IO, z::CounterfactualExplanation)
     end
 
 end
+
+using Plots
+import Plots: plot
+
+function plot(counterfactual_explanation::CounterfactualExplanation; alpha=0.5, kwargs...)
+    plt = Models.plot(counterfactual_explanation.M, counterfactual_explanation.data; alpha=0.5)
+    T = total_steps(counterfactual_explanation)
+    path_ = reduce(hcat,path(counterfactual_explanation))
+    plts = []
+    for k ∈ counterfactual_explanation.num_counterfactuals
+        path_k = selectdim(path_, 3, k)
+        ŷ = target_probs(counterfactual,path_k)
+        # plt_k = scatter!(plt, [X_path[:,t,:][1]], [X_path[:,t,:][2]], ms=10, color=Int(y), label="")
+    end
+    ŷ = target_probs(counterfactual,X_path[:,:,1])
+end
