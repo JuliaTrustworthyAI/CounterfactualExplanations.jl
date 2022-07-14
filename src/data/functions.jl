@@ -102,7 +102,7 @@ toy_data_linear()
 ```
 
 """
-function toy_data_linear(N=100)
+function toy_data_linear(N=100, p=2)
     # Number of points to generate.
     M = round(Int, N / 2)
 
@@ -116,6 +116,8 @@ function toy_data_linear(N=100)
     ts = [ones(M); zeros(M)];
     return xs, ts
 end
+
+
 
 """
     toy_data_non_linear(N=100)
