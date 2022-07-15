@@ -13,7 +13,7 @@ import Plots: plot
 using Flux
 function plot(
     M::AbstractFittedModel,data::DataPreprocessing.CounterfactualData;
-    target::Union{Nothing,Int}=nothing,
+    target::Union{Nothing,Real}=nothing,
     colorbar=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1,alpha=1.0,
     kwargs...
 )
@@ -57,13 +57,11 @@ function plot(
 
     Z = reduce(hcat, Z)
 
-    if isnothing(target)
-        if size(Z, 1) > 2
-            @info "No target label supplied, using first."
-            target = 1
-        else
-            target = 2
-        end
+    if isnothing(target) || size(Z, 1) > 2
+        @info "No target label supplied, using first."
+        target = 1
+    else
+        target = 2
     end
     
     # Contour:
@@ -76,6 +74,6 @@ function plot(
     )
     
     # Samples:
-    DataPreprocessing.scatter!(data; alpha=alpha)
+    scatter!(X[:,1],X[:,2],group=Int.(y),color=Int.(y); alpha=alpha, kwargs...)
 
 end

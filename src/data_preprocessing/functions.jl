@@ -1,5 +1,6 @@
 using Flux
 using StatsBase
+using UMAP
 
 mutable struct CounterfactualData
     X::AbstractMatrix
@@ -10,13 +11,14 @@ mutable struct CounterfactualData
     continuous::Union{Vector{Int},Nothing}
     standardize::Bool
     dt::StatsBase.AbstractDataTransform
+    compressor::Union{Nothing,UMAP.UMAP_}
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
-    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,generative_model)
+    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
         conditions = []
         conditions = vcat(conditions..., length(size(X)) != 2 ? error("Data should be in tabular format") : true)
         conditions = vcat(conditions..., size(X)[2] != size(y)[2] ? throw(DimensionMismatch("Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])")) : true)
         if all(conditions)
-            new(X,y,mutability,domain,categorical,continuous,standardize,dt,generative_model)
+            new(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
         end
     end
 end
@@ -66,7 +68,13 @@ function CounterfactualData(
     # Data transformer:
     dt = fit(ZScoreTransform, X, dims=2)
 
-    counterfactual_data = CounterfactualData(X, y, mutability, domain, categorical, continuous, standardize, dt, generative_model)
+    # Compressor:
+    compressor = nothing
+
+    counterfactual_data = CounterfactualData(
+        X, y, mutability, domain, categorical, continuous, 
+        standardize, dt, compressor, generative_model
+    )
 
     return counterfactual_data
 end

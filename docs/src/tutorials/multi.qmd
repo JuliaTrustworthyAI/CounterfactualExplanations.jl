@@ -24,8 +24,8 @@ CurrentModule = CounterfactualExplanations
 In the existing literature counterfactual explanations have typically been applied in the binary classification setting [@verma2020counterfactual]. Research on algorithmic recourse in particular typically involves real-world datasets with an obvious target class - e.g. individual receives credit - and an adverse outcome - e.g. individual is denied loan [@karimi2020survey]. Still, counterfactual explanations are very much also applicable in the multi-class setting. In this tutorial we will go through an illustrative example involving the toy dataset shown in @fig-multi below.
 
 ```{julia}
-using Pkg; Pkg.activate("docs")
 #| echo: false
+using Pkg; Pkg.activate("docs")
 using Flux, Random, Plots, PlotThemes, CounterfactualExplanations, Statistics
 theme(:wong)
 include("dev/utils.jl") # some plotting functions
@@ -34,6 +34,7 @@ www_path = "docs/src/tutorials/www"
 
 ```{julia}
 using CounterfactualExplanations.Data
+using MLJ
 p = 3
 n = 100
 X, ys = make_blobs(n, p, centers=p, as_table=false)
@@ -124,9 +125,9 @@ Generic counterfactual search can then be implemented as follows. The only diffe
 
 ```{julia}
 # Define generator:
-generator = GenericGenerator(;loss=:logitcrossentropy)
+generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=1)
 ```
 
 ```{julia}

@@ -177,15 +177,54 @@ A convenience method to compute the class probabilities of the counterfactual va
 counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) = Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
 
 """
+    _to_label(p::AbstractArray)
+
+Small helper function mapping predicted probabilities to labels.
+"""
+function _to_label(p::AbstractArray)
+    out_dim = size(p)[1]
+    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
+    return y
+end 
+
+"""
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
 
 A convenience method to get the predicted label associated with the counterfactual value.
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
     p = counterfactual_probability(counterfactual_explanation)
-    out_dim = size(p)[1]
-    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p,1:out_dim)
+    y = mapslices(p -> _to_label(p), p, dims=[1,2])
     return y
+end
+
+"""
+    target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
+
+Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
+"""
+function target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
+    
+    p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
+    target = counterfactual_explanation.target
+
+    if size(p,1) == 1
+        h(x) = ifelse(x==-1,0,x)
+        if target ∉ [0,1] && target ∉ [-1,1]
+            throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
+        end
+        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
+        p = vcat(1.0 .- p, p)
+        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
+        p_target = selectdim(p,1,Int(h(target)+1))
+    else
+        if target < 1 || target % 1 !=0
+            throw(DomainError("For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.")) 
+        end
+        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
+        p_target = selectdim(p,1,Int(target)) 
+    end
+    return p_target
 end
 
 # 3) Search related methods:
@@ -224,32 +263,50 @@ function path(counterfactual_explanation::CounterfactualExplanation; feature_spa
 end
 
 """
-    target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
+    counterfactual_probability_path(counterfactual_explanation::CounterfactualExplanation)
 
-Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
+Returns the counterfactual probabilities for each step of the search.
 """
-function target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
-    
-    p = !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) : counterfactual_probability(counterfactual_explanation)
-    target = counterfactual_explanation.target
+function counterfactual_probability_path(counterfactual_explanation::CounterfactualExplanation)
+    M = counterfactual_explanation.M
+    p = map(X -> mapslices(x -> probs(M, x), X, dims=[1,2]),path(counterfactual_explanation))
+    return p
+end
 
-    if size(p,1) == 1
-        h(x) = ifelse(x==-1,0,x)
-        if target ∉ [0,1] && target ∉ [-1,1]
-            throw(DomainError("For binary classification expecting target to be in {0,1} or {-1,1}.")) 
-        end
-        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
-        p = vcat(1.0 .- p, p)
-        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
-        p_target = selectdim(p,1,Int(h(target)+1))
-    else
-        if target < 1 || target % 1 !=0
-            throw(DomainError("For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.")) 
-        end
-        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
-        p_target = selectdim(p,1,Int(target)) 
-    end
-    return p_target
+"""
+    counterfactual_label_path(counterfactual_explanation::CounterfactualExplanation)
+
+Returns the counterfactual labels for each step of the search.
+"""
+function counterfactual_label_path(counterfactual_explanation::CounterfactualExplanation)
+    P = counterfactual_probability_path(counterfactual_explanation)
+    ŷ = map(P -> mapslices(p -> _to_label(p), P, dims=[1,2]), P)
+    return ŷ
+end
+
+"""
+    target_probs_path(counterfactual_explanation::CounterfactualExplanation)
+
+Returns the target probabilities for each step of the search.
+"""
+function target_probs_path(counterfactual_explanation::CounterfactualExplanation)
+    X = path(counterfactual_explanation)
+    P = map(X -> mapslices(x -> target_probs(counterfactual_explanation, x), X, dims=[1,2]), X)
+    return P
+end
+
+using MLUtils
+"""
+    embed_path(counterfactual_explanation::CounterfactualExplanation)
+
+Helper function that embeds path into two dimensions for plotting.
+"""
+function embed_path(counterfactual_explanation::CounterfactualExplanation)
+    data_ = counterfactual_explanation.data
+    path_ = stack(path(counterfactual_explanation),1)
+    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims=[1,2])
+    path_embedded = unstack(path_embedded,dims=2)
+    return path_embedded
 end
 
 """
@@ -368,15 +425,69 @@ end
 using Plots
 import Plots: plot
 
-function plot(counterfactual_explanation::CounterfactualExplanation; alpha=0.5, kwargs...)
-    plt = Models.plot(counterfactual_explanation.M, counterfactual_explanation.data; alpha=0.5)
-    T = total_steps(counterfactual_explanation)
-    path_ = reduce(hcat,path(counterfactual_explanation))
-    plts = []
-    for k ∈ counterfactual_explanation.num_counterfactuals
-        path_k = selectdim(path_, 3, k)
-        ŷ = target_probs(counterfactual,path_k)
-        # plt_k = scatter!(plt, [X_path[:,t,:][1]], [X_path[:,t,:][2]], ms=10, color=Int(y), label="")
+function plot(
+    counterfactual_explanation::CounterfactualExplanation; 
+    alpha_=0.5, plot_up_to::Union{Nothing,Int}=nothing, plot_proba::Bool=false, kwargs...
+)
+    p1 = Models.plot(
+        counterfactual_explanation.M, counterfactual_explanation.data; 
+        target=counterfactual_explanation.target, alpha=alpha_
+    )
+    p2 = plot()
+    T = isnothing(plot_up_to) ? total_steps(counterfactual_explanation) : plot_up_to
+    path_embedded = embed_path(counterfactual_explanation)
+    path_labels = counterfactual_label_path(counterfactual_explanation)
+    path_probs = target_probs_path(counterfactual_explanation)
+
+    function plot_state(t::Int) 
+        x1 = vec(mapslices(X -> X[1], path_embedded[t], dims=(1,2)))
+        x2 = vec(mapslices(X -> X[2], path_embedded[t], dims=(1,2)))
+        y = Int.(vec(path_labels[t]))
+        n_ = counterfactual_explanation.num_counterfactuals
+        label_ = reshape(["C$i" for i in 1:n_],1,n_)
+        if t < T
+            scatter!(p1,x1,x2,color=y;ms=1,label="",alpha=alpha_)
+        else
+            scatter!(p1,x1,x2,color=y;ms=10,label="")
+            if n_ > 1
+                label_1 = vec([text(lab, 5) for lab in label_])
+                annotate!(x1,x2,label_1)
+            end
+        end
+        if plot_proba
+            probs_ = reshape(reduce(vcat, path_probs[1:t]),t,5)
+            if t == 1 && n_ > 1
+                label_2 = label_ 
+            else
+                label_2 = ""
+            end
+            plot!(
+                p2,probs_,label=label_2,
+                color=reshape(1:n_,1,n_),
+                title="p(y=$(counterfactual_explanation.target))"
+            )
+        end
     end
-    ŷ = target_probs(counterfactual,X_path[:,:,1])
+
+    for t ∈ 1:T
+        plot_state(t)
+    end
+
+    plt = plot_proba ? plot(p1,p2;kwargs...) : plot(p1;kwargs)
+
+    return plt
+
+end
+
+"""
+    animate_path(counterfactual_explanation::CounterfactualExplanation, path=tempdir(); plot_proba::Bool=false, kwargs...)
+
+Animate the counterfactual path.
+"""
+function animate_path(counterfactual_explanation::CounterfactualExplanation, path=tempdir(); plot_proba::Bool=false, kwargs...)
+    T = total_steps(counterfactual_explanation)
+    anim = @animate for t ∈ 1:T
+        plot(counterfactual_explanation; plot_proba=plot_proba, plot_up_to=t, kwargs...)
+    end
+    return anim
 end

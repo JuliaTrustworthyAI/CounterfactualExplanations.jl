@@ -21,8 +21,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Pkg
-Pkg.activate("docs/")
+using Pkg; Pkg.activate("docs")
 using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
 theme(:wong)
 www_path = "docs/src/generators/www/"

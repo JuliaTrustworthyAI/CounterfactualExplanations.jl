@@ -7,7 +7,14 @@
 
 ## News 📣
 
-**JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: [[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)]
+**JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: \[[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)\]
+
+### Developmemts since v0.1.2
+
+-   Added support for generating multiple counterfactuals instead of just one.
+-   Implemented DiCE (Mothilal, Sharma, and Tan 2020).
+-   Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE (Slack et al. 2021).
+-   Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use `UMAP.jl` to compress the data. The decision boundary is then visualized using its a Voronoi based representation following (**migut2015visualizing?**). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
 
 ## Installation 🚩
 
@@ -119,3 +126,7 @@ If you want to use this codebase, please consider citing:
       version = {0.1.1},
       year = {2022}
     }
+
+Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
+
+Slack, Dylan, Anna Hilgard, Himabindu Lakkaraju, and Sameer Singh. 2021. “Counterfactual Explanations Can Be Manipulated.” *Advances in Neural Information Processing Systems* 34.
