@@ -35,9 +35,9 @@ www_path = "docs/src/tutorials/www"
 ```{julia}
 using CounterfactualExplanations.Data
 using MLJ
-p = 3
-n = 100
-X, ys = make_blobs(n, p, centers=p, as_table=false)
+p = 5
+n = 1000
+X, ys = make_blobs(n, p, centers=3, as_table=false)
 X = X'
 using MLUtils
 xs = unstack(X,dims=2)
@@ -95,7 +95,7 @@ end
 To make the model compatible with our package we need to 1) declare it as a subtype of `Models.AbstractFittedModel` and 2) dispatch the relevant methods. Logits are returned by the model on call and passed through the softmax function to generate the vector of class probabilities.
 
 ```{julia}
-M = FluxModel(nn)
+M = FluxModel(nn, likelihood=:classification_multi)
 ```
 
 ```{julia}
@@ -115,7 +115,7 @@ We randomly select an individual sample from any class and choose any of the rem
 
 ```{julia}
 # Randomly selected factual:
-Random.seed!(42)
+# Random.seed!(123)
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = Flux.onecold(probs(M, x),unique(ys))
 target = rand(unique(ys)[1:end .!= y]) # opposite label as target
@@ -127,22 +127,14 @@ Generic counterfactual search can then be implemented as follows. The only diffe
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=1)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=1, γ=0.95)
 ```
 
 ```{julia}
 #| echo: false
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour_multi(X',ys,M;target=target,colorbar=false,title="MLP")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=25)
+using CounterfactualExplanations.Counterfactuals: animate_path
+anim = animate_path(counterfactual, plot_proba=true, size=(800,350))
+gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=round(total_steps(counterfactual)/5))
 ```
 
 ![Counterfactual path for generic generator.](www/multi_generic_recourse.gif){#fig-multi-generic}
@@ -152,29 +144,30 @@ gif(anim, joinpath(www_path, "multi_generic_recourse.gif"), fps=25)
 Staying consistent with previous tutorial we will also briefly look at the Bayesian setting. To incorporate uncertainty we use a simple deep ensemble instead of a single MLP.
 
 ```{julia}
-ensemble = build_ensemble(5;kw=(output_dim=out_dim,))
+ensemble = build_ensemble(5;kw=kw)
 ensemble, = forward(ensemble, data, opt, n_epochs=epochs, plot_loss=false)
 ```
 
 As before, we need to subtype and disptach:
 
 ```{julia}
+import CounterfactualExplanations.Models: logits, probs
 # Step 1)
-struct FittedEnsemble <: Models.AbstractFittedModel
+struct FittedEnsemble <: Models.AbstractDifferentiableModel
     ensemble::AbstractArray
 end
 
 # Step 2)
 using Statistics
-logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
+logits(M::FittedEnsemble, X::AbstractArray) = selectdim(mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3),3,1)
+probs(M::FittedEnsemble, X::AbstractArray) = selectdim(mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3),3,1)
 
 M=FittedEnsemble(ensemble)
 ```
 
 ```{julia}
 #| echo: false
-plt = plot_contour_multi(X',ys,M);
+plt = plot(M,counterfactual_data)
 savefig(plt, joinpath(www_path, "multi_ensemble_contour.png"))
 ```
 
@@ -185,23 +178,14 @@ savefig(plt, joinpath(www_path, "multi_ensemble_contour.png"))
 For the greedy recourse generator we also specify `logitcrossentropy` as our loss function and modify the hyperparameters slightly. @fig-greedy shows the resulting counterfactual path.
 
 ```{julia}
-generator = GreedyGenerator(loss=:logitcrossentropy,δ=0.25,n=20)
+generator = GreedyGenerator(loss=:logitcrossentropy,δ=0.25,n=30)
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
 #| echo: false
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour_multi(X',ys,M;target=target,colorbar=false,title="Deep ensemble")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, joinpath(www_path, "multi_greedy_recourse.gif"), fps=25)
+anim = animate_path(counterfactual, plot_proba=true, size=(800,350))
+gif(anim, joinpath(www_path, "multi_greedy_recourse.gif"), fps=round(total_steps(counterfactual)/5))
 ```
 
 ![Counterfactual path for greedy generator.](www/multi_greedy_recourse.gif){#fig-greedy}

@@ -1,43 +1,50 @@
 
+using MultivariateStats
+import MultivariateStats: predict
 using UMAP
 _n_neighbors(tfn::UMAP.UMAP_) = size(tfn.knns,1)
+function predict(tfn::UMAP.UMAP_, X::AbstractArray)
+    n_neighbors=minimum([_n_neighbors(tfn),size(X,2)-1])
+    if n_neighbors==0
+        # A simple catch in case n_samples = 1: add random sample and remove afterwards.
+        X = hcat(X,rand(size(X,1)))
+        n_neighbors = 1
+        X = UMAP.transform(tfn,X;n_neighbors=n_neighbors)
+        X = X[:,1]
+    else
+        X = UMAP.transform(tfn,X;n_neighbors=n_neighbors)
+    end
+    return X
+end
 
-function embed(data::CounterfactualData, X::AbstractArray=nothing; seed::Int=123)
+function embed(data::CounterfactualData, X::AbstractArray=nothing; dim_red::Symbol=:pca)
 
-    # Setting seed to always embed in same latent space.
-    Random.seed!(seed)
-
-    # Training UMAP:
+    # Training compressor:
     if isnothing(data.compressor)
         X_train, _ = unpack(data)
         if size(X_train,1) < 3 
             tfn = data.compressor
         else
-            @info "Training UMAP to compress data."
-            n_neighbors = minimum([size(X_train,2)-1,15])
-            tfn = UMAP_(X_train,2;n_neighbors=n_neighbors)
+            @info "Training model to compress data."
+            if dim_red == :umap
+                n_neighbors = minimum([size(X_train,2)-1,15])
+                tfn = UMAP_(X_train,2;n_neighbors=n_neighbors)
+            end
+            if dim_red == :pca
+                tfn = fit(PCA, X_train; maxoutdim=2)
+            end
             data.compressor = tfn
+            X = isnothing(X) ? X_train : X
         end
     else
         tfn = data.compressor
     end
 
     # Transforming:
-    if !isnothing(tfn)
-        n_neighbors=minimum([_n_neighbors(tfn),size(X,2)-1])
-        if n_neighbors==0
-            # A simple catch in case n_samples = 1: add random sample and remove afterwards.
-            X = hcat(X,rand(size(X,1)))
-            n_neighbors = 1
-            X = transform(tfn,X;n_neighbors=n_neighbors)
-            X = X[:,1]
-        else
-            X = transform(tfn,X;n_neighbors=n_neighbors)
-        end
-    else 
-        if isnothing(X)
-            X = X_train
-        end
+    if !isnothing(tfn) && !isnothing(X)
+        X = predict(tfn, X)
+    else
+        X = isnothing(X) ? X_train : X
     end
     return X
 end

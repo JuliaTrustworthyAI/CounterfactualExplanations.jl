@@ -14,31 +14,31 @@ using Flux
 function plot(
     M::AbstractFittedModel,data::DataPreprocessing.CounterfactualData;
     target::Union{Nothing,Real}=nothing,
-    colorbar=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1,alpha=1.0,
+    colorbar=true,title="",length_out=50,zoom=-1,xlims=nothing,ylims=nothing,linewidth=0.1,alpha=1.0,
     kwargs...
 )
     
     X, _ = DataPreprocessing.unpack(data)
     ŷ = Models.probs(M, X) # true predictions
     if size(ŷ,1) > 1
-        ŷ = Flux.onecold(ŷ, 1:size(ŷ,1))
+        ŷ = vec(Flux.onecold(ŷ, 1:size(ŷ,1)))
     end
     
     X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data)
     
     # Surface range:
-    if isnothing(xlim)
-        xlim = (minimum(X[:,1]),maximum(X[:,1])).+(zoom,-zoom)
+    if isnothing(xlims)
+        xlims = (minimum(X[:,1]),maximum(X[:,1])).+(zoom,-zoom)
     else
-        xlim = xlim .+ (zoom,-zoom)
+        xlims = xlims .+ (zoom,-zoom)
     end
-    if isnothing(ylim)
-        ylim = (minimum(X[:,2]),maximum(X[:,2])).+(zoom,-zoom)
+    if isnothing(ylims)
+        ylims = (minimum(X[:,2]),maximum(X[:,2])).+(zoom,-zoom)
     else
-        ylim = ylim .+ (zoom,-zoom)
+        ylims = ylims .+ (zoom,-zoom)
     end
-    x_range = range(xlim[1],stop=xlim[2],length=length_out)
-    y_range = range(ylim[1],stop=ylim[2],length=length_out)
+    x_range = range(xlims[1],stop=xlims[2],length=length_out)
+    y_range = range(ylims[1],stop=ylims[2],length=length_out)
 
     if multi_dim
         knn1, y_train = voronoi(X, ŷ)
@@ -57,23 +57,21 @@ function plot(
 
     Z = reduce(hcat, Z)
 
-    if isnothing(target) || size(Z, 1) > 2
+    if isnothing(target) 
         @info "No target label supplied, using first."
-        target = 1
-    else
-        target = 2
+        target = multi_dim ? 1 : 2
     end
     
     # Contour:
     contourf(
         x_range, y_range, Z[Int(target),:]; 
         colorbar=colorbar, title=title, linewidth=linewidth,
-        xlim=xlim,
-        ylim=ylim,
+        xlims=xlims,
+        ylims=ylims,
         kwargs...
     )
     
     # Samples:
-    scatter!(X[:,1],X[:,2],group=Int.(y),color=Int.(y); alpha=alpha, kwargs...)
+    scatter!(data; alpha=alpha, kwargs...)
 
 end

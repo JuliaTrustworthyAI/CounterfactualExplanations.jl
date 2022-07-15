@@ -1,6 +1,7 @@
 using Flux
 using StatsBase
 using UMAP
+using MultivariateStats
 
 mutable struct CounterfactualData
     X::AbstractMatrix
@@ -11,7 +12,7 @@ mutable struct CounterfactualData
     continuous::Union{Vector{Int},Nothing}
     standardize::Bool
     dt::StatsBase.AbstractDataTransform
-    compressor::Union{Nothing,UMAP.UMAP_}
+    compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
     function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
         conditions = []

@@ -55,12 +55,11 @@ Now let’s see how this concept carries over to our `DiCEGenerator`. Below we f
 
 ``` julia
 # Some random data:
-using CounterfactualExplanations.Data
 Random.seed!(1234)
 N = 100
 w = [1.0 1.0]# true coefficients
 b = 0
-xs, ys = Data.toy_data_linear(N)
+xs, ys = toy_data_linear(N)
 X = hcat(xs...)
 counterfactual_data = CounterfactualData(X,ys')
 M = LogisticModel(w, [b])
@@ -74,12 +73,12 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 We then use DiCE to generate multiple counterfactuals for varying degrees of *λ*₂, that is the hyperparameter that governs the strength of the penalty for non-diverse outcomes.
 
 ``` julia
-Λ₂ = [0.1, 1, 10]
+Λ₂ = [0.1, 1, 5]
 counterfactuals = []
 n_cf = 5
 for λ₂ ∈ Λ₂  
     λ = [0.1, λ₂]
-    generator = DiCEGenerator(λ=λ; params=DiCEGeneratorParams(ϵ=1))
+    generator = DiCEGenerator(λ=λ; ϵ=1)
     counterfactuals = vcat(
       counterfactuals...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
@@ -90,32 +89,22 @@ end
 [Figure 2](#fig-dice) shows the resulting counterfactual paths. As expected, the resulting counterfactuals are more dispersed across the feature domain for higher choices of *λ*₂
 
 ``` julia
+using CounterfactualExplanations.Counterfactuals: animate_path
 theme(:wong)
 T = 100
-lim_ = 7.5
-anim = @animate for t ∈ 1:T
-    plts = []
-    for i ∈ 1:length(Λ₂)
-        λ₂ = Λ₂[i]
-        counterfactual = counterfactuals[i]  
-        path_ = path(counterfactual)
-        plt = plot_contour(
-          X',ys,M;colorbar=false, title="λ₂=$λ₂",
-          xlim=(-lim_,lim_), ylim=(-lim_,lim_)
-        )
-        idx = minimum([total_steps(counterfactual),t])
-        x1 = vec(mapslices(X -> X[1], path_[idx], dims=(1,2)))
-        x2 = vec(mapslices(X -> X[2], path_[idx], dims=(1,2)))
-        y = vec(round.(probs(M, hcat(x1,x2)')))
-        scatter!(plt, x1, x2, ms=10, color=Int.(y), label="")
-        plts = vcat(plts..., plt)
-    end
-    plot(plts..., plot_title="t=$t", size=(1200,400), layout=(1,3))
+lim_ = 9
+plts = []
+for i ∈ 1:length(Λ₂)
+    λ₂ = Λ₂[i]
+    counterfactual = counterfactuals[i]  
+    plt = plot(counterfactual, xlims=(-lim_,lim_), ylims=(-lim_,lim_), plot_up_to=T, title="λ₂=$(λ₂)")
+    plts = vcat(plts..., plt)
 end
-gif(anim, joinpath(www_path, "dice.gif"))
+plt = plot(plts..., size=(1200,300), layout=(1,3))
+savefig(plt, joinpath(www_path,"dice.png"))
 ```
 
-![Figure 2: Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\_2) increase from left to right.](../www/dice.gif)
+![Figure 2: Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\_2) increase from left to right.](../www/dice.png)
 
 # References
 
