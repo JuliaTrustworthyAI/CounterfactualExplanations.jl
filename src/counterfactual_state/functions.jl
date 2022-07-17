@@ -5,7 +5,7 @@ struct State
     x::AbstractArray
     s′::AbstractArray
     f::Function
-    target_encoded::Union{Number, AbstractVector}
+    target_encoded::Union{Number, AbstractArray, Nothing}
     M::AbstractFittedModel
     params::Dict
     search::Union{Dict,Nothing}

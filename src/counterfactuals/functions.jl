@@ -1,7 +1,7 @@
 mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
-    target_encoded::Union{Number, AbstractVector, Nothing}
+    target_encoded::Union{Number, AbstractArray, Nothing}
     s′::AbstractArray
     f::Function
     data::DataPreprocessing.CounterfactualData
@@ -131,7 +131,9 @@ A convenience method to encode the target variable, if necessary.
 function encode_target(counterfactual_explanation::CounterfactualExplanation) 
     out_dim = output_dim(counterfactual_explanation)
     target = counterfactual_explanation.target
-    return out_dim > 1 ? Flux.onehot(target, 1:out_dim) : target
+    target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
+    target = repeat(target, outer=[1,1,counterfactual_explanation.num_counterfactuals])
+    return target
 end
 
 # 1) Factual values

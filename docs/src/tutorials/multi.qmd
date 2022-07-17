@@ -127,7 +127,7 @@ Generic counterfactual search can then be implemented as follows. The only diffe
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=1, γ=0.95)
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=2, γ=0.95)
 ```
 
 ```{julia}
