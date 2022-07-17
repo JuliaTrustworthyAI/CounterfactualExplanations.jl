@@ -1,6 +1,6 @@
 using LinearAlgebra
 
-# -------- Mothilal et al. (2020): 
+# -------- Following Mothilal et al. (2020): 
 struct DiCEGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
