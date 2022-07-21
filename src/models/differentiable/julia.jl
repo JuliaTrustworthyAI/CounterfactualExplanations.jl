@@ -37,6 +37,91 @@ function probs(M::FluxModel, X::AbstractArray)
 end
 
 #############################################################################
+# Laplace Redux
+#############################################################################
+using Flux, LaplaceRedux
+# Constructor
+struct LaplaceReduxModel <: Models.AbstractDifferentiableJuliaModel
+    model::Laplace
+    likelihood::Symbol
+    function LaplaceReduxModel(model, likelihood)
+        if likelihood == :classification_binary
+            new(model, likelihood)
+        elseif likelihood==:classification_multi
+            throw(ArgumentError("`type` should be `:classification_binary`. Support for multi-class Laplace Redux is not yet implemented."))
+        else
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+        end
+    end
+end
+
+# Outer constructor method:
+function LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
+    LaplaceReduxModel(model, likelihood)
+end
+
+# Methods
+logits(M::LaplaceReduxModel, X::AbstractArray) = M.model.model(X)
+probs(M::LaplaceReduxModel, X::AbstractArray)= LaplaceRedux.predict(M.model, X)
+
+
+#############################################################################
+# Gradient Boosted Trees
+#############################################################################
+using EvoTrees
+
+struct EvoTreeModel <: Models.AbstractDifferentiableJuliaModel
+    model::EvoTrees.GBTree
+    likelihood::Symbol
+    function EvoTreeModel(model, likelihood)
+        if likelihood ∈ [:classification_binary,:classification_multi]
+            new(model, likelihood)
+        else
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+        end
+    end
+end
+
+# Outer constructor method:
+function EvoTreeModel(model; likelihood::Symbol=:classification_binary)
+    EvoTreeModel(model, likelihood)
+end
+
+# Methods
+function logits(M::EvoTreeModel, X::AbstractArray)
+    p = probs(M, X)
+    if M.likelihood == :classification_binary
+        output = log.(p./(1 .- p))
+    else
+        output = log.(p)
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
+    output = EvoTrees.predict(M.model, X')'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
+    X = reshape(X, 1,length(X))
+    output = EvoTrees.predict(M.model, X)'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
+    output = mapslices(x -> probs(M,x), X, dims=[1,2])
+    return output
+end
+
+
+#############################################################################
 # Baseline classifiers for illustrative purposes 
 #############################################################################
 

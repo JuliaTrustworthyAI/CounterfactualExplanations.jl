@@ -194,7 +194,7 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
-        progress = Progress(length(loader))
+        # progress = Progress(length(loader))
         avg_loss = []
         for (x, _) in loader 
             
@@ -206,8 +206,8 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
             grad = back(1f0)
             Flux.Optimise.update!(args.opt, ps, grad)
 
-            # progress meter
-            next!(progress; showvalues=[(:Loss, loss)]) 
+            # # progress meter
+            # next!(progress; showvalues=[(:Loss, loss)]) 
 
             train_steps += 1
         end 

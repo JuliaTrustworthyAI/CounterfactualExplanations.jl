@@ -1,10 +1,11 @@
 # -------- Schut et al (2020): 
-struct GreedyGenerator <: AbstractGradientBasedGenerator
+mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
     δ::AbstractFloat # perturbation size
     n::Int # maximum number of times any feature can be changed
+    passes::Int # number of full passes (`n` times) through all features
 end
 
 # API streamlining:
@@ -53,7 +54,7 @@ function GreedyGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Functi
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 
-    generator = GreedyGenerator(loss,complexity,λ,δ,n)
+    generator = GreedyGenerator(loss,complexity,λ,δ,n,0)
 
     return generator
 end
@@ -97,6 +98,12 @@ The default method to return search state dependent mutability constraints for a
 """
 function mutability_constraints(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
     mutability = counterfactual_state.params[:mutability]
+    if all(counterfactual_state.search[:times_changed_features] .>= generator.n)
+        generator.passes += 1
+        generator.n += generator.n/generator.passes
+        @info "Steps exhausted for all mutable features. Increasing number of allowed steps to $(generator.n). Restoring initial mutability."
+        counterfactual_state.params[:mutability] .= counterfactual_state.params[:initial_mutability]
+    end
     mutability[counterfactual_state.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
     return mutability
 end 

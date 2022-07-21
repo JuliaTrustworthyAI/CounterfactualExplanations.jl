@@ -13,7 +13,6 @@ execute:
   echo: true
   eval: false
 jupyter: julia-1.6
-
 ---
 
 ```@meta
@@ -97,10 +96,10 @@ show_every = epochs/10
 
 for epoch = 1:epochs
   for d in data
-    gs = gradient(params(nn)) do
+    gs = gradient(Flux.params(nn)) do
       l = loss(d...)
     end
-    update!(opt, params(nn), gs)
+    update!(opt, Flux.params(nn), gs)
   end
   if epoch % show_every == 0
     println("Epoch " * string(epoch))
@@ -120,7 +119,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 # Step 1)
-struct NeuralNetwork <: Models.AbstractFittedModel
+struct NeuralNetwork <: Models.AbstractDifferentiableModel
     model::Any
 end
 
@@ -135,7 +134,7 @@ The plot below shows the predicted probabilities in the feature domain. Evidentl
 ```{julia}
 #| echo: false
 # Plot the posterior distribution with a contour plot.
-plt = plot_contour(X',ys,M);
+plt = plot(M, counterfactual_data);
 savefig(plt, joinpath(www_path, "models_contour.png"))
 ```
 

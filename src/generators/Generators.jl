@@ -18,6 +18,7 @@ export AbstractGenerator, AbstractGradientBasedGenerator,
     GreedyGenerator, GreedyGeneratorParams,
     REVISEGenerator, REVISEGeneratorParams,
     DiCEGenerator, DiCEGeneratorParams,
+    CLUEGenerator, CLUEGeneratorParams,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
 end
