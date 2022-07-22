@@ -86,6 +86,7 @@ end
 A convenience method that can be used to access the the feature matrix.
 """
 select_factual(counterfactual_data::CounterfactualData, index::Int) = selectdim(counterfactual_data.X,2,index)
+select_factual(counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}) = zip([select_factual(counterfactual_data, i) for i in index])
 
 """
     mutability_constraints(counterfactual_data::CounterfactualData)

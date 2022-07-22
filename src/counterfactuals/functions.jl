@@ -410,19 +410,15 @@ end
 
 function Base.show(io::IO, z::CounterfactualExplanation)
 
-    printstyled(io, "Factual: ", bold=true)
-    println(io, "x=$(z.x), y=$(factual_label(z)), p=$(factual_probability(z))")
-    printstyled(io, "Target: ", bold=true)
-    println(io, "target=$(z.target), γ=$(z.params[:γ])")
-
     if  z.search[:iteration_count]>0
-        printstyled(io, "Counterfactual outcome: ", bold=true)
-        println(io, "x′=$(counterfactual(z)), y′=$(counterfactual_label(z)), p′=$(counterfactual_probability(z))")
         printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
-        println("after $(total_steps(z)) steps.")
-    else
-        @info "Search not yet initatiated."
     end
+
+end
+
+function Base.show(io::IO, z::Vector{CounterfactualExplanation})
+
+    println(io,"")
 
 end
 

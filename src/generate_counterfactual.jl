@@ -59,3 +59,13 @@ function generate_counterfactual(
     return counterfactual
     
 end
+
+
+function generate_counterfactual(
+    x::Base.Iterators.Zip, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator; kwargs...
+)
+    counterfactuals = map(x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x)
+
+    return counterfactuals
+    
+end
