@@ -33,10 +33,7 @@ An outer constructor method that instantiates a generic generator.
 generator = GenericGenerator()
 ```
 """
-GenericGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::AbstractFloat=0.1,
-    params::Union{NamedTuple,GenericGeneratorParams}=GenericGeneratorParams()
-) = GenericGenerator(loss, complexity, λ, params.ϵ, params.τ)
+function GenericGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::AbstractFloat=0.1,kwargs...)
+    params = GenericGeneratorParams(;kwargs...)
+    GenericGenerator(loss, complexity, λ, params.ϵ, params.τ)
+end

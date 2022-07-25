@@ -28,7 +28,8 @@ makedocs(;
             ],
         "Counterfactual Generators" =>
             [
-                "Latent Space Search" => "generators/gradient_based/latent_space_generator.md"
+                "Latent Space Search" => "generators/gradient_based/latent_space_generator.md",
+                "Diverse Counterfactuals" => "generators/gradient_based/dice.md"
             ],
         "More examples" =>
             [

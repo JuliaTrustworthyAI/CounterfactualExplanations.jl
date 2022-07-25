@@ -22,8 +22,8 @@ synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])
                         @test size(probs(model[:model],X))[2] == size(X)[2] 
                     end
                     @testset "Vector of inputs" begin
-                        @test size(logits(model[:model],X[:,1]))[2] == 1
-                        @test size(probs(model[:model],X[:,1]))[2] == 1
+                        @test size(logits(model[:model],X[:,1]),2) == 1
+                        @test size(probs(model[:model],X[:,1]),2) == 1
                     end
                 end
             end

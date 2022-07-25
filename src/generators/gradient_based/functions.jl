@@ -15,9 +15,43 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
-    gradient(() -> ℓ(generator, counterfactual_state), Flux.params(counterfactual_state.s′))[counterfactual_state.s′]
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
+    gs = gradient(() -> ℓ(generator, counterfactual_state), Flux.params(counterfactual_state.s′))[counterfactual_state.s′]
+    return gs
 end
+
+# # ----- EvoTrees model -----
+# using Flux
+# """
+#     ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
+
+# The default method to apply the generator loss function to the current counterfactual state for any generator.
+# """
+# function ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State, s::AbstractArray)
+
+#     loss_fun = !isnothing(generator.loss) ? getfield(Losses, generator.loss) : CounterfactualState.guess_loss(counterfactual_state)
+#     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
+#     loss = loss_fun(
+#         getfield(Models, :logits)(counterfactual_state.M, counterfactual_state.f(s)), 
+#         counterfactual_state.target_encoded
+#     )    
+
+#     return loss
+# end
+
+# using ForwardDiff
+# """
+#     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.EvoTreeModel, counterfactual_state::CounterfactualState.State)
+
+# Method to compute the gradient of the loss function at the current counterfactual state for `EvoTrees.jl` models. It uses `FowardDiff.jl` for gradient access.
+# """
+# function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.EvoTreeModel, counterfactual_state::CounterfactualState.State)
+#     function f(s)
+#         ℓ(generator, counterfactual_state, s)
+#     end
+#     println(ForwardDiff.gradient(f, counterfactual_state.s′))
+#     ForwardDiff.gradient(f, counterfactual_state.s′)
+# end
 
 # ----- RTorch model -----
 using RCall
@@ -83,7 +117,7 @@ The default method to compute the gradient of the complexity penalty at the curr
 
 The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 """
-∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + generator.λ * ∂h(generator, counterfactual_state)
+∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
 
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
@@ -124,6 +158,7 @@ end
 # Baseline
 include("GenericGenerator.jl") # Wachter et al. (2017)
 include("GreedyGenerator.jl") # Schut et al. (2021)
+include("DICEGenerator.jl") # Mothilal et al. (2020)
 
 # Latent space
 """
@@ -134,3 +169,4 @@ An abstract type that serves as the base type for gradient-based counterfactual 
 abstract type AbstractLatentSpaceGenerator <: AbstractGradientBasedGenerator end
 
 include("REVISEGenerator.jl") # Joshi et al. (2019)
+include("CLUEGenerator.jl") # Antoran et al. (2020)

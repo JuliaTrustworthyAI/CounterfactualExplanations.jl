@@ -29,7 +29,7 @@ export CounterfactualData, select_factual, apply_domain_constraints
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel, 
-    FluxModel, LogisticModel, BayesianLogisticModel,
+    FluxModel, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
     RTorchModel, PyTorchModel,
     probs, logits
 
@@ -50,6 +50,8 @@ export AbstractGenerator, AbstractGradientBasedGenerator,
     GenericGenerator, GenericGeneratorParams,
     GreedyGenerator, GreedyGeneratorParams,
     REVISEGenerator, REVISEGeneratorParams,
+    DiCEGenerator, DiCEGeneratorParams,
+    CLUEGenerator, CLUEGeneratorParams,
     generate_perturbations, conditions_satisified, mutability_constraints   
 
 ### CounterfactualExplanation
@@ -71,5 +73,8 @@ export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear,
 
 include("generate_counterfactual.jl")
 export generate_counterfactual
+
+include("benchmark/Benchmark.jl")
+using .Benchmark
 
 end

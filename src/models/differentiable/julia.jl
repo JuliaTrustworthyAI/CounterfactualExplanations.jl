@@ -24,12 +24,6 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    if size(X)[1] == 1
-        X = X'
-    end
-    if !isa(X, Matrix)
-        X = reshape(X, length(X), 1)
-    end
     return M.model(X)
 end
 
@@ -41,6 +35,91 @@ function probs(M::FluxModel, X::AbstractArray)
     end
     return output
 end
+
+#############################################################################
+# Laplace Redux
+#############################################################################
+using Flux, LaplaceRedux
+# Constructor
+struct LaplaceReduxModel <: Models.AbstractDifferentiableJuliaModel
+    model::Laplace
+    likelihood::Symbol
+    function LaplaceReduxModel(model, likelihood)
+        if likelihood == :classification_binary
+            new(model, likelihood)
+        elseif likelihood==:classification_multi
+            throw(ArgumentError("`type` should be `:classification_binary`. Support for multi-class Laplace Redux is not yet implemented."))
+        else
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+        end
+    end
+end
+
+# Outer constructor method:
+function LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
+    LaplaceReduxModel(model, likelihood)
+end
+
+# Methods
+logits(M::LaplaceReduxModel, X::AbstractArray) = M.model.model(X)
+probs(M::LaplaceReduxModel, X::AbstractArray)= LaplaceRedux.predict(M.model, X)
+
+
+#############################################################################
+# Gradient Boosted Trees
+#############################################################################
+using EvoTrees
+
+struct EvoTreeModel <: Models.AbstractDifferentiableJuliaModel
+    model::EvoTrees.GBTree
+    likelihood::Symbol
+    function EvoTreeModel(model, likelihood)
+        if likelihood ∈ [:classification_binary,:classification_multi]
+            new(model, likelihood)
+        else
+            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+        end
+    end
+end
+
+# Outer constructor method:
+function EvoTreeModel(model; likelihood::Symbol=:classification_binary)
+    EvoTreeModel(model, likelihood)
+end
+
+# Methods
+function logits(M::EvoTreeModel, X::AbstractArray)
+    p = probs(M, X)
+    if M.likelihood == :classification_binary
+        output = log.(p./(1 .- p))
+    else
+        output = log.(p)
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
+    output = EvoTrees.predict(M.model, X')'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
+    X = reshape(X, 1,length(X))
+    output = EvoTrees.predict(M.model, X)'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
+end
+
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
+    output = mapslices(x -> probs(M,x), X, dims=[1,2])
+    return output
+end
+
 
 #############################################################################
 # Baseline classifiers for illustrative purposes 
@@ -72,6 +151,7 @@ end
 
 LogisticModel(W,b;likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
 
+using MLUtils
 # What follows are the two required outer methods:
 """
     logits(M::LogisticModel, X::AbstractArray)
@@ -91,7 +171,15 @@ logits(M, x)
 
 See also [`LogisticModel(W::Matrix,b::AbstractArray)`](@ref).
 """
-logits(M::LogisticModel, X::AbstractArray) = M.W*X .+ M.b
+function logits(M::LogisticModel, X::AbstractArray)
+    if ndims(X) == 3
+        n = size(X,3)
+        reshape(map(x -> (M.W*x .+ M.b)[1], [X[:,:,i] for i ∈ 1:n]),1,1,n)
+        # mapslices(x -> M.W*x .+ M.b, X, dims=(1,2)) 
+    else
+        M.W*X .+ M.b
+    end
+end
 
 """
     probs(M::LogisticModel, X::AbstractArray)

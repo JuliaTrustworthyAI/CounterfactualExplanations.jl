@@ -33,9 +33,13 @@ end
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-h(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State) = generator.complexity(
-    counterfactual_state.x-counterfactual_state.f(counterfactual_state.s′)
-)
+function h(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
+    dist_ = generator.complexity(
+        counterfactual_state.x .- counterfactual_state.f(counterfactual_state.s′)
+    )
+    penalty = generator.λ * dist_
+    return penalty
+end
 
 ################################################################################
 # Subtypes

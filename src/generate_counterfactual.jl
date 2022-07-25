@@ -40,11 +40,16 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 ```
 """
 function generate_counterfactual(
-    x::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-    γ::AbstractFloat=0.75, T::Int=1000, latent_space::Union{Nothing, Bool}=nothing
+    x::AbstractArray, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
+    γ::AbstractFloat=0.75, T::Int=1000, latent_space::Union{Nothing, Bool}=nothing, num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation
 )
     # Initialize:
-    counterfactual = CounterfactualExplanation(x=x, target=target, data=data, M=M, generator=generator, γ=γ, T=T, latent_space=latent_space)
+    counterfactual = CounterfactualExplanation(
+        x=x, target=target, data=data, M=M, generator=generator, 
+        γ=γ, T=T, latent_space=latent_space, num_counterfactuals=num_counterfactuals,
+        initialization=initialization
+    )
 
     # Search:
     while !counterfactual.search[:terminated]
@@ -52,5 +57,15 @@ function generate_counterfactual(
     end
 
     return counterfactual
+    
+end
+
+
+function generate_counterfactual(
+    x::Base.Iterators.Zip, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator; kwargs...
+)
+    counterfactuals = map(x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x)
+
+    return counterfactuals
     
 end
