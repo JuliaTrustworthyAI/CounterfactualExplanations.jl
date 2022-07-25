@@ -4,6 +4,13 @@
 
 **JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: [[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)]
 
+### Developmemts since v0.1.2
+
+- Added support for generating multiple counterfactuals instead of just one. 
+- Implemented DiCE [@mothilal2020explaining].
+- Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE [@slack2021counterfactual].
+- Visualizations: added various plotting methods to visualize results. For $n$-dimensional data where $n>2$ we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following @migut2015visualizing. Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
+
 ## Installation 🚩
 
 The first release of this package is now on [Julia's General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
