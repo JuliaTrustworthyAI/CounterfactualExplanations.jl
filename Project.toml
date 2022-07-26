@@ -39,6 +39,7 @@ ProgressMeter = "1"
 PyCall = "1"
 RCall = "0.13"
 StatsBase = "0.33"
+UMAP = "0.1"
 julia = "1.5, 1.6, 1.7"
 
 [extras]
