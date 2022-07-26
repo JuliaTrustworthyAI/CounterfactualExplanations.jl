@@ -104,7 +104,7 @@ function CounterfactualExplanation(
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
-        :times_changed_features => zeros(size(counterfactual_explanation.s′)),
+        :times_changed_features => zeros(size(counterfactual_explanation.f(counterfactual_explanation.s′))),
         :path => [counterfactual_explanation.s′],
         :terminated => threshold_reached(counterfactual_explanation),
         :converged => threshold_reached(counterfactual_explanation),
@@ -399,8 +399,6 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     end
     counterfactual_explanation.s′ = s′ # update counterfactual
     
-    # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   

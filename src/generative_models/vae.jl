@@ -179,6 +179,7 @@ end
 
 using Statistics
 function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
+    
     # load hyperparamters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
@@ -194,7 +195,7 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
-        # progress = Progress(length(loader))
+        # progress = Progress(length(loader); desc="Training VAE - round $epoch:")
         avg_loss = []
         for (x, _) in loader 
             
@@ -218,6 +219,45 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     # Set training status to true:
     generative_model.trained = true;
     
+end
+
+function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs=10)
+     
+    # load hyperparamters
+    args = generative_model.params
+    args.seed > 0 && Random.seed!(args.seed)
+
+    # load data
+    loader = get_data(X, y, args.batch_size)
+    
+    # parameters
+    ps = Flux.params(generative_model)
+
+    # training
+    train_steps = 0
+    @info "Start training, total $(n_epochs) epochs"
+    for epoch = 1:n_epochs
+        @info "Epoch $(epoch)"
+        # progress = Progress(length(loader); desc="Retraining VAE - round $epoch:")
+        avg_loss = []
+        for (x, _) in loader 
+            
+            loss, back = Flux.pullback(ps) do
+                model_loss(generative_model, args.λ, x |> args.device, args.device)
+            end
+            
+            avg_loss = vcat(avg_loss, loss)
+            grad = back(1f0)
+            Flux.Optimise.update!(args.opt, ps, grad)
+
+            # # progress meter
+            # next!(progress; showvalues=[(:Loss, loss)]) 
+
+            train_steps += 1
+        end 
+        avg_loss = mean(avg_loss)
+        @info "Loss (avg): $avg_loss"
+    end
 end
 
 function convert_to_image(x, y_size)

@@ -29,7 +29,7 @@ export CounterfactualData, select_factual, apply_domain_constraints
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel, 
-    FluxModel, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
+    FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
     RTorchModel, PyTorchModel,
     probs, logits
 

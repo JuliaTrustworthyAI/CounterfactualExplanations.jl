@@ -4,7 +4,7 @@ function voronoi(X::AbstractMatrix, y::AbstractVector)
     X = MLJ.table(X)
     y = categorical(y)
     knnc_mach = machine(knnc, X, y) 
-    fit!(knnc_mach)
+    MLJ.fit!(knnc_mach)
     return knnc_mach, y
 end
 
@@ -42,7 +42,7 @@ function plot(
 
     if multi_dim
         knn1, y_train = voronoi(X, ŷ)
-        predict_ = (X::AbstractVector) -> vec(pdf(predict(knn1, MLJ.table(reshape(X,1,2))), levels(y_train)))
+        predict_ = (X::AbstractVector) -> vec(pdf(MLJ.predict(knn1, MLJ.table(reshape(X,1,2))), levels(y_train)))
         Z = [predict_([x,y]) for x=x_range, y=y_range]
     else
         predict_ = function(X::AbstractVector) 

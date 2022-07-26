@@ -21,6 +21,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
+using Pkg; Pkg.activate("docs")
 using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
 theme(:wong)
 www_path = "docs/src/generators/www/"
@@ -245,15 +246,17 @@ Finally, let's take the ideas introduced above to a more complex example. We fir
 
 ```{julia}
 using Flux
-using CounterfactualExplanations.Data: mnist_data, mnist_model
+using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble, mnist_vae
 X, ys = mnist_data()
 model = mnist_model()
 ensemble = mnist_ensemble()
+vae = mnist_vae()
 M = FluxModel(model, likelihood=:classification_multi)
 ```
 
 ```{julia}
 using MLDatasets
+using Flux: DataLoader
 data_test = MNIST(:test)
 test_x, test_y = data_test[:]
 ys_test = Flux.onehotbatch(test_y, 0:9)
@@ -309,10 +312,11 @@ Since the image reconstructions are decent, we can expect the counterfactual sea
 
 ```{julia}
 # Randomly selected factual:
+input_dim = size(X,1)
 factual = 10
 using Random
 Random.seed!(1234)
-x = reshape(X[:,rand(findall(Flux.onecold(ys,1:10).==factual))],input_dim,1)
+x = select_factual(counterfactual_data,rand(findall(Flux.onecold(ys,1:10).==factual)))
 target = 5
 γ = 0.90
 ```
@@ -321,18 +325,26 @@ target = 5
 # Define generator:
 generator = GenericGenerator(;ϵ=1.0,λ=0.0)
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=γ)
+counterfactuals = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true, γ=γ)
 ```
 
 ```{julia}
-p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
-target_prob = round(target_probs(counterfactual)[1],digits=2)
-ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
-p2 = plot(
-  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
-  axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
-)
-plt = plot(p1,p2,size=(500,200))
+using MLDatasets: convert2image
+using Images
+function build_plot(x,counterfactual)
+    x = x[1]
+    p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+    target_prob = round(target_probs(counterfactual)[1],digits=2)
+    ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+    p2 = plot(
+      convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+      axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
+    )
+    plt = plot(p1,p2,size=(500,200))
+    return plt
+end
+plts = build_plot.(collect(x),counterfactuals)
+plt = plot(plts...,layout=(length(plts),1),size=(400,1000))
 savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_latent.png"))
 ```
 
