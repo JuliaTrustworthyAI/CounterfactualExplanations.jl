@@ -33,7 +33,7 @@ An outer constructor method that instantiates a generic generator.
 generator = DiCEGenerator()
 ```
 """
-function DiCEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::Union{AbstractFloat,AbstractVector}=0.1,kwargs...)
+function DiCEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],kwargs...)
     params = DiCEGeneratorParams(;kwargs...)
     DiCEGenerator(loss, complexity, λ, params.ϵ, params.τ)
 end

@@ -399,9 +399,11 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     end
     counterfactual_explanation.s′ = s′ # update counterfactual
     
+    # Updates:
     counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
 end
@@ -409,7 +411,7 @@ end
 function Base.show(io::IO, z::CounterfactualExplanation)
 
     if  z.search[:iteration_count]>0
-        printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
+        printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") after $(total_steps(z)) steps.", bold=true)
     end
 
 end
