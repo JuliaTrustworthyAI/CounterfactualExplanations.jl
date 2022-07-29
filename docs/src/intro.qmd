@@ -97,6 +97,15 @@ Counterfactual outcome: x′=[-0.3211366377381628, 1.4361794029188308], y′=1.0
 Converged: ✅ after 70 steps.
 ```
 
+## Implemented Counterfactual Generators:
+
+Currently the following counterfactual generators are implemented:
+
+- Generic [@wachter2017counterfactual]
+- Greedy [@schut2021generating]
+- DiCE [@mothilal2020explaining]
+- Latent Space Search as in REVISE [@joshi2019towards] and CLUE [@antoran2020getting]
+
 ## Goals and limitations 🎯
 
 The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended, 3) it has not yet gone through a formal review.
