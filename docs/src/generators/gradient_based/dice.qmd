@@ -131,5 +131,17 @@ savefig(plt, joinpath(www_path,"dice.png"))
 
 ![Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.](../www/dice.png){#fig-dice}
 
+```{julia}
+for λ₂ ∈ Λ₂  
+    λ = [0.1, λ₂]
+    generator = DiCEGenerator(λ=λ; ϵ=1)
+    counterfactuals = vcat(
+      counterfactuals...,
+      generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf, convergence=:strict)
+    )
+end
+```
+
+
 # References
 

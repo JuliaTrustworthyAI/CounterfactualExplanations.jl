@@ -18,7 +18,8 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 -   Added support for generating multiple counterfactuals instead of just one.
 -   Implemented DiCE (Mothilal, Sharma, and Tan 2020).
 -   Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE (Slack et al. 2021).
--   Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use `UMAP.jl` to compress the data. The decision boundary is then visualized using its a Voronoi based representation following (**migut2015visualizing?**). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
+-   Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following Migut, Worring, and Veenman (2015). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
+-   Added the option to specify strict convergence: instead of terminating search once the probability threshold *γ* has been reached, search continues as long the objective function still improves.
 
 ## Installation 🚩
 
@@ -130,6 +131,8 @@ If you want to use this codebase, please consider citing:
       version = {0.1.1},
       year = {2022}
     }
+
+Migut, MA, Marcel Worring, and Cor J Veenman. 2015. “Visualizing Multi-Dimensional Decision Boundaries in 2d.” *Data Mining and Knowledge Discovery* 29 (1): 273–95.
 
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
 
