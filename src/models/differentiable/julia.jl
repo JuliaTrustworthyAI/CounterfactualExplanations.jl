@@ -25,7 +25,7 @@ end
 # Methods
 using SliceMap
 function logits(M::FluxModel, X::AbstractArray)
-    return slicemap(x -> M.model(x), X, dims=[1,2])
+    return SliceMap.slicemap(x -> M.model(x), X, dims=[1,2])
 end
 
 function probs(M::FluxModel, X::AbstractArray)
@@ -52,15 +52,15 @@ end
 using Statistics, MLUtils
 using SliceMap
 function logits(M::FluxEnsemble, X::AbstractArray)
-    sum(map(nn -> slicemap(x -> nn(x), X, dims=[1,2]),M.model))/length(M.model)
+    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims=[1,2]),M.model))/length(M.model)
 end
 
 using MLUtils
 function probs(M::FluxEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = sum(map(nn -> slicemap(x -> σ.(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
+        output = sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
     elseif M.likelihood == :classification_multi
-        output = sum(map(nn -> slicemap(x -> softmax(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
+        output = sum(map(nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
     end
     return output
 end
@@ -145,7 +145,7 @@ function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
 end
 
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
-    output = slicemap(x -> probs(M,x), X, dims=[1,2])
+    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
     return output
 end
 
@@ -204,7 +204,7 @@ function logits(M::LogisticModel, X::AbstractArray)
     if ndims(X) == 3
         n = size(X,3)
         reshape(map(x -> (M.W*x .+ M.b)[1], [X[:,:,i] for i ∈ 1:n]),1,1,n)
-        # slicemap(x -> M.W*x .+ M.b, X, dims=(1,2)) 
+        # SliceMap.slicemap(x -> M.W*x .+ M.b, X, dims=(1,2)) 
     else
         M.W*X .+ M.b
     end

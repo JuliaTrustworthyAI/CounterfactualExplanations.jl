@@ -45,6 +45,7 @@ function CounterfactualExplanation(
 ) 
 
     @assert initialization ∈ [:identity, :add_perturbation]  
+    @assert convergence ∈ [:strict, :threshold_only]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
