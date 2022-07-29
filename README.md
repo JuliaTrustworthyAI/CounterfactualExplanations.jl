@@ -17,6 +17,8 @@
 -   Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following Migut, Worring, and Veenman (2015). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
 -   Added the option to specify strict convergence: instead of terminating search once the probability threshold *γ* has been reached, search continues as long the objective function still improves.
 
+**Note**: These features are only available in beta. As this package is under active development, the test coverage sometimes drops in between stable releases. I aim to always achieve good coverage for actual releases.
+
 ## Installation 🚩
 
 The first release of this package is now on [Julia’s General Registry](https://github.com/JuliaRegistries/General) and can be installed as follows:
