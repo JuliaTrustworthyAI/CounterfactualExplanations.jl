@@ -88,14 +88,13 @@ The default VAE parameters describing both the encoder/decoder architecture and 
 @with_kw mutable struct VAEParams <: AbstractGMParams
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization paramater
-    batch_size = 128        # batch size
-    sample_size = 10        # sampling size for output    
-    epochs = 50            # number of epochs
+    batch_size = 50         # batch size
+    epochs = 100            # number of epochs
     seed = 0                # random seed
     cuda = true             # use GPU
     device = gpu            # default device
     latent_dim = 2          # latent dimension
-    hidden_dim = 500        # hidden dimension
+    hidden_dim = 32         # hidden dimension
     verbose_freq = 10       # logging for every verbose_freq iterations
     nll = mse               # negative log likelihood -log(p(x|z)): MSE for Gaussian, logit binary cross-entropy for Bernoulli
     opt = ADAM(η)           # optimizer
@@ -179,6 +178,7 @@ end
 
 using Statistics
 function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
+    
     # load hyperparamters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
@@ -194,7 +194,7 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
-        # progress = Progress(length(loader))
+        # progress = Progress(length(loader); desc="Training VAE - round $epoch:")
         avg_loss = []
         for (x, _) in loader 
             
@@ -218,6 +218,45 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     # Set training status to true:
     generative_model.trained = true;
     
+end
+
+function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs=10)
+     
+    # load hyperparamters
+    args = generative_model.params
+    args.seed > 0 && Random.seed!(args.seed)
+
+    # load data
+    loader = get_data(X, y, args.batch_size)
+    
+    # parameters
+    ps = Flux.params(generative_model)
+
+    # training
+    train_steps = 0
+    @info "Start training, total $(n_epochs) epochs"
+    for epoch = 1:n_epochs
+        @info "Epoch $(epoch)"
+        # progress = Progress(length(loader); desc="Retraining VAE - round $epoch:")
+        avg_loss = []
+        for (x, _) in loader 
+            
+            loss, back = Flux.pullback(ps) do
+                model_loss(generative_model, args.λ, x |> args.device, args.device)
+            end
+            
+            avg_loss = vcat(avg_loss, loss)
+            grad = back(1f0)
+            Flux.Optimise.update!(args.opt, ps, grad)
+
+            # # progress meter
+            # next!(progress; showvalues=[(:Loss, loss)]) 
+
+            train_steps += 1
+        end 
+        avg_loss = mean(avg_loss)
+        @info "Loss (avg): $avg_loss"
+    end
 end
 
 function convert_to_image(x, y_size)

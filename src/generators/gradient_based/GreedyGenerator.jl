@@ -3,7 +3,8 @@ mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
-    δ::AbstractFloat # perturbation size
+    ϵ::AbstractFloat # learning rate
+    τ::AbstractFloat # tolerance for convergence
     n::Int # maximum number of times any feature can be changed
     passes::Int # number of full passes (`n` times) through all features
 end
@@ -11,7 +12,8 @@ end
 # API streamlining:
 using Parameters
 @with_kw struct GreedyGeneratorParams
-    δ::Union{AbstractFloat,Nothing}=nothing
+    ϵ::Union{AbstractFloat,Nothing}=nothing
+    τ::AbstractFloat=1e-5
     n::Union{Int,Nothing}=nothing
 end
 
@@ -19,7 +21,7 @@ end
     GreedyGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
-        δ::Union{AbstractFloat,Nothing}=nothing,
+        ϵ::Union{AbstractFloat,Nothing}=nothing,
         n::Union{Int,Nothing}=nothing
     )
 
@@ -35,15 +37,15 @@ function GreedyGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Functi
 
     # Load hyperparameters:
     params = GreedyGeneratorParams(;kwargs...)
-    δ = params.δ
+    ϵ = params.ϵ
     n = params.n
-    if all(isnothing.([δ, n])) 
-        δ = 0.1
+    if all(isnothing.([ϵ, n])) 
+        ϵ = 0.1
         n = 10
-    elseif isnothing(δ) && !isnothing(n)
-        δ = 1/n
-    elseif !isnothing(δ) && isnothing(n)
-        n = 1/δ
+    elseif isnothing(ϵ) && !isnothing(n)
+        ϵ = 1/n
+    elseif !isnothing(ϵ) && isnothing(n)
+        n = 1/ϵ
     end
 
     # Sanity checks:
@@ -54,7 +56,7 @@ function GreedyGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Functi
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 
-    generator = GreedyGenerator(loss,complexity,λ,δ,n,0)
+    generator = GreedyGenerator(loss,complexity,λ,ϵ,params.τ,n,0)
 
     return generator
 end
@@ -76,7 +78,7 @@ function generate_perturbations(generator::GreedyGenerator, counterfactual_state
     𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
     𝐠ₜ[counterfactual_state.params[:mutability] .== :none] .= 0
     function choose_most_salient(x)
-        s = -((abs.(x).==maximum(abs.(x),dims=1)) .* generator.δ .* sign.(x))
+        s = -((abs.(x).==maximum(abs.(x),dims=1)) .* generator.ϵ .* sign.(x))
         non_zero_elements = findall(vec(s).!=0)
         # If more than one equal, randomise:
         if length(non_zero_elements) > 1
@@ -98,7 +100,7 @@ The default method to return search state dependent mutability constraints for a
 """
 function mutability_constraints(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
     mutability = counterfactual_state.params[:mutability]
-    if all(counterfactual_state.search[:times_changed_features] .>= generator.n)
+    if all(counterfactual_state.search[:times_changed_features] .>= generator.n) 
         generator.passes += 1
         generator.n += generator.n/generator.passes
         @info "Steps exhausted for all mutable features. Increasing number of allowed steps to $(generator.n). Restoring initial mutability."
@@ -107,13 +109,3 @@ function mutability_constraints(generator::GreedyGenerator, counterfactual_state
     mutability[counterfactual_state.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
     return mutability
 end 
-
-"""
-    conditions_satisified(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
-
-If all features have been perturbed `n` times already, then the search terminates.
-"""
-function conditions_satisified(generator::GreedyGenerator, counterfactual_state::CounterfactualState.State)
-    status = all(map(times_changed -> all(times_changed.>=generator.n), counterfactual_state.search[:times_changed_features]))
-    return status
-end

@@ -24,7 +24,7 @@ end
 
     # Select factual:
     idx = rand(1:length(xs))
-    @test select_factual(counterfactual_data, idx) == counterfactual_data.X[:,idx]
+    @test select_factual(counterfactual_data, idx) == counterfactual_data.X[:,idx][:,:]
 
     # Mutability:
     𝑪 = CounterfactualExplanations.DataPreprocessing.mutability_constraints(counterfactual_data)

@@ -14,7 +14,7 @@ mutable struct CounterfactualExplanation
     initialization::Symbol
 end
 
-using Statistics
+using Statistics, Flux
 """
     CounterfactualExplanation(
         x::Union{AbstractArray,Int}, 
@@ -40,10 +40,12 @@ function CounterfactualExplanation(
     T::Int=100,
     latent_space::Union{Nothing, Bool}=nothing,
     num_counterfactuals::Int=1,
-    initialization::Symbol=:add_perturbation
+    initialization::Symbol=:add_perturbation,
+    convergence::Symbol=:threshold_only
 ) 
 
     @assert initialization ∈ [:identity, :add_perturbation]  
+    @assert convergence ∈ [:strict, :threshold_only]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -65,7 +67,8 @@ function CounterfactualExplanation(
         :γ => γ,
         :T => T,
         :mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
-        :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_)
+        :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
+        :convergence => convergence
     )
 
     # Latent space:
@@ -80,6 +83,11 @@ function CounterfactualExplanation(
 
     # Encode target:
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
+
+    # Potential neighbours:
+    ids = getindex.(findall(data.y.==counterfactual_explanation.target_encoded[:,:,1]),2)
+    candidates = select_factual(data,rand(ids,50))
+    counterfactual_explanation.params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
 
     # Check for redundancy:
     if threshold_reached(counterfactual_explanation)
@@ -104,10 +112,10 @@ function CounterfactualExplanation(
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
-        :times_changed_features => zeros(size(counterfactual_explanation.s′)),
+        :times_changed_features => zeros(size(counterfactual_explanation.f(counterfactual_explanation.s′))),
         :path => [counterfactual_explanation.s′],
         :terminated => threshold_reached(counterfactual_explanation),
-        :converged => threshold_reached(counterfactual_explanation),
+        :converged => converged(counterfactual_explanation),
     )
 
     return counterfactual_explanation
@@ -237,14 +245,25 @@ end
 
 A convenience method to determine if the counterfactual search has terminated.
 """
-terminated(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:terminated]
+function terminated(counterfactual_explanation::CounterfactualExplanation)
+    converged(counterfactual_explanation) || steps_exhausted(counterfactual_explanation)
+end
 
 """
     converged(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method to determine if the counterfactual search has converged.
 """
-converged(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:converged]
+function converged(counterfactual_explanation::CounterfactualExplanation)
+    # If strict, also look at gradient and other generator-specific conditions.
+    # Otherwise only check if probability threshold has been reached.
+    counterfactual_state = get_counterfactual_state(counterfactual_explanation)
+    if counterfactual_explanation.params[:convergence] == :strict
+        threshold_reached(counterfactual_explanation) && Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
+    elseif counterfactual_explanation.params[:convergence] == :threshold_only
+        threshold_reached(counterfactual_explanation)
+    end
+end
 
 """
     total_steps(counterfactual_explanation::CounterfactualExplanation)
@@ -400,18 +419,31 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_explanation.s′ = s′ # update counterfactual
     
     # Updates:
-    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
-    counterfactual_explanation.search[:converged] = threshold_reached(counterfactual_explanation)
-    counterfactual_explanation.search[:terminated] = counterfactual_explanation.search[:converged] || steps_exhausted(counterfactual_explanation) || Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
+    counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
+    counterfactual_explanation.search[:converged] = converged(counterfactual_explanation)
+    counterfactual_explanation.search[:terminated] = terminated(counterfactual_explanation)
+
 end
 
 function Base.show(io::IO, z::CounterfactualExplanation)
 
     if  z.search[:iteration_count]>0
-        printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌") ", bold=true)
+        if z.params[:convergence] == :strict
+            p_path = target_probs_path(z)
+            n_reached = findall([all(p .>= z.params[:γ]) for p in p_path])
+            if length(n_reached) > 0 
+                printstyled(io, "Threshold reached: $(all(threshold_reached(z)) ? "✅"  : "❌")", bold=true)
+                print(" after $(first(n_reached)) steps.\n")
+            end
+            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold=true)
+            print(" after $(total_steps(z)) steps.\n")
+        else
+            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold=true)
+            print(" after $(total_steps(z)) steps.\n")
+        end
     end
 
 end

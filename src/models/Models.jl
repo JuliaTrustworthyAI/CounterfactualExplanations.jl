@@ -7,7 +7,7 @@ using ..Interoperability, ..DataPreprocessing
 include("base.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel, 
-    FluxModel, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
+    FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
     RTorchModel, PyTorchModel,
     probs, logits
 

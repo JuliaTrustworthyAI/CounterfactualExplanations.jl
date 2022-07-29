@@ -11,7 +11,7 @@ mutable struct CounterfactualData
     categorical::Union{Vector{Int},Nothing}
     continuous::Union{Vector{Int},Nothing}
     standardize::Bool
-    dt::StatsBase.AbstractDataTransform
+    dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
     function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
@@ -67,7 +67,11 @@ function CounterfactualData(
     end
 
     # Data transformer:
-    dt = fit(ZScoreTransform, X, dims=2)
+    try
+        global dt = fit(ZScoreTransform, X, dims=2)
+    catch
+        global dt = nothing
+    end 
 
     # Compressor:
     compressor = nothing
@@ -85,7 +89,7 @@ end
 
 A convenience method that can be used to access the the feature matrix.
 """
-select_factual(counterfactual_data::CounterfactualData, index::Int) = selectdim(counterfactual_data.X,2,index)
+select_factual(counterfactual_data::CounterfactualData, index::Int) = reshape(collect(selectdim(counterfactual_data.X,2,index)),:,1)
 select_factual(counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}) = zip([select_factual(counterfactual_data, i) for i in index])
 
 """
