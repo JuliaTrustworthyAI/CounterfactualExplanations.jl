@@ -3,9 +3,8 @@ using Test
 using Random
 Random.seed!(0)
 
-using Logging
 is_logging(io) = isa(io, Base.TTY) == false || (get(ENV, "CI", nothing) == "true")
-if is_logging()
+if is_logging(stderr)
     Base.global_logger(NullLogger())
 end
 
