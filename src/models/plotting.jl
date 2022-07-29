@@ -22,8 +22,10 @@ function plot(
     ŷ = Models.probs(M, X) # true predictions
     if size(ŷ,1) > 1
         ŷ = vec(Flux.onecold(ŷ, 1:size(ŷ,1)))
+    else 
+        ŷ = vec(ŷ)
     end
-    
+        
     X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data)
     
     # Surface range:
