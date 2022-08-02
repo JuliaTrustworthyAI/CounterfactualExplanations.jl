@@ -27,7 +27,7 @@ function embed(data::CounterfactualData, X::AbstractArray=nothing; dim_red::Symb
         else
             @info "Training model to compress data."
             if dim_red == :umap
-                n_neighbors = minimum([size(X_train,2)-1,15])
+                n_neighbors = minimum([size(X_train,2)-1,5])
                 tfn = UMAP_(X_train,2;n_neighbors=n_neighbors)
             end
             if dim_red == :pca
@@ -50,20 +50,20 @@ function embed(data::CounterfactualData, X::AbstractArray=nothing; dim_red::Symb
 end
 
 using Random
-function prepare_for_plotting(data::CounterfactualData)
+function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol=:pca)
     X, y = unpack(data)
     y = vec(y)
     @assert size(X,1) != 1 "Don't know how to plot 1-dimensional data."
     multi_dim = size(X,1) > 2
     if multi_dim
-        X = embed(data, X)
+        X = embed(data, X; dim_red=dim_red)
     end
     return X', y, multi_dim
 end
 
 using Plots
 import Plots: scatter!
-function scatter!(data::CounterfactualData; kwargs...)
-    X, y, _ = prepare_for_plotting(data)
+function scatter!(data::CounterfactualData; dim_red::Symbol=:pca, kwargs...)
+    X, y, _ = prepare_for_plotting(data; dim_red=dim_red)
     Plots.scatter!(X[:,1],X[:,2],group=Int.(y),color=Int.(y); kwargs...)
 end

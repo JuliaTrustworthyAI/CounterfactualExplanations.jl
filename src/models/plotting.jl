@@ -14,7 +14,7 @@ using Flux
 function plot(
     M::AbstractFittedModel,data::DataPreprocessing.CounterfactualData;
     target::Union{Nothing,Real}=nothing,
-    colorbar=true,title="",length_out=50,zoom=-1,xlims=nothing,ylims=nothing,linewidth=0.1,alpha=1.0,
+    colorbar=true,title="",length_out=50,zoom=-1,xlims=nothing,ylims=nothing,linewidth=0.1,alpha=1.0,dim_red::Symbol=:pca,
     kwargs...
 )
     
@@ -26,7 +26,7 @@ function plot(
         ŷ = vec(ŷ)
     end
         
-    X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data)
+    X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data; dim_red=dim_red)
     
     # Surface range:
     if isnothing(xlims)
@@ -61,7 +61,11 @@ function plot(
 
     if isnothing(target) 
         @info "No target label supplied, using first."
-        target = multi_dim ? 1 : 2
+        target = 1
+    end
+
+    if !multi_dim
+        target += 1
     end
     
     # Contour:
@@ -74,6 +78,6 @@ function plot(
     )
     
     # Samples:
-    scatter!(data; alpha=alpha, kwargs...)
+    scatter!(data; dim_red=dim_red, alpha=alpha, kwargs...)
 
 end
