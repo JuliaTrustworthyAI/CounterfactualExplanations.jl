@@ -119,14 +119,18 @@ The default method to compute the gradient of the counterfactual search objectiv
 """
 ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
 
+using Flux
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
 function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) 
-    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
-    Δs′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    grads = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
+    s′ = deepcopy(counterfactual_state.s′)
+    propsed_s′ = deepcopy(counterfactual_state.s′)
+    Flux.Optimise.update!(generator.opt, propsed_s′, grads)
+    Δs′ = propsed_s′ - s′ # gradient step
     return Δs′
 end
 
