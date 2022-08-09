@@ -148,10 +148,10 @@ has_pretrained_generative_model(counterfactual_data::CounterfactualData) = !isno
 
 Returns the underlying generative model. If there is no existing model available, the default generative model (VAE) is used. Otherwise it is expected that existing generative model has been pre-trained or else a warning is triggered.
 """
-function get_generative_model(counterfactual_data::CounterfactualData)
+function get_generative_model(counterfactual_data::CounterfactualData;kwargs...)
     if !has_pretrained_generative_model(counterfactual_data) 
         @info "No pre-trained generative model found. Using default generative model. Begin training."
-        counterfactual_data.generative_model = GenerativeModels.VAE(input_dim(counterfactual_data))
+        counterfactual_data.generative_model = GenerativeModels.VAE(input_dim(counterfactual_data);kwargs...)
         X = counterfactual_data.X
         y = counterfactual_data.y
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
