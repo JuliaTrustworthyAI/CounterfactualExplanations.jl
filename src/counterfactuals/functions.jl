@@ -96,7 +96,7 @@ function CounterfactualExplanation(
 
     # Latent space:
     if counterfactual_explanation.latent_space
-        # @info "Searching in latent space using generative model."
+        @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
         # map counterfactual to latent space: s′=z′∼p(z|x)
         counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.s′)
