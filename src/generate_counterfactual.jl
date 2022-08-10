@@ -43,13 +43,14 @@ function generate_counterfactual(
     x::AbstractArray, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
     γ::AbstractFloat=0.75, T::Int=1000, latent_space::Union{Nothing, Bool}=nothing, num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    convergence::Symbol=:threshold_only
+    convergence::Symbol=:threshold_only,
+    generative_model_params::NamedTuple=(;),
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(
         x=x, target=target, data=data, M=M, generator=generator, 
         γ=γ, T=T, latent_space=latent_space, num_counterfactuals=num_counterfactuals,
-        initialization=initialization, convergence=convergence
+        initialization=initialization, convergence=convergence, generative_model_params=generative_model_params
     )
 
     # Search:

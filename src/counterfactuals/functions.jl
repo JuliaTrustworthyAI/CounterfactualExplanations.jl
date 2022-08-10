@@ -41,7 +41,8 @@ function CounterfactualExplanation(
     latent_space::Union{Nothing, Bool}=nothing,
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    convergence::Symbol=:threshold_only
+    convergence::Symbol=:threshold_only,
+    generative_model_params::NamedTuple=(;),
 ) 
 
     @assert initialization ∈ [:identity, :add_perturbation]  
@@ -86,7 +87,8 @@ function CounterfactualExplanation(
 
     # Potential neighbours:
     ids = getindex.(findall(data.y.==counterfactual_explanation.target_encoded[:,:,1]),2)
-    candidates = select_factual(data,rand(ids,50))
+    n_candidates = minimum([size(data.y,2),1000])
+    candidates = select_factual(data,rand(ids,n_candidates))
     counterfactual_explanation.params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
 
     # Check for redundancy:
@@ -97,7 +99,7 @@ function CounterfactualExplanation(
     # Latent space:
     if counterfactual_explanation.latent_space
         @info "Searching in latent space using generative model."
-        generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data)
+        generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data; generative_model_params...)
         # map counterfactual to latent space: s′=z′∼p(z|x)
         counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.s′)
 

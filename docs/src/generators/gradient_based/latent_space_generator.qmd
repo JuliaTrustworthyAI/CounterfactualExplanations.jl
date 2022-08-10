@@ -117,7 +117,7 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 generator = GenericGenerator()
 # Generate recourse:
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
-counterfactual_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
+counterfactual_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=4, epochs=200))
 ```
 
 ```{julia}
