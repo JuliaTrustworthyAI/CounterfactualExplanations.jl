@@ -62,7 +62,7 @@ function CounterfactualExplanation(
 
     # Parameters:
     params = Dict(
-        :γ => generator.decision_threshold,
+        :γ => isnothing(generator.decision_threshold) ? 0.5 : generator.decision_threshold,
         :T => T,
         :mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
         :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
@@ -435,7 +435,7 @@ end
 function Base.show(io::IO, z::CounterfactualExplanation)
 
     if  z.search[:iteration_count]>0
-        if isnothing(z.params[γ])
+        if isnothing(z.params[:γ])
             p_path = target_probs_path(z)
             n_reached = findall([all(p .>= z.params[:γ]) for p in p_path])
             if length(n_reached) > 0 
