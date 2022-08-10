@@ -3,6 +3,7 @@ mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
+    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
     ϵ::AbstractFloat # learning rate
     τ::AbstractFloat # tolerance for convergence
     n::Int # maximum number of times any feature can be changed
@@ -33,7 +34,14 @@ An outer constructor method that instantiates a greedy generator.
 generator = GreedyGenerator()
 ```
 """
-function GreedyGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::AbstractFloat=0.0,kwargs...)
+function GreedyGenerator(
+    ;
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::AbstractFloat=0.0,
+    decision_threshold=0.5,
+    kwargs...
+)
 
     # Load hyperparameters:
     params = GreedyGeneratorParams(;kwargs...)
@@ -56,7 +64,7 @@ function GreedyGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Functi
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 
-    generator = GreedyGenerator(loss,complexity,λ,ϵ,params.τ,n,0)
+    generator = GreedyGenerator(loss,complexity,λ,decision_threshold,ϵ,params.τ,n,0)
 
     return generator
 end

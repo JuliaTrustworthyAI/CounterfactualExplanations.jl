@@ -117,7 +117,9 @@ The default method to compute the gradient of the complexity penalty at the curr
 
 The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 """
-∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
+function ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
+    ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
+end
 
 using Flux
 """

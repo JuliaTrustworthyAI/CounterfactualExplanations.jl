@@ -36,16 +36,13 @@ function CounterfactualExplanation(
     data::CounterfactualData,  
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
-    γ::AbstractFloat=0.75, 
     T::Int=100,
     latent_space::Union{Nothing, Bool}=nothing,
     num_counterfactuals::Int=1,
-    initialization::Symbol=:add_perturbation,
-    convergence::Symbol=:threshold_only
+    initialization::Symbol=:add_perturbation
 ) 
 
     @assert initialization ∈ [:identity, :add_perturbation]  
-    @assert convergence ∈ [:strict, :threshold_only]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -64,11 +61,10 @@ function CounterfactualExplanation(
 
     # Parameters:
     params = Dict(
-        :γ => γ,
+        :γ => generator.decision_threshold,
         :T => T,
         :mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
         :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
-        :convergence => convergence
     )
 
     # Latent space:
@@ -258,9 +254,9 @@ function converged(counterfactual_explanation::CounterfactualExplanation)
     # If strict, also look at gradient and other generator-specific conditions.
     # Otherwise only check if probability threshold has been reached.
     counterfactual_state = get_counterfactual_state(counterfactual_explanation)
-    if counterfactual_explanation.params[:convergence] == :strict
+    if isnothing(counterfactual_explanation.generator.decision_threshold)
         threshold_reached(counterfactual_explanation) && Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
-    elseif counterfactual_explanation.params[:convergence] == :threshold_only
+    else
         threshold_reached(counterfactual_explanation)
     end
 end
@@ -360,7 +356,8 @@ end
 A convenience method that determines of the predefined threshold for the target class probability has been reached.
 """
 function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
-    all(target_probs(counterfactual_explanation) .>= counterfactual_explanation.params[:γ])
+    γ = isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 : counterfactual_explanation.generator.decision_threshold
+    all(target_probs(counterfactual_explanation) .>= γ)
 end
 
 """
@@ -376,11 +373,16 @@ steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counter
 A subroutine that is used to take a snapshot of the current counterfactual search state. This snapshot is passed to the counterfactual generator.
 """
 function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
+
     counterfactual_state = CounterfactualState.State(
         counterfactual_explanation.x,
         counterfactual_explanation.s′,
         counterfactual_explanation.f,
+        counterfactual_label(counterfactual_explanation),
+        counterfactual_explanation.target,
         counterfactual_explanation.target_encoded,
+        counterfactual_explanation.params[:γ],
+        threshold_reached(counterfactual_explanation),
         counterfactual_explanation.M,
         counterfactual_explanation.params,
         counterfactual_explanation.search
@@ -431,7 +433,7 @@ end
 function Base.show(io::IO, z::CounterfactualExplanation)
 
     if  z.search[:iteration_count]>0
-        if z.params[:convergence] == :strict
+        if isnothing(z.params[γ])
             p_path = target_probs_path(z)
             n_reached = findall([all(p .>= z.params[:γ]) for p in p_path])
             if length(n_reached) > 0 

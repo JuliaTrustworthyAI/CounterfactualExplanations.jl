@@ -2,10 +2,11 @@ using LinearAlgebra
 using Flux
 
 # -------- Wachter et al (2018): 
-struct GenericGenerator <: AbstractGradientBasedGenerator
+mutable struct GenericGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
+    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
     opt::Any # optimizer
     τ::AbstractFloat # tolerance for convergence
 end
@@ -34,7 +35,14 @@ An outer constructor method that instantiates a generic generator.
 generator = GenericGenerator()
 ```
 """
-function GenericGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::AbstractFloat=0.1,kwargs...)
+function GenericGenerator(
+    ;
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::AbstractFloat=0.1,
+    decision_threshold=0.5,
+    kwargs...
+)
     params = GenericGeneratorParams(;kwargs...)
-    GenericGenerator(loss, complexity, λ, params.opt, params.τ)
+    GenericGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end
