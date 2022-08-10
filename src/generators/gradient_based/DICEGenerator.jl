@@ -1,10 +1,11 @@
 using LinearAlgebra
 
 # -------- Following Mothilal et al. (2020): 
-struct DiCEGenerator <: AbstractGradientBasedGenerator
+mutable struct DiCEGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::Union{AbstractFloat,AbstractVector} # strength of penalty
+    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
     opt::Any # learning rate
     τ::AbstractFloat # tolerance for convergence
 end
@@ -33,9 +34,16 @@ An outer constructor method that instantiates a generic generator.
 generator = DiCEGenerator()
 ```
 """
-function DiCEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],kwargs...)
+function DiCEGenerator(
+    ;
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=0.5,
+    kwargs...
+)
     params = DiCEGeneratorParams(;kwargs...)
-    DiCEGenerator(loss, complexity, λ, params.opt, params.τ)
+    DiCEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end
 
 # Complexity:

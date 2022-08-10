@@ -65,10 +65,7 @@ end
 ```
 
 ```{julia}
-using LaplaceRedux
-model = Laplace(nn, λ=0.1)
-LaplaceRedux.fit!(model, data)
-M = LaplaceReduxModel(model)
+M = FluxModel(nn)
 ```
 
 ```{julia}

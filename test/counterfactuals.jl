@@ -9,8 +9,7 @@ using CounterfactualExplanations.Models
 using CounterfactualExplanations.Counterfactuals
 using CounterfactualExplanations.Generators
 using Random, LinearAlgebra, MLUtils, Flux
-Random.seed!(1234)
-max_reconstruction_error = 2.0
+max_reconstruction_error = Inf
 init_perturbation = 2.0
 
 ### Load synthetic data and models
@@ -44,7 +43,7 @@ generators = Dict(
 #     y = round(p_[1])
 #     target = y ==0 ? 1 : 0 
 # end
-# counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, num_counterfactuals=2)
+# counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=2)
 
 # LOOP:
 for (key, generator_) ∈ generators
@@ -52,7 +51,7 @@ for (key, generator_) ∈ generators
     @testset "$name" begin
     
         # Generator:
-        generator = generator_()
+        generator = deepcopy(generator_())
 
         @testset "Models for synthetic data" begin
         
@@ -72,7 +71,6 @@ for (key, generator_) ∈ generators
                             x = select_factual(counterfactual_data,rand(1:size(X)[2]))
                             
                             @testset "Predetermined outputs" begin
-                                γ = 0.9
                                 p_ = probs(M, x)
                                 if size(p_)[1] > 1
                                     y = Flux.onecold(p_,unique(ys_cold))
@@ -81,7 +79,7 @@ for (key, generator_) ∈ generators
                                     y = round(p_[1])
                                     target = y ==0 ? 1 : 0 
                                 end
-                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
                                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                     @test counterfactual.latent_space
                                 end
@@ -115,6 +113,7 @@ for (key, generator_) ∈ generators
                     
                                 # Threshold reached if converged:
                                 γ = 0.9
+                                generator.decision_threshold = γ
                                 p_ = probs(M, x)
                                 if size(p_)[1] > 1
                                     y = Flux.onecold(p_,unique(ys_cold))
@@ -123,7 +122,7 @@ for (key, generator_) ∈ generators
                                     target = round(p_[1])==0 ? 1 : 0 
                                 end
                                 T = 1000
-                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
+                                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
                                 import CounterfactualExplanations.Counterfactuals: counterfactual_probability
                                 @test !converged(counterfactual) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                 @test !converged(counterfactual) || length(path(counterfactual)) <= T
@@ -161,8 +160,9 @@ for (key, generator_) ∈ generators
             
             @testset "Predetermined outputs" begin
                 γ = 0.9
+                generator.decision_threshold = γ
                 target = round(probs(M, x)[1])==0 ? 1 : 0 
-                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ)
+                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
                 @test counterfactual.target == target
                 @test counterfactual.x == x
             end
@@ -171,6 +171,7 @@ for (key, generator_) ∈ generators
     
                 # Already in target and exceeding threshold probability:
                 γ = probs(M, x)[1]
+                generator.decision_threshold = γ
                 target = round(γ)
                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
                 @test length(path(counterfactual))==1
@@ -184,9 +185,10 @@ for (key, generator_) ∈ generators
     
                 # Threshold reached if converged:
                 γ = 0.9
+                generator.decision_threshold = γ
                 target = round(probs(M, x)[1])==0 ? 1 : 0 
                 T = 1000
-                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; γ=γ, T=T)
+                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
                 import CounterfactualExplanations.Counterfactuals: counterfactual_probability
                 @test !converged(counterfactual) || (target_probs(counterfactual)[1] >= γ) # either not converged or threshold reached
                 @test !converged(counterfactual) || length(path(counterfactual)) <= T
