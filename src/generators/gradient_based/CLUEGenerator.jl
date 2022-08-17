@@ -1,18 +1,19 @@
 using LinearAlgebra
 
 # -------- Antoran et al (2020): 
-struct CLUEGenerator <: AbstractLatentSpaceGenerator
+mutable struct CLUEGenerator <: AbstractLatentSpaceGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
-    ϵ::AbstractFloat # learning rate
+    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
+    opt::Any # learning rate
     τ::AbstractFloat # tolerance for convergence
 end
 
 # API streamlining:
 using Parameters
 @with_kw struct CLUEGeneratorParams
-    ϵ::AbstractFloat=0.1
+    opt::Any=Flux.Optimise.Descent()
     τ::AbstractFloat=1e-5
 end
 
@@ -22,7 +23,7 @@ end
         loss::Symbol=:logitbinarycrossentropy,
         complexity::Function=norm,
         λ::AbstractFloat=0.1,
-        ϵ::AbstractFloat=0.1,
+        opt::Any=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
     )
 
@@ -33,10 +34,17 @@ An outer constructor method that instantiates a CLUE generator.
 generator = CLUEGenerator()
 ```
 """
-function CLUEGenerator(;loss::Union{Nothing,Symbol}=nothing,complexity::Function=norm,λ::AbstractFloat=0.1,kwargs...)
+function CLUEGenerator(
+    ;
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::AbstractFloat=0.1,
+    decision_threshold=0.5,
+    kwargs...
+)
     @info "CLUE is meant to be used with Bayesian classifiers."
     params = CLUEGeneratorParams(;kwargs...)
-    CLUEGenerator(loss, complexity, λ, params.ϵ, params.τ)
+    CLUEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end
 
 # using Flux

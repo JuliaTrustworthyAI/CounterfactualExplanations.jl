@@ -62,6 +62,8 @@ function plot(
     if isnothing(target) 
         @info "No target label supplied, using first."
         target = multi_dim ? 1 : 2
+    else
+        target = multi_dim ? target : 2
     end
     
     # Contour:

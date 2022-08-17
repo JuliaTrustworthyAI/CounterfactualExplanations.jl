@@ -23,7 +23,6 @@ function ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualS
         getfield(Models, :logits)(counterfactual_state.M, counterfactual_state.f(counterfactual_state.s′)), 
         counterfactual_state.target_encoded
     )    
-
     return loss
 end
 
