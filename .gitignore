@@ -26,6 +26,7 @@ Manifest.toml
 # Other:
 *.DS_Store
 dev/artifacts/data/
+dev/resources/build
 .vscode/
 *.Rproj
 .Rproj.user

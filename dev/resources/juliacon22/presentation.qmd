@@ -1,0 +1,1117 @@
+---
+title: Explaining Black-Box Models through Counterfactuals
+subtitle: JuliaCon 2022
+author: Patrick Altmeyer
+format: 
+  revealjs:
+    logo: www/delft_logo.png
+    footer: |
+      Explaining Black-Box Models through Counterfactuals -- JuliaCon 2022 -- Patrick Altmeyer
+    self-contained: true
+    smaller: true
+    scrollable: true
+    preview-links: auto
+    slide-number: true
+    transition: slide
+    background-transition: fade
+    fig-align: center
+bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+execute:
+  eval: false
+  echo: true
+---
+
+```{julia}
+#| echo: false
+using Pkg; Pkg.activate("dev")
+using Plots, PlotThemes
+theme(:wong)
+include("dev/utils.jl")
+www_path = "dev/resources/juliacon22/www"
+```
+
+
+## Overview
+
+:::{.incremental}
+- The Problem with Black Boxes ⬛
+    - What are black-box models? Why do we need explainability?
+- Enter: Counterfactual Explanations 🔮
+    - What are they? What are they not?
+- Counterfactual Explanations in Julia (and beyond!) 📦
+    - Introducing: [`CounterfactualExplanations.jl`](https://github.com/pat-alt/CounterfactualExplanations.jl){preview-link="false"}
+    - Package architecture
+    - Usage examples - what can it do?
+- Goals and Ambitions 🎯
+    - Future developments - where can it go?
+    - Contributor's guide
+:::
+
+# The Problem with Black Boxes ⬛
+
+## Short Lists, Pandas and Gibbons
+
+> From **human** to **data-driven** decision-making ...
+
+:::{.incremental}
+
+- Black-box models like deep neural networks are being deployed virtually everywhere.
+- Includes safety-critical and public domains: health care, autonomous driving, finance, ... 
+- More likely than not that your loan or employment application is handled by an algorithm.
+
+::: 
+
+. . .
+
+> ... where black boxes are recipe for disaster.
+
+:::{.incremental}
+- We have no idea what exactly we're cooking up ...
+    - Have you received an automated rejection email? Why didn't you "mEet tHe sHoRtLisTiNg cRiTeRia"? 🙃
+- ... but we do know that some of it is junk. 
+:::
+
+. . .
+
+![Adversarial attacks on deep neural networks. Source: @goodfellow2014explaining](www/panda.png){#fig-panda width=50%}
+
+## "Weapons of Math Destruction"
+
+::::{.columns}
+
+:::{.column width="70%"}
+
+> “You cannot appeal to (algorithms). They do not listen. Nor do they bend.”
+>
+> — Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
+
+![Cathy O’Neil. Source: Cathy O’Neil a.k.a. [mathbabe](https://mathbabe.org/contact/).](www/cathy.webp){#fig-cathy width=60%}
+
+:::
+
+:::{.column width="30%"}
+
+:::{.incremental}
+- If left unchallenged, these properties of black-box models can create undesirable dynamics in automated decision-making systems:
+  - Human operators in charge of the system have to rely on it blindly.
+  - Individuals subject to the decisions generally have no way to challenge their outcome.
+:::
+
+:::
+
+::::
+
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Ground Truthing
+:::
+
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Counterfactual Reasoning
+:::
+:::
+
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack style="text-align: center;"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Ground Truthing
+:::
+
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Counterfactual Reasoning
+:::
+:::
+
+#### Current Standard in ML
+
+We typically want to maximize the likelihood of observing $\mathcal{D}_n$ under given parameters [@murphy2022probabilistic]:
+
+$$
+\theta^* = \arg \max_{\theta} p(\mathcal{D}_n|\theta)
+$$ {#eq-mle}
+
+Compute an MLE (or MAP) point estimate $\hat\theta = \mathbb{E} \theta^*$ and use **plugin** approximation for prediction:
+
+$$
+p(y|x,\mathcal{D}_n) \approx p(y|x,\hat\theta)
+$$ {#eq-plugin}
+
+- In an ideal world we can just use parsimonious and interpretable models like GLM [@rudin2019stop], for which in many cases we can rely on asymptotic properties of $\theta$ to quantify uncertainty.
+- In practice these models often have performance limitations.
+- Black-box models like deep neural networks are popular, but they are also the very opposite of parsimonious.
+
+
+#### Objective
+
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack style="text-align: center;"}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Ground Truthing
+:::
+
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center;"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Counterfactual Reasoning
+:::
+:::
+
+#### Objective
+
+. . .
+
+> [...] deep neural networks are typically very underspecified by the available data, and [...] parameters [therefore] correspond to a diverse variety of compelling explanations for the data. 
+> [@wilson2020case]
+
+In this setting it is often crucial to treat models probabilistically!
+
+$$
+p(y|x,\mathcal{D}_n) = \int p(y|x,\theta)p(\theta|\mathcal{D}_n)d\theta
+$$ {#eq-bma}
+
+. . .
+
+> Probabilistic models covered briefly today. More in my other talk on Laplace Redux ...
+
+## Towards Trustworthy AI {auto-animate=true auto-animate-easing="ease-in-out"}
+
+::: {.r-hstack}
+::: {data-id="box3" style="background: #389826; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Ground Truthing
+:::
+
+::: {data-id="box2" style="background: #cb3c33; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; opacity: 0.5;"}
+Probabilistic Models
+:::
+
+::: {data-id="box1" style="background: #9558b2; width: 150px; height: 150px; border-radius: 50%; display: grid; place-content: center; text-align: center; align-items: center;"}
+Counterfactual Reasoning
+:::
+:::
+
+> We can now make predictions -- great! But do we know how the predictions are actually being made?
+
+. . .
+
+#### Objective
+
+With the model trained for its task, we are interested in understanding how its predictions change in response to input changes.
+
+$$
+\nabla_x p(y|x,\mathcal{D}_n;\hat\theta)
+$$ {#eq-ce-objective}
+
+:::{.incremental}
+- Counterfactual reasoning (in this context) boils down to simple questions: what if $x$ (factual) $\Rightarrow$ $x\prime$ (counterfactual)?
+- By strategically perturbing features and checking the model output, we can (begin to) understand how the model makes its decisions.
+- Counterfactual Explanations always have full fidelity by construction (as opposed to surrogate explanations, for example).
+:::
+
+. . .
+
+> Important to realize that we are keeping $\hat\theta$ constant!
+
+# Enter: Counterfactual Explanations 🔮
+
+## A Framework for Counterfactual Explanations
+
+> Even though [...] interpretability is of great importance and should be pursued, explanations can, in principle, be offered without opening the “black box”.
+> [@wachter2017counterfactual]
+
+
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+#### Framework
+
+. . .
+ 
+Objective originally proposed by @wachter2017counterfactual is as follows
+
+$$
+\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
+$$ {#eq-obj}
+
+where $h$ relates to the complexity of the counterfactual and $M$ denotes the classifier.
+
+. . .
+
+Typically this is approximated through regularization:
+
+$$
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
+$$ {#eq-solution} 
+
+:::
+
+:::{.column width="50%"}
+
+#### Intuition
+
+. . .
+
+![A cat performing gradient descent in the feature space à la @wachter2017counterfactual.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
+
+:::
+::::
+
+
+## Counterfactuals ... as in Adversarial Examples?
+
+. . .
+
+> Yes and no! 
+
+While both are methodologically very similar, adversarial examples are meant to go undetected while CEs ought to be meaningful.
+
+. . .
+
+> Effective counterfactuals should meet certain criteria ✅
+
+- **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
+- **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
+- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
+- **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
+- **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
+- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
+- **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
+- **causality**: counterfactual explanations reflect the structural causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
+
+## Counterfactuals ... as in Causal Inference?
+
+> NO!
+
+::::{.columns}::::
+:::{.column width='60%'}
+**Causal inference**: counterfactuals are thought of as unobserved states of the world that we would like to observe in order to establish causality.
+
+- The only way to do this is by actually interfering with the state of the world: $p(y|do(x),\theta)$. 
+- In practice we can only move some individuals to the counterfactual state of the world and compare their outcomes to a control group. 
+- Provided we have controlled for confounders, properly randomized, ... we can estimate an average treatment effect: $\hat\theta$. 
+
+**Counterfactual Explanations**: involves perturbing features **after** some model has been trained.
+
+- We end up comparing **modeled outcomes** $p(y|x,\hat\phi)$ and $p(y|x\prime,\hat\phi)$ for individuals.
+- We have **not** magically solved causality.
+
+:::
+:::{.column width='40%'}
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">The number of ostensibly pro data scientists confusing themselves into believing that &quot;counterfactual explanations&quot; capture real-world causality is just staggering🤦‍♀️. Where do we go from here? How can a community that doesn&#39;t even understand what&#39;s already known make advances?</p>&mdash; Zachary Lipton (\@zacharylipton) <a href="https://twitter.com/zacharylipton/status/1538952312781168640?ref_src=twsrc%5Etfw">June 20, 2022</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+:::
+::::
+
+
+## Probabilistic Methods for Counterfactual Explanations
+
+When people say that counterfactuals should look **realistic** or **plausible**, they really mean that counterfactuals should be generated by the same Data Generating Process (DGP) as the factuals:
+
+$$
+x\prime \sim p(x)
+$$
+
+But how do we estimate $p(x)$? Two probabilistic approaches ...
+
+. . .
+
+::: {.panel-tabset}
+
+### APPROACH 1: use the model itself
+
+::::{.columns}
+
+:::{.column width="50%"}
+@schut2021generating note that by maximizing predictive probabilities $\sigma(M(x\prime))$ for **probabilistic** models $M\in\mathcal{\widetilde{M}}$ one implicitly minimizes **epistemic** and **aleotoric** uncertainty.
+
+$$
+x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) \ \ \ , \ \ \ M\in\mathcal{\widetilde{M}}
+$$ {#eq-bayes} 
+
+:::
+
+:::{.column width="50%"}
+![A cat performing gradient descent in the feature space à la @schut2021generating](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){#fig-cat-laplace width="70%"}
+:::
+
+::::
+
+### APPROACH 2: use some generative model
+
+::::{.columns}
+
+:::{.column width="50%"}
+Instead of perturbing samples directly, some have proposed to instead traverse a lower-dimensional latent embedding learned through a generative model [@joshi2019towards].
+
+$$
+z\prime = \arg \min_{z\prime}  \ell(M(dec(z\prime)),t) + \lambda h(x\prime) 
+$$ {#eq-latent} 
+
+and 
+
+$$x\prime = dec(z\prime)$$
+
+where $dec(\cdot)$ is the decoder function.
+:::
+
+:::{.column width="50%"}
+![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019towards. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d width="80%"}
+:::
+
+::::
+
+:::
+
+# Counterfactual Explanations in Julia (and beyond!)
+
+## Limited Software Availability  
+
+> Work currently scattered across different GitHub repositories ...
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+:::{.incremental}
+
+- Only one unifying Python library: CARLA [@pawelczyk2021carla].
+  - Comprehensive and (somewhat) extensible.
+  - But not language-agnostic and some desirable functionality not supported.
+  - Also not composable: each generator is treated as different class/entity.
+- Both R and Julia lacking any kind of implementation. 
+
+:::
+:::
+
+:::{.column width="50%"}
+![Photo by [Volodymyr Hryshchenko](https://unsplash.com/@lunarts?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/rubiks-cube?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText).](www/software.jpeg)
+:::
+
+::::
+
+
+## Enter: `CounterfactualExplanations.jl` 📦
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
+
+> ... until now!
+
+::::{.columns}
+
+:::{.column width="50%"}
+:::{.incremental}
+- A unifying framework for generating Counterfactual Explanations.
+- Built in Julia, but essentially language agnostic:
+    - Currently supporting explanations for differentiable models built in Julia (e.g. Flux) and torch (R and Python).
+- Designed to be easily extensible through dispatch.
+- Designed to be composable allowing users and developers to combine different counterfactual generators.
+:::
+:::
+
+:::{.column width="50%"}
+![Photo by [Denise Jans](https://unsplash.com/@dmjdenise?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/s/photos/rubiks-cube?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText).](www/software2.jpeg){width=80%}
+:::
+
+::::
+
+. . .
+
+> Julia has an edge with respect to Trustworthy AI: it's open-source, uniquely transparent and interoperable 🔴🟢🟣
+
+# Package Architecture
+
+> Modular, composable, scalable! 
+
+## Overview
+
+![Overview of package architecture. Modules are shown in red, structs in green and functions in blue.](../pkg_architecture.png){#fig-architecture width="70%"}
+
+## Generators 
+
+```{julia}
+using CounterfactualExplanations, Plots, GraphRecipes
+plt = plot(AbstractGenerator, method=:tree, fontsize=10, nodeshape=:rect, size=(1000,700))
+savefig(plt, joinpath(www_path,"generators.png"))
+```
+
+![Type tree for `AbstractGenerator`.](www/generators.png){#fig-generators width="60%"}
+
+## Models
+
+```{julia}
+plt = plot(AbstractFittedModel, method=:tree, fontsize=10, nodeshape=:rect, size=(1000,700))
+savefig(plt, joinpath(www_path,"models.png"))
+```
+
+![Type tree for `AbstractFittedModel`.](www/models.png){#fig-models width="60%"}
+
+# Basic Usage
+
+## A simple example
+
+::::{.columns}
+
+:::{.column width="50%"}
+1. Load and prepare some toy data.
+2. Select a random sample.
+3. Generate counterfactuals using different approaches.
+
+```{julia}
+# Data:
+using Random
+Random.seed!(123)
+N = 100
+using CounterfactualExplanations
+xs, ys = toy_data_linear(N)
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+
+# Randomly selected factual:
+x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+```
+:::
+
+:::{.column width="50%"}
+```{julia}
+#| echo: false
+pyplot()
+plt = plot()
+plt = plot_data!(plt,X',ys)
+plt = plot(plt, legend=:bottomright)
+scatter!(plt, [x[1]], [x[2]], ms=10, mc=:transparent, msc=:darkred, label="Chosen sample")
+savefig(plt, joinpath(www_path,"example_data.png"))
+gr()
+```
+
+![Synthetic data.](www/example_data.png){#fig-data}
+:::
+
+::::
+
+## Generic Generator
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Code 
+
+. . .
+
+We begin by instantiating the fitted model ...
+
+```{julia}
+# Model
+w = [1.0 1.0] # estimated coefficients
+b = 0 # estimated bias
+M = LogisticModel(w, [b])
+```
+
+. . .
+
+... then based on its prediction for $x$ we choose the opposite label as our target ...
+
+```{julia}
+# Select target class:
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+. . .
+
+... and finally generate the counterfactual.
+
+```{julia}
+# Counterfactual search:
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+function anim_path(counterfactual; x=X', y=ys)
+    T = total_steps(counterfactual)
+    X_path = reduce(hcat,path(counterfactual))
+    p̂ = target_probs(counterfactual,X_path)
+    target = counterfactual.target
+    p1 = plot_contour(X',ys,M;colorbar=false, title="Counterfactual Path")
+    anim = @animate for t in 1:T
+        ŷ = target == 1.0 ? Int(round(p̂[t])) : Int(round(1-p̂[t]))
+        scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=10, color=ŷ, label="")
+        p2 = plot(1:t, p̂[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
+        Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
+        plot(p1,p2,size=(800,400))
+    end
+end
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_generic.gif"), fps=15)
+```
+:::
+
+::: {.column width="60%"}
+#### Output
+
+. . .
+
+> ... et voilà!
+
+![Counterfactual path (left) and predicted probability (right) for `GenericGenerator`. The contour (left) shows the predicted probabilities of the classifier (Logistic Regression).](www/example_generic.gif){#fig-generic}
+:::
+
+::::
+
+## Greedy Generator
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Code 
+ 
+. . .
+
+This time we use a Bayesian classifier ...
+
+```{julia}
+using LinearAlgebra
+Σ = Symmetric(reshape(randn(9),3,3).*0.01 + UniformScaling(1)) # MAP covariance matrix
+μ = hcat(b, w)
+M = BayesianLogisticModel(μ, Σ)
+```
+
+. . .
+
+... and once again choose our target label as before ...
+
+```{julia}
+# Select target class:
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+. . .
+
+... to then finally use greedy search to find a counterfactual.
+
+```{julia}
+# Counterfactual search:
+params = GreedyGeneratorParams(
+  δ = 0.5,
+  n = 10
+)
+generator = GreedyGenerator(;params=params)
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_greedy.gif"), fps=5)
+```
+:::
+
+::: {.column width="60%"}
+#### Output
+
+. . .
+
+> In this case the Bayesian approach yields a similar outcome.
+
+![Counterfactual path (left) and predicted probability (right) for `GreedyGenerator`. The contour (left) shows the predicted probabilities of the classifier (Bayesian Logistic Regression).](www/example_greedy.gif){#fig-greedy}
+:::
+
+::::
+
+## REVISE Generator
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Code 
+
+Using the same classifier as before we can either use the specific `REVISEGenerator` ...
+
+```{julia}
+# Counterfactual search:
+generator = REVISEGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+. . .
+
+... or realize that that REVISE [@joshi2019towards] just boils down to generic search in a latent space:
+
+```{julia}
+# Counterfactual search:
+generator = GenericGenerator()
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator,
+  latent_space=true
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_revise.gif"), fps=5)
+```
+:::
+
+::: {.column width="60%"}
+#### Output
+
+. . . 
+
+> We have essentially combined latent search with a probabilistic classifier (as in @antoran2020getting). 
+
+![Counterfactual path (left) and predicted probability (right) for `REVISEGenerator`.](www/example_revise.gif){#fig-greedy}
+:::
+
+::::
+
+## MNIST - Latent Space Search
+
+:::: {.columns}
+
+::: {.column width="50%"}
+
+#### Good VAE
+
+. . .
+
+Loading pre-trained classifiers and VAE ...
+
+```{julia}
+X, ys = mnist_data() 
+model = mnist_model() # simple MLP
+```
+
+. . .
+
+... instantiating model and attaching VAE.
+
+```{julia}
+M = FluxModel(model, likelihood=:classification_multi)
+counterfactual_data = CounterfactualData(X,ys)
+vae = mnist_vae()
+counterfactual_data.generative_model = vae
+```
+
+. . .
+
+> The results in @fig-mnist-latent look great!
+
+![Turning a nine (9) into a four (4) using REVISE. It appears that the VAE is well-specified in this case.](www/mnist_9to4_latent.png){#fig-mnist-latent width="80%"}
+
+:::
+
+::: {.column width="50%"}
+
+#### Bad VAE
+
+. . .
+
+> But things can also go wrong ...
+
+The VAE used to generate the counterfactual in @fig-latent-fail is not expressive enough.
+
+![Turning a seven (7) into a nine (9) using REVISE with a weak VAE.](www/mnist_7to9_latent.png){#fig-latent-fail width="60%"}
+
+. . .
+
+> The counterfactual in @fig-wachter-fail is also valid ... what to do?
+
+![Turning a seven (7) into a nine (9) using generic search.](www/mnist_7to9_wachter.png){#fig-wachter-fail width="60%"}
+:::
+
+::::
+
+# Customization
+
+## Custom Models - Deep Ensemble
+
+. . . 
+
+Loading the pre-trained deep ensemble ...
+
+```{julia}
+ensemble = mnist_ensemble() # deep ensemble
+```
+
+. . .
+
+**Step 1**: add composite type as subtype of `AbstractFittedModel`.
+
+```{julia}
+struct FittedEnsemble <: Models.AbstractFittedModel
+    ensemble::AbstractArray
+end
+```
+
+. . .
+
+**Step 2**: dispatch `logits` and `probs` methods for new model type.
+
+```{julia}
+using Statistics
+import CounterfactualExplanations.Models: logits, probs
+logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
+probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
+M = FittedEnsemble(ensemble)
+```
+
+. . .
+
+> Results for a simple deep ensemble also look convincing!
+
+![Turning a nine (9) into a four (4) using generic (Wachter) and greedy search for MLP and deep ensemble.](www/MNIST_9to4.png){#fig-mnist-schut width="80%"}
+
+## Custom Models - Interoperability
+
+Adding support for `torch` models was easy! Here's how I implemented it for `torch` classifiers trained in R.
+
+. . .
+
+:::: {.columns}
+
+::: {.column width="40%"}
+
+#### Source code
+
+. . .
+
+**Step 1**: add composite type as subtype of `AbstractFittedModel`
+
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10){preview-link="false"}.
+
+**Step 2**: dispatch `logits` and `probs` methods for new model type.
+
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21){preview-link="false"}.
+
+. . .
+
+**Step 3**: add gradient access.
+
+> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22){preview-link="false"}.
+
+:::
+
+::: {.column width="40%"}
+
+#### Unchanged API
+
+. . . 
+
+```{julia}
+#| echo: false
+using RCall
+Random.seed!(123)
+synthetic = load_synthetic([:r_torch])[:classification_binary]
+model = synthetic[:models][:r_torch][:raw_model]
+xs, ys = (synthetic[:data][:xs], synthetic[:data][:ys])
+X = hcat(xs...)
+counterfactual_data = CounterfactualData(X,ys')
+# Randomly selected factual:
+x = select_factual(counterfactual_data,rand(1:length(xs)))
+```
+
+```{julia}
+M = RTorchModel(model)
+# Select target class:
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual)
+gif(anim, joinpath(www_path, "example_interop.gif"), fps=2)
+```
+
+![Counterfactual path (left) and predicted probability (right) for `GenericGenerator` and `RTorchModel`.](www/example_interop.gif){#fig-interop}
+
+:::
+
+::::
+
+## Custom Generators
+
+Idea 💡: let's implement a generic generator with dropout!
+
+. . . 
+
+:::: {.columns}
+
+::: {.column width="50%"}
+#### Dispatch
+
+. . .
+
+**Step 1**: create a subtype of `AbstractGradientBasedGenerator` (adhering to some basic rules).
+
+```{julia}
+# Constructor:
+abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
+struct DropoutGenerator <: AbstractDropoutGenerator
+    loss::Symbol # loss function
+    complexity::Function # complexity function
+    mutability::Union{Nothing,Vector{Symbol}} # mutibility constraints 
+    λ::AbstractFloat # strength of penalty
+    ϵ::AbstractFloat # step size
+    τ::AbstractFloat # tolerance for convergence
+    p_dropout::AbstractFloat # dropout rate
+end
+```
+
+. . . 
+
+**Step 2**: implement logic for generating perturbations.
+
+```{julia}
+import CounterfactualExplanations.Generators: generate_perturbations, ∇
+using StatsBase
+function generate_perturbations(generator::AbstractDropoutGenerator, counterfactual_state::State)
+    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
+    # Dropout:
+    set_to_zero = sample(1:length(𝐠ₜ),Int(round(generator.p_dropout*length(𝐠ₜ))),replace=false)
+    𝐠ₜ[set_to_zero] .= 0
+    Δx′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    return Δx′
+end
+```
+:::
+
+::: {.column width="50%"}
+#### Unchanged API
+
+. . .
+
+```{julia}
+# Instantiate:
+using LinearAlgebra
+generator = DropoutGenerator(
+    :logitbinarycrossentropy,
+    norm,
+    nothing,
+    0.1,
+    0.1,
+    1e-5,
+    0.5
+)
+counterfactual = generate_counterfactual(
+  x, target, counterfactual_data, M, generator
+)
+```
+
+```{julia}
+#| echo: false
+anim = anim_path(counterfactual, x=X', y=ys)
+gif(anim, joinpath(www_path, "example_dropout.gif"), fps=5)
+```
+
+![Counterfactual path (left) and predicted probability (right) for custom `DropoutGenerator` and `RTorchModel`.](www/example_dropout.gif){#fig-dropout}
+
+:::
+
+::::
+
+# Goals and Ambitions 🎯
+
+## JuliaCon 2022 and beyond
+
+::::{.columns}
+
+:::{.column width="50%"}
+
+:::{.fragment .semi-fade-out fragment-index=4}
+#### To JuliaCon ...
+
+:::{.fragment .strike fragment-index=1}
+Develop package, register and submit to [JuliaCon 2022](https://juliacon.org/2022/).
+:::
+
+:::{.fragment .strike fragment-index=2}
+Native support for deep learning models (`Flux`, `torch`).
+:::
+
+:::{.fragment .strike fragment-index=3}
+Add latent space search.
+:::
+:::
+
+#### ... and beyond
+
+. . .
+
+- Add more generators:
+  - DiCE [@mothilal2020explaining]
+  - ROAR [@upadhyay2021towards]
+  - MINT [@karimi2021algorithmic]
+
+. . .
+
+- Add support for more models: 
+  - `MLJ`, `GLM`, ...
+  - Non-differentiable
+
+. . .
+
+- Enhance preprocessing functionality.
+
+. . .
+
+- Extend functionality to regression problems.
+
+. . .
+
+- Use `Flux` optimizers.
+
+. . .
+
+- ...
+:::
+
+:::{.column width="50%"}
+![Photo by [Ivan Diaz](https://unsplash.com/@ivvndiaz?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText) on [Unsplash](https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText)](www/launch.jpeg){width="70%"}
+:::
+
+::::
+
+## More Resources 📚
+
+::::{.columns}
+
+:::{.column width="60%"}
+> Read on ...
+
+- Blog post introducing CE: [[TDS](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc), [homepage](https://www.paltmeyer.com/blog/posts/individual-recourse-for-black-box-models/)].
+- Blog post introducing package: [[TDS](https://towardsdatascience.com/a-new-tool-for-explainable-ai-65834e757c28), [homepage](https://www.paltmeyer.com/blog/posts/a-new-tool-for-explainable-ai/)].
+- Package [docs](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/) with lots of examples.
+
+> ... or get involved! 🤗
+
+- [Contributor's Guide](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/)
+
+:::
+
+:::{.column width="40%"}
+
+<img src="www/profile.jpg" height="auto" width="250" style="border-radius:50%; display: block; margin-left: auto; margin-right: auto;">
+
+<div style="text-align: center;">
+  <p style="display: inline; vertical-align: middle"> 
+    <a href="https://www.linkedin.com/in/patrick-altmeyer-a2a25494/" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/d0fc399dee4218d1e0e0399b8947acab.png" alt="LinkedIn (Personal)" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://twitter.com/paltmey" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/3949237f892004c237021ac9e3182b1d.png" alt="Twitter" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://github.com/pat-alt" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/47f4eb2d0082a8a3611d614b75a09db8.png" alt="Github" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+    <a href="https://medium.com/@patrick.altmeyer" style="display: inline-block; color: rgb(207, 142, 255) !important;">
+      <font style="">
+        <img width="60" height="60" src="https://s1g.s3.amazonaws.com/175f49662614345cb7dbb95fce3f88af.png" alt="Medium" style="border: none; max-width: 100%; height: 60px !important;">
+      </font>
+    </a>
+  </p>
+</div>
+
+<img src="www/qr.png" height="auto" width="100" style="display: block; margin-left: auto; margin-right: auto;">
+:::
+
+::::
+
+# Hidden {visibility="hidden"}
+
+## Explainable AI (XAI) {visibility="hidden"}
+
+- *interpretable* = inherently interpretable model, no extra tools needed (GLM, decision trees, rules, ...)  [@rudin2019stop]
+- *explainable* = inherently not interpretable model, but explainable through XAI
+
+#### Post-hoc Explainability:
+- Local **surrogate explainers** like LIME and Shapley: useful and popular, but ... 
+    - ... can be easily fooled [@slack2020fooling]
+    - ... rely on reasonably interpretable features.
+    - ... rely on the concept of fidelity.
+- **Counterfactual explanations** explain how inputs into a system need to change for it to produce different decisions. 
+    - Always full-fidelity, since no proxy involved. 
+    - Intuitive interpretation and straight-forward implemenation.
+    - Works well with Bayesian models. Clear link to Causal Inference. 
+    - Does not rely on interpretable features.
+- Realistic and actionable changes can be used for the purpose of **algorithmic recourse**.
+
+## Feature Constraints {visibility="hidden"}
+
+::: {.panel-tabset}
+
+### Domain constraint
+
+![](www/mutability_domain_2.gif)
+
+### Code
+
+Mutability constraints can be added at the preprocessing stage:
+
+```{.julia}
+counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
+```
+
+:::
+
+## Research Topics (1) - Student Project {visibility="hidden"}
+
+> What happens once AR has actually been implemented? 👀
+
+:::{.incremental}
+- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
+- What about endogenous model shifts?
+:::
+
+![](www/bayesian.gif){fig-align="center" width=800px} 
+
+## Research Topics (2) {visibility="hidden"}
+
+:::{.incremental}
+- An effortless way to incorporate model uncertainty (w/o need for expensive generative model): *Laplace Redux*.
+- Counterfactual explanations for time series data.
+- Is CE really more intuitive? Could run a user-based study like in @kaur2020interpreting.
+- More ideas form your side? 🤗
+:::
+
+## References 

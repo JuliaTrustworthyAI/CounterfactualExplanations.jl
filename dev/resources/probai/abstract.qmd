@@ -1,0 +1,5 @@
+---
+format: gfm
+---
+
+Counterfactual Explanations (CE) are a recent and promising approach to explainable artificial intelligence (XAI). They explain how inputs into a model need to change for it to produce different outputs. To ensure that the generated explanations are realistic it is important to understand which input-output pairs are likely and which are not. To quantify their joint likelihood, previous work has either relied on generative models or restricted the analysis to probabilistic models that incorporate uncertainty in their predictions. While the former approach is more versatile since it is applicable to both deterministic and probabilistic models, the latter is computationally much more efficient. In my work I want to explore how recent advances in post-hoc uncertainty quantification can be leveraged to generate realistic and unambiguous counterfactual explanations for any model. 
