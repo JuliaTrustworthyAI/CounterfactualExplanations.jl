@@ -4,7 +4,7 @@ bibliography: ref.bib
 execute:
   eval: false
   echo: false
-jupyter: julia-1.6
+jupyter: julia-1.8.1
 ---
 
 ```{julia}
