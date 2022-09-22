@@ -120,7 +120,7 @@ $$ {#eq-solution}
 
 - **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
 - **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
-- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
+- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019realistic)
 - **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
 - **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
 - **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)

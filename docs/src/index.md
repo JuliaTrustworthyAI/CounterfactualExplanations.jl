@@ -11,7 +11,7 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 
 ## News 📣
 
-**JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: \[[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)\]
+**JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
 
 ### Developmemts since v0.1.2
 
@@ -112,7 +112,7 @@ Currently the following counterfactual generators are implemented:
 -   Generic (Wachter, Mittelstadt, and Russell 2017)
 -   Greedy (Schut et al. 2021)
 -   DiCE (Mothilal, Sharma, and Tan 2020)
--   Latent Space Search as in REVISE (**joshi2019towards?**) and CLUE (Antorán et al. 2020)
+-   Latent Space Search as in REVISE (Joshi et al. 2019) and CLUE (Antorán et al. 2020)
 
 ## Goals and limitations 🎯
 
@@ -142,6 +142,8 @@ If you want to use this codebase, please consider citing:
     }
 
 Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hernández-Lobato. 2020. “Getting a Clue: A Method for Explaining Uncertainty Estimates.” <https://arxiv.org/abs/2006.06848>.
+
+Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
 
 Migut, MA, Marcel Worring, and Cor J Veenman. 2015. “Visualizing Multi-Dimensional Decision Boundaries in 2d.” *Data Mining and Knowledge Discovery* 29 (1): 273–95.
 
