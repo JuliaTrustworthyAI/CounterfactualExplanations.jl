@@ -2,7 +2,7 @@
 
 ## News 📣
 
-**JuliaCon 2022**: This project will be presented at JuliaCon 2022 in July 2022. See here for the preliminary slide pack: [[html](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/resources/juliacon22/presentation.html#/title-slide)]
+**JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
 
 ### Developmemts since v0.1.2
 
@@ -104,7 +104,7 @@ Currently the following counterfactual generators are implemented:
 - Generic [@wachter2017counterfactual]
 - Greedy [@schut2021generating]
 - DiCE [@mothilal2020explaining]
-- Latent Space Search as in REVISE [@joshi2019towards] and CLUE [@antoran2020getting]
+- Latent Space Search as in REVISE [@joshi2019realistic] and CLUE [@antoran2020getting]
 
 ## Goals and limitations 🎯
 
