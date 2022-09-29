@@ -120,14 +120,20 @@ The goal for this library is to contribute to efforts towards trustworthy machin
 
 ## Contribute 🛠
 
-Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
+Contributions of any kind are very much welcome! If any of the below applies to you, this might be the right open-source project for you:
+
+- You’re an expert in Counterfactual Explanations or Explainable AI more broadly and you are curious about Julia.
+- You’re an experienced Julian and are happy to help a less experienced Julian (yours truly) up their game. Ideally, you are also curious about Trustworthy AI.
+- You’re new to Julia and open-source development and would like to start your learning journey by contributing to a recent but promising development. Ideally you are familiar with machine learning.
+
+I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/pat-alt/CounterfactualExplanations.jl/discussions). Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
 
 1.  Additional counterfactual generators and predictive models.
 2.  Additional datasets for testing, evaluation and benchmarking.
 3.  Improved preprocessing including native support for categorical features.
 4.  Support for regression models.
 
-For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/).
+For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
 
 ## Citation 🎓
 
@@ -140,6 +146,8 @@ If you want to use this codebase, please consider citing:
       version = {0.1.1},
       year = {2022}
     }
+
+## References 📚
 
 Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hernández-Lobato. 2020. “Getting a Clue: A Method for Explaining Uncertainty Estimates.” <https://arxiv.org/abs/2006.06848>.
 
