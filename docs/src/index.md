@@ -15,11 +15,11 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 
 ### Developmemts since v0.1.2
 
--   Added support for generating multiple counterfactuals instead of just one.
--   Implemented DiCE (Mothilal, Sharma, and Tan 2020).
--   Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE (Slack et al. 2021).
--   Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following Migut, Worring, and Veenman (2015). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
--   Added the option to specify strict convergence: instead of terminating search once the probability threshold *γ* has been reached, search continues as long the objective function still improves.
+- Added support for generating multiple counterfactuals instead of just one.
+- Implemented DiCE (Mothilal, Sharma, and Tan 2020).
+- Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE (Slack et al. 2021).
+- Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following Migut, Worring, and Veenman (2015). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
+- Added the option to specify strict convergence: instead of terminating search once the probability threshold *γ* has been reached, search continues as long the objective function still improves.
 
 ## Installation 🚩
 
@@ -34,7 +34,7 @@ CounterfactualExplanations.jl is currently under active development. To install 
 
 ``` julia
 using Pkg
-Pkg.add(url="https://github.com/pat-alt/CounterfactualExplanations.jl", rev="dev")
+Pkg.add(url="https://github.com/pat-alt/CounterfactualExplanations.jl")
 ```
 
 ## Background and motivation
@@ -59,10 +59,10 @@ Explanations that involve realistic and actionable changes can be used for the p
 
 Counterfactual Explanations have certain advantages over related tools for explainable artificial intelligence (XAI) like surrogate eplainers (LIME and SHAP). These include:
 
--   Full fidelity to the black-box model, since no proxy is involved.
--   No need for (reasonably) interpretable features as opposed to LIME and SHAP.
--   Clear link to Causal Inference and Bayesian Machine Learning.
--   Less susceptible to adversarial attacks than LIME and SHAP.
+- Full fidelity to the black-box model, since no proxy is involved.
+- No need for (reasonably) interpretable features as opposed to LIME and SHAP.
+- Clear link to Causal Inference and Bayesian Machine Learning.
+- Less susceptible to adversarial attacks than LIME and SHAP.
 
 ## Usage example 🔍
 
@@ -109,10 +109,10 @@ Converged: ✅ after 70 steps.
 
 Currently the following counterfactual generators are implemented:
 
--   Generic (Wachter, Mittelstadt, and Russell 2017)
--   Greedy (Schut et al. 2021)
--   DiCE (Mothilal, Sharma, and Tan 2020)
--   Latent Space Search as in REVISE (Joshi et al. 2019) and CLUE (Antorán et al. 2020)
+- Generic (Wachter, Mittelstadt, and Russell 2017)
+- Greedy (Schut et al. 2021)
+- DiCE (Mothilal, Sharma, and Tan 2020)
+- Latent Space Search as in REVISE (Joshi et al. 2019) and CLUE (Antorán et al. 2020)
 
 ## Goals and limitations 🎯
 
@@ -145,7 +145,7 @@ Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hern
 
 Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
 
-Migut, MA, Marcel Worring, and Cor J Veenman. 2015. “Visualizing Multi-Dimensional Decision Boundaries in 2d.” *Data Mining and Knowledge Discovery* 29 (1): 273–95.
+Migut, MA, Marcel Worring, and Cor J Veenman. 2015. “Visualizing Multi-Dimensional Decision Boundaries in 2D.” *Data Mining and Knowledge Discovery* 29 (1): 273–95.
 
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
 
