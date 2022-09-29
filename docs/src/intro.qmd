@@ -25,7 +25,7 @@ CounterfactualExplanations.jl is currently under active development. To install 
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/pat-alt/CounterfactualExplanations.jl", rev="dev")
+Pkg.add(url="https://github.com/pat-alt/CounterfactualExplanations.jl")
 ```
 
 ## Background and motivation 
