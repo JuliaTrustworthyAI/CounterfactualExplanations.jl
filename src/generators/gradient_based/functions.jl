@@ -121,6 +121,18 @@ function ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDiffer
     ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
 end
 
+"""
+    propose_state(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+
+Proposes new state based on backpropagation.
+"""
+function propose_state(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+    grads = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
+    new_s′ = deepcopy(counterfactual_state.s′)
+    Flux.Optimise.update!(generator.opt, new_s′, grads)
+    return new_s′
+end
+
 using Flux
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
@@ -128,11 +140,9 @@ using Flux
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
 function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) 
-    grads = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
     s′ = deepcopy(counterfactual_state.s′)
-    propsed_s′ = deepcopy(counterfactual_state.s′)
-    Flux.Optimise.update!(generator.opt, propsed_s′, grads)
-    Δs′ = propsed_s′ - s′ # gradient step
+    new_s′ = propose_state(generator, counterfactual_state)
+    Δs′ = new_s′ - s′ # gradient step
     return Δs′
 end
 

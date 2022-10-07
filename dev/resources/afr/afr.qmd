@@ -72,7 +72,7 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 
 - A unifying framework for generating counterfactual explanations and aglorithmic recourse.
 - Built in Julia, but essentially language agnostic: supporting explanations for models built in Python, R, ...
-- Designed to be easily extensible through multiple dispatch.
+- Designed to be easily extensible through dispatch.
 - Native support for differentiable models built and trained in Julia. 
 
 > Julia is fast, transparent, beautiful and open 🔴🟢🟣
