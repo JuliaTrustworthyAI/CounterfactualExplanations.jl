@@ -9,33 +9,31 @@
 
 \begin{abstract}
 
-Machine learning models like deep neural networks have become so complex and opaque over recent years that they are generally considered as black boxes. Nonetheless, such models often play a key role in modern automated decision-making systems. Counterfactual explanations can help human stakeholders make sense of the systems they build, use and endure: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse: they offer humans a way to not only understand the behaviour of a system, but also to adjust and react to it. In this article we discuss the usefulness of counterfactual explanations for explainable machine learning and demonstrate its implementation in Julia using the \verb|CounterfactualExplanations| package. The package is straight-forward to use, designed to be extensible and even supports explanations for models developed and trained in other programming languages.
+Machine learning models like deep neural networks have become so complex and opaque over recent years that they are generally considered as black boxes. Nonetheless, such models often play a key role in modern automated decision-making systems. Counterfactual Explanations can help human stakeholders make sense of the systems they build, use and endure: they explain how inputs into a system need to change for it to produce different decisions. Explanations that involve realistic and actionable changes can be used for the purpose of Algorithmic Recourse: they offer humans a way to not only understand the behaviour of a system, but also to adjust and react to it. In this article we discuss the usefulness of Counterfactual Explanations for explainable machine learning and demonstrate its implementation in Julia using the \verb|CounterfactualExplanations.jl| package. The package is straight-forward to use and designed with a focus on customization and extensibility. We envision it to one day be the go-to place for explaining arbitrary predictive models in Julia and beyond through a diverse suite of counterfactual generators.
 
 \end{abstract}
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
 
-Machine learning models like deep neural networks have become so
-complex, opaque and underspecified in the data that they are generally
-considered as black boxes. This lack of transparency exacerbates a
-number of other problems typically associated with these models: they
-tend to be unstable (\cite{goodfellow2014explaining}), encode existing
-biases (\cite{buolamwini2018gender}) and learn representations that are
+This lack of transparency of modern machine learning models like deep
+neural networks exacerbates a number of other problems typically
+associated with them: they tend to be unstable
+(\cite{goodfellow2014explaining}), encode existing biases
+(\cite{buolamwini2018gender}) and learn representations that are
 surprising or even counter-intuitive from a human perspective
 (\cite{sturm2014simple}). Nonetheless, they often form the basis for
-data-driven decision-making systems.
+data-driven decision-making systems in real-world applications.
 
-As others have pointed out, this scenario gives rise to and undesirable
-\textbf{principal-agent problem} involving a group of
-\textbf{principals} - i.e.~human stakeholders - that fail to understand
-the behaviour of their \textbf{agent} - i.e.~the black-box system
-(\cite{borch2022machine}). The group of principals may include
-programmers, product managers and other decision-makers who develop and
-operate the system as well as those individuals ultimately subject to
-the decisions made by the system. In practice, decisions made by
-black-box systems are typically left unchallenged since the principals
-cannot scrutinize them:
+As others have pointed out, this scenario gives rise to an undesirable
+principal-agent problem involving a group of principals - i.e.~human
+stakeholders - that fail to understand the behavior of their agent -
+i.e.~the black-box system (\cite{borch2022machine}). The group of
+principals may include programmers, product managers and other
+decision-makers who develop and operate the system as well as those
+individuals ultimately subject to the decisions made by the system. In
+practice, decisions made by black-box systems are typically left
+unchallenged since the principals cannot scrutinize them:
 
 \begin{quote}
 ``You cannot appeal to (algorithms). They do not listen. Nor do they
@@ -43,16 +41,15 @@ bend.'' \cite{oneil2016weapons}
 \end{quote}
 
 In light of all this, a quickly growing body of literature on
-explainable artificial intelligence has emerged. Counterfactual
-explanations (CE) and algorithmic recourse (AR) fall into this broader
-category. Counterfactual explanations can help human stakeholders make
-sense of the systems they develop, use or endure: they explain how
-inputs into a system need to change for it to produce different
-decisions. Explainability benefits internal as well as external quality
-assurance. Explanations that involve realistic and actionable changes
-can be used for the purpose of algorithmic recourse (AR): they offer the
-group of principals a way to not only understand their agent's
-behaviour, but also adjust or react to it.
+explainable artificial intelligence (XAI) has emerged. Counterfactual
+Explanations (CE) fall into this broader category. They can help human
+stakeholders make sense of the systems they develop, use or endure: they
+explain how inputs into a system need to change for it to produce
+different decisions. Explainability benefits internal as well as
+external quality assurance. Explanations that involve realistic and
+actionable changes can be used for the purpose of Algorithmic Recourse
+(AR): they offer the group of principals a way to not only understand
+their agent's behavior, but also adjust or react to it.
 
 The availability of open-source software for the purpose of explaining
 black-box models through counterfactuals is still limited. Most existing
@@ -60,27 +57,26 @@ implementations are specific to particular methodologies. They are also
 exclusively built in Python and for Python models. The only existing
 unifying software approach, for example, is tailored to models built in
 the two most popular Python libraries for deep learning. The Julia
-ecosystem has so far lacked an open-source implementation of
-counterfactual explanations.
+ecosystem has so far lacked an open-source implementation of CE.
 
 Through the work presented here we aim to close that gap and thereby
 contribute to broader community efforts towards explainable AI. We
-envision this package to be a go-to place for counterfactual
-explanations in Julia. Thanks to its applicability to systems built in
-other programming languages we believe that this library may ultimately
-also benefit the broader community engaged in data-driven decision
-making.
+envision this package to one day be the go-to place for Counterfactual
+Explanations in Julia. Thanks to Julia's unique support for
+interoperability with foreign programming languages we believe that this
+library may ultimately also benefit the broader machine learning and
+data science community.
 
 Our package provides a simple and intuitive interface to generate
-counterfactual explanations for differentiable classification models
+Counterfactual Explanations for differentiable classification models
 trained in Julia. It comes with detailed documentation involving various
 illustrative example datasets, linear and deep learning classifiers and
 counterfactual generators for binary and multi-class prediction tasks. A
 carefully designed package architecture allows for seamless extension of
-the package functionality through custom generators and models. By
-leveraging Julia's unique support for language interoperability, we also
-demonstrate how to easily use our package to explain models that were
-built and trained in \texttt{Python} and \texttt{R}.
+the package functionality through custom generators and models. Through
+simple examples we also demonstrate how to use our package to explain
+models that were built and trained in \texttt{Python} and \texttt{R},
+although at the time of writing this feature is still experimental.
 
 The remainder of this article is structured as follows:
 Section~\ref{sec-related} presents related work on explainable AI as
@@ -98,7 +94,7 @@ Section~\ref{sec-outlook}. Section~\ref{sec-conclude} concludes.
 \section{Background and related work}\label{sec-related}}
 
 In this section we first briefly introduce the broad field of
-Explainable Artificial Intelligence (XAI), before narrowing it down to
+explainable artificial intelligence (XAI), before narrowing it down to
 Counterfactual Explanations. We introduce the methodological framework
 and finally point to existing open-source software.
 
@@ -106,23 +102,25 @@ and finally point to existing open-source software.
 \subsection{Literature on explainable
 AI}\label{literature-on-explainable-ai}}
 
-The field of Explainable AI is still relatively young and made up of a
+The field of explainable AI is still relatively young and made up of a
 variety of subdomains, definitions, concepts and taxonomies. Covering
 all of these is beyond the scope of this article, so we will focus only
 on high-level concepts. The following literature surveys provide more
-detail: \cite{arrieta2020explainable} provide a broad overview of XAI;
-\cite{fan2020interpretability} focus on explainability in the context of
-deep learning; and finally, \cite{karimi2020survey} and
-\cite{verma2020counterfactual} offer detailed reviews of the literature
-on counterfactual explanations and algorithmic recourse.\footnote{Readers
-  who prefer a text-book approach may also want to consider
-  \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}}
-Finally, \cite{miller2019explanation} explicitly takes the social
-sciences take on explanation into account.
+detail: Arrieta et al.~(2020) provide a broad overview of XAI
+\cite{arrieta2020explainable}; Fan et al.~(2020) focus on explainability
+in the context of deep learning \cite{fan2020interpretability}; and
+finally, Karimi et al.~(2020) \cite{karimi2020survey} and Verma et
+al.~(2020) \cite{verma2020counterfactual} offer detailed reviews of the
+literature on Counterfactual Explanations and Algorithmic
+Recourse.\footnote{Readers who prefer a text-book approach may also want
+  to consider \cite{molnar2020interpretable} and
+  \cite{varshney2022trustworthy}} Finally, Miller (2019) explicitly
+discusses the concept of explainability from the perspective of a social
+scientist \cite{miller2019explanation}.
 
 The first broad distinction we want to make here is between
 \textbf{interpretable} and \textbf{explainable} AI. These terms are
-often used interchangeably, but this can cause confusion. We find the
+often used interchangeably, but this can lead to confusion. We find the
 distinction made in \cite{rudin2019stop} useful: interpretable AI
 involves models that are inherently interpretable and transparent such
 as general additive models (GAM), decision trees and rule-based models;
@@ -130,9 +128,9 @@ explainable AI may involve models that are not inherently interpretable,
 but require additional tools to be explainable to humans. Examples of
 the latter include ensembles, support vector machines and deep neural
 networks. Some would argue that we best avoid the second category of
-models {[}\cite{rudin2019stop}{]} and instead focus solely on
-interpretable AI. While we agree that initial efforts should always be
-geared towards interpretable models, avoiding black boxes altogether
+models altogether and instead focus solely on interpretable AI
+\cite{rudin2019stop}. While we agree that initial efforts should always
+be geared towards interpretable models, avoiding black boxes altogether
 would entail missed opportunities and anyway is probably not very
 realistic at this point. For that reason, we expect the need for
 explainable AI to persist in the near future. Explainable AI can further
@@ -145,15 +143,15 @@ the computation of marginal effects through Monte Carlo, and global
 surrogates. A surrogate model is an interpretable model that is trained
 to explain the predictions of a black-box model.
 
-Counterfactual explanations fall into the category of local methods:
+Counterfactual Explanations fall into the category of local methods:
 they explain how individual predictions change in response to individual
 feature perturbations. Among the most popular alternatives to
-counterfactual explanations are local surrogate explainers including
+Counterfactual Explanations are local surrogate explainers including
 local interpretable model-agnostic explanations (LIME) and Shapley
 additive explanations (SHAP). Since explanations produced by LIME and
 SHAP typically involve simple feature importance plots, they arguably
 rely at the very least on reasonably interpretable features. Contrary to
-counterfactual explanations, for example, it is not obvious how to apply
+Counterfactual Explanations, for example, it is not obvious how to apply
 LIME and SHAP to visual or audio data. Nonetheless, local surrogate
 explainers are among the most widely used XAI tools today, potentially
 because they are easily understood, relatively fast and implemented in
@@ -173,14 +171,14 @@ LIME and SHAP can be easily fooled: both methods depend on random input
 perturbations, a property that can be abused by adverse agents to
 essentially whitewash strongly biased black-box models
 (\cite{slack2020fooling}). In a related work the same authors find that
-while gradient-based counterfactual explanations can also be
+while gradient-based Counterfactual Explanations can also be
 manipulated, there is a straight-forward way to protect against this in
 practice (\cite{slack2021counterfactual}). In the context of quality
 assessment, it is also worth noting that - contrary to surrogate
-explainers - counterfactual explanations always achieve full fidelity by
+explainers - Counterfactual Explanations always achieve full fidelity by
 construction: counterfactuals are searched with respect to the black-box
-classifier, not some proxy for it. That being said, counterfactual
-explanations should also be used with care and research around them is
+classifier, not some proxy for it. That being said, Counterfactual
+Explanations should also be used with care and research around them is
 still at its early stages. We shall discuss this in more detail in the
 following.
 
@@ -188,12 +186,13 @@ following.
 \subsection{A framework for Counterfactual
 Explanations}\label{sec-method}}
 
-Counterfactual search happens in the feature space: we are interested in
-understanding how we need to change individual attributes in order to
-change the model output to a desired value or label
-(\cite{molnar2020interpretable}). Typically the underlying methodology
-is presented in the context of binary classification:
-\(M: \mathcal{X} \mapsto \mathcal{Y}\) where
+Counterfactual search happens in the feature space\footnote{Or, in the
+  case of Latent Space generators, some latent representation of the
+  feature space.}: we are interested in understanding how we need to
+change individual attributes in order to change the model output to a
+desired value or label (\cite{molnar2020interpretable}). Typically the
+underlying methodology is presented in the context of binary
+classification: \(M: \mathcal{X} \mapsto \mathcal{Y}\) where
 \(\mathcal{X}\subset\mathbb{R}^D\) and \(\mathcal{Y}=\{0,1\}\). Further,
 let \(t=1\) be the target class and let \(x\) denote the factual feature
 vector of some individual sample outside of the target class, so
@@ -201,8 +200,8 @@ vector of some individual sample outside of the target class, so
 that the ideas presented here also carry over to multi-class problems
 and regression (\cite{molnar2020interpretable}).
 
-The counterfactual search objective originally proposed by
-\cite{wachter2017counterfactual} is as follows
+The counterfactual search objective originally proposed by Wachter et
+al.~(2017) \cite{wachter2017counterfactual} is as follows
 
 \begin{equation}\protect\hypertarget{eq-obj}{}{
 \min_{x^\prime \in \mathcal{X}} h(x^\prime) \ \ \ \mbox{s. t.} \ \ \ M(x^\prime) = t
@@ -225,27 +224,28 @@ the black-box model \(M\) the solution to this problem
 generic framework lays the foundation for most state-of-the-art
 approaches to counterfactual search and is also used as the baseline
 approach in our package. The hyperparameter \(\lambda\) is typically
-tuned through grid search. Conventional choices for \(\ell\) include
-margin-based losses like cross-entropy loss and hinge loss. It is worth
-pointing out that the loss function is typically computed with respect
-to logits rather than predicted probabilities, a convention that we have
-chosen to follow.\footnote{While the rationale for this convention is
-  not entirely obvious, implementations of loss functions with respect
-  to logits are often numerically more stable. For example, the
+tuned through grid search or in some sense pre-determined by the nature
+of the problem. Conventional choices for \(\ell\) include margin-based
+losses like cross-entropy loss and hinge loss. It is worth pointing out
+that the loss function is typically computed with respect to logits
+rather than predicted probabilities, a convention that we have chosen to
+follow.\footnote{While the rationale for this convention is not entirely
+  obvious, implementations of loss functions with respect to logits are
+  often numerically more stable. For example, the
   \texttt{logitbinarycrossentropy(ŷ,\ y)} implementation in
   \texttt{Flux.Losses} (used here) is more stable than the
   mathematically equivalent \texttt{binarycrossentropy(ŷ,\ y)}.}
 
 Numerous - and in some cases competing - extensions to this simple
-approach have been developed since counterfactual explanations were
+approach have been developed since Counterfactual Explanations were
 first proposed in 2017 (see \cite{verma2020counterfactual} and
 \cite{karimi2020survey} for surveys). The various approaches largely
-differ in how they define the complexity penalty. In
+differ in how they define the complexity penalty. In the baseline paper
 \cite{wachter2017counterfactual}, for example, \(h(\cdot)\) is defined
 in terms of the Manhattan distance between factual and counterfactual
 feature values. While this is an intuitive choice, it is too simple to
-address many of the desirable properties of effective counterfactual
-explanations that have been set out. These desiderata include:
+address many of the desirable properties of effective Counterfactual
+Explanations that have been set out. These desiderata include:
 \textbf{closeness} - the average distance between factual and
 counterfactual features should be small
 (\cite{wachter2017counterfactual}); \textbf{actionability} - the
@@ -260,9 +260,9 @@ explanation should involve as few individual feature changes as possible
 (\cite{schut2021generating}); \textbf{robustness} - the counterfactual
 explanation should be robust to domain and model shifts
 (\cite{upadhyay2021robust}); \textbf{diversity} - ideally multiple
-diverse counterfactual explanations should be provided
-(\cite{mothilal2020explaining}); and \textbf{causality} - counterfactual
-explanations should respect the structural causal model underlying the
+diverse Counterfactual Explanations should be provided
+(\cite{mothilal2020explaining}); and \textbf{causality} - Counterfactual
+Explanations should respect the structural causal model underlying the
 data generating process
 (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
 
@@ -270,14 +270,14 @@ data generating process
 \subsection{Existing software}\label{existing-software}}
 
 To the best of our knowledge, the package introduced here provides the
-first implementation of counterfactual explanations in Julia and
+first implementation of Counterfactual Explanations in Julia and
 therefore represents a novel contribution to the community. As for other
 programming languages, we are only aware of one other unifying
-framework: the recently introduce Python library
+framework: the recently introduced Python library
 \href{https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest}{CARLA}
 (\cite{pawelczyk2021carla}). In addition to that, there exists
-open-source code for some specific approaches to counterfactual
-explanations that have been proposed in recent years. The
+open-source code for some specific approaches to Counterfactual
+Explanations that have been proposed in recent years. The
 approach-specific implementations that we have been able to find are
 generally well documented, but exclusively in Python. For example, a
 PyTorch implementation of a greedy generator for Bayesian models
@@ -305,11 +305,11 @@ AI} infrastructure, which focuses exclusively on interpretable models.
 Arguably the current availability of tools for explaining black-box
 models in Julia is limited, but it appears that the community is
 invested in changing that. The team behind \texttt{MLJ.jl}, for example,
-is currently recruiting contributors for a project about both
-interpretable and explainable AI.\footnote{For details, see the Google
-  Summer of Code 2022 project proposal:
+has contributed contributors for a project about both interpretable and
+explainable AI in 2022.\footnote{For details, see the Google Summer of
+  Code 2022 project proposal:
   \url{https://julialang.org/jsoc/gsoc/MLJ/\#interpretable_machine_learning_in_julia}.}
-With our work on counterfactual explanations we hope to contribute to
+With our work on Counterfactual Explanations we hope to contribute to
 these efforts. We think that because of its unique transparency the
 Julia language naturally lends itself towards building a greater degree
 of trust in machine learning and artificial intelligence.
@@ -345,10 +345,8 @@ the package:
 \item Latent Space Search as in REVISE \cite{joshi2019realistic} and CLUE \cite{antoran2020getting}
 \end{itemize}
 
-The package currently offers native support for models built in
-\href{https://fluxml.ai/}{Flux}. In the following section we will
-present usage examples and explain how the package can be extended
-through custom generators and models.
+The package currently offers native support for deep learning models
+built in \href{https://fluxml.ai/}{Flux}.
 
 \begin{figure}
 
@@ -373,11 +371,11 @@ show how users can impose mutability constraints on features.
 \subsection{A Simple Generic
 Generator}\label{a-simple-generic-generator}}
 
-The code below provides a complete example demonstrating how the
-framework presented in Section~\ref{sec-method} can be implemented in
-Julia with our package. Using a synthetic data set with linearly
-separable samples we firstly define our model and then generate a
-counterfactual for a randomly selected sample. Figure~\ref{fig-binary}
+Listing \ref{lst:simple} below provides a complete example demonstrating
+how the framework presented in Section~\ref{sec-method} can be
+implemented in Julia with our package. Using a synthetic data set with
+linearly separable samples we firstly define our model and then generate
+a counterfactual for a randomly selected sample. Figure~\ref{fig-binary}
 shows the resulting counterfactual path in the two-dimensional feature
 space. Features go through iterative perturbations until the desired
 confidence level is reached as illustrated by the contour in the
@@ -399,25 +397,20 @@ models. For now it is enough to note that those methods define how the
 model makes its predictions \(M(x)\) and hence they form an integral
 part of the counterfactual search. With the model \(M\) defined in the
 code below we go on to set up the counterfactual search as follows: 1)
-choose a random sample \texttt{x}; 2) compute its factual label
-\texttt{y} as predicted by the model (\(M(x)=0\)); and 3) specify the
-other class as our \texttt{target} label (\(t=1\)) along with a desired
-level of \texttt{confidence} in the final prediction \(M(x^\prime)=t\).
+choose a random sample \texttt{x} in line \ref{line:simple-x}; 2)
+compute its factual label \texttt{y} as predicted by the model
+(\(M(x)=0\)) in line \ref{line:simple-y}; and 3) specify the other class
+as our \texttt{target} label (\(t=1\)) in line \ref{line:simple-t}.
 
 The last two lines of the code below define the counterfactual generator
-and finally run the counterfactual search. The first three fields of the
-\texttt{GenericGenerator} are reserved for hyperparameters governing the
-strength of the complexity penalty, the step size for gradient descent
-and the tolerance for convergence. The fourth field accepts a
-\texttt{Symbol} defining the type of loss function \(\ell\) to be used.
-Since we are dealing with a binary classification problem, logit binary
-cross-entropy is an appropriate choice.\footnote{As mentioned earlier,
-  the loss function is computed with respect to logits and hence it is
-  important to use logit binary cross-entropy loss as opposed to just
-  binary cross-entropy.} The fifth and last field can be used to define
-mutability constraints for the features.
+and finally run the counterfactual search. Generators like the
+\texttt{GenericGenerator} take a number of optional arguments that
+govern the strength of the complexity penalty, the step size for
+gradient descent and the tolerance for convergence among other things.
+This will be discussed in some more detail when looking at the advanced
+usage example below.
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left] 
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:simple}, caption={}] 
 # Data:
 using CounterfactualExplanations, Random
 Random.seed!(1234)
@@ -434,9 +427,9 @@ M = LogisticModel(w, [b])
 
 # Setup:
 x = select_factual(
-    counterfactual_data,rand(1:length(xs)))
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) 
+    counterfactual_data,rand(1:length(xs))) @\label{line:simple-x}@
+y = round(probs(M, x)[1]) @\label{line:simple-y}@
+target = ifelse(y==1.0,0.0,1.0) @\label{line:simple-t}@
 
 # Counterfactual search:
 generator = GenericGenerator()
@@ -464,14 +457,14 @@ underlying model produces high-confidence predictions in regions free of
 any data - that is regions with high epistemic uncertainty - it is easy
 to think of scenarios that involve valid but unrealistic
 counterfactuals. Similarly, any degree of overfitting can be expected to
-result in more ambiguous counterfactual explanations, since it reduces
+result in more ambiguous Counterfactual Explanations, since it reduces
 the classifiers sensitivity to regions with high aleatoric uncertainty.
 Consider, for example, the scenario illustrated in
 Figure~\ref{fig-binary-wrong}, which involves the same logistic
 classifier, but a massively overfitted version of it. In this case
 generic search may yield an unrealistic counterfactual that is well into
 the yellow region and yet far away from all other samples (red marker)
-or an ambiguous counterfactual near the decision boundary (black
+or an ambiguous counterfactual near the decision boundary (purple
 marker).
 
 \begin{figure}
@@ -500,7 +493,7 @@ DGP. We refer to them as Latent Space generators, because they search
 counterfactuals in the latent embedding learned by the generative
 model.\footnote{Currently our implementation relies on a Variational
   Autoencoder (VAE)}. The \textbf{Greedy} approach
-\cite{schut2021generating} instead relies minimizing predictive
+\cite{schut2021generating} instead relies on minimizing predictive
 uncertainty in order to generate realistic counterfactuals.
 \textbf{CLUE} \cite{antoran2020getting} can be thought of as a
 combination of these two ideas. The other generator currently
@@ -575,13 +568,15 @@ options: 1) the feature is mutable in both directions, 2) the feature
 can only increase (e.g.~\emph{age}), 3) the feature can only decrease
 (e.g.~\emph{time left} until your next deadline) and 4) the feature is
 not mutable (e.g.~\emph{skin colour}, \emph{ethnicity}, \ldots). To
-specify which category a feature belongs to, you can pass a vector of
+specify which category a feature belongs to, users can pass a vector of
 symbols containing the mutability constraints at the pre-processing
-stage. For each feature you can choose from these four options:
+stage. For each feature one can choose from these four options:
 \texttt{:both} (mutable in both directions), \texttt{:increase} (only
 up), \texttt{:decrease} (only down) and \texttt{:none} (immutable). By
 default, \texttt{nothing} is passed to that keyword argument and it is
-assumed that all features are mutable in both directions.
+assumed that all features are mutable in both directions.\footnote{Mutability
+  constraints are currently not yet implemented for Latent Space
+  generators.}
 
 Below we impose that the second feature is immutable.
 
@@ -609,7 +604,7 @@ feature.}
 \section{Customization and Extensibility}\label{sec-custom}}
 
 One of our priorities has been to make
-\texttt{CounterfactualExplanations} extensible and versatile. In the
+\texttt{CounterfactualExplanations} customizable and extensible. In the
 long term we aim to add support for more default models and
 counterfactual generators. In the short term it is designed to allow
 users to integrate models and generators themselves. Ideally, these
@@ -630,7 +625,7 @@ To demonstrate how this can be done in practice, we will reiterate here
 how native support for \href{https://fluxml.ai/}{\texttt{Flux.jl}}
 (\cite{innes2018flux}) deep learning models was enabled.\footnote{Flux
   models are now natively supported by our package and can be
-  instantiated by calling \texttt{FluxModel()}} Once again we use
+  instantiated by calling \texttt{FluxModel()}.} Once again we use
 synthetic data for an illustrative example. Listing \ref{lst:nn} below
 builds a simple model architecture that can be used for a multi-class
 prediction task. Note how outputs from the final layer are not passed
@@ -682,7 +677,7 @@ The API call for actually generating counterfactuals for our new model
 is the same as before. Figure~\ref{fig-multi} shows the resulting
 counterfactual path for a randomly chosen sample. In this case the
 contour shows the predicted probability that the input is in the target
-class (\(t=2\)). Generic search yields a valid, realistic and
+class (\(t=2\)). Generic search yields a valid, realistic and largely
 unambiguous counterfactual.
 
 \begin{figure}
@@ -702,9 +697,9 @@ counterfactual generator for multi-class classifier.}
 To illustrate how custom generators can be implemented we will consider
 a simple example of a generator that extends the functionality of our
 \texttt{GenericGenerator}. We have noted elsewhere that the
-effectiveness of counterfactual explanations depends to some degree on
+effectiveness of Counterfactual Explanations depends to some degree on
 the quality of the fitted model. Another, perhaps trivial, thing to note
-is that counterfactual explanations are not unique: there are
+is that Counterfactual Explanations are not unique: there are
 potentially many valid counterfactual paths. One idea building on these
 two observations might be to introduce some form of regularization in
 the counterfactual search. For example, we could use dropout to randomly
@@ -787,21 +782,22 @@ dropout.}
 \section{A Real-World Example --- MNIST}\label{sec-emp}}
 
 Now that we have explained the basic functionality of
-\texttt{CounterfactualExplanations} through some synthetic examples, it
-is time to work through an example involving real data. The MNIST
+\texttt{CounterfactualExplanations.jl} through some synthetic examples,
+it is time to work through an example involving real data. The MNIST
 dataset contains 60,000 training samples of handwritten digits in the
 form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each
 image is associated with a label indicating the digit (0-9) that the
 image represents. The data makes for an interesting case-study of
-counterfactual explanations, because humans have a good idea of what
+Counterfactual Explanations, because humans have a good idea of what
 realistic counterfactuals of digits look like. For example, if you were
 asked to pick up an eraser and turn the digit in
 Figure~\ref{fig-mnist-orig} into a four (4) you would know exactly what
-to do: just erase the top part. In \cite{schut2021generating} leverage
-this idea to illustrate to the reader that their methodolgy produces
-effective counterfactuals. In what follows we replicate and augment some
-of their findings. You as the reader are therefore the perfect judge to
-evaluate the quality of the counterfactual explanations presented here.
+to do: just erase the top part. Schut et al.~(2021)
+\cite{schut2021generating} leverage this idea to illustrate to the
+reader that their methodolgy produces realistic counterfactuals. In what
+follows we replicate some of their findings. You as the reader are
+therefore the perfect judge to evaluate the quality of the
+Counterfactual Explanations presented here.
 
 On the model side we will use two pre-trained classifiers\footnote{The
   pre-trained models were stored as package artifacts and loaded through
@@ -809,10 +805,10 @@ On the model side we will use two pre-trained classifiers\footnote{The
 and, secondly, a deep ensemble composed of five such MLPs following
 \cite{schut2021generating}. Deep ensembles are approximate Bayesian
 model averages that have been shown to yield high-quality estimates of
-predictve uncertainty for neural networks (\cite{wilson2019case},
+predictve uncertainty for neural networks (\cite{wilson2020case},
 \cite{lakshminarayanan2016simple})). Our package has native support for
-ensembles of Flux models. Code \ref{lst:mnist-setup} loads and prepares
-the pretrained models:
+ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and
+prepares the pretrained models:
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
 using Flux
@@ -854,7 +850,7 @@ non-bayesian MLP, both the generic and the greedy approach generate
 counterfactuals that look much like adversarial examples: they perturb
 pixels in seemingly random regions on the image.
 Figure~\ref{fig-mnist-3to8} shows another example. This time the goal is
-to turn a randomly chosen three (3) into an eight (8). Onve again the
+to turn a randomly chosen three (3) into an eight (8). Once again the
 outcomes for the deep ensemble look more realistic, but overall the
 generated counterfactuals look less effective than those in
 Figure~\ref{fig-mnist-9to4}. The results could likely be improved by
@@ -874,15 +870,16 @@ turning a nine (9) into a four (4).}
 
 Overall, the examples in this section demonstrate two points that we
 have already made earlier: firstly, the findings in
-\cite{schut2021generating} can indeed complement other existing
-approaches to counterfactual generation; and secondly, the quality of
-the classifier is clearly reflected in the quality of the counterfactual
-explanations. In other words, we cannot generate effective
-counterfactual explanations for a poorly trained model. That is actually
+\cite{schut2021generating} can complement other existing approaches to
+counterfactual generation; and secondly, the quality of the classifier
+is tyically reflected in the quality of the Counterfactual Explanations.
+In other words, we cannot easily generate effective Counterfactual
+Explanations for a poorly trained model.\footnote{A notable exception to
+  this are Latent Space generators.} That property is actually
 desirable: if a model bases its predictions on representations that are
 not intuitive to a human, we would like that to be evident from the
-counterfactual explanation. From that perspective, counterfactual
-explanations can help us to not only understand a black-box model, but
+counterfactual explanation. From that perspective, Counterfactual
+Explanations can help us to not only understand a black-box model, but
 potentially also guide us in improving it.
 
 \begin{figure}
@@ -914,15 +911,14 @@ and generators either natively or through minimal augmentation. In
 future work we would like to prioritize the addition of further
 predictive models and especially generators. With respect to the former,
 it would be useful to add native support for any arbitrary Flux model,
-as well as predictive models built in other popular libraries in
+as well as predictive models built in other popular libraries: in
 particular \texttt{MLJ.jl}, but also \texttt{ScikitLearn.jl},
 \texttt{GLM.jl} and \texttt{Turing.jl}. This may also involve adding
 support for regression models as well as non-differentiable models. In
 terms of counterfactual generators, we are particularly interested in
-having the following approaches added: CLUE \cite{antoran2020getting},
-DiCE \cite{mothilal2020explaining}, MINT \cite{karimi2021algorithmic},
-REVISE \cite{joshi2019realistic} and ROAR \cite{upadhyay2021robust}.
-Through its composable nature, our package may also allow for combining
+having the following approaches added in the near future: MINT
+\cite{karimi2021algorithmic} and ROAR \cite{upadhyay2021robust}. Through
+its composable nature, our package may also allow for combining
 different approaches.
 
 \hypertarget{candidate-datasets}{%
@@ -957,25 +953,31 @@ experimentation has shown that this functionality can be leveraged to
 make \texttt{CounterfactualExplanations.jl} compatible with models that
 were developed in foreign programming languages. At the time of writing
 this feature is still not mature enoguh, but we hope to add native
-support for explaining {[}torch{]} models trained in R or Python in the
-near future.\footnote{Early experiments with this feature can be found
-  here:
+support for explaining \href{https://pytorch.org/}{torch} models trained
+in R or Python in the near future.\footnote{Early experiments with this
+  feature can be found here:
   \url{https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/}}
 
 \hypertarget{sec-conclude}{%
 \section{Concluding remarks}\label{sec-conclude}}
 
-The goal of this paper is to illustrate the need for explainability in
-machine learning and the promise of counterfactual explanations in this
+The goal of this paper was to illustrate the need for explainability in
+machine learning and the promise of Counterfactual Explanations in this
 context. To this end, we introduced
 \texttt{CounterfactualExplanation.jl}: a package for generating
-counterfactual explanations and algorithmic recourse in Julia. We
-envision this package to be a go-to place for explaining arbitrary
-predictive models through a diverse suite of counterfactual generators.
-It can also serve as a testing ground for new and existing
-methodological approaches to counterfactual explanations and algorithmic
-recourse. We invite the Julia community to contribute to these goals
-through usage, open challenge and active development.
+Counterfactual Explanations and Algorithmic Recourse in Julia. Through
+various synthetic and real-world examples we have demonstrated the basic
+usage of the package and shown how it can be easily customized and
+extended. We envision this package to one day constitute the go-to place
+for explaining arbitrary predictive models through a diverse suite of
+counterfactual generators. As a major next step we would therefore like
+to interface our library with the popular
+\href{https://alan-turing-institute.github.io/MLJ.jl/dev/}{\texttt{MLJ.jl}}
+package for machine learning in Julia. The package can also serve as a
+testing ground for new and existing methodological approaches to
+Counterfactual Explanations and Algorithmic Recourse. We invite the
+Julia community to contribute to these goals through usage, open
+challenge and active development.
 
 \input{bib.tex}
 
