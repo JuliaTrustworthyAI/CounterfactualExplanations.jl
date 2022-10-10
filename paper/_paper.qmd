@@ -2,7 +2,6 @@
 format: latex
 bibliography: ref.bib
 execute:
-    freeze: true
     eval: false
     echo: false
 jupyter: julia-1.7
@@ -18,27 +17,29 @@ www_path = "paper/www"
 
 # Introduction {#sec-intro}
 
-Machine learning models like deep neural networks have become so complex, opaque and underspecified in the data that they are generally considered as black boxes. This lack of transparency exacerbates a number of other problems typically associated with these models: they tend to be instable (\cite{goodfellow2014explaining}), encode existing biases (\cite{buolamwini2018gender}) and learn representations that are surprising or even counter-intuitive from a human perspective (\cite{sturm2014simple}). Nonetheless, they often form the basis for data-driven decision-making systems. 
+Machine learning models like deep neural networks have become so complex, opaque and underspecified in the data that they are generally considered as black boxes. This lack of transparency exacerbates a number of other problems typically associated with these models: they tend to be unstable (\cite{goodfellow2014explaining}), encode existing biases (\cite{buolamwini2018gender}) and learn representations that are surprising or even counter-intuitive from a human perspective (\cite{sturm2014simple}). Nonetheless, they often form the basis for data-driven decision-making systems. 
 
 As others have pointed out, this scenario gives rise to and undesirable **principal-agent problem** involving a group of **principals** - i.e. human stakeholders - that fail to understand the behaviour of their **agent** - i.e. the black-box system (\cite{borch2022machine}). The group of principals may include programmers, product managers and other decision-makers who develop and operate the system as well as those individuals ultimately subject to the decisions made by the system. In practice, decisions made by black-box systems are typically left unchallenged since the principals cannot scrutinize them:
 
-> “You cannot appeal to (algorithms). They do not listen. Nor do they bend.” \cite{o2016weapons}
+> “You cannot appeal to (algorithms). They do not listen. Nor do they bend.” \cite{oneil2016weapons}
 
 In light of all this, a quickly growing body of literature on explainable artificial intelligence has emerged. Counterfactual explanations (CE) and algorithmic recourse (AR) fall into this broader category. Counterfactual explanations can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. Explanations that involve realistic and actionable changes can be used for the purpose of algorithmic recourse (AR): they offer the group of principals a way to not only understand their agent's behaviour, but also adjust or react to it.  
 
-The availability of open-source software for the purpose of explaining black-box models through counterfactuals is still limited. Most existing implmentations are specific to particular methodologies. They are also exclusively built in Python and for Python models. The only existing unifying software approach, for example, is tailored to models built in the two most popular Python libraries for deep learning. The Julia ecosystem has so far lacked an open-source implementation of counterfactual explanations. 
+The availability of open-source software for the purpose of explaining black-box models through counterfactuals is still limited. Most existing implementations are specific to particular methodologies. They are also exclusively built in Python and for Python models. The only existing unifying software approach, for example, is tailored to models built in the two most popular Python libraries for deep learning. The Julia ecosystem has so far lacked an open-source implementation of counterfactual explanations. 
 
 Through the work presented here we aim to close that gap and thereby contribute to broader community efforts towards explainable AI. We envision this package to be a go-to place for counterfactual explanations in Julia. Thanks to its applicability to systems built in other programming languages we believe that this library may ultimately also benefit the broader community engaged in data-driven decision making. 
 
 Our package provides a simple and intuitive interface to generate counterfactual explanations for differentiable classification models trained in Julia. It comes with detailed documentation involving various illustrative example datasets, linear and deep learning classifiers and counterfactual generators for binary and multi-class prediction tasks. A carefully designed package architecture allows for seamless extension of the package functionality through custom generators and models. By leveraging Julia's unique support for language interoperability, we also demonstrate how to easily use our package to explain models that were built and trained in `Python` and `R`.
 
-The remainder of this article is structured as follows: @sec-related presents related work on explainable AI, @sec-method provides a brief overview of the methodological framework, @sec-use presents the package functionality. To demonstrate its practical use, @sec-emp involves an application to MNIST data. Finally, we also discuss current limitations of our package, as well as its future outlook in @sec-outlook. @sec-conclude concludes.
+The remainder of this article is structured as follows: @sec-related presents related work on explainable AI as well as a brief overview of the methodological framework underlying CE. @sec-arch introduces the Julia package and its high-level architecture. @sec-use then presents a number of basic and advanced usage examples. In @sec-custom we demonstrate how the package functionality can be customized and extended. To provide a flavour of its practical use, we use the package to explain models trained on MNIST data in @sec-emp. Finally, we also discuss current limitations of our package, as well as its future outlook in @sec-outlook. @sec-conclude concludes.
 
 # Background and related work {#sec-related}
 
+In this section we first briefly introduce the broad field of Explainable Artificial Intelligence (XAI), before narrowing it down to Counterfactual Explanations. We introduce the methodological framework and finally point to existing open-source software.
+
 ## Literature on explainable AI
 
-The field of explainable artificial intelligence (XAI) is still relatively young and made up of a variety of subdomains, definitions, concepts and taxonomies. Covering all of these is beyond the scope of this article, so we will focus only on high-level concepts. The following literature surveys provide more detail: \cite{arrieta2020explainable} provide a broad overview of XAI; \cite{fan2020interpretability} focus on explainability in the context of deep learning; and finally, \cite{karimi2020survey} and \cite{verma2020counterfactual} offer detailed reviews of the literature on counterfactual explanations and algorithmic recourse.^[Readers who prefer a text-book approach may also want to consider \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}] Finally, \cite{miller2019explanation} explicitly takes the social sciences take on explanation into account.
+The field of Explainable AI is still relatively young and made up of a variety of subdomains, definitions, concepts and taxonomies. Covering all of these is beyond the scope of this article, so we will focus only on high-level concepts. The following literature surveys provide more detail: \cite{arrieta2020explainable} provide a broad overview of XAI; \cite{fan2020interpretability} focus on explainability in the context of deep learning; and finally, \cite{karimi2020survey} and \cite{verma2020counterfactual} offer detailed reviews of the literature on counterfactual explanations and algorithmic recourse.^[Readers who prefer a text-book approach may also want to consider \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}] Finally, \cite{miller2019explanation} explicitly takes the social sciences take on explanation into account.
 
 The first broad distinction we want to make here is between **interpretable** and **explainable** AI. These terms are often used interchangeably, but this can cause confusion. We find the distinction made in \cite{rudin2019stop} useful: interpretable AI involves models that are inherently interpretable and transparent such as general additive models (GAM), decision trees and rule-based models; explainable AI may involve models that are not inherently interpretable, but require additional tools to be explainable to humans. Examples of the latter include ensembles, support vector machines and deep neural networks. Some would argue that we best avoid the second category of models [\cite{rudin2019stop}] and instead focus solely on interpretable AI. While we agree that initial efforts should always be geared towards interpretable models, avoiding black boxes altogether would entail missed opportunities and anyway is probably not very realistic at this point. For that reason, we expect the need for explainable AI to persist in the near future. Explainable AI can further be broadly divided into **global** and **local** explainability: the former is concerned with explaining the average behavior of a model, while the latter involves explanations for individual predictions \cite{molnar2020interpretable}. Tools for global explainability include partial dependence plots (PDP), which involves the computation of marginal effects through Monte Carlo, and global surrogates. A surrogate model is an interpretable model that is trained to explain the predictions of a black-box model. 
 
@@ -51,26 +52,26 @@ Counterfactual search happens in the feature space: we are interested in underst
 The counterfactual search objective originally proposed by \cite{wachter2017counterfactual} is as follows
 
 $$
-\min_{x\prime \in \mathcal{X}} h(x\prime) \ \ \ \mbox{s. t.} \ \ \ M(x\prime) = t
+\min_{x^\prime \in \mathcal{X}} h(x^\prime) \ \ \ \mbox{s. t.} \ \ \ M(x^\prime) = t
 $$ {#eq-obj}
 
-where $h(\cdot)$ quantifies how complex or costly it is to go from the factual $x$ to the counterfactual $x\prime$. To simplify things we can restate this constrained objective (@eq-obj) as the following unconstrained and differentiable problem:
+where $h(\cdot)$ quantifies how complex or costly it is to go from the factual $x$ to the counterfactual $x^\prime$. To simplify things we can restate this constrained objective (@eq-obj) as the following unconstrained and differentiable problem:
 
 $$
-x\prime = \arg \min_{x\prime}  \ell(M(x\prime),t) + \lambda h(x\prime)
+x^\prime = \arg \min_{x^\prime}  \ell(M(x^\prime),t) + \lambda h(x^\prime)
 $$ {#eq-solution}
 
 Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the strength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach in our package. The hyperparameter $\lambda$ is typically tuned through grid search. Conventional choices for $\ell$ include margin-based losses like cross-entropy loss and hinge loss. It is worth pointing out that the loss function is typically computed with respect to logits rather than predicted probabilities, a convention that we have chosen to follow.^[While the rationale for this convention is not entirely obvious, implementations of loss functions with respect to logits are often numerically more stable. For example, the `logitbinarycrossentropy(ŷ, y)` implementation in `Flux.Losses` (used here) is more stable than the mathematically equivalent `binarycrossentropy(ŷ, y)`.] 
 
-Numerous - and in some cases competing - extensions to this simple approach have been developed since counterfactual explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective counterfactual explanations that have been set out. These desiderata include: **closeness** - the average distance between factual and counterfactual features should be small (\cite{wachter2017counterfactual}); **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be realistic plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual (\cite{schut2021generating}); **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible (\cite{schut2021generating}); **robustness** - the counterfactual explanation should be robust to domain and model shifts (\cite{upadhyay2021towards}); **diversity** - ideally multiple diverse counterfactual explanations should be provided (\cite{mothilal2020explaining}); and **causality** - counterfactual explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+Numerous - and in some cases competing - extensions to this simple approach have been developed since counterfactual explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective counterfactual explanations that have been set out. These desiderata include: **closeness** - the average distance between factual and counterfactual features should be small (\cite{wachter2017counterfactual}); **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be realistic plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual (\cite{schut2021generating}); **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible (\cite{schut2021generating}); **robustness** - the counterfactual explanation should be robust to domain and model shifts (\cite{upadhyay2021robust}); **diversity** - ideally multiple diverse counterfactual explanations should be provided (\cite{mothilal2020explaining}); and **causality** - counterfactual explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
 
 ## Existing software
 
-To the best of our knowledge, the package introduced here provides the first implementation of counterfactual explanations in Julia and therefore represents a novel contribution to the community. As for other programming languages, we are only aware of one other unifying framework: the recently introduce Python library [CARLA](https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest) (\cite{pawelczyk2021carla}). In addition to that, there exists open-source code for some specific approaches to counterfactual explanations that have been proposed in recent years. The approach-specific implementations that we have been able to find are generally well documented, but exclusively in Python. For example, a PyTorch implementation of a greedy generator for Bayesian models proposed in \cite{schut2021generating} has been released.^[See here: [https://github.com/oscarkey/explanations-by-minimizing-uncertainty](https://github.com/oscarkey/explanations-by-minimizing-uncertainty)] As another example, the popular [InterpretML](https://github.com/interpretml) library includes an implementation of a diverse counterfactual generator proposed by \cite{mothilal2020explaining}. 
+To the best of our knowledge, the package introduced here provides the first implementation of counterfactual explanations in Julia and therefore represents a novel contribution to the community. As for other programming languages, we are only aware of one other unifying framework: the recently introduce Python library [CARLA](https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest) (\cite{pawelczyk2021carla}). In addition to that, there exists open-source code for some specific approaches to counterfactual explanations that have been proposed in recent years. The approach-specific implementations that we have been able to find are generally well documented, but exclusively in Python. For example, a PyTorch implementation of a greedy generator for Bayesian models proposed in \cite{schut2021generating} has been released. As another example, the popular [InterpretML](https://github.com/interpretml) library includes an implementation of a diverse counterfactual generator proposed by \cite{mothilal2020explaining}. 
 
 Generally speaking, software development in the space of XAI has largely focused on various global methods and surrogate explainers: implementations of PDP, LIME and SHAP are available for both Python (e.g. [`lime`](https://github.com/marcotcr/lime), [`shap`](https://github.com/slundberg/shap)) and R (e.g. [`lime`](https://cran.r-project.org/web/packages/lime/index.html), [`iml`](https://cran.r-project.org/web/packages/lime/index.html), [`shapper`](https://modeloriented.github.io/shapper/), [`fastshap`](https://github.com/bgreenwell/fastshap)). In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely `ShapML.jl` which provides a fast implementation of SHAP.^[See here: [https://github.com/nredell/ShapML.jl](https://github.com/nredell/ShapML.jl)] We also should not fail to mention the comprehensive [Interpretable AI](https://docs.interpretable.ai/stable/IAIBase/data/) infrastructure, which focuses exclusively on interpretable models. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, is currently recruiting contributors for a project about both interpretable and explainable AI.^[For details, see the Google Summer of Code 2022 project proposal: [https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia](https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia).] With our work on counterfactual explanations we hope to contribute to these efforts. We think that because of its unique transparency the Julia language naturally lends itself towards building a greater degree of trust in machine learning and artificial intelligence.
 
-# Introducing: `CounterfactualExplanations.jl` {#sec-use}
+# Introducing: `CounterfactualExplanations.jl` {#sec-arch}
 
 @fig-arch provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and extensible as possible, but cannot guarantee at this point that really any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: AbstractFittedModel` produced by the `Models` module and an instance of type `T <: AbstractGenerator` produced by the `Generators` module. Relating this back to the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution). At the time of writing the following counterfactual generators have been implemented in the package:
 
@@ -81,18 +82,19 @@ Generally speaking, software development in the space of XAI has largely focused
 \item Latent Space Search as in REVISE \cite{joshi2019realistic} and CLUE \cite{antoran2020getting}
 \end{itemize}
 
-The package currently offers native support for models built in the following libraries: [Flux](https://fluxml.ai/); [Torch for R](https://torch.mlverse.org/); [PyTorch](https://pytorch.org/).
-In the following section we will present usage examples and explain how the package can be extended through custom generators and models. 
+The package currently offers native support for models built in [Flux](https://fluxml.ai/). In the following section we will present usage examples and explain how the package can be extended through custom generators and models. 
 
-![Overview of package architecture. Modules are shown in red, structs in green and functions in blue.](www/pkg_architecture.png){#fig-arch width=20pc height=12pc}
+![High-level schematic overview of package architecture. Modules are shown in red, structs in green and functions in blue.](www/pkg_architecture.png){#fig-arch width=20pc height=12pc}
 
-# Basic Usage {#sec-start}
+# Basic Usage {#sec-use}
+
+In the following we begin our exploration of the package functionality with a simple example. We then turn to a more advanced usage example and show how users can impose mutability constraints on features.
 
 ## A Simple Generic Generator
 
 The code below provides a complete example demonstrating how the framework presented in @sec-method can be implemented in Julia with our package. Using a synthetic data set with linearly separable samples we firstly define our model and then generate a counterfactual for a randomly selected sample. @fig-binary shows the resulting counterfactual path in the two-dimensional feature space. Features go through iterative perturbations until the desired confidence level is reached as illustrated by the contour in the background, which indicates the classifier's predicted probability that the label is equal to 1.
 
-It may help to go through the relevant parts of the code in some more detail starting from the part involving the model. For illustrative purposes the `Models` module ships with a constructor for a logistic regression model: `LogisticModel(W::Matrix,b::AbstractArray) <: AbstractFittedModel`. This constructor does not fit the regression model, but rather takes its underlying parameters as given. In other words, it is generally assumed that the user has already estimated a model. Based on the provided estimates two functions are already implemented that compute logits and probabilities for the model, respectively. Below we will see how users can use dispatch to extend these functions for use with arbitrary models. For now it is enough to note that those methods define how the model makes its predictions $M(x)$ and hence they form an integral part of the counterfactual search. With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x`; 2) compute its factual label `y` as predicted by the model ($M(x)=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(x\prime)=t$. 
+It may help to go through the relevant parts of the code in some more detail starting from the part involving the model. For illustrative purposes the `Models` module ships with a constructor for a logistic regression model: `LogisticModel(W::Matrix,b::AbstractArray) <: AbstractFittedModel`. This constructor does not fit the regression model, but rather takes its underlying parameters as given. In other words, it is generally assumed that the user has already estimated a model. Based on the provided estimates two functions are already implemented that compute logits and probabilities for the model, respectively. Below we will see how users can use dispatch to extend these functions for use with arbitrary models. For now it is enough to note that those methods define how the model makes its predictions $M(x)$ and hence they form an integral part of the counterfactual search. With the model $M$ defined in the code below we go on to set up the counterfactual search as follows: 1) choose a random sample `x`; 2) compute its factual label `y` as predicted by the model ($M(x)=0$); and 3) specify the other class as our `target` label ($t=1$) along with a desired level of `confidence` in the final prediction $M(x^\prime)=t$. 
 
 The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. The first three fields of the `GenericGenerator` are reserved for hyperparameters governing the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence. The fourth field accepts a `Symbol` defining the type of loss function $\ell$ to be used. Since we are dealing with a binary classification problem, logit binary cross-entropy is an appropriate choice.^[As mentioned earlier, the loss function is computed with respect to logits and hence it is important to use logit binary cross-entropy loss as opposed to just binary cross-entropy.] The fifth and last field can be used to define mutability constraints for the features.   
 
@@ -178,9 +180,12 @@ The more advanced generators currently implemented in `CounterfactualExplanation
 Listing \ref{lst:binary-advanced} below shows a more advanced usage example involving the DiCE generator. Once again it is worth dwelling on this for a moment. In line \ref{line:binary-advanced-opt} we instantiate a Flux optimizer that will determine how exactly the counterfactual search objective is optimized. That optimizer is then fed to the `DiCEGenerator` in line \ref{line:binary-advanced-dice}.^[Note that all differentiable generators except the `GreedyGenerator` work with Flux optimizers and accept them as an optional key argument.]. The main API call to actually generate counterfactuals is the same as before, but note that in line \ref{line:binary-advanced-num} we have specified an optional key argument that determines how many counterfactuals are generated. For the DiCE generator it naturally makes sense to generate multiple counterfactuals, but note that this is in principal also possible for all other generators.^[By default counterfactuals are initialized by adding a small, random perturbation, as this improves adversarial robustness \cite{slack2021counterfactual}. Therefore, generating multiple counterfactuals will yield multiple distinct outcomes even without an explicit diversity constraint.] @fig-binary-advanced shows the resulting output. It was generated by calling the generic `plot` method directly on the object returned by `generate_counterfactual`.
 
 ```{julia}
+w = [1.0 1.0]# true coefficients
+b = 0
+M = LogisticModel(w, [b])
 # Counterfactual search:
 opt = Flux.Optimise.Descent(1.0)
-generator = DiCEGenerator(;opt = opt)
+generator = DiCEGenerator(; opt = opt)
 counterfactuals = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
     num_counterfactuals=5
@@ -190,7 +195,7 @@ plt = plot(counterfactuals)
 savefig(plt, "paper/www/binary_advanced.png")
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:binary-advanced}, caption={An advanced usage example involving the DiCE Generator.}]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:binary-advanced}, caption={}]
 # Counterfactual search:
 opt = Flux.Optimise.Descent(1.0) @\label{line:binary-advanced-opt}@
 generator = DiCEGenerator(;opt = opt) @\label{line:binary-advanced-dice}@
@@ -224,17 +229,19 @@ M = LogisticModel(w, [b])
 
 Mutability of features can be defined in terms of four different options: 1) the feature is mutable in both directions, 2) the feature can only increase (e.g. *age*), 3) the feature can only decrease (e.g. *time left* until your next deadline) and 4) the feature is not mutable (e.g. *skin colour*, *ethnicity*, ...). To specify which category a feature belongs to, you can pass a vector of symbols containing the mutability constraints at the pre-processing stage. For each feature you can choose from these four options: `:both` (mutable in both directions), `:increase` (only up), `:decrease` (only down) and `:none` (immutable). By default, `nothing` is passed to that keyword argument and it is assumed that all features are mutable in both directions.
 
-Below we impose that the second feature is immutable. The resulting counterfactual path is shown in @fig-mutability below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
+Below we impose that the second feature is immutable. 
 
 ```{julia}
 counterfactual_data = CounterfactualData(
     X,ys';mutability=[:both, :none])
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mutability}, caption={}]
 counterfactual_data = CounterfactualData(
     X,ys';mutability=[:both, :none])
 \end{lstlisting}
+
+The resulting counterfactual path is shown in @fig-mutability below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
 
 ```{julia}
 # Randomly selected factual:
@@ -261,9 +268,11 @@ savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 
 # Customization and Extensibility {#sec-custom}
 
+One of our priorities has been to make `CounterfactualExplanations` extensible and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals.
+
 ## Adding Custom Models {#sec-custom-mod}
 
-One of our priorities has been to make `CounterfactualExplanations` extensible and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals. At the high level, only two steps are necessary to make any supervised learning model compatible with our package^[In order for the model to be compatible with the gradient-based default generators presented in @sec-start gradient access is also necessary, but any model can also be complemented with a custom generator.]:
+At the high level, only two steps are necessary to make any supervised learning model compatible with our package:
 
 \begin{unnumlist}
 \item \textbf{Subtyping}: the model needs to be declared as a subtype of \texttt{AbstractFittedModel}.
@@ -309,7 +318,7 @@ for epoch = 1:epochs
 end
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:nn}, caption={.}]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:nn}, caption={}]
 n_hidden = 32
 output_dim = length(unique(y))
 input_dim = 2
@@ -338,7 +347,7 @@ M = MyFluxModel(model, :classification_multi)
 
 Listing \ref{lst:mymodel} below implements the two steps that were necessary to make Flux models compatible with the package. In line \ref{line:mymodel-subtype} we declare our new struct as a subtype of `AbstractDifferentiableModel`, which itself is an abstract subtype of `AbstractFittedModel`.^[Note that in line \ref{line:mymodel-likelihood} we also provide a field determining the likelihood. This is optional and only used internally to determine which loss function to use in the counterfactual search. If this field is not provided to the model, the loss function needs to be explicitly supplied to the generator.] Computing logits amounts to just calling the model on inputs. Predicted probabilities for labels can than be computed by passing predicted logits through the softmax function. 
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mymodel}, caption={.}]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mymodel}, caption={}]
 # Step 1)
 struct MyFluxModel <: AbstractDifferentiableModel @\label{line:mymodel-subtype}@
     model::Any
@@ -370,7 +379,7 @@ counterfactual = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
 
-The API call for actually generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case the contour shows the predicted probability that the input is in the target class ($t=`julia target`$). Generic search yields a valid, realistic and unambiguous counterfactual. 
+The API call for actually generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case the contour shows the predicted probability that the input is in the target class ($t=2$). Generic search yields a valid, realistic and unambiguous counterfactual. 
 
 ```{julia}
 plt = plot(counterfactual)
@@ -386,7 +395,7 @@ To illustrate how custom generators can be implemented we will consider a simple
 
 ### A Generator with Dropout
 
-Listing \ref{{lst:dropout}} below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor similar to the `GenericConstructor`, but with one additional field for the probability of dropout.
+Listing \ref{lst:dropout} below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor similar to the `GenericConstructor`, but with one additional field for the probability of dropout.
 
 ```{julia}
 # Abstract suptype:
@@ -397,7 +406,7 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
+    decision_threshold::Union{Nothing,AbstractFloat} 
     opt::Any # optimizer
     τ::AbstractFloat # tolerance for convergence
     p_dropout::AbstractFloat # dropout rate
@@ -416,7 +425,7 @@ generator = DropoutGenerator(
 )
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={.}]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={}]
 # Abstract suptype:
 abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
@@ -425,23 +434,11 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Symbol # loss function
     complexity::Function # complexity function
     @$\lambda$@::AbstractFloat # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
+    decision_threshold::Union{Nothing,AbstractFloat} 
     opt::Any # optimizer
     @$\tau$@::AbstractFloat # tolerance for convergence
     p_dropout::AbstractFloat # dropout rate
 end
-
-# Instantiate:
-using LinearAlgebra
-generator = DropoutGenerator(
-    :logitbinarycrossentropy,
-    norm,
-    0.1,
-    0.5,
-    Flux.Optimise.Descent(),
-    0.1,
-    0.5
-)
 \end{lstlisting}
 
 Next, in listing \ref{lst:generate} we define how feature perturbations are generated for our custom dropout generator: in particular, we extend the relevant function through a method that implements the dropout logic.
@@ -469,16 +466,18 @@ function generate_perturbations(
 end
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={.}]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={}]
 using CounterfactualExplanations.Generators
-import Generators: generate_perturbations, propose_state
+import Generators: generate_perturbations
+import Generators: propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
     counterfactual_state::State
 )
     @$s^\prime$@ = deepcopy(counterfactual_state.@$s^\prime$@)
-    new_@$s^\prime$@ = propose_state(generator, counterfactual_state)
+    new_@$s^\prime$@ = propose_state(
+        generator, counterfactual_state)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
 
     # Dropout:
@@ -527,258 +526,44 @@ savefig(plt, joinpath(www_path, "dropout.png"))
 
 ![Counterfactual path for a generator with dropout.](www/dropout.png){#fig-dropout width=20pc height=15pc}
 
+# A Real-World Example --- MNIST {#sec-emp}
 
-## Adding Foreign Language Support {#sec-custom-foreign}
+Now that we have explained the basic functionality of `CounterfactualExplanations` through some synthetic examples, it is time to work through an example involving real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate and augment some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
 
-The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through auxiliary packages like `RCall.jl`, `PythonCall.jl` and `PyCall.jl`, respectively. This functionality has been leveraged to make `CounterfactualExplanations.jl` compatible with models that were developed in foreign programming languages. At the time of writing this feature is still somewhat experimental, but we hope that the following demonstration shows, firstly, how straight-forward it can be to add foreign language support and, secondly, how useful this may potentially be to the data science community at large. In particular, we will loosely reiterate here how we have added support for `torch` neural network trained in `R`.^[The corresponding example involving `PyTorch` is analogous and therefore not included here. You may find it here: [https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)] 
-
-### Explaining a Neural Network Trained in R
-
-```{julia}
-using Random
-# Some random data:
-Random.seed!(1234)
-N = 100
-using CounterfactualExplanations
-using CounterfactualExplanations.Data
-xs, ys = Data.toy_data_non_linear(N)
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
-```
-
-```{julia}
-using RCall
-R"""
-# Data
-library(torch)
-X <- torch_tensor(t($X))
-ys <- torch_tensor($ys)
-
-# Model:
-mlp <- nn_module(
-  initialize = function() {
-    self$layer1 <- nn_linear(2, 32)
-    self$layer2 <- nn_linear(32, 1)
-  },
-  forward = function(input) {
-    input <- self$layer1(input)
-    input <- nnf_sigmoid(input)
-    input <- self$layer2(input)
-    input
-  }
-)
-model <- mlp()
-optimizer <- optim_adam(model$parameters, lr = 0.1)
-loss_fun <- nnf_binary_cross_entropy_with_logits
-for (epoch in 1:100) {
-
-  model$train()  
-
-  # Compute prediction and loss:
-  output <- model(X)[,1]
-  loss <- loss_fun(output, ys)
-
-  # Backpropagation:
-  optimizer$zero_grad()
-  loss$backward()
-  optimizer$step()
-  
-  cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
-}
-"""
-```
-
-We have trained a simple MLP for binary classification task involving a synthetic data set using the R library `torch`. Inside the R working environment the fitted `torch` model is stored as an object called `model`. That R object can be accessed from Julia using `RCall.jl` by simply calling `R"model"`. As in @sec-custom and @sec-emp the first thing necessary to make this model compatible with our package is to declare it as a subtype of `Model.AbstractDifferentiableModel`. As always we also need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. The code below shows how this can be done. Logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia by passing the logits through the sigmoid function.^[To simplify things here we focus on binary classification. The package also natively supports multi-class prediction tasks.]
-
-```{julia}
-#| eval: false
-# struct RTorchModel <: AbstractDifferentiableModel
-#     model::Any
-#     # [...] 
-# end
-
-# function logits(M::RTorchModel, X::AbstractArray)
-#   model = M.model
-#   if size(X)[1] == 1
-#       X = X'
-#   end
-#   if !isa(X, Matrix)
-#     X = reshape(X, length(X), 1)
-#   end
-#   ŷ = rcopy(R"as_array($model(torch_tensor(t($X))))")
-#   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-#   return ŷ'
-# end
-
-# function probs(M::RTorchModel, X::AbstractArray)
-#   return σ.(logits(M, X))
-#   # [...]
-# end
-```
-
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={.}]
-# Step 1)
-struct MyTorchModel <: Models.AbstractDifferentiableModel
-    nn::Any
-end
-
-# Step 2)
-function logits(M::MyTorchModel, X::AbstractArray)
-  nn = M.nn
-  y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  y = isa(y, AbstractArray) ? y : [y]
-  return y'
-end
-function probs(M::MyTorchModel, X::AbstractArray)
-  return σ.(logits(M, X))
-end
-M = MyTorchModel(R"model")
-\end{lstlisting}
-
-```{julia}
-M = RTorchModel(R"model")
-```
-
-
-Next, we need to do a tiny bit of work on the `AbstractGenerator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `MyTorchModel` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. The method itself is then used by the core function `generate_counterfactuals` introduced earlier. From here on onwards the `CounterfactualExplanations.jl` functionality can be used as always. @fig-torch shows the counterfactual path for a randomly chosen sample with respect to the MLP trained in R.
-
-```{julia}
-#| eval: false
-# Countefactual loss:
-# function ∂ℓ(
-#     generator::AbstractGradientBasedGenerator, 
-#     M::RTorchModel, 
-#     counterfactual_state::State
-# ) 
-#     nn = M.model
-#     s_cf = counterfactual_state.s′
-#     t = counterfactual_state.target_encoded
-#     R"""
-#     x <- torch_tensor($s_cf, requires_grad=TRUE)
-#     t <- torch_tensor($t, dtype=torch_float())
-#     output <- $nn(x)
-#     obj_loss <- nnf_binary_cross_entropy_with_logits(output,t)
-#     obj_loss$backward()
-#     """
-#     grad = rcopy(R"as_array(x$grad)")
-#     return grad
-# end
-```
-
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left]
-import CounterfactualExplanations.Generators: @$\partial\ell$@
-using LinearAlgebra
-
-# Countefactual loss:
-function @$\partial\ell$@(
-    generator::AbstractGradientBasedGenerator, 
-    counterfactual_state::State) 
-  M = counterfactual_state.M
-  nn = M.nn
-  @$x\prime$@ = counterfactual_state.@$x\prime$@
-  t = counterfactual_state.target_encoded
-  R"""
-  x <- torch_tensor($@$x\prime$@, requires_grad=TRUE)
-  output <- $nn(x)
-  loss_fun <- nnf_binary_cross_entropy_with_logits
-  obj_loss <- loss_fun(output,$t)
-  obj_loss$backward()
-  """
-  grad = rcopy(R"as_array(x$grad)")
-  return grad
-end
-\end{lstlisting}
-
-```{julia}
-# Randomly selected factual:
-Random.seed!(123)
-x = select_factual(counterfactual_data, rand(1:length(xs))) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-# Define generator:
-generator = GenericGenerator()
-# Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-```
-
-```{julia}
-using Plots
-plt = plot(counterfactual)
-savefig(plt, "paper/www/ce_torch.png")
-```
-
-![Counterfactual path using the generic counterfactual generator for a model trained in R.](www/ce_torch.png){#fig-torch width=20pc height=15pc}
-
-# A Worked Example - MNIST {#sec-emp}
-
-Now that we have explained the basic functionality of `CounterfactualExplanations` through some synthetic examples, it is time to work through an example involving real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
-
-On the model side we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality esimtates of predictve uncertainty for neural networks (\cite{wilson2019case.pdf}, \cite{lakshminarayanan2016simple})). In the previous section we already created the necessary subtype and methods to make the multi-output MLP compatible with our package. The code below implements the two necessary steps for the deep ensemble.
+On the model side we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality estimates of predictve uncertainty for neural networks (\cite{wilson2019case}, \cite{lakshminarayanan2016simple})). Our package has native support for ensembles of Flux models. Code \ref{lst:mnist-setup} loads and prepares the pretrained models:
 
 ```{julia}
 using Flux
-using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble
-data, X, ys = mnist_data()
+X, ys = mnist_data() 
+input_dim = size(X)[1]
+counterfactual_data = CounterfactualData(X,ys;domain=(0,1))
 model = mnist_model()
 ensemble = mnist_ensemble()
-counterfactual_data = CounterfactualData(
-    X,ys';domain=(0,1))
-
-# MLP:
-# Step 1)
-struct MyFluxModel <: Models.AbstractFittedModel
-    model::Any
-end
-# Step 2)
-logits(M::MyFluxModel, X::AbstractArray) = M.model(X)
-probs(M::MyFluxModel, X::AbstractArray)= softmax(logits(M, X))
-M = MyFluxModel(model)
-
-# Deep ensemble:
-using Flux: stack
-# Step 1)
-struct FittedEnsemble <: Models.AbstractFittedModel
-    ensemble::AbstractArray
-end
-# Step 2)
-using Statistics
-logits(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([m(X) for m in M.ensemble],3), 
-    dims=3)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([softmax(m(X)) for m in M.ensemble],3),
-    dims=3)
-M_ensemble = FittedEnsemble(ensemble)
+M = FluxModel(model, likelihood=:classification_multi)
+M_ensemble=FluxEnsemble(ensemble, likelihood=:classification_multi)
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left]
-using Flux: stack
-# Step 1)
-struct FittedEnsemble <: Models.AbstractFittedModel
-    ensemble::AbstractArray
-end
-# Step 2)
-using Statistics
-logits(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([m(X) for m in M.ensemble],3), 
-    dims=3)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(
-    stack([softmax(m(X)) for m in M.ensemble],3),
-    dims=3)
-M_ensemble = FittedEnsemble(ensemble)
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
+using Flux
+X, ys = mnist_data() 
+counterfactual_data = CounterfactualData(X,ys)
+model = mnist_model()
+ensemble = mnist_ensemble()
+M = FluxModel(model)
+M_ensemble = FluxEnsemble(ensemble)
 \end{lstlisting}
 
 ```{julia}
 # Randomly selected factual:
 using Random
-Random.seed!(1234)
-x = Flux.unsqueeze(select_factual(counterfactual_data, rand(1:size(X)[2])),2)
+Random.seed!(42)
+x = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==9))],input_dim,1)
 target = 5
 γ = 0.95
 using Images
-using MLDatasets.MNIST: convert2image
+using MLDatasets: convert2image, MNIST
 input_dim = size(X)[1]
-img = convert2image(reshape(x,Int(√(input_dim)),Int(√(input_dim))))
+img = convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim))))
 plt_orig = plot(img, title="Original", axis=nothing)
 savefig(plt_orig, "paper/www/mnist_original.png")
 ```
@@ -790,8 +575,8 @@ For the counterfactual search we will use four different combinations of classif
 ```{julia}
 #| echo: false
 generators = Dict(
-    "Wachter" => GenericGenerator(;loss=:logitcrossentropy),
-    "Greedy" => GreedyGenerator(;loss=:logitcrossentropy)
+    "Wachter" => GenericGenerator(;decision_threshold=γ),
+    "Greedy" => GreedyGenerator(;decision_threshold=γ)
 )
 models = Dict("MLP" => M, "Ensemble" => M_ensemble)
 ```
@@ -843,8 +628,8 @@ We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 sho
 ```{julia}
 to = 4
 counterfactuals = from_digit_to_digit(x,to,generators,models)
-plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(reshape(v.x′,Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
+plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
+plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.Counterfactuals.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_9_to_4.png")
 ```
@@ -857,29 +642,33 @@ Overall, the examples in this section demonstrate two points that we have alread
 from = 3
 to = 8
 counterfactuals = from_digit_to_digit(from,to,generators,models)
-plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(reshape(v.x′,Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
+plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
+plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.Counterfactuals.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
 ```
 
 ![Counterfactual explanations for MNIST: turning a three (3) into an eight (8).](www/mnist_3_to_8.png){#fig-mnist-3to8 width=20pc height=5pc}
 
-# Discussiong and Outlook {#sec-outlook}
+# Discussion and Outlook {#sec-outlook}
 
 We believe that this package in its current form offers a valuable contribution to ongoing efforts towards explainable artificial intelligence by the broader Julia community. That being said, there is significant scope for exciting future developments, which we briefly outline in this final section.
 
 ## Candidate models and generators
 
-At the time of writing the package supports a handful of default models and generators either natively or through minimal augmentation. In future work we would like to prioritize the addition of further predictive models and especially generators. With respect to the former, it would be useful to add native support for any arbitrary Flux model, as well as predictive models built in other popular libraries including `MLJ.jl`, `ScikitLearn.jl`, `GLM.jl` and `Turing.jl`. This may also involve adding support for regression models as well as non-differentiable models. In terms of counterfactual generators, we are particularly interested in having the following approaches added: CLUE \cite{antoran2020getting}, DiCE \cite{mothilal2020explaining}, MINT \cite{karimi2021algorithmic}, REVISE \cite{joshi2019realistic} and ROAR \cite{upadhyay2021towards}. Through its composable nature, our package may also allow for combining different approaches.
+At the time of writing the package supports a handful of default models and generators either natively or through minimal augmentation. In future work we would like to prioritize the addition of further predictive models and especially generators. With respect to the former, it would be useful to add native support for any arbitrary Flux model, as well as predictive models built in other popular libraries in particular `MLJ.jl`, but also `ScikitLearn.jl`, `GLM.jl` and `Turing.jl`. This may also involve adding support for regression models as well as non-differentiable models. In terms of counterfactual generators, we are particularly interested in having the following approaches added: CLUE \cite{antoran2020getting}, DiCE \cite{mothilal2020explaining}, MINT \cite{karimi2021algorithmic}, REVISE \cite{joshi2019realistic} and ROAR \cite{upadhyay2021robust}. Through its composable nature, our package may also allow for combining different approaches.
 
 ## Candidate datasets
 
-For benchmarking and testing purposes it will be crucial to add more datasets to our library. We would like to prioritize datasets that have typically been used in the literature on counterfaction explanations including: Adult \cite{adult1996}, Boston Housing \cite{boston1993}, COMPAS \cite{compas2016} and German Credit \cite{germancredit1994}. That being said, there is also scope for adding data sources that have so far not been explored much in this context including image, audio, natural language and timeseries data.
+For benchmarking and testing purposes it will be crucial to add more datasets to our library. We would like to prioritize datasets that have typically been used in the literature on counterfaction explanations including: Adult, California Housing, COMPAS and German Credit \cite{karimi2020survey}. That being said, there is also scope for adding data sources that have so far not been explored much in this context including image, audio, natural language and timeseries data.
 
 ## Improved data preprocessing
 
-Support for data preprocessing is currently limited to adding mutabilitiy and domain constraints. For practical use, the package should ideally be able to natively handle categorical data. It should also offer support for scale independence. The basic module for this is already in place and should be realtively easily extended. 
+Support for data preprocessing is currently limited to adding mutability and domain constraints. For practical use, the package should ideally be able to natively handle categorical data. It should also offer support for scale independence. The basic module for this is already in place and should be realtively easily extended. 
+
+## Adding Foreign Language Support {#sec-dis-foreign}
+
+The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through auxiliary packages like `RCall.jl`, `PythonCall.jl` and `PyCall.jl`, respectively. Early experimentation has shown that this functionality can be leveraged to make `CounterfactualExplanations.jl` compatible with models that were developed in foreign programming languages. At the time of writing this feature is still not mature enoguh, but we hope to add native support for explaining [torch] models trained in R or Python in the near future.^[Early experiments with this feature can be found here: [https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)] 
 
 # Concluding remarks {#sec-conclude}
 

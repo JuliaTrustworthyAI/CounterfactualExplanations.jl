@@ -290,7 +290,7 @@ While both are methodologically very similar, adversarial examples are meant to 
 - **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019realistic)
 - **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
 - **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
-- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
+- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021robust)
 - **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
 - **causality**: counterfactual explanations reflect the structural causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
 
@@ -974,7 +974,7 @@ Add latent space search.
 
 - Add more generators:
   - DiCE [@mothilal2020explaining]
-  - ROAR [@upadhyay2021towards]
+  - ROAR [@upadhyay2021robust]
   - MINT [@karimi2021algorithmic]
 
 . . .
@@ -1099,7 +1099,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 > What happens once AR has actually been implemented? 👀
 
 :::{.incremental}
-- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
+- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021robust]
 - What about endogenous model shifts?
 :::
 

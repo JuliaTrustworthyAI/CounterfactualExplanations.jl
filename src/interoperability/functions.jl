@@ -1,4 +1,4 @@
-using RCall, PyCall
+using RCall
 
 struct InteropError <: Exception 
     lang::String
