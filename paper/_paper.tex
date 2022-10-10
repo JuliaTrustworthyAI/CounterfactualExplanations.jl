@@ -145,7 +145,7 @@
 \date{}
 
 \begin{document}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, sharp corners, frame hidden, enhanced, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, interior hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, breakable, frame hidden, sharp corners, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -153,16 +153,16 @@
 This lack of transparency of modern machine learning models like deep
 neural networks exacerbates a number of other problems typically
 associated with them: they tend to be unstable
-(\cite{goodfellow2014explaining}), encode existing biases
-(\cite{buolamwini2018gender}) and learn representations that are
+\cite{goodfellow2014explaining}, encode existing biases
+\cite{buolamwini2018gender} and learn representations that are
 surprising or even counter-intuitive from a human perspective
-(\cite{sturm2014simple}). Nonetheless, they often form the basis for
+\cite{sturm2014simple}. Nonetheless, they often form the basis for
 data-driven decision-making systems in real-world applications.
 
 As others have pointed out, this scenario gives rise to an undesirable
 principal-agent problem involving a group of principals - i.e.~human
 stakeholders - that fail to understand the behavior of their agent -
-i.e.~the black-box system (\cite{borch2022machine}). The group of
+i.e.~the black-box system \cite{borch2022machine}. The group of
 principals may include programmers, product managers and other
 decision-makers who develop and operate the system as well as those
 individuals ultimately subject to the decisions made by the system. In
@@ -300,14 +300,14 @@ predictions as the black-box model 99 percent of the time is useless and
 potentially misleading for every 1 out 100 individual predictions. In
 fact, a recent study has shown that even experienced data scientists
 tend to put too much trust in explanations produced by LIME and SHAP
-(\cite{kaur2020interpreting}). Another recent work has shown that both
+\cite{kaur2020interpreting}. Another recent work has shown that both
 LIME and SHAP can be easily fooled: both methods depend on random input
 perturbations, a property that can be abused by adverse agents to
 essentially whitewash strongly biased black-box models
-(\cite{slack2020fooling}). In a related work the same authors find that
+\cite{slack2020fooling}. In a related work the same authors find that
 while gradient-based Counterfactual Explanations can also be
 manipulated, there is a straight-forward way to protect against this in
-practice (\cite{slack2021counterfactual}). In the context of quality
+practice \cite{slack2021counterfactual}. In the context of quality
 assessment, it is also worth noting that - contrary to surrogate
 explainers - Counterfactual Explanations always achieve full fidelity by
 construction: counterfactuals are searched with respect to the black-box
@@ -324,7 +324,7 @@ Counterfactual search happens in the feature space\footnote{Or, in the
   case of Latent Space generators, some latent representation of the
   feature space.}: we are interested in understanding how we need to
 change individual attributes in order to change the model output to a
-desired value or label (\cite{molnar2020interpretable}). Typically the
+desired value or label \cite{molnar2020interpretable}. Typically the
 underlying methodology is presented in the context of binary
 classification: \(M: \mathcal{X} \mapsto \mathcal{Y}\) where
 \(\mathcal{X}\subset\mathbb{R}^D\) and \(\mathcal{Y}=\{0,1\}\). Further,
@@ -332,7 +332,7 @@ let \(t=1\) be the target class and let \(x\) denote the factual feature
 vector of some individual sample outside of the target class, so
 \(y=M(x)=0\). We follow this convention here, though it should be noted
 that the ideas presented here also carry over to multi-class problems
-and regression (\cite{molnar2020interpretable}).
+and regression \cite{molnar2020interpretable}.
 
 The counterfactual search objective originally proposed by Wachter et
 al.~(2017) \cite{wachter2017counterfactual} is as follows
@@ -382,20 +382,20 @@ address many of the desirable properties of effective Counterfactual
 Explanations that have been set out. These desiderata include:
 \textbf{closeness} - the average distance between factual and
 counterfactual features should be small
-(\cite{wachter2017counterfactual}); \textbf{actionability} - the
-proposed feature perturbation should actually be actionable
+\cite{wachter2017counterfactual}; \textbf{actionability} - the proposed
+feature perturbation should actually be actionable
 (\cite{ustun2019actionable}, \cite{poyiadzi2020face});
 \textbf{plausibility} - the counterfactual explanation should be
 realistic plausible to a human (\cite{joshi2019realistic},
 \cite{schut2021generating}); \textbf{unambiguity} - a human should have
 no trouble assigning a label to the counterfactual
-(\cite{schut2021generating}); \textbf{sparsity} - the counterfactual
+\cite{schut2021generating}; \textbf{sparsity} - the counterfactual
 explanation should involve as few individual feature changes as possible
-(\cite{schut2021generating}); \textbf{robustness} - the counterfactual
+\cite{schut2021generating}; \textbf{robustness} - the counterfactual
 explanation should be robust to domain and model shifts
-(\cite{upadhyay2021robust}); \textbf{diversity} - ideally multiple
-diverse Counterfactual Explanations should be provided
-(\cite{mothilal2020explaining}); and \textbf{causality} - Counterfactual
+\cite{upadhyay2021robust}; \textbf{diversity} - ideally multiple diverse
+Counterfactual Explanations should be provided
+\cite{mothilal2020explaining}; and \textbf{causality} - Counterfactual
 Explanations should respect the structural causal model underlying the
 data generating process
 (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
@@ -409,15 +409,15 @@ therefore represents a novel contribution to the community. As for other
 programming languages, we are only aware of one other unifying
 framework: the recently introduced Python library
 \href{https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest}{CARLA}
-(\cite{pawelczyk2021carla}). In addition to that, there exists
-open-source code for some specific approaches to Counterfactual
-Explanations that have been proposed in recent years. The
-approach-specific implementations that we have been able to find are
-generally well documented, but exclusively in Python. For example, a
-PyTorch implementation of a greedy generator for Bayesian models
-proposed in \cite{schut2021generating} has been released. As another
-example, the popular \href{https://github.com/interpretml}{InterpretML}
-library includes an implementation of a diverse counterfactual generator
+\cite{pawelczyk2021carla}. In addition to that, there exists open-source
+code for some specific approaches to Counterfactual Explanations that
+have been proposed in recent years. The approach-specific
+implementations that we have been able to find are generally well
+documented, but exclusively in Python. For example, a PyTorch
+implementation of a greedy generator for Bayesian models proposed in
+\cite{schut2021generating} has been released. As another example, the
+popular \href{https://github.com/interpretml}{InterpretML} library
+includes an implementation of a diverse counterfactual generator
 proposed by \cite{mothilal2020explaining}.
 
 Generally speaking, software development in the space of XAI has largely
@@ -919,9 +919,9 @@ Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations.jl} through some synthetic examples,
 it is time to work through an example involving real data. The MNIST
 dataset contains 60,000 training samples of handwritten digits in the
-form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each
-image is associated with a label indicating the digit (0-9) that the
-image represents. The data makes for an interesting case-study of
+form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image
+is associated with a label indicating the digit (0-9) that the image
+represents. The data makes for an interesting case-study of
 Counterfactual Explanations, because humans have a good idea of what
 realistic counterfactuals of digits look like. For example, if you were
 asked to pick up an eraser and turn the digit in
@@ -940,7 +940,7 @@ and, secondly, a deep ensemble composed of five such MLPs following
 \cite{schut2021generating}. Deep ensembles are approximate Bayesian
 model averages that have been shown to yield high-quality estimates of
 predictve uncertainty for neural networks (\cite{wilson2020case},
-\cite{lakshminarayanan2016simple})). Our package has native support for
+\cite{lakshminarayanan2016simple}). Our package has native support for
 ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and
 prepares the pretrained models:
 
@@ -978,7 +978,7 @@ from a human perspective only the counterfactuals for the deep ensemble
 look like a four. The generic generator produces mild perturbations in
 regions that seem irrelevant from a human perspective, but nonetheless
 yields a coutnerfactual that can pass as a four. The greedy approach
-(\cite{schut2021generating}) clearly targets pixels at the top of the
+\cite{schut2021generating} clearly targets pixels at the top of the
 handwritten nine and yields the best result overall. For the
 non-bayesian MLP, both the generic and the greedy approach generate
 counterfactuals that look much like adversarial examples: they perturb
@@ -1002,20 +1002,6 @@ turning a nine (9) into a four (4).}
 
 \end{figure}
 
-Overall, the examples in this section demonstrate two points that we
-have already made earlier: firstly, the findings in
-\cite{schut2021generating} can complement other existing approaches to
-counterfactual generation; and secondly, the quality of the classifier
-is tyically reflected in the quality of the Counterfactual Explanations.
-In other words, we cannot easily generate effective Counterfactual
-Explanations for a poorly trained model.\footnote{A notable exception to
-  this are Latent Space generators.} That property is actually
-desirable: if a model bases its predictions on representations that are
-not intuitive to a human, we would like that to be evident from the
-counterfactual explanation. From that perspective, Counterfactual
-Explanations can help us to not only understand a black-box model, but
-potentially also guide us in improving it.
-
 \begin{figure}
 
 {\centering \includegraphics[width=3.33333in,height=0.83333in]{www/mnist_3_to_8.png}
@@ -1024,6 +1010,48 @@ potentially also guide us in improving it.
 
 \caption{\label{fig-mnist-3to8}Counterfactual explanations for MNIST:
 turning a three (3) into an eight (8).}
+
+\end{figure}
+
+Overall, the examples in this section demonstrate two points that we
+have already made earlier: firstly, the findings in
+\cite{schut2021generating} can complement other existing approaches to
+counterfactual generation; and secondly, the quality of the classifier
+is tyically reflected in the quality of the Counterfactual Explanations.
+In other words, we cannot easily generate effective Counterfactual
+Explanations for a poorly trained model.
+
+A notable exception to this are Latent Space generators. The
+counterfactual in Figure~\ref{fig-mnist-4to9-latent} was generated using
+the REVISE generator introduced earlier. The underlying black-box model
+is the same as before and yet the quality of the produced counterfactual
+is arguably the most compelling out of all examples shown here. While in
+terms of meeting the desiderata for realistic counterfactuals, REVISE
+does remarkably well here, one has to wonder how desirable it really is
+to generate compelling explanations for models that are inherently
+unstable. Applying REVISE blindly to this particular problem may lead
+users to believe that the classifier is well-specified: after all, the
+explanation looks plausible from a human perspective. The fact that less
+plausible counterfactuals also yield a change in the predicted outcome
+goes unnoticed.
+
+It may therefore actually be desirable that the quality of
+counterfactuals is inherently linked to the quality of the black-box
+model: if a model bases its predictions on representations that are not
+intuitive to a human, we would like that to be evident from the
+counterfactual explanation. From that perspective, Counterfactual
+Explanations can help us to not only understand a black-box model, but
+potentially also guide us in improving it.
+
+\begin{figure}
+
+{\centering \includegraphics[width=2.16667in,height=0.83333in]{www/mnist_9to4_latent.png}
+
+}
+
+\caption{\label{fig-mnist-4to9-latent}Counterfactual explanations for
+MNIST using a Latent Space generator with a well-specified generative
+model.}
 
 \end{figure}
 

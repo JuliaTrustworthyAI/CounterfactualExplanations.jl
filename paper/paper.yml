@@ -1,5 +1,6 @@
-title: "Explaining Black-Box Algorithms through Counterfactuals"
+title: "Explaining Black-Box Models through Counterfactuals"
 keywords:
+  - Julia
   - Explainable Artificial Intelligence
   - Counterfactual Explanations
   - Algorithmic Recourse
