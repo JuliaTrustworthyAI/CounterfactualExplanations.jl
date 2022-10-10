@@ -253,18 +253,15 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 ```
 
 ```{julia}
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-plt = plot_contour(X',ys,M)
-[scatter!(plt, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=7.5, color=Int(y), label="") for t in 1:T]
+plt = plot(counterfactual)
 savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 ```
 
 ![Counterfactual path with immutable feature.](www/constraint_mutability.png){#fig-mutability width=20pc height=15pc}
 
-# Customization and Extensibility 
+# Customization and Extensibility {#sec-custom}
 
-## Adding Custom Models {#sec-custom}
+## Adding Custom Models {#sec-custom-mod}
 
 One of our priorities has been to make `CounterfactualExplanations` extensible and versatile. In the long term we aim to add support for more default models and counterfactual generators. In the short term it is designed to allow users to integrate models and generators themselves. Ideally, these community efforts will facilitate our long-term goals. At the high level, only two steps are necessary to make any supervised learning model compatible with our package^[In order for the model to be compatible with the gradient-based default generators presented in @sec-start gradient access is also necessary, but any model can also be complemented with a custom generator.]:
 
@@ -382,7 +379,8 @@ savefig(plt, "paper/www/ce_multi.png")
 
 ![Counterfactual path using generic counterfactual generator for multi-class classifier.](www/ce_multi.png){#fig-multi width=20pc height=15pc}
 
-## Adding Custom Generators
+
+## Adding Custom Generators {#sec-custom-gen}
 
 To illustrate how custom generators can be implemented we will consider a simple example of a generator that extends the functionality of our `GenericGenerator`. We have noted elsewhere that the effectiveness of counterfactual explanations depends to some degree on the quality of the fitted model. Another, perhaps trivial, thing to note is that counterfactual explanations are not unique: there are potentially many valid counterfactual paths. One idea building on these two observations might be to introduce some form of regularization in the counterfactual search. For example, we could use dropout to randomly switch features on and off in each iteration. Without dwelling further on the merit of this idea, we will now briefly show how this can be implemented.
 
@@ -529,11 +527,12 @@ savefig(plt, joinpath(www_path, "dropout.png"))
 
 ![Counterfactual path for a generator with dropout.](www/dropout.png){#fig-dropout width=20pc height=15pc}
 
-## Adding Foreign Language Support
 
-The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through `RCall.jl` and `PyCall.jl`, respectively. This functionality can be leveraged to use `CounterfactualExplanations.jl` to generate explanations for models that were developed in other programming languages. While at the time of writing we have not yet implemented out-of-the-box support for foreign programming languages, the following example involving a `torch` neural network trained in `R` demonstrates how versatile our package is.^[The corresponding example involving `PyTorch` is analagous and therefore not included here. You may find it here: [https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)] 
+## Adding Foreign Language Support {#sec-custom-foreign}
 
-### Explaining a model trained in R
+The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through auxiliary packages like `RCall.jl`, `PythonCall.jl` and `PyCall.jl`, respectively. This functionality has been leveraged to make `CounterfactualExplanations.jl` compatible with models that were developed in foreign programming languages. At the time of writing this feature is still somewhat experimental, but we hope that the following demonstration shows, firstly, how straight-forward it can be to add foreign language support and, secondly, how useful this may potentially be to the data science community at large. In particular, we will loosely reiterate here how we have added support for `torch` neural network trained in `R`.^[The corresponding example involving `PyTorch` is analogous and therefore not included here. You may find it here: [https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/tutorials/interop/)] 
+
+### Explaining a Neural Network Trained in R
 
 ```{julia}
 using Random
@@ -571,92 +570,99 @@ mlp <- nn_module(
 model <- mlp()
 optimizer <- optim_adam(model$parameters, lr = 0.1)
 loss_fun <- nnf_binary_cross_entropy_with_logits
-
 for (epoch in 1:100) {
 
-  model$train()
-  train_losses <- c()  
+  model$train()  
 
+  # Compute prediction and loss:
+  output <- model(X)[,1]
+  loss <- loss_fun(output, ys)
+
+  # Backpropagation:
   optimizer$zero_grad()
-  output <- model(X)
-  loss <- loss_fun(output[,1], ys)
   loss$backward()
   optimizer$step()
-  train_losses <- c(train_losses, loss$item())
   
-  cat(sprintf("Loss at epoch %d: %3f\n", epoch, mean(train_losses)))
+  cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
 }
 """
 ```
 
-We have trained a simple MLP for binary classification task involving a synthetic data set using the R library `torch`. Inside the R working environment the fitted `torch` model is stored as an object called `model`. That R object can be accessed from Julia using `RCall.jl` by simply calling `R"model"`. As in @sec-custom and @sec-emp the first thing necessary to make this model compatible with our package is to declare it as a subtype of `Model.AbstractFittedModel`. As always we also need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. The code below shows how this can be done. Logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia by passing the logits through the sigmoid function.
+We have trained a simple MLP for binary classification task involving a synthetic data set using the R library `torch`. Inside the R working environment the fitted `torch` model is stored as an object called `model`. That R object can be accessed from Julia using `RCall.jl` by simply calling `R"model"`. As in @sec-custom and @sec-emp the first thing necessary to make this model compatible with our package is to declare it as a subtype of `Model.AbstractDifferentiableModel`. As always we also need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. The code below shows how this can be done. Logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia by passing the logits through the sigmoid function.^[To simplify things here we focus on binary classification. The package also natively supports multi-class prediction tasks.]
 
 ```{julia}
-using Flux
-using CounterfactualExplanations, CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+#| eval: false
+# struct RTorchModel <: AbstractDifferentiableModel
+#     model::Any
+#     # [...] 
+# end
 
-# Step 1)
-struct TorchNetwork <: Models.AbstractFittedModel
-    nn::Any
-end
+# function logits(M::RTorchModel, X::AbstractArray)
+#   model = M.model
+#   if size(X)[1] == 1
+#       X = X'
+#   end
+#   if !isa(X, Matrix)
+#     X = reshape(X, length(X), 1)
+#   end
+#   ŷ = rcopy(R"as_array($model(torch_tensor(t($X))))")
+#   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+#   return ŷ'
+# end
 
-# Step 2)
-function logits(M::TorchNetwork, X::AbstractArray)
-  nn = M.nn
-  y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  y = isa(y, AbstractArray) ? y : [y]
-  return y'
-end
-function probs(M::TorchNetwork, X::AbstractArray)
-  return σ.(logits(M, X))
-end
-M = TorchNetwork(R"model")
+# function probs(M::RTorchModel, X::AbstractArray)
+#   return σ.(logits(M, X))
+#   # [...]
+# end
 ```
 
-\begin{lstlisting}[language=Julia]
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={.}]
 # Step 1)
-struct TorchNetwork <: Models.AbstractFittedModel
+struct MyTorchModel <: Models.AbstractDifferentiableModel
     nn::Any
 end
 
 # Step 2)
-function logits(M::TorchNetwork, X::AbstractArray)
+function logits(M::MyTorchModel, X::AbstractArray)
   nn = M.nn
   y = rcopy(R"as_array($nn(torch_tensor(t($X))))")
   y = isa(y, AbstractArray) ? y : [y]
   return y'
 end
-function probs(M::TorchNetwork, X::AbstractArray)
+function probs(M::MyTorchModel, X::AbstractArray)
   return σ.(logits(M, X))
 end
-M = TorchNetwork(R"model")
+M = MyTorchModel(R"model")
 \end{lstlisting}
 
-Next, we need to do a tiny bit of work on the `AbstractGenerator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `TorchNetwork` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. The method itself is then used by the core function `generate_counterfactuals` introduced earlier. From here on onwards the `CounterfactualExplanations.jl` functionality can be used as always. @fig-torch shows the counterfactual path for a randomly chosen sample with respect to the MLP trained in R.
+```{julia}
+M = RTorchModel(R"model")
+```
+
+
+Next, we need to do a tiny bit of work on the `AbstractGenerator` side. The default methods underlying the counterfactual generators are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `MyTorchModel` type we defined above. The code below implements this: our new method calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. The method itself is then used by the core function `generate_counterfactuals` introduced earlier. From here on onwards the `CounterfactualExplanations.jl` functionality can be used as always. @fig-torch shows the counterfactual path for a randomly chosen sample with respect to the MLP trained in R.
 
 ```{julia}
-import CounterfactualExplanations.Generators: ∂ℓ
-using LinearAlgebra
-
+#| eval: false
 # Countefactual loss:
-function ∂ℓ(
-    generator::AbstractGradientBasedGenerator, 
-    counterfactual_state::CounterfactualState) 
-  M = counterfactual_state.M
-  nn = M.nn
-  x′ = counterfactual_state.x′
-  t = counterfactual_state.target_encoded
-  R"""
-  x <- torch_tensor($x′, requires_grad=TRUE)
-  output <- $nn(x)
-  loss_fun <- nnf_binary_cross_entropy_with_logits
-  obj_loss <- loss_fun(output,$t)
-  obj_loss$backward()
-  """
-  grad = rcopy(R"as_array(x$grad)")
-  return grad
-end
+# function ∂ℓ(
+#     generator::AbstractGradientBasedGenerator, 
+#     M::RTorchModel, 
+#     counterfactual_state::State
+# ) 
+#     nn = M.model
+#     s_cf = counterfactual_state.s′
+#     t = counterfactual_state.target_encoded
+#     R"""
+#     x <- torch_tensor($s_cf, requires_grad=TRUE)
+#     t <- torch_tensor($t, dtype=torch_float())
+#     output <- $nn(x)
+#     obj_loss <- nnf_binary_cross_entropy_with_logits(output,t)
+#     obj_loss$backward()
+#     """
+#     grad = rcopy(R"as_array(x$grad)")
+#     return grad
+# end
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left]
@@ -666,7 +672,7 @@ using LinearAlgebra
 # Countefactual loss:
 function @$\partial\ell$@(
     generator::AbstractGradientBasedGenerator, 
-    counterfactual_state::CounterfactualState) 
+    counterfactual_state::State) 
   M = counterfactual_state.M
   nn = M.nn
   @$x\prime$@ = counterfactual_state.@$x\prime$@
@@ -697,10 +703,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ```{julia}
 using Plots
-T = size(path(counterfactual))[1]
-X_path = reduce(hcat,path(counterfactual))
-plt = plot_contour(X',ys,M)
-[scatter!(plt, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=7.5, color=Int(y), label="") for t in 1:T]
+plt = plot(counterfactual)
 savefig(plt, "paper/www/ce_torch.png")
 ```
 
@@ -708,7 +711,7 @@ savefig(plt, "paper/www/ce_torch.png")
 
 # A Worked Example - MNIST {#sec-emp}
 
-Now that we have explained the basic functionality of `CounterfactualExplanations` through a few illustrative toy examples, it is time to consider some real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
+Now that we have explained the basic functionality of `CounterfactualExplanations` through some synthetic examples, it is time to work through an example involving real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images (\cite{lecun1998mnist}). Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case-study of counterfactual explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. In \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodolgy produces effective counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the counterfactual explanations presented here. 
 
 On the model side we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality esimtates of predictve uncertainty for neural networks (\cite{wilson2019case.pdf}, \cite{lakshminarayanan2016simple})). In the previous section we already created the necessary subtype and methods to make the multi-output MLP compatible with our package. The code below implements the two necessary steps for the deep ensemble.
 
