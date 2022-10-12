@@ -35,7 +35,7 @@ www_path = "docs/src/tutorials/www"
 ```{julia}
 using CounterfactualExplanations.Data
 using MLJ
-p = 5
+p = 15
 n = 1000
 X, ys = make_blobs(n, p, centers=3, as_table=false)
 X = X'
