@@ -287,10 +287,10 @@ While both are methodologically very similar, adversarial examples are meant to 
 
 - **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
 - **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
-- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
+- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019realistic)
 - **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
 - **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
-- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
+- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021robust)
 - **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
 - **causality**: counterfactual explanations reflect the structural causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
 
@@ -356,7 +356,7 @@ $$ {#eq-bayes}
 ::::{.columns}
 
 :::{.column width="50%"}
-Instead of perturbing samples directly, some have proposed to instead traverse a lower-dimensional latent embedding learned through a generative model [@joshi2019towards].
+Instead of perturbing samples directly, some have proposed to instead traverse a lower-dimensional latent embedding learned through a generative model [@joshi2019realistic].
 
 $$
 z\prime = \arg \min_{z\prime}  \ell(M(dec(z\prime)),t) + \lambda h(x\prime) 
@@ -370,7 +370,7 @@ where $dec(\cdot)$ is the decoder function.
 :::
 
 :::{.column width="50%"}
-![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019towards. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d width="80%"}
+![Counterfactual (yellow) generated through latent space search (right panel) following @joshi2019realistic. The corresponding counterfactual path in the feature space is shown in the left panel.](www/example_3d.png){#fig-latent-3d width="80%"}
 :::
 
 ::::
@@ -661,7 +661,7 @@ counterfactual = generate_counterfactual(
 
 . . .
 
-... or realize that that REVISE [@joshi2019towards] just boils down to generic search in a latent space:
+... or realize that that REVISE [@joshi2019realistic] just boils down to generic search in a latent space:
 
 ```{julia}
 # Counterfactual search:
@@ -974,7 +974,7 @@ Add latent space search.
 
 - Add more generators:
   - DiCE [@mothilal2020explaining]
-  - ROAR [@upadhyay2021towards]
+  - ROAR [@upadhyay2021robust]
   - MINT [@karimi2021algorithmic]
 
 . . .
@@ -1099,7 +1099,7 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 > What happens once AR has actually been implemented? 👀
 
 :::{.incremental}
-- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
+- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021robust]
 - What about endogenous model shifts?
 :::
 

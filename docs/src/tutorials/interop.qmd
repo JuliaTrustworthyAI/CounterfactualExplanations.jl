@@ -30,6 +30,7 @@ The Julia language offers unique support for programming language interoperabili
 
 ```{julia}
 #| echo: false
+using Pkg; Pkg.activate("docs")
 using Plots, PlotThemes
 theme(:wong)
 using Logging

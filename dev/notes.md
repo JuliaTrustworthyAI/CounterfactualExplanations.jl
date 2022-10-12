@@ -18,7 +18,7 @@ How can we achieve this?
 *Idea 💡*
 
 - Counterfactual generators that search a latent space are not actually different from counterfactual generators that search the feaeture space. 
-- That is to say that the actual counterfactual search objective does not change: for example, the objective function used in REVISE [@joshi2019towards] is equivalent to the one originally proposed by Wachter. 
+- That is to say that the actual counterfactual search objective does not change: for example, the objective function used in REVISE [@joshi2019realistic] is equivalent to the one originally proposed by Wachter. 
 - The only difference is that it is evaluated with respect to $\hat{x}=d(e(x))$ where $e:\mathcal{X}\mapsto\mathcal{Z}$ and $d:\mathcal{Z}\mapsto\mathcal{X}$.
 - This means that any modifications of the counterfactual search objective are also applicable to search in the latent space. 
 - Using this observation we can combine the benefits of searching in the latent space with benefits associated with different counterfactual search objectives. 

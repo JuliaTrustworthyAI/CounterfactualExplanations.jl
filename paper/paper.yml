@@ -1,0 +1,19 @@
+title: "Explaining Black-Box Models through Counterfactuals"
+keywords:
+  - Julia
+  - Explainable Artificial Intelligence
+  - Counterfactual Explanations
+  - Algorithmic Recourse
+authors:
+  - name: Patrick Altmeyer
+    orcid: 0000-0003-4726-8613
+    affiliation: 1
+  - name: Arie van Deursen
+    affiliation: 1
+  - name: Cynthia C. S. Liem
+    affiliation: 1
+affiliations:
+  - name: Delft University of Technology
+    index: 1
+date: 15 March 2022
+bibliography: ref.bib

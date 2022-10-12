@@ -117,16 +117,32 @@ The default method to compute the gradient of the complexity penalty at the curr
 
 The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 """
-∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State) = ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
+function ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_state::CounterfactualState.State)
+    ∂ℓ(generator, M, counterfactual_state) + ∂h(generator, counterfactual_state)
+end
 
+"""
+    propose_state(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+
+Proposes new state based on backpropagation.
+"""
+function propose_state(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
+    grads = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
+    new_s′ = deepcopy(counterfactual_state.s′)
+    Flux.Optimise.update!(generator.opt, new_s′, grads)
+    return new_s′
+end
+
+using Flux
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State)
 
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
 function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_state::CounterfactualState.State) 
-    𝐠ₜ = ∇(generator, counterfactual_state.M, counterfactual_state) # gradient
-    Δs′ = - (generator.ϵ .* 𝐠ₜ) # gradient step
+    s′ = deepcopy(counterfactual_state.s′)
+    new_s′ = propose_state(generator, counterfactual_state)
+    Δs′ = new_s′ - s′ # gradient step
     return Δs′
 end
 

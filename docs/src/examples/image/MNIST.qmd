@@ -73,17 +73,7 @@ using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
 
 M = FluxModel(model, likelihood=:classification_multi)
-
-# Deep ensemble:
-# Step 1)
-struct FittedEnsemble <: Models.AbstractFittedModel
-    ensemble::AbstractArray
-end
-# Step 2)
-using Statistics
-logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([nn(X) for nn in M.ensemble],3), dims=3)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.stack([softmax(nn(X)) for nn in M.ensemble],3),dims=3)
-M_ensemble=FittedEnsemble(ensemble)
+M_ensemble=FluxEnsemble(ensemble, likelihood=:classification_multi)
 ```
 
 ## Generating counterfactuals

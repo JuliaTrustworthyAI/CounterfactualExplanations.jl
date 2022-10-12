@@ -1,5 +1,5 @@
 ---
-jupyter: julia-1.7
+jupyter: julia-1.8
 ---
 
 # MNIST pre-trained model

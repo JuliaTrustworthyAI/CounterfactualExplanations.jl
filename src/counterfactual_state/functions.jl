@@ -5,7 +5,11 @@ struct State
     x::AbstractArray
     s′::AbstractArray
     f::Function
+    y′::AbstractArray
+    target::Number
     target_encoded::Union{Number, AbstractArray, Nothing}
+    γ::Number
+    threshold_reached::Bool
     M::AbstractFittedModel
     params::Dict
     search::Union{Dict,Nothing}

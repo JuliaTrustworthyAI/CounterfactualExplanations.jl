@@ -323,7 +323,6 @@ function probs(M::BayesianLogisticModel, X::AbstractArray)
     z = κ' .* z
     # Compute probabilities
     p = Flux.σ.(z)
-    p = size(p)[2] == 1 ? vec(p) : p
     return p
 end
 

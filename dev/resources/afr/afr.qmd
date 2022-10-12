@@ -72,7 +72,7 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 
 - A unifying framework for generating counterfactual explanations and aglorithmic recourse.
 - Built in Julia, but essentially language agnostic: supporting explanations for models built in Python, R, ...
-- Designed to be easily extensible through multiple dispatch.
+- Designed to be easily extensible through dispatch.
 - Native support for differentiable models built and trained in Julia. 
 
 > Julia is fast, transparent, beautiful and open 🔴🟢🟣
@@ -120,10 +120,10 @@ $$ {#eq-solution}
 
 - **closeness**: the average distance between factual and counterfactual features should be small (@wachter2017counterfactual)
 - **actionability**: the proposed feature perturbation should actually be actionable (@ustun2019actionable, @poyiadzi2020face)
-- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019towards)
+- **plausibility**: the counterfactual explanation should be plausible to a human (@joshi2019realistic)
 - **unambiguity**: a human should have no trouble assigning a label to the counterfactual (@schut2021generating)
 - **sparsity**: the counterfactual explanation should involve as few individual feature changes as possible (@schut2021generating)
-- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021towards)
+- **robustness**: the counterfactual explanation should be robust to domain and model shifts (@upadhyay2021robust)
 - **diversity**: ideally multiple diverse counterfactual explanations should be provided (@mothilal2020explaining)
 - **causality**: counterfactual explanations reflect the structual causal model underlying the data generating process (@karimi2020algorithmic, @karimi2021algorithmic)
 
@@ -422,14 +422,14 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 - Through the help of community contribution we hope to add:
     - native support for deep learning models (`Flux`, `torch`, `tensorflow`) and other differentiable models.
     - support for non-differentiable models.
-    - more generators (DiCE [@mothilal2020explaining], ROAR [@upadhyay2021towards], MINT [@karimi2021algorithmic], CLUE [@antoran2020getting])
+    - more generators (DiCE [@mothilal2020explaining], ROAR [@upadhyay2021robust], MINT [@karimi2021algorithmic], CLUE [@antoran2020getting])
 
 ## Research Topics (1) - Student Project
 
 > What happens once AR has actually been implemented? 👀
 
 :::{.incremental}
-- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021towards]
+- Towards robust AR: protection against exogenous domain and model shifts [@upadhyay2021robust]
 - What about endogenous model shifts?
 :::
 
