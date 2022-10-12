@@ -679,3 +679,7 @@ The Julia language offers unique support for programming language interoperabili
 # Concluding remarks {#sec-conclude}
 
 The goal of this paper was to illustrate the need for explainability in machine learning and the promise of Counterfactual Explanations in this context. To this end, we introduced `CounterfactualExplanation.jl`: a package for generating Counterfactual Explanations and Algorithmic Recourse in Julia. Through various synthetic and real-world examples we have demonstrated the basic usage of the package and shown how it can be easily customized and extended. We envision this package to one day constitute the go-to place for explaining arbitrary predictive models through a diverse suite of counterfactual generators. As a major next step we would therefore like to interface our library with the popular [`MLJ.jl`](https://alan-turing-institute.github.io/MLJ.jl/dev/) package for machine learning in Julia. The package can also serve as a testing ground for new and existing methodological approaches to Counterfactual Explanations and Algorithmic Recourse. We invite the Julia community to contribute to these goals through usage, open challenge and active development.
+
+# Acknowledgements {#sec-ack}
+
+Patrick is grateful to his PhD supervisors and co-authors, Cynthia C. S. Liem and Arie van Deursen, for being so supportive of him working on open-source developments. The authors are grateful to the Julia community for being welcoming and open and for supporting research contributions like this one.
