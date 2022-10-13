@@ -12,7 +12,7 @@ output: asis
 execute: 
   echo: true
   eval: false
-jupyter: julia-1.6
+jupyter: julia-1.7
 ---
 
 ```@meta
@@ -23,11 +23,15 @@ CurrentModule = CounterfactualExplanations
 
 ```
 !!! info "Contributor's Guide" 
-    Our work on language interoperability is still in its early stages. In this tutorial we demonstrate how the package has been extended to accommodate `torch` models trained in R and Python. The goal here is to provide a template and/or starting point for contributors that would like to add support for other models trained in foreign programming languages. 
-    If you are only interested usage examples involving `torch` models, see this [tutorial](../tutorials/interop.md).
+    Our work on language interoperability is still experimental. In this tutorial we demonstrate our early attempts to extend the package to accommodate `torch` models trained in R and Python. The goal here is to provide a template and/or starting point for contributors that would like to add support for other models trained in foreign programming languages. If that contributor could be you, please see the related [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues/67) and work in the linked [branch](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
 ```
 
-The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` leverages this functionality. In particular, we will see that through minimal extra effort the package has been extended to accommodate models that were developed and trained in R or Python.
+```
+!!! info "Native support currently broken and removed" 
+    After bumping Julia version compatibility to `1.8`, interoperability broke for some reason (it was admittedly always experimental and hacky). The code that was previously used for interoperability was removed from the main branch, but still lives [here](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
+```
+
+The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` (potentially `PythonCall.jl` is a better option) and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` can leverage this functionality. 
 
 ```{julia}
 #| echo: false
@@ -104,10 +108,6 @@ for (epoch in 1:100) {
   cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
 }
 """
-```
-
-```{julia}
-M = RTorchModel(R"model")
 ```
 
 ### Making the model compatible

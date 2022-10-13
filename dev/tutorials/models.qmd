@@ -88,8 +88,8 @@ data = zip(xs,ys);
 The code below trains the neural network for the task at hand while keeping track of the training loss. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generating counterfactual explanations for a trained classifier here, we will just keep things very simple on the training side.
 
 ```{julia}
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 100
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 show_every = epochs/10
