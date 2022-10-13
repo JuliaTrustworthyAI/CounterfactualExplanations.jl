@@ -72,6 +72,7 @@ for (key, generator_) ∈ generators
                             # Randomly selected factual:
                             Random.seed!(123)
                             x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+                            multiple_x = select_factual(counterfactual_data,rand(1:size(X)[2],5))
 
                             p_ = probs(M, x)
                             if size(p_)[1] > 1
@@ -81,7 +82,10 @@ for (key, generator_) ∈ generators
                                 y = round(p_[1])
                                 target = y ==0 ? 1 : 0 
                             end
+                            # Single sample:
                             counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                            # Multiple samples:
+                            counterfactuals = generate_counterfactual(multiple_x, target, counterfactual_data, M, generator)
                             
                             @testset "Predetermined outputs" begin
                                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
@@ -95,7 +99,7 @@ for (key, generator_) ∈ generators
 
                             @testset "Benchmark" begin
                                 @test isa(benchmark(counterfactual), DataFrame)
-                                @test isa(benchmark(counterfactual; to_dataframe=false), Dict)
+                                @test isa(benchmark(counterfactuals; to_dataframe=false), Dict)
                             end
                     
                             @testset "Convergence" begin
