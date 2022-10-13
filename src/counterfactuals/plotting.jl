@@ -1,7 +1,7 @@
 using Plots
-import Plots: plot
+using Parameters
 
-function plot(
+function Plots.plot(
     counterfactual_explanation::CounterfactualExplanation; 
     alpha_=0.5, plot_up_to::Union{Nothing,Int}=nothing, plot_proba::Bool=false, kwargs...
 )
@@ -79,7 +79,6 @@ function plot_state(
     end
 end
 
-using Parameters
 @with_kw struct PlotIngredients 
     p1
     p2

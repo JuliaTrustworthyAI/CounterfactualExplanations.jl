@@ -1,3 +1,10 @@
+using Flux
+using MLUtils
+using Statistics
+
+"""
+A struct that collects all information relevant to a specific counterfactual explanations for a single individual.
+"""
 mutable struct CounterfactualExplanation
     x::AbstractArray
     target::Number
@@ -14,21 +21,23 @@ mutable struct CounterfactualExplanation
     initialization::Symbol
 end
 
-using Statistics, Flux
 """
-    CounterfactualExplanation(
-        x::Union{AbstractArray,Int}, 
+    function CounterfactualExplanation(
+        ;
+        x::AbstractArray, 
         target::Union{AbstractFloat,Int}, 
         data::CounterfactualData,  
         M::Models.AbstractFittedModel,
         generator::Generators.AbstractGenerator,
-        γ::AbstractFloat, 
-        T::Int
-    )
+        T::Int=100,
+        latent_space::Union{Nothing, Bool}=nothing,
+        num_counterfactuals::Int=1,
+        initialization::Symbol=:add_perturbation,
+        generative_model_params::NamedTuple=(;)
+    ) 
 
 Outer method to construct a `CounterfactualExplanation` structure.
 """
-# Outer constructor method:
 function CounterfactualExplanation(
     ;
     x::AbstractArray, 
@@ -130,7 +139,7 @@ A convenience method that computes the output dimension of the predictive model.
 """
 output_dim(counterfactual_explanation::CounterfactualExplanation) = size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
 
-using Flux
+
 """
     encode_target(counterfactual_explanation::CounterfactualExplanation) 
 
@@ -316,7 +325,6 @@ function target_probs_path(counterfactual_explanation::CounterfactualExplanation
     return P
 end
 
-using MLUtils
 """
     embed_path(counterfactual_explanation::CounterfactualExplanation)
 

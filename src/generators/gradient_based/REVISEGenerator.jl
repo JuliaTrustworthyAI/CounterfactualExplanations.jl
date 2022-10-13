@@ -1,4 +1,5 @@
 using LinearAlgebra
+using Parameters
 
 # -------- Joshi et al (2019): 
 mutable struct REVISEGenerator <: AbstractLatentSpaceGenerator
@@ -11,7 +12,6 @@ mutable struct REVISEGenerator <: AbstractLatentSpaceGenerator
 end
 
 # API streamlining:
-using Parameters
 @with_kw struct REVISEGeneratorParams
     opt::Any=Flux.Optimise.Descent()
     τ::AbstractFloat=1e-5
@@ -21,7 +21,7 @@ end
     REVISEGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=norm,
+        complexity::Function=LinearAlgebra.norm,
         λ::AbstractFloat=0.1,
         opt::Any=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
@@ -37,7 +37,7 @@ generator = REVISEGenerator()
 function REVISEGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
+    complexity::Function=LinearAlgebra.norm,
     λ::AbstractFloat=0.1,
     decision_threshold=0.5,
     kwargs...

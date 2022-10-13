@@ -1,5 +1,6 @@
-using LinearAlgebra
 using Flux
+using LinearAlgebra
+using Parameters
 
 # -------- Wachter et al (2018): 
 mutable struct GenericGenerator <: AbstractGradientBasedGenerator
@@ -12,7 +13,6 @@ mutable struct GenericGenerator <: AbstractGradientBasedGenerator
 end
 
 # API streamlining:
-using Parameters
 @with_kw struct GenericGeneratorParams
     opt::Any=Flux.Optimise.Descent()
     τ::AbstractFloat=1e-5
@@ -22,7 +22,7 @@ end
     GenericGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=norm,
+        complexity::Function=LinearAlgebra.norm,
         λ::AbstractFloat=0.1,
         opt::Any=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
@@ -38,7 +38,7 @@ generator = GenericGenerator()
 function GenericGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
+    complexity::Function=LinearAlgebra.norm,
     λ::AbstractFloat=0.1,
     decision_threshold=0.5,
     kwargs...

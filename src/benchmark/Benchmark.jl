@@ -1,10 +1,10 @@
 module Benchmark
 
 using ..Counterfactuals
+using DataFrames
 
 include("functions.jl")
 
-using DataFrames
 function benchmark(counterfactual_explanation::Union{CounterfactualExplanation,Vector{CounterfactualExplanation}};to_dataframe=true)
     bmk = Dict(
         :success_rate => success_rate(counterfactual_explanation),

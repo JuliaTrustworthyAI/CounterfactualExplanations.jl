@@ -1,4 +1,5 @@
 using LinearAlgebra
+using Parameters
 
 # -------- Following Mothilal et al. (2020): 
 mutable struct DiCEGenerator <: AbstractGradientBasedGenerator
@@ -11,7 +12,6 @@ mutable struct DiCEGenerator <: AbstractGradientBasedGenerator
 end
 
 # API streamlining:
-using Parameters
 @with_kw struct DiCEGeneratorParams
     opt::Any=Flux.Optimise.Descent()
     τ::AbstractFloat=1e-5
@@ -21,7 +21,7 @@ end
     DiCEGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=norm,
+        complexity::Function=LinearAlgebra.norm,
         λ::AbstractFloat=0.1,
         opt::Any=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
@@ -51,7 +51,7 @@ end
 function ddp_diversity(counterfactual_state::State; perturbation_size=1e-5)
     X = counterfactual_state.s′
     xs = eachslice(X, dims = ndims(X))
-    K = [1/(1 + norm(x .- y)) for x in xs, y in xs]
+    K = [1/(1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
     K += Diagonal(randn(size(X,3))*perturbation_size)
     return det(K)
 end

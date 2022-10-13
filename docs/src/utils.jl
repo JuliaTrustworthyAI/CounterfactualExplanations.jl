@@ -1,3 +1,10 @@
+using BSON: @save
+using CounterfactualExplanations.GenerativeModels: VAE, train!
+using Flux
+using Flux.Optimise: update!
+using Plots
+using Statistics
+
 """
     build_model()
 
@@ -37,8 +44,6 @@ function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false,drop
 
 end
 
-using Flux
-using Flux.Optimise: update!
 """
     forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
 
@@ -88,7 +93,6 @@ function build_ensemble(K=5;kw=(input_dim=2,n_hidden=32,output_dim=1))
     return ensemble
 end
 
-using Statistics
 """
     forward(ensemble, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
 
@@ -116,7 +120,6 @@ function forward(ensemble, data, opt; loss_type=:logitbinarycrossentropy, plot_l
     return ensemble, anim
 end;
 
-using BSON: @save
 """
     save_ensemble(ensemble::AbstractArray; root="")
 
@@ -133,7 +136,6 @@ function save_ensemble(ensemble::AbstractArray; root="")
     end
 end
 
-using BSON: @load
 """
     load_ensemble(root="")
 
@@ -153,7 +155,7 @@ function load_ensemble(;root="")
 end
 
 # Plot data points:
-using Plots
+
 """
     plot_data!(plt,X,y)
 
@@ -174,7 +176,6 @@ function plot_data!(plt,X,y)
 end
 
 # Plot contour of posterior predictive:
-using Plots, CounterfactualExplanations.Models
 """
     plot_contour(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
@@ -224,7 +225,6 @@ function plot_contour(X,y,M;colorbar=true,title="",length_out=50,zoom=-1,xlim=no
 end
 
 # Plot contour of posterior predictive:
-using Plots, CounterfactualExplanations.Models
 """
     plot_contour_multi(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
@@ -281,10 +281,7 @@ function plot_contour_multi(X,y,M;title="",length_out=50,zoom=-1,xlim=nothing,yl
     
 end
 
-using Plots
-import Plots: plot
-using CounterfactualExplanations.GenerativeModels: VAE, train!
-function plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
+function Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
     args = generative_model.params
     device = args.device
     encoder, decoder = generative_model.encoder |> device, generative_model.decoder |> device

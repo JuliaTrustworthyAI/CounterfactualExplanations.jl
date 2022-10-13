@@ -1,6 +1,7 @@
 using CounterfactualExplanations
-using Test
 using Random
+using Test
+
 Random.seed!(0)
 
 using Logging

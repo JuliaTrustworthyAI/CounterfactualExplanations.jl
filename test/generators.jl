@@ -1,5 +1,7 @@
 using CounterfactualExplanations
+using CounterfactualExplanations.Data
 using CounterfactualExplanations.Generators
+using Random
 
 @testset "Construction" begin
 
@@ -18,8 +20,6 @@ using CounterfactualExplanations.Generators
 end
 
 # Data:
-using Random
-using CounterfactualExplanations.Data
 Random.seed!(1234)
 xs, ys = Data.toy_data_linear()
 X = hcat(xs...)

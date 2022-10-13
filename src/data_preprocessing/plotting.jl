@@ -1,9 +1,11 @@
-
 using MultivariateStats
-import MultivariateStats: predict
+using Plots
+using Random
 using UMAP
+
 _n_neighbors(tfn::UMAP.UMAP_) = size(tfn.knns,1)
-function predict(tfn::UMAP.UMAP_, X::AbstractArray)
+
+function MultivariateStats.predict(tfn::UMAP.UMAP_, X::AbstractArray)
     n_neighbors=minimum([_n_neighbors(tfn),size(X,2)-1])
     if n_neighbors==0
         # A simple catch in case n_samples = 1: add random sample and remove afterwards.
@@ -42,14 +44,14 @@ function embed(data::CounterfactualData, X::AbstractArray=nothing; dim_red::Symb
 
     # Transforming:
     if !isnothing(tfn) && !isnothing(X)
-        X = predict(tfn, X)
+        X = MultivariateStats.predict(tfn, X)
     else
         X = isnothing(X) ? X_train : X
     end
     return X
 end
 
-using Random
+
 function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol=:pca)
     X, y = unpack(data)
     y = vec(y)
@@ -61,9 +63,7 @@ function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol=:pca)
     return X', y, multi_dim
 end
 
-using Plots
-import Plots: scatter!
-function scatter!(data::CounterfactualData; dim_red::Symbol=:pca, kwargs...)
+function Plots.scatter!(data::CounterfactualData; dim_red::Symbol=:pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red=dim_red)
     Plots.scatter!(X[:,1],X[:,2],group=Int.(y),color=Int.(y); kwargs...)
 end

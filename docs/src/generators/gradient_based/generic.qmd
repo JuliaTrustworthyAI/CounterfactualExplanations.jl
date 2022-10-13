@@ -44,8 +44,8 @@ counterfactual_data = CounterfactualData(X,ys')
 ```{julia}
 using Flux
 nn = Chain(Dense(2,1))
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 100
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))

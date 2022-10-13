@@ -1,16 +1,20 @@
+using CounterfactualExplanations
+using CounterfactualExplanations.Counterfactuals
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Models
+using Flux
+using LinearAlgebra
+using MLUtils
+using Random
+max_reconstruction_error = Inf
+init_perturbation = 2.0
+
 # NOTE:
 # This is probably the most important/useful test script, because it runs through the whole process of: 
 # - loading artifacts
 # - setting up counterfactual search for various models and generators
 # - running counterfactual search
-
-using CounterfactualExplanations
-using CounterfactualExplanations.Models
-using CounterfactualExplanations.Counterfactuals
-using CounterfactualExplanations.Generators
-using Random, LinearAlgebra, MLUtils, Flux
-max_reconstruction_error = Inf
-init_perturbation = 2.0
 
 ### Load synthetic data and models
 synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])
@@ -138,8 +142,6 @@ for (key, generator_) ∈ generators
         @testset "LogisticModel" begin
 
             # Data:
-            using CounterfactualExplanations.Data
-            using Random
             Random.seed!(1234)
             N = 25
             xs, ys = Data.toy_data_linear(N)
@@ -147,7 +149,6 @@ for (key, generator_) ∈ generators
             counterfactual_data = CounterfactualData(X,ys')
 
             # Model
-            using CounterfactualExplanations.Models: LogisticModel, probs 
             # Logit model:
             w = [1.0 1.0] # true coefficients
             b = 0

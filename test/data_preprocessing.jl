@@ -1,8 +1,8 @@
 using CounterfactualExplanations
+using CounterfactualExplanations.Data
 import CounterfactualExplanations.DataPreprocessing
 
 @testset "Construction" begin
-    using CounterfactualExplanations.Data
     xs, ys = Data.toy_data_linear()
     X = hcat(xs...)
     
@@ -17,7 +17,6 @@ import CounterfactualExplanations.DataPreprocessing
 end
 
 @testset "Convenience functions" begin
-    using CounterfactualExplanations.Data
     xs, ys = Data.toy_data_linear()
     X = hcat(xs...)
     counterfactual_data = CounterfactualData(X,ys')

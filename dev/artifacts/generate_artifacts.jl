@@ -1,4 +1,6 @@
-using Pkg.Artifacts, LibGit2, ghr_jll
+using ghr_jll
+using LibGit2
+using Pkg.Artifacts 
 
 function generate_artifact(
     datafiles; 

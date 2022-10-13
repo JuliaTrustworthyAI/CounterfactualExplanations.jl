@@ -24,7 +24,6 @@ makedocs(;
                 "Multi-class target" => "tutorials/multi.md",
                 "Custom generators" => "tutorials/generators.md",
                 "Mutability constraints" => "tutorials/mutability.md",
-                "Interoperability" => "tutorials/interop.md"
             ],
         "Counterfactual Generators" =>
             [

@@ -1,3 +1,4 @@
+using LinearAlgebra
 using Statistics
 
 """
@@ -13,8 +14,6 @@ function success_rate(counterfactual_explanations::Vector{CounterfactualExplanat
     agg(success_rate.(counterfactual_explanations))
 end    
 
-using LinearAlgebra
-
 """
     distance(counterfactual_explanation::CounterfactualExplanation; agg=mean)
 
@@ -23,7 +22,7 @@ Computes the distance.
 function distance(counterfactual_explanation::CounterfactualExplanation; agg=mean)
     x = Counterfactuals.factual(counterfactual_explanation)
     x′ = Counterfactuals.counterfactual(counterfactual_explanation)
-    return agg(norm.(x.-x′))
+    return agg(LinearAlgebra.norm.(x.-x′))
 end
 
 function distance(counterfactual_explanations::Vector{CounterfactualExplanation}; agg=mean)

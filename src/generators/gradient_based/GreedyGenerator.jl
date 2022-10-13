@@ -1,3 +1,6 @@
+using Parameters
+using LinearAlgebra
+
 # -------- Schut et al (2020): 
 mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
@@ -11,7 +14,6 @@ mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
 end
 
 # API streamlining:
-using Parameters
 @with_kw struct GreedyGeneratorParams
     ϵ::Union{AbstractFloat,Nothing}=nothing
     τ::AbstractFloat=1e-5
@@ -37,7 +39,7 @@ generator = GreedyGenerator()
 function GreedyGenerator(
     ;
     loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
+    complexity::Function=LinearAlgebra.norm,
     λ::AbstractFloat=0.0,
     decision_threshold=0.5,
     kwargs...
@@ -60,7 +62,7 @@ function GreedyGenerator(
     if λ != 0.0
         @warn "Choosing λ different from 0 has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
-    if complexity != norm
+    if complexity != LinearAlgebra.norm
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 

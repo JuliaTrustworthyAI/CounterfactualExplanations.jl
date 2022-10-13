@@ -1,6 +1,7 @@
-using Pkg.Artifacts
-using Flux
 using BSON
+using CounterfactualExplanations # is this bad?
+using Flux
+using LazyArtifacts
 using Random
 
 """
@@ -78,7 +79,6 @@ function mnist_ensemble()
     return ensemble
 end
 
-using CounterfactualExplanations # is this bad?
 """
     mnist_vae()
 
@@ -188,13 +188,12 @@ end
 ###########################
 # Synthetic data
 ###########################
-using Flux, RCall
 """
     load_synthetic()
 
 Helper function that loads dictionary of pretrained models.
 """
-function load_synthetic(models=[:flux, :r_torch])
+function load_synthetic(models=[:flux])
 
     synthetic_dict = Dict()
     # Data
@@ -214,22 +213,7 @@ function load_synthetic(models=[:flux, :r_torch])
             synthetic_dict[likelihood][:models][:flux][:model] = Models.FluxModel(model[:raw_model],likelihood=likelihood)
         end
     end
-    # R torch
-    if :r_torch ∈ models
-        Interoperability.prep_R_session()
-        data_dir = artifact"synthetic_r_torch"
-        data_dir = joinpath(data_dir,"synthetic_r_torch")
-        model_names = readdir(data_dir)
-        model_paths = map(sub_dir -> joinpath(data_dir,sub_dir,"model.pt"),model_names)
-        model_info = zip(model_names, model_paths)
-        for (name,path) ∈ model_info
-            likelihood = Symbol(name)
-            synthetic_dict[likelihood][:models][:r_torch] = Dict()
-            M = R"torch_load($path)"
-            synthetic_dict[likelihood][:models][:r_torch][:raw_model] = M
-            synthetic_dict[likelihood][:models][:r_torch][:model] = Models.RTorchModel(M, likelihood=likelihood)
-        end
-    end
+    
     return synthetic_dict
 end
 

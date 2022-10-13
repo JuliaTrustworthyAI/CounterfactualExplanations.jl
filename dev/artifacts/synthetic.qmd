@@ -66,8 +66,8 @@ data_dict[:classification_binary] = Dict(
 ```
 
 ```{julia}
-using Flux.Optimise: update!, ADAM
-opt = ADAM(0.1)
+using Flux.Optimise: update!, Adam
+opt = Adam(0.1)
 epochs = 100
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 show_every = epochs/10
@@ -135,8 +135,8 @@ data_dict[:classification_multi] = Dict(
 ```
 
 ```{julia}
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 10
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 show_every = epochs/10

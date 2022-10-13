@@ -1,7 +1,7 @@
 using Flux
+using MultivariateStats
 using StatsBase
 using UMAP
-using MultivariateStats
 
 mutable struct CounterfactualData
     X::AbstractMatrix

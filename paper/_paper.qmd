@@ -305,8 +305,8 @@ model = Chain(
 loss(x, y) = Flux.Losses.logitcrossentropy(model(x), y)
 
 # Flux model training:
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 10
 for epoch = 1:epochs
   for d in data

@@ -11,11 +11,11 @@ using BSON
 using CUDA
 using Flux
 using Flux: @functor, chunk
-using Flux.Losses: logitbinarycrossentropy, mse
 using Flux.Data: DataLoader
+using Flux.Losses: logitbinarycrossentropy, mse
 using Parameters: @with_kw
-using ProgressMeter: Progress, next!
 using Random
+using Statistics
 
 """
     get_data(X::AbstractArray, y::AbstractArray, batch_size)
@@ -97,7 +97,7 @@ The default VAE parameters describing both the encoder/decoder architecture and 
     hidden_dim = 32         # hidden dimension
     verbose_freq = 10       # logging for every verbose_freq iterations
     nll = mse               # negative log likelihood -log(p(x|z)): MSE for Gaussian, logit binary cross-entropy for Bernoulli
-    opt = ADAM(η)           # optimizer
+    opt = Adam(η)           # optimizer
 end
 
 """
@@ -176,7 +176,6 @@ function model_loss(generative_model::VAE, λ, x, device)
     return elbo
 end
 
-using Statistics
 function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
     
     # load hyperparamters
@@ -194,7 +193,6 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
         @info "Epoch $(epoch)"
-        # progress = Progress(length(loader); desc="Training VAE - round $epoch:")
         avg_loss = []
         for (x, _) in loader 
             
@@ -205,9 +203,6 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
             avg_loss = vcat(avg_loss, loss)
             grad = back(1f0)
             Flux.Optimise.update!(args.opt, ps, grad)
-
-            # # progress meter
-            # next!(progress; showvalues=[(:Loss, loss)]) 
 
             train_steps += 1
         end 
@@ -237,7 +232,6 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
     @info "Start training, total $(n_epochs) epochs"
     for epoch = 1:n_epochs
         @info "Epoch $(epoch)"
-        # progress = Progress(length(loader); desc="Retraining VAE - round $epoch:")
         avg_loss = []
         for (x, _) in loader 
             
@@ -248,9 +242,6 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
             avg_loss = vcat(avg_loss, loss)
             grad = back(1f0)
             Flux.Optimise.update!(args.opt, ps, grad)
-
-            # # progress meter
-            # next!(progress; showvalues=[(:Loss, loss)]) 
 
             train_steps += 1
         end 

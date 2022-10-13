@@ -1,6 +1,8 @@
-################################################################################
-# --------------- Constructor for counterfactual state:
-################################################################################
+using Flux
+
+"""
+Constructor for counterfactual state.
+"""
 struct State
     x::AbstractArray
     s′::AbstractArray
@@ -15,7 +17,11 @@ struct State
     search::Union{Dict,Nothing}
 end
 
-using Flux
+"""
+    guess_loss(counterfactual_state::State)
+
+Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
+"""
 function guess_loss(counterfactual_state::State)
     if :likelihood in fieldnames(typeof(counterfactual_state.M))
         if counterfactual_state.M.likelihood == :classification_binary

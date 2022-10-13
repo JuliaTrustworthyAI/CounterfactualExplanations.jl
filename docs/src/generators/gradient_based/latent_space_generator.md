@@ -53,8 +53,8 @@ data = zip(xs,ys)
 ```
 
 ``` julia
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 100
 using Statistics: mean
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
@@ -129,8 +129,8 @@ data = zip(xs,ys)
 ```
 
 ``` julia
-using Flux.Optimise: update!, ADAM
-opt = ADAM()
+using Flux.Optimise: update!, Adam
+opt = Adam()
 epochs = 100
 using Statistics: mean
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))

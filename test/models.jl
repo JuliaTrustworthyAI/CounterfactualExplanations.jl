@@ -1,9 +1,9 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
-using Random
-using LinearAlgebra
 using Flux
+using LinearAlgebra
 using MLUtils
+using Random
 
 ### Models for synthetic data
 synthetic = CounterfactualExplanations.Data.load_synthetic([:flux])

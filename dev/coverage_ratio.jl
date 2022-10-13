@@ -1,5 +1,5 @@
-using Logging
 using Coverage
+using Logging
 
 function coverage_ratio(folder="src")
     with_logger(NullLogger()) do

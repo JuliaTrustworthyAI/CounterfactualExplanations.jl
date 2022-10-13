@@ -76,9 +76,9 @@ test_data = zip(Flux.unstack(X_test[:,:,1],1),Flux.unsqueeze(y_test,1));
 ```
 
 ```{julia}
-using Flux.Optimise: update!, ADAM
+using Flux.Optimise: update!, Adam
 using Statistics
-opt = ADAM()
+opt = Adam()
 epochs = 20
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 accuracy(data) = mean(map(d -> mean(round.(Flux.σ.(model(d[1]))) .== d[2]), data))

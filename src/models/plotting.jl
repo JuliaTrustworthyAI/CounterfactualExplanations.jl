@@ -1,4 +1,8 @@
-using NearestNeighborModels, MLJ
+using Flux
+using MLJ
+using NearestNeighborModels 
+using Plots
+
 function voronoi(X::AbstractMatrix, y::AbstractVector)
     knnc = KNNClassifier(K=1) # KNNClassifier instantiation
     X = MLJ.table(X)
@@ -8,10 +12,7 @@ function voronoi(X::AbstractMatrix, y::AbstractVector)
     return knnc_mach, y
 end
 
-using Plots
-import Plots: plot
-using Flux
-function plot(
+function Plots.plot(
     M::AbstractFittedModel,data::DataPreprocessing.CounterfactualData;
     target::Union{Nothing,Real}=nothing,
     colorbar=true,title="",length_out=50,zoom=-1,xlims=nothing,ylims=nothing,linewidth=0.1,alpha=1.0,dim_red::Symbol=:pca,

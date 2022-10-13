@@ -1,10 +1,13 @@
-using Statistics, BSON
-using Flux, Flux.Optimise
-using MLDatasets: CIFAR10
-using Images.ImageCore
-using Flux: onehotbatch, onecold
-using Base.Iterators: partition
 using CUDA
+using Base.Iterators: partition
+using BSON
+using Flux
+using Flux: Momentum, onehotbatch, onecold
+using Flux.Optimise
+using Flux.Losses: logitbinarycrossentropy
+using Images.ImageCore
+using MLDatasets: CIFAR10
+using Statistics
 
 # Data
 x, y = CIFAR10.traindata(Float32)
@@ -42,8 +45,6 @@ nn = Chain(
     Dense(84, 1)
 ) |> gpu
 
-using Flux: Momentum
-using Flux.Losses: logitbinarycrossentropy
 loss(x, y) = logitbinarycrossentropy(vec(nn(x)), y)
 opt = Momentum(0.01)
 accuracy(x, y) = mean(vec(round.(Flux.σ.(nn(x)))) .== y)

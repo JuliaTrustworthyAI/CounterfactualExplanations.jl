@@ -1,3 +1,9 @@
+using BSON: @save
+using Flux
+using Flux.Optimise: update!
+using Plots
+using Statistics
+
 """
     build_model()
 
@@ -37,8 +43,6 @@ function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false,drop
 
 end
 
-using Flux
-using Flux.Optimise: update!
 """
     forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
 
@@ -88,7 +92,7 @@ function build_ensemble(K=5;kw=(input_dim=2,n_hidden=32,output_dim=1))
     return ensemble
 end
 
-using Statistics
+
 """
     forward(ensemble, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=200, plot_every=20) 
 
@@ -116,7 +120,7 @@ function forward(ensemble, data, opt; loss_type=:logitbinarycrossentropy, plot_l
     return ensemble, anim
 end;
 
-using BSON: @save
+
 """
     save_ensemble(ensemble::AbstractArray; root="")
 
@@ -153,7 +157,6 @@ function load_ensemble(;root="")
 end
 
 # Plot data points:
-using Plots
 """
     plot_data!(plt,X,y)
 
@@ -174,7 +177,6 @@ function plot_data!(plt,X,y)
 end
 
 # Plot contour of posterior predictive:
-using Plots, CounterfactualExplanations.Models
 """
     plot_contour(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 
@@ -224,7 +226,6 @@ function plot_contour(X,y,M;colorbar=true,title="",length_out=50,zoom=-1,xlim=no
 end
 
 # Plot contour of posterior predictive:
-using Plots, CounterfactualExplanations.Models
 """
     plot_contour_multi(X,y,M;colorbar=true,title="",length_out=50,type=:laplace,zoom=0,xlim=nothing,ylim=nothing)
 

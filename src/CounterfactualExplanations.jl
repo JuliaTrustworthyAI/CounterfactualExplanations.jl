@@ -3,12 +3,6 @@ module CounterfactualExplanations
 # Dependencies:
 using Flux
 import Flux.Losses
-using LinearAlgebra
-
-# Interop dependencies:
-include("interoperability/Interoperability.jl")
-using .Interoperability
-export InteropError
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ
@@ -28,10 +22,9 @@ export CounterfactualData, select_factual, apply_domain_constraints
 
 include("models/Models.jl")
 using .Models
-export AbstractFittedModel, AbstractDifferentiableModel, 
-    FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel,
-    RTorchModel, PyTorchModel,
-    probs, logits
+export AbstractFittedModel, AbstractDifferentiableModel
+export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
+export probs, logits
 
 ### Counterfactual state 
 # ( ℳ[𝒟] , xᵢ ∈ x )
@@ -46,13 +39,12 @@ export State
 ###
 include("generators/Generators.jl")
 using .Generators
-export AbstractGenerator, AbstractGradientBasedGenerator, 
-    GenericGenerator, GenericGeneratorParams,
-    GreedyGenerator, GreedyGeneratorParams,
-    REVISEGenerator, REVISEGeneratorParams,
-    DiCEGenerator, DiCEGeneratorParams,
-    CLUEGenerator, CLUEGeneratorParams,
-    generate_perturbations, conditions_satisified, mutability_constraints   
+export AbstractGenerator, AbstractGradientBasedGenerator
+export GenericGenerator, GenericGeneratorParams
+export GreedyGenerator, GreedyGeneratorParams
+export REVISEGenerator, REVISEGeneratorParams
+export DiCEGenerator, DiCEGeneratorParams
+export generate_perturbations, conditions_satisified, mutability_constraints   
 
 ### CounterfactualExplanation
 # argmin 
@@ -60,16 +52,17 @@ export AbstractGenerator, AbstractGradientBasedGenerator,
 
 include("counterfactuals/Counterfactuals.jl")
 using .Counterfactuals
-export CounterfactualExplanation, initialize!, update!,
-    total_steps, converged, terminated, path, target_probs
+export CounterfactualExplanation
+export initialize!, update!
+export total_steps, converged, terminated, path, target_probs
 
 ### Other
 # Example data sets:
 include("data/Data.jl")
 using .Data
-export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear,
-    mnist_data, mnist_ensemble, mnist_model, mnist_vae,
-    cats_dogs_data, cats_dogs_model
+export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear
+export mnist_data, mnist_ensemble, mnist_model, mnist_vae
+export cats_dogs_data, cats_dogs_model
 
 include("generate_counterfactual.jl")
 export generate_counterfactual

@@ -65,9 +65,9 @@ weight_regularization(λ=λ) = 1/2 * λ^2 * sum(sqnorm, Flux.params(model))
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(model(x), y) + weight_regularization()
 
 # Training
-using Flux.Optimise: update!, ADAM
+using Flux.Optimise: update!, Adam
 using Statistics
-opt = ADAM()
+opt = Adam()
 epochs = 10
 
 for epoch = 1:epochs

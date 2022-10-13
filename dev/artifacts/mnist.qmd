@@ -50,9 +50,9 @@ kw_args = (input_dim=input_dim,n_hidden=hidden_dim,output_dim=output_dim,batch_n
 model = build_model(;kw_args...)
 loss(x, y) = Flux.Losses.logitcrossentropy(model(x), y)
 
-using Flux.Optimise: update!, ADAM
+using Flux.Optimise: update!, Adam
 using Statistics
-opt = ADAM()
+opt = Adam()
 epochs = 10
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 accuracy(data) = mean(map(d -> mean(onecold(softmax(model(d[1])), 0:9) .== onecold(d[2], 0:9)), data))
