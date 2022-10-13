@@ -32,4 +32,8 @@ end
         include("models.jl")
     end
 
+    @testset "Plotting" begin
+        include("plotting.jl")
+    end
+
 end

@@ -48,7 +48,7 @@ Constructor for deep ensembles trained in `Flux.jl`.
 struct FluxEnsemble <: AbstractDifferentiableJuliaModel
     model::Any
     likelihood::Symbol
-    function FluxModel(model, likelihood)
+    function FluxEnsemble(model, likelihood)
         if likelihood ∈ [:classification_binary,:classification_multi]
             new(model, likelihood)
         else

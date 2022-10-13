@@ -15,6 +15,7 @@ export GenericGenerator, GenericGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
+export generator_catalog
 export generate_perturbations, conditions_satisified, mutability_constraints   
 
 """
@@ -56,5 +57,12 @@ function h(generator::AbstractGenerator, counterfactual_state::CounterfactualSta
 end
 
 include("gradient_based/functions.jl")
+
+generator_catalog = Dict(
+    :generic => Generators.GenericGenerator,
+    :greedy => Generators.GreedyGenerator,
+    :revise => Generators.REVISEGenerator,
+    :dice => Generators.DiCEGenerator
+)
 
 end

@@ -44,6 +44,7 @@ export GenericGenerator, GenericGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
+export generator_catalog
 export generate_perturbations, conditions_satisified, mutability_constraints   
 
 ### CounterfactualExplanation
@@ -55,6 +56,7 @@ using .Counterfactuals
 export CounterfactualExplanation
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
+export animate_path
 
 ### Other
 # Example data sets:
@@ -69,5 +71,6 @@ export generate_counterfactual
 
 include("benchmark/Benchmark.jl")
 using .Benchmark
+export benchmark
 
 end

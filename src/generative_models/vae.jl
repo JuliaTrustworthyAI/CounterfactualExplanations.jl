@@ -125,10 +125,8 @@ function VAE(input_dim;kws...)
     # GPU config
     if args.cuda && CUDA.has_cuda()
         args.device = gpu
-        @info "Moving to GPU"
     else
         args.device = cpu
-        @info "Moving to CPU"
     end
 
     # initialize encoder and decoder
@@ -190,9 +188,8 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
 
     # training
     train_steps = 0
-    @info "Start training, total $(args.epochs) epochs"
     for epoch = 1:args.epochs
-        @info "Epoch $(epoch)"
+
         avg_loss = []
         for (x, _) in loader 
             
@@ -207,7 +204,7 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
             train_steps += 1
         end 
         avg_loss = mean(avg_loss)
-        @info "Loss (avg): $avg_loss"
+
     end
 
     # Set training status to true:
@@ -229,9 +226,8 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
 
     # training
     train_steps = 0
-    @info "Start training, total $(n_epochs) epochs"
     for epoch = 1:n_epochs
-        @info "Epoch $(epoch)"
+        
         avg_loss = []
         for (x, _) in loader 
             
@@ -246,7 +242,7 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
             train_steps += 1
         end 
         avg_loss = mean(avg_loss)
-        @info "Loss (avg): $avg_loss"
+
     end
 end
 

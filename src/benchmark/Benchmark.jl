@@ -3,6 +3,8 @@ module Benchmark
 using ..Counterfactuals
 using DataFrames
 
+export benchmark
+
 include("functions.jl")
 
 function benchmark(counterfactual_explanation::Union{CounterfactualExplanation,Vector{CounterfactualExplanation}};to_dataframe=true)
