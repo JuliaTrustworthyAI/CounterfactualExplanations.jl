@@ -332,7 +332,7 @@ Helper function that embeds path into two dimensions for plotting.
 """
 function embed_path(counterfactual_explanation::CounterfactualExplanation)
     data_ = counterfactual_explanation.data
-    path_ = stack(path(counterfactual_explanation); dims = 1)
+    path_ = MLUtils.stack(path(counterfactual_explanation); dims = 1)
     path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims=[1,2])
     path_embedded = unstack(path_embedded,dims=2)
     return path_embedded
