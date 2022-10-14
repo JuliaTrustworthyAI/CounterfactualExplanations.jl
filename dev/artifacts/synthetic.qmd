@@ -88,23 +88,8 @@ end
 
 ```{julia}
 flux_models[:classification_binary] = Dict(
-  :raw_model => nn
+  :raw_model => nn,
 )
-```
-
-### R `torch`
-
-```{julia}
-using RCall
-R"""
-library(torch)
-X <- torch_tensor(t($X))
-ys <- torch_tensor($ys)
-torch_save(X,"dev/artifacts/R/classification_binary/X.pt")
-torch_save(ys,"dev/artifacts/R/classification_binary/ys.pt")
-source("dev/artifacts/R/classification_binary/model.R")
-run_model($r_model_dir)
-"""
 ```
 
 ## Multi-class
@@ -157,23 +142,8 @@ end
 
 ```{julia}
 flux_models[:classification_multi] = Dict(
-  :raw_model => nn
+  :raw_model => nn,
 )
-```
-
-### R `torch`
-
-```{julia}
-using RCall
-R"""
-library(torch)
-X <- torch_tensor(t($X))
-ys <- torch_tensor($ys, dtype=torch_int64())
-torch_save(X,"dev/artifacts/R/classification_multi/X.pt")
-torch_save(ys,"dev/artifacts/R/classification_multi/ys.pt")
-source("dev/artifacts/R/classification_multi/model.R")
-run_model($r_model_dir)
-"""
 ```
 
 ## Save and Push

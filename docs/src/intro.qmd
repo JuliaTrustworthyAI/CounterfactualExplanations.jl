@@ -2,6 +2,12 @@
 
 ## News 📣
 
+```{julia}
+#| output: true
+versioninfo()
+```
+
+
 **JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
 
 ### Developmemts since v0.1.2
@@ -60,7 +66,7 @@ Counterfactual Explanations have certain advantages over related tools for expla
 
 Generating counterfactuals will typically look like follows:
 
-```julia
+```{julia}
 using CounterfactualExplanations
 
 # Data:
@@ -89,12 +95,9 @@ generator = GenericGenerator()
 
 Running the counterfactual search yields:
 
-```julia-repl
-julia> counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-Factual: x=[-4.950923496639821, -3.1936074559828267], y=0.0, p=[0.0002902345324396253]
-Target: target=1, γ=0.75
-Counterfactual outcome: x′=[-0.3211366377381628, 1.4361794029188308], y′=1.0, p′=[0.7530680429735285]
-Converged: ✅ after 70 steps.
+```{julia}
+#| output: true
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ## Implemented Counterfactual Generators:

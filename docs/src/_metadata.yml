@@ -1,0 +1,12 @@
+format: 
+  commonmark:
+    variant: -raw_html
+    wrap: none
+    self-contained: true
+execute: 
+  daemon: 120
+  freeze: auto
+  eval: true
+  echo: true
+  output: false
+  keep-ipynb: true

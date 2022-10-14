@@ -11,6 +11,22 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 
 ## News 📣
 
+``` julia
+versioninfo()
+```
+
+    Julia Version 1.8.1
+    Commit afb6c60d69a (2022-09-06 15:09 UTC)
+    Platform Info:
+      OS: macOS (x86_64-apple-darwin21.4.0)
+      CPU: 16 × Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
+      WORD_SIZE: 64
+      LIBM: libopenlibm
+      LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
+      Threads: 1 on 8 virtual cores
+    Environment:
+      JULIA_EDITOR = code
+
 **JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
 
 ### Developmemts since v0.1.2
@@ -97,13 +113,13 @@ generator = GenericGenerator()
 
 Running the counterfactual search yields:
 
-``` julia-repl
-julia> counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-Factual: x=[-4.950923496639821, -3.1936074559828267], y=0.0, p=[0.0002902345324396253]
-Target: target=1, γ=0.75
-Counterfactual outcome: x′=[-0.3211366377381628, 1.4361794029188308], y′=1.0, p′=[0.7530680429735285]
-Converged: ✅ after 70 steps.
+``` julia
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
+
+    Convergence: ✅
+
+     after 29 steps.
 
 ## Implemented Counterfactual Generators:
 
@@ -116,7 +132,7 @@ Currently the following counterfactual generators are implemented:
 
 ## Goals and limitations 🎯
 
-The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended, 3) it has not yet gone through a formal review.
+The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability in the long-term. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended.
 
 ## Contribute 🛠
 
