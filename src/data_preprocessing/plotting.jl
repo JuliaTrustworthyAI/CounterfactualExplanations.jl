@@ -66,6 +66,7 @@ end
 
 function Plots.scatter!(data::CounterfactualData; dim_red::Symbol=:pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red=dim_red)
-    _c = Int.(CategoricalArrays.categorical(y).refs)
-    Plots.scatter!(X[:,1],X[:,2],colour=_c; kwargs...)
+    y = CategoricalArrays.categorical(y)
+    _c = Int.(y.refs)
+    Plots.scatter!(X[:,1],X[:,2],group=y, colour=_c; kwargs...)
 end
