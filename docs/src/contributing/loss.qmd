@@ -1,20 +1,3 @@
----
-format: 
-  commonmark:
-    variant: -raw_html
-    wrap: none
-    self-contained: true
-crossref:
-  fig-prefix: Figure
-  tbl-prefix: Table
-bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-output: asis
-execute: 
-  echo: true
-  eval: false
-jupyter: julia-1.6
----
-
 ```@meta
 CurrentModule = CounterfactualExplanations 
 ```
@@ -64,6 +47,7 @@ This is a short tutorial on loss functions and gradients typically involved in c
 
 ```{julia}
 #| echo: false
+using Pkg; Pkg.activate("docs")
 using Zygote, Plots, PlotThemes, LinearAlgebra, CounterfactualExplanations
 theme(:wong)
 using Logging
@@ -315,7 +299,7 @@ target = ifelse(y==1.0,0.0,1.0)
 γ = 0.75
 
 # Plot with random sample chose for recourse
-plt = plot_contour(X',ys,M)
+plt = plot(M, counterfactual_data)
 scatter!(plt,[x[1]],[x[2]],ms=10,label="", color=Int(y))
 Plots.abline!(plt,-w[2]/w[1],b,color="black",label="",lw=2)
 savefig(joinpath(www_path, "loss_example.png"))
@@ -326,15 +310,16 @@ savefig(joinpath(www_path, "loss_example.png"))
 Now we instantiate different generators for our different loss functions and different choices of $\lambda$. Finally we generate recourse for each of them:
 
 ```{julia}
+#| eval: false
 # Generating recourse
 Λ = [0.0, 1.0, 5.0] # varying complexity penalties
-losses = [:hinge_loss, :logitbinarycrossentropy, :mse]
+losses = [:logitbinarycrossentropy, :mse]
 counterfactuals = []
 for loss in losses
     for λ in Λ
-        generator = GenericGenerator(;loss=loss,λ=λ) 
+        generator = GenericGenerator(;loss=loss,λ=λ,decision_threshold=γ) 
         t = loss == :hinge_loss ? h(target) : target # mapping for hinge loss
-        counterfactual = generate_counterfactual(x, t, counterfactual_data, M, generator; γ=γ, T=50)
+        counterfactual = generate_counterfactual(x, t, counterfactual_data, M, generator; T=50)
         counterfactuals = vcat(counterfactuals, counterfactual)
     end
 end
@@ -347,6 +332,7 @@ The code below plots the resulting counterfactual paths.
 3. **The choice of the loss function matters**: the distance-based MSE does **NOT** work without further ajustments when optimizing with respect to logits, as discussed above. 
 
 ```{julia}
+#| eval: false
 # Plotting
 k = length(counterfactuals)
 function plot_recourse(counterfactual, t)

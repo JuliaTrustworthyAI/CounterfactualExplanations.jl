@@ -1,3 +1,4 @@
+
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
@@ -32,8 +33,8 @@ julia> names(CounterfactualExplanations.Losses)
 
 For most classification tasks the default `:logitbinarycrossentropy` (binary) and `:logitcrossentropy` should be sufficient. For both choices the package has been tested and works natively. When using other loss functions, some caution is recommended though:
 
-!!! warning "External loss functions"
-    Some margin-based loss functions like hinge loss do not expect inputs in the domain $\mathcal{Y}=\{0,1\}$, but rather $\mathcal{Y}=\{-1,1\}$. In those case one needs to ensure that the training labels $y$ are encoded accordingly. In order to use distance-based loss functions like mean squared error (MSE) loss needs to be computed with respect to probibilities rather than logits. This is currently not supported and we genenerally recommend not to use distance-based loss functions in the classification setting (more on this below).
+    !!! warning "External loss functions"
+        Some margin-based loss functions like hinge loss do not expect inputs in the domain $\mathcal{Y}=\{0,1\}$, but rather $\mathcal{Y}=\{-1,1\}$. In those case one needs to ensure that the training labels $y$ are encoded accordingly. In order to use distance-based loss functions like mean squared error (MSE) loss needs to be computed with respect to probibilities rather than logits. This is currently not supported and we genenerally recommend not to use distance-based loss functions in the classification setting (more on this below).
 
 ## Regression
 
@@ -286,7 +287,7 @@ target = ifelse(y==1.0,0.0,1.0)
 γ = 0.75
 
 # Plot with random sample chose for recourse
-plt = plot_contour(X',ys,M)
+plt = plot(M, counterfactual_data)
 scatter!(plt,[x[1]],[x[2]],ms=10,label="", color=Int(y))
 Plots.abline!(plt,-w[2]/w[1],b,color="black",label="",lw=2)
 savefig(joinpath(www_path, "loss_example.png"))
@@ -299,13 +300,13 @@ Now we instantiate different generators for our different loss functions and dif
 ``` julia
 # Generating recourse
 Λ = [0.0, 1.0, 5.0] # varying complexity penalties
-losses = [:hinge_loss, :logitbinarycrossentropy, :mse]
+losses = [:logitbinarycrossentropy, :mse]
 counterfactuals = []
 for loss in losses
     for λ in Λ
-        generator = GenericGenerator(;loss=loss,λ=λ) 
+        generator = GenericGenerator(;loss=loss,λ=λ,decision_threshold=γ) 
         t = loss == :hinge_loss ? h(target) : target # mapping for hinge loss
-        counterfactual = generate_counterfactual(x, t, counterfactual_data, M, generator; γ=γ, T=50)
+        counterfactual = generate_counterfactual(x, t, counterfactual_data, M, generator; T=50)
         counterfactuals = vcat(counterfactuals, counterfactual)
     end
 end

@@ -5,6 +5,10 @@ crossref:
   fig-prefix: Figure
   tbl-prefix: Table
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-jupyter: julia-1.8
 
+execute: 
+  freeze: auto
+  eval: true
+  echo: true
+  output: false
 

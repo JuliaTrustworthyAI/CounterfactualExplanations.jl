@@ -6,11 +6,9 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
+using Pkg; Pkg.activate("docs")
+using Flux, Random, Plots, CounterfactualExplanations
 theme(:wong)
-using Logging
-disable_logging(Logging.Info)
-include("dev/utils.jl") # some plotting functions
 www_path = "docs/src/tutorials/www"
 ```
 
@@ -25,7 +23,6 @@ X = hcat(xs...)
 # Model
 w = [1.0 1.0]# true coefficients
 b = 0
-using CounterfactualExplanations.Models: LogisticModel, probs 
 # Logit model:
 M = LogisticModel(w, [b])
 ```
@@ -59,16 +56,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ```{julia}
 #| echo: false
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
+anim = animate_path(counterfactual)
 gif(anim, joinpath(www_path, "mutability_mutability.gif"), fps=25)
 ```
 
@@ -101,16 +89,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ```{julia}
 #| echo: false
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
+anim = animate_path(counterfactual)
 gif(anim, joinpath(www_path, "mutability_domain.gif"), fps=25)
 ```
 
@@ -141,16 +120,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ```{julia}
 #| echo: false
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
+anim = animate_path(counterfactual)
 gif(anim, joinpath(www_path, "mutability_domain_2.gif"), fps=25)
 ```
 

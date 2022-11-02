@@ -11,31 +11,7 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/Cou
 
 ## News 📣
 
-``` julia
-versioninfo()
-```
-
-    Julia Version 1.8.1
-    Commit afb6c60d69a (2022-09-06 15:09 UTC)
-    Platform Info:
-      OS: macOS (x86_64-apple-darwin21.4.0)
-      CPU: 16 × Intel(R) Core(TM) i9-9880H CPU @ 2.30GHz
-      WORD_SIZE: 64
-      LIBM: libopenlibm
-      LLVM: libLLVM-13.0.1 (ORCJIT, skylake)
-      Threads: 1 on 8 virtual cores
-    Environment:
-      JULIA_EDITOR = code
-
 **JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
-
-### Developmemts since v0.1.2
-
-- Added support for generating multiple counterfactuals instead of just one.
-- Implemented DiCE (Mothilal, Sharma, and Tan 2020).
-- Added option to add a random perturbation to the initial factual values, which is an easy way to mitigate adversarial attacks on CE (Slack et al. 2021).
-- Visualizations: added various plotting methods to visualize results. For *n*-dimensional data where *n* \> 2 we use dimensionality reduction to embed the data in 2D. The decision boundary is then visualized using its a Voronoi based representation following Migut, Worring, and Veenman (2015). Thanks to my student [Aleksander Buszydlik](https://github.com/abuszydlik) for bringing this idea to my attention.
-- Added the option to specify strict convergence: instead of terminating search once the probability threshold *γ* has been reached, search continues as long the objective function still improves.
 
 ## Installation 🚩
 
@@ -169,12 +145,8 @@ Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hern
 
 Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
 
-Migut, MA, Marcel Worring, and Cor J Veenman. 2015. “Visualizing Multi-Dimensional Decision Boundaries in 2D.” *Data Mining and Knowledge Discovery* 29 (1): 273–95.
-
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
 
 Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
-
-Slack, Dylan, Anna Hilgard, Himabindu Lakkaraju, and Sameer Singh. 2021. “Counterfactual Explanations Can Be Manipulated.” *Advances in Neural Information Processing Systems* 34.
 
 Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. “Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.” *Harv. JL & Tech.* 31: 841.

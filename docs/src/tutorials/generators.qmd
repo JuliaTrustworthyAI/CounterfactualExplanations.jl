@@ -4,7 +4,8 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
+using Pkg; Pkg.activate("docs")
+using Flux, Random, Plots, CounterfactualExplanations
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)

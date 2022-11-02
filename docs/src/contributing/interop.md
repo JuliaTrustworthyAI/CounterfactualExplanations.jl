@@ -5,11 +5,11 @@ CurrentModule = CounterfactualExplanations
 
 # Interoperability
 
-!!! info "Contributor's Guide" 
-    Our work on language interoperability is still experimental. In this tutorial we demonstrate our early attempts to extend the package to accommodate `torch` models trained in R and Python. The goal here is to provide a template and/or starting point for contributors that would like to add support for other models trained in foreign programming languages. If that contributor could be you, please see the related [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues/67) and work in the linked [branch](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
+    !!! info "Contributor's Guide" 
+        Our work on language interoperability is still experimental. In this tutorial we demonstrate our early attempts to extend the package to accommodate `torch` models trained in R and Python. The goal here is to provide a template and/or starting point for contributors that would like to add support for other models trained in foreign programming languages. If that contributor could be you, please see the related [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues/67) and work in the linked [branch](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
 
-!!! info "Native support currently broken and removed" 
-    After bumping Julia version compatibility to `1.8`, interoperability broke for some reason (it was admittedly always experimental and hacky). The code that was previously used for interoperability was removed from the main branch, but still lives [here](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
+    !!! info "Native support currently broken and removed" 
+        After bumping Julia version compatibility to `1.8`, interoperability broke for some reason (it was admittedly always experimental and hacky). The code that was previously used for interoperability was removed from the main branch, but still lives [here](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/67-interoperability-broken-after-moving-to-julia-18).
 
 The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` (potentially `PythonCall.jl` is a better option) and `RCall.jl`. In this tutorial we will see how `CounterfactualExplanations.jl` can leverage this functionality.
 
@@ -152,8 +152,8 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ## `torch` model in Python
 
-!!! warning "'PyTorch' and 'torch for R' interplay" 
-    We have noted that using both ['PyTorch'](https://pytorch.org/) through `PyCall.jl` and ['torch for R'](https://torch.mlverse.org/packages) through `RCall.jl` in the same Julia session causes issues. In particular, loading 'PyTorch' after loading 'torch for R' cause the Julia session to crash and vice versa. For the time being, we therefore advise not to use both `RTorchModel()` and `PyTorchModel` in the same session.
+    !!! warning "'PyTorch' and 'torch for R' interplay" 
+        We have noted that using both ['PyTorch'](https://pytorch.org/) through `PyCall.jl` and ['torch for R'](https://torch.mlverse.org/packages) through `RCall.jl` in the same Julia session causes issues. In particular, loading 'PyTorch' after loading 'torch for R' cause the Julia session to crash and vice versa. For the time being, we therefore advise not to use both `RTorchModel()` and `PyTorchModel` in the same session.
 
 The steps involved are largely analogous to the above, so we leave the following code uncommented.
 

@@ -13,7 +13,7 @@ Helper function to build simple MLP.
 # Examples
 
 ```julia-repl
-using BayesLaplace
+using LaplaceRedux
 nn = build_model()
 ```
 
@@ -83,7 +83,7 @@ Helper function to build a simple ensemble composed of `K` MLPs.
 # Examples
 
 ```julia-repl
-using BayesLaplace
+using LaplaceRedux
 𝑬 = build_ensemble(5)
 ```
 
@@ -233,8 +233,8 @@ Generates a contour plot for the posterior predictive surface.
 # Examples
 
 ```julia-repl
-using BayesLaplace, Plots
-import BayesLaplace: predict
+using LaplaceRedux, Plots
+import LaplaceRedux: predict
 using Flux: σ
 X, y = toy_data_linear(100)
 X = hcat(X...)'

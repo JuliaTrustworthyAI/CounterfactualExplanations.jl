@@ -6,7 +6,8 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Flux, Plots, Random, PlotThemes, Statistics, CounterfactualExplanations
+#| using Pkg; Pkg.activate("docs")
+using Flux, Plots, Random, Statistics, CounterfactualExplanations
 theme(:wong)
 using Logging
 disable_logging(Logging.Info)

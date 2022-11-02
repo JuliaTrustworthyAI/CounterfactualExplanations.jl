@@ -9,7 +9,7 @@ In the existing literature counterfactual explanations have typically been appli
 ```{julia}
 #| echo: false
 using Pkg; Pkg.activate("docs")
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations, Statistics
+using Flux, Random, Plots, CounterfactualExplanations, Statistics
 theme(:wong)
 include("dev/utils.jl") # some plotting functions
 www_path = "docs/src/tutorials/www"
