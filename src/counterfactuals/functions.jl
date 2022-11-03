@@ -100,8 +100,17 @@ function CounterfactualExplanation(
         @info "Factual already in target class and probability exceeds threshold γ."
     end
 
+    # Initialize search:
+    counterfactual_explanation.search = Dict(
+        :iteration_count => 0,
+        :times_changed_features => zeros(size(counterfactual_explanation.f(counterfactual_explanation.s′))),
+        :path => [counterfactual_explanation.s′],
+        :terminated => threshold_reached(counterfactual_explanation),
+        :converged => converged(counterfactual_explanation),
+    )
+
     # Latent space:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.latent_space && !counterfactual_explanation.search[:terminated]
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data; generative_model_params...)
         # map counterfactual to latent space: s′=z′∼p(z|x)
@@ -113,16 +122,10 @@ function CounterfactualExplanation(
         else
             counterfactual_explanation.f = function(s) generative_model.decoder(s) end
         end
+        
+        # Path
+        counterfactual_explanation.search[:path] = [counterfactual_explanation.s′]
     end
-
-    # Initialize search:
-    counterfactual_explanation.search = Dict(
-        :iteration_count => 0,
-        :times_changed_features => zeros(size(counterfactual_explanation.f(counterfactual_explanation.s′))),
-        :path => [counterfactual_explanation.s′],
-        :terminated => threshold_reached(counterfactual_explanation),
-        :converged => converged(counterfactual_explanation),
-    )
 
     return counterfactual_explanation
 
