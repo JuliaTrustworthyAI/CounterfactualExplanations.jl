@@ -5,9 +5,9 @@
 
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
 
-## News 📣
+## 🔁 Status
 
-**JuliaCon 2022**: This project was presented at JuliaCon 2022 in July 2022. See [here](https://pretalx.com/juliacon-2022/talk/HU8FVH/) for details.
+This package is ready for research, but not for production. So far @pat-alt has developed this package entirely on his own and focussed on using it for his PhD research. The package is therefore still subject to some serious limitations (see below).
 
 ## Installation 🚩
 
@@ -93,7 +93,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
     Convergence: ✅
 
-     after 29 steps.
+     after 28 steps.
 
 ## Implemented Counterfactual Generators:
 
@@ -106,7 +106,18 @@ Currently the following counterfactual generators are implemented:
 
 ## Goals and limitations 🎯
 
-The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Contrary to CARLA, we aim for languague interoperability in the long-term. Currently the package falls short of this goal in a number of ways: 1) the number of counterfactual generators is limited, 2) the data preprocessing functionality needs to be extended.
+The goal for this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open source code. Eventually the aim for this project is to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Currently the package falls short of this goal in a number of ways:
+
+1.  The number of counterfactual generators is still limited.
+2.  The data preprocessing functionality needs to be extended; in particular, we need out-of-the-box support for categorical variables.
+3.  The functionality to add mutability constraints is still not implemented for Latent Space generators.
+
+Additionally, our ambition is to enhance the package through the following features:
+
+4.  Language interoperability with Python and R: currently still only experimental.
+5.  Support for machine learning models trained in [`MLJ.jl`](https://alan-turing-institute.github.io/MLJ.jl/dev/).
+6.  Additional datasets for testing, evaluation and benchmarking.
+7.  Support for regression models.
 
 ## Contribute 🛠
 
@@ -116,12 +127,7 @@ Contributions of any kind are very much welcome! If any of the below applies to 
 - You’re an experienced Julian and are happy to help a less experienced Julian (yours truly) up their game. Ideally, you are also curious about Trustworthy AI.
 - You’re new to Julia and open-source development and would like to start your learning journey by contributing to a recent but promising development. Ideally you are familiar with machine learning.
 
-I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/pat-alt/CounterfactualExplanations.jl/discussions). Our goal is to provide a go-to place for counterfactual explanations in Julia. To this end, the following is a non-exhaustive list of exciting feature developments we envision:
-
-1.  Additional counterfactual generators and predictive models.
-2.  Additional datasets for testing, evaluation and benchmarking.
-3.  Improved preprocessing including native support for categorical features.
-4.  Support for regression models.
+@pat-alt here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/pat-alt/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/pat-alt/CounterfactualExplanations.jl/discussions). Our goal is to provide a go-to place for counterfactual explanations in Julia.
 
 For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
 
@@ -133,7 +139,6 @@ If you want to use this codebase, please consider citing:
       author = {Patrick Altmeyer},
       title = {{CounterfactualExplanations.jl - a Julia package for Counterfactual Explanations and Algorithmic Recourse}},
       url = {https://github.com/pat-alt/CounterfactualExplanations.jl},
-      version = {0.1.1},
       year = {2022}
     }
 

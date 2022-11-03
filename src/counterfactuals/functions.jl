@@ -64,7 +64,6 @@ function CounterfactualExplanation(
     # Initialization
     if initialization == :add_perturbation
         scale = std(data.X, dims=2) .* 0.1
-        Δ = scale .* randn(size(scale,1))
         s′ = mapslices(s -> s .+ scale .* randn(size(scale,1)), s′, dims=(1,2))
     end
     f(s) = s # default mapping to feature space 
