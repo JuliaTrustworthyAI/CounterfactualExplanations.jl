@@ -1,3 +1,4 @@
+using CategoricalArrays
 using MultivariateStats
 using Plots
 using Random
@@ -65,5 +66,7 @@ end
 
 function Plots.scatter!(data::CounterfactualData; dim_red::Symbol=:pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red=dim_red)
-    Plots.scatter!(X[:,1],X[:,2],group=Int.(y),color=Int.(y); kwargs...)
+    y = CategoricalArrays.categorical(y)
+    _c = Int.(y.refs)
+    Plots.scatter!(X[:,1],X[:,2],group=y, colour=_c; kwargs...)
 end

@@ -124,11 +124,16 @@ logits(M, x)
 See also [`BayesianLogisticModel <: AbstractDifferentiableJuliaModel`](@ref)
 """
 function logits(M::BayesianLogisticModel, X::AbstractArray)
-    if !isa(X, AbstractMatrix)
-        X = reshape(X, length(X), 1)
+
+    X = vcat(1.0, X) # add for constant
+
+    if ndims(X) == 3
+        y = SliceMap.slicemap(x -> M.μ * x, X, dims=(1,2)) 
+    else
+        y = M.μ * X
     end
-    X = vcat(ones(size(X)[2])', X) # add for constant
-    return M.μ * X
+
+    return y
 end
 
 """
@@ -152,19 +157,42 @@ probs(M, x)
 See also [`BBayesianLogisticModel <: AbstractDifferentiableJuliaModel`](@ref)
 """
 function probs(M::BayesianLogisticModel, X::AbstractArray)
-    μ = M.μ # MAP mean vector
-    Σ = M.Σ # MAP covariance matrix
-    # Inner product:
-    z = logits(M, X)
+
+    μ = M.μ             # MAP mean vector
+    Σ = M.Σ             # MAP covariance matrix
+
     # Probit approximation
-    if !isa(X, AbstractMatrix)
-        X = reshape(X, length(X), 1)
+    function probit_approx(x)
+        z = logits(M, x)
+        x = vcat(1.0, x) # add for constant
+        v = [_x'Σ*_x for _x=eachcol(x)]   
+        κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
+        z = κ' .* z
+        # Compute probabilities
+        p = Flux.σ.(z)
+        return p
+    end 
+
+    if ndims(X) == 3
+        p = SliceMap.slicemap(x -> probit_approx(x), X, dims=(1,2)) 
+    else
+        p = probit_approx(X)
     end
-    X = vcat(ones(size(X)[2])', X) # add for constant
-    v = [X[:,n]'Σ*X[:,n] for n=1:size(X)[2]]    
-    κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
-    z = κ' .* z
-    # Compute probabilities
-    p = Flux.σ.(z)
+    
     return p
+    
 end
+
+# μ = M.μ                             # MAP mean vector
+# Σ = M.Σ                             # MAP covariance matrix
+# z = logits(M, X)                    # logits
+
+# # Probit approximation
+# X = vcat(1, X)                      # add for constant
+# v = collect(mapslices(x -> x'Σ * x, X, dims=[1,2]))
+# κ = 1 ./ sqrt.(1 .+ π/8 .* v)       # scaling factor for logits
+# println("kappa:$(size(κ))")
+# z = collect(mapslices(x -> x' * z, κ, dims=[1,2]))
+# # Compute probabilities
+# p = collect(mapslices(x -> Flux.σ.(x), z, dims=[1,2]))
+# return p
