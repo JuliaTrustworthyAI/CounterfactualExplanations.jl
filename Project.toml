@@ -29,6 +29,7 @@ UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"
 [compat]
 BSON = "0.3"
 CUDA = "3"
+CategoricalArrays = "0.10"
 DataFrames = "1"
 Flux = "0.12, 0.13"
 LaplaceRedux = "0.1"
