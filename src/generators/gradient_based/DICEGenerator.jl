@@ -13,7 +13,7 @@ end
 
 # API streamlining:
 @with_kw struct DiCEGeneratorParams
-    opt::Any=Flux.Optimise.Descent()
+    opt::Any=Flux.Optimise.Descent(1.0)
     τ::AbstractFloat=1e-5
 end
 

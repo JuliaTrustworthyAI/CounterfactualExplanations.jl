@@ -1,4 +1,4 @@
-using BSON: @save
+using BSON: @save, @load
 using CounterfactualExplanations.GenerativeModels: VAE, train!
 using Flux
 using Flux.Optimise: update!
