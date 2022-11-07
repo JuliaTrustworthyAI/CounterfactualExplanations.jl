@@ -59,14 +59,9 @@ function CounterfactualExplanation(
 
     # Counterfactual state variable:
     size_ = Int.(vcat(ones(maximum([ndims(x),2])),num_counterfactuals))
-    s′ = copy(x)  # start from factual
-    s′ = repeat(x, outer=size_)
-    # Initialization
-    if initialization == :add_perturbation
-        scale = std(data.X, dims=2) .* 0.1
-        s′ = mapslices(s -> s .+ scale .* randn(size(scale,1)), s′, dims=(1,2))
-    end
-    f(s) = s # default mapping to feature space 
+    s′ = copy(x)                    # start from factual
+    s′ = repeat(x, outer=size_)     # augment to account for specified number of counterfactuals
+    f(s) = s                        # default mapping f: S ↦ X
 
     # Parameters:
     params = Dict(
@@ -76,15 +71,14 @@ function CounterfactualExplanation(
         :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
     )
 
-    # Latent space:
-    wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
-
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(
         x, target, nothing, s′, f, 
-        data, M, generator, latent_space, params, nothing, num_counterfactuals, initialization
+        data, M, generator, false, params, nothing, num_counterfactuals, initialization
     )
+
+    # Counterfactual initialization:
+    initialize!(counterfactual_explanation)
 
     # Encode target:
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
@@ -110,6 +104,8 @@ function CounterfactualExplanation(
     )
 
     # Latent space:
+    wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    counterfactual_explanation.latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
     if counterfactual_explanation.latent_space && !counterfactual_explanation.search[:terminated]
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data; generative_model_params...)
@@ -153,6 +149,22 @@ function encode_target(counterfactual_explanation::CounterfactualExplanation)
     target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
     target = repeat(target, outer=[1,1,counterfactual_explanation.num_counterfactuals])
     return target
+end
+
+function initialize!(counterfactual_explanation::CounterfactualExplanation)
+
+    s′ = counterfactual_explanation.s′
+    data = counterfactual_explanation.data
+
+    if counterfactual_explanation.initialization == :add_perturbation
+        scale = std(data.X, dims=2) .* 0.1
+        s′ = mapslices(s′, dims=(1,2)) do s
+            Δs′ = scale .* randn(size(scale,1))
+            Δs′ = apply_mutability(counterfactual_explanation, Δs′)    
+            s .+ Δs′
+        end
+        counterfactual_explanation.s′ = s′
+    end
 end
 
 # 1) Factual values
@@ -341,11 +353,17 @@ function embed_path(counterfactual_explanation::CounterfactualExplanation)
 end
 
 """
-    apply_mutability(Δx′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
+    apply_mutability(counterfactual_explanation::CounterfactualExplanation, Δs′::AbstractArray)
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::CounterfactualExplanation)
+function apply_mutability(counterfactual_explanation::CounterfactualExplanation, Δs′::AbstractArray)
+
+    if counterfactual_explanation.latent_space
+        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 0
+            @error "Mutability constraints not currently implemented for latent space search."
+        end
+    end
 
     mutability = counterfactual_explanation.params[:mutability]
     # Helper functions:
@@ -359,6 +377,22 @@ function apply_mutability(Δs′::AbstractArray, counterfactual_explanation::Cou
     Δs′ = map((case,s) -> getfield(cases,case)(s),mutability,Δs′)
 
     return Δs′
+
+end
+
+"""
+    apply_domain_constraints!(counterfactual_explanation::CounterfactualExplanation)
+
+Wrapper function that applies underlying domain constraints.
+"""
+function apply_domain_constraints!(counterfactual_explanation::CounterfactualExplanation)
+
+    if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 0
+        @error "Domain constraints not currently implemented for latent space search."
+    end
+
+    s′ = counterfactual_explanation.s′
+    counterfactual_explanation.s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
 
 end
 
@@ -413,29 +447,16 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
 
     # Generate peturbations:
     Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
-    
-    if !counterfactual_explanation.latent_space
-        Δs′ = apply_mutability(Δs′, counterfactual_explanation)
-    else
-        if !all(counterfactual_explanation.params[:mutability].==:both) && total_steps(counterfactual_explanation) == 0
-            @warn "Mutability constraints not currently implemented for latent space search."
-        end
-    end
-
-    s′ = counterfactual_explanation.s′ + Δs′
-    if !counterfactual_explanation.latent_space
-        s′ = DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
-    else
-        if !isnothing(counterfactual_explanation.data.domain) && total_steps(counterfactual_explanation) == 0
-            @warn "Domain constraints not currently implemented for latent space search."
-        end
-    end
-    counterfactual_explanation.s′ = s′ # update counterfactual
+    Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
+    s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
+    apply_domain_constraints!(counterfactual_explanation)      # domain constraints
     
     # Updates:
-    counterfactual_explanation.search[:times_changed_features] += reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features])) # update number of times feature has been changed
+    counterfactual_explanation.s′ = s′                                                  # update counterfactual
+    _times_changed = reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features]))
+    counterfactual_explanation.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
-    counterfactual_explanation.search[:iteration_count] += 1 # update iteration counter   
+    counterfactual_explanation.search[:iteration_count] += 1                            # update iteration counter   
     counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:converged] = converged(counterfactual_explanation)
     counterfactual_explanation.search[:terminated] = terminated(counterfactual_explanation)
