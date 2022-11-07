@@ -8,11 +8,6 @@ crossref:
   fig-prefix: Figure
   tbl-prefix: Table
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-output: asis
-execute: 
-  eval: false
-  echo: true
-jupyter: julia-1.7
 ---
 
 ```@meta
@@ -101,9 +96,11 @@ We then use DiCE to generate multiple counterfactuals for varying degrees of $\l
 Λ₂ = [0.1, 1, 5]
 counterfactuals = []
 n_cf = 5
+using Flux
+opt = Flux.Optimise.Descent(1.0)
 for λ₂ ∈ Λ₂  
     λ = [0.1, λ₂]
-    generator = DiCEGenerator(λ=λ; ϵ=1)
+    generator = DiCEGenerator(;λ=λ, opt=opt)
     counterfactuals = vcat(
       counterfactuals...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
