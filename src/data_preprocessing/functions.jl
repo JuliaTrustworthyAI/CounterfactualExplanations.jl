@@ -1,4 +1,5 @@
 using Flux
+using MLJ
 using MultivariateStats
 using StatsBase
 using UMAP
@@ -8,18 +9,18 @@ mutable struct CounterfactualData
     y::AbstractMatrix
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
-    categorical::Union{Vector{Int},Nothing}
-    continuous::Union{Vector{Int},Nothing}
+    features_categorical::Union{Vector{Int},Nothing}
+    features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
-    function CounterfactualData(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
+    function CounterfactualData(X,y,mutability,domain,features_categorical,features_continuous,standardize,dt,compressor,generative_model)
         conditions = []
         conditions = vcat(conditions..., length(size(X)) != 2 ? error("Data should be in tabular format") : true)
         conditions = vcat(conditions..., size(X)[2] != size(y)[2] ? throw(DimensionMismatch("Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])")) : true)
         if all(conditions)
-            new(X,y,mutability,domain,categorical,continuous,standardize,dt,compressor,generative_model)
+            new(X,y,mutability,domain,features_categorical,features_continuous,standardize,dt,compressor,generative_model)
         end
     end
 end
@@ -29,8 +30,8 @@ end
         X::AbstractMatrix, y::AbstractMatrix;
         mutability::Union{Vector{Symbol},Nothing}=nothing,
         domain::Union{Any,Nothing}=nothing,
-        categorical::Union{Vector{Int},Nothing}=nothing,
-        continuous::Union{Vector{Int},Nothing}=nothing,
+        features_categorical::Union{Vector{Int},Nothing}=nothing,
+        features_continuous::Union{Vector{Int},Nothing}=nothing,
         standardize::Bool=false
     )
 
@@ -50,38 +51,34 @@ function CounterfactualData(
     X::AbstractMatrix, y::AbstractMatrix;
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
-    categorical::Union{Vector{Int},Nothing}=nothing,
-    continuous::Union{Vector{Int},Nothing}=nothing,
+    features_categorical::Union{Vector{Int},Nothing}=nothing,
+    features_continuous::Union{Vector{Int},Nothing}=nothing,
     standardize::Bool=false,
     generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel}=nothing
 )
 
     # If nothing supplied, assume all continuous:
-    if isnothing(categorical) && isnothing(continuous)
-        continuous = 1:size(X)[1]
+    if isnothing(features_categorical) && isnothing(features_continuous)
+        features_continuous = 1:size(X, 1)
     end
 
-    # If tuple is supplied, assume it counts for all continuous variables:
-    if typeof(domain) <: Tuple
-        domain = [domain for i in 1:size(X)[1]]
-    end
+    # Defaults:
+    compressor = nothing                                                                # dimensionality reduction
+    domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
-    # Data transformer:
-    try
-        global dt = fit(ZScoreTransform, X, dims=2)
-    catch
-        global dt = nothing
-    end 
-
-    # Compressor:
-    compressor = nothing
+    # Data transformations:
+    dt = fit(ZScoreTransform, X[features_continuous,:], dims=2)        # standardization
 
     counterfactual_data = CounterfactualData(
-        X, y, mutability, domain, categorical, continuous, 
+        X, y, mutability, domain, features_categorical, features_continuous, 
         standardize, dt, compressor, generative_model
     )
 
     return counterfactual_data
+end
+
+function CounterfactualData()
+    
 end
 
 """
@@ -108,7 +105,7 @@ function apply_domain_constraints(counterfactual_data::CounterfactualData, x::Ab
     
     # Continuous variables:
     if !isnothing(counterfactual_data.domain)
-        for i in counterfactual_data.continuous
+        for i in counterfactual_data.features_continuous
             x[i] = clamp(x[i], counterfactual_data.domain[i][1], counterfactual_data.domain[i][2])
         end
     end

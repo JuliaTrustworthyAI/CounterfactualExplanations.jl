@@ -1,6 +1,7 @@
 using Flux
 using MLUtils
 using Statistics
+using StatsBase
 
 """
 A struct that collects all information relevant to a specific counterfactual explanations for a single individual.
@@ -52,24 +53,20 @@ function CounterfactualExplanation(
     generative_model_params::NamedTuple=(;)
 ) 
 
-    @assert initialization ∈ [:identity, :add_perturbation]  
-
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
 
-    # Counterfactual state variable:
-    size_ = Int.(vcat(ones(maximum([ndims(x),2])),num_counterfactuals))
-    s′ = copy(x)                    # start from factual
-    s′ = repeat(x, outer=size_)     # augment to account for specified number of counterfactuals
-    f(s) = s                        # default mapping f: S ↦ X
-
-    # Parameters:
+    # Initial Parameters:
     params = Dict(
         :γ => isnothing(generator.decision_threshold) ? 0.5 : generator.decision_threshold,
         :T => T,
-        :mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
-        :initial_mutability => repeat(DataPreprocessing.mutability_constraints(data), outer=size_),
+        :mutability => DataPreprocessing.mutability_constraints(data),
+        :initial_mutability => DataPreprocessing.mutability_constraints(data),
     )
+    ids = getindex.(findall(data.y.==target),2)
+    n_candidates = minimum([size(data.y,2),1000])
+    candidates = select_factual(data,rand(ids,n_candidates))
+    params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
 
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(
@@ -77,17 +74,11 @@ function CounterfactualExplanation(
         data, M, generator, false, params, nothing, num_counterfactuals, initialization
     )
 
-    # Counterfactual initialization:
-    initialize!(counterfactual_explanation)
-
-    # Encode target:
-    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)
-
-    # Potential neighbours:
-    ids = getindex.(findall(data.y.==counterfactual_explanation.target_encoded[:,:,1]),2)
-    n_candidates = minimum([size(data.y,2),1000])
-    candidates = select_factual(data,rand(ids,n_candidates))
-    counterfactual_explanation.params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
+    # Initialization:
+    reshape!(counterfactual_explanation)                                                        # adjust shape to specified number of counterfactuals
+    counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
+    counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
+    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
 
     # Check for redundancy:
     if threshold_reached(counterfactual_explanation)
@@ -106,7 +97,7 @@ function CounterfactualExplanation(
     # Latent space:
     wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
     counterfactual_explanation.latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
-    if counterfactual_explanation.latent_space && !counterfactual_explanation.search[:terminated]
+    if counterfactual_explanation.latent_space && !terminated(counterfactual_explanation)
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data; generative_model_params...)
         # map counterfactual to latent space: s′=z′∼p(z|x)
@@ -128,8 +119,6 @@ function CounterfactualExplanation(
 end
 
 # Convenience methods:
-
-# 0) Utils
 """
     output_dim(counterfactual_explanation::CounterfactualExplanation)
 
@@ -137,6 +126,56 @@ A convenience method that computes the output dimension of the predictive model.
 """
 output_dim(counterfactual_explanation::CounterfactualExplanation) = size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
 
+function reshape!(counterfactual_explanation::CounterfactualExplanation)
+    # Dimensionality:
+    x = counterfactual_explanation.x
+    size_ = Int.(vcat(ones(maximum([ndims(x),2])),counterfactual_explanation.num_counterfactuals))
+    s′ = copy(x)                                        # start from factual
+    s′ = repeat(x, outer=size_)                         # augment to account for specified number of counterfactuals
+    counterfactual_explanation.s′ = s′
+    
+    # Parameters:
+    params = counterfactual_explanation.params
+    params[:mutability] = repeat(params[:mutability], outer=size_)
+    params[:initial_mutability] = params[:mutability]
+    counterfactual_explanation.params = params
+end
+
+"""
+    encode_state(counterfactual_explanations::CounterfactualExplanation)
+
+Encodes counterfactual.
+"""
+function encode_state(counterfactual_explanation::CounterfactualExplanation)
+
+    s′ = counterfactual_explanation.s′
+
+    # Standardization:
+    dt = counterfactual_explanation.data.dt
+    features_continuous = counterfactual_explanation.data.features_continuous
+    StatsBase.transform!(dt, selectdim(s′, 1, features_continuous))
+
+    # Categorical encoding:
+
+
+    return s′
+
+end
+
+function decode_state(counterfactual_explanation::CounterfactualExplanation)
+    
+    s′ = counterfactual_explanation.s′
+
+    # Standardization:
+    dt = counterfactual_explanation.data.dt
+    features_continuous = counterfactual_explanation.data.features_continuous
+    StatsBase.reconstruct!(dt, selectdim(s′, 1, features_continuous))
+
+    # Categorical encoding:
+
+    return s′
+
+end
 
 """
     encode_target(counterfactual_explanation::CounterfactualExplanation) 
@@ -151,7 +190,14 @@ function encode_target(counterfactual_explanation::CounterfactualExplanation)
     return target
 end
 
-function initialize!(counterfactual_explanation::CounterfactualExplanation)
+"""
+    initialize_state(counterfactual_explanation::CounterfactualExplanation)
+
+Initializes the starting point for the factual(s).
+"""
+function initialize_state(counterfactual_explanation::CounterfactualExplanation)
+
+    @assert counterfactual_explanation.initialization ∈ [:identity, :add_perturbation]  
 
     s′ = counterfactual_explanation.s′
     data = counterfactual_explanation.data
@@ -163,8 +209,10 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)    
             s .+ Δs′
         end
-        counterfactual_explanation.s′ = s′
     end
+
+    return s′
+
 end
 
 # 1) Factual values
