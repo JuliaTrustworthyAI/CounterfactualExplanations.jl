@@ -11,11 +11,11 @@ mutable struct CounterfactualExplanation
     target::Number
     target_encoded::Union{Number, AbstractArray, Nothing}
     s′::AbstractArray
-    f::Function
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
-    latent_space::Bool
+    latent_space::Union{Nothing, Bool}
+    generative_model_params::NamedTuple
     params::Dict
     search::Union{Dict,Nothing}
     num_counterfactuals::Int
@@ -70,8 +70,9 @@ function CounterfactualExplanation(
 
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(
-        x, target, nothing, s′, f, 
-        data, M, generator, false, params, nothing, num_counterfactuals, initialization
+        x, target, nothing, x,
+        data, M, generator, latent_space, generative_model_params, 
+        params, nothing, num_counterfactuals, initialization
     )
 
     # Initialization:
@@ -80,38 +81,18 @@ function CounterfactualExplanation(
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
 
-    # Check for redundancy:
-    if threshold_reached(counterfactual_explanation)
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
-
     # Initialize search:
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
-        :times_changed_features => zeros(size(counterfactual_explanation.f(counterfactual_explanation.s′))),
+        :times_changed_features => zeros(size(decode_state(counterfactual_explanation))),
         :path => [counterfactual_explanation.s′],
-        :terminated => threshold_reached(counterfactual_explanation),
+        :terminated => threshold_reached(counterfactual_explanation, counterfactual_explanation.x),
         :converged => converged(counterfactual_explanation),
     )
 
-    # Latent space:
-    wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    counterfactual_explanation.latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
-    if counterfactual_explanation.latent_space && !terminated(counterfactual_explanation)
-        @info "Searching in latent space using generative model."
-        generative_model = DataPreprocessing.get_generative_model(counterfactual_explanation.data; generative_model_params...)
-        # map counterfactual to latent space: s′=z′∼p(z|x)
-        counterfactual_explanation.s′, _, _ = GenerativeModels.rand(generative_model.encoder, counterfactual_explanation.s′)
-
-        # NOTE! This is not very clean, will be improved.
-        if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
-            counterfactual_explanation.f = function(s) Flux.σ.(generative_model.decoder(s)) end
-        else
-            counterfactual_explanation.f = function(s) generative_model.decoder(s) end
-        end
-        
-        # Path
-        counterfactual_explanation.search[:path] = [counterfactual_explanation.s′]
+    # Check for redundancy:
+    if terminated(counterfactual_explanation)
+        @info "Factual already in target class and probability exceeds threshold γ."
     end
 
     return counterfactual_explanation
@@ -149,22 +130,35 @@ Encodes counterfactual.
 function encode_state(counterfactual_explanation::CounterfactualExplanation)
 
     s′ = counterfactual_explanation.s′
+    data = counterfactual_explanation.data
 
     # Standardization:
-    dt = counterfactual_explanation.data.dt
-    features_continuous = counterfactual_explanation.data.features_continuous
-    StatsBase.transform!(dt, selectdim(s′, 1, features_continuous))
+    dt = data.dt
+    features_continuous = data.features_continuous
+    StatsBase.transform!(dt, s′[features_continuous,:,:])
 
     # Categorical encoding:
+    # --------------------- #
 
+    # Latent space:
+    latent_space = counterfactual_explanation.latent_space
+    wants_latent_space = DataPreprocessing.has_pretrained_generative_model(data) || typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    # Only overwrite, if not explicitly set to false:
+    counterfactual_explanation.latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
+    if counterfactual_explanation.latent_space && !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
+        @info "Searching in latent space using generative model."
+        generative_model = DataPreprocessing.get_generative_model(data; counterfactual_explanation.generative_model_params...)
+        # map counterfactual to latent space: s′=z′∼p(z|x)
+        s′, _, _ = GenerativeModels.rand(generative_model.encoder, s′)
+    end
 
     return s′
 
 end
 
-function decode_state(counterfactual_explanation::CounterfactualExplanation)
+function decode_state(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
     
-    s′ = counterfactual_explanation.s′
+    s′ = isnothing(x) ? counterfactual_explanation.s′ : x
 
     # Standardization:
     dt = counterfactual_explanation.data.dt
@@ -172,6 +166,19 @@ function decode_state(counterfactual_explanation::CounterfactualExplanation)
     StatsBase.reconstruct!(dt, selectdim(s′, 1, features_continuous))
 
     # Categorical encoding:
+    # --------------------- #
+
+    # Latent space:
+    if counterfactual_explanation.latent_space
+        generative_model = counterfactual_explanation.data.generative_model
+
+        # NOTE! This is not very clean, will be improved.
+        if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
+            s′ = Flux.σ.(generative_model.decoder(s))
+        else
+            s′ = generative_model.decoder(s)
+        end
+    end
 
     return s′
 
@@ -248,7 +255,7 @@ end
 
 A convenience method to get the counterfactual value.
 """
-counterfactual(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.f(counterfactual_explanation.s′)
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = decode_state(counterfactual_explanation.s′)
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
@@ -349,7 +356,7 @@ A convenience method that returns the entire counterfactual path.
 function path(counterfactual_explanation::CounterfactualExplanation; feature_space=true)
     path = counterfactual_explanation.search[:path]
     if feature_space
-        path = [counterfactual_explanation.f(z) for z ∈ path]
+        path = [decode_state(counterfactual_explanation, z) for z ∈ path]
     end
     return path
 end
@@ -447,11 +454,21 @@ end
 """
     threshold_reached(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method that determines of the predefined threshold for the target class probability has been reached.
+A convenience method that determines if the predefined threshold for the target class probability has been reached.
 """
 function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
     γ = isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 : counterfactual_explanation.generator.decision_threshold
     all(target_probs(counterfactual_explanation) .>= γ)
+end
+
+"""
+    threshold_reached(counterfactual_explanation::CounterfactualExplanation, x::AbstractArray)
+
+A convenience method that determines if the predefined threshold for the target class probability has been reached for a specific sample `x`.
+"""
+function threshold_reached(counterfactual_explanation::CounterfactualExplanation, x::AbstractArray)
+    γ = isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 : counterfactual_explanation.generator.decision_threshold
+    all(target_probs(counterfactual_explanation, x) .>= γ)
 end
 
 """
@@ -501,7 +518,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
-    _times_changed = reshape(counterfactual_explanation.f(Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features]))
+    _times_changed = reshape(decode_state(counterfactual_explanation, Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features]))
     counterfactual_explanation.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
     counterfactual_explanation.search[:iteration_count] += 1                            # update iteration counter   

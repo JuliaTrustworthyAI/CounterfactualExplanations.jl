@@ -108,9 +108,9 @@ for (key, generator_) ∈ generators
                                     @test length(path(counterfactual))==1
                                     if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                         # In case of latent space search, there is a reconstruction error:
-                                        @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < max_reconstruction_error
+                                        @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < max_reconstruction_error
                                     else
-                                        @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < init_perturbation
+                                        @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < init_perturbation
                                     end
                                     @test converged(counterfactual)
                                     @test Counterfactuals.terminated(counterfactual)
@@ -165,9 +165,9 @@ for (key, generator_) ∈ generators
                 @test length(path(counterfactual))==1
                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                     # In case of latent space search, there is a reconstruction error:
-                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < max_reconstruction_error
+                    @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < max_reconstruction_error
                 else
-                    @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < init_perturbation
+                    @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < init_perturbation
                 end
                 @test converged(counterfactual) == true
     
