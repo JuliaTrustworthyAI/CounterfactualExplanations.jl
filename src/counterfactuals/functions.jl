@@ -1,3 +1,4 @@
+using ChainRulesCore: @ignore_derivatives
 using Flux
 using MLUtils
 using SliceMap
@@ -166,13 +167,11 @@ function decode_state(counterfactual_explanation::CounterfactualExplanation, x::
     s′ = isnothing(x) ? counterfactual_explanation.s′ : x
 
     # Standardization:
-    # dt = counterfactual_explanation.data.dt
-    # features_continuous = counterfactual_explanation.data.features_continuous
-    # s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-    #     StatsBase.reconstruct!(dt, s[features_continuous,:])
-    #     return s
-    # end
+    dt = counterfactual_explanation.data.dt
+    features_continuous = counterfactual_explanation.data.features_continuous
 
+    s′ = mapslices(s -> StatsBase.reconstruct(dt, s, features_continuous), s′, dims=(1,2)) 
+    
     # Categorical encoding:
     # --------------------- #
 

@@ -77,10 +77,6 @@ function CounterfactualData(
     return counterfactual_data
 end
 
-function CounterfactualData()
-    
-end
-
 """
     select_factual(counterfactual_data::CounterfactualData, index::Int)
 
