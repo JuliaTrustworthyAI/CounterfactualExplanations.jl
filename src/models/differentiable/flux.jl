@@ -27,7 +27,7 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    return SliceMap.slicemap(x -> M.model(x), X, dims=[1,2])
+    return SliceMap.slicemap(x -> M.model(x), X, dims=(1,2))
 end
 
 function probs(M::FluxModel, X::AbstractArray)
@@ -64,14 +64,14 @@ end
 
 
 function logits(M::FluxEnsemble, X::AbstractArray)
-    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims=[1,2]),M.model))/length(M.model)
+    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims=(1,2)),M.model))/length(M.model)
 end
 
 function probs(M::FluxEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
+        output = sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims=(1,2)),M.model))/length(M.model)
     elseif M.likelihood == :classification_multi
-        output = sum(map(nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims=[1,2]),M.model))/length(M.model)
+        output = sum(map(nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims=(1,2)),M.model))/length(M.model)
     end
     return output
 end

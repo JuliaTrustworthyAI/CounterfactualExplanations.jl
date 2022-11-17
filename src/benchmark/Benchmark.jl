@@ -1,7 +1,6 @@
 module Benchmark
-
-using ..Counterfactuals
 using DataFrames
+using ..CounterfactualExplanations
 
 export benchmark
 

@@ -1,6 +1,7 @@
 using CategoricalArrays
 using Plots
 using Parameters
+using SliceMap
 
 function Plots.plot(
     counterfactual_explanation::CounterfactualExplanation; 

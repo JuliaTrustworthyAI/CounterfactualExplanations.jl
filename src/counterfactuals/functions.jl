@@ -1,12 +1,13 @@
 using Flux
 using MLUtils
+using SliceMap
 using Statistics
 using StatsBase
 
 """
 A struct that collects all information relevant to a specific counterfactual explanations for a single individual.
 """
-mutable struct CounterfactualExplanation
+mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
     target::Number
     target_encoded::Union{Number, AbstractArray, Nothing}
@@ -136,7 +137,7 @@ function encode_state(counterfactual_explanation::CounterfactualExplanation)
     # Standardization:
     dt = data.dt
     features_continuous = data.features_continuous
-    s′ = mapslices(s′, dims=(1,2)) do s
+    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
         s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
         return s
     end
@@ -165,12 +166,12 @@ function decode_state(counterfactual_explanation::CounterfactualExplanation, x::
     s′ = isnothing(x) ? counterfactual_explanation.s′ : x
 
     # Standardization:
-    dt = counterfactual_explanation.data.dt
-    features_continuous = counterfactual_explanation.data.features_continuous
-    s′ = mapslices(s′, dims=(1,2)) do s
-        s[features_continuous,:] = StatsBase.reconstruct(dt, s[features_continuous,:])
-        return s
-    end
+    # dt = counterfactual_explanation.data.dt
+    # features_continuous = counterfactual_explanation.data.features_continuous
+    # s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+    #     StatsBase.reconstruct!(dt, s[features_continuous,:])
+    #     return s
+    # end
 
     # Categorical encoding:
     # --------------------- #
@@ -181,9 +182,9 @@ function decode_state(counterfactual_explanation::CounterfactualExplanation, x::
 
         # NOTE! This is not very clean, will be improved.
         if generative_model.params.nll==Flux.Losses.logitbinarycrossentropy
-            s′ = Flux.σ.(generative_model.decoder(s))
+            s′ = Flux.σ.(generative_model.decoder(s′))
         else
-            s′ = generative_model.decoder(s)
+            s′ = generative_model.decoder(s′)
         end
     end
 
@@ -218,7 +219,7 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
     if counterfactual_explanation.initialization == :add_perturbation
         scale = std(data.X, dims=2) .* 0.1
-        s′ = mapslices(s′, dims=(1,2)) do s
+        s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
             Δs′ = scale .* randn(size(scale,1))
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)    
             s .+ Δs′
@@ -262,7 +263,7 @@ end
 
 A convenience method to get the counterfactual value.
 """
-counterfactual(counterfactual_explanation::CounterfactualExplanation) = decode_state(counterfactual_explanation.s′)
+counterfactual(counterfactual_explanation::CounterfactualExplanation) = decode_state(counterfactual_explanation)
 
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
@@ -289,7 +290,7 @@ A convenience method to get the predicted label associated with the counterfactu
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
     p = counterfactual_probability(counterfactual_explanation)
-    y = mapslices(p -> _to_label(p), p, dims=[1,2])
+    y = SliceMap.slicemap(p -> _to_label(p), p, dims=(1,2))
     return y
 end
 
@@ -340,9 +341,8 @@ A convenience method to determine if the counterfactual search has converged.
 function converged(counterfactual_explanation::CounterfactualExplanation)
     # If strict, also look at gradient and other generator-specific conditions.
     # Otherwise only check if probability threshold has been reached.
-    counterfactual_state = get_counterfactual_state(counterfactual_explanation)
     if isnothing(counterfactual_explanation.generator.decision_threshold)
-        threshold_reached(counterfactual_explanation) && Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_state)
+        threshold_reached(counterfactual_explanation) && Generators.conditions_satisified(counterfactual_explanation.generator, counterfactual_explanation)
     else
         threshold_reached(counterfactual_explanation)
     end
@@ -375,7 +375,7 @@ Returns the counterfactual probabilities for each step of the search.
 """
 function counterfactual_probability_path(counterfactual_explanation::CounterfactualExplanation)
     M = counterfactual_explanation.M
-    p = map(X -> mapslices(x -> probs(M, x), X, dims=[1,2]),path(counterfactual_explanation))
+    p = map(X -> mapslices(x -> probs(M, x), X, dims=(1,2)), path(counterfactual_explanation))
     return p
 end
 
@@ -386,7 +386,7 @@ Returns the counterfactual labels for each step of the search.
 """
 function counterfactual_label_path(counterfactual_explanation::CounterfactualExplanation)
     P = counterfactual_probability_path(counterfactual_explanation)
-    ŷ = map(P -> mapslices(p -> _to_label(p), P, dims=[1,2]), P)
+    ŷ = map(P -> mapslices(p -> _to_label(p), P, dims=(1,2)), P)
     return ŷ
 end
 
@@ -397,7 +397,7 @@ Returns the target probabilities for each step of the search.
 """
 function target_probs_path(counterfactual_explanation::CounterfactualExplanation)
     X = path(counterfactual_explanation)
-    P = map(X -> mapslices(x -> target_probs(counterfactual_explanation, x), X, dims=[1,2]), X)
+    P = map(X -> mapslices(x -> target_probs(counterfactual_explanation, x), X, dims=(1,2)), X)
     return P
 end
 
@@ -409,7 +409,7 @@ Helper function that embeds path into two dimensions for plotting.
 function embed_path(counterfactual_explanation::CounterfactualExplanation)
     data_ = counterfactual_explanation.data
     path_ = MLUtils.stack(path(counterfactual_explanation); dims = 1)
-    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims=[1,2])
+    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims=(1,2))
     path_embedded = unstack(path_embedded,dims=2)
     return path_embedded
 end
@@ -486,26 +486,23 @@ A convenience method that checks if the number of maximum iterations has been ex
 steps_exhausted(counterfactual_explanation::CounterfactualExplanation) = counterfactual_explanation.search[:iteration_count] == counterfactual_explanation.params[:T]
 
 """
-    get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
+    guess_loss(counterfactual_explanation::CounterfactualExplanation)
 
-A subroutine that is used to take a snapshot of the current counterfactual search state. This snapshot is passed to the counterfactual generator.
+Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
 """
-function get_counterfactual_state(counterfactual_explanation::CounterfactualExplanation) 
-
-    counterfactual_state = CounterfactualState.State(
-        counterfactual_explanation.x,
-        counterfactual_explanation.s′,
-        counterfactual_explanation.f,
-        counterfactual_label(counterfactual_explanation),
-        counterfactual_explanation.target,
-        counterfactual_explanation.target_encoded,
-        counterfactual_explanation.params[:γ],
-        threshold_reached(counterfactual_explanation),
-        counterfactual_explanation.M,
-        counterfactual_explanation.params,
-        counterfactual_explanation.search
-    )
-    return counterfactual_state
+function guess_loss(counterfactual_explanation::CounterfactualExplanation)
+    if :likelihood in fieldnames(typeof(counterfactual_explanation.M))
+        if counterfactual_explanation.M.likelihood == :classification_binary
+            loss_fun = Flux.Losses.logitbinarycrossentropy
+        elseif counterfactual_explanation.M.likelihood == :classification_multi
+            loss_fun = Flux.Losses.logitcrossentropy
+        else
+            loss_fun = Flux.Losses.mse
+        end
+    else
+        loss_fun = nothing
+    end
+    return loss_fun
 end
 
 """
@@ -515,10 +512,8 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 """
 function update!(counterfactual_explanation::CounterfactualExplanation) 
 
-    counterfactual_state = get_counterfactual_state(counterfactual_explanation)
-
     # Generate peturbations:
-    Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_state)
+    Δs′ = Generators.generate_perturbations(counterfactual_explanation.generator, counterfactual_explanation)
     Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
     s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
     apply_domain_constraints!(counterfactual_explanation)      # domain constraints
@@ -527,7 +522,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
     _times_changed = reshape(decode_state(counterfactual_explanation, Δs′) .!= 0, size(counterfactual_explanation.search[:times_changed_features]))
     counterfactual_explanation.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
-    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_state) 
+    counterfactual_explanation.search[:mutability] = Generators.mutability_constraints(counterfactual_explanation.generator, counterfactual_explanation) 
     counterfactual_explanation.search[:iteration_count] += 1                            # update iteration counter   
     counterfactual_explanation.search[:path] = [counterfactual_explanation.search[:path]..., counterfactual_explanation.s′]
     counterfactual_explanation.search[:converged] = converged(counterfactual_explanation)

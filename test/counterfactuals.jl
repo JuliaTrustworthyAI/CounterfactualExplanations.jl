@@ -1,6 +1,5 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Benchmark
-using CounterfactualExplanations.Counterfactuals
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
@@ -70,9 +69,9 @@ for (key, generator_) ∈ generators
                                     @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
-                                @test counterfactual.x == x && Counterfactuals.factual(counterfactual) == x
-                                @test Counterfactuals.factual_label(counterfactual) == y
-                                @test Counterfactuals.factual_probability(counterfactual) == p_
+                                @test counterfactual.x == x && CounterfactualExplanations.factual(counterfactual) == x
+                                @test CounterfactualExplanations.factual_label(counterfactual) == y
+                                @test CounterfactualExplanations.factual_probability(counterfactual) == p_
                             end
 
                             @testset "Benchmark" begin
@@ -88,7 +87,7 @@ for (key, generator_) ∈ generators
                                    generator.decision_threshold = γ
                                    T = 1000
                                    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-                                   using CounterfactualExplanations.Counterfactuals: counterfactual_probability
+                                   using CounterfactualExplanations: counterfactual_probability
                                    @test !converged(counterfactual) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                    @test !converged(counterfactual) || length(path(counterfactual)) <= T
                                end
@@ -108,13 +107,13 @@ for (key, generator_) ∈ generators
                                     @test length(path(counterfactual))==1
                                     if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                         # In case of latent space search, there is a reconstruction error:
-                                        @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < max_reconstruction_error
+                                        @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < max_reconstruction_error
                                     else
-                                        @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < init_perturbation
+                                        @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < init_perturbation
                                     end
                                     @test converged(counterfactual)
-                                    @test Counterfactuals.terminated(counterfactual)
-                                    @test Counterfactuals.total_steps(counterfactual) == 0
+                                    @test CounterfactualExplanations.terminated(counterfactual)
+                                    @test CounterfactualExplanations.total_steps(counterfactual) == 0
                                     
                                 end
                     
@@ -165,9 +164,9 @@ for (key, generator_) ∈ generators
                 @test length(path(counterfactual))==1
                 if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                     # In case of latent space search, there is a reconstruction error:
-                    @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < max_reconstruction_error
+                    @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < max_reconstruction_error
                 else
-                    @test maximum(abs.(counterfactual.x .- decode_state(counterfactual))) < init_perturbation
+                    @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < init_perturbation
                 end
                 @test converged(counterfactual) == true
     
@@ -177,7 +176,7 @@ for (key, generator_) ∈ generators
                 target = round(probs(M, x)[1])==0 ? 1 : 0 
                 T = 1000
                 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-                import CounterfactualExplanations.Counterfactuals: counterfactual_probability
+                import CounterfactualExplanations: counterfactual_probability
                 @test !converged(counterfactual) || (target_probs(counterfactual)[1] >= γ) # either not converged or threshold reached
                 @test !converged(counterfactual) || length(path(counterfactual)) <= T
     

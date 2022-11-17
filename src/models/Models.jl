@@ -1,5 +1,6 @@
 module Models
 
+using ..CounterfactualExplanations
 using ..DataPreprocessing
 
 export AbstractFittedModel, AbstractDifferentiableModel

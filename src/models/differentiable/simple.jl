@@ -1,4 +1,5 @@
 using MLUtils
+using SliceMap
 
 """
     LogisticModel <: AbstractDifferentiableJuliaModel
@@ -189,10 +190,10 @@ end
 
 # # Probit approximation
 # X = vcat(1, X)                      # add for constant
-# v = collect(mapslices(x -> x'Σ * x, X, dims=[1,2]))
+# v = collect(SliceMap.slicemap(x -> x'Σ * x, X, dims=(1,2)))
 # κ = 1 ./ sqrt.(1 .+ π/8 .* v)       # scaling factor for logits
 # println("kappa:$(size(κ))")
-# z = collect(mapslices(x -> x' * z, κ, dims=[1,2]))
+# z = collect(SliceMap.slicemap(x -> x' * z, κ, dims=(1,2)))
 # # Compute probabilities
-# p = collect(mapslices(x -> Flux.σ.(x), z, dims=[1,2]))
+# p = collect(SliceMap.slicemap(x -> Flux.σ.(x), z, dims=(1,2)))
 # return p
