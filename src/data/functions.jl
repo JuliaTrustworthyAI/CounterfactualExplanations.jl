@@ -39,57 +39,6 @@ function cats_dogs_laplace()
     return la
 end
 
-# MNIST:
-"""
-    mnist_data()
-
-A convenience function to load MNIST training data.
-"""
-function mnist_data()
-    data_dir = artifact"mnist_data"
-    data = BSON.load(joinpath(data_dir,"mnist_data.bson"),@__MODULE__)[:data]
-    X, ys = (data[:X], data[:ys])
-    return X, ys
-end
-
-"""
-    mnist_model()
-
-A convenience function to load the pre-trained MLP for MNIST training data.
-"""
-function mnist_model()
-    data_dir = artifact"mnist_model"
-    model = BSON.load(joinpath(data_dir,"mnist_model.bson"),@__MODULE__)[:model]
-    return testmode!(model)
-end
-
-"""
-    mnist_ensemble()
-
-A convenience function to load the pre-trained deep ensemble of MLPs for MNIST training data.
-"""
-function mnist_ensemble()
-    data_dir = joinpath(artifact"mnist_ensemble","mnist_ensemble")
-    model_files = Base.Filesystem.readdir(data_dir)
-    ensemble = []
-    for file in model_files
-        model = BSON.load(joinpath(data_dir,file),@__MODULE__)[:model]
-        ensemble = vcat(ensemble, testmode!(model))
-    end
-    return ensemble
-end
-
-"""
-    mnist_vae()
-
-A convenience function to load the pre-trained VAE for MNIST training data.
-"""
-function mnist_vae()
-    data_dir = artifact"mnist_vae"
-    vae = BSON.load(joinpath(data_dir,"mnist_vae.bson"),@__MODULE__)[:vae]
-    return vae
-end
-
 """
     toy_data_linear(N=100)
 
@@ -116,8 +65,6 @@ function toy_data_linear(N=100, p=2)
     ts = [ones(M); zeros(M)];
     return xs, ts
 end
-
-
 
 """
     toy_data_non_linear(N=100)

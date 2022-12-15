@@ -6,12 +6,6 @@
         # @test !isnothing(CounterfactualExplanations.Data.cats_dogs_laplace())
     end
 
-    @testset "MNIST" begin
-        @test !isnothing(CounterfactualExplanations.Data.mnist_data())
-        @test !isnothing(CounterfactualExplanations.Data.mnist_model())
-        @test !isnothing(CounterfactualExplanations.Data.mnist_ensemble())
-    end
-
     @testset "Synthetic Data" begin
         @test !isnothing(CounterfactualExplanations.Data.load_synthetic([:flux]))
     end
