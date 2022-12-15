@@ -5,10 +5,10 @@ using Plots
 
 function voronoi(X::AbstractMatrix, y::AbstractVector)
     knnc = KNNClassifier(K=1) # KNNClassifier instantiation
-    X = MLJ.table(X)
+    X = MLJBase.table(X)
     y = categorical(y)
     knnc_mach = machine(knnc, X, y) 
-    MLJ.fit!(knnc_mach)
+    MLJBase.fit!(knnc_mach)
     return knnc_mach, y
 end
 
@@ -45,7 +45,7 @@ function Plots.plot(
 
     if multi_dim
         knn1, y_train = voronoi(X, ŷ)
-        predict_ = (X::AbstractVector) -> vec(pdf(MLJ.predict(knn1, MLJ.table(reshape(X,1,2))), levels(y_train)))
+        predict_ = (X::AbstractVector) -> vec(pdf(MLJBase.predict(knn1, MLJBase.table(reshape(X,1,2))), levels(y_train)))
         Z = [predict_([x,y]) for x=x_range, y=y_range]
     else
         predict_ = function(X::AbstractVector) 
