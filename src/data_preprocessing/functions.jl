@@ -1,5 +1,4 @@
 using Flux
-using MLJ
 using MultivariateStats
 using StatsBase
 using UMAP
