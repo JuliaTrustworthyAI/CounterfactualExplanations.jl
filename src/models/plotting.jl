@@ -1,5 +1,5 @@
 using Flux
-using MLJ
+using MLJBase
 using NearestNeighborModels 
 using Plots
 
