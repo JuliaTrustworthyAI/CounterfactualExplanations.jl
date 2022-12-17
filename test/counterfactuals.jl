@@ -122,67 +122,7 @@ for (key, generator_) ∈ generators
                     end
                 end
             end
-            
         end
-    
-        @testset "LogisticModel" begin
-
-            # Data:
-            Random.seed!(1234)
-            N = 25
-            xs, ys = Data.toy_data_linear(N)
-            X = hcat(xs...)
-            counterfactual_data = CounterfactualData(X,ys')
-
-            # Model
-            # Logit model:
-            w = [1.0 1.0] # true coefficients
-            b = 0
-            M = LogisticModel(w, [b])
-    
-            # Randomly selected factual:
-            Random.seed!(123)
-            x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-            y = round(probs(M, x)[1])
-            
-            @testset "Predetermined outputs" begin
-                γ = 0.9
-                generator.decision_threshold = γ
-                target = round(probs(M, x)[1])==0 ? 1 : 0 
-                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-                @test counterfactual.target == target
-                @test counterfactual.x == x
-            end
-    
-            @testset "Convergence" begin
-    
-                # Already in target and exceeding threshold probability:
-                γ = probs(M, x)[1]
-                generator.decision_threshold = γ
-                target = round(γ)
-                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-                @test length(path(counterfactual))==1
-                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-                    # In case of latent space search, there is a reconstruction error:
-                    @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < max_reconstruction_error
-                else
-                    @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < init_perturbation
-                end
-                @test converged(counterfactual) == true
-    
-                # Threshold reached if converged:
-                γ = 0.9
-                generator.decision_threshold = γ
-                target = round(probs(M, x)[1])==0 ? 1 : 0 
-                T = 1000
-                counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-                import CounterfactualExplanations: counterfactual_probability
-                @test !converged(counterfactual) || (target_probs(counterfactual)[1] >= γ) # either not converged or threshold reached
-                @test !converged(counterfactual) || length(path(counterfactual)) <= T
-    
-            end
-        end
-    
     end
 end
 
