@@ -1,18 +1,9 @@
 ## ClapROAR Generator
 
 ```{julia}
-#| eval: true
-using Pkg; Pkg.activate("dev")
-```
-
-```{julia}
-#| eval: true
-include("dev/utils.jl")
-using AlgorithmicRecourseDynamics
-using CounterfactualExplanations, Flux, Plots, PlotThemes, Random, LaplaceRedux, LinearAlgebra
-theme(:wong)
-output_path = output_dir("generator")
-www_path = www_dir("generator")
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
 ```
 
 Generate some toy data:

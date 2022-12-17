@@ -54,7 +54,7 @@ T = 100
 
 ```{julia}
 #| eval: true
-Λ₂ = [0.1, 1, 5]
+Λ₂ = [0.01, 0.1, 1]
 counterfactuals_strict = []
 generators = []
 for λ₂ ∈ Λ₂  

@@ -13,8 +13,19 @@ mutable struct CounterfactualData
     standardize::Bool
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
-    generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel} # generative model
-    function CounterfactualData(X,y,mutability,domain,features_categorical,features_continuous,standardize,dt,compressor,generative_model)
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
+    function CounterfactualData(
+        X,
+        y,
+        mutability,
+        domain,
+        features_categorical,
+        features_continuous,
+        standardize,
+        dt,
+        compressor,
+        generative_model,
+    )
         conditions = []
         conditions = vcat(
             conditions...,
@@ -30,7 +41,18 @@ mutable struct CounterfactualData
             ) : true,
         )
         if all(conditions)
-            new(X,y,mutability,domain,features_categorical,features_continuous,standardize,dt,compressor,generative_model)
+            new(
+                X,
+                y,
+                mutability,
+                domain,
+                features_categorical,
+                features_continuous,
+                standardize,
+                dt,
+                compressor,
+                generative_model,
+            )
         end
     end
 end
@@ -58,13 +80,14 @@ counterfactual_data = CounterfactualData(X,y')
 
 """
 function CounterfactualData(
-    X::AbstractMatrix, y::AbstractMatrix;
-    mutability::Union{Vector{Symbol},Nothing}=nothing,
-    domain::Union{Any,Nothing}=nothing,
-    features_categorical::Union{Vector{Int},Nothing}=nothing,
-    features_continuous::Union{Vector{Int},Nothing}=nothing,
-    standardize::Bool=false,
-    generative_model::Union{Nothing, GenerativeModels.AbstractGenerativeModel}=nothing
+    X::AbstractMatrix,
+    y::AbstractMatrix;
+    mutability::Union{Vector{Symbol},Nothing} = nothing,
+    domain::Union{Any,Nothing} = nothing,
+    features_categorical::Union{Vector{Int},Nothing} = nothing,
+    features_continuous::Union{Vector{Int},Nothing} = nothing,
+    standardize::Bool = false,
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
 )
 
     # If nothing supplied, assume all continuous:
@@ -77,11 +100,19 @@ function CounterfactualData(
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     # Data transformations:
-    dt = fit(ZScoreTransform, X[features_continuous,:], dims=2)        # standardization
+    dt = fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
 
     counterfactual_data = CounterfactualData(
-        X, y, mutability, domain, features_categorical, features_continuous, 
-        standardize, dt, compressor, generative_model
+        X,
+        y,
+        mutability,
+        domain,
+        features_categorical,
+        features_continuous,
+        standardize,
+        dt,
+        compressor,
+        generative_model,
     )
 
     return counterfactual_data
@@ -118,7 +149,11 @@ function apply_domain_constraints(counterfactual_data::CounterfactualData, x::Ab
     # Continuous variables:
     if !isnothing(counterfactual_data.domain)
         for i in counterfactual_data.features_continuous
-            x[i] = clamp(x[i], counterfactual_data.domain[i][1], counterfactual_data.domain[i][2])
+            x[i] = clamp(
+                x[i],
+                counterfactual_data.domain[i][1],
+                counterfactual_data.domain[i][2],
+            )
         end
     end
 

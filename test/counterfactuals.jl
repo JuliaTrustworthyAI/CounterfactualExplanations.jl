@@ -85,9 +85,15 @@ for (key, generator_) ∈ generators
                                     @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
-                                @test counterfactual.x == x && CounterfactualExplanations.factual(counterfactual) == x
-                                @test CounterfactualExplanations.factual_label(counterfactual) == y
-                                @test CounterfactualExplanations.factual_probability(counterfactual) == p_
+                                @test counterfactual.x == x &&
+                                      CounterfactualExplanations.factual(counterfactual) ==
+                                      x
+                                @test CounterfactualExplanations.factual_label(
+                                    counterfactual,
+                                ) == y
+                                @test CounterfactualExplanations.factual_probability(
+                                    counterfactual,
+                                ) == p_
                             end
 
                             @testset "Benchmark" begin
@@ -102,15 +108,25 @@ for (key, generator_) ∈ generators
 
                                 @testset "Non-trivial case" begin
                                     # Threshold reached if converged:
-                                   γ = 0.9
-                                   generator.decision_threshold = γ
-                                   T = 1000
-                                   counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-                                   using CounterfactualExplanations: counterfactual_probability
-                                   @test !converged(counterfactual) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                   @test !converged(counterfactual) || length(path(counterfactual)) <= T
-                               end
-                                
+                                    γ = 0.9
+                                    generator.decision_threshold = γ
+                                    T = 1000
+                                    counterfactual = generate_counterfactual(
+                                        x,
+                                        target,
+                                        counterfactual_data,
+                                        M,
+                                        generator;
+                                        T = T,
+                                    )
+                                    using CounterfactualExplanations:
+                                        counterfactual_probability
+                                    @test !converged(counterfactual) ||
+                                          target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                    @test !converged(counterfactual) ||
+                                          length(path(counterfactual)) <= T
+                                end
+
                                 @testset "Trivial case (already in target class)" begin
 
                                     # Already in target and exceeding threshold probability:
@@ -122,18 +138,44 @@ for (key, generator_) ∈ generators
                                         target = round(p_[1]) == 0 ? 0 : 1
                                     end
                                     generator.decision_threshold = 0.5
-                                    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; initialization=:identity)
-                                    @test length(path(counterfactual))==1
-                                    if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                    counterfactual = generate_counterfactual(
+                                        x,
+                                        target,
+                                        counterfactual_data,
+                                        M,
+                                        generator;
+                                        initialization = :identity,
+                                    )
+                                    @test length(path(counterfactual)) == 1
+                                    if typeof(generator) <:
+                                       Generators.AbstractLatentSpaceGenerator
                                         # In case of latent space search, there is a reconstruction error:
-                                        @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < max_reconstruction_error
+                                        @test maximum(
+                                            abs.(
+                                                counterfactual.x .-
+                                                CounterfactualExplanations.decode_state(
+                                                    counterfactual,
+                                                )
+                                            ),
+                                        ) < max_reconstruction_error
                                     else
-                                        @test maximum(abs.(counterfactual.x .- CounterfactualExplanations.decode_state(counterfactual))) < init_perturbation
+                                        @test maximum(
+                                            abs.(
+                                                counterfactual.x .-
+                                                CounterfactualExplanations.decode_state(
+                                                    counterfactual,
+                                                )
+                                            ),
+                                        ) < init_perturbation
                                     end
                                     @test converged(counterfactual)
-                                    @test CounterfactualExplanations.terminated(counterfactual)
-                                    @test CounterfactualExplanations.total_steps(counterfactual) == 0
-                                    
+                                    @test CounterfactualExplanations.terminated(
+                                        counterfactual,
+                                    )
+                                    @test CounterfactualExplanations.total_steps(
+                                        counterfactual,
+                                    ) == 0
+
                                 end
 
                             end

@@ -47,7 +47,10 @@ end
 
 # Complexity:
 # With thanks to various respondents here: https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/3
-function ddp_diversity(counterfactual_explanation::AbstractCounterfactualExplanation; perturbation_size=1e-5)
+function ddp_diversity(
+    counterfactual_explanation::AbstractCounterfactualExplanation;
+    perturbation_size = 1e-5,
+)
     X = counterfactual_explanation.s′
     xs = eachslice(X, dims = ndims(X))
     K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
@@ -60,10 +63,16 @@ end
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(generator::DiCEGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
-    dist_ = generator.complexity(counterfactual_explanation.x .- CounterfactualExplanations.decode_state(counterfactual_explanation))
+function h(
+    generator::DiCEGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
+    dist_ = generator.complexity(
+        counterfactual_explanation.x .-
+        CounterfactualExplanations.decode_state(counterfactual_explanation),
+    )
     ddp_ = ddp_diversity(counterfactual_explanation)
-    if length(generator.λ)==1
+    if length(generator.λ) == 1
         penalty = generator.λ * (dist_ .- ddp_)
     else
         penalty = generator.λ[1] * dist_ .- generator.λ[2] * ddp_

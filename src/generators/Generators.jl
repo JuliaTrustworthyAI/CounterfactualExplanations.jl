@@ -33,14 +33,22 @@ abstract type AbstractGenerator end
 
 The default method to apply the generator loss function to the current counterfactual state for any generator.
 """
-function ℓ(generator::AbstractGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+function ℓ(
+    generator::AbstractGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
 
-    loss_fun = !isnothing(generator.loss) ? getfield(Losses, generator.loss) : CounterfactualExplanations.guess_loss(counterfactual_explanation)
+    loss_fun =
+        !isnothing(generator.loss) ? getfield(Losses, generator.loss) :
+        CounterfactualExplanations.guess_loss(counterfactual_explanation)
     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
     loss = loss_fun(
-        getfield(Models, :logits)(counterfactual_explanation.M, CounterfactualExplanations.decode_state(counterfactual_explanation)), 
-        counterfactual_explanation.target_encoded
-    )    
+        getfield(Models, :logits)(
+            counterfactual_explanation.M,
+            CounterfactualExplanations.decode_state(counterfactual_explanation),
+        ),
+        counterfactual_explanation.target_encoded,
+    )
     return loss
 end
 
@@ -50,9 +58,13 @@ end
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(generator::AbstractGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+function h(
+    generator::AbstractGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     dist_ = generator.complexity(
-        counterfactual_explanation.x .- CounterfactualExplanations.decode_state(counterfactual_explanation)
+        counterfactual_explanation.x .-
+        CounterfactualExplanations.decode_state(counterfactual_explanation),
     )
     penalty = generator.λ * dist_
     return penalty

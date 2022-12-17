@@ -14,8 +14,15 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_explanation::AbstractCounterfactualExplanation)
-    gs = gradient(() -> ℓ(generator, counterfactual_explanation), Flux.params(counterfactual_explanation.s′))[counterfactual_explanation.s′]
+function ∂ℓ(
+    generator::AbstractGradientBasedGenerator,
+    M::Models.AbstractDifferentiableModel,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
+    gs = gradient(
+        () -> ℓ(generator, counterfactual_explanation),
+        Flux.params(counterfactual_explanation.s′),
+    )[counterfactual_explanation.s′]
     return gs
 end
 
@@ -24,7 +31,13 @@ end
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-∂h(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation) = gradient(() -> h(generator, counterfactual_explanation), Flux.params(counterfactual_explanation.s′))[counterfactual_explanation.s′]
+∂h(
+    generator::AbstractGradientBasedGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+) = gradient(
+    () -> h(generator, counterfactual_explanation),
+    Flux.params(counterfactual_explanation.s′),
+)[counterfactual_explanation.s′]
 
 # Gradient:
 """
@@ -32,7 +45,11 @@ The default method to compute the gradient of the complexity penalty at the curr
 
 The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 """
-function ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, counterfactual_explanation::AbstractCounterfactualExplanation)
+function ∇(
+    generator::AbstractGradientBasedGenerator,
+    M::Models.AbstractDifferentiableModel,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     ∂ℓ(generator, M, counterfactual_explanation) + ∂h(generator, counterfactual_explanation)
 end
 
@@ -41,7 +58,10 @@ end
 
 Proposes new state based on backpropagation.
 """
-function propose_state(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+function propose_state(
+    generator::AbstractGradientBasedGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     grads = ∇(generator, counterfactual_explanation.M, counterfactual_explanation) # gradient
     new_s′ = deepcopy(counterfactual_explanation.s′)
     Flux.Optimise.update!(generator.opt, new_s′, grads)
@@ -54,7 +74,10 @@ using Flux
 
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
-function generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation) 
+function generate_perturbations(
+    generator::AbstractGradientBasedGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     s′ = deepcopy(counterfactual_explanation.s′)
     new_s′ = propose_state(generator, counterfactual_explanation)
     Δs′ = new_s′ - s′ # gradient step
@@ -66,7 +89,10 @@ end
 
 The default method to return mutability constraints that are dependent on the current counterfactual search state. For generic gradient-based generators, no state-dependent constraints are added.
 """
-function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+function mutability_constraints(
+    generator::AbstractGradientBasedGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     mutability = counterfactual_explanation.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
 end
@@ -76,9 +102,12 @@ end
 
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
 """
-function conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+function conditions_satisified(
+    generator::AbstractGradientBasedGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
     𝐠ₜ = ∇(generator, counterfactual_explanation.M, counterfactual_explanation)
-    status = all(abs.(𝐠ₜ) .< generator.τ) 
+    status = all(abs.(𝐠ₜ) .< generator.τ)
     return status
 end
 

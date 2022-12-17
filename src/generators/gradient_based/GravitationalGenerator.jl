@@ -65,22 +65,34 @@ import CounterfactualExplanations.Generators: h
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(generator::GravitationalGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
-    
+function h(
+    generator::GravitationalGenerator,
+    counterfactual_explanation::AbstractCounterfactualExplanation,
+)
+
     # Distance from factual:
-    dist_ = generator.complexity(counterfactual_explanation.x .- CounterfactualExplanations.decode_state(counterfactual_explanation))
+    dist_ = generator.complexity(
+        counterfactual_explanation.x .-
+        CounterfactualExplanations.decode_state(counterfactual_explanation),
+    )
 
     # Gravitational center:
     if isnothing(generator.centroid)
-        ids = rand(1:size(counterfactual_explanation.params[:potential_neighbours],2),generator.K)
-        neighbours = counterfactual_explanation.params[:potential_neighbours][:,ids]
-        generator.centroid = mean(neighbours, dims=2)
+        ids = rand(
+            1:size(counterfactual_explanation.params[:potential_neighbours], 2),
+            generator.K,
+        )
+        neighbours = counterfactual_explanation.params[:potential_neighbours][:, ids]
+        generator.centroid = mean(neighbours, dims = 2)
     end
 
     # Distance from gravitational center:
-    gravity_ = generator.complexity(generator.centroid .- CounterfactualExplanations.decode_state(counterfactual_explanation))
-    
-    if length(generator.λ)==1
+    gravity_ = generator.complexity(
+        generator.centroid .-
+        CounterfactualExplanations.decode_state(counterfactual_explanation),
+    )
+
+    if length(generator.λ) == 1
         penalty = generator.λ * (dist_ .+ gravity_)
     else
         penalty = generator.λ[1] * dist_ .+ generator.λ[2] * gravity_
