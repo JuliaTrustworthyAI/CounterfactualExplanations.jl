@@ -10,9 +10,8 @@ Generate some toy data:
 
 ```{julia}
 #| eval: true
-using MLJ
 N = 1000
-X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.1)
+X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
 ys .= ys.==2
 X = X'
 xs = Flux.unstack(X,2)
@@ -24,11 +23,9 @@ Build and train simple MLP:
 
 ```{julia}
 #| eval: true
-using Flux
 nn = Chain(Dense(2,1))
-using Flux.Optimise: update!, ADAM
 opt = ADAM()
-epochs = 100
+epochs = 50
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
 show_every = epochs/10
@@ -81,7 +78,7 @@ Check how the model gradient changes along the counterfactual path (model loss c
 ```{julia}
 #| eval: true
 x_ = path(ce)
-y_ = CounterfactualExplanations.Counterfactuals.counterfactual_label_path(ce)
+y_ = CounterfactualExplanations.counterfactual_label_path(ce)
 data_ = zip(x_,y_)
 grad_norms = []
 loss_ = []
@@ -94,11 +91,11 @@ for d in data_
 end
 ```
 
-Generate recourse using ClaPROAR generator under varying degress of penalty:
+Generate recourse using ClaPROAR generator under varying degrees of penalty:
 
 ```{julia}
 #| eval: true
-Λ₂ = [0.1, 1, 5]
+Λ₂ = [0.1, 1, 10]
 counterfactuals_strict = []
 generators = []
 for λ₂ ∈ Λ₂  

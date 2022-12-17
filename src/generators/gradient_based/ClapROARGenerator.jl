@@ -93,7 +93,7 @@ function h(
         CounterfactualExplanations.counterfactual_label(counterfactual_explanation) .==
         counterfactual_explanation.target,
     )
-        grad_norm = gradient_penalty(generator, counterfactual_state)
+        grad_norm = gradient_penalty(generator, counterfactual_explanation)
     else
         grad_norm = 0
     end

@@ -321,7 +321,7 @@ A convenience method to get the predicted label associated with the counterfactu
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
     p = counterfactual_probability(counterfactual_explanation)
-    y = SliceMap.slicemap(p -> _to_label(p), p, dims = (1, 2))
+    y = map(_p -> _to_label(_p), eachslice(p, dims=3))
     return y
 end
 
