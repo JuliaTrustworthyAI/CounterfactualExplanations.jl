@@ -14,8 +14,8 @@ end
 
 # API streamlining:
 @with_kw struct GenericGeneratorParams
-    opt::Any=Flux.Optimise.Descent()
-    τ::AbstractFloat=1e-5
+    opt::Any = Flux.Optimise.Descent()
+    τ::AbstractFloat = 1e-5
 end
 
 """
@@ -35,14 +35,13 @@ An outer constructor method that instantiates a generic generator.
 generator = GenericGenerator()
 ```
 """
-function GenericGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=LinearAlgebra.norm,
-    λ::AbstractFloat=0.1,
-    decision_threshold=0.5,
-    kwargs...
+function GenericGenerator(;
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = LinearAlgebra.norm,
+    λ::AbstractFloat = 0.1,
+    decision_threshold = 0.5,
+    kwargs...,
 )
-    params = GenericGeneratorParams(;kwargs...)
+    params = GenericGeneratorParams(; kwargs...)
     GenericGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end

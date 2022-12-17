@@ -27,20 +27,22 @@ generators = generator_catalog
 for (key, generator_) ∈ generators
     name = uppercasefirst(string(key))
     @testset "$name" begin
-    
+
         # Generator:
         generator = deepcopy(generator_())
 
         @testset "Models for synthetic data" begin
-        
+
             for (key, value) ∈ synthetic
 
                 name = string(key)
                 @testset "$name" begin
-                    X, ys = (value[:data][:xs],value[:data][:ys])
-                    X = MLUtils.stack(X,dims=2)
-                    ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : ys
-                    counterfactual_data = CounterfactualData(X,ys')
+                    X, ys = (value[:data][:xs], value[:data][:ys])
+                    X = MLUtils.stack(X, dims = 2)
+                    ys_cold =
+                        length(ys[1]) > 1 ?
+                        [Flux.onecold(y_, 1:length(ys[1])) for y_ in ys] : ys
+                    counterfactual_data = CounterfactualData(X, ys')
 
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -48,24 +50,38 @@ for (key, generator_) ∈ generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-                            multiple_x = select_factual(counterfactual_data,rand(1:size(X)[2],5))
+                            x = select_factual(counterfactual_data, rand(1:size(X)[2]))
+                            multiple_x =
+                                select_factual(counterfactual_data, rand(1:size(X)[2], 5))
 
                             p_ = probs(M, x)
                             if size(p_)[1] > 1
-                                y = Flux.onecold(p_,unique(ys_cold))
-                                target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
+                                y = Flux.onecold(p_, unique(ys_cold))
+                                target = rand(unique(ys_cold)[1:end.!=y]) # opposite label as target
                             else
                                 y = round(p_[1])
-                                target = y ==0 ? 1 : 0 
+                                target = y == 0 ? 1 : 0
                             end
                             # Single sample:
-                            counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                            counterfactual = generate_counterfactual(
+                                x,
+                                target,
+                                counterfactual_data,
+                                M,
+                                generator,
+                            )
                             # Multiple samples:
-                            counterfactuals = generate_counterfactual(multiple_x, target, counterfactual_data, M, generator)
-                            
+                            counterfactuals = generate_counterfactual(
+                                multiple_x,
+                                target,
+                                counterfactual_data,
+                                M,
+                                generator,
+                            )
+
                             @testset "Predetermined outputs" begin
-                                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                if typeof(generator) <:
+                                   Generators.AbstractLatentSpaceGenerator
                                     @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
@@ -76,9 +92,12 @@ for (key, generator_) ∈ generators
 
                             @testset "Benchmark" begin
                                 @test isa(benchmark(counterfactual), DataFrame)
-                                @test isa(benchmark(counterfactuals; to_dataframe=false), Dict)
+                                @test isa(
+                                    benchmark(counterfactuals; to_dataframe = false),
+                                    Dict,
+                                )
                             end
-                    
+
                             @testset "Convergence" begin
 
                                 @testset "Non-trivial case" begin
@@ -97,10 +116,10 @@ for (key, generator_) ∈ generators
                                     # Already in target and exceeding threshold probability:
                                     p_ = probs(M, x)
                                     if size(p_)[1] > 1
-                                        y = Flux.onecold(p_,unique(ys_cold))[1]
+                                        y = Flux.onecold(p_, unique(ys_cold))[1]
                                         target = y
                                     else
-                                        target = round(p_[1])==0 ? 0 : 1 
+                                        target = round(p_[1]) == 0 ? 0 : 1
                                     end
                                     generator.decision_threshold = 0.5
                                     counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; initialization=:identity)
@@ -116,7 +135,7 @@ for (key, generator_) ∈ generators
                                     @test CounterfactualExplanations.total_steps(counterfactual) == 0
                                     
                                 end
-                    
+
                             end
                         end
                     end
@@ -125,4 +144,3 @@ for (key, generator_) ∈ generators
         end
     end
 end
-

@@ -16,9 +16,9 @@ end
 
 # API streamlining:
 @with_kw struct GreedyGeneratorParams
-    ϵ::Union{AbstractFloat,Nothing}=nothing
-    τ::AbstractFloat=1e-5
-    n::Union{Int,Nothing}=nothing
+    ϵ::Union{AbstractFloat,Nothing} = nothing
+    τ::AbstractFloat = 1e-5
+    n::Union{Int,Nothing} = nothing
 end
 
 """
@@ -37,26 +37,25 @@ An outer constructor method that instantiates a greedy generator.
 generator = GreedyGenerator()
 ```
 """
-function GreedyGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=LinearAlgebra.norm,
-    λ::AbstractFloat=0.0,
-    decision_threshold=0.5,
-    kwargs...
+function GreedyGenerator(;
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = LinearAlgebra.norm,
+    λ::AbstractFloat = 0.0,
+    decision_threshold = 0.5,
+    kwargs...,
 )
 
     # Load hyperparameters:
-    params = GreedyGeneratorParams(;kwargs...)
+    params = GreedyGeneratorParams(; kwargs...)
     ϵ = params.ϵ
     n = params.n
-    if all(isnothing.([ϵ, n])) 
+    if all(isnothing.([ϵ, n]))
         ϵ = 0.1
         n = 10
     elseif isnothing(ϵ) && !isnothing(n)
-        ϵ = 1/n
+        ϵ = 1 / n
     elseif !isnothing(ϵ) && isnothing(n)
-        n = 1/ϵ
+        n = 1 / ϵ
     end
 
     # Sanity checks:
@@ -67,7 +66,7 @@ function GreedyGenerator(
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 
-    generator = GreedyGenerator(loss,complexity,λ,decision_threshold,ϵ,params.τ,n,0)
+    generator = GreedyGenerator(loss, complexity, λ, decision_threshold, ϵ, params.τ, n, 0)
 
     return generator
 end
@@ -89,8 +88,8 @@ function generate_perturbations(generator::GreedyGenerator, counterfactual_expla
     𝐠ₜ = ∇(generator, counterfactual_explanation.M, counterfactual_explanation) # gradient
     𝐠ₜ[counterfactual_explanation.params[:mutability] .== :none] .= 0
     function choose_most_salient(x)
-        s = -((abs.(x).==maximum(abs.(x),dims=1)) .* generator.ϵ .* sign.(x))
-        non_zero_elements = findall(vec(s).!=0)
+        s = -((abs.(x) .== maximum(abs.(x), dims = 1)) .* generator.ϵ .* sign.(x))
+        non_zero_elements = findall(vec(s) .!= 0)
         # If more than one equal, randomise:
         if length(non_zero_elements) > 1
             keep_ = rand(non_zero_elements)
@@ -113,10 +112,10 @@ function mutability_constraints(generator::GreedyGenerator, counterfactual_expla
     mutability = counterfactual_explanation.params[:mutability]
     if all(counterfactual_explanation.search[:times_changed_features] .>= generator.n) 
         generator.passes += 1
-        generator.n += generator.n/generator.passes
+        generator.n += generator.n / generator.passes
         @info "Steps exhausted for all mutable features. Increasing number of allowed steps to $(generator.n). Restoring initial mutability."
         counterfactual_explanation.params[:mutability] .= counterfactual_explanation.params[:initial_mutability]
     end
     mutability[counterfactual_explanation.search[:times_changed_features] .>= generator.n] .= :none # constrains features that have already been exhausted
     return mutability
-end 
+end

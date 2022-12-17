@@ -24,7 +24,7 @@ struct LogisticModel <: AbstractDifferentiableJuliaModel
     likelihood::Symbol
 end
 
-LogisticModel(W,b;likelihood=:classification_binary) = LogisticModel(W,b,likelihood)
+LogisticModel(W, b; likelihood = :classification_binary) = LogisticModel(W, b, likelihood)
 
 # What follows are the two required outer methods:
 """
@@ -47,11 +47,11 @@ See also [`LogisticModel <: AbstractDifferentiableJuliaModel`](@ref).
 """
 function logits(M::LogisticModel, X::AbstractArray)
     if ndims(X) == 3
-        n = size(X,3)
-        reshape(map(x -> (M.W*x .+ M.b)[1], [X[:,:,i] for i ∈ 1:n]),1,1,n)
+        n = size(X, 3)
+        reshape(map(x -> (M.W*x.+M.b)[1], [X[:, :, i] for i ∈ 1:n]), 1, 1, n)
         # SliceMap.slicemap(x -> M.W*x .+ M.b, X, dims=(1,2)) 
     else
-        M.W*X .+ M.b
+        M.W * X .+ M.b
     end
 end
 
@@ -99,10 +99,15 @@ struct BayesianLogisticModel <: AbstractDifferentiableJuliaModel
     μ::Matrix
     Σ::Matrix
     likelihood::Symbol
-    BayesianLogisticModel(μ, Σ, likelihood) = length(μ)^2 != length(Σ) ? throw(DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match.")) : new(μ, Σ, likelihood)
+    BayesianLogisticModel(μ, Σ, likelihood) =
+        length(μ)^2 != length(Σ) ?
+        throw(
+            DimensionMismatch("Dimensions of μ and its covariance matrix Σ do not match."),
+        ) : new(μ, Σ, likelihood)
 end
 
-BayesianLogisticModel(μ,Σ;likelihood=:classification_binary) = BayesianLogisticModel(μ,Σ,likelihood)
+BayesianLogisticModel(μ, Σ; likelihood = :classification_binary) =
+    BayesianLogisticModel(μ, Σ, likelihood)
 
 """
     logits(M::BayesianLogisticModel, X::AbstractArray)
@@ -129,7 +134,7 @@ function logits(M::BayesianLogisticModel, X::AbstractArray)
     X = vcat(1.0, X) # add for constant
 
     if ndims(X) == 3
-        y = SliceMap.slicemap(x -> M.μ * x, X, dims=(1,2)) 
+        y = SliceMap.slicemap(x -> M.μ * x, X, dims = (1, 2))
     else
         y = M.μ * X
     end
@@ -166,22 +171,22 @@ function probs(M::BayesianLogisticModel, X::AbstractArray)
     function probit_approx(x)
         z = logits(M, x)
         x = vcat(1.0, x) # add for constant
-        v = [_x'Σ*_x for _x=eachcol(x)]   
-        κ = 1 ./ sqrt.(1 .+ π/8 .* v) # scaling factor for logits
+        v = [_x'Σ * _x for _x in eachcol(x)]
+        κ = 1 ./ sqrt.(1 .+ π / 8 .* v) # scaling factor for logits
         z = κ' .* z
         # Compute probabilities
         p = Flux.σ.(z)
         return p
-    end 
+    end
 
     if ndims(X) == 3
-        p = SliceMap.slicemap(x -> probit_approx(x), X, dims=(1,2)) 
+        p = SliceMap.slicemap(x -> probit_approx(x), X, dims = (1, 2))
     else
         p = probit_approx(X)
     end
-    
+
     return p
-    
+
 end
 
 # μ = M.μ                             # MAP mean vector

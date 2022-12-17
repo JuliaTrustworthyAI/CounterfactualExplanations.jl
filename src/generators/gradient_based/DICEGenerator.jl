@@ -13,8 +13,8 @@ end
 
 # API streamlining:
 @with_kw struct DiCEGeneratorParams
-    opt::Any=Flux.Optimise.Descent(1.0)
-    τ::AbstractFloat=1e-5
+    opt::Any = Flux.Optimise.Descent(1.0)
+    τ::AbstractFloat = 1e-5
 end
 
 """
@@ -34,15 +34,14 @@ An outer constructor method that instantiates a generic generator.
 generator = DiCEGenerator()
 ```
 """
-function DiCEGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
-    decision_threshold=0.5,
-    kwargs...
+function DiCEGenerator(;
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = norm,
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
+    decision_threshold = 0.5,
+    kwargs...,
 )
-    params = DiCEGeneratorParams(;kwargs...)
+    params = DiCEGeneratorParams(; kwargs...)
     DiCEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end
 
@@ -51,8 +50,8 @@ end
 function ddp_diversity(counterfactual_explanation::AbstractCounterfactualExplanation; perturbation_size=1e-5)
     X = counterfactual_explanation.s′
     xs = eachslice(X, dims = ndims(X))
-    K = [1/(1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
-    K += Diagonal(randn(size(X,3))*perturbation_size)
+    K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
+    K += Diagonal(randn(size(X, 3)) * perturbation_size)
     return det(K)
 end
 
@@ -71,5 +70,3 @@ function h(generator::DiCEGenerator, counterfactual_explanation::AbstractCounter
     end
     return penalty
 end
-
-

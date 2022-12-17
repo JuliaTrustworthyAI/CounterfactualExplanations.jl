@@ -12,16 +12,20 @@ struct FluxModel <: AbstractDifferentiableJuliaModel
     model::Any
     likelihood::Symbol
     function FluxModel(model, likelihood)
-        if likelihood ∈ [:classification_binary,:classification_multi]
+        if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
         else
-            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+            throw(
+                ArgumentError(
+                    "`type` should be in `[:classification_binary,:classification_multi]`",
+                ),
+            )
         end
     end
 end
 
 # Outer constructor method:
-function FluxModel(model; likelihood::Symbol=:classification_binary)
+function FluxModel(model; likelihood::Symbol = :classification_binary)
     FluxModel(model, likelihood)
 end
 
@@ -49,16 +53,20 @@ struct FluxEnsemble <: AbstractDifferentiableJuliaModel
     model::Any
     likelihood::Symbol
     function FluxEnsemble(model, likelihood)
-        if likelihood ∈ [:classification_binary,:classification_multi]
+        if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
         else
-            throw(ArgumentError("`type` should be in `[:classification_binary,:classification_multi]`"))
+            throw(
+                ArgumentError(
+                    "`type` should be in `[:classification_binary,:classification_multi]`",
+                ),
+            )
         end
     end
 end
 
 # Outer constructor method:
-function FluxEnsemble(model; likelihood::Symbol=:classification_binary)
+function FluxEnsemble(model; likelihood::Symbol = :classification_binary)
     FluxEnsemble(model, likelihood)
 end
 

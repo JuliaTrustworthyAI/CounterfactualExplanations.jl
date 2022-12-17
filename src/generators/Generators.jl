@@ -18,7 +18,7 @@ export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalog
-export generate_perturbations, conditions_satisified, mutability_constraints   
+export generate_perturbations, conditions_satisified, mutability_constraints
 
 """
     AbstractGenerator
@@ -66,7 +66,7 @@ generator_catalog = Dict(
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
     :revise => Generators.REVISEGenerator,
-    :dice => Generators.DiCEGenerator
+    :dice => Generators.DiCEGenerator,
 )
 
 end

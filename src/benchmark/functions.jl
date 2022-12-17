@@ -6,26 +6,35 @@ using Statistics
 
 Computes the success rate.
 """
-function success_rate(counterfactual_explanation::CounterfactualExplanation; agg=mean)
-    agg(CounterfactualExplanations.target_probs(counterfactual_explanation) .>= counterfactual_explanation.params[:γ])
-end   
+function success_rate(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+    agg(
+        Counterfactuals.target_probs(counterfactual_explanation) .>=
+        counterfactual_explanation.params[:γ],
+    )
+end
 
-function success_rate(counterfactual_explanations::Vector{CounterfactualExplanation}; agg=mean)
+function success_rate(
+    counterfactual_explanations::Vector{CounterfactualExplanation};
+    agg = mean,
+)
     agg(success_rate.(counterfactual_explanations))
-end    
+end
 
 """
     distance(counterfactual_explanation::CounterfactualExplanation; agg=mean)
 
 Computes the distance.
 """
-function distance(counterfactual_explanation::CounterfactualExplanation; agg=mean)
-    x = CounterfactualExplanations.factual(counterfactual_explanation)
-    x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
-    return agg(LinearAlgebra.norm.(x.-x′))
+function distance(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+    x = Counterfactuals.factual(counterfactual_explanation)
+    x′ = Counterfactuals.counterfactual(counterfactual_explanation)
+    return agg(LinearAlgebra.norm.(x .- x′))
 end
 
-function distance(counterfactual_explanations::Vector{CounterfactualExplanation}; agg=mean)
+function distance(
+    counterfactual_explanations::Vector{CounterfactualExplanation};
+    agg = mean,
+)
     agg(distance.(counterfactual_explanations))
 end
 
@@ -34,13 +43,15 @@ end
 
 Computes the feature redundancy.
 """
-function redundancy(counterfactual_explanation::CounterfactualExplanation; agg=mean)
-    x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
-    redundant_x = mapslices(x -> sum(x .== 0)/size(x,1), x′, dims=(1,2))
+function redundancy(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+    x′ = Counterfactuals.counterfactual(counterfactual_explanation)
+    redundant_x = mapslices(x -> sum(x .== 0) / size(x, 1), x′, dims = [1, 2])
     return agg(redundant_x)
 end
 
-function redundancy(counterfactual_explanations::Vector{CounterfactualExplanation}; agg=mean)
+function redundancy(
+    counterfactual_explanations::Vector{CounterfactualExplanation};
+    agg = mean,
+)
     agg(redundancy.(counterfactual_explanations))
 end
-

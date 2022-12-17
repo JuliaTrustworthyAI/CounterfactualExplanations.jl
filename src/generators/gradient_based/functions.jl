@@ -69,7 +69,7 @@ The default method to return mutability constraints that are dependent on the cu
 function mutability_constraints(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
     mutability = counterfactual_explanation.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
-end 
+end
 
 """
     conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)

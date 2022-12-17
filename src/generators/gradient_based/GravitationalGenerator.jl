@@ -14,10 +14,10 @@ end
 # API streamlining:
 using Parameters, Flux
 @with_kw struct GravitationalGeneratorParams
-    opt::Any=Flux.Optimise.Descent()
-    τ::AbstractFloat=1e-5
-    K::Int=50
-    centroid::Union{Nothing,AbstractArray}=nothing
+    opt::Any = Flux.Optimise.Descent()
+    τ::AbstractFloat = 1e-5
+    K::Int = 50
+    centroid::Union{Nothing,AbstractArray} = nothing
 end
 
 """
@@ -37,16 +37,24 @@ An outer constructor method that instantiates a generic generator.
 generator = GravitationalGenerator()
 ```
 """
-function GravitationalGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::Union{AbstractFloat,AbstractVector}=[0.1,5.0],
-    decision_threshold=nothing,
-    kwargs...
+function GravitationalGenerator(;
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = norm,
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 5.0],
+    decision_threshold = nothing,
+    kwargs...,
 )
-    params = GravitationalGeneratorParams(;kwargs...)
-    GravitationalGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ, params.K, params.centroid)
+    params = GravitationalGeneratorParams(; kwargs...)
+    GravitationalGenerator(
+        loss,
+        complexity,
+        λ,
+        decision_threshold,
+        params.opt,
+        params.τ,
+        params.K,
+        params.centroid,
+    )
 end
 
 # Complexity:
@@ -79,5 +87,3 @@ function h(generator::GravitationalGenerator, counterfactual_explanation::Abstra
     end
     return penalty
 end
-
-
