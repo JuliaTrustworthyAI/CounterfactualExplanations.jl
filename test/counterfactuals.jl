@@ -8,7 +8,7 @@ using Flux
 using LinearAlgebra
 using MLUtils
 using Random
-max_reconstruction_error = Inf
+max_reconstruction_error = 2.0
 init_perturbation = 2.0
 
 # NOTE:
@@ -103,7 +103,7 @@ for (key, generator_) ∈ generators
                                         target = round(p_[1])==0 ? 0 : 1 
                                     end
                                     generator.decision_threshold = 0.5
-                                    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                                    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; initialization=:identity)
                                     @test length(path(counterfactual))==1
                                     if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
                                         # In case of latent space search, there is a reconstruction error:

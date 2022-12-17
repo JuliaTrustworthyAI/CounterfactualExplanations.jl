@@ -136,12 +136,12 @@ function encode_state(counterfactual_explanation::CounterfactualExplanation)
     generator = counterfactual_explanation.generator
 
     # Standardization:
-    dt = data.dt
-    features_continuous = data.features_continuous
-    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-        s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
-        return s
-    end
+    # dt = data.dt
+    # features_continuous = data.features_continuous
+    # s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+    #     s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
+    #     return s
+    # end
 
     # Categorical encoding:
     # --------------------- #
@@ -167,10 +167,9 @@ function decode_state(counterfactual_explanation::CounterfactualExplanation, x::
     s′ = isnothing(x) ? counterfactual_explanation.s′ : x
 
     # Standardization:
-    dt = counterfactual_explanation.data.dt
-    features_continuous = counterfactual_explanation.data.features_continuous
-
-    s′ = mapslices(s -> StatsBase.reconstruct(dt, s, features_continuous), s′, dims=(1,2)) 
+    # dt = counterfactual_explanation.data.dt
+    # features_continuous = counterfactual_explanation.data.features_continuous
+    # s′ = mapslices(s -> StatsBase.reconstruct(dt, s, features_continuous), s′, dims=(1,2)) 
     
     # Categorical encoding:
     # --------------------- #

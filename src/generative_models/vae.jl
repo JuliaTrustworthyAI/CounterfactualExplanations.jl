@@ -89,7 +89,7 @@ The default VAE parameters describing both the encoder/decoder architecture and 
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization paramater
     batch_size = 50         # batch size
-    epochs = 100            # number of epochs
+    epochs = 250            # number of epochs
     seed = 0                # random seed
     cuda = true             # use GPU
     device = gpu            # default device
@@ -244,8 +244,4 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
         avg_loss = mean(avg_loss)
 
     end
-end
-
-function convert_to_image(x, y_size)
-    Gray.(permutedims(vcat(reshape.(chunk(x |> cpu, y_size), 28, :)...), (2, 1)))
 end
