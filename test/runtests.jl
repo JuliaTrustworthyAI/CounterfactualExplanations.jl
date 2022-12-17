@@ -1,3 +1,5 @@
+import CompatHelperLocal as CHL
+CHL.@check()
 using CounterfactualExplanations
 using Random
 using Test
