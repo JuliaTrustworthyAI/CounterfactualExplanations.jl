@@ -165,6 +165,7 @@ function initialize!(counterfactual_explanation::CounterfactualExplanation)
         end
         counterfactual_explanation.s′ = s′
     end
+
 end
 
 # 1) Factual values
