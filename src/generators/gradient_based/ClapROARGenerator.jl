@@ -46,18 +46,17 @@ function ClapROARGenerator(
 end
 
 using Flux
-function gradient_penalty(generator::ClapROARGenerator, counterfactual_state::CounterfactualState.State)
+function gradient_penalty(generator::ClapROARGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
     
-    x_ = counterfactual_state.f(counterfactual_state.s′)
-    M = counterfactual_state.M
+    x_ = CounterfactualExplanations.decode_state(counterfactual_explanation)
+    M = counterfactual_explanation.M
     model = isa(M.model, Vector) ? M.model : [M.model]
-    y_ = counterfactual_state.y′
+    y_ = CounterfactualExplanations.counterfactual_label(counterfactual_explanation)
 
     if M.likelihood == :classification_binary
         loss_type =:logitbinarycrossentropy
     else
-        throw(Error, "Not implemented")
-        out_dim = output_dim(counterfactual_explanation)
+        out_dim =  CounterfactualExplanations.output_dim(counterfactual_explanation)
         y_ = Flux.onehot(y_, 1:out_dim)
         loss_type = :logitcrossentropy
     end
@@ -69,20 +68,19 @@ end
 
 # Complexity:
 using Statistics, LinearAlgebra
-using CounterfactualExplanations.CounterfactualState
 import CounterfactualExplanations.Generators: h
 """
-    h(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
+    h(generator::AbstractGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(generator::ClapROARGenerator, counterfactual_state::CounterfactualState.State)
+function h(generator::ClapROARGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
     
     # Distance from factual:
-    dist_ = generator.complexity(counterfactual_state.x .- counterfactual_state.f(counterfactual_state.s′))
+    dist_ = generator.complexity(counterfactual_explanation.x .- CounterfactualExplanations.decode_state(counterfactual_explanation))
 
     # Euclidean norm of gradient:
-    if all(counterfactual_state.y′.==counterfactual_state.target)
+    if all(CounterfactualExplanations.counterfactual_label(counterfactual_explanation) .== counterfactual_explanation.target)
         grad_norm = gradient_penalty(generator, counterfactual_state)
     else
         grad_norm = 0

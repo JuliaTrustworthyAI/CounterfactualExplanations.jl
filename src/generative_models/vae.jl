@@ -89,7 +89,7 @@ The default VAE parameters describing both the encoder/decoder architecture and 
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization paramater
     batch_size = 50         # batch size
-    epochs = 250            # number of epochs
+    epochs = 100            # number of epochs
     seed = 0                # random seed
     cuda = true             # use GPU
     device = gpu            # default device

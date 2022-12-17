@@ -224,11 +224,8 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
         end
     end
 
-<<<<<<< HEAD
     return s′
 
-=======
->>>>>>> main
 end
 
 # 1) Factual values
