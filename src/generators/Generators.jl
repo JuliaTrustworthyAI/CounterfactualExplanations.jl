@@ -18,7 +18,7 @@ export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalog
-export generate_perturbations, conditions_satisified, mutability_constraints   
+export generate_perturbations, conditions_satisified, mutability_constraints
 
 """
     AbstractGenerator
@@ -35,12 +35,17 @@ The default method to apply the generator loss function to the current counterfa
 """
 function ℓ(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
 
-    loss_fun = !isnothing(generator.loss) ? getfield(Losses, generator.loss) : CounterfactualState.guess_loss(counterfactual_state)
+    loss_fun =
+        !isnothing(generator.loss) ? getfield(Losses, generator.loss) :
+        CounterfactualState.guess_loss(counterfactual_state)
     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
     loss = loss_fun(
-        getfield(Models, :logits)(counterfactual_state.M, counterfactual_state.f(counterfactual_state.s′)), 
-        counterfactual_state.target_encoded
-    )    
+        getfield(Models, :logits)(
+            counterfactual_state.M,
+            counterfactual_state.f(counterfactual_state.s′),
+        ),
+        counterfactual_state.target_encoded,
+    )
     return loss
 end
 
@@ -52,7 +57,7 @@ The default method to apply the generator complexity penalty to the current coun
 """
 function h(generator::AbstractGenerator, counterfactual_state::CounterfactualState.State)
     dist_ = generator.complexity(
-        counterfactual_state.x .- counterfactual_state.f(counterfactual_state.s′)
+        counterfactual_state.x .- counterfactual_state.f(counterfactual_state.s′),
     )
     penalty = generator.λ * dist_
     return penalty
@@ -66,7 +71,7 @@ generator_catalog = Dict(
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
     :revise => Generators.REVISEGenerator,
-    :dice => Generators.DiCEGenerator
+    :dice => Generators.DiCEGenerator,
 )
 
 end

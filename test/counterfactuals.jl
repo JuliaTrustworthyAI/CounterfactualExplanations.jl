@@ -28,20 +28,22 @@ generators = generator_catalog
 for (key, generator_) ∈ generators
     name = uppercasefirst(string(key))
     @testset "$name" begin
-    
+
         # Generator:
         generator = deepcopy(generator_())
 
         @testset "Models for synthetic data" begin
-        
+
             for (key, value) ∈ synthetic
 
                 name = string(key)
                 @testset "$name" begin
-                    X, ys = (value[:data][:xs],value[:data][:ys])
-                    X = MLUtils.stack(X,dims=2)
-                    ys_cold = length(ys[1]) > 1 ? [Flux.onecold(y_,1:length(ys[1])) for y_ in ys] : ys
-                    counterfactual_data = CounterfactualData(X,ys')
+                    X, ys = (value[:data][:xs], value[:data][:ys])
+                    X = MLUtils.stack(X, dims = 2)
+                    ys_cold =
+                        length(ys[1]) > 1 ?
+                        [Flux.onecold(y_, 1:length(ys[1])) for y_ in ys] : ys
+                    counterfactual_data = CounterfactualData(X, ys')
 
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -49,83 +51,128 @@ for (key, generator_) ∈ generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-                            multiple_x = select_factual(counterfactual_data,rand(1:size(X)[2],5))
+                            x = select_factual(counterfactual_data, rand(1:size(X)[2]))
+                            multiple_x =
+                                select_factual(counterfactual_data, rand(1:size(X)[2], 5))
 
                             p_ = probs(M, x)
                             if size(p_)[1] > 1
-                                y = Flux.onecold(p_,unique(ys_cold))
-                                target = rand(unique(ys_cold)[1:end .!= y]) # opposite label as target
+                                y = Flux.onecold(p_, unique(ys_cold))
+                                target = rand(unique(ys_cold)[1:end.!=y]) # opposite label as target
                             else
                                 y = round(p_[1])
-                                target = y ==0 ? 1 : 0 
+                                target = y == 0 ? 1 : 0
                             end
                             # Single sample:
-                            counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+                            counterfactual = generate_counterfactual(
+                                x,
+                                target,
+                                counterfactual_data,
+                                M,
+                                generator,
+                            )
                             # Multiple samples:
-                            counterfactuals = generate_counterfactual(multiple_x, target, counterfactual_data, M, generator)
-                            
+                            counterfactuals = generate_counterfactual(
+                                multiple_x,
+                                target,
+                                counterfactual_data,
+                                M,
+                                generator,
+                            )
+
                             @testset "Predetermined outputs" begin
-                                if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                if typeof(generator) <:
+                                   Generators.AbstractLatentSpaceGenerator
                                     @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
-                                @test counterfactual.x == x && Counterfactuals.factual(counterfactual) == x
+                                @test counterfactual.x == x &&
+                                      Counterfactuals.factual(counterfactual) == x
                                 @test Counterfactuals.factual_label(counterfactual) == y
-                                @test Counterfactuals.factual_probability(counterfactual) == p_
+                                @test Counterfactuals.factual_probability(counterfactual) ==
+                                      p_
                             end
 
                             @testset "Benchmark" begin
                                 @test isa(benchmark(counterfactual), DataFrame)
-                                @test isa(benchmark(counterfactuals; to_dataframe=false), Dict)
+                                @test isa(
+                                    benchmark(counterfactuals; to_dataframe = false),
+                                    Dict,
+                                )
                             end
-                    
+
                             @testset "Convergence" begin
 
                                 @testset "Non-trivial case" begin
                                     # Threshold reached if converged:
-                                   γ = 0.9
-                                   generator.decision_threshold = γ
-                                   T = 1000
-                                   counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-                                   using CounterfactualExplanations.Counterfactuals: counterfactual_probability
-                                   @test !converged(counterfactual) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                   @test !converged(counterfactual) || length(path(counterfactual)) <= T
-                               end
-                                
+                                    γ = 0.9
+                                    generator.decision_threshold = γ
+                                    T = 1000
+                                    counterfactual = generate_counterfactual(
+                                        x,
+                                        target,
+                                        counterfactual_data,
+                                        M,
+                                        generator;
+                                        T = T,
+                                    )
+                                    using CounterfactualExplanations.Counterfactuals:
+                                        counterfactual_probability
+                                    @test !converged(counterfactual) ||
+                                          target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                    @test !converged(counterfactual) ||
+                                          length(path(counterfactual)) <= T
+                                end
+
                                 @testset "Trivial case (already in target class)" begin
 
                                     # Already in target and exceeding threshold probability:
                                     p_ = probs(M, x)
                                     if size(p_)[1] > 1
-                                        y = Flux.onecold(p_,unique(ys_cold))[1]
+                                        y = Flux.onecold(p_, unique(ys_cold))[1]
                                         target = y
                                     else
-                                        target = round(p_[1])==0 ? 0 : 1 
+                                        target = round(p_[1]) == 0 ? 0 : 1
                                     end
                                     generator.decision_threshold = 0.5
-                                    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-                                    @test length(path(counterfactual))==1
-                                    if typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+                                    counterfactual = generate_counterfactual(
+                                        x,
+                                        target,
+                                        counterfactual_data,
+                                        M,
+                                        generator,
+                                    )
+                                    @test length(path(counterfactual)) == 1
+                                    if typeof(generator) <:
+                                       Generators.AbstractLatentSpaceGenerator
                                         # In case of latent space search, there is a reconstruction error:
-                                        @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < max_reconstruction_error
+                                        @test maximum(
+                                            abs.(
+                                                counterfactual.x .-
+                                                counterfactual.f(counterfactual.s′)
+                                            ),
+                                        ) < max_reconstruction_error
                                     else
-                                        @test maximum(abs.(counterfactual.x .- counterfactual.f(counterfactual.s′))) < init_perturbation
+                                        @test maximum(
+                                            abs.(
+                                                counterfactual.x .-
+                                                counterfactual.f(counterfactual.s′)
+                                            ),
+                                        ) < init_perturbation
                                     end
                                     @test converged(counterfactual)
                                     @test Counterfactuals.terminated(counterfactual)
                                     @test Counterfactuals.total_steps(counterfactual) == 0
-                                    
+
                                 end
-                    
+
                             end
                         end
                     end
                 end
             end
-            
+
         end
-    
+
     end
 end
-

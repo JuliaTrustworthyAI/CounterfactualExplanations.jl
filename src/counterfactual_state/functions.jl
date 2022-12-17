@@ -9,7 +9,7 @@ struct State
     f::Function
     y′::AbstractArray
     target::Number
-    target_encoded::Union{Number, AbstractArray, Nothing}
+    target_encoded::Union{Number,AbstractArray,Nothing}
     γ::Number
     threshold_reached::Bool
     M::AbstractFittedModel

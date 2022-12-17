@@ -47,7 +47,7 @@ export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalog
-export generate_perturbations, conditions_satisified, mutability_constraints  
+export generate_perturbations, conditions_satisified, mutability_constraints
 
 ### CounterfactualExplanation
 # argmin 

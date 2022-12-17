@@ -9,13 +9,13 @@ using Random
         generator = GenericGenerator()
         @test hasfield(GenericGenerator, :loss)
         @test typeof(generator) <: AbstractGradientBasedGenerator
-    end   
-    
+    end
+
     @testset "Greedy" begin
         generator = GreedyGenerator()
         @test hasfield(GreedyGenerator, :loss)
         @test typeof(generator) <: AbstractGradientBasedGenerator
-    end   
+    end
 
 end
 
@@ -23,5 +23,5 @@ end
 Random.seed!(1234)
 xs, ys = Data.toy_data_linear()
 X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+counterfactual_data = CounterfactualData(X, ys')
+x = select_factual(counterfactual_data, rand(1:size(X)[2]))
