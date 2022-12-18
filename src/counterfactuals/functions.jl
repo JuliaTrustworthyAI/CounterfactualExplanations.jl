@@ -1,4 +1,4 @@
-using ChainRulesCore: @ignore_derivatives
+using FeatureTransforms
 using Flux
 using MLUtils
 using SliceMap
@@ -182,7 +182,7 @@ function encode_state(counterfactual_explanation::CounterfactualExplanation)
     dt = data.dt
     features_continuous = data.features_continuous
     s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-        s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
+        FeatureTransforms.apply!(s, dt; inds=features_continuous)
         return s
     end
     # s′ = adjust_shape(counterfactual_explanation, reduce(vcat, s′))
@@ -247,7 +247,7 @@ function decode_state(
     dt = data.dt
     features_continuous = data.features_continuous
     s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-        s[features_continuous,:] = StatsBase.reconstruct(dt, s[features_continuous,:])
+        FeatureTransforms.apply!(s, dt; inds=features_continuous, inverse=true)
         return s
     end
 
