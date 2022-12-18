@@ -50,7 +50,7 @@ function gradient_penalty(
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
 
-    x_ = CounterfactualExplanations.map_from_latent(counterfactual_explanation)
+    x_ = CounterfactualExplanations.decode_state(counterfactual_explanation)
     M = counterfactual_explanation.M
     model = isa(M.model, Vector) ? M.model : [M.model]
     y_ = CounterfactualExplanations.counterfactual_label(counterfactual_explanation)
@@ -85,7 +85,7 @@ function h(
     # Distance from factual:
     dist_ = generator.complexity(
         counterfactual_explanation.x .-
-        CounterfactualExplanations.map_from_latent(counterfactual_explanation),
+        CounterfactualExplanations.decode_state(counterfactual_explanation),
     )
 
     # Euclidean norm of gradient:

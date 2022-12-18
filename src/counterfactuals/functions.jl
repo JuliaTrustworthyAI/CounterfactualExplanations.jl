@@ -97,7 +97,7 @@ function CounterfactualExplanation(;
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
         :times_changed_features =>
-            zeros(size(map_from_latent(counterfactual_explanation))),
+            zeros(size(decode_state(counterfactual_explanation))),
         :path => [counterfactual_explanation.s′],
         :terminated =>
             threshold_reached(counterfactual_explanation, counterfactual_explanation.x),
@@ -175,7 +175,7 @@ Encodes counterfactual.
 """
 function encode_state(counterfactual_explanation::CounterfactualExplanation)
 
-    s′ = deepcopy(counterfactual_explanation.s′)
+    s′ = deepcopy(counterfactual_explanation.x)
     data = counterfactual_explanation.data
 
     # Standardization:
@@ -314,7 +314,7 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
     if counterfactual_explanation.initialization == :add_perturbation
         s′ = SliceMap.slicemap(s′, dims = (1, 2)) do s
-            Δs′ = randn(size(scale, 1))
+            Δs′ = randn(size(s, 1))
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
         end
@@ -662,7 +662,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
     _times_changed = reshape(
-        map_from_latent(counterfactual_explanation, Δs′) .!= 0,
+        decode_state(counterfactual_explanation, Δs′) .!= 0,
         size(counterfactual_explanation.search[:times_changed_features]),
     )
     counterfactual_explanation.search[:times_changed_features] += _times_changed        # update number of times feature has been changed

@@ -62,7 +62,7 @@ Select random factual:
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-T = 100
+T = 0
 ```
 
 Generate recourse using generic approach:
@@ -70,7 +70,7 @@ Generate recourse using generic approach:
 ```{julia}
 #| eval: true
 generator = GenericGenerator()
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target,counterfactual_data, M, generator; initialization=:identity)
 ```
 
 Check how the model gradient changes along the counterfactual path (model loss correlates strongly):
