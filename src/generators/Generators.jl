@@ -45,7 +45,7 @@ function ℓ(
     loss = loss_fun(
         getfield(Models, :logits)(
             counterfactual_explanation.M,
-            CounterfactualExplanations.decode_state(counterfactual_explanation),
+            CounterfactualExplanations.map_from_latent(counterfactual_explanation),
         ),
         counterfactual_explanation.target_encoded,
     )
@@ -64,7 +64,7 @@ function h(
 )
     dist_ = generator.complexity(
         counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
+        CounterfactualExplanations.map_from_latent(counterfactual_explanation),
     )
     penalty = generator.λ * dist_
     return penalty

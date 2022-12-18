@@ -88,7 +88,7 @@ function CounterfactualExplanation(;
     )
 
     # Initialization:
-    reshape!(counterfactual_explanation)                                                        # adjust shape to specified number of counterfactuals
+    adjust_shape!(counterfactual_explanation)                                                        # adjust shape to specified number of counterfactuals
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
@@ -97,7 +97,7 @@ function CounterfactualExplanation(;
     counterfactual_explanation.search = Dict(
         :iteration_count => 0,
         :times_changed_features =>
-            zeros(size(decode_state(counterfactual_explanation))),
+            zeros(size(map_from_latent(counterfactual_explanation))),
         :path => [counterfactual_explanation.s′],
         :terminated =>
             threshold_reached(counterfactual_explanation, counterfactual_explanation.x),
@@ -122,9 +122,19 @@ A convenience method that computes the output dimension of the predictive model.
 output_dim(counterfactual_explanation::CounterfactualExplanation) =
     size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
 
-function reshape!(counterfactual_explanation::CounterfactualExplanation)
-    # Dimensionality:
-    x = counterfactual_explanation.x
+"""
+    adjust_shape(
+        counterfactual_explanation::CounterfactualExplanation, 
+        x::AbstractArray
+    )
+
+A convenience method that adjust the dimensions of `x`.
+"""
+function adjust_shape(
+    counterfactual_explanation::CounterfactualExplanation, 
+    x::AbstractArray
+)
+
     size_ =
         Int.(
             vcat(
@@ -132,13 +142,28 @@ function reshape!(counterfactual_explanation::CounterfactualExplanation)
                 counterfactual_explanation.num_counterfactuals,
             )
         )
-    s′ = copy(x)                                        # start from factual
-    s′ = repeat(x, outer = size_)                         # augment to account for specified number of counterfactuals
+    s′ = copy(x)                    
+    s′ = repeat(x, outer = size_) 
+
+    return s′ 
+
+end
+
+"""
+    adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
+
+A convenience method that adjusts the dimensions of the counterfactual state and related fields.
+"""
+function adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
+
+    # Dimensionality:
+    x = deepcopy(counterfactual_explanation.x)
+    s′ = adjust_shape(counterfactual_explanation, x)      # augment to account for specified number of counterfactuals
     counterfactual_explanation.s′ = s′
 
     # Parameters:
     params = counterfactual_explanation.params
-    params[:mutability] = repeat(params[:mutability], outer = size_)
+    params[:mutability] = adjust_shape(counterfactual_explanation, params[:mutability])      # augment to account for specified number of counterfactuals
     params[:initial_mutability] = params[:mutability]
     counterfactual_explanation.params = params
 end
@@ -150,29 +175,47 @@ Encodes counterfactual.
 """
 function encode_state(counterfactual_explanation::CounterfactualExplanation)
 
-    s′ = counterfactual_explanation.s′
+    s′ = deepcopy(counterfactual_explanation.s′)
     data = counterfactual_explanation.data
-    generator = counterfactual_explanation.generator
 
     # Standardization:
-    # dt = data.dt
-    # features_continuous = data.features_continuous
-    # s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-    #     s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
-    #     return s
-    # end
+    dt = data.dt
+    features_continuous = data.features_continuous
+    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+        s[features_continuous,:] = StatsBase.transform(dt, s[features_continuous,:])
+        return s
+    end
+    # s′ = adjust_shape(counterfactual_explanation, reduce(vcat, s′))
 
     # Categorical encoding:
     # --------------------- #
 
     # Latent space:
+    s′ = map_to_latent(counterfactual_explanation, s′)
+
+    return s′
+
+end
+
+function map_to_latent(
+    counterfactual_explanation::CounterfactualExplanation, 
+    x::Union{AbstractArray,Nothing} = nothing,
+)
+
+    # Unpack:
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    data = counterfactual_explanation.data
+    generator = counterfactual_explanation.generator
     latent_space = counterfactual_explanation.latent_space
+
+    # Check if generative model is available:
     wants_latent_space =
         DataPreprocessing.has_pretrained_generative_model(data) ||
         typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    # Only overwrite, if not explicitly set to false:
+    # Assume that latent space search is wanted unless explicitly set to false:
     counterfactual_explanation.latent_space =
         isnothing(latent_space) ? wants_latent_space : latent_space
+    
     if counterfactual_explanation.latent_space &&
        !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
         @info "Searching in latent space using generative model."
@@ -189,19 +232,41 @@ function encode_state(counterfactual_explanation::CounterfactualExplanation)
 end
 
 function decode_state(
-    counterfactual_explanation::CounterfactualExplanation,
+    counterfactual_explanation::CounterfactualExplanation, 
     x::Union{AbstractArray,Nothing} = nothing,
-)
+)    
 
-    s′ = isnothing(x) ? counterfactual_explanation.s′ : x
+    # Unpack:
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    data = counterfactual_explanation.data
+
+    # Latent space:
+    s′ = map_from_latent(counterfactual_explanation, s′)
 
     # Standardization:
-    # dt = counterfactual_explanation.data.dt
-    # features_continuous = counterfactual_explanation.data.features_continuous
-    # s′ = mapslices(s -> StatsBase.reconstruct(dt, s, features_continuous), s′, dims=(1,2)) 
+    dt = data.dt
+    features_continuous = data.features_continuous
+    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+        s[features_continuous,:] = StatsBase.reconstruct(dt, s[features_continuous,:])
+        return s
+    end
 
     # Categorical encoding:
     # --------------------- #
+
+    return s′
+
+end
+
+function map_from_latent(
+    counterfactual_explanation::CounterfactualExplanation, 
+    x::Union{AbstractArray,Nothing} = nothing,
+)
+
+    # Unpack:
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    data = counterfactual_explanation.data
+    generator = counterfactual_explanation.generator
 
     # Latent space:
     if counterfactual_explanation.latent_space
@@ -224,9 +289,12 @@ end
 
 A convenience method to encode the target variable, if necessary.
 """
-function encode_target(counterfactual_explanation::CounterfactualExplanation)
+function encode_target(
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing} = nothing,
+)
     out_dim = output_dim(counterfactual_explanation)
-    target = counterfactual_explanation.target
+    target = isnothing(x) ? deepcopy(counterfactual_explanation.target) : x
     target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
     target = repeat(target, outer = [1, 1, counterfactual_explanation.num_counterfactuals])
     return target
@@ -245,9 +313,8 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
     data = counterfactual_explanation.data
 
     if counterfactual_explanation.initialization == :add_perturbation
-        scale = std(data.X, dims = 2) .* 0.1
         s′ = SliceMap.slicemap(s′, dims = (1, 2)) do s
-            Δs′ = scale .* randn(size(scale, 1))
+            Δs′ = randn(size(scale, 1))
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
         end
@@ -595,7 +662,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
     _times_changed = reshape(
-        decode_state(counterfactual_explanation, Δs′) .!= 0,
+        map_from_latent(counterfactual_explanation, Δs′) .!= 0,
         size(counterfactual_explanation.search[:times_changed_features]),
     )
     counterfactual_explanation.search[:times_changed_features] += _times_changed        # update number of times feature has been changed

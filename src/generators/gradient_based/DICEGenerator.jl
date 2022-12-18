@@ -69,7 +69,7 @@ function h(
 )
     dist_ = generator.complexity(
         counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
+        CounterfactualExplanations.map_from_latent(counterfactual_explanation),
     )
     ddp_ = ddp_diversity(counterfactual_explanation)
     if length(generator.λ) == 1

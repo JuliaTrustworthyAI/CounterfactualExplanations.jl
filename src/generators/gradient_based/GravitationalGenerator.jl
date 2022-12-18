@@ -73,7 +73,7 @@ function h(
     # Distance from factual:
     dist_ = generator.complexity(
         counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
+        CounterfactualExplanations.map_from_latent(counterfactual_explanation),
     )
 
     # Gravitational center:
@@ -89,7 +89,7 @@ function h(
     # Distance from gravitational center:
     gravity_ = generator.complexity(
         generator.centroid .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
+        CounterfactualExplanations.map_from_latent(counterfactual_explanation),
     )
 
     if length(generator.λ) == 1
