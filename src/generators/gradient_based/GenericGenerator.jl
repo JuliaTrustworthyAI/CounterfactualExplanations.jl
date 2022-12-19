@@ -15,7 +15,7 @@ end
 # API streamlining:
 @with_kw struct GenericGeneratorParams
     opt::Any = Flux.Optimise.Descent()
-    τ::AbstractFloat = 1e-5
+    τ::AbstractFloat = 1e-3
 end
 
 """

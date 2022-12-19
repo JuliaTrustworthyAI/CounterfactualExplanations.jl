@@ -1,4 +1,3 @@
-using FeatureTransforms
 using Flux
 using MLUtils
 using SliceMap
@@ -88,7 +87,7 @@ function CounterfactualExplanation(;
     )
 
     # Initialization:
-    adjust_shape!(counterfactual_explanation)                                                        # adjust shape to specified number of counterfactuals
+    adjust_shape!(counterfactual_explanation)                                                   # adjust shape to specified number of counterfactuals
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
@@ -173,19 +172,23 @@ end
 
 Encodes counterfactual.
 """
-function encode_state(counterfactual_explanation::CounterfactualExplanation)
+function encode_state(
+    counterfactual_explanation::CounterfactualExplanation, 
+    x::Union{AbstractArray,Nothing} = nothing,
+)
 
-    s′ = deepcopy(counterfactual_explanation.x)
+    # Unpack:
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
 
     # Standardization:
     dt = data.dt
     features_continuous = data.features_continuous
-    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-        FeatureTransforms.apply!(s, dt; inds=features_continuous)
-        return s
+    SliceMap.slicemap(s′, dims=(1,2)) do s
+        _s = s[features_continuous,:]
+        StatsBase.transform!(dt, _s)
+        s[features_continuous,:] = _s
     end
-    # s′ = adjust_shape(counterfactual_explanation, reduce(vcat, s′))
 
     # Categorical encoding:
     # --------------------- #
@@ -246,9 +249,10 @@ function decode_state(
     # Standardization:
     dt = data.dt
     features_continuous = data.features_continuous
-    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
-        FeatureTransforms.apply!(s, dt; inds=features_continuous, inverse=true)
-        return s
+    SliceMap.slicemap(s′, dims=(1,2)) do s
+        _s = s[features_continuous,:]
+        StatsBase.reconstruct!(dt, _s)
+        s[features_continuous,:] = _s
     end
 
     # Categorical encoding:
@@ -314,7 +318,7 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
     if counterfactual_explanation.initialization == :add_perturbation
         s′ = SliceMap.slicemap(s′, dims = (1, 2)) do s
-            Δs′ = randn(size(s, 1))
+            Δs′ = randn(size(s, 1)) * 0.1   # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
         end
@@ -476,7 +480,7 @@ total_steps(counterfactual_explanation::CounterfactualExplanation) =
 A convenience method that returns the entire counterfactual path.
 """
 function path(counterfactual_explanation::CounterfactualExplanation; feature_space = true)
-    path = counterfactual_explanation.search[:path]
+    path = deepcopy(counterfactual_explanation.search[:path])
     if feature_space
         path = [decode_state(counterfactual_explanation, z) for z ∈ path]
     end

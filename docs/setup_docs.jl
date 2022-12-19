@@ -13,6 +13,7 @@ setup_docs = quote
 
     theme(:wong)
     www_path = "docs/src/generators/www/"
+    Random.seed!(2023)
 
     include("docs/src/utils.jl")
 

@@ -62,7 +62,6 @@ Select random factual:
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-T = 0
 ```
 
 Generate recourse using generic approach:
@@ -70,8 +69,14 @@ Generate recourse using generic approach:
 ```{julia}
 #| eval: true
 generator = GenericGenerator()
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator; initialization=:identity)
+ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
 ```
+
+```{julia}
+generator = ClapROARGenerator()
+ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
+```
+
 
 Check how the model gradient changes along the counterfactual path (model loss correlates strongly):
 
@@ -95,11 +100,13 @@ Generate recourse using ClaPROAR generator under varying degrees of penalty:
 
 ```{julia}
 #| eval: true
+
+T = 100
 Λ₂ = [0.1, 1, 10]
 counterfactuals_strict = []
 generators = []
 for λ₂ ∈ Λ₂  
-    λ = [0.1, λ₂]
+    λ = [1, λ₂]
     generator = ClapROARGenerator(λ=λ)
     generators = vcat(generators..., generator)
     counterfactuals_strict = vcat(
@@ -116,7 +123,6 @@ Visualize the results:
 #| fig-cap: |
 #|    Generating counterfactuals through `ClapROARGenerator`. The strength of the penalty ($\lambda_2) increases from left to right.
 #| label: clap
-theme(:wong)
 T_ = 500
 plts = []
 for i ∈ 1:length(Λ₂)

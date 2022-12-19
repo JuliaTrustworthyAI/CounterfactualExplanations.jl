@@ -13,7 +13,7 @@ end
 using Parameters, Flux
 @with_kw struct ClapROARGeneratorParams
     opt::Any = Flux.Optimise.Descent()
-    τ::AbstractFloat = 1e-5
+    τ::AbstractFloat = 1e-3
 end
 
 """

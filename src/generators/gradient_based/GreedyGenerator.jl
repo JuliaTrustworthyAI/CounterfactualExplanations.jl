@@ -17,7 +17,7 @@ end
 # API streamlining:
 @with_kw struct GreedyGeneratorParams
     ϵ::Union{AbstractFloat,Nothing} = nothing
-    τ::AbstractFloat = 1e-5
+    τ::AbstractFloat = 1e-3
     n::Union{Int,Nothing} = nothing
 end
 

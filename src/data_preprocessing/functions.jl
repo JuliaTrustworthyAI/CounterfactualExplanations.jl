@@ -1,6 +1,6 @@
-using FeatureTransforms
 using Flux
 using MultivariateStats
+using StatsBase
 using UMAP
 
 mutable struct CounterfactualData
@@ -11,7 +11,7 @@ mutable struct CounterfactualData
     features_categorical::Union{Vector{Int},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
-    dt::Union{Nothing,FeatureTransforms.Transform}
+    dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     function CounterfactualData(
@@ -88,12 +88,11 @@ function CounterfactualData(
     features_continuous::Union{Vector{Int},Nothing} = nothing,
     standardize::Bool = false,
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
-    dt::FeatureTransforms.Transform = StandardScaling(),
 )
 
     # If nothing supplied, assume all continuous:
     if isnothing(features_categorical) && isnothing(features_continuous)
-        features_continuous = [i for i in 1:size(X, 1)]
+        features_continuous = 1:size(X, 1)
     end
 
     # Defaults:
@@ -101,7 +100,7 @@ function CounterfactualData(
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     # Data transformations:
-    FeatureTransforms.fit!(dt, X; dims = inds=features_continuous)        # standardization
+    dt = fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
 
     counterfactual_data = CounterfactualData(
         X,

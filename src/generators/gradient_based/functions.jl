@@ -1,3 +1,4 @@
+using Statistics
 
 ################################################################################
 # --------------- Base type for gradient-based generator:
@@ -100,14 +101,14 @@ end
 """
     conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 
-The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
+The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators. By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
 function conditions_satisified(
     generator::AbstractGradientBasedGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
-    𝐠ₜ = ∇(generator, counterfactual_explanation.M, counterfactual_explanation)
-    status = all(abs.(𝐠ₜ) .< generator.τ)
+    Δs′ = generate_perturbations(generator, counterfactual_explanation)
+    status = all(abs.(Δs′) .< generator.τ)
     return status
 end
 
