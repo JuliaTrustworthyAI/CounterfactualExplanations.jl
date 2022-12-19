@@ -262,7 +262,7 @@ function decode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.latent_space 
         s′ = map_from_latent(counterfactual_explanation, s′)
         return s′
     end
@@ -294,12 +294,13 @@ function map_from_latent(
     # Latent space:
     if counterfactual_explanation.latent_space
         generative_model = counterfactual_explanation.data.generative_model
-
-        # NOTE! This is not very clean, will be improved.
-        if generative_model.params.nll == Flux.Losses.logitbinarycrossentropy
-            s′ = Flux.σ.(generative_model.decoder(s′))
-        else
-            s′ = generative_model.decoder(s′)
+        if !isnothing(generative_model)
+            # NOTE! This is not very clean, will be improved.
+            if generative_model.params.nll == Flux.Losses.logitbinarycrossentropy
+                s′ = Flux.σ.(generative_model.decoder(s′))
+            else
+                s′ = generative_model.decoder(s′)
+            end
         end
     end
 

@@ -8,7 +8,6 @@ using Flux
 using LinearAlgebra
 using MLUtils
 using Random
-max_reconstruction_error = 2.0
 init_perturbation = 2.0
 
 # NOTE:
@@ -107,6 +106,7 @@ for (key, generator_) ∈ generators
                             @testset "Convergence" begin
 
                                 @testset "Non-trivial case" begin
+                                    counterfactual_data.generative_model = nothing
                                     # Threshold reached if converged:
                                     γ = 0.9
                                     generator.decision_threshold = γ
@@ -128,7 +128,7 @@ for (key, generator_) ∈ generators
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
-
+                                    counterfactual_data.generative_model = nothing
                                     # Already in target and exceeding threshold probability:
                                     p_ = probs(M, x)
                                     if size(p_)[1] > 1
@@ -144,30 +144,16 @@ for (key, generator_) ∈ generators
                                         counterfactual_data,
                                         M,
                                         generator;
-                                        initialization = :identity,
                                     )
                                     @test length(path(counterfactual)) == 1
-                                    if typeof(generator) <:
-                                       Generators.AbstractLatentSpaceGenerator
-                                        # In case of latent space search, there is a reconstruction error:
-                                        @test maximum(
-                                            abs.(
-                                                counterfactual.x .-
-                                                CounterfactualExplanations.decode_state(
-                                                    counterfactual,
-                                                )
-                                            ),
-                                        ) < max_reconstruction_error
-                                    else
-                                        @test maximum(
-                                            abs.(
-                                                counterfactual.x .-
-                                                CounterfactualExplanations.decode_state(
-                                                    counterfactual,
-                                                )
-                                            ),
-                                        ) < init_perturbation
-                                    end
+                                    @test maximum(
+                                        abs.(
+                                            counterfactual.x .-
+                                            CounterfactualExplanations.decode_state(
+                                                counterfactual,
+                                            )
+                                        ),
+                                    ) < init_perturbation
                                     @test converged(counterfactual)
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual,
@@ -177,7 +163,6 @@ for (key, generator_) ∈ generators
                                     ) == 0
 
                                 end
-
                             end
                         end
                     end

@@ -106,7 +106,7 @@ using Random
 # Random.seed!(123)
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+target = ifelse(y==1.0,1.0,0.0) # opposite label as target
 ```
 
 ```{julia}
@@ -114,7 +114,8 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 generator = GenericGenerator()
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
-ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=4, epochs=200))
+# ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=4, epochs=200))
+ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
 ```
 
 ```{julia}
