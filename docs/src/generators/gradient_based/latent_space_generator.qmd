@@ -113,23 +113,23 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
-counterfactual_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=4, epochs=200))
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
+ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=4, epochs=200))
 ```
 
 ```{julia}
 #| echo: false
-T = maximum([size(path(counterfactual))[1],size(path(counterfactual_latent))[1]])
-p1 = plot_contour(X',vec(ys),M;colorbar=false, title="Standard")
-p2 = plot_contour(X',vec(ys),M;colorbar=false, title="Latent")
+T = maximum([size(path(ce))[1],size(path(ce_latent))[1]])
+p1 = plot(M, counterfactual_data; colorbar=false, title="Standard")
+p2 = plot(M, counterfactual_data; colorbar=false, title="Latent")
 anim = @animate for t in 1:T
-    path_ = path(counterfactual)
+    path_ = path(ce)
     if t < length(path_)
         scatter!(p1, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
     elseif t == length(path_)
         scatter!(p1, [path_[t][1]], [path_[t][2]], ms=10, color=Int(y), label="")
     end
-    path_ = path(counterfactual_latent)
+    path_ = path(ce_latent)
     if t < length(path_)
         scatter!(p2, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
     elseif t == length(path_)
@@ -213,7 +213,7 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true)
 ```
 
 ```{julia}
@@ -221,13 +221,13 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 # Feature:
 p1 = scatter3d(X[1,:],X[2,:],X[3,:],group=vec(Int.(ys)), title="Feature space (3d)", palette=:rainbow)
-X_path = reduce(hcat,path(counterfactual))
+X_path = reduce(hcat,path(ce))
 scatter3d!([X_path[1,end]],[X_path[2,end]],[X_path[3,end]],colour=:yellow,ms=10,label="Counterfactual")
 scatter3d!(X_path[1,1:(end-1)],X_path[2,1:(end-1)],X_path[3,1:(end-1)],colour=:yellow,ms=5,label="")
 
 # Latent:
-p2 = plot(counterfactual.data.generative_model, X, ys; title="Latent space (2d)")
-X_path = reduce(hcat,path(counterfactual, feature_space=false))
+p2 = plot(ce.data.generative_model, X, ys; title="Latent space (2d)")
+X_path = reduce(hcat,path(ce, feature_space=false))
 scatter!([X_path[1,end]],[X_path[2,end]],colour=:yellow,ms=10,label="Counterfactual")
 scatter!([X_path[1,1:(end-1)]],[X_path[2,1:(end-1)]],colour=:yellow,ms=5,label="")
 
@@ -328,13 +328,13 @@ counterfactuals = generate_counterfactual(x, target, counterfactual_data, M, gen
 ```{julia}
 using MLDatasets: convert2image
 using Images
-function build_plot(x,counterfactual)
+function build_plot(x,ce)
     x = x[1]
     p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
-    target_prob = round(target_probs(counterfactual)[1],digits=2)
-    ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+    target_prob = round(target_probs(ce)[1],digits=2)
+    ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(ce)[1]-1
     p2 = plot(
-      convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+      convert2image(MNIST, reshape(ce.f(ce.s′),28,28)),
       axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
     )
     plt = plot(p1,p2,size=(500,200))
@@ -347,15 +347,15 @@ savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_latent.png"))
 
 ```{julia}
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false, γ=0.95)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false, γ=0.95)
 ```
 
 ```{julia}
 p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
-target_prob = round(target_probs(counterfactual)[1],digits=2)
-ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(counterfactual)[1]-1
+target_prob = round(target_probs(ce)[1],digits=2)
+ŷ = CounterfactualExplanations.Counterfactuals.counterfactual_label(ce)[1]-1
 p2 = plot(
-  convert2image(MNIST, reshape(counterfactual.f(counterfactual.s′),28,28)),
+  convert2image(MNIST, reshape(ce.f(ce.s′),28,28)),
   axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target-1))=$(target_prob)"
 )
 plt = plot(p1,p2,size=(500,200))

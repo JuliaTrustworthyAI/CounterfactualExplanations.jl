@@ -88,6 +88,7 @@ function CounterfactualExplanation(;
 
     # Initialization:
     adjust_shape!(counterfactual_explanation)                                                   # adjust shape to specified number of counterfactuals
+    wants_latent_space!(counterfactual_explanation)
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
@@ -181,22 +182,48 @@ function encode_state(
     s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
 
-    # Standardization:
-    dt = data.dt
-    features_continuous = data.features_continuous
-    SliceMap.slicemap(s′, dims=(1,2)) do s
-        _s = s[features_continuous,:]
-        StatsBase.transform!(dt, _s)
-        s[features_continuous,:] = _s
+    # Latent space:
+    if counterfactual_explanation.latent_space
+        s′ = map_to_latent(counterfactual_explanation, s′)
+        return s′
     end
 
-    # Categorical encoding:
-    # --------------------- #
+    # Standardize data unless latent space:
+    if !counterfactual_explanation.latent_space
+        dt = data.dt
+        features_continuous = data.features_continuous
+        SliceMap.slicemap(s′, dims=(1,2)) do s
+            _s = s[features_continuous,:]
+            StatsBase.transform!(dt, _s)
+            s[features_continuous,:] = _s
+        end
+        return s′
+    end
 
-    # Latent space:
-    s′ = map_to_latent(counterfactual_explanation, s′)
+end
 
-    return s′
+"""
+    wants_latent_space!(
+        counterfactual_explanation::CounterfactualExplanation, 
+        x::Union{AbstractArray,Nothing} = nothing,
+    )   
+
+
+"""
+function wants_latent_space!(counterfactual_explanation::CounterfactualExplanation)
+
+    # Unpack:
+    data = counterfactual_explanation.data
+    generator = counterfactual_explanation.generator
+    latent_space = counterfactual_explanation.latent_space
+
+    # Check if generative model is available:
+    wants_latent_space =
+        DataPreprocessing.has_pretrained_generative_model(data) ||
+        typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    # Assume that latent space search is wanted unless explicitly set to false:
+    counterfactual_explanation.latent_space =
+        isnothing(latent_space) ? wants_latent_space : latent_space
 
 end
 
@@ -209,15 +236,6 @@ function map_to_latent(
     s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
     generator = counterfactual_explanation.generator
-    latent_space = counterfactual_explanation.latent_space
-
-    # Check if generative model is available:
-    wants_latent_space =
-        DataPreprocessing.has_pretrained_generative_model(data) ||
-        typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    # Assume that latent space search is wanted unless explicitly set to false:
-    counterfactual_explanation.latent_space =
-        isnothing(latent_space) ? wants_latent_space : latent_space
     
     if counterfactual_explanation.latent_space &&
        !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
@@ -244,21 +262,22 @@ function decode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    s′ = map_from_latent(counterfactual_explanation, s′)
-
-    # Standardization:
-    dt = data.dt
-    features_continuous = data.features_continuous
-    SliceMap.slicemap(s′, dims=(1,2)) do s
-        _s = s[features_continuous,:]
-        StatsBase.reconstruct!(dt, _s)
-        s[features_continuous,:] = _s
+    if counterfactual_explanation.latent_space
+        s′ = map_from_latent(counterfactual_explanation, s′)
+        return s′
     end
 
-    # Categorical encoding:
-    # --------------------- #
-
-    return s′
+    # Standardization:
+    if !counterfactual_explanation.latent_space
+        dt = data.dt
+        features_continuous = data.features_continuous
+        SliceMap.slicemap(s′, dims=(1,2)) do s
+            _s = s[features_continuous,:]
+            StatsBase.reconstruct!(dt, _s)
+            s[features_continuous,:] = _s
+        end
+        return s′
+    end
 
 end
 
@@ -316,15 +335,24 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
     s′ = counterfactual_explanation.s′
     data = counterfactual_explanation.data
 
+    # No perturbation:
+    if counterfactual_explanation.initialization == :identity
+        return s′
+    end
+
+    # If latent space, initial point is random anyway:
+    if counterfactual_explanation.latent_space
+        return s′
+    end
+
+    # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if counterfactual_explanation.initialization == :add_perturbation
         s′ = SliceMap.slicemap(s′, dims = (1, 2)) do s
-            Δs′ = randn(size(s, 1)) * 0.1   # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
+            Δs′ = randn(size(s, 1)) * 0.1   
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
         end
     end
-
-    return s′
 
 end
 
@@ -551,11 +579,11 @@ function apply_mutability(
     Δs′::AbstractArray,
 )
 
-    if counterfactual_explanation.latent_space
-        if !all(counterfactual_explanation.params[:mutability] .== :both) &&
-           total_steps(counterfactual_explanation) == 0
-            @error "Mutability constraints not currently implemented for latent space search."
+    if counterfactual_explanation.latent_space 
+        if isnothing(counterfactual_explanation.search)
+            @warn "Mutability constraints not currently implemented for latent space search."
         end
+        return Δs′
     end
 
     mutability = counterfactual_explanation.params[:mutability]
