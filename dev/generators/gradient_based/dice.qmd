@@ -16,11 +16,8 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Pkg; Pkg.activate("docs")
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
-theme(:wong)
-www_path = "docs/src/generators/www/"
-include("docs/src/utils.jl")
+include("docs/setup_docs.jl")
+eval(setup_docs)
 ```
 
 # Diversity
@@ -74,18 +71,57 @@ gif(anim, joinpath(www_path, "dice_intro.gif"))
 Now let's see how this concept carries over to our `DiCEGenerator`. Below we first load a simple synthetic data set and instantiate a linear classifier that perfectly separate the two classes. 
 
 ```{julia}
-# Some random data:
-Random.seed!(1234)
-N = 100
-w = [1.0 1.0]# true coefficients
-b = 0
-xs, ys = toy_data_linear(N)
-X = hcat(xs...)
+#| eval: true
+N = 1000
+X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
+ys .= ys.==2
+X = X'
+xs = Flux.unstack(X,2)
+data = zip(xs,ys)
 counterfactual_data = CounterfactualData(X,ys')
-M = LogisticModel(w, [b])
-# Randomly selected factual:
-Random.seed!(123)
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
+
+X, ys, data, counterfactual_data = classification_binary()
+```
+
+```{julia}
+#| eval: true
+nn = Chain(Dense(2,1))
+opt = ADAM()
+epochs = 50
+loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+show_every = epochs/10
+grad_norms = []
+using LinearAlgebra
+for epoch = 1:epochs
+    grads_ = []
+    for d in data
+        gs = gradient(Flux.params(nn)) do
+            l = loss(d...)
+        end
+        update!(opt, Flux.params(nn), gs)
+        grads_ = vcat(grads_..., gs)
+    end
+    if epoch % show_every == 0
+        println("Epoch " * string(epoch))
+        @show avg_loss(data)
+    end
+    grad_norms = vcat(grad_norms..., norm(grads_))
+end
+```
+
+Declare as `<:AbstractFittedModel`:
+
+```{julia}
+#| eval: true
+M = FluxModel(nn)
+```
+
+Select random factual:
+
+```{julia}
+#| eval: true
+x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 ```
@@ -97,10 +133,9 @@ We then use DiCE to generate multiple counterfactuals for varying degrees of $\l
 counterfactuals = []
 n_cf = 5
 using Flux
-opt = Flux.Optimise.Descent(1.0)
 for λ₂ ∈ Λ₂  
     λ = [0.1, λ₂]
-    generator = DiCEGenerator(;λ=λ, opt=opt)
+    generator = DiCEGenerator(;λ=λ)
     counterfactuals = vcat(
       counterfactuals...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
@@ -111,7 +146,11 @@ end
 @fig-dice shows the resulting counterfactual paths. As expected, the resulting counterfactuals are more dispersed across the feature domain for higher choices of $\lambda_2$
 
 ```{julia}
-using CounterfactualExplanations.Counterfactuals: animate_path
+#| output: true
+#| label: fig-dice
+#| fig-cap: Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.
+
+using CounterfactualExplanations: animate_path
 theme(:wong)
 T = 100
 lim_ = 9
@@ -122,23 +161,10 @@ for i ∈ 1:length(Λ₂)
     plt = plot(counterfactual, xlims=(-lim_,lim_), ylims=(-lim_,lim_), plot_up_to=T, title="λ₂=$(λ₂)")
     plts = vcat(plts..., plt)
 end
-plt = plot(plts..., size=(1200,300), layout=(1,3))
-savefig(plt, joinpath(www_path,"dice.png"))
+plot(plts..., size=(1200,300), layout=(1,3))
 ```
 
 ![Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.](../www/dice.png){#fig-dice}
-
-```{julia}
-for λ₂ ∈ Λ₂  
-    λ = [0.1, λ₂]
-    generator = DiCEGenerator(λ=λ; ϵ=1)
-    counterfactuals = vcat(
-      counterfactuals...,
-      generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf, convergence=:strict)
-    )
-end
-```
-
 
 # References
 
