@@ -8,7 +8,7 @@ mutable struct CounterfactualData
     y::AbstractMatrix
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
-    features_categorical::Union{Vector{Int},Nothing}
+    features_categorical::Union{Vector{Vector{Int}},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
@@ -84,7 +84,7 @@ function CounterfactualData(
     y::AbstractMatrix;
     mutability::Union{Vector{Symbol},Nothing} = nothing,
     domain::Union{Any,Nothing} = nothing,
-    features_categorical::Union{Vector{Int},Nothing} = nothing,
+    features_categorical::Union{Vector{Vector{Int}},Nothing} = nothing,
     features_continuous::Union{Vector{Int},Nothing} = nothing,
     standardize::Bool = false,
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
@@ -129,6 +129,37 @@ select_factual(
     counterfactual_data::CounterfactualData,
     index::Union{Vector{Int},UnitRange{Int}},
 ) = zip([select_factual(counterfactual_data, i) for i in index])
+
+"""
+    reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::Vector)
+
+Reconstruct the categorical encoding for a single instance. 
+"""
+function reconstruct_cat_encoding(
+    counterfactual_data::CounterfactualData, 
+    x::AbstractArray,
+)
+
+    features_categorical = counterfactual_data.features_categorical
+    x = vec(x)
+
+    map(features_categorical) do cat_group_index
+        if length(cat_group_index) > 1
+            x[cat_group_index] = Int.(x[cat_group_index] .== maximum(x[cat_group_index]))
+            if sum(x[cat_group_index]) > 1
+                ties = findall(x[cat_group_index] .== 1)
+                _x = zeros(length(x[cat_group_index]))
+                winner = rand(ties,1)[1]
+                _x[winner] = 1
+                x[cat_group_index] = _x
+            end
+        else
+            x[cat_group_index] = [round(clamp(x[cat_group_index][1],0,1))]
+        end
+    end
+
+    return x
+end
 
 """
     mutability_constraints(counterfactual_data::CounterfactualData)

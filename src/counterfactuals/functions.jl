@@ -690,7 +690,12 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     )
     Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
     s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
-    apply_domain_constraints!(counterfactual_explanation)      # domain constraints
+    apply_domain_constraints!(counterfactual_explanation)           # domain constraints
+    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+        s_encoded = DataPreprocessing.reconstruct_cat_encoding(counterfactual_explanation.data, s)
+        s = reshape(s_encoded, size(s)...)
+        return s
+    end
 
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
