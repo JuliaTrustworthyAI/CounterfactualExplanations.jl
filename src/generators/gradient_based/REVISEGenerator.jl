@@ -13,8 +13,8 @@ end
 
 # API streamlining:
 @with_kw struct REVISEGeneratorParams
-    opt::Any=Flux.Optimise.Descent()
-    τ::AbstractFloat=1e-5
+    opt::Any = Flux.Optimise.Descent()
+    τ::AbstractFloat = 1e-3
 end
 
 """
@@ -34,14 +34,13 @@ An outer constructor method that instantiates a REVISE generator.
 generator = REVISEGenerator()
 ```
 """
-function REVISEGenerator(
-    ;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=LinearAlgebra.norm,
-    λ::AbstractFloat=0.1,
-    decision_threshold=0.5,
-    kwargs...
+function REVISEGenerator(;
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = LinearAlgebra.norm,
+    λ::AbstractFloat = 0.1,
+    decision_threshold = 0.5,
+    kwargs...,
 )
-    params = REVISEGeneratorParams(;kwargs...)
+    params = REVISEGeneratorParams(; kwargs...)
     REVISEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end

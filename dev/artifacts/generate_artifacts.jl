@@ -1,14 +1,14 @@
 using ghr_jll
 using LibGit2
-using Pkg.Artifacts 
+using Pkg.Artifacts
 
 function generate_artifact(
-    datafiles; 
-    data_dir="dev/artifacts/data", 
-    root=".",
-    artifact_toml=joinpath(root, "Artifacts.toml"), 
-    deploy=true,
-    tag="data"
+    datafiles;
+    data_dir = "dev/artifacts/data",
+    root = ".",
+    artifact_toml = joinpath(root, "Artifacts.toml"),
+    deploy = true,
+    tag = "data",
 )
 
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
@@ -18,18 +18,18 @@ function generate_artifact(
     if deploy
         # Where we will put our tarballs
         tempdir = mktempdir()
-    
+
         function get_git_remote_url(repo_path::String)
             repo = LibGit2.GitRepo(repo_path)
             origin = LibGit2.get(LibGit2.GitRemote, repo, "origin")
             return LibGit2.url(origin)
         end
-    
+
         # Try to detect where we should upload these weights to (or just override
         # as shown in the commented-out line)
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(splitext(basename(origin_url))[1])"
-    
+
     end
 
     # For each BSON file, generate its own artifact:
@@ -45,7 +45,7 @@ function generate_artifact(
 
         # Spit tarballs to be hosted out to local temporary directory:
         if deploy
-            
+
             tarball_hash = archive_artifact(hash, joinpath(tempdir, "$(name).tar.gz"))
 
             # Calculate tarball url
@@ -54,8 +54,12 @@ function generate_artifact(
             # Bind this to an Artifacts.toml file
             @info("Binding $(name) in Artifacts.toml...")
             bind_artifact!(
-                artifact_toml, name, hash; 
-                download_info=[(tarball_url, tarball_hash)], lazy=true, force=true
+                artifact_toml,
+                name,
+                hash;
+                download_info = [(tarball_url, tarball_hash)],
+                lazy = true,
+                force = true,
             )
         end
 
@@ -66,7 +70,11 @@ function generate_artifact(
         @info("Uploading tarballs to $(deploy_repo) tag `$(tag)`")
 
         ghr() do ghr_exe
-            println(readchomp(`$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`))
+            println(
+                readchomp(
+                    `$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`,
+                ),
+            )
         end
 
         @info("Artifacts.toml file now contains all bound artifact names")

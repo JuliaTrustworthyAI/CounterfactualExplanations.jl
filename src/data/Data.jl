@@ -1,5 +1,6 @@
 module Data
 
+using CounterfactualExplanations
 using ..GenerativeModels
 using ..Models
 

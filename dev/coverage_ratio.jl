@@ -1,7 +1,7 @@
 using Coverage
 using Logging
 
-function coverage_ratio(folder="src")
+function coverage_ratio(folder = "src")
     with_logger(NullLogger()) do
         # process '*.cov' files
         coverage = process_folder(folder) # defaults to src/; alternatively, supply the folder name as argument

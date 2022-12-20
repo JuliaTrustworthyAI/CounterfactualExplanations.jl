@@ -11,5 +11,5 @@ Base type of generative model hyperparameter container.
 abstract type AbstractGMParams end
 
 include("vae.jl")
-    
+
 end

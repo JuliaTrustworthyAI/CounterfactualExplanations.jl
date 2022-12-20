@@ -23,7 +23,7 @@ using Statistics
 Preparing data for mini-batch training .
 """
 function get_data(X::AbstractArray, y::AbstractArray, batch_size)
-    DataLoader((X, y), batchsize=batch_size, shuffle=true)
+    DataLoader((X, y), batchsize = batch_size, shuffle = true)
 end
 
 """
@@ -32,13 +32,13 @@ end
 Constructs encoder part of VAE: a simple Flux neural network with one hidden layer and two linear output layers for the first two moments of the latent distribution.
 """
 struct Encoder
-    linear
-    μ
-    logσ
+    linear::Any
+    μ::Any
+    logσ::Any
 end
 @functor Encoder
-    
-Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=relu) = Encoder(
+
+Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation = relu) = Encoder(
     Dense(input_dim, hidden_dim, activation),   # linear
     Dense(hidden_dim, latent_dim),        # μ
     Dense(hidden_dim, latent_dim),        # logσ
@@ -54,7 +54,7 @@ end
 
 Helper function that implements the reparameterization trick: `z ∼ 𝒩(μ,σ²) ⇔ z=μ + σ ⊙ ε, ε ∼ 𝒩(0,I).`
 """
-function reparameterization_trick(μ,logσ,device=cpu)
+function reparameterization_trick(μ, logσ, device = cpu)
     return μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
 end
 
@@ -64,7 +64,7 @@ import Random: rand
 
 Draws random samples from the latent distribution.
 """
-function rand(encoder::Encoder, x, device=cpu)
+function rand(encoder::Encoder, x, device = cpu)
     μ, logσ = encoder(x)
     z = reparameterization_trick(μ, logσ)
     return z, μ, logσ
@@ -75,10 +75,8 @@ end
 
 The default decoder architecture is just a Flux Chain with one hidden layer and a linear output layer. 
 """
-Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=relu) = Chain(
-    Dense(latent_dim, hidden_dim, activation),
-    Dense(hidden_dim, input_dim)
-)
+Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation = relu) =
+    Chain(Dense(latent_dim, hidden_dim, activation), Dense(hidden_dim, input_dim))
 
 """
     VAEParams <: AbstractGMParams
@@ -117,10 +115,10 @@ end
 
 Outer method for instantiating a VAE.
 """
-function VAE(input_dim;kws...)
+function VAE(input_dim; kws...)
 
     # load hyperparamters
-    args = VAEParams(;kws...)
+    args = VAEParams(; kws...)
 
     # GPU config
     if args.cuda && CUDA.has_cuda()
@@ -140,7 +138,7 @@ end
 Flux.@functor VAE
 
 function Flux.trainable(generative_model::VAE)
-    (encoder=generative_model.encoder, decoder=generative_model.decoder)
+    (encoder = generative_model.encoder, decoder = generative_model.decoder)
 end
 
 """
@@ -148,7 +146,7 @@ end
 
 Implements a full pass of some input `x` through the VAE: `x ↦ x̂`.
 """
-function reconstruct(generative_model::VAE, x, device=cpu)
+function reconstruct(generative_model::VAE, x, device = cpu)
     z, μ, logσ = rand(generative_model.encoder, x, device)
     generative_model.decoder(z), μ, logσ
 end
@@ -159,30 +157,30 @@ end
 
 """
 function model_loss(generative_model::VAE, λ, x, device)
-    
+
     z, μ, logσ = reconstruct(generative_model, x, device)
     len = size(x)[end]
     # KL-divergence
-    kl_q_p = 0.5f0 * sum(@. (exp(2f0 * logσ) + μ^2 -1f0 - 2f0 * logσ)) / len
+    kl_q_p = 0.5f0 * sum(@. (exp(2.0f0 * logσ) + μ^2 - 1.0f0 - 2.0f0 * logσ)) / len
     # Negative log-likelihood: - log(p(x|z))
-    nll_x_z = generative_model.params.nll(z, x, agg=sum) / len
+    nll_x_z = generative_model.params.nll(z, x, agg = sum) / len
     # Weight regularization:
-    reg = λ * sum(x->sum(x.^2), Flux.params(generative_model.decoder))
-    
+    reg = λ * sum(x -> sum(x .^ 2), Flux.params(generative_model.decoder))
+
     elbo = nll_x_z + kl_q_p + reg
 
     return elbo
 end
 
 function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
-    
+
     # load hyperparamters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
 
     # load data
     loader = get_data(X, y, args.batch_size)
-    
+
     # parameters
     ps = Flux.params(generative_model)
 
@@ -191,61 +189,57 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     for epoch = 1:args.epochs
 
         avg_loss = []
-        for (x, _) in loader 
-            
+        for (x, _) in loader
+
             loss, back = Flux.pullback(ps) do
                 model_loss(generative_model, args.λ, x |> args.device, args.device)
             end
-            
+
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1f0)
+            grad = back(1.0f0)
             Flux.Optimise.update!(args.opt, ps, grad)
 
             train_steps += 1
-        end 
+        end
         avg_loss = mean(avg_loss)
 
     end
 
     # Set training status to true:
-    generative_model.trained = true;
-    
+    generative_model.trained = true
+
 end
 
-function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs=10)
-     
+function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs = 10)
+
     # load hyperparamters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
 
     # load data
     loader = get_data(X, y, args.batch_size)
-    
+
     # parameters
     ps = Flux.params(generative_model)
 
     # training
     train_steps = 0
     for epoch = 1:n_epochs
-        
+
         avg_loss = []
-        for (x, _) in loader 
-            
+        for (x, _) in loader
+
             loss, back = Flux.pullback(ps) do
                 model_loss(generative_model, args.λ, x |> args.device, args.device)
             end
-            
+
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1f0)
+            grad = back(1.0f0)
             Flux.Optimise.update!(args.opt, ps, grad)
 
             train_steps += 1
-        end 
+        end
         avg_loss = mean(avg_loss)
 
     end
-end
-
-function convert_to_image(x, y_size)
-    Gray.(permutedims(vcat(reshape.(chunk(x |> cpu, y_size), 28, :)...), (2, 1)))
 end

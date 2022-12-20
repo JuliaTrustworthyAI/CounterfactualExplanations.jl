@@ -18,26 +18,30 @@ nn = build_model()
 ```
 
 """
-function build_model(;input_dim=2,n_hidden=32,output_dim=1,batch_norm=false,dropout=false,activation=Flux.relu)
-    
+function build_model(;
+    input_dim = 2,
+    n_hidden = 32,
+    output_dim = 1,
+    batch_norm = false,
+    dropout = false,
+    activation = Flux.relu,
+)
+
     if batch_norm
         nn = Chain(
             Dense(input_dim, n_hidden),
             BatchNorm(n_hidden, activation),
             Dense(n_hidden, output_dim),
-            BatchNorm(output_dim)
-        )  
+            BatchNorm(output_dim),
+        )
     elseif dropout
         nn = Chain(
             Dense(input_dim, n_hidden, activation),
             Dropout(0.1),
-            Dense(n_hidden, output_dim)
-        )  
+            Dense(n_hidden, output_dim),
+        )
     else
-        nn = Chain(
-            Dense(input_dim, n_hidden, activation),
-            Dense(n_hidden, output_dim)
-        )  
+        nn = Chain(Dense(input_dim, n_hidden, activation), Dense(n_hidden, output_dim))
     end
 
     return nn
@@ -49,30 +53,30 @@ end
 
 Wrapper function to train neural network and generate an animation showing the training loss evolution.
 """
-function forward_nn(nn, loss, data, opt; n_epochs=200, plotting=nothing)
+function forward_nn(nn, loss, data, opt; n_epochs = 200, plotting = nothing)
 
     avg_l = []
-    
+
     for epoch = 1:n_epochs
-      for d in data
-        gs = Flux.gradient(Flux.params(nn)) do
-          l = loss(d...)
+        for d in data
+            gs = Flux.gradient(Flux.params(nn)) do
+                l = loss(d...)
+            end
+            update!(opt, Flux.params(nn), gs)
         end
-        update!(opt, Flux.params(nn), gs)
-      end
-      if !isnothing(plotting)
-        plt = plotting[1]
-        anim = plotting[2]
-        idx = plotting[3]
-        avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-        avg_l = vcat(avg_l,avg_loss(data))
-        if epoch % plotting[4]==0
-          plot!(plt, avg_l, color=idx)
-          frame(anim, plt)
+        if !isnothing(plotting)
+            plt = plotting[1]
+            anim = plotting[2]
+            idx = plotting[3]
+            avg_loss(data) = mean(map(d -> loss(d[1], d[2]), data))
+            avg_l = vcat(avg_l, avg_loss(data))
+            if epoch % plotting[4] == 0
+                plot!(plt, avg_l, color = idx)
+                frame(anim, plt)
+            end
         end
-      end
     end
-    
+
 end
 
 """
@@ -88,8 +92,8 @@ using LaplaceRedux
 ```
 
 """
-function build_ensemble(K=5;kw=(input_dim=2,n_hidden=32,output_dim=1))
-    ensemble = [build_model(;kw...) for i in 1:K]
+function build_ensemble(K = 5; kw = (input_dim = 2, n_hidden = 32, output_dim = 1))
+    ensemble = [build_model(; kw...) for i = 1:K]
     return ensemble
 end
 
@@ -98,22 +102,43 @@ end
 
 Wrapper function to train deep ensemble and generate an animation showing the training loss evolution.
 """
-function forward(ensemble, data, opt; loss_type=:logitbinarycrossentropy, plot_loss=true, n_epochs=10, plot_every=1) 
+function forward(
+    ensemble,
+    data,
+    opt;
+    loss_type = :logitbinarycrossentropy,
+    plot_loss = true,
+    n_epochs = 10,
+    plot_every = 1,
+)
 
     anim = nothing
     if plot_loss
         anim = Animation()
-        plt = plot(ylim=(0,1), xlim=(0,n_epochs), legend=false, xlab="Epoch", title="Average (training) loss")
-        for i in 1:length(ensemble)
+        plt = plot(
+            ylim = (0, 1),
+            xlim = (0, n_epochs),
+            legend = false,
+            xlab = "Epoch",
+            title = "Average (training) loss",
+        )
+        for i = 1:length(ensemble)
             nn = ensemble[i]
-            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
-            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=(plt, anim, i, plot_every))
+            loss(x, y) = getfield(Flux.Losses, loss_type)(nn(x), y)
+            forward_nn(
+                nn,
+                loss,
+                data,
+                opt,
+                n_epochs = n_epochs,
+                plotting = (plt, anim, i, plot_every),
+            )
         end
     else
         plt = nothing
         for nn in ensemble
-            loss(x, y) = getfield(Flux.Losses,loss_type)(nn(x), y)
-            forward_nn(nn, loss, data, opt, n_epochs=n_epochs, plotting=plt)
+            loss(x, y) = getfield(Flux.Losses, loss_type)(nn(x), y)
+            forward_nn(nn, loss, data, opt, n_epochs = n_epochs, plotting = plt)
         end
     end
 
@@ -125,11 +150,11 @@ end;
 
 Saves all models in ensemble to disk.
 """
-function save_ensemble(ensemble::AbstractArray; root="")
+function save_ensemble(ensemble::AbstractArray; root = "")
     if !isdir(root)
         mkdir(root)
     end
-    for i in 1:length(ensemble)
+    for i = 1:length(ensemble)
         path = root * "/nn" * string(i) * ".bson"
         model = ensemble[i]
         @save path model
@@ -141,9 +166,10 @@ end
 
 Loads all models in `root` folder and stores them in a list.
 """
-function load_ensemble(;root="")
+function load_ensemble(; root = "")
     all_files = Base.Filesystem.readdir(root)
-    is_bson_file = map(file -> Base.Filesystem.splitext(file)[2][2:end], all_files) .== "bson"
+    is_bson_file =
+        map(file -> Base.Filesystem.splitext(file)[2][2:end], all_files) .== "bson"
     bson_files = all_files[is_bson_file]
     bson_files = map(file -> root * "/" * file, bson_files)
     ensemble = []
@@ -171,8 +197,8 @@ plot_data!(plt, hcat(X...)', y)
 ```
 
 """
-function plot_data!(plt,X,y)
-    Plots.scatter!(plt, X[:,1],X[:,2],group=Int.(y),color=Int.(y))
+function plot_data!(plt, X, y)
+    Plots.scatter!(plt, X[:, 1], X[:, 2], group = Int.(y), color = Int.(y))
 end
 
 # Plot contour of posterior predictive:
@@ -196,31 +222,46 @@ plot_contour(X, y, M)
 ```
 
 """
-function plot_contour(X,y,M;colorbar=true,title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
-    
+function plot_contour(
+    X,
+    y,
+    M;
+    colorbar = true,
+    title = "",
+    length_out = 50,
+    zoom = -1,
+    xlim = nothing,
+    ylim = nothing,
+    linewidth = 0.1,
+)
+
     # Surface range:
     if isnothing(xlim)
-        xlim = (minimum(X[:,1]),maximum(X[:,1])).+(zoom,-zoom)
+        xlim = (minimum(X[:, 1]), maximum(X[:, 1])) .+ (zoom, -zoom)
     else
-        xlim = xlim .+ (zoom,-zoom)
+        xlim = xlim .+ (zoom, -zoom)
     end
     if isnothing(ylim)
-        ylim = (minimum(X[:,2]),maximum(X[:,2])).+(zoom,-zoom)
+        ylim = (minimum(X[:, 2]), maximum(X[:, 2])) .+ (zoom, -zoom)
     else
-        ylim = ylim .+ (zoom,-zoom)
+        ylim = ylim .+ (zoom, -zoom)
     end
-    x_range = collect(range(xlim[1],stop=xlim[2],length=length_out))
-    y_range = collect(range(ylim[1],stop=ylim[2],length=length_out))
-    Z = [Models.probs(M,[x, y])[1] for x=x_range, y=y_range]
+    x_range = collect(range(xlim[1], stop = xlim[2], length = length_out))
+    y_range = collect(range(ylim[1], stop = ylim[2], length = length_out))
+    Z = [Models.probs(M, [x, y])[1] for x in x_range, y in y_range]
 
     # Plot:
     plt = contourf(
-        x_range, y_range, Z'; 
-        colorbar=colorbar, title=title, linewidth=linewidth,
-        xlim=xlim,
-        ylim=ylim
+        x_range,
+        y_range,
+        Z';
+        colorbar = colorbar,
+        title = title,
+        linewidth = linewidth,
+        xlim = xlim,
+        ylim = ylim,
     )
-    plot_data!(plt,X,y)
+    plot_data!(plt, X, y)
 
 end
 
@@ -245,49 +286,69 @@ plot_contour(X, y, M)
 ```
 
 """
-function plot_contour_multi(X,y,M;title="",length_out=50,zoom=-1,xlim=nothing,ylim=nothing,linewidth=0.1)
-    
+function plot_contour_multi(
+    X,
+    y,
+    M;
+    title = "",
+    length_out = 50,
+    zoom = -1,
+    xlim = nothing,
+    ylim = nothing,
+    linewidth = 0.1,
+)
+
     # Surface range:
     if isnothing(xlim)
-        xlim = (minimum(X[:,1]),maximum(X[:,1])).+(zoom,-zoom)
+        xlim = (minimum(X[:, 1]), maximum(X[:, 1])) .+ (zoom, -zoom)
     else
-        xlim = xlim .+ (zoom,-zoom)
+        xlim = xlim .+ (zoom, -zoom)
     end
     if isnothing(ylim)
-        ylim = (minimum(X[:,2]),maximum(X[:,2])).+(zoom,-zoom)
+        ylim = (minimum(X[:, 2]), maximum(X[:, 2])) .+ (zoom, -zoom)
     else
-        ylim = ylim .+ (zoom,-zoom)
+        ylim = ylim .+ (zoom, -zoom)
     end
-    x_range = collect(range(xlim[1],stop=xlim[2],length=length_out))
-    y_range = collect(range(ylim[1],stop=ylim[2],length=length_out))
-    Z = reduce(hcat, [Models.probs(M,[x, y]) for x=x_range, y=y_range])
+    x_range = collect(range(xlim[1], stop = xlim[2], length = length_out))
+    y_range = collect(range(ylim[1], stop = ylim[2], length = length_out))
+    Z = reduce(hcat, [Models.probs(M, [x, y]) for x in x_range, y in y_range])
 
     # Plot:
     plt = plot()
-    plot_data!(plt,X,y)
+    plot_data!(plt, X, y)
     out_dim = size(Z)[1]
-    for d in 1:out_dim
+    for d = 1:out_dim
         contour!(
             plt,
-            x_range, y_range, Z[d,:]; 
-            colorbar=false, title=title,
-            xlim=xlim,
-            ylim=ylim,
-            colour=d
+            x_range,
+            y_range,
+            Z[d, :];
+            colorbar = false,
+            title = title,
+            xlim = xlim,
+            ylim = ylim,
+            colour = d,
         )
     end
 
     return plot(plt)
-    
+
 end
 
-function Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
+function Plots.plot(
+    generative_model::VAE,
+    X::AbstractArray,
+    y::AbstractArray;
+    image_data = false,
+    kws...,
+)
     args = generative_model.params
     device = args.device
-    encoder, decoder = generative_model.encoder |> device, generative_model.decoder |> device
-    
+    encoder, decoder =
+        generative_model.encoder |> device, generative_model.decoder |> device
+
     # load data
-    loader = CounterfactualExplanations.GenerativeModels.get_data(X,y,args.batch_size)
+    loader = CounterfactualExplanations.GenerativeModels.get_data(X, y, args.batch_size)
     labels = []
     μ_1 = []
     μ_2 = []
@@ -296,27 +357,29 @@ function Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; i
     # visualize first two dims
     out_dim = size(y)[1]
     pal = out_dim > 1 ? cgrad(:rainbow, out_dim, categorical = true) : :rainbow
-    plt_clustering = scatter(palette=pal; kws...)
+    plt_clustering = scatter(palette = pal; kws...)
     for (i, (x, y)) in enumerate(loader)
         i < 20 || break
         μ_i, _ = encoder(x |> device)
         μ_1 = vcat(μ_1, μ_i[1, :])
         μ_2 = vcat(μ_2, μ_i[2, :])
-        
-        y = out_dim == 1 ? y : Flux.onecold(y,1:(out_dim))
+
+        y = out_dim == 1 ? y : Flux.onecold(y, 1:(out_dim))
         labels = Int.(vcat(labels, vec(y)))
     end
 
     scatter!(
-        μ_1, μ_2, 
-        markerstrokewidth=0, markeralpha=0.8,
-        aspect_ratio=1,
+        μ_1,
+        μ_2,
+        markerstrokewidth = 0,
+        markeralpha = 0.8,
+        aspect_ratio = 1,
         # markercolor=labels,
-        group=labels
+        group = labels,
     )
 
-    if image_data 
-        z = range(-2.0, stop=2.0, length=11)
+    if image_data
+        z = range(-2.0, stop = 2.0, length = 11)
         len = Base.length(z)
         z1 = repeat(z, len)
         z2 = sort(z1)
@@ -326,7 +389,7 @@ function Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; i
         samples = decoder(x)
         samples = sigmoid.(samples)
         samples = convert_to_image(samples, len)
-        plt_manifold = Plots.plot(samples, axis=nothing, title="2D Manifold")
+        plt_manifold = Plots.plot(samples, axis = nothing, title = "2D Manifold")
         plt = Plots.plot(plt_clustering, plt_manifold)
     else
         plt = plt_clustering

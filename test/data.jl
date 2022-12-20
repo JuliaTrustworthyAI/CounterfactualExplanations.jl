@@ -1,5 +1,5 @@
 @testset "Artifacts" begin
-    
+
     @testset "cats_dogs" begin
         @test !isnothing(CounterfactualExplanations.Data.cats_dogs_data())
         @test !isnothing(CounterfactualExplanations.Data.cats_dogs_model())
