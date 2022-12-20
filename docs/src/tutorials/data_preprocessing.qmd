@@ -25,7 +25,7 @@ schema(X)
 Categorical features are expected to be one-hot or dummy encoded. To this end, we could use `MLJ`, for example:
 
 ```{julia}
-hot = OneHotEncoder(drop_last=true)
+hot = OneHotEncoder()
 mach = fit!(machine(hot, X))
 W = transform(mach, X)
 schema(W)
@@ -41,11 +41,11 @@ The `CounterfactualData` constructor takes two optional arguments that can be us
 
 ```{julia}
 features_categorical = [
-    [1,2,3],    # name
-    [4,5],      # grade
-    [6]         # sex
+    [1,2,4],    # name
+    [5,6,7],    # grade
+    [8,9]       # sex
 ]
-features_continuous = [7]
+features_continuous = [10]
 ```
 
 We propose the following simple logic for reconstructing categorical encodings after perturbations:
@@ -108,17 +108,6 @@ x
 reconstruct_cat_encoding(x)
 ```
 
-### Binary
-
-```{julia}
-x[features_categorical[3]] = [0.75]
-x
-```
-
-```{julia}
-reconstruct_cat_encoding(x)
-```
-
 ## Example
 
 ```{julia}
@@ -145,8 +134,10 @@ X = (
 schema(X)
 ```
 
+**NOTE**: our current implementation relies on using the default option `OneHotEncoder(drop_last=false)`. Using `drop_last=false` will lead to errors.
+
 ```{julia}
-hot = OneHotEncoder(drop_last=true)
+hot = OneHotEncoder()
 mach = fit!(machine(hot, X))
 W = transform(mach, X)
 schema(W)
@@ -212,14 +203,19 @@ Select random factual:
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-n_cf = 2
-generator = DiCEGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
+```
+
+Generate recourse:
+
+```{julia}
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
 counterfactual(ce)
 ```
+
 
 
 
