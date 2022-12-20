@@ -141,8 +141,12 @@ function reconstruct_cat_encoding(
 )
 
     features_categorical = counterfactual_data.features_categorical
-    x = vec(x)
 
+    if isnothing(features_categorical)
+        return x
+    end
+    
+    x = vec(x)
     map(features_categorical) do cat_group_index
         if length(cat_group_index) > 1
             x[cat_group_index] = Int.(x[cat_group_index] .== maximum(x[cat_group_index]))

@@ -16,12 +16,6 @@ init_perturbation = 2.0
 # - setting up counterfactual search for various models and generators
 # - running counterfactual search
 
-### Load synthetic data and models
-synthetic = CounterfactualExplanations.Data.load_synthetic()
-
-# Set up:
-generators = generator_catalog
-
 # LOOP:
 for (key, generator_) ∈ generators
     name = uppercasefirst(string(key))

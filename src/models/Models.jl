@@ -4,7 +4,7 @@ using ..CounterfactualExplanations
 using ..DataPreprocessing
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
+export FluxModel, FluxEnsemble, LaplaceReduxModel
 export probs, logits
 
 """

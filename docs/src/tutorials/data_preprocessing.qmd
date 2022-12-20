@@ -131,9 +131,9 @@ ys .= ys.==2
 ```{julia}
 xcat = map(ys) do y
     if y==1
-        x = sample(["X","Y","Z"], Weights([0.6,0.2,0.2]))
+        x = sample(["X","Y","Z"], Weights([0.8,0.1,0.1]))
     else
-        x = sample(["X","Y","Z"], Weights([0.2,0.2,0.6]))
+        x = sample(["X","Y","Z"], Weights([0.1,0.1,0.8]))
     end
 end
 xcat = categorical(xcat)
@@ -212,10 +212,15 @@ Select random factual:
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-n_cf = 25
+n_cf = 2
 generator = DiCEGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
 ```
+
+```{julia}
+counterfactual(ce)
+```
+
 
 
 
