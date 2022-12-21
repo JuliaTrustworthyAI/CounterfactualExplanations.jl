@@ -149,10 +149,10 @@ X = permutedims(MLJBase.matrix(W))
 
 
 ```{julia}
+features_categorical = [collect(3:size(X,1))]
 counterfactual_data = CounterfactualData(
     X,ys';
-    features_categorical = [collect(3:size(X,1))],
-    features_continuous = [1,2]
+    features_categorical = features_categorical,
 )
 ```
 
@@ -214,6 +214,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 ```{julia}
 counterfactual(ce)
+counterfactual_label(ce)
 ```
 
 

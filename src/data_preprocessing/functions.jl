@@ -90,9 +90,13 @@ function CounterfactualData(
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
 )
 
-    # If nothing supplied, assume all continuous:
+    # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
         features_continuous = 1:size(X, 1)
+    elseif !isnothing(features_categorical) && isnothing(features_continuous)
+        features_all = 1:size(X, 1)
+        cat_indices = reduce(vcat, features_categorical)
+        features_continuous = findall(map(i -> !(i ∈ cat_indices), features_all))
     end
 
     # Defaults:

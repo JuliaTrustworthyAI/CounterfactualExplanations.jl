@@ -4,7 +4,7 @@ setup_docs = quote
     Pkg.activate("docs")
 
     using CounterfactualExplanations
-    using CounterfactualExplanations: counterfactual
+    using CounterfactualExplanations: counterfactual, counterfactual_label
     using Flux
     using Flux.Optimise: update!, Adam
     using LinearAlgebra

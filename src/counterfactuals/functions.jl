@@ -88,7 +88,7 @@ function CounterfactualExplanation(;
 
     # Initialization:
     adjust_shape!(counterfactual_explanation)                                                   # adjust shape to specified number of counterfactuals
-    wants_latent_space!(counterfactual_explanation)
+    counterfactual_explanation.latent_space = wants_latent_space(counterfactual_explanation)
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
     counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
@@ -189,7 +189,7 @@ function encode_state(
     end
 
     # Standardize data unless latent space:
-    if !counterfactual_explanation.latent_space
+    if !wants_latent_space(counterfactual_explanation)
         dt = data.dt
         features_continuous = data.features_continuous
         SliceMap.slicemap(s′, dims=(1,2)) do s
@@ -224,6 +224,33 @@ function wants_latent_space!(counterfactual_explanation::CounterfactualExplanati
     # Assume that latent space search is wanted unless explicitly set to false:
     counterfactual_explanation.latent_space =
         isnothing(latent_space) ? wants_latent_space : latent_space
+
+end
+
+"""
+    wants_latent_space(
+        counterfactual_explanation::CounterfactualExplanation, 
+        x::Union{AbstractArray,Nothing} = nothing,
+    )   
+
+
+"""
+function wants_latent_space(counterfactual_explanation::CounterfactualExplanation)
+
+    # Unpack:
+    data = counterfactual_explanation.data
+    generator = counterfactual_explanation.generator
+    latent_space = counterfactual_explanation.latent_space
+
+    # Check if generative model is available:
+    wants_latent_space =
+        DataPreprocessing.has_pretrained_generative_model(data) ||
+        typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    # Assume that latent space search is wanted unless explicitly set to false:
+    latent_space =
+        isnothing(latent_space) ? wants_latent_space : latent_space
+
+    return latent_space
 
 end
 
@@ -262,13 +289,13 @@ function decode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space 
+    if wants_latent_space(counterfactual_explanation)
         s′ = map_from_latent(counterfactual_explanation, s′)
         return s′
     end
 
     # Standardization:
-    if !counterfactual_explanation.latent_space
+    if !wants_latent_space(counterfactual_explanation)
 
         dt = data.dt
 
@@ -296,11 +323,11 @@ function map_from_latent(
     # Unpack:
     s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
-    generator = counterfactual_explanation.generator
 
     # Latent space:
-    if counterfactual_explanation.latent_space
-        generative_model = counterfactual_explanation.data.generative_model
+    if counterfactual_explanation.latent_space &&
+        !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
+        generative_model = data.generative_model
         if !isnothing(generative_model)
             # NOTE! This is not very clean, will be improved.
             if generative_model.params.nll == Flux.Losses.logitbinarycrossentropy
