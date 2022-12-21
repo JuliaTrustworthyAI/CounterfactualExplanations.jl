@@ -77,6 +77,11 @@ generator = ClapROARGenerator()
 ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
 ```
 
+```{julia}
+factuals = select_factual(counterfactual_data, rand(findall(vec(counterfactual_data.y) .!= target), 10))
+results = generate_counterfactual(factuals, target,counterfactual_data, M, generator; num_counterfactuals=5)
+```
+
 
 Check how the model gradient changes along the counterfactual path (model loss correlates strongly):
 
