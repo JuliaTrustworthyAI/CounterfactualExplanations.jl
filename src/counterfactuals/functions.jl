@@ -189,7 +189,7 @@ function encode_state(
     end
 
     # Standardize data unless latent space:
-    if !wants_latent_space(counterfactual_explanation)
+    if !counterfactual_explanation.latent_space
         dt = data.dt
         features_continuous = data.features_continuous
         SliceMap.slicemap(s′, dims=(1,2)) do s
@@ -250,6 +250,9 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
     latent_space =
         isnothing(latent_space) ? wants_latent_space : latent_space
 
+    # If threshold is already reached, training GM is redundant:
+    latent_space = latent_space && !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
+
     return latent_space
 
 end
@@ -264,8 +267,7 @@ function map_to_latent(
     data = counterfactual_explanation.data
     generator = counterfactual_explanation.generator
     
-    if counterfactual_explanation.latent_space &&
-       !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
+    if counterfactual_explanation.latent_space 
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(
             data;
@@ -289,13 +291,13 @@ function decode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if wants_latent_space(counterfactual_explanation)
+    if counterfactual_explanation.latent_space
         s′ = map_from_latent(counterfactual_explanation, s′)
         return s′
     end
 
     # Standardization:
-    if !wants_latent_space(counterfactual_explanation)
+    if !counterfactual_explanation.latent_space
 
         dt = data.dt
 
@@ -325,8 +327,7 @@ function map_from_latent(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space &&
-        !threshold_reached(counterfactual_explanation, counterfactual_explanation.x)
+    if counterfactual_explanation.latent_space
         generative_model = data.generative_model
         if !isnothing(generative_model)
             # NOTE! This is not very clean, will be improved.
