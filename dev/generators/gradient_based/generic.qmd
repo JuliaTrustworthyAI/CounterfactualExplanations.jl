@@ -1,37 +1,16 @@
----
-format: 
-  commonmark:
-    variant: -raw_html
-    wrap: none
-    self-contained: true
-crossref:
-  fig-prefix: Figure
-  tbl-prefix: Table
-bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-output: asis
-execute: 
-  eval: false
-  echo: true
-jupyter: julia-1.7
----
-
 ```@meta
 CurrentModule = CounterfactualExplanations 
 ```
 
 ```{julia}
 #| echo: false
-using Pkg; Pkg.activate("docs")
-using Flux, Random, Plots, PlotThemes, CounterfactualExplanations
-theme(:wong)
-www_path = "docs/src/generators/www/"
-include("docs/src/utils.jl")
+include("docs/setup_docs.jl")
+eval(setup_docs)
 ```
 
 # `GenericGenerator`
 
 ```{julia}
-using MLJ
 N = 1000
 X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
 ys .= ys.==2
@@ -42,9 +21,7 @@ counterfactual_data = CounterfactualData(X,ys')
 ```
 
 ```{julia}
-using Flux
 nn = Chain(Dense(2,1))
-using Flux.Optimise: update!, Adam
 opt = Adam()
 epochs = 100
 loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
@@ -78,11 +55,16 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
-using CounterfactualExplanations.Counterfactuals: animate_path
-anim = animate_path(counterfactual)
+anim = animate_path(ce)
 gif(anim, joinpath(www_path, "generic.gif"), fps=10)
 ```
+
+```{julia}
+n = 1
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n)
+```
+
