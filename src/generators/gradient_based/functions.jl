@@ -82,7 +82,18 @@ function generate_perturbations(
     s′ = deepcopy(counterfactual_explanation.s′)
     new_s′ = propose_state(generator, counterfactual_explanation)
     Δs′ = new_s′ - s′ # gradient step
+    Δs′ = _replace_nans(Δs′)
+
     return Δs′
+end
+
+"""
+    _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
+
+Helper function to deal with exploding gradients. This is only a temporary fix and will be improved.
+"""
+function _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
+    replace(Δs′, old_new)
 end
 
 """

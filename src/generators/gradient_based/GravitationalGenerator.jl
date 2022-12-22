@@ -5,7 +5,7 @@ mutable struct GravitationalGenerator <: AbstractGradientBasedGenerator
     complexity::Function # complexity function
     λ::Union{AbstractFloat,AbstractVector} # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat}
-    opt::Any # optimizer
+    opt::Flux.Optimise.AbstractOptimiser # optimizer
     τ::AbstractFloat # tolerance for convergence
     K::Int # number of K randomly chosen neighbours
     centroid::Union{Nothing,AbstractArray}
@@ -14,7 +14,7 @@ end
 # API streamlining:
 using Parameters, Flux
 @with_kw struct GravitationalGeneratorParams
-    opt::Any = Flux.Optimise.Descent()
+    opt::Flux.Optimise.AbstractOptimiser = Descent()
     τ::AbstractFloat = 1e-3
     K::Int = 50
     centroid::Union{Nothing,AbstractArray} = nothing
@@ -26,7 +26,7 @@ end
         loss::Symbol=:logitbinarycrossentropy,
         complexity::Function=norm,
         λ::AbstractFloat=0.1,
-        opt::Any=Flux.Optimise.Descent(),
+        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
     )
 
