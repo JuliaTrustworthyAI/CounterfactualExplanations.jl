@@ -77,7 +77,7 @@ function CounterfactualExplanation(;
         x,
         data,
         M,
-        generator,
+        deepcopy(generator),
         latent_space,
         generative_model_params,
         params,

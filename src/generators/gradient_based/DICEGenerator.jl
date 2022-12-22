@@ -7,13 +7,13 @@ mutable struct DiCEGenerator <: AbstractGradientBasedGenerator
     complexity::Function # complexity function
     λ::Union{AbstractFloat,AbstractVector} # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
-    opt::Any # learning rate
+    opt::Flux.Optimise.AbstractOptimiser # learning rate
     τ::AbstractFloat # tolerance for convergence
 end
 
 # API streamlining:
 @with_kw struct DiCEGeneratorParams
-    opt::Any = Flux.Optimise.Descent(1.0)
+    opt::Flux.Optimise.AbstractOptimiser = Descent()
     τ::AbstractFloat = 1e-3
 end
 
@@ -23,7 +23,7 @@ end
         loss::Symbol=:logitbinarycrossentropy,
         complexity::Function=LinearAlgebra.norm,
         λ::AbstractFloat=0.1,
-        opt::Any=Flux.Optimise.Descent(),
+        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
         τ::AbstractFloat=1e-5
     )
 

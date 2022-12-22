@@ -79,8 +79,6 @@ X = X'
 xs = Flux.unstack(X,2)
 data = zip(xs,ys)
 counterfactual_data = CounterfactualData(X,ys')
-
-X, ys, data, counterfactual_data = classification_binary()
 ```
 
 ```{julia}
