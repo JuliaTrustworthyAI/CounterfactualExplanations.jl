@@ -67,4 +67,3 @@ gif(anim, joinpath(www_path, "generic.gif"), fps=10)
 n = 1
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n)
 ```
-
