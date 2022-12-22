@@ -81,8 +81,9 @@ function generate_perturbations(
 )
     s′ = deepcopy(counterfactual_explanation.s′)
     new_s′ = propose_state(generator, counterfactual_explanation)
-    Δs′ = new_s′ - s′ # gradient step
+    Δs′ = new_s′ - s′                                           # gradient step
     Δs′ = _replace_nans(Δs′)
+    Δs′ *= counterfactual_explanation.num_counterfactuals       # rescale to account for number of counterfactuals
 
     return Δs′
 end
