@@ -63,7 +63,7 @@ export mnist_data, mnist_ensemble, mnist_model, mnist_vae
 export cats_dogs_data, cats_dogs_model
 
 include("generate_counterfactual.jl")
-export generate_counterfactuals
+export generate_counterfactual
 
 include("benchmark/Benchmark.jl")
 using .Benchmark

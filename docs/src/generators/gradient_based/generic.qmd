@@ -55,13 +55,7 @@ target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-ce = generate_counterfactuals(
-  x;
-  target = target, 
-  data = counterfactual_data, 
-  M = M, 
-  generator = generator
-)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
@@ -70,13 +64,7 @@ gif(anim, joinpath(www_path, "generic.gif"), fps=10)
 ```
 
 ```{julia}
-n = 1000
-ce = generate_counterfactuals(
-  x, n;
-  target = target, 
-  data = counterfactual_data, 
-  M = M, 
-  generator = generator
-)
+n = 1
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n)
 ```
 
