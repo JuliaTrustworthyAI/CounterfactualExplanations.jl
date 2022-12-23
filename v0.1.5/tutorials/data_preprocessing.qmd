@@ -1,0 +1,226 @@
+---
+output: true
+---
+
+## Data Preprocessing
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs);
+```
+
+To illustrate how data is preprocessed, we consider a simple toy dataset with three categorical features (`name`, `grade` and `sex`) and one continuous feature (`age`):
+
+```{julia}
+X = (
+    name=categorical(["Danesh", "Lee", "Mary", "John"]),
+    grade=categorical(["A", "B", "A", "C"], ordered=true),
+    sex=categorical(["male","female","male","male"]),
+    height=[1.85, 1.67, 1.5, 1.67],
+)
+schema(X)
+```
+
+Categorical features are expected to be one-hot or dummy encoded. To this end, we could use `MLJ`, for example:
+
+```{julia}
+hot = OneHotEncoder()
+mach = fit!(machine(hot, X))
+W = transform(mach, X)
+schema(W)
+```
+
+The matrix that will actually be perturbed during the counterfactual search looks as follows:
+
+```{julia}
+X = permutedims(MLJBase.matrix(W))
+```
+
+The `CounterfactualData` constructor takes two optional arguments that can be used to specify the indices of categorical and continues features. If nothing is supplied, all features are assumed to be continuous. For categorical features, the constructor expects and array of arrays of integers (`Vector{Vector{Int}}`) where each subarray includes the indices of a all one-hot encoded rows related to a single categorical feature. In the example above, the `name` feature is one-hot encoded across rows 1, 2 and 3 of `X`.
+
+```{julia}
+features_categorical = [
+    [1,2,4],    # name
+    [5,6,7],    # grade
+    [8,9]       # sex
+]
+features_continuous = [10]
+```
+
+We propose the following simple logic for reconstructing categorical encodings after perturbations:
+
+- For one-hot encoded features with multiple classes, choose the maximum.
+- For binary features, clip the perturbed value to fall into $[0,1]$ and round to the nearest of the two integers.
+
+```{julia}
+function reconstruct_cat_encoding(x)
+    map(features_categorical) do cat_group_index
+        if length(cat_group_index) > 1
+            x[cat_group_index] = Int.(x[cat_group_index] .== maximum(x[cat_group_index]))
+            if sum(x[cat_group_index]) > 1
+                ties = findall(x[cat_group_index] .== 1)
+                _x = zeros(length(x[cat_group_index]))
+                winner = rand(ties,1)[1]
+                _x[winner] = 1
+                x[cat_group_index] = _x
+            end
+        else
+            x[cat_group_index] = [round(clamp(x[cat_group_index][1],0,1))]
+        end
+    end
+    return x
+end
+```
+
+### Perturbing Single Element
+
+```{julia}
+x = X[:,1]
+x[1] = 1.1
+x
+```
+
+```{julia}
+reconstruct_cat_encoding(x)
+```
+
+### Perturbing Multiple Elements
+
+```{julia}
+x[2] = 1.1
+x[3] = -1.2
+x
+```
+
+```{julia}
+reconstruct_cat_encoding(x)
+```
+
+### Breaking ties
+
+```{julia}
+x[1] = 1.0
+x
+```
+
+```{julia}
+reconstruct_cat_encoding(x)
+```
+
+## Example
+
+```{julia}
+#| eval: true
+N = 1000
+X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
+ys .= ys.==2
+```
+
+```{julia}
+xcat = map(ys) do y
+    if y==1
+        x = sample(["X","Y","Z"], Weights([0.8,0.1,0.1]))
+    else
+        x = sample(["X","Y","Z"], Weights([0.1,0.1,0.8]))
+    end
+end
+xcat = categorical(xcat)
+X = (
+    x1 = X[:,1],
+    x2 = X[:,2],
+    x3 = xcat
+)
+schema(X)
+```
+
+**NOTE**: our current implementation relies on using the default option `OneHotEncoder(drop_last=false)`. Using `drop_last=false` will lead to errors.
+
+```{julia}
+hot = OneHotEncoder()
+mach = fit!(machine(hot, X))
+W = transform(mach, X)
+schema(W)
+```
+
+```{julia}
+X = permutedims(MLJBase.matrix(W))
+```
+
+
+```{julia}
+features_categorical = [collect(3:size(X,1))]
+counterfactual_data = CounterfactualData(
+    X,ys';
+    features_categorical = features_categorical,
+)
+```
+
+### Model Training
+
+```{julia}
+xs = Flux.unstack(X,2)
+data = zip(xs,ys)
+```
+
+```{julia}
+#| eval: true
+nn = Chain(Dense(size(X,1),1))
+opt = Adam()
+epochs = 50
+loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
+avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
+show_every = epochs/10
+grad_norms = []
+using LinearAlgebra
+for epoch = 1:epochs
+    grads_ = []
+    for d in data
+        gs = gradient(Flux.params(nn)) do
+            l = loss(d...)
+        end
+        update!(opt, Flux.params(nn), gs)
+        grads_ = vcat(grads_..., gs)
+    end
+    if epoch % show_every == 0
+        println("Epoch " * string(epoch))
+        @show avg_loss(data)
+    end
+    grad_norms = vcat(grad_norms..., norm(grads_))
+end
+```
+
+Declare as `<:AbstractFittedModel`:
+
+```{julia}
+#| eval: true
+M = FluxModel(nn)
+```
+
+Select random factual:
+
+```{julia}
+x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+Generate recourse:
+
+```{julia}
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+counterfactual(ce)
+counterfactual_label(ce)
+```
+
+
+
+
+
+
+
+
