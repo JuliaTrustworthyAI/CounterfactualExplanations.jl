@@ -1,4 +1,4 @@
-using CategoricalArrays
+using MLJBase
 using Plots
 using Parameters
 using SliceMap
@@ -135,7 +135,7 @@ function set_up_plots(
     p2 = plot(xlims = (1, total_steps(counterfactual_explanation) + 1), ylims = (0, 1))
     path_embedded = embed_path(counterfactual_explanation)
     path_labels =
-        categorical(reduce(vcat, (counterfactual_label_path(counterfactual_explanation))))
+        MLJBase.categorical(reduce(vcat, (counterfactual_label_path(counterfactual_explanation))))
     path_probs = target_probs_path(counterfactual_explanation)
     output = (
         p1 = p1,

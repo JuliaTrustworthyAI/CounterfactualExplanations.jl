@@ -1,4 +1,4 @@
-using CategoricalArrays
+using MLJBase
 using MultivariateStats
 using Plots
 using Random
@@ -34,7 +34,7 @@ function embed(data::CounterfactualData, X::AbstractArray = nothing; dim_red::Sy
                 tfn = UMAP_(X_train, 2; n_neighbors = n_neighbors)
             end
             if dim_red == :pca
-                tfn = fit(PCA, X_train; maxoutdim = 2)
+                tfn = MultivariateStats.fit(PCA, X_train; maxoutdim = 2)
             end
             data.compressor = tfn
             X = isnothing(X) ? X_train : X
@@ -66,7 +66,7 @@ end
 
 function Plots.scatter!(data::CounterfactualData; dim_red::Symbol = :pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red = dim_red)
-    y = CategoricalArrays.categorical(y)
+    y = MLJBase.categorical(y)
     _c = Int.(y.refs)
     Plots.scatter!(X[:, 1], X[:, 2], group = y, colour = _c; kwargs...)
 end

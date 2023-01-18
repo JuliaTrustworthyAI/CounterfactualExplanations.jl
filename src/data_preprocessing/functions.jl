@@ -104,7 +104,7 @@ function CounterfactualData(
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     # Data transformations:
-    dt = fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
+    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
 
     counterfactual_data = CounterfactualData(
         X,
