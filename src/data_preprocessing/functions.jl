@@ -5,7 +5,7 @@ using StatsBase
 using Tables
 using UMAP
 
-const yType = Union{AbstractMatrix,CategoricalVector}
+const yType = Union{AbstractVector, AbstractMatrix, CategoricalVector}
 
 mutable struct CounterfactualData
     X::AbstractMatrix
@@ -93,6 +93,14 @@ function CounterfactualData(
     standardize::Bool=false,
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
 )
+
+    # Output variable:
+    if typeof(y) <: CategoricalArray 
+        y = permutedims(Int.(y.refs))
+        y = length(levels(y)) == 2 ? y .- 1 : y     # binary case
+    elseif typeof(y) <: AbstractVector
+        y = permutedims(y)
+    end
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
