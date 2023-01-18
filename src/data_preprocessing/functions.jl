@@ -1,11 +1,15 @@
+using CategoricalArrays
 using Flux
 using MultivariateStats
 using StatsBase
+using Tables
 using UMAP
+
+const yType = Union{AbstractMatrix,CategoricalVector}
 
 mutable struct CounterfactualData
     X::AbstractMatrix
-    y::AbstractMatrix
+    y::yType
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -81,13 +85,13 @@ counterfactual_data = CounterfactualData(X,y')
 """
 function CounterfactualData(
     X::AbstractMatrix,
-    y::AbstractMatrix;
-    mutability::Union{Vector{Symbol},Nothing} = nothing,
-    domain::Union{Any,Nothing} = nothing,
-    features_categorical::Union{Vector{Vector{Int}},Nothing} = nothing,
-    features_continuous::Union{Vector{Int},Nothing} = nothing,
-    standardize::Bool = false,
-    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
+    y::yType;
+    mutability::Union{Vector{Symbol},Nothing}=nothing,
+    domain::Union{Any,Nothing}=nothing,
+    features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
+    features_continuous::Union{Vector{Int},Nothing}=nothing,
+    standardize::Bool=false,
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
 )
 
     # Feature type indices:
@@ -104,7 +108,7 @@ function CounterfactualData(
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     # Data transformations:
-    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
+    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims=2)        # standardization
 
     counterfactual_data = CounterfactualData(
         X,
@@ -120,6 +124,34 @@ function CounterfactualData(
     )
 
     return counterfactual_data
+end
+
+"""
+    function CounterfactualData(
+        X::Tables.MatrixTable,
+        y::yType;
+        kwrgs...
+    )
+    
+Outer constructor method that accepts a `Tables.MatrixTable`. By default, the indices of categorical and continuous features are automatically inferred the features' `scitype`.
+
+"""
+function CounterfactualData(
+    X::Tables.MatrixTable,
+    y::yType;
+    kwrgs...
+)
+
+    features_categorical = findall([scitype(x) <: AbstractVector{<:Finite} for x in X])
+    features_categorical = length(features_categorical) == 0 ? nothing : features_categorical
+    features_continuous = findall([scitype(x) <: AbstractVector{<:Continuous} for x in X])
+    features_continuous = length(features_continuous) == 0 ? nothing : features_continuous
+    X = permutedims(MLJBase.matrix(X))
+
+    counterfactual_data = CounterfactualData(X, y; kwrgs...)
+
+    return counterfactual_data
+
 end
 
 """
@@ -140,7 +172,7 @@ select_factual(
 Reconstruct the categorical encoding for a single instance. 
 """
 function reconstruct_cat_encoding(
-    counterfactual_data::CounterfactualData, 
+    counterfactual_data::CounterfactualData,
     x::AbstractArray,
 )
 
@@ -149,7 +181,7 @@ function reconstruct_cat_encoding(
     if isnothing(features_categorical)
         return x
     end
-    
+
     x = vec(x)
     map(features_categorical) do cat_group_index
         if length(cat_group_index) > 1
@@ -157,12 +189,12 @@ function reconstruct_cat_encoding(
             if sum(x[cat_group_index]) > 1
                 ties = findall(x[cat_group_index] .== 1)
                 _x = zeros(length(x[cat_group_index]))
-                winner = rand(ties,1)[1]
+                winner = rand(ties, 1)[1]
                 _x[winner] = 1
                 x[cat_group_index] = _x
             end
         else
-            x[cat_group_index] = [round(clamp(x[cat_group_index][1],0,1))]
+            x[cat_group_index] = [round(clamp(x[cat_group_index][1], 0, 1))]
         end
     end
 

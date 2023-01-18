@@ -4,40 +4,7 @@ using Flux
 using LazyArtifacts
 using Random
 
-"""
-    cats_dogs_data()
 
-A convenience function to load the cats and dogs toy dataset.
-"""
-# Cats and dogs:
-function cats_dogs_data()
-    data_dir = artifact"cats_dogs_data"
-    data = BSON.load(joinpath(data_dir, "cats_dogs_data.bson"), @__MODULE__)[:data]
-    X, y = (data[:X], data[:y])
-    return X, y
-end
-
-"""
-    cats_dogs_model()
-
-A convenience function to load the pre-trained MLP to classify cats and dogs.
-"""
-function cats_dogs_model()
-    data_dir = artifact"cats_dogs_model"
-    model = BSON.load(joinpath(data_dir, "cats_dogs_model.bson"), @__MODULE__)[:model]
-    return model
-end
-
-"""
-    cats_dogs_laplace()
-
-A convenience function to load the pre-trained MLP with Laplace approximation to classify cats and dogs.
-"""
-function cats_dogs_laplace()
-    data_dir = artifact"cats_dogs_laplace"
-    la = BSON.load(joinpath(data_dir, "cats_dogs_laplace.bson"), @__MODULE__)[:la]
-    return la
-end
 
 """
     toy_data_linear(N=100)

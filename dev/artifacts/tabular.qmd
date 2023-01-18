@@ -1,0 +1,96 @@
+## Preprocessing Real-World Data
+
+```{julia}
+#| echo: false
+
+include("dev/artifacts/setup.jl")
+eval(setup)
+www_path = www_dir("tabular")
+data_path = data_dir("tabular")
+artifact_name = "data-tabular"
+```
+
+### California Housing Data
+
+Fetching the data using Python's `sklearn` (run this in the Python REPL):
+
+```{.python}
+from sklearn.datasets import fetch_california_housing
+df, y = fetch_california_housing(return_X_y=True, as_frame=True)
+df["target"] = y.values
+data_path = "dev/artifacts/upload/data/tabular"
+import os
+if not os.path.isdir(os.path.join(data_path,"raw")):
+    os.makedirs(os.path.join(data_path,"raw"))
+df.to_csv(os.path.join(data_path,"raw/cal_housing.csv"), index=False)
+```
+
+Loading the data into Julia session. 
+
+```{julia}
+df = CSV.read(joinpath(data_path, "raw/cal_housing.csv"), DataFrame)
+# Target:
+y = df.target
+y = Float64.(y .>= median(y)); # binary target (positive outcome)
+# Data:
+df.target = y
+```
+
+Random undersampling to balance the data:
+
+```{julia}
+df_balanced = getobs(undersample(df, df.target; shuffle=true))[1]
+CSV.write(joinpath(data_path, "cal_housing.csv"), df_balanced)
+```
+
+### Give Me Some Credit
+
+Loading and basic preprocessing:
+
+```{julia}
+df = CSV.read(joinpath(data_path, "raw/cs-training.csv"), DataFrame)
+select!(df, Not([:Column1]))
+rename!(df, :SeriousDlqin2yrs => :target)
+mapcols!(x -> [ifelse(x_=="NA", missing, x_) for x_ in x], df)
+dropmissing!(df)
+mapcols!(x -> eltype(x) <: AbstractString ? parse.(Int, x) : x, df)
+df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # postive outcome = no delinquency
+```
+
+Balancing:
+
+```{julia}
+df_balanced = getobs(undersample(df, df.target;shuffle=true))[1]
+CSV.write(joinpath(data_path, "gmsc.csv"), df_balanced)
+```
+
+### UCI Credit Card Default
+
+Loading and basic preprocessing:
+
+```{julia}
+df = CSV.read(joinpath(data_path, "raw/UCI_Credit_Card.csv"), DataFrame)
+select!(df, Not([:ID]))
+rename!(df, "default.payment.next.month" => :target)
+dropmissing!(df)
+df.SEX = categorical(df.SEX)
+df.EDUCATION = categorical(df.EDUCATION)
+df.MARRIAGE = categorical(df.MARRIAGE)
+mapcols!(x -> eltype(x) <: AbstractString ? parse.(Int, x) : x, df)
+df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # postive outcome = no default
+```
+
+Balancing:
+
+```{julia}
+df_balanced = getobs(undersample(df, df.target;shuffle=true))[1]
+CSV.write(joinpath(data_path, "credit_default.csv"), df_balanced)
+```
+
+```{julia}
+generate_artifacts(data_path; artifact_name=artifact_name)
+```
+
+
+
+
