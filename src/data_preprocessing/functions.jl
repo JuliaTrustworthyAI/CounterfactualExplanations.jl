@@ -96,8 +96,15 @@ function CounterfactualData(
 
     # Output variable:
     if typeof(y) <: CategoricalArray 
-        y = permutedims(Int.(y.refs))
-        y = length(levels(y)) == 2 ? y .- 1 : y     # binary case
+        y_cat = y
+        if length(levels(y_cat)) == 2 
+            # Binary case:
+            y = permutedims(Int.(y_cat.refs))
+            y = y .- 1
+        else
+            # Multi-class
+            y = Int.(Flux.onehotbatch(y_cat.refs, 1:length(levels(y_cat))))
+        end
     elseif typeof(y) <: AbstractVector
         y = permutedims(y)
     end

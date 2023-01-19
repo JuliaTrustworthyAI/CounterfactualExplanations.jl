@@ -18,18 +18,18 @@ include("vision.jl")
 
 const data_catalogue = Dict(
     :synthetic => Dict(
-        :linearly_separable => load_linearly_separable(),
-        :overlapping => load_overlapping(),
-        :moons => load_moons(),
-        :circles => load_circles(),
+        :linearly_separable => load_linearly_separable,
+        :overlapping => load_overlapping,
+        :moons => load_moons,
+        :circles => load_circles,
     ),
     :tabular => Dict(
-        :california_housing => load_california_housing(),
-        :credit_default => load_credit_default(),
-        :gmsc => load_gmsc(),
+        :california_housing => load_california_housing,
+        :credit_default => load_credit_default,
+        :gmsc => load_gmsc,
     ),
     :vision => Dict(
-        :mnist => load_mnist(),
+        :mnist => load_mnist,
     ),
 )
 
