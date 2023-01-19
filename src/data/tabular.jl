@@ -7,14 +7,24 @@ using MLJModels: ContinuousEncoder
 
 data_dir = joinpath(artifact"data-tabular", "data-tabular")
 
+"""
+    load_california_housing()
+
+Loads and prepares California Housing data.
+"""
 function load_california_housing()
-    df = CSV.read(joinpath(data_dir,"cal_housing.csv"), DataFrame)
-    X = permutedims(Matrix(df[:,Not(:target)]))
+    df = CSV.read(joinpath(data_dir, "cal_housing.csv"), DataFrame)
+    X = permutedims(Matrix(df[:, Not(:target)]))
     y = df.target
-    counterfactual_data = CounterfactualData(X,y)
+    counterfactual_data = CounterfactualData(X, y)
     return counterfactual_data
 end
 
+"""
+    load_gmsc()
+
+Loads and prepares Give Me Some Credit (GMSC) data.
+"""
 function load_gmsc()
     df = CSV.read(joinpath(data_dir, "gmsc.csv"), DataFrame)
     X = permutedims(Matrix(df[:, Not(:target)]))
@@ -23,6 +33,11 @@ function load_gmsc()
     return counterfactual_data
 end
 
+"""
+    load_credit_default()
+
+Loads and prepares UCI Credit Default data.
+"""
 function load_credit_default()
 
     df = CSV.read(joinpath(data_dir, "credit_default.csv"), DataFrame)

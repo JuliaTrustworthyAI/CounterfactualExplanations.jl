@@ -9,5 +9,7 @@ Base type for differentiable models written in pure Julia.
 """
 abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel end
 
-include("flux.jl")
+include("flux-utils.jl")
+include("flux-mlp.jl")
+include("flux-ensemble.jl")
 include("laplace-redux.jl")

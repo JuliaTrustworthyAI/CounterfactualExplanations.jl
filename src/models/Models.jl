@@ -2,6 +2,7 @@ module Models
 
 using ..CounterfactualExplanations
 using ..DataPreprocessing
+using Parameters
 
 export AbstractFittedModel, AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel
@@ -28,5 +29,32 @@ function probs(M::AbstractFittedModel, X::AbstractArray) end
 
 include("differentiable/differentiable.jl")
 include("plotting.jl")
+
+"""
+    model_catalogue
+
+A dictionary containing all trainable machine learning models.
+"""
+const model_catalogue = Dict(
+    :LogisticRegression => LogisticRegression,
+    :MLP => FluxModel,
+    :DeepEnsemble => FluxEnsemble,
+)
+
+function fit_model(
+    counterfactual_data::CounterfactualData, model::Symbol=:MLP
+)
+    @assert model in keys(model_catalogue) "Specified model does not match any of the models available in the `model_catalogue`."
+
+    # Set up:
+    M = model_catalogue[model](counterfactual_data)
+
+    # Train:
+    train(M, counterfactual_data)
+
+    return M
+end
+
+export model_catalogue, fit_model
 
 end
