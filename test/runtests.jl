@@ -12,8 +12,10 @@ if is_logging(stderr)
     global_logger(NullLogger())
 end
 
+include("utils.jl")
+
 ### Load synthetic data, models, generators
-synthetic = CounterfactualExplanations.Data.load_synthetic()
+synthetic = _load_synthetic()
 generators = generator_catalog
 
 @testset "CounterfactualExplanations.jl" begin

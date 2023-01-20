@@ -123,7 +123,7 @@ function build_mlp(;
 
     if n_layers == 1
 
-        @assert output_dim == 1 "Expected output dimension of 1 for logisitic regression, got $output_dim."
+        # @assert output_dim == 1 "Expected output dimension of 1 for logisitic regression, got $output_dim."
 
         # Logistic regression:
         model = Chain(
@@ -184,16 +184,24 @@ function FluxModel(data::CounterfactualData; kwargs...)
     return M
 end
 
-
-function LogisticRegression(data::CounterfactualData; kwargs...)
+"""
+    Linear(data::CounterfactualData; kwargs...)
+    
+Constructs a neural network with one linear layer. If the output is binary, this corresponds to logistic regression, since model outputs are passed through the sigmoid function. If the output is multi-class, this corresponds to multinomial logistic regression, since model outputs are passed through the softmax function.
+"""
+function Linear(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
-    @assert output_dim == 1 "Logistic model not applicable to multi-dimensional output."
 
-    model = build_mlp(; input_dim=input_dim, output_dim=output_dim, n_layers=1, activation=Flux.sigmoid)
-    M = FluxModel(model; likelihood=:classification_binary)
+    model = build_mlp(; input_dim=input_dim, output_dim=output_dim, n_layers=1)
+
+    if output_dim == 1
+        M = FluxModel(model; likelihood=:classification_binary)
+    else
+        M = FluxModel(model; likelihood=:classification_multi)
+    end
 
     return M
 end

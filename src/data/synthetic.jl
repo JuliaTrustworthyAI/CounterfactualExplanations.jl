@@ -67,6 +67,22 @@ function load_moons(n=100; seed=data_seed, kwrgs...)
 end
 
 """
+    load_multi_class(n=100; seed=data_seed)
+
+Loads synthtetic data with multiple classes.
+"""
+function load_multi_class(n=100, n_classes=4; seed=data_seed)
+
+    Random.seed!(seed)
+
+    X, y = make_blobs(n, 2; centers=n_classes, center_box=(-2 => 2), cluster_std=0.1)
+    counterfactual_data = CounterfactualData(X, y)
+
+    return counterfactual_data
+
+end
+
+"""
     load_synthetic_data(n=100; seed=data_seed)
 
 Loads all synthetic datasets and wraps them in a dictionary.
@@ -76,7 +92,8 @@ function load_synthetic_data(n=100; seed=data_seed)
         :linearly_separable => load_linearly_separable(n; seed=seed),
         :overlapping => load_overlapping(n; seed=seed),
         :circles => load_circles(n; seed=seed),
-        :linearly_separable => load_moons(n; seed=seed),
+        :moons => load_moons(n; seed=seed),
+        :multi_class => load_multi_class(n; seed=seed),
     )
     return data
 end
