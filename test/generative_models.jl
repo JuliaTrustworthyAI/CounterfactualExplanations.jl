@@ -4,7 +4,7 @@ using MLUtils
 M = synthetic[:classification_binary][:models][:MLP][:model]
 counterfactual_data = synthetic[:classification_binary][:data]
 X = counterfactual_data.X
-y = counterfactual_data.y
+ys = counterfactual_data.y
 generator = generator_catalog[:revise]()
 
 # Coutnerfactual search
@@ -18,5 +18,5 @@ using CounterfactualExplanations.GenerativeModels: retrain!
 CounterfactualExplanations.GenerativeModels.retrain!(
     counterfactual_data.generative_model,
     X,
-    y,
+    ys,
 )

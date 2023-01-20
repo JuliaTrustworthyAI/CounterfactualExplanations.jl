@@ -45,7 +45,7 @@ function generate_counterfactual(
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;
-    T::Int = 1000,
+    T::Int = 100,
     latent_space::Union{Nothing,Bool} = nothing,
     num_counterfactuals::Int = 1,
     initialization::Symbol = :add_perturbation,

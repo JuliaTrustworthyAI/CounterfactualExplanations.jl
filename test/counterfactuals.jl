@@ -32,7 +32,7 @@ for (key, generator_) ∈ generators
                 @testset "$name" begin
                     counterfactual_data = value[:data]
                     X = counterfactual_data.X
-                    ys_cold = counterfactual_data.y
+                    ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -46,7 +46,7 @@ for (key, generator_) ∈ generators
 
                             p_ = probs(M, x)
                             if size(p_)[1] > 1
-                                y = Flux.onecold(p_, unique(ys_cold))
+                                y = Flux.onecold(p_, sort(unique(ys_cold)))
                                 target = rand(unique(ys_cold)[1:end.!=y]) # opposite label as target
                             else
                                 y = round(p_[1])
@@ -122,13 +122,14 @@ for (key, generator_) ∈ generators
                                     counterfactual_data.generative_model = nothing
                                     # Already in target and exceeding threshold probability:
                                     p_ = probs(M, x)
-                                    if size(p_)[1] > 1
-                                        y = Flux.onecold(p_, unique(ys_cold))[1]
+                                    n_classes = size(p_)[1]
+                                    if n_classes > 1
+                                        y = Flux.onecold(p_, sort(unique(ys_cold)))[1]
                                         target = y
                                     else
                                         target = round(p_[1]) == 0 ? 0 : 1
                                     end
-                                    generator.decision_threshold = 0.5
+                                    generator.decision_threshold = 1/n_classes
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,
