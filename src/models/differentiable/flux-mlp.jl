@@ -67,11 +67,18 @@ function train(M::FluxModel, data::CounterfactualData; kwargs...)
     # Prepare data:
     data = args.data_loader(data)
 
+    # Multi-class case:
+    if last(size.(Flux.params(M.model)))[1] > 1
+        loss = :logitcrossentropy
+    else
+        loss = args.loss
+    end
+
     # Training:
     model = M.model
     forward!(
         model, data;
-        loss=args.loss,
+        loss=loss,
         opt=args.opt,
         n_epochs=args.n_epochs
     )
@@ -168,6 +175,11 @@ function build_mlp(;
 
 end
 
+"""
+    FluxModel(data::CounterfactualData; kwargs...)
+
+Constructs a multi-layer perceptron (MLP).
+"""
 function FluxModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
     input_dim = size(X, 1)
@@ -187,7 +199,7 @@ end
 """
     Linear(data::CounterfactualData; kwargs...)
     
-Constructs a neural network with one linear layer. If the output is binary, this corresponds to logistic regression, since model outputs are passed through the sigmoid function. If the output is multi-class, this corresponds to multinomial logistic regression, since model outputs are passed through the softmax function.
+Constructs a model with one linear layer. If the output is binary, this corresponds to logistic regression, since model outputs are passed through the sigmoid function. If the output is multi-class, this corresponds to multinomial logistic regression, since model outputs are passed through the softmax function.
 """
 function Linear(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
