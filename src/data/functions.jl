@@ -4,8 +4,6 @@ using Flux
 using LazyArtifacts
 using Random
 
-
-
 """
     toy_data_linear(N=100)
 

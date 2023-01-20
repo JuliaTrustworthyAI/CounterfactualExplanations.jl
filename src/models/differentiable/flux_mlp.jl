@@ -120,8 +120,9 @@ nn = build_mlp()
 ```
 
 """
-function build_mlp(;
-    input_dim::Int=2, n_hidden::Int=32, n_layers::Int=2, output_dim::Int=1,
+function build_mlp(
+    ;
+    input_dim::Int=2, n_hidden::Int=10, n_layers::Int=2, output_dim::Int=1,
     batch_norm::Bool=false, dropout::Bool=false, activation=Flux.relu,
     p_dropout=0.25
 )
@@ -129,8 +130,6 @@ function build_mlp(;
     @assert n_layers >= 1 "Need at least one layer."
 
     if n_layers == 1
-
-        # @assert output_dim == 1 "Expected output dimension of 1 for logisitic regression, got $output_dim."
 
         # Logistic regression:
         model = Chain(
@@ -181,10 +180,14 @@ end
 Constructs a multi-layer perceptron (MLP).
 """
 function FluxModel(data::CounterfactualData; kwargs...)
+
+    # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+
+    # Build MLP:
     model = build_mlp(; input_dim=input_dim, output_dim=output_dim, kwargs...)
 
     if output_dim == 1

@@ -1,14 +1,5 @@
 @testset "Artifacts" begin
 
-    @testset "cats_dogs" begin
-        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_data())
-        @test !isnothing(CounterfactualExplanations.Data.cats_dogs_model())
-        # @test !isnothing(CounterfactualExplanations.Data.cats_dogs_laplace())
-    end
-
-    @testset "Synthetic Data" begin
-        @test !isnothing(CounterfactualExplanations.Data.load_synthetic([:flux]))
-    end
 end
 
 @testset "Toy data" begin

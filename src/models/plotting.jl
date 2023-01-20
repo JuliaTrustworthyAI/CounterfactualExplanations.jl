@@ -76,12 +76,12 @@ function Plots.plot(
     Z = reduce(hcat, Z)
 
     if isnothing(target)
-        @info "No target label supplied, using first."
-        target = 1
-    end
-
-    if !multi_dim
-        target += 1
+        if size(Z,1) > 2
+            @info "No target label supplied, using first."
+            target = 1
+        else
+            target = 2
+        end
     end
 
     # Contour:

@@ -30,12 +30,9 @@ for (key, generator_) ∈ generators
 
                 name = string(key)
                 @testset "$name" begin
-                    X, ys = (value[:data][:xs], value[:data][:ys])
-                    X = MLUtils.stack(X, dims = 2)
-                    ys_cold =
-                        length(ys[1]) > 1 ?
-                        [Flux.onecold(y_, 1:length(ys[1])) for y_ in ys] : ys
-                    counterfactual_data = CounterfactualData(X, ys')
+                    counterfactual_data = value[:data]
+                    X = counterfactual_data.X
+                    ys_cold = counterfactual_data.y
 
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -43,9 +40,9 @@ for (key, generator_) ∈ generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = select_factual(counterfactual_data, rand(1:size(X)[2]))
+                            x = select_factual(counterfactual_data, rand(1:size(X,2)))
                             multiple_x =
-                                select_factual(counterfactual_data, rand(1:size(X)[2], 5))
+                                select_factual(counterfactual_data, rand(1:size(X,2), 5))
 
                             p_ = probs(M, x)
                             if size(p_)[1] > 1

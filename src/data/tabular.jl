@@ -3,51 +3,83 @@ using CSV
 using DataFrames
 using LazyArtifacts
 using MLJBase
-using MLJModels: ContinuousEncoder
+using MLJModels: ContinuousEncoder, OneHotEncoder, Standardizer
 
 data_dir = joinpath(artifact"data-tabular", "data-tabular")
 
 """
-    load_california_housing()
+    load_california_housing(n::Union{Nothing,Int}=5000)
 
-Loads and prepares California Housing data.
+Loads and pre-processes California Housing data.
 """
-function load_california_housing()
+function load_california_housing(n::Union{Nothing,Int}=5000)
+
+    # Load:
     df = CSV.read(joinpath(data_dir, "cal_housing.csv"), DataFrame)
-    X = permutedims(Matrix(df[:, Not(:target)]))
+
+    # Pre-process features:
+    transformer = Standardizer(count=true)
+    mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
+    X = MLJBase.transform(mach, df[:, Not(:target)])
+    X = Matrix(X)
+    X = permutedims(X)
+
+    # Counterfactual data:
     y = df.target
     counterfactual_data = CounterfactualData(X, y)
+
+    # Undersample:
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.Data.undersample(counterfactual_data, n)
+    end
+
     return counterfactual_data
 end
 
 """
-    load_gmsc()
+    load_gmsc(n::Union{Nothing,Int}=5000)
 
-Loads and prepares Give Me Some Credit (GMSC) data.
+Loads and pre-processes Give Me Some Credit (GMSC) data.
 """
-function load_gmsc()
+function load_gmsc(n::Union{Nothing,Int}=5000)
+
+    # Load:
     df = CSV.read(joinpath(data_dir, "gmsc.csv"), DataFrame)
-    X = permutedims(Matrix(df[:, Not(:target)]))
+
+    # Pre-process features:
+    transformer = Standardizer(count=true)
+    mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
+    X = MLJBase.transform(mach, df[:, Not(:target)])
+    X = Matrix(X)
+    X = permutedims(X)
+
+    # Counterfactual data:
     y = df.target
     counterfactual_data = CounterfactualData(X, y)
+
+    # Undersample:
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.Data.undersample(counterfactual_data, n)
+    end
+
     return counterfactual_data
 end
 
 """
-    load_credit_default()
+    load_credit_default(n::Union{Nothing,Int}=5000)
 
-Loads and prepares UCI Credit Default data.
+Loads and pre-processes UCI Credit Default data.
 """
-function load_credit_default()
+function load_credit_default(n::Union{Nothing,Int}=5000)
 
+    # Load:
     df = CSV.read(joinpath(data_dir, "credit_default.csv"), DataFrame)
-    y = df.target
 
-    # Categorical encoding:
+    # Pre-process features:
     df.SEX = categorical(df.SEX)
     df.EDUCATION = categorical(df.EDUCATION)
     df.MARRIAGE = categorical(df.MARRIAGE)
-    transformer = ContinuousEncoder()
+    transformer = Standardizer(count=true) |> ContinuousEncoder()
     mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
     X = MLJBase.transform(mach, df[:, Not(:target)])
     X = permutedims(Matrix(X))
@@ -57,10 +89,17 @@ function load_credit_default()
         collect(11:14)      # MARRIAGE
     ]
 
+    # Counterfactual data:
+    y = df.target
     counterfactual_data = CounterfactualData(
         X, y;
         features_categorical=features_categorical
     )
+
+    # Undersample:
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.undersample(counterfactual_data, n)
+    end
 
     return counterfactual_data
 end

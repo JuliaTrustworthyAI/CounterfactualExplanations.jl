@@ -1,15 +1,12 @@
 using MLUtils
 using Plots
 
-M = synthetic[:classification_binary][:models][:flux][:model]
-
 generator = generator_catalog[:generic]()
 
 @testset "Two-dimensional" begin
 
-    xs, ys = (synthetic[:classification_binary][:data][:xs], synthetic[:classification_binary][:data][:ys])
-    X = MLUtils.stack(xs, dims = 2)
-    counterfactual_data = CounterfactualData(X, ys')
+    M = synthetic[:classification_binary][:models][:MLP][:model]
+    counterfactual_data = synthetic[:classification_binary][:data]
 
     # Model:
     plt = plot(M, counterfactual_data)

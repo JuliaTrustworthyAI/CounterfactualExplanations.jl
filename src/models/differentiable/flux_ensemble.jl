@@ -103,10 +103,14 @@ function build_ensemble(K::Int; kwargs...)
 end
 
 function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
+
+    # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+
+    # Build deep ensemble:
     ensemble = build_ensemble(K; input_dim=input_dim, output_dim=output_dim, kwargs...)
 
     if output_dim == 1

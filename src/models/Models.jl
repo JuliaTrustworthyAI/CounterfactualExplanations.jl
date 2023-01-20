@@ -27,6 +27,7 @@ Generic method that is compulsory for all models. It returns the normalized mode
 """
 function probs(M::AbstractFittedModel, X::AbstractArray) end
 
+include("model_utils.jl")
 include("differentiable/differentiable.jl")
 include("plotting.jl")
 
@@ -42,12 +43,13 @@ const model_catalogue = Dict(
 )
 
 function fit_model(
-    counterfactual_data::CounterfactualData, model::Symbol=:MLP
+    counterfactual_data::CounterfactualData, model::Symbol=:MLP;
+    kwrgs...
 )
     @assert model in keys(model_catalogue) "Specified model does not match any of the models available in the `model_catalogue`."
 
     # Set up:
-    M = model_catalogue[model](counterfactual_data)
+    M = model_catalogue[model](counterfactual_data; kwrgs...)
 
     # Train:
     train(M, counterfactual_data)
@@ -55,6 +57,6 @@ function fit_model(
     return M
 end
 
-export model_catalogue, fit_model
+export model_catalogue, fit_model, model_evaluation
 
 end

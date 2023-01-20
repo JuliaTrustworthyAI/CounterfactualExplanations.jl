@@ -1,11 +1,11 @@
 using MLUtils
 
 # Setup
-M = synthetic[:classification_binary][:models][:flux][:model]
+M = synthetic[:classification_binary][:models][:MLP][:model]
+counterfactual_data = synthetic[:classification_binary][:data]
+X = counterfactual_data.X
+y = counterfactual_data.y
 generator = generator_catalog[:revise]()
-xs, ys = (synthetic[:classification_binary][:data][:xs], synthetic[:classification_binary][:data][:ys])
-X = MLUtils.stack(xs, dims = 2)
-counterfactual_data = CounterfactualData(X, ys')
 
 # Coutnerfactual search
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))
@@ -18,5 +18,5 @@ using CounterfactualExplanations.GenerativeModels: retrain!
 CounterfactualExplanations.GenerativeModels.retrain!(
     counterfactual_data.generative_model,
     X,
-    ys,
+    y,
 )
