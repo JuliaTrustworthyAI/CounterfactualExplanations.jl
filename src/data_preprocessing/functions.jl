@@ -18,6 +18,7 @@ mutable struct CounterfactualData
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
+    y_levels::AbstractVector
     function CounterfactualData(
         X,
         y,
@@ -30,6 +31,22 @@ mutable struct CounterfactualData
         compressor,
         generative_model,
     )
+
+        # Output variable:
+        if typeof(y) <: CategoricalArray 
+            y_cat = y
+            y = permutedims(Int.(y_cat.refs))
+            if length(levels(y_cat)) == 2 
+                # Binary case:
+                y = y .- 1
+            end
+            y_levels = levels(y_cat)
+        elseif typeof(y) <: AbstractVector
+            y = permutedims(y)
+            y_levels = levels(y)
+        end
+
+        # Conditions:
         conditions = []
         conditions = vcat(
             conditions...,
@@ -44,6 +61,7 @@ mutable struct CounterfactualData
                 ),
             ) : true,
         )
+
         if all(conditions)
             new(
                 X,
@@ -56,6 +74,7 @@ mutable struct CounterfactualData
                 dt,
                 compressor,
                 generative_model,
+                y_levels
             )
         end
     end
@@ -94,17 +113,7 @@ function CounterfactualData(
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
 )
 
-    # Output variable:
-    if typeof(y) <: CategoricalArray 
-        y_cat = y
-        y = permutedims(Int.(y_cat.refs))
-        if length(levels(y_cat)) == 2 
-            # Binary case:
-            y = y .- 1
-        end
-    elseif typeof(y) <: AbstractVector
-        y = permutedims(y)
-    end
+    
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)

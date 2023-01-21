@@ -12,6 +12,7 @@ generator = generator_catalog[:generic]()
     plt = plot(M, counterfactual_data)
 
     # Counterfactual:
+    X = counterfactual_data.X
     x = select_factual(counterfactual_data, rand(1:size(X, 2)))
     p_ = probs(M, x)
     y = round(p_[1])

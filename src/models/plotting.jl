@@ -80,7 +80,7 @@ function Plots.plot(
             @info "No target label supplied, using first."
             target = 1
         else
-            target = 2
+            target = 2      # assuming binary case [0,1], choose 1 as target
         end
     end
 

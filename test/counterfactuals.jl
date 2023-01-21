@@ -129,7 +129,7 @@ for (key, generator_) ∈ generators
                                     else
                                         target = round(p_[1]) == 0 ? 0 : 1
                                     end
-                                    generator.decision_threshold = 1/n_classes
+                                    generator.decision_threshold = minimum([1/n_classes, 0.5])
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,
