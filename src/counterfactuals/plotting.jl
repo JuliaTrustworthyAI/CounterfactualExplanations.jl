@@ -125,7 +125,7 @@ function set_up_plots(
     plot_proba,
     kwargs...,
 )
-    target_idx = findall(counterfactual_explanation.data.y_levels .== counterfactual_explanation.target)[1]
+    target_idx = get_target_index(counterfactual_explanation.data.y_levels, counterfactual_explanation.target) 
     p1 = Models.plot(
         counterfactual_explanation.M,
         counterfactual_explanation.data;

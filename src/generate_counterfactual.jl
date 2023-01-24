@@ -1,7 +1,7 @@
 # -------- Main method:
 """
     generate_counterfactual(
-        x::Union{AbstractArray,Int}, target::Union{AbstractFloat,Int}, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
+        x::Union{AbstractArray,Int}, target::TargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
         γ::AbstractFloat=0.75, T=1000
     )
 
@@ -41,7 +41,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 """
 function generate_counterfactual(
     x::AbstractArray,
-    target::Union{AbstractFloat,Int},
+    target::TargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;
@@ -77,7 +77,7 @@ end
 
 function generate_counterfactual(
     x::Base.Iterators.Zip,
-    target::Union{AbstractFloat,Int},
+    target::TargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;

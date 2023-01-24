@@ -17,9 +17,9 @@ generator = generator_catalog[:generic]()
     p_ = probs(M, x)
     y = round(p_[1])
     target = y == 0 ? 1 : 0
-    counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-    plt = plot(counterfactual)
-    anim = animate_path(counterfactual)
+    counterfactual_explanation = generate_counterfactual(x, target, counterfactual_data, M, generator)
+    plt = plot(counterfactual_explanation)
+    anim = animate_path(counterfactual_explanation)
 
 end
 

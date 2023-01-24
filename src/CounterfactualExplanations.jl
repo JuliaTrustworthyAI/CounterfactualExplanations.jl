@@ -7,6 +7,11 @@ export AbstractCounterfactualExplanation
 using Flux
 import Flux.Losses
 
+# Global constants:
+include("global_utils.jl")
+export TargetType, OutputArrayType      # constants
+export get_target_index                 # utilities
+
 ### Data 
 # 𝒟 = {(x,y)}ₙ
 ###

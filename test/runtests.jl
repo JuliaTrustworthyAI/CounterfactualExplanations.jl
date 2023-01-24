@@ -14,7 +14,7 @@ end
 
 include("utils.jl")
 
-### Load synthetic data, models, generators
+# Load synthetic data, models, generators
 synthetic = _load_synthetic()
 generators = generator_catalog
 

@@ -9,7 +9,7 @@ A struct that collects all information relevant to a specific counterfactual exp
 """
 mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
-    target::Number
+    target::TargetType
     target_encoded::Union{Number,AbstractArray,Nothing}
     s′::AbstractArray
     data::DataPreprocessing.CounterfactualData
@@ -27,7 +27,7 @@ end
     function CounterfactualExplanation(
         ;
         x::AbstractArray, 
-        target::Union{AbstractFloat,Int}, 
+        target::TargetType, 
         data::CounterfactualData,  
         M::Models.AbstractFittedModel,
         generator::Generators.AbstractGenerator,
@@ -42,7 +42,7 @@ Outer method to construct a `CounterfactualExplanation` structure.
 """
 function CounterfactualExplanation(;
     x::AbstractArray,
-    target::Union{AbstractFloat,Int},
+    target::TargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,

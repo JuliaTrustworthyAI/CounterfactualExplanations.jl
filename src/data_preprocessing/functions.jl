@@ -1,15 +1,14 @@
 using CategoricalArrays
+using CounterfactualExplanations
 using Flux
 using MultivariateStats
 using StatsBase
 using Tables
 using UMAP
 
-const yType = Union{AbstractVector, AbstractMatrix, CategoricalVector}
-
 mutable struct CounterfactualData
     X::AbstractMatrix
-    y::yType
+    y::OutputArrayType
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -33,6 +32,7 @@ mutable struct CounterfactualData
     )
 
         # Output variable:
+        y_levels = levels(y)
         if typeof(y) <: CategoricalArray 
             y_cat = y
             y = permutedims(Int.(y_cat.refs))
@@ -43,7 +43,6 @@ mutable struct CounterfactualData
             y_levels = levels(y_cat)
         elseif typeof(y) <: AbstractVector
             y = permutedims(y)
-            y_levels = levels(y)
         end
 
         # Conditions:
@@ -57,7 +56,7 @@ mutable struct CounterfactualData
             size(X)[2] != size(y)[2] ?
             throw(
                 DimensionMismatch(
-                    "Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])",
+                    "Number of output observations is $(size(y)[2]). Expected it to match the number of input observations: $(size(X)[2]).",
                 ),
             ) : true,
         )
@@ -104,7 +103,7 @@ counterfactual_data = CounterfactualData(X,y')
 """
 function CounterfactualData(
     X::AbstractMatrix,
-    y::yType;
+    y::OutputArrayType;
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
@@ -150,7 +149,7 @@ end
 """
     function CounterfactualData(
         X::Tables.MatrixTable,
-        y::yType;
+        y::OutputArrayType;
         kwrgs...
     )
     
@@ -159,7 +158,7 @@ Outer constructor method that accepts a `Tables.MatrixTable`. By default, the in
 """
 function CounterfactualData(
     X::Tables.MatrixTable,
-    y::yType;
+    y::OutputArrayType;
     kwrgs...
 )
 
