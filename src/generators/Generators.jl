@@ -47,7 +47,7 @@ function ℓ(
             counterfactual_explanation.M,
             CounterfactualExplanations.decode_state(counterfactual_explanation),
         ),
-        counterfactual_explanation.target_encoded,
+        counterfactual_explanation.target_encoded_loss,
     )
     return loss
 end

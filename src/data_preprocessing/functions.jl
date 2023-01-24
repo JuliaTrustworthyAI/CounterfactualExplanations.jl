@@ -18,7 +18,7 @@ mutable struct CounterfactualData
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     y_levels::AbstractVector
-    y_raw::RawOutputArrayType
+    output_encoder::OutputEncoder
     function CounterfactualData(
         X,
         y,
@@ -31,7 +31,7 @@ mutable struct CounterfactualData
         compressor,
         generative_model,
         y_levels,
-        y_raw
+        output_encoder
     )
 
         # Conditions:
@@ -63,7 +63,7 @@ mutable struct CounterfactualData
                 compressor,
                 generative_model,
                 y_levels,
-                y_raw
+                output_encoder
             )
         end
     end
@@ -104,7 +104,9 @@ function CounterfactualData(
 
     # Output variable:
     y_raw = deepcopy(y)
-    y, y_levels = encode_output(y)
+    y_levels = levels(y)
+    output_encoder = OutputEncoder(y_raw)
+    y = output_encoder()
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
@@ -134,7 +136,7 @@ function CounterfactualData(
         compressor,
         generative_model,
         y_levels,
-        y_raw
+        output_encoder
     )
 
     return counterfactual_data

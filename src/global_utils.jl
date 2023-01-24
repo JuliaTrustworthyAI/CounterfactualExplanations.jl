@@ -2,11 +2,18 @@ using CategoricalArrays
 
 # Constants:
 """
-    TargetType
+    RawTargetType
 
 A type union for the allowed types for the `target` variable.
 """
-const TargetType = Union{Int,AbstractFloat,String,Symbol}
+const RawTargetType = Union{Int,AbstractFloat,String,Symbol}
+
+"""
+    EncodedTargetType
+
+Type of encoded target variable.
+"""
+const EncodedTargetType = Real
 
 """
     RawOutputArrayType 
@@ -22,21 +29,42 @@ Type of encoded output array.
 """
 const EncodedOutputArrayType = AbstractMatrix
 
-# Utilities:
-function encode_output(y::RawOutputArrayType)
+struct OutputEncoder
+    y::RawOutputArrayType
+end
+
+function (encoder::OutputEncoder)(ynew::Union{Nothing,RawTargetType}=nothing)
+
+    # Setup:
+    y = encoder.y
     y_levels = levels(y)
+    if !isnothing(ynew)
+        ynew = get_target_index(y_levels, ynew)
+    end
+
+    # Transformations:
     if typeof(y) <: CategoricalArray
         y_cat = y
         y = permutedims(Int.(y_cat.refs))
+        # Binary case:
         if length(levels(y_cat)) == 2
-            # Binary case:
             y = y .- 1
+            if !isnothing(ynew)
+                ynew -= 1
+            end
         end
         y_levels = levels(y_cat)
     elseif typeof(y) <: AbstractVector
         y = permutedims(y)
     end
-    return y, y_levels
+
+    # Output:
+    if isnothing(ynew)
+        return y
+    else
+        return ynew
+    end
+
 end
 
 """

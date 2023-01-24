@@ -9,8 +9,9 @@ import Flux.Losses
 
 # Global constants:
 include("global_utils.jl")
-export TargetType, RawOutputArrayType      # constants
-export get_target_index                 # utilities
+export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
+export OutputEncoder
+export get_target_index, encode_output
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ

@@ -15,7 +15,7 @@ end
 function Plots.plot(
     M::AbstractFittedModel,
     data::DataPreprocessing.CounterfactualData;
-    target::Union{Nothing,TargetType} = nothing,
+    target::Union{Nothing,RawTargetType} = nothing,
     colorbar = true,
     title = "",
     length_out = 50,
