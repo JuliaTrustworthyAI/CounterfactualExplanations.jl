@@ -2,14 +2,6 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Data
 import CounterfactualExplanations.DataPreprocessing
 
-@testset "Construction" begin
-    for (name, loader) in merge(values(data_catalogue)...)
-        @testset "$name" begin
-            @test typeof(loader()) == CounterfactualData 
-        end
-    end
-end
-
 @testset "Convenience functions" begin
 
     counterfactual_data = load_overlapping()

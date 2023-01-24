@@ -9,8 +9,7 @@
 
 using CUDA
 using Flux
-using Flux: @functor, chunk
-using Flux.Data: DataLoader
+using Flux: @functor, chunk, DataLoader
 using Flux.Losses: logitbinarycrossentropy, mse
 using Parameters: @with_kw
 using Random
