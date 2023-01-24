@@ -1,9 +1,7 @@
-@testset "Artifacts" begin
-
-end
-
-@testset "Toy data" begin
-    @test length(toy_data_linear()) == 2
-    @test length(toy_data_non_linear()) == 2
-    @test length(toy_data_multi()) == 2
+@testset "Construction" begin
+    for (name, loader) in merge(values(data_catalogue)...)
+        @testset "$name" begin
+            @test typeof(loader()) == CounterfactualData 
+        end
+    end
 end
