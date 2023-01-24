@@ -1,4 +1,5 @@
 using CounterfactualExplanations
+using Flux
 using MLDatasets
 using MLJBase
 

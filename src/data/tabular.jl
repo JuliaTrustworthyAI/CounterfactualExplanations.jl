@@ -30,7 +30,7 @@ function load_california_housing(n::Union{Nothing,Int}=5000)
 
     # Undersample:
     if !isnothing(n)
-        counterfactual_data = CounterfactualExplanations.Data.undersample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.undersample(counterfactual_data, n)
     end
 
     return counterfactual_data
@@ -59,7 +59,7 @@ function load_gmsc(n::Union{Nothing,Int}=5000)
 
     # Undersample:
     if !isnothing(n)
-        counterfactual_data = CounterfactualExplanations.Data.undersample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.undersample(counterfactual_data, n)
     end
 
     return counterfactual_data
