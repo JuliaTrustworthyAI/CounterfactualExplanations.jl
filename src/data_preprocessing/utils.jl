@@ -5,7 +5,7 @@ Helper function to randomly undersample `data::CounterfactualData`.
 """
 function undersample(data::CounterfactualData, n::Int)
 
-    X, y = unpack(data)
+    X, y = unpack_data(data)
     n_classes = length(unique(y))
     n_per_class = Int(round(n / n_classes))
     if n_classes > 2

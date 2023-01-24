@@ -7,7 +7,7 @@ using MLJBase
 Prepares counterfactual data for training in Flux.
 """
 function data_loader(data::CounterfactualData)
-    X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     xs = MLUtils.unstack(X, dims=2)
     output_dim = length(unique(y))
     if output_dim > 2
@@ -24,7 +24,7 @@ end
 Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set.
 """
 function model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
-    X, y = CounterfactualExplanations.DataPreprocessing.unpack(test_data)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(test_data)
     m = MulticlassFScore()
     binary = M.likelihood == :classification_binary
     if binary

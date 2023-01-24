@@ -28,7 +28,7 @@ function Plots.plot(
     kwargs...,
 )
 
-    X, _ = DataPreprocessing.unpack(data)
+    X, _ = DataPreprocessing.unpack_data(data)
     ŷ = Models.probs(M, X) # true predictions
     if size(ŷ, 1) > 1
         ŷ = vec(Flux.onecold(ŷ, 1:size(ŷ, 1)))

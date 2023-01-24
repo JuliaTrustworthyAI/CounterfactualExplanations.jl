@@ -105,7 +105,7 @@ end
 function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
 
     # Basic setup:
-    X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary

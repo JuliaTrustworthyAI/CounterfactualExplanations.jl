@@ -7,7 +7,6 @@
 # Adopted from Flux Model zoo: 
 # https://github.com/FluxML/model-zoo/blob/master/vision/vae_mnist/vae_mnist.jl
 
-using BSON
 using CUDA
 using Flux
 using Flux: @functor, chunk

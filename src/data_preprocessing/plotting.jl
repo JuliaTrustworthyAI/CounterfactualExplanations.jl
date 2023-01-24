@@ -24,7 +24,7 @@ function embed(data::CounterfactualData, X::AbstractArray = nothing; dim_red::Sy
 
     # Training compressor:
     if isnothing(data.compressor)
-        X_train, _ = unpack(data)
+        X_train, _ = unpack_data(data)
         if size(X_train, 1) < 3
             tfn = data.compressor
         else
@@ -54,7 +54,7 @@ end
 
 
 function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol = :pca)
-    X, y = unpack(data)
+    X, y = unpack_data(data)
     y = vec(y)
     @assert size(X, 1) != 1 "Don't know how to plot 1-dimensional data."
     multi_dim = size(X, 1) > 2

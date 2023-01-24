@@ -182,7 +182,7 @@ Constructs a multi-layer perceptron (MLP).
 function FluxModel(data::CounterfactualData; kwargs...)
 
     # Basic setup:
-    X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
@@ -205,7 +205,7 @@ end
 Constructs a model with one linear layer. If the output is binary, this corresponds to logistic regression, since model outputs are passed through the sigmoid function. If the output is multi-class, this corresponds to multinomial logistic regression, since model outputs are passed through the softmax function.
 """
 function Linear(data::CounterfactualData; kwargs...)
-    X, y = CounterfactualExplanations.DataPreprocessing.unpack(data)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
     output_dim = length(unique(y))
     output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary

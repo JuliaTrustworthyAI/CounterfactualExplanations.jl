@@ -257,11 +257,11 @@ Helper function that returns the input dimension (number of features) of the dat
 input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
 
 """
-    unpack(data::CounterfactualData)
+    unpack_data(data::CounterfactualData)
 
 Helper function that unpacks data.
 """
-function unpack(data::CounterfactualData)
+function unpack_data(data::CounterfactualData)
     return data.X, data.y
 end
 
