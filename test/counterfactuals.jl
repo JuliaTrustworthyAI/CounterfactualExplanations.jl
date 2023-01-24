@@ -30,12 +30,9 @@ for (key, generator_) ∈ generators
 
                 name = string(key)
                 @testset "$name" begin
-                    X, ys = (value[:data][:xs], value[:data][:ys])
-                    X = MLUtils.stack(X, dims = 2)
-                    ys_cold =
-                        length(ys[1]) > 1 ?
-                        [Flux.onecold(y_, 1:length(ys[1])) for y_ in ys] : ys
-                    counterfactual_data = CounterfactualData(X, ys')
+                    counterfactual_data = value[:data]
+                    X = counterfactual_data.X
+                    ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) ∈ value[:models]
                         name = string(likelihood)
@@ -43,18 +40,12 @@ for (key, generator_) ∈ generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = select_factual(counterfactual_data, rand(1:size(X)[2]))
+                            x = select_factual(counterfactual_data, rand(1:size(X,2)))
                             multiple_x =
-                                select_factual(counterfactual_data, rand(1:size(X)[2], 5))
-
-                            p_ = probs(M, x)
-                            if size(p_)[1] > 1
-                                y = Flux.onecold(p_, unique(ys_cold))
-                                target = rand(unique(ys_cold)[1:end.!=y]) # opposite label as target
-                            else
-                                y = round(p_[1])
-                                target = y == 0 ? 1 : 0
-                            end
+                                select_factual(counterfactual_data, rand(1:size(X,2), 5))
+                            # Choose target:
+                            y = predict_label(M, counterfactual_data, x)
+                            target = get_target(counterfactual_data, y[1])
                             # Single sample:
                             counterfactual = generate_counterfactual(
                                 x,
@@ -86,7 +77,7 @@ for (key, generator_) ∈ generators
                                 ) == y
                                 @test CounterfactualExplanations.factual_probability(
                                     counterfactual,
-                                ) == p_
+                                ) == probs(M, x)
                             end
 
                             @testset "Benchmark" begin
@@ -124,14 +115,9 @@ for (key, generator_) ∈ generators
                                 @testset "Trivial case (already in target class)" begin
                                     counterfactual_data.generative_model = nothing
                                     # Already in target and exceeding threshold probability:
-                                    p_ = probs(M, x)
-                                    if size(p_)[1] > 1
-                                        y = Flux.onecold(p_, unique(ys_cold))[1]
-                                        target = y
-                                    else
-                                        target = round(p_[1]) == 0 ? 0 : 1
-                                    end
-                                    generator.decision_threshold = 0.5
+                                    y = predict_label(M, counterfactual_data, x)
+                                    target = y[1]
+                                    generator.decision_threshold = minimum([1/length(counterfactual_data.y_levels), 0.5])
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,

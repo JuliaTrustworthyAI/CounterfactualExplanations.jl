@@ -30,6 +30,22 @@ lazy = true
     sha256 = "6f43a710595ecc6f287ba8230a5185202fd3a73a8fd30620db560ca4ef89f335"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
+[data-tabular]
+git-tree-sha1 = "a79dd553e972e54976b8c8700bbdf6e021b8ab1e"
+lazy = true
+
+    [[data-tabular.download]]
+    sha256 = "2f118285b571d89281c99af48c2a9e92368c06382b2761ead880bd3ae1db7338"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/data-tabular.tar.gz"
+
+[dev-artifacts-upload-data-tabular]
+git-tree-sha1 = "77bfb9490f7a615700899358177126a59b8b7529"
+lazy = true
+
+    [[dev-artifacts-upload-data-tabular.download]]
+    sha256 = "74a61e7032d4bdaf2e87f3cc0bad100ba933ba6d68e0356f2eee485b01ba6b44"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/dev-artifacts-upload-data-tabular.tar.gz"
+
 [mnist_data]
 git-tree-sha1 = "57053f5d58979856be84cac48992177fc01f6f73"
 lazy = true

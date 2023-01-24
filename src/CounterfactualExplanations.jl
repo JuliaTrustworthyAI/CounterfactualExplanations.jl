@@ -7,6 +7,12 @@ export AbstractCounterfactualExplanation
 using Flux
 import Flux.Losses
 
+# Global constants:
+include("global_utils.jl")
+export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
+export OutputEncoder
+export get_target_index, encode_output
+
 ### Data 
 # 𝒟 = {(x,y)}ₙ
 ###
@@ -28,6 +34,7 @@ using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
 export probs, logits
+export model_catalogue, fit_model, model_evaluation, predict_label
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )

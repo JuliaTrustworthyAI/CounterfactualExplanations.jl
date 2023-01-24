@@ -24,7 +24,7 @@ function embed(data::CounterfactualData, X::AbstractArray = nothing; dim_red::Sy
 
     # Training compressor:
     if isnothing(data.compressor)
-        X_train, _ = unpack(data)
+        X_train, _ = unpack_data(data)
         if size(X_train, 1) < 3
             tfn = data.compressor
         else
@@ -54,7 +54,7 @@ end
 
 
 function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol = :pca)
-    X, y = unpack(data)
+    X, y = unpack_data(data)
     y = vec(y)
     @assert size(X, 1) != 1 "Don't know how to plot 1-dimensional data."
     multi_dim = size(X, 1) > 2
@@ -67,6 +67,8 @@ end
 function Plots.scatter!(data::CounterfactualData; dim_red::Symbol = :pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red = dim_red)
     y = MLJBase.categorical(y)
+    y_levels = levels(y)
+    recode!(y, [Pair(old,new) for (old,new) in zip(y_levels,data.y_levels)]...)
     _c = Int.(y.refs)
     Plots.scatter!(X[:, 1], X[:, 2], group = y, colour = _c; kwargs...)
 end

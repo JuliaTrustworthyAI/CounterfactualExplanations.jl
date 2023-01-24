@@ -1,17 +1,16 @@
 using MLUtils
 
 # Setup
-M = synthetic[:classification_binary][:models][:flux][:model]
+M = synthetic[:classification_binary][:models][:MLP][:model]
+counterfactual_data = synthetic[:classification_binary][:data]
+X = counterfactual_data.X
+ys = counterfactual_data.y
 generator = generator_catalog[:revise]()
-xs, ys = (synthetic[:classification_binary][:data][:xs], synthetic[:classification_binary][:data][:ys])
-X = MLUtils.stack(xs, dims = 2)
-counterfactual_data = CounterfactualData(X, ys')
 
 # Coutnerfactual search
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))
-p_ = probs(M, x)
-y = round(p_[1])
-target = y == 0 ? 1 : 0
+y = predict_label(M, counterfactual_data, x)
+target = get_target(counterfactual_data, y[1])
 counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 using CounterfactualExplanations.GenerativeModels: retrain!

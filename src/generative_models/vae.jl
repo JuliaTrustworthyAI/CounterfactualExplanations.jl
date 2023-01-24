@@ -7,11 +7,9 @@
 # Adopted from Flux Model zoo: 
 # https://github.com/FluxML/model-zoo/blob/master/vision/vae_mnist/vae_mnist.jl
 
-using BSON
 using CUDA
 using Flux
-using Flux: @functor, chunk
-using Flux.Data: DataLoader
+using Flux: @functor, chunk, DataLoader
 using Flux.Losses: logitbinarycrossentropy, mse
 using Parameters: @with_kw
 using Random

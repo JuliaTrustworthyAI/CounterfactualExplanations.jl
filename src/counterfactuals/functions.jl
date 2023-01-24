@@ -9,8 +9,9 @@ A struct that collects all information relevant to a specific counterfactual exp
 """
 mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
-    target::Number
-    target_encoded::Union{Number,AbstractArray,Nothing}
+    target::RawTargetType
+    target_encoded::EncodedTargetType
+    target_encoded_loss::Union{Number,AbstractArray,Nothing}
     s′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
@@ -27,7 +28,7 @@ end
     function CounterfactualExplanation(
         ;
         x::AbstractArray, 
-        target::Union{AbstractFloat,Int}, 
+        target::RawTargetType, 
         data::CounterfactualData,  
         M::Models.AbstractFittedModel,
         generator::Generators.AbstractGenerator,
@@ -42,7 +43,7 @@ Outer method to construct a `CounterfactualExplanation` structure.
 """
 function CounterfactualExplanation(;
     x::AbstractArray,
-    target::Union{AbstractFloat,Int},
+    target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
@@ -56,6 +57,10 @@ function CounterfactualExplanation(;
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
 
+    # Target:
+    target_encoded = data.output_encoder(target)
+    target_encoded_loss = nothing
+
     # Initial Parameters:
     params = Dict(
         :γ =>
@@ -64,7 +69,7 @@ function CounterfactualExplanation(;
         :mutability => DataPreprocessing.mutability_constraints(data),
         :initial_mutability => DataPreprocessing.mutability_constraints(data),
     )
-    ids = getindex.(findall(data.y .== target), 2)
+    ids = getindex.(findall(data.y .== target_encoded), 2)
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
@@ -73,7 +78,8 @@ function CounterfactualExplanation(;
     counterfactual_explanation = CounterfactualExplanation(
         x,
         target,
-        nothing,
+        target_encoded,
+        target_encoded_loss,
         x,
         data,
         M,
@@ -91,7 +97,7 @@ function CounterfactualExplanation(;
     counterfactual_explanation.latent_space = wants_latent_space(counterfactual_explanation)
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
-    counterfactual_explanation.target_encoded = encode_target(counterfactual_explanation)       # encode the target variable
+    counterfactual_explanation.target_encoded_loss = _encode_target_for_loss(counterfactual_explanation)       # encode the target variable
 
     # Initialize search:
     counterfactual_explanation.search = Dict(
@@ -361,16 +367,16 @@ function reconstruct_cat_encoding(
 end
 
 """
-    encode_target(counterfactual_explanation::CounterfactualExplanation) 
+    _encode_target_for_loss(counterfactual_explanation::CounterfactualExplanation) 
 
 A convenience method to encode the target variable, if necessary.
 """
-function encode_target(
+function _encode_target_for_loss(
     counterfactual_explanation::CounterfactualExplanation,
     x::Union{AbstractArray,Nothing} = nothing,
 )
     out_dim = output_dim(counterfactual_explanation)
-    target = isnothing(x) ? deepcopy(counterfactual_explanation.target) : x
+    target = isnothing(x) ? deepcopy(counterfactual_explanation.target_encoded) : x
     target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
     target = repeat(target, outer = [1, 1, counterfactual_explanation.num_counterfactuals])
     return target
@@ -432,9 +438,9 @@ factual_probability(counterfactual_explanation::CounterfactualExplanation) =
 A convenience method to get the predicted label associated with the factual value.
 """
 function factual_label(counterfactual_explanation::CounterfactualExplanation)
-    p = factual_probability(counterfactual_explanation)
-    out_dim = size(p)[1]
-    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p, 1:out_dim)
+    M = counterfactual_explanation.M
+    counterfactual_data = counterfactual_explanation.data
+    y = predict_label(M, counterfactual_data, factual(counterfactual_explanation))
     return y
 end
 
@@ -490,7 +496,7 @@ function target_probs(
     p =
         !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) :
         counterfactual_probability(counterfactual_explanation)
-    target = counterfactual_explanation.target
+    target = counterfactual_explanation.target_encoded
 
     if size(p, 1) == 1
         h(x) = ifelse(x == -1, 0, x)

@@ -15,7 +15,7 @@ end
 function Plots.plot(
     M::AbstractFittedModel,
     data::DataPreprocessing.CounterfactualData;
-    target::Union{Nothing,Real} = nothing,
+    target::Union{Nothing,RawTargetType} = nothing,
     colorbar = true,
     title = "",
     length_out = 50,
@@ -28,7 +28,7 @@ function Plots.plot(
     kwargs...,
 )
 
-    X, _ = DataPreprocessing.unpack(data)
+    X, _ = DataPreprocessing.unpack_data(data)
     ŷ = Models.probs(M, X) # true predictions
     if size(ŷ, 1) > 1
         ŷ = vec(Flux.onecold(ŷ, 1:size(ŷ, 1)))
@@ -73,22 +73,21 @@ function Plots.plot(
         Z = [predict_([x, y]) for x in x_range, y in y_range]
     end
 
+    # Pre-processes:
     Z = reduce(hcat, Z)
-
     if isnothing(target)
-        @info "No target label supplied, using first."
-        target = 1
+        target = data.y_levels[1]
+        if size(Z,1) > 2
+            @info "No target label supplied, using first."
+        end
     end
-
-    if !multi_dim
-        target += 1
-    end
+    target_idx = get_target_index(data.y_levels, target)
 
     # Contour:
     contourf(
         x_range,
         y_range,
-        Z[Int(target), :];
+        Z[Int(target_idx), :];
         colorbar = colorbar,
         title = title,
         linewidth = linewidth,

@@ -1,11 +1,14 @@
+using CategoricalArrays
+using CounterfactualExplanations
 using Flux
 using MultivariateStats
 using StatsBase
+using Tables
 using UMAP
 
 mutable struct CounterfactualData
     X::AbstractMatrix
-    y::AbstractMatrix
+    y::EncodedOutputArrayType
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -14,6 +17,8 @@ mutable struct CounterfactualData
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
+    y_levels::AbstractVector
+    output_encoder::OutputEncoder
     function CounterfactualData(
         X,
         y,
@@ -25,7 +30,11 @@ mutable struct CounterfactualData
         dt,
         compressor,
         generative_model,
+        y_levels,
+        output_encoder
     )
+
+        # Conditions:
         conditions = []
         conditions = vcat(
             conditions...,
@@ -36,10 +45,11 @@ mutable struct CounterfactualData
             size(X)[2] != size(y)[2] ?
             throw(
                 DimensionMismatch(
-                    "Number of output observations is $(size(y)[2]). Expected: $(size(X)[2])",
+                    "Number of output observations is $(size(y)[2]). Expected it to match the number of input observations: $(size(X)[2]).",
                 ),
             ) : true,
         )
+
         if all(conditions)
             new(
                 X,
@@ -52,6 +62,8 @@ mutable struct CounterfactualData
                 dt,
                 compressor,
                 generative_model,
+                y_levels,
+                output_encoder
             )
         end
     end
@@ -81,14 +93,20 @@ counterfactual_data = CounterfactualData(X,y')
 """
 function CounterfactualData(
     X::AbstractMatrix,
-    y::AbstractMatrix;
-    mutability::Union{Vector{Symbol},Nothing} = nothing,
-    domain::Union{Any,Nothing} = nothing,
-    features_categorical::Union{Vector{Vector{Int}},Nothing} = nothing,
-    features_continuous::Union{Vector{Int},Nothing} = nothing,
-    standardize::Bool = false,
-    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
+    y::RawOutputArrayType;
+    mutability::Union{Vector{Symbol},Nothing}=nothing,
+    domain::Union{Any,Nothing}=nothing,
+    features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
+    features_continuous::Union{Vector{Int},Nothing}=nothing,
+    standardize::Bool=false,
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
 )
+
+    # Output variable:
+    y_raw = deepcopy(y)
+    y_levels = levels(y)
+    output_encoder = OutputEncoder(y_raw)
+    y = output_encoder()
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
@@ -104,7 +122,7 @@ function CounterfactualData(
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     # Data transformations:
-    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims = 2)        # standardization
+    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims=2)        # standardization
 
     counterfactual_data = CounterfactualData(
         X,
@@ -117,9 +135,39 @@ function CounterfactualData(
         dt,
         compressor,
         generative_model,
+        y_levels,
+        output_encoder
     )
 
     return counterfactual_data
+end
+
+"""
+    function CounterfactualData(
+        X::Tables.MatrixTable,
+        y::RawOutputArrayType;
+        kwrgs...
+    )
+    
+Outer constructor method that accepts a `Tables.MatrixTable`. By default, the indices of categorical and continuous features are automatically inferred the features' `scitype`.
+
+"""
+function CounterfactualData(
+    X::Tables.MatrixTable,
+    y::RawOutputArrayType;
+    kwrgs...
+)
+
+    features_categorical = findall([scitype(x) <: AbstractVector{<:Finite} for x in X])
+    features_categorical = length(features_categorical) == 0 ? nothing : features_categorical
+    features_continuous = findall([scitype(x) <: AbstractVector{<:Continuous} for x in X])
+    features_continuous = length(features_continuous) == 0 ? nothing : features_continuous
+    X = permutedims(MLJBase.matrix(X))
+
+    counterfactual_data = CounterfactualData(X, y; kwrgs...)
+
+    return counterfactual_data
+
 end
 
 """
@@ -140,7 +188,7 @@ select_factual(
 Reconstruct the categorical encoding for a single instance. 
 """
 function reconstruct_cat_encoding(
-    counterfactual_data::CounterfactualData, 
+    counterfactual_data::CounterfactualData,
     x::AbstractArray,
 )
 
@@ -149,7 +197,7 @@ function reconstruct_cat_encoding(
     if isnothing(features_categorical)
         return x
     end
-    
+
     x = vec(x)
     map(features_categorical) do cat_group_index
         if length(cat_group_index) > 1
@@ -157,12 +205,12 @@ function reconstruct_cat_encoding(
             if sum(x[cat_group_index]) > 1
                 ties = findall(x[cat_group_index] .== 1)
                 _x = zeros(length(x[cat_group_index]))
-                winner = rand(ties,1)[1]
+                winner = rand(ties, 1)[1]
                 _x[winner] = 1
                 x[cat_group_index] = _x
             end
         else
-            x[cat_group_index] = [round(clamp(x[cat_group_index][1],0,1))]
+            x[cat_group_index] = [round(clamp(x[cat_group_index][1], 0, 1))]
         end
     end
 
@@ -209,11 +257,11 @@ Helper function that returns the input dimension (number of features) of the dat
 input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
 
 """
-    unpack(data::CounterfactualData)
+    unpack_data(data::CounterfactualData)
 
 Helper function that unpacks data.
 """
-function unpack(data::CounterfactualData)
+function unpack_data(data::CounterfactualData)
     return data.X, data.y
 end
 

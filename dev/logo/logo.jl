@@ -3,6 +3,8 @@ Pkg.activate("dev");
 
 using Colors
 using CounterfactualExplanations
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Models
 using Flux
 using Luxor
 using MLJBase
@@ -18,31 +20,10 @@ const julia_colors = Dict(
 
 function get_data(N=500; center_box=(-5 => 5), cluster_std=0.5)
 
-    # Data:
-    x, y = make_blobs(N, 2; centers=2, as_table=false, center_box=center_box, cluster_std=cluster_std)
-    y .= y .== 2
-    x = permutedims(x)
-    xs = Flux.unstack(x, 2)
-    data = zip(xs, y)
-    counterfactual_data = CounterfactualData(x, permutedims(y))
+    counterfactual_data = load_linearly_separable(N)
+    M = fit_model(counterfactual_data, :Linear)
 
-    # Model:
-    nn = Chain(Dense(2, 1))
-    opt = Adam()
-    epochs = 100
-    loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-    avg_loss(data) = mean(map(d -> loss(d[1], d[2]), data))
-    for epoch = 1:epochs
-        for d in data
-            gs = gradient(Flux.params(nn)) do
-                l = loss(d...)
-            end
-            Flux.update!(opt, Flux.params(nn), gs)
-        end
-    end
-    M = FluxModel(nn)
-
-    return x, y, counterfactual_data, M
+    return counterfactual_data, M
 end
 
 function logo_picture(;
@@ -69,25 +50,25 @@ function logo_picture(;
     Random.seed!(seed)
 
     # Data
-    x, y, counterfactual_data, M = get_data()
-    factual = select_factual(counterfactual_data, rand(1:size(x)[2]))
-    factual_label = round(probs(M, factual)[1])
-    target = ifelse(factual_label == 1.0, 0.0, 1.0) # opposite label as target
+    counterfactual_data, M = get_data()
+    factual = select_factual(counterfactual_data, rand(1:size(counterfactual_data.X,2)))
+    factual_label = predict_label(M, counterfactual_data, factual)[1]
+    target = ifelse(factual_label == 1.0, 2.0, 1.0) # opposite label as target
 
     # Counterfactual:
     generator = GenericGenerator()
     ce = generate_counterfactual(factual, target, counterfactual_data, M, generator)
 
-    _scale = (frame_size / (2 * maximum(x))) * (1 - margin)
+    _scale = (frame_size / (2 * maximum(counterfactual_data.X))) * (1 - margin)
 
     # Decision Boundary:
     setline(gt_stroke_size)
     sethue(gt_color)
     w = collect(Flux.params(M.model))[1]
-    b = collect(Flux.params(M.model))[2][1]
-    a = -w[2]/w[1]
-    _ymin =  _scale .* (b + a * (-xmax))
-    _ymax =  _scale .* (b + a * (xmax))
+    b = 0
+    a = -w[1] / w[2]
+    _ymin = _scale .* (b + a * (-xmax))
+    _ymax = _scale .* (b + a * (xmax))
     pmin = Point(_scale * (-xmax), _ymin)
     pmax = Point(_scale * xmax, _ymax)
     # line(pmin, pmax, action=:stroke)
@@ -103,24 +84,24 @@ function logo_picture(;
 
 end
 
-function draw_small_logo(filename = "docs/src/assets/logo.svg"; width = 500)
+function draw_small_logo(filename="docs/src/assets/logo.svg"; width=500)
     frame_size = width
     Drawing(frame_size, frame_size, filename)
     origin()
-    logo_picture(frame_size = frame_size)
+    logo_picture(frame_size=frame_size)
     finish()
     preview()
 end
 
 function draw_wide_logo_new(
-    filename = "docs/src/assets/wide_logo.png";
-    _pkg_name = "Conformal Prediction",
-    font_size = 150,
-    font_family = "Tamil MN",
-    font_fill = "transparent",
-    font_color = Luxor.julia_blue,
-    bg_color = "transparent",
-    picture_kwargs...,
+    filename="docs/src/assets/wide_logo.png";
+    _pkg_name="Conformal Prediction",
+    font_size=150,
+    font_family="Tamil MN",
+    font_fill="transparent",
+    font_color=Luxor.julia_blue,
+    bg_color="transparent",
+    picture_kwargs...
 )
 
     # Setup:
@@ -143,10 +124,10 @@ function draw_wide_logo_new(
     @layer begin
         translate(cells[1])
         logo_picture(
-            frame_size = height,
-            margin = 0.1,
-            ms = ms,
-            gt_stroke_size = gt_stroke_size,
+            frame_size=height,
+            margin=0.1,
+            ms=ms,
+            gt_stroke_size=gt_stroke_size,
             picture_kwargs...,
         )
     end
@@ -162,7 +143,7 @@ function draw_wide_logo_new(
                 translate(pos)
                 setline(Int(round(gt_stroke_size / 5)))
                 sethue(font_fill)
-                textoutlines(strs[n], O, :path, valign = :middle, halign = :center)
+                textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
                 sethue(font_color)
                 strokepath()
             end

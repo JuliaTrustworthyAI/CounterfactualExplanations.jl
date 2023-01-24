@@ -2,27 +2,14 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Data
 import CounterfactualExplanations.DataPreprocessing
 
-@testset "Construction" begin
-    xs, ys = Data.toy_data_linear()
-    X = hcat(xs...)
-
-    # Default case passes:
-    @test typeof(CounterfactualData(X, ys')) == CounterfactualData
-
-    # X not tabular:
-    @test_throws MethodError CounterfactualData(xs, ys)
-
-    # Dimension mismatch:
-    @test_throws DimensionMismatch typeof(CounterfactualData(X[:, 2:end], ys'))
-end
-
 @testset "Convenience functions" begin
-    xs, ys = Data.toy_data_linear()
-    X = hcat(xs...)
-    counterfactual_data = CounterfactualData(X, ys')
+
+    counterfactual_data = load_overlapping()
+    X = counterfactual_data.X
+    y = counterfactual_data.y
 
     # Select factual:
-    idx = rand(1:length(xs))
+    idx = rand(1:size(X,2))
     @test select_factual(counterfactual_data, idx) == counterfactual_data.X[:, idx][:, :]
 
     # Mutability:
@@ -36,7 +23,7 @@ end
     x = randn(2)
     @test apply_domain_constraints(counterfactual_data, x) == x
 
-    counterfactual_data = CounterfactualData(X, ys'; domain = (0, 0))
+    counterfactual_data = CounterfactualData(X, y; domain = (0, 0))
     @test unique(apply_domain_constraints(counterfactual_data, x))[1] == 0
 
 end
