@@ -12,7 +12,7 @@ function data_loader(data::CounterfactualData)
     output_dim = length(unique(y))
     if output_dim > 2
         y = Flux.onehotbatch(y, sort(unique(y)))
-        y = Flux.unstack(y; dims = 3)
+        y = Flux.unstack(y; dims=3)
     end
     data = zip(xs, y)
     return data
@@ -37,4 +37,24 @@ function model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
     fscore = m(ŷ, vec(y))
 
     return fscore
+end
+
+"""
+    predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray)
+
+Returns the predicted output label for a given model `M`, data set `counterfactual_data` and input data `X`.
+"""
+function predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray)
+    p = probs(M, X)
+    y_levels = counterfactual_data.y_levels
+    binary = M.likelihood == :classification_binary
+    n_levels = length(y_levels)
+    if binary
+        idx = Int.(round.(p) .+ 1)
+        y = y_levels[idx]
+    else
+        idx = Flux.onecold(p, 1:n_levels)
+        y = y_levels[idx]
+    end
+    return y
 end

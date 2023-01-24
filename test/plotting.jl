@@ -14,9 +14,8 @@ generator = generator_catalog[:generic]()
     # Counterfactual:
     X = counterfactual_data.X
     x = select_factual(counterfactual_data, rand(1:size(X, 2)))
-    p_ = probs(M, x)
-    y = round(p_[1])
-    target = y == 0 ? 1 : 0
+    y = predict_label(M, counterfactual_data, x)
+    target = get_target(counterfactual_data, y[1])
     counterfactual_explanation = generate_counterfactual(x, target, counterfactual_data, M, generator)
     plt = plot(counterfactual_explanation)
     anim = animate_path(counterfactual_explanation)

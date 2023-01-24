@@ -8,7 +8,7 @@ using UMAP
 
 mutable struct CounterfactualData
     X::AbstractMatrix
-    y::OutputArrayType
+    y::EncodedOutputArrayType
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -18,6 +18,7 @@ mutable struct CounterfactualData
     compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     y_levels::AbstractVector
+    y_raw::RawOutputArrayType
     function CounterfactualData(
         X,
         y,
@@ -29,21 +30,9 @@ mutable struct CounterfactualData
         dt,
         compressor,
         generative_model,
+        y_levels,
+        y_raw
     )
-
-        # Output variable:
-        y_levels = levels(y)
-        if typeof(y) <: CategoricalArray 
-            y_cat = y
-            y = permutedims(Int.(y_cat.refs))
-            if length(levels(y_cat)) == 2 
-                # Binary case:
-                y = y .- 1
-            end
-            y_levels = levels(y_cat)
-        elseif typeof(y) <: AbstractVector
-            y = permutedims(y)
-        end
 
         # Conditions:
         conditions = []
@@ -73,7 +62,8 @@ mutable struct CounterfactualData
                 dt,
                 compressor,
                 generative_model,
-                y_levels
+                y_levels,
+                y_raw
             )
         end
     end
@@ -103,7 +93,7 @@ counterfactual_data = CounterfactualData(X,y')
 """
 function CounterfactualData(
     X::AbstractMatrix,
-    y::OutputArrayType;
+    y::RawOutputArrayType;
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
@@ -112,7 +102,9 @@ function CounterfactualData(
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
 )
 
-    
+    # Output variable:
+    y_raw = deepcopy(y)
+    y, y_levels = encode_output(y)
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
@@ -141,6 +133,8 @@ function CounterfactualData(
         dt,
         compressor,
         generative_model,
+        y_levels,
+        y_raw
     )
 
     return counterfactual_data
@@ -149,7 +143,7 @@ end
 """
     function CounterfactualData(
         X::Tables.MatrixTable,
-        y::OutputArrayType;
+        y::RawOutputArrayType;
         kwrgs...
     )
     
@@ -158,7 +152,7 @@ Outer constructor method that accepts a `Tables.MatrixTable`. By default, the in
 """
 function CounterfactualData(
     X::Tables.MatrixTable,
-    y::OutputArrayType;
+    y::RawOutputArrayType;
     kwrgs...
 )
 

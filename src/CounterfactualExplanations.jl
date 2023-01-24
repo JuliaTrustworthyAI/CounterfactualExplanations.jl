@@ -9,7 +9,7 @@ import Flux.Losses
 
 # Global constants:
 include("global_utils.jl")
-export TargetType, OutputArrayType      # constants
+export TargetType, RawOutputArrayType      # constants
 export get_target_index                 # utilities
 
 ### Data 
@@ -33,6 +33,7 @@ using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
 export probs, logits
+export model_catalogue, fit_model, model_evaluation, predict_label
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )

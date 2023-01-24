@@ -57,6 +57,6 @@ function fit_model(
     return M
 end
 
-export model_catalogue, fit_model, model_evaluation
+export model_catalogue, fit_model, model_evaluation, predict_label
 
 end

@@ -25,3 +25,8 @@ function _load_synthetic()
     end
     return synthetic
 end
+
+function get_target(counterfactual_data::CounterfactualData, factual_label::TargetType)
+    target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual_label])
+    return target
+end
