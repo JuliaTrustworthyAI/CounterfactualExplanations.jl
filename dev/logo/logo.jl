@@ -11,7 +11,7 @@ using MLJBase
 using StatsBase: sample
 using Random
 
-const julia_colors = Dict(
+julia_colors = Dict(
     :blue => Luxor.julia_blue,
     :red => Luxor.julia_red,
     :green => Luxor.julia_green,
@@ -29,9 +29,9 @@ end
 function logo_picture(;
     ndots=20,
     frame_size=500,
-    ms=frame_size // 10,
+    ms=frame_size // 30,
     mcolor=(:red, :green, :purple),
-    margin=0.1,
+    margin=0.5,
     fun=f(x) = x * cos(x),
     xmax=2.5,
     noise=0.5,
@@ -59,36 +59,42 @@ function logo_picture(;
     target = ifelse(factual_label == 1.0, 2.0, 1.0) # opposite label as target
 
     # Counterfactual:
-    generator = GenericGenerator()
+    generator = GenericGenerator(opt=Flux.Descent(0.01))
     ce = generate_counterfactual(factual, target, counterfactual_data, M, generator)
 
     # Dots:
     idx = sample(1:size(X,2), ndots, replace=false)
     xplot, yplot = (x[idx], y[idx])
-    _scale = (frame_size / (5 * maximum(counterfactual_data.X))) * (1 - margin)
+    _scale = (frame_size / (2 * maximum(abs.(counterfactual_data.X)))) * (1 - margin)
 
     # Decision Boundary:
     setline(gt_stroke_size)
     sethue(gt_color)
     w = collect(Flux.params(M.model))[1]
     a = -w[1] / w[2]
-    rule(Point(0, 0), atan(a))
-
-    # _ymin = _scale .* (b + a * (-xmax))
-    # _ymax = _scale .* (b + a * (xmax))
-    # pmin = Point(_scale * (-xmax), _ymin)
-    # pmax = Point(_scale * xmax, _ymax)
-    # line(pmin, pmax, action=:stroke)
+    b = collect(Flux.params(M.model))[2][1]
+    rule(Point(0, b), atan(a))
 
     # Data
     data_plot = zip(xplot, yplot)
     for i = 1:length(data_plot)
         _point = collect(data_plot)[i]
         _lab = predict_label(M, counterfactual_data, [_point[1], _point[2]])
-        print(_lab)
-        color_idx = get_target_index(counterfactual_data.y_levels, _lab)
+        color_idx = get_target_index(counterfactual_data.y_levels, _lab[1])
         _x, _y = _scale .* _point
-        sethue(mcolor[color_idx]...)
+        setcolor(sethue(mcolor[color_idx]...)..., interval_alpha)
+        circle(Point(_x, _y), ms, action=:fill)
+    end
+
+    # Counterfactual path:
+    ce_path = CounterfactualExplanations.path(ce)
+    lab_path = CounterfactualExplanations.counterfactual_label_path(ce)
+    lab_path = Int.(categorical(vec(reduce(vcat,lab_path)[:,:,1])).refs)
+    for i in eachindex(ce_path)
+        _point =  (ce_path[i][1,:,1][1], ce_path[i][2,:,1][1])
+        color_idx = lab_path[i]
+        _x, _y = _scale .* _point
+        setcolor(sethue(mcolor[color_idx]...)..., interval_alpha)
         circle(Point(_x, _y), ms, action=:fill)
     end
 
