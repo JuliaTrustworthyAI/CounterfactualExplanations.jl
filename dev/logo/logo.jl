@@ -53,25 +53,25 @@ function logo_picture(;
     counterfactual_data, M = get_data()
     factual = select_factual(counterfactual_data, rand(1:size(counterfactual_data.X,2)))
     factual_label = predict_label(M, counterfactual_data, factual)[1]
-    target = ifelse(factual_label == 1.0, 0.0, 1.0) # opposite label as target
+    target = ifelse(factual_label == 1.0, 2.0, 1.0) # opposite label as target
 
     # Counterfactual:
     generator = GenericGenerator()
     ce = generate_counterfactual(factual, target, counterfactual_data, M, generator)
 
-    _scale = (frame_size / (2 * maximum(x))) * (1 - margin)
+    _scale = (frame_size / (2 * maximum(counterfactual_data.X))) * (1 - margin)
 
     # Decision Boundary:
     setline(gt_stroke_size)
     sethue(gt_color)
     w = collect(Flux.params(M.model))[1]
-    b = collect(Flux.params(M.model))[2][1]
-    a = -w[2] / w[1]
+    b = 0
+    a = -w[1] / w[2]
     _ymin = _scale .* (b + a * (-xmax))
     _ymax = _scale .* (b + a * (xmax))
     pmin = Point(_scale * (-xmax), _ymin)
     pmax = Point(_scale * xmax, _ymax)
-    line(pmin, pmax, action=:stroke)
+    # line(pmin, pmax, action=:stroke)
 
     # Data
     # data_plot = zip(xplot, yplot)
