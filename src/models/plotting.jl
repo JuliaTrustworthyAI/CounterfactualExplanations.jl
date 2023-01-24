@@ -73,22 +73,21 @@ function Plots.plot(
         Z = [predict_([x, y]) for x in x_range, y in y_range]
     end
 
+    # Pre-processes:
     Z = reduce(hcat, Z)
-
     if isnothing(target)
+        target = data.y_levels[1]
         if size(Z,1) > 2
             @info "No target label supplied, using first."
-            target = 1
-        else
-            target = 2      # assuming binary case [0,1], choose 1 as target
         end
     end
+    target_idx = get_target_index(data.y_levels, target)
 
     # Contour:
     contourf(
         x_range,
         y_range,
-        Z[Int(target), :];
+        Z[Int(target_idx), :];
         colorbar = colorbar,
         title = title,
         linewidth = linewidth,

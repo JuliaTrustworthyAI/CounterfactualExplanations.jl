@@ -438,9 +438,9 @@ factual_probability(counterfactual_explanation::CounterfactualExplanation) =
 A convenience method to get the predicted label associated with the factual value.
 """
 function factual_label(counterfactual_explanation::CounterfactualExplanation)
-    p = factual_probability(counterfactual_explanation)
-    out_dim = size(p)[1]
-    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p, 1:out_dim)
+    M = counterfactual_explanation.M
+    counterfactual_data = counterfactual_explanation.data
+    y = predict_label(M, counterfactual_data, factual(counterfactual_explanation))
     return y
 end
 

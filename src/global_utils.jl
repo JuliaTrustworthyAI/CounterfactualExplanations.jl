@@ -29,10 +29,20 @@ Type of encoded output array.
 """
 const EncodedOutputArrayType = AbstractMatrix
 
+"""
+    OutputEncoder
+
+The `OutputEncoder` takes a raw output array (`y`) and encodes it.
+"""
 struct OutputEncoder
     y::RawOutputArrayType
 end
 
+"""
+    (encoder::OutputEncoder)(ynew::Union{Nothing,RawTargetType}=nothing)
+
+The `OutputEncoder` can be called on `nothing` or a single element `ynew::RawTargetType`. In the first case, the encoding is applied the the yaw output array (`y`). In the second case, the encoding is applied to `ynew`.
+"""
 function (encoder::OutputEncoder)(ynew::Union{Nothing,RawTargetType}=nothing)
 
     # Setup:

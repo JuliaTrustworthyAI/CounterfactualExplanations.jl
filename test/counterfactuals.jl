@@ -43,15 +43,9 @@ for (key, generator_) ∈ generators
                             x = select_factual(counterfactual_data, rand(1:size(X,2)))
                             multiple_x =
                                 select_factual(counterfactual_data, rand(1:size(X,2), 5))
-
-                            p_ = probs(M, x)
-                            if size(p_)[1] > 1
-                                y = Flux.onecold(p_, sort(unique(ys_cold)))
-                                target = rand(unique(ys_cold)[1:end.!=y]) # opposite label as target
-                            else
-                                y = round(p_[1])
-                                target = y == 0 ? 1 : 0
-                            end
+                            # Choose target:
+                            y = predict_label(M, counterfactual_data, x)
+                            target = get_target(counterfactual_data, y[1])
                             # Single sample:
                             counterfactual = generate_counterfactual(
                                 x,
@@ -83,7 +77,7 @@ for (key, generator_) ∈ generators
                                 ) == y
                                 @test CounterfactualExplanations.factual_probability(
                                     counterfactual,
-                                ) == p_
+                                ) == probs(M, x)
                             end
 
                             @testset "Benchmark" begin
@@ -121,15 +115,9 @@ for (key, generator_) ∈ generators
                                 @testset "Trivial case (already in target class)" begin
                                     counterfactual_data.generative_model = nothing
                                     # Already in target and exceeding threshold probability:
-                                    p_ = probs(M, x)
-                                    n_classes = size(p_)[1]
-                                    if n_classes > 1
-                                        y = Flux.onecold(p_, sort(unique(ys_cold)))[1]
-                                        target = y
-                                    else
-                                        target = round(p_[1]) == 0 ? 0 : 1
-                                    end
-                                    generator.decision_threshold = minimum([1/n_classes, 0.5])
+                                    y = predict_label(M, counterfactual_data, x)
+                                    target = y[1]
+                                    generator.decision_threshold = minimum([1/length(counterfactual_data.y_levels), 0.5])
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,

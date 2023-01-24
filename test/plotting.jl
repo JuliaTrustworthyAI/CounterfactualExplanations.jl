@@ -3,6 +3,8 @@ using Plots
 
 generator = generator_catalog[:generic]()
 
+
+
 @testset "Two-dimensional" begin
 
     M = synthetic[:classification_binary][:models][:MLP][:model]

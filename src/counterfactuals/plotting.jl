@@ -128,7 +128,7 @@ function set_up_plots(
     p1 = Models.plot(
         counterfactual_explanation.M,
         counterfactual_explanation.data;
-        target = counterfactual_explanation.target_encoded,
+        target = counterfactual_explanation.target,
         alpha = alpha,
         kwargs...,
     )
