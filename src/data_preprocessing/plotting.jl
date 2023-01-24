@@ -69,7 +69,6 @@ function Plots.scatter!(data::CounterfactualData; dim_red::Symbol = :pca, kwargs
     y = MLJBase.categorical(y)
     y_levels = levels(y)
     recode!(y, [Pair(old,new) for (old,new) in zip(y_levels,data.y_levels)]...)
-    println(y)
     _c = Int.(y.refs)
     Plots.scatter!(X[:, 1], X[:, 2], group = y, colour = _c; kwargs...)
 end
