@@ -17,6 +17,7 @@ julia_colors = Dict(
     :green => Luxor.julia_green,
     :purple => Luxor.julia_purple,
 )
+bg_color = RGBA(julia_colors[:blue]..., 0.25)
 
 function get_data(N=500; seed=1234, centers=2, center_box=(-2 => 2), cluster_std=0.3)
 
@@ -34,18 +35,31 @@ function logo_picture(;
     margin=-0.1,
     db_color=julia_colors[:purple],
     db_stroke_size=frame_size // 50,
-    ce_color=julia_colors[:purple],
+    switch_ce_color=true,
     m_alpha=0.2,
     seed=2022,
     cluster_std=0.3,
     γ=0.9,
-    η=0.02
+    η=0.02,
+    bg = true,
+    bg_color = bg_color, 
+    clip_frame=circle(O, frame_size // 2, :clip),
+    clip_border=false,
+    border_color=julia_colors[:blue],
+    border_stroke_size=db_stroke_size // 2,
+    n_steps = nothing,
 )
 
     # Setup
     n_mcolor = length(mcolor)
     mcolor = getindex.(Ref(julia_colors), mcolor)
     Random.seed!(seed)
+
+    # Background 
+    if bg
+        setcolor(bg_color)
+        box(Point(0, 0), frame_size, frame_size, action = :fill)
+    end
 
     # Data
     counterfactual_data, M = get_data(seed=seed, cluster_std=cluster_std)
@@ -61,7 +75,8 @@ function logo_picture(;
         opt=Flux.Descent(η),
         decision_threshold=γ
     )
-    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator)
+    T = isnothing(n_steps) ? 100 : n_steps
+    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; T=T)
 
     # Dots:
     idx = sample(1:size(X, 2), ndots, replace=false)
@@ -70,7 +85,7 @@ function logo_picture(;
 
     # Decision Boundary:
     setline(db_stroke_size)
-    sethue(db_color)
+    setcolor(sethue(db_color)..., 1.0)
     w = collect(Flux.params(M.model))[1]
     a = -w[1] / w[2]
     _bias = collect(Flux.params(M.model))[2][1]
@@ -99,7 +114,7 @@ function logo_picture(;
         color_idx = lab_path[i]
         _x, _y = _scale .* _point
         _alpha = m_alpha + ((1 - m_alpha) * (i / length(ce_path)))
-        if i < length(ce_path)
+        if i < length(ce_path) || !switch_ce_color
             setcolor(sethue(ce_color)..., _alpha)
         else
             setcolor(sethue(mcolor[color_idx]...)..., _alpha)
@@ -108,16 +123,46 @@ function logo_picture(;
         circle(Point(_x, _y), _ms, action=:fill)
     end
 
+    # Frame:
+    clip_frame
+    if clip_border
+        sethue(border_color)
+        setline(border_stroke_size)
+        circle(O, frame_size // 2, :stroke)
+    end
+
 end
 
-function draw_small_logo(filename="docs/src/assets/logo.svg", width=500; kwrgs...)
+function draw_small_logo(filename="docs/src/assets/logo.svg", width=500; bg_color="transparent", kwrgs...)
     frame_size = width
     Drawing(frame_size, frame_size, filename)
-    background("white")
+    if !isnothing(bg_color)
+        background(bg_color)
+    end
     origin()
     logo_picture(; kwrgs...)
     finish()
     preview()
+end
+
+function animate_small_logo(filename="docs/src/assets/logo.gif", width=500; bg_color="transparent", kwrgs...)
+    frame_size = width
+    anim = Movie(frame_size, frame_size, "logo", 1:10)
+    function backdrop(scene, framenumber)
+        background(bg_color)
+    end
+    function frame(scene, framenumber)
+        logo_picture(; kwrgs..., m_alpha=1.0, switch_ce_color=false, bg_color=julia_colors[:blue], n_steps=framenumber)
+    end
+    animate(
+        anim, 
+        [
+            Scene(anim, backdrop, 1:10),
+            Scene(anim, frame, 1:10, easingfunction=easeinoutcubic)
+        ],
+        creategif=true,
+        pathname=filename
+    )
 end
 
 function draw_wide_logo(
@@ -125,7 +170,7 @@ function draw_wide_logo(
     _pkg_name="Counterfactual Explanations",
     font_size=150,
     font_family="Tamil MN",
-    font_fill="transparent",
+    font_fill=bg_color,
     font_color=Luxor.julia_blue,
     bg_color="transparent",
     picture_kwargs...
@@ -170,9 +215,10 @@ function draw_wide_logo(
             @layer begin
                 translate(pos)
                 setline(Int(round(db_stroke_size / 5)))
-                sethue(font_fill)
+                setcolor(font_fill)
                 textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
-                sethue(font_color)
+                fillpreserve()
+                setcolor(font_color...,1.0)
                 strokepath()
             end
         end

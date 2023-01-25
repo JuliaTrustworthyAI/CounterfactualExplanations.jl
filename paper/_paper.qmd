@@ -4,12 +4,19 @@ bibliography: ref.bib
 execute:
     eval: false
     echo: false
-jupyter: julia-1.7
+jupyter: julia-1.8
 ---
 
 ```{julia}
 using Pkg; Pkg.activate("paper")
-using CounterfactualExplanations, Plots, PlotThemes, GraphRecipes, Flux
+using CounterfactualExplanations
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Models
+using Flux
+using GraphRecipes
+using Plots
+using Random
+Random.seed!(1234)
 theme(:wong)
 default(size=(500, 375))
 www_path = "paper/www"
@@ -99,25 +106,17 @@ It may help to go through the relevant parts of the code in some more detail sta
 The last two lines of the code below define the counterfactual generator and finally run the counterfactual search. Generators like the `GenericGenerator` take a number of optional arguments that govern the strength of the complexity penalty, the step size for gradient descent and the tolerance for convergence among other things. This will be discussed in some more detail when looking at the advanced usage example below.
 
 ```{julia}
-# Data:
-using CounterfactualExplanations, Random
-Random.seed!(1234)
-N = 100 # number of data points
-xs, ys = toy_data_linear(N)
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
+# Data and Classifier:
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :Linear)
 
-# Model:
-using CounterfactualExplanations.Models 
-w = [1.0 1.0]# true coefficients
-b = 0
-M = LogisticModel(w, [b])
-
-# Setup:
-x = select_factual(
-    counterfactual_data,rand(1:length(xs)))
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) 
+# Factual and Target:
+factual_label = 1   # predicted label of factual
+target_label = 2    # target label
+chosen = rand(1:size(counterfactual_data.X, 2))
+x = select_factual(counterfactual_data, chosen)
+y = predict_label(M, counterfactual_data, x)[1]
+target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
 
 # Counterfactual search:
 generator = GenericGenerator()

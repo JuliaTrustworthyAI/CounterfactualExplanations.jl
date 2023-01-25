@@ -72,6 +72,8 @@ target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
 generator = GenericGenerator()
 ```
 
+    [ Info: Precompiling CounterfactualExplanations [2f13d31b-18db-44c1-bc43-ebaf2cff0be0]
+
     GenericGenerator(nothing, LinearAlgebra.norm, 0.1, 0.5, Flux.Optimise.Descent(0.1), 0.001)
 
 Running the counterfactual search yields:

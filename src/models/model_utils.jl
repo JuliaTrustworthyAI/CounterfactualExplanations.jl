@@ -58,3 +58,13 @@ function predict_label(M::AbstractFittedModel, counterfactual_data::Counterfactu
     end
     return y
 end
+
+"""
+    predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData)
+
+Returns the predicted output labels for all data points of data set `counterfactual_data` for a given model `M`.
+"""
+function predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData)
+    X = counterfactual_data.X
+    return predict_label(M, counterfactual_data, X)
+end
