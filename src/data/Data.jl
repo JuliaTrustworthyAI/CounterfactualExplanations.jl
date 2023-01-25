@@ -19,6 +19,7 @@ const data_catalogue = Dict(
     :synthetic => Dict(
         :linearly_separable => load_linearly_separable,
         :overlapping => load_overlapping,
+        :blobs => load_blobs,
         :moons => load_moons,
         :circles => load_circles,
         :multi_class => load_multi_class,
@@ -34,7 +35,7 @@ const data_catalogue = Dict(
 )
 
 export data_catalogue
-export load_linearly_separable, load_overlapping, load_circles, load_moons, load_multi_class, load_synthetic_data
+export load_linearly_separable, load_overlapping, load_blobs, load_circles, load_moons, load_multi_class, load_synthetic_data
 export load_california_housing, load_credit_default, load_gmsc
 export load_mnist
 

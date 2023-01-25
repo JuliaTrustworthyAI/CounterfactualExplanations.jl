@@ -35,6 +35,22 @@ function load_overlapping(n=100; seed=data_seed)
 end
 
 """
+    load_blobs(n=100; seed=data_seed, kwrgs...)
+
+Loads overlapping synthtetic data.
+"""
+function load_blobs(n=100; seed=data_seed, kwrgs...)
+
+    Random.seed!(seed)
+
+    X, y = make_blobs(n, 2; kwrgs...)
+    counterfactual_data = CounterfactualData(X, y)
+
+    return counterfactual_data
+
+end
+
+"""
     load_circles(n=100; seed=data_seed, noise=0.15, factor=0.01)
 
 Loads synthetic circles data.
