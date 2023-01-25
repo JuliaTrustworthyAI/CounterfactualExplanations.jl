@@ -38,11 +38,11 @@ Through the work presented here, we aim to close that gap and thereby contribute
 
 Our package provides a simple and intuitive interface to generate Counterfactual Explanations for differentiable classification models trained in Julia. It comes with detailed documentation involving various illustrative example datasets, linear and deep learning classifiers and counterfactual generators for binary and multi-class prediction tasks. A carefully designed package architecture allows for a seamless extension of the package functionality through custom generators and models. Through simple examples, we also demonstrate how to use our package to explain models that were built and trained in `Python` and `R`, although at the time of writing this feature is still experimental.
 
-The remainder of this article is structured as follows: @sec-related presents related work on explainable AI as well as a brief overview of the methodological framework underlying CE. @sec-arch introduces the Julia package and its high-level architecture. @sec-use then presents a number of basic and advanced usage examples. In @sec-custom we demonstrate how the package functionality can be customized and extended. To provide a flavour of its practical use, we use the package to explain models trained on MNIST data in @sec-emp. Finally, we also discuss current limitations of our package, as well as its future outlook in @sec-outlook. @sec-conclude concludes.
+The remainder of this article is structured as follows: @sec-related presents related work on explainable AI as well as a brief overview of the methodological framework underlying CE. @sec-arch introduces the Julia package and its high-level architecture. @sec-use then presents a number of basic and advanced usage examples. In @sec-custom we demonstrate how the package functionality can be customized and extended. To provide a flavour of its practical use, we use the package to explain models trained on MNIST data in @sec-emp. Finally, we also discuss the current limitations of our package, as well as its future outlook in @sec-outlook. @sec-conclude concludes.
 
 # Background and related work {#sec-related}
 
-In this section we first briefly introduce the broad field of explainable artificial intelligence (XAI), before narrowing it down to Counterfactual Explanations. We introduce the methodological framework and finally point to existing open-source software.
+In this section, we first briefly introduce the broad field of explainable artificial intelligence (XAI), before narrowing it down to Counterfactual Explanations. We introduce the methodological framework and finally point to existing open-source software.
 
 ## Literature on explainable AI
 
@@ -87,9 +87,11 @@ Generally speaking, software development in the space of XAI has largely focused
 \item Greedy \cite{schut2021generating}
 \item DiCE \cite{mothilal2020explaining}
 \item Latent Space Search as in REVISE \cite{joshi2019realistic} and CLUE \cite{antoran2020getting}
+\item ClaPROAR \cite{altmeyer2023endogenous}
+\item Gravitational \cite{altmeyer2023endogenous}
 \end{itemize}
 
-The package currently offers native support for deep learning models built in [Flux](https://fluxml.ai/). 
+The package currently offers native support for models built and trained in [Flux](https://fluxml.ai/). 
 
 ![High-level schematic overview of package architecture. Modules are shown in red, structs in green and functions in blue.](www/pkg_architecture.png){#fig-arch width=20pc height=12pc}
 
@@ -117,7 +119,7 @@ x = select_factual(counterfactual_data, chosen)
 
 # Counterfactual search:
 generator = GenericGenerator()
-counterfactual = generate_counterfactual(
+ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
 
@@ -135,26 +137,52 @@ x = select_factual(counterfactual_data, chosen) @\label{line:simple-x}@
 
 # Counterfactual search:
 generator = GenericGenerator() @\label{line:simple-gen}@
-counterfactual = generate_counterfactual(
+ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator) @\label{line:simple-search}@
 \end{lstlisting}
 
 ```{julia}
-plt = plot(counterfactual)
+plt = plot(ce, legend=:topright)
 savefig(plt, "paper/www/ce_binary.png")
 ```
 
 ![Counterfactual path using generic counterfactual generator for conventional binary classifier.](www/ce_binary.png){#fig-binary width=20pc height=15pc}
 
-In this simple example, the generic generator produces an effective counterfactual: the decision boundary is crossed (i.e. the counterfactual explanation is valid) and upon visual inspection, the counterfactual seems plausible (@fig-binary). Still, the example also illustrates that things may well go wrong. Since the underlying model produces high-confidence predictions in regions free of any data - that is regions with high epistemic uncertainty - it is easy to think of scenarios that involve valid but unrealistic counterfactuals. Similarly, any degree of overfitting can be expected to result in more ambiguous Counterfactual Explanations, since it reduces the classifier's sensitivity to regions with high aleatoric uncertainty. Consider, for example, the scenario illustrated in @fig-binary-wrong, which involves the same logistic classifier, but a massively overfitted version of it. In this case, generic search may yield an unrealistic counterfactual that is well into the yellow region and yet far away from all other samples (red marker) or an ambiguous counterfactual near the decision boundary (purple marker).
+In this simple example, the generic generator produces an effective counterfactual: the decision boundary is crossed (i.e. the counterfactual explanation is valid) and upon visual inspection, the counterfactual seems plausible (@fig-binary). Still, the example also illustrates that things may well go wrong. Since the underlying model produces high-confidence predictions in regions free of any data - that is regions with high epistemic uncertainty - it is easy to think of scenarios that involve valid but unrealistic counterfactuals. Similarly, any degree of overfitting can be expected to result in more ambiguous Counterfactual Explanations, since it reduces the classifier's sensitivity to regions with high aleatoric uncertainty. Consider, for example, the scenario illustrated in @fig-binary-wrong, which involves the same logistic classifier, but a massively overfitted version of it. In this case, generic search may yield an entirely ambiguous counterfactual near the decision boundary (purple marker) or an unrealistic counterfactual that has moved well into the target domain, but remains far away from all other samples (red marker).
 
 ```{julia}
-w = [100.0 100.0]# true coefficients
-b = 0
-M = LogisticModel(w, [b])
-plt = plot(M, counterfactual_data, alpha=0.5)
-scatter!(plt, [4], [-3], color="red", ms=10, label="Unrealistic CE")
-scatter!(plt, [1e-5], [1e-5], color="purple", ms=10, label="Ambiguous CE")
+_overfit = 10
+Flux.params(M.model)[1] .*= _overfit # overfit
+η = 0.01 / _overfit
+
+# Ambiguous:
+x = select_factual(counterfactual_data, chosen)
+generator = GravitationalGenerator(opt = Descent(η))
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
+plt = plot(ce, legend=:topright)
+x1 = CounterfactualExplanations.counterfactual(ce)[1,:,1]
+x2 = CounterfactualExplanations.counterfactual(ce)[2,:,1]
+scatter!(plt, x1, x2, color="purple", ms=10, label="Unrealistic CE")
+
+# Unrealistic:
+generator = GenericGenerator(
+    decision_threshold=0.5,
+    opt = Descent(η)
+)
+x = select_factual(counterfactual_data, chosen)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
+_path = path(ce)
+for i in eachindex(_path)
+    x1 = _path[i][1,:,1]
+    x2 = _path[i][2,:,1]
+    scatter!(plt, [x1], [x2], colour=1, ms=5, label="")
+end
+x1 = CounterfactualExplanations.counterfactual(ce)[1,:,1]
+x2 = CounterfactualExplanations.counterfactual(ce)[2,:,1]
+scatter!(plt, x1, x2, color="red", ms=10, label="Ambiguous CE")
+
 savefig(plt, "paper/www/binary_wrong.png")
 ```
 
@@ -164,15 +192,17 @@ savefig(plt, "paper/www/binary_wrong.png")
 
 The more advanced generators currently implemented in `CounterfactualExplanations.jl` are designed to generate more realistic counterfactuals. In this context, 'realistic' is defined in the sense that counterfactuals ought to be generated by the same data-generating process (DGP) that generates the actual data points. To this end, **Latent Space** generators like REVISE \cite{joshi2019realistic} use a separate generative model to learn the DGP. We refer to them as Latent Space generators, because they search counterfactuals in the latent embedding learned by the generative model.^[Currently our implementation relies on a Variational Autoencoder (VAE)]. The **Greedy** approach \cite{schut2021generating} instead relies on minimizing predictive uncertainty in order to generate realistic counterfactuals. **CLUE** \cite{antoran2020getting} can be thought of as a combination of these two ideas. The other generator currently implemented, **DiCE** \cite{mothilal2020explaining}, generates multiple counterfactuals at once that are as diverse as possible. This strategy is based on the intuition that a wide variety of diverse explanations may be suitable depending on the practical context. 
 
-Listing \ref{lst:binary-advanced} below shows a more advanced usage example involving the DiCE generator. Once again it is worth dwelling on this for a moment. In line \ref{line:binary-advanced-opt} we instantiate a Flux optimizer that will determine how exactly the counterfactual search objective is optimized. That optimizer is then fed to the `DiCEGenerator` in line \ref{line:binary-advanced-dice}.^[Note that all differentiable generators except the `GreedyGenerator` work with Flux optimizers and accept them as an optional key argument.]. The main API call to generate counterfactuals is the same as before, but note that in line \ref{line:binary-advanced-num} we have specified an optional key argument that determines how many counterfactuals are generated. For the DiCE generator it naturally makes sense to generate multiple counterfactuals, but note that this is in principle also possible for all other generators.^[By default counterfactuals are initialized by adding a small, random perturbation, as this improves adversarial robustness \cite{slack2021counterfactual}. Therefore, generating multiple counterfactuals will yield multiple distinct outcomes even without an explicit diversity constraint.] @fig-binary-advanced shows the resulting output. It was generated by calling the generic `plot` method directly on the object returned by `generate_counterfactual`.
+Listing \ref{lst:binary-advanced} below shows a more advanced usage example involving the DiCE generator. Once again it is worth dwelling on this for a moment. The `DiCEGenerator` is instantiated in line \ref{line:binary-advanced-dice} with a custom Flux optimizer and decision threshold specified in lines \ref{line:binary-advanced-opt} and \ref{line:binary-advanced-thresh}, respectively^[Note that all differentiable generators except the `GreedyGenerator` work with Flux optimizers and accept them as an optional key argument.]. The main API call to generate counterfactuals is the same as before, but note that in line \ref{line:binary-advanced-num} we have specified an optional key argument that determines how many counterfactuals are generated. For the DiCE generator it naturally makes sense to generate multiple counterfactuals, but note that this is in principle also possible for all other generators.^[By default counterfactuals are initialized by adding a small, random perturbation, as this improves adversarial robustness \cite{slack2021counterfactual}. Therefore, generating multiple counterfactuals will yield multiple distinct outcomes even without an explicit diversity constraint.] @fig-binary-advanced shows the resulting output. It was generated by calling the generic `plot` method directly on the object returned by `generate_counterfactual`.
 
 ```{julia}
-w = [1.0 1.0]# true coefficients
-b = 0
-M = LogisticModel(w, [b])
+M = fit_model(counterfactual_data, :Linear)
+# Generator:
+generator = DiCEGenerator(
+    opt = Flux.Optimise.Descent(0.01),
+    decision_threshold = 0.7,
+    λ = [0.1,5]
+)
 # Counterfactual search:
-opt = Flux.Optimise.Descent(1.0)
-generator = DiCEGenerator(; opt = opt)
 counterfactuals = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
     num_counterfactuals=5
@@ -183,15 +213,17 @@ savefig(plt, "paper/www/binary_advanced.png")
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:binary-advanced}, caption={}]
+# Generator:
+generator = DiCEGenerator( @\label{line:binary-advanced-dice}@
+    opt = Flux.Optimise.Descent(0.01), @\label{line:binary-advanced-opt}@
+    decision_threshold = 0.7, @\label{line:binary-advanced-thresh}@
+    λ = [0.1,5]
+)
 # Counterfactual search:
-opt = Flux.Optimise.Descent(1.0) @\label{line:binary-advanced-opt}@
-generator = DiCEGenerator(;opt = opt) @\label{line:binary-advanced-dice}@
 counterfactuals = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
     num_counterfactuals=5 @\label{line:binary-advanced-num}@
 )
-# Plotting
-plt = plot(counterfactuals)
 \end{lstlisting}
 
 ![Counterfactual path using the DiCE generator.](www/binary_advanced.png){#fig-binary-advanced width=20pc height=15pc}
@@ -200,27 +232,12 @@ plt = plot(counterfactuals)
 
 In practice, features usually cannot be perturbed arbitrarily. Suppose, for example, that one of the features used by a bank to predict the creditworthiness of its clients is *gender*. If a counterfactual explanation for the prediction model indicates that female clients should change their gender to improve their creditworthiness, then this is an interesting insight (it reveals gender bias), but it is not usually an actionable transformation in practice. In such cases, we may want to constrain the mutability of features to ensure actionable and realistic recourse. To illustrate how this can be implemented in `CounterfactualExplanations.jl` we will look at the linearly separable toy dataset again.
 
-```{julia}
-# Data:
-using CounterfactualExplanations.Data
-xs, ys = Data.toy_data_linear()
-X = hcat(xs...)
-
-# Model
-w = [1.0 1.0]# true coefficients
-b = 0
-using CounterfactualExplanations.Models: LogisticModel, probs 
-# Logit model:
-M = LogisticModel(w, [b])
-```
-
 Mutability of features can be defined in terms of four different options: 1) the feature is mutable in both directions, 2) the feature can only increase (e.g. *age*), 3) the feature can only decrease (e.g. *time left* until your next deadline) and 4) the feature is not mutable (e.g. *skin colour*, *ethnicity*, ...). To specify which category a feature belongs to, users can pass a vector of symbols containing the mutability constraints at the pre-processing stage. For each feature one can choose from these four options: `:both` (mutable in both directions), `:increase` (only up), `:decrease` (only down) and `:none` (immutable). By default, `nothing` is passed to that keyword argument and it is assumed that all features are mutable in both directions.^[Mutability constraints are currently not yet implemented for Latent Space generators.]
 
 Below we impose that the second feature is immutable. 
 
 ```{julia}
-counterfactual_data = CounterfactualData(
-    X,ys';mutability=[:both, :none])
+counterfactual_data.mutability = [:both, :none]
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mutability}, caption={}]
@@ -231,23 +248,14 @@ counterfactual_data = CounterfactualData(
 The resulting counterfactual path is shown in @fig-mutability below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
 
 ```{julia}
-# Randomly selected factual:
-using Random
-Random.seed!(123)
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-```
-
-```{julia}
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
-plt = plot(counterfactual)
+plt = plot(ce)
 savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 ```
 
@@ -362,7 +370,7 @@ target = rand(unique(ys)[1:end .!= y])
 
 # Counterfactual search:
 generator = GenericGenerator()
-counterfactual = generate_counterfactual(
+ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
 
@@ -502,7 +510,7 @@ y = round(probs(M, x)[1])
 target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 

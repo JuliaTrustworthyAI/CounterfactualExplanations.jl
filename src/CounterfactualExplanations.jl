@@ -32,7 +32,8 @@ export CounterfactualData, select_factual, apply_domain_constraints
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
+export FluxModel, FluxEnsemble, LaplaceReduxModel
+export flux_training_params
 export probs, logits
 export model_catalogue, fit_model, model_evaluation, predict_label
 

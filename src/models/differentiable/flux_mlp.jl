@@ -48,7 +48,7 @@ end
 
 Default MLP training parameters.
 """
-@with_kw struct FluxModelParams
+@with_kw mutable struct FluxModelParams
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100
@@ -56,13 +56,18 @@ Default MLP training parameters.
 end
 
 """
+    flux_training_params
+
+The default training parameter for `FluxModels` etc.
+"""
+const flux_training_params = FluxModelParams()
+
+"""
     train(M::FluxModel, data::CounterfactualData; kwargs...)
 
 Wrapper function to retrain `FluxModel`.
 """
-function train(M::FluxModel, data::CounterfactualData; kwargs...)
-
-    args = FluxModelParams(; kwargs...)
+function train(M::FluxModel, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
     data = args.data_loader(data)

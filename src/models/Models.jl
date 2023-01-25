@@ -6,6 +6,7 @@ using Parameters
 
 export AbstractFittedModel, AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel
+export flux_training_params
 export probs, logits
 
 """
@@ -42,6 +43,14 @@ const model_catalogue = Dict(
     :DeepEnsemble => FluxEnsemble,
 )
 
+"""
+    fit_model(
+        counterfactual_data::CounterfactualData, model::Symbol=:MLP;
+        kwrgs...
+    )
+
+Fits one of the available default models to the `counterfactual_data`. The `model` argument can be used to specify the desired model. The available values correspond to the keys of the [`model_catalogue`](@ref) dictionary.
+"""
 function fit_model(
     counterfactual_data::CounterfactualData, model::Symbol=:MLP;
     kwrgs...
