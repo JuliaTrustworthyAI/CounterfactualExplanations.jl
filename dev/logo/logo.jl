@@ -218,7 +218,7 @@ function draw_wide_logo(
                 setcolor(font_fill)
                 textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
                 fillpreserve()
-                setcolor(font_color...,1.0)
+                # setcolor(font_color...,1.0)
                 strokepath()
             end
         end
@@ -234,7 +234,7 @@ picture_kwargs = (
     ndots=250,
     ms=12,
     cluster_std=0.3,
-    η=0.02,
+    η=0.03,
     γ=0.95
 )
 
