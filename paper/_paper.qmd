@@ -525,21 +525,18 @@ On the model side, we will use two pre-trained classifiers^[The pre-trained mode
 using Flux
 X, ys = mnist_data() 
 input_dim = size(X)[1]
-counterfactual_data = CounterfactualData(X,ys;domain=(0,1))
-model = mnist_model()
-ensemble = mnist_ensemble()
-M = FluxModel(model, likelihood=:classification_multi)
-M_ensemble=FluxEnsemble(ensemble, likelihood=:classification_multi)
+counterfactual_data = load_mnist()
+M = load_mnist_model()
+M_ensemble = load_mnist_ensemble()
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
 using Flux
 X, ys = mnist_data() 
-counterfactual_data = CounterfactualData(X,ys)
-model = mnist_model()
-ensemble = mnist_ensemble()
-M = FluxModel(model)
-M_ensemble = FluxEnsemble(ensemble)
+input_dim = size(X)[1]
+counterfactual_data = load_mnist()
+M = load_mnist_model()
+M_ensemble = load_mnist_ensemble()
 \end{lstlisting}
 
 ```{julia}
