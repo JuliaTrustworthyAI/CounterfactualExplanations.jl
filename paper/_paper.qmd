@@ -14,6 +14,7 @@ using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using Flux
 using GraphRecipes
+using MLUtils
 using Plots
 using Random
 Random.seed!(1234)
@@ -279,9 +280,9 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 ```{julia}
 # Data:
 N = 200
-xs, ys = toy_data_multi()
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
+counterfactual_data = load_blobs(N; centers=4, cluster_std=0.25)
+ys = vec(counterfactual_data.y)
+xs = MLUtils.unstack(counterfactual_data.X, dims=2)
 
 # Flux model setup: 
 using Flux
@@ -302,7 +303,7 @@ loss(x, y) = Flux.Losses.logitcrossentropy(model(x), y)
 # Flux model training:
 using Flux.Optimise: update!, Adam
 opt = Adam()
-epochs = 10
+epochs = 50
 for epoch = 1:epochs
   for d in data
     gs = gradient(Flux.params(model)) do
@@ -377,7 +378,7 @@ ce = generate_counterfactual(
 The API call for actually generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case, the contour shows the predicted probability that the input is in the target class ($t=2$). Generic search yields a valid, realistic and largely unambiguous counterfactual. 
 
 ```{julia}
-plt = plot(counterfactual)
+plt = plot(ce)
 savefig(plt, "paper/www/ce_multi.png")
 ```
 
