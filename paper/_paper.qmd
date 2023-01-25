@@ -415,7 +415,7 @@ generator = DropoutGenerator(
     norm,
     0.1,
     0.5,
-    Flux.Optimise.Descent(),
+    Flux.Optimise.Descent(0.025),
     0.1,
     0.5
 )
@@ -445,10 +445,10 @@ import .Generators: generate_perturbations, propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_state::State
+    counterfactual_explanation::CounterfactualExplanation
 )
-    s′ = deepcopy(counterfactual_state.s′)
-    new_s′ = propose_state(generator, counterfactual_state)
+    s′ = deepcopy(counterfactual_explanation.s′)
+    new_s′ = propose_state(generator, counterfactual_explanation)
     Δs′ = new_s′ - s′ # gradient step
 
     # Dropout:
@@ -469,11 +469,11 @@ import Generators: propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_state::State
+    counterfactual_explanation::State
 )
-    @$s^\prime$@ = deepcopy(counterfactual_state.@$s^\prime$@)
+    @$s^\prime$@ = deepcopy(counterfactual_explanation.@$s^\prime$@)
     new_@$s^\prime$@ = propose_state(
-        generator, counterfactual_state)
+        generator, counterfactual_explanation)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
 
     # Dropout:
@@ -490,33 +490,26 @@ end
 Finally, we proceed to generate counterfactuals in the same way we always do. The resulting counterfactual path is shown in @fig-dropout.
 
 ```{julia}
-# Data:
-using CounterfactualExplanations.Data
-Random.seed!(1234)
 N = 25
-w = [1.0 1.0]# true coefficients
-b = 0
-xs, ys = Data.toy_data_linear(N)
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
+# Data and Classifier:
+counterfactual_data = load_linearly_separable(N)
+M = fit_model(counterfactual_data, :Linear)
 
-# Model:
-using CounterfactualExplanations.Models: LogisticModel, probs 
-# Logit model:
-M = LogisticModel(w, [b])
-# Randomly selected factual:
-Random.seed!(123)
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+# Factual and Target:
+yhat = predict_label(M, counterfactual_data)
+target = 2    # target label
+candidates = findall(vec(yhat) .!= target)
+chosen = rand(candidates)
+x = select_factual(counterfactual_data, chosen)
 
-# Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+# Counterfactual search:
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
 ```
 
 
 ```{julia}
-plt = plot(counterfactual)
+plt = plot(ce)
 savefig(plt, joinpath(www_path, "dropout.png"))
 ```
 
