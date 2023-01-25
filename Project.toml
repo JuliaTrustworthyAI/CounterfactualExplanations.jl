@@ -28,6 +28,7 @@ Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"
 
 [compat]
+CSV = "0.10"
 CUDA = "3"
 DataFrames = "1"
 Flux = "0.12, 0.13"
