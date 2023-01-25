@@ -11,22 +11,14 @@ In the existing literature counterfactual explanations have typically been appli
 using Pkg; Pkg.activate("docs")
 using Flux, Random, Plots, CounterfactualExplanations, Statistics
 theme(:wong)
-include("dev/utils.jl") # some plotting functions
+include("docs/src/utils.jl") # some plotting functions
 www_path = "docs/src/tutorials/www"
 ```
 
 ```{julia}
 using CounterfactualExplanations.Data
-using MLJ
-p = 15
-n = 1000
-X, ys = make_blobs(n, p, centers=3, as_table=false)
-X = X'
-using MLUtils
-xs = unstack(X,dims=2)
-y_train = Flux.onehotbatch(ys, sort(unique(ys)))
-y_train = Flux.unstack(y_train',1)
-counterfactual_data = CounterfactualData(X,ys')
+N = 200
+counterfactual_data = load_blobs(N; centers=4, cluster_std=0.25)
 ```
 
 ```{julia}
@@ -40,45 +32,9 @@ savefig(plt, joinpath(www_path, "multi_samples.png"))
 
 ## Classifier
 
-To classify the data we use a simple multi-layer perceptron (MLP). In this case the MLP outputs four logits, one for each class. Contrary to the binary setting we therefore choose `logitcrossentropy` as our loss functiona as opposed to `logitbinarycrossentropy`.
-
 ```{julia}
-n_hidden = 32
-out_dim = length(unique(ys))
-kw = (output_dim=out_dim,input_dim=size(X,1))
-nn = build_model(;kw...)
-loss(x, y) = Flux.Losses.logitcrossentropy(nn(x), y)
-ps = Flux.params(nn)
-data = zip(xs,y_train)
-```
-
-The following code just trains the neural network for the task:
-
-```{julia}
-using Flux.Optimise: update!, Adam
-opt = Adam()
-epochs = 100
-avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-
-for epoch = 1:epochs
-  for d in data
-    gs = gradient(Flux.params(nn)) do
-      l = loss(d...)
-    end
-    update!(opt, Flux.params(nn), gs)
-  end
-  if epoch % show_every == 0
-    println("Epoch " * string(epoch))
-    @show avg_loss(data)
-  end
-end
-```
-
-To make the model compatible with our package we need to 1) declare it as a subtype of `Models.AbstractFittedModel` and 2) dispatch the relevant methods. Logits are returned by the model on call and passed through the softmax function to generate the vector of class probabilities.
-
-```{julia}
-M = FluxModel(nn, likelihood=:classification_multi)
+using CounterfactualExplanations.Models
+M = fit_model(counterfactual_data, :MLP)
 ```
 
 ```{julia}
@@ -99,6 +55,7 @@ We randomly select an individual sample from any class and choose any of the rem
 ```{julia}
 # Randomly selected factual:
 # Random.seed!(123)
+X = counterfactual_data.X
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
 y = Flux.onecold(probs(M, x),unique(ys))
 target = rand(unique(ys)[1:end .!= y]) # opposite label as target
@@ -110,7 +67,7 @@ Generic counterfactual search can then be implemented as follows. The only diffe
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, num_counterfactuals=2, γ=0.95)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
