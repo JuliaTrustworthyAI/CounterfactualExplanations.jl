@@ -14,6 +14,9 @@ using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using Flux
 using GraphRecipes
+using Images
+using MLDatasets
+using MLDatasets: convert2image
 using MLUtils
 using Plots
 using Random
@@ -522,13 +525,12 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 On the model side, we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality estimates of predictive uncertainty for neural networks (\cite{wilson2020case}, \cite{lakshminarayanan2016simple}). Our package has native support for ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and prepares the pretrained models:
 
 ```{julia}
+using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
 counterfactual_data = load_mnist()
 input_dim, n_obs = size(counterfactual_data.X)
-flux_training_params.batchsize = Int(round(n_obs/10))
-flux_training_params.verbose = true
-M = fit_model(counterfactual_data, :MLP, n_hidden=32)
-M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32)
-reset!(flux_training_params)
+M = load_mnist_mlp()
+M_ens = load_mnist_ensemble()
+vae = load_mnist_vae()
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
@@ -537,13 +539,13 @@ X, ys = mnist_data()
 input_dim = size(X)[1]
 counterfactual_data = load_mnist()
 M = load_mnist_model()
-M_ensemble = load_mnist_ensemble()
+M_ens = load_mnist_ensemble()
 \end{lstlisting}
 
 ```{julia}
 test_data = load_mnist_test()
-model_evaluation(M, test_data)
-model_evaluation(M_ens, test_data)
+println("MLP test score (F1): $(model_evaluation(M, test_data))")
+println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 ```
 
 
@@ -572,7 +574,7 @@ generators = Dict(
     "Wachter" => GenericGenerator(;decision_threshold=γ),
     "Greedy" => GreedyGenerator(;decision_threshold=γ)
 )
-models = Dict("MLP" => M, "Ensemble" => M_ensemble)
+models = Dict("MLP" => M, "Ensemble" => M_ens)
 ```
 
 ```{julia}
@@ -623,7 +625,7 @@ We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 sho
 to = 4
 counterfactuals = from_digit_to_digit(x,to,generators,models)
 plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.Counterfactuals.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
+plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_9_to_4.png")
 ```
@@ -635,7 +637,7 @@ from = 3
 to = 8
 counterfactuals = from_digit_to_digit(from,to,generators,models)
 plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.Counterfactuals.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
+plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
 savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
 ```

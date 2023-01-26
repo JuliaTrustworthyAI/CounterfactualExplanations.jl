@@ -91,7 +91,7 @@ function h(
     # Euclidean norm of gradient:
     if all(
         CounterfactualExplanations.counterfactual_label(counterfactual_explanation) .==
-        counterfactual_explanation.target_encoded,
+        counterfactual_explanation.target,
     )
         grad_norm = gradient_penalty(generator, counterfactual_explanation)
     else

@@ -31,6 +31,7 @@ function probs(M::AbstractFittedModel, X::AbstractArray) end
 include("model_utils.jl")
 include("differentiable/differentiable.jl")
 include("plotting.jl")
+include("pretrained.jl")
 
 """
     model_catalogue

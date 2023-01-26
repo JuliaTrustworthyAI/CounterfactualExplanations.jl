@@ -286,8 +286,12 @@ function get_generative_model(counterfactual_data::CounterfactualData; kwargs...
         @info "No pre-trained generative model found. Using default generative model. Begin training."
         counterfactual_data.generative_model =
             GenerativeModels.VAE(input_dim(counterfactual_data); kwargs...)
-        X = counterfactual_data.X
-        y = counterfactual_data.y
+        X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
+        output_dim = length(unique(y))
+        if output_dim > 2
+            y = data.output_encoder.y   # get raw outputs
+            y = Flux.onehotbatch(y, data.y_levels)
+        end
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."
     else

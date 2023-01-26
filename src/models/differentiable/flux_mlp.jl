@@ -45,39 +45,6 @@ function probs(M::FluxModel, X::AbstractArray)
 end
 
 """
-    FluxModelParams
-
-Default MLP training parameters.
-"""
-@with_kw mutable struct FluxModelParams
-    loss::Symbol = :logitbinarycrossentropy
-    opt::Symbol = :Adam
-    n_epochs::Int = 100
-    batchsize::Int = 1
-    verbose::Bool = false
-end
-
-"""
-    flux_training_params
-
-The default training parameter for `FluxModels` etc.
-"""
-const flux_training_params = FluxModelParams()
-
-"""
-    reset!(flux_training_params::FluxModelParams)
-
-Restores the default parameter values.
-"""
-function reset!(flux_training_params::FluxModelParams)
-    default_flux_training_params = FluxModelParams()
-    for _name in fieldnames(typeof(flux_training_params))
-         setfield!(flux_training_params, _name, getfield(default_flux_training_params, _name))
-    end
-    return flux_training_params
-end
-
-"""
     train(M::FluxModel, data::CounterfactualData; kwargs...)
 
 Wrapper function to retrain `FluxModel`.

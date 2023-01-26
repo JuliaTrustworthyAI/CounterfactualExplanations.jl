@@ -5,6 +5,8 @@ setup_docs = quote
 
     using CounterfactualExplanations
     using CounterfactualExplanations: animate_path, counterfactual, counterfactual_label
+    using CounterfactualExplanations.Models
+    using CounterfactualExplanations.Data
     using Flux
     using Flux.Optimise: update!, Adam
     using LinearAlgebra
@@ -20,6 +22,6 @@ setup_docs = quote
 
     include("docs/src/utils.jl")
 
-    synthetic = CounterfactualExplanations.Data.load_synthetic()
+    synthetic = CounterfactualExplanations.Data.load_synthetic_data()
 
 end

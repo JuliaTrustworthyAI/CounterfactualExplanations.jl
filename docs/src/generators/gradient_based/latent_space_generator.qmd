@@ -1,20 +1,3 @@
----
-format: 
-  commonmark:
-    variant: -raw_html
-    wrap: none
-    self-contained: true
-crossref:
-  fig-prefix: Figure
-  tbl-prefix: Table
-bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
-output: asis
-execute: 
-  eval: false
-  echo: true
-jupyter: julia-1.7
----
-
 ```@meta
 CurrentModule = CounterfactualExplanations 
 ```
@@ -45,67 +28,17 @@ We start by looking at synthetic data.
 
 ### 2D Example
 
-The first few code snippets below generate the synthetic data, set up a simple neural network in Flux and train it for the binary classification task. 
-
-```{julia}
-using CounterfactualExplanations
-using Random
-input_dim = 2
-n = 100
-η = 3
-μ₀ = rand(-input_dim:input_dim,input_dim) .* η
-μ₁ = rand(-input_dim:input_dim,input_dim) .* η
-X₀ = μ₀ .+ randn(input_dim, n) 
-X₁ = μ₁ .+ randn(input_dim, n) 
-X = hcat(X₀, X₁)
-using MLUtils
-xs = MLUtils.unstack(X,dims=2)
-ys = hcat(zeros(1,n), ones(1,n))
-```
-
-```{julia}
-using Flux
-n_hidden = 50
-nn = Chain(
-    Dense(input_dim, n_hidden, relu),
-    Dense(n_hidden, 1)
-)  
-loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-data = zip(xs,ys)
-```
-
-```{julia}
-using Flux.Optimise: update!, Adam
-opt = Adam()
-epochs = 100
-using Statistics: mean
-avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-
-for epoch = 1:epochs
-  for d in data
-    gs = gradient(Flux.params(nn)) do
-      l = loss(d...)
-    end
-    update!(opt, Flux.params(nn), gs)
-  end
-  if epoch % show_every == 0
-    println("Epoch " * string(epoch))
-    @show avg_loss(data)
-  end
-end
-
-M = FluxModel(nn)
-```
-
 We then draw a random factual and generate two counterfactuals - one using generic search in the feature space and one using generic search in the latent space. The default generative model - a Variational Autoencoder (VAE) - is set up and trained under the hood. The resulting counterfactual paths are shown in the animation below: note how latent space search results in faster convergence to an optimum that sits right within the cluster of samples in the target class. For generic search in the feature space we instead end up just crossing the decision boundary before converging.  
 
 ```{julia}
-counterfactual_data = CounterfactualData(X,ys)
-using Random
-x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+# Data and Classifier:
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :Linear)
+
+# Randomly selected factual:
+x = select_factual(counterfactual_data,rand(1:size(counterfactual_data.X,2)))
+y = predict_label(M, counterfactual_data, x)[1]
+target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
 ```
 
 ```{julia}
@@ -118,7 +51,7 @@ ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator
 
 ```{julia}
 generator = REVISEGenerator()
-ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator; generative_model_params=(latent_dim=5, epochs=200))
+ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 
@@ -247,45 +180,26 @@ savefig(plt, joinpath(www_path, "example_3d.png"))
 Finally, let's take the ideas introduced above to a more complex example. We first load the MNIST data and a simple pre-trained neural network. The test set accuracy is shown below.
 
 ```{julia}
-using Flux
-using CounterfactualExplanations.Data: mnist_data, mnist_model, mnist_ensemble, mnist_vae
-X, ys = mnist_data()
-model = mnist_model()
-ensemble = mnist_ensemble()
-vae = mnist_vae()
-M = FluxModel(model, likelihood=:classification_multi)
-```
-
-```{julia}
+using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
+using Images
 using MLDatasets
-using Flux: DataLoader
-data_test = MNIST(:test)
-test_x, test_y = data_test[:]
-ys_test = Flux.onehotbatch(test_y, 0:9)
-X_test = Flux.flatten(test_x)
-bs = Int(round(size(X)[2]/10))
-data_test = DataLoader((X_test,ys_test),batchsize=bs)
-accuracy(data) = mean(map(d -> mean(Flux.onecold(Flux.softmax(model(d[1])), 0:9) .== Flux.onecold(d[2], 0:9)), data))
-accuracy(data_test)
+using MLDatasets: convert2image
+counterfactual_data = load_mnist()
+input_dim, n_obs = size(counterfactual_data.X)
+model = load_mnist_mlp()
+ensemble = load_mnist_ensemble()
+vae = load_mnist_vae()
 ```
 
 ### Training the VAE
 
-Here we show how a custom generative model can be trained ...
-
 ```{julia}
-#| eval: false
-input_dim = size(X)[1]
-using CounterfactualExplanations.GenerativeModels: VAE, train!
-vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
-train!(vae, X, ys)
-using BSON: @save
-@save joinpath(www_path, "vae.bson") vae
-```
-
-```{julia}
+X = counterfactual_data.X
+ys = counterfactual_data.output_encoder.y
+ys = Flux.onehotbatch(ys, counterfactual_data.y_levels)
 draw_mnist(i) = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==i))],input_dim,1)
-reconstruct_mnist(x) = σ.(CounterfactualExplanations.GenerativeModels.reconstruct(vae,x)[1]) reshape_mnist(x) = reshape(x,28,28)
+reconstruct_mnist(x) = σ.(CounterfactualExplanations.GenerativeModels.reconstruct(vae,x)[1]) 
+reshape_mnist(x) = reshape(x,28,28)
 plt_list = []
 for i in 0:9
   x = draw_mnist(i)

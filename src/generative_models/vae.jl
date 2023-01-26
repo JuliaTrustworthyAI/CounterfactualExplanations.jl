@@ -12,6 +12,7 @@ using Flux
 using Flux: @functor, chunk, DataLoader
 using Flux.Losses: logitbinarycrossentropy, mse
 using Parameters: @with_kw
+using ProgressMeter
 using Random
 using Statistics
 
@@ -182,6 +183,12 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     # parameters
     ps = Flux.params(generative_model)
 
+    # Verbosity
+    if flux_training_params.verbose
+        @info "Begin training VAE"
+        p_epoch = Progress(args.epochs; desc="Progress on epochs:", showspeed=true, color=:green)
+    end
+
     # training
     train_steps = 0
     for epoch = 1:args.epochs
@@ -199,7 +206,11 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
 
             train_steps += 1
         end
+
         avg_loss = mean(avg_loss)
+        if flux_training_params.verbose
+            next!(p_epoch, showvalues=[(:Loss, "$(avg_loss)")])
+        end
 
     end
 
@@ -237,7 +248,11 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
 
             train_steps += 1
         end
+
         avg_loss = mean(avg_loss)
+        if flux_training_params.verbose
+            next!(p_epoch, showvalues=[(:Loss, "$(avg_loss)")])
+        end
 
     end
 end

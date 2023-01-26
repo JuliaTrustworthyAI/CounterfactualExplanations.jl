@@ -1,5 +1,7 @@
 module GenerativeModels
 
+using CounterfactualExplanations
+
 """
 Base type for generative model.
 """
