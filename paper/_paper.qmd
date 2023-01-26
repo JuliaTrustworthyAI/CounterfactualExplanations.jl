@@ -280,13 +280,13 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 ```{julia}
 # Data:
 N = 200
-counterfactual_data = load_blobs(N; centers=4, cluster_std=0.25)
+counterfactual_data = load_blobs(N; centers=4, cluster_std=0.5)
 ys = vec(counterfactual_data.y)
 xs = MLUtils.unstack(counterfactual_data.X, dims=2)
 
 # Flux model setup: 
 using Flux
-y_train = Flux.onehotbatch(ys, unique(ys))
+y_train = Flux.onehotbatch(ys, counterfactual_data.y_levels)
 y_train = Flux.unstack(y_train',1)
 data = zip(xs,y_train)
 n_hidden = 32
@@ -365,8 +365,8 @@ using Random
 Random.seed!(42)
 x = select_factual(
     counterfactual_data, rand(1:length(xs))) 
-y = Flux.onecold(
-    probs(M, x),unique(ys))
+y = predict_label(
+    M, counterfactual_data, x)
 target = rand(unique(ys)[1:end .!= y]) 
 
 # Counterfactual search:

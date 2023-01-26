@@ -57,7 +57,7 @@ We randomly select an individual sample from any class and choose any of the rem
 # Random.seed!(123)
 X = counterfactual_data.X
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = Flux.onecold(probs(M, x),unique(ys))
+y = predict_label(M, counterfactual_data, x)
 target = rand(unique(ys)[1:end .!= y]) # opposite label as target
 ```
 

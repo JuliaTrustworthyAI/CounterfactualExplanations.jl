@@ -80,13 +80,14 @@ function plot_state(
     args = PlotIngredients(; kwargs...)
     x1 = vec(mapslices(X -> X[1], args.path_embedded[t], dims = (1, 2)))
     x2 = vec(mapslices(X -> X[2], args.path_embedded[t], dims = (1, 2)))
-    y = Int.(vec(selectdim(args.path_labels.refs, 1, t)))
+    y = vec(selectdim(args.path_labels, 1, t))
+    _c = levelcode.(y)
     n_ = counterfactual_explanation.num_counterfactuals
     label_ = reshape(["C$i" for i = 1:n_], 1, n_)
     if !final_sate
-        scatter!(args.p1, x1, x2, colour = y; ms = 5, label = "")
+        scatter!(args.p1, x1, x2, group = y, colour = _c; ms = 5, label = "")
     else
-        scatter!(args.p1, x1, x2, colour = y; ms = 10, label = "")
+        scatter!(args.p1, x1, x2, group = y, colour = _c; ms = 10, label = "")
         if n_ > 1
             label_1 = vec([text(lab, 5) for lab in label_])
             annotate!(x1, x2, label_1)
@@ -123,28 +124,29 @@ function set_up_plots(
     counterfactual_explanation::CounterfactualExplanation;
     alpha,
     plot_proba,
-    kwargs...,
+    kwargs...
 )
     p1 = Models.plot(
         counterfactual_explanation.M,
         counterfactual_explanation.data;
-        target = counterfactual_explanation.target,
-        alpha = alpha,
-        kwargs...,
+        target=counterfactual_explanation.target,
+        alpha=alpha,
+        kwargs...
     )
-    p2 = plot(xlims = (1, total_steps(counterfactual_explanation) + 1), ylims = (0, 1))
+    p2 = plot(xlims=(1, total_steps(counterfactual_explanation) + 1), ylims=(0, 1))
     path_embedded = embed_path(counterfactual_explanation)
-    path_labels =
-        MLJBase.categorical(reduce(vcat, (counterfactual_label_path(counterfactual_explanation))))
+    path_labels = reduce(vcat, (counterfactual_label_path(counterfactual_explanation)))
+    y_levels = counterfactual_explanation.data.y_levels
+    path_labels = mapslices(y -> categorical(vec(y); levels=y_levels), path_labels, dims=(1,2))
     path_probs = target_probs_path(counterfactual_explanation)
     output = (
-        p1 = p1,
-        p2 = p2,
-        path_embedded = path_embedded,
-        path_labels = path_labels,
-        path_probs = path_probs,
-        alpha = alpha,
-        plot_proba = plot_proba,
+        p1=p1,
+        p2=p2,
+        path_embedded=path_embedded,
+        path_labels=path_labels,
+        path_probs=path_probs,
+        alpha=alpha,
+        plot_proba=plot_proba,
     )
     return output
 end

@@ -462,24 +462,14 @@ counterfactual_probability(counterfactual_explanation::CounterfactualExplanation
     Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
 
 """
-    _to_label(p::AbstractArray)
-
-Small helper function mapping predicted probabilities to labels.
-"""
-function _to_label(p::AbstractArray)
-    out_dim = size(p)[1]
-    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p, 1:out_dim)
-    return y
-end
-
-"""
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
 
 A convenience method to get the predicted label associated with the counterfactual value.
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
-    p = counterfactual_probability(counterfactual_explanation)
-    y = SliceMap.slicemap(_p -> permutedims([_to_label(_p)]), p, dims = (1, 2)) 
+    M = counterfactual_explanation.M
+    counterfactual_data = counterfactual_explanation.data
+    y = mapslices(x -> predict_label(M, counterfactual_data, x), counterfactual(counterfactual_explanation), dims=(1, 2))
     return y
 end
 
@@ -596,8 +586,12 @@ end
 Returns the counterfactual labels for each step of the search.
 """
 function counterfactual_label_path(counterfactual_explanation::CounterfactualExplanation)
-    P = counterfactual_probability_path(counterfactual_explanation)
-    ŷ = map(P -> mapslices(p -> _to_label(p), P, dims = (1, 2)), P)
+    counterfactual_data = counterfactual_explanation.data
+    M = counterfactual_explanation.M
+    ŷ = map(
+        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X, dims = (1, 2)),
+        path(counterfactual_explanation),
+    )
     return ŷ
 end
 
