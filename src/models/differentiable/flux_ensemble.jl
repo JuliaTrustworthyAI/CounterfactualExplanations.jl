@@ -61,7 +61,7 @@ Default Deep Ensemble training parameters.
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100
-    data_loader::Function = data_loader
+    batchsize::Int = 1
 end
 
 """
@@ -69,23 +69,43 @@ end
 
 Wrapper function to retrain.
 """
-function train(M::FluxEnsemble, data::CounterfactualData; kwargs...)
-
-    args = FluxEnsembleParams(; kwargs...)
+function train(M::FluxEnsemble, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
-    data = args.data_loader(data)
+    data = data_loader(data; batchsize=args.batchsize)
 
-    # Training:
+    # Multi-class case:
+    if M.likelihood == :classification_multi
+        loss = :logitcrossentropy
+    else
+        loss = args.loss
+    end
+
+    # Setup:
     ensemble = M.model
+    if flux_training_params.verbose
+        @info "Begin training Deep Ensemble"
+    end
+    count = 1
+    n_models = length(ensemble)
 
     for model in ensemble
+
+        # Model name
+        models_done = repeat("#",count)
+        models_missing = repeat("-",n_models-count)
+        msg = "MLP $(count): $(models_done)$(models_missing) ($(count)/$(n_models))"
+    
+        # Train:
         forward!(
             model, data;
             loss=args.loss,
             opt=args.opt,
-            n_epochs=args.n_epochs
+            n_epochs=args.n_epochs,
+            model_name=msg
         )
+
+        count += 1
     end
 
     return M

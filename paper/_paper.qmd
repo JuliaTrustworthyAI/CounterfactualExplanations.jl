@@ -522,12 +522,13 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 On the model side, we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality estimates of predictive uncertainty for neural networks (\cite{wilson2020case}, \cite{lakshminarayanan2016simple}). Our package has native support for ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and prepares the pretrained models:
 
 ```{julia}
-using Flux
-X, ys = mnist_data() 
-input_dim = size(X)[1]
 counterfactual_data = load_mnist()
-M = load_mnist_model()
-M_ensemble = load_mnist_ensemble()
+input_dim, n_obs = size(counterfactual_data.X)
+flux_training_params.batchsize = Int(round(n_obs/10))
+flux_training_params.verbose = true
+M = fit_model(counterfactual_data, :MLP, n_hidden=32)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32)
+reset!(flux_training_params)
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
@@ -538,6 +539,13 @@ counterfactual_data = load_mnist()
 M = load_mnist_model()
 M_ensemble = load_mnist_ensemble()
 \end{lstlisting}
+
+```{julia}
+test_data = load_mnist_test()
+model_evaluation(M, test_data)
+model_evaluation(M_ens, test_data)
+```
+
 
 ```{julia}
 # Randomly selected factual:

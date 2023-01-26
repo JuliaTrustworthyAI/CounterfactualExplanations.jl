@@ -1,5 +1,6 @@
 using Flux
 using MLUtils
+using ProgressMeter
 using SliceMap
 using Statistics
 
@@ -52,7 +53,8 @@ Default MLP training parameters.
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100
-    data_loader::Function = data_loader
+    batchsize::Int = 1
+    verbose::Bool = false
 end
 
 """
@@ -63,6 +65,19 @@ The default training parameter for `FluxModels` etc.
 const flux_training_params = FluxModelParams()
 
 """
+    reset!(flux_training_params::FluxModelParams)
+
+Restores the default parameter values.
+"""
+function reset!(flux_training_params::FluxModelParams)
+    default_flux_training_params = FluxModelParams()
+    for _name in fieldnames(typeof(flux_training_params))
+         setfield!(flux_training_params, _name, getfield(default_flux_training_params, _name))
+    end
+    return flux_training_params
+end
+
+"""
     train(M::FluxModel, data::CounterfactualData; kwargs...)
 
 Wrapper function to retrain `FluxModel`.
@@ -70,10 +85,10 @@ Wrapper function to retrain `FluxModel`.
 function train(M::FluxModel, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
-    data = args.data_loader(data)
+    data = data_loader(data; batchsize=args.batchsize)
 
     # Multi-class case:
-    if last(size.(Flux.params(M.model)))[1] > 1
+    if M.likelihood == :classification_multi
         loss = :logitcrossentropy
     else
         loss = args.loss
@@ -92,7 +107,7 @@ function train(M::FluxModel, data::CounterfactualData; args=flux_training_params
 
 end
 
-function forward!(model::Flux.Chain, data; loss::Symbol, opt::Symbol, n_epochs::Int=10)
+function forward!(model::Flux.Chain, data; loss::Symbol, opt::Symbol, n_epochs::Int=10, model_name="MLP")
 
     # Loss:
     loss_(x, y) = getfield(Flux.Losses, loss)(model(x), y)
@@ -102,12 +117,19 @@ function forward!(model::Flux.Chain, data; loss::Symbol, opt::Symbol, n_epochs::
     opt_ = getfield(Flux.Optimise, opt)()
 
     # Training:  
+    if flux_training_params.verbose
+        @info "Begin training $(model_name)"
+        p_epoch = Progress(n_epochs; desc="Progress on epochs:", showspeed=true, color=:green)
+    end
     for epoch = 1:n_epochs
         for d in data
             gs = Flux.gradient(Flux.params(model)) do
                 l = loss_(d...)
             end
             Flux.Optimise.update!(opt_, Flux.params(model), gs)
+        end
+        if flux_training_params.verbose
+            next!(p_epoch, showvalues=[(:Loss, "$(avg_loss(data))")])
         end
     end
 

@@ -37,6 +37,6 @@ const data_catalogue = Dict(
 export data_catalogue
 export load_linearly_separable, load_overlapping, load_blobs, load_circles, load_moons, load_multi_class, load_synthetic_data
 export load_california_housing, load_credit_default, load_gmsc
-export load_mnist
+export load_mnist, load_mnist_test
 
 end
