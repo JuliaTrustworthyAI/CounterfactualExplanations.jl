@@ -4,7 +4,6 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-using Pkg; Pkg.activate("docs")
 include("docs/setup_docs.jl")
 eval(setup_docs)
 ```

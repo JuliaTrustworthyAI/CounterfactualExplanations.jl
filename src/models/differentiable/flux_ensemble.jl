@@ -127,17 +127,12 @@ function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
     # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
-    output_dim = length(unique(y))
-    output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+    output_dim = size(y, 1)
 
     # Build deep ensemble:
     ensemble = build_ensemble(K; input_dim=input_dim, output_dim=output_dim, kwargs...)
 
-    if output_dim == 1
-        M = FluxEnsemble(ensemble; likelihood=:classification_binary)
-    else
-        M = FluxEnsemble(ensemble; likelihood=:classification_multi)
-    end
+    M = FluxEnsemble(ensemble; likelihood=data.likelihood)
 
     return M
 end

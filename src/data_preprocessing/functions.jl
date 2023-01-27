@@ -9,6 +9,7 @@ using UMAP
 mutable struct CounterfactualData
     X::AbstractMatrix
     y::EncodedOutputArrayType
+    likelihood::Symbol
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -22,6 +23,7 @@ mutable struct CounterfactualData
     function CounterfactualData(
         X,
         y,
+        likelihood,
         mutability,
         domain,
         features_categorical,
@@ -36,10 +38,12 @@ mutable struct CounterfactualData
 
         # Conditions:
         conditions = []
+        # Feature dimension:
         conditions = vcat(
             conditions...,
             length(size(X)) != 2 ? error("Data should be in tabular format") : true,
         )
+        # Output dimension:
         conditions = vcat(
             conditions...,
             size(X)[2] != size(y)[2] ?
@@ -49,11 +53,15 @@ mutable struct CounterfactualData
                 ),
             ) : true,
         )
+        # Likelihood:
+        available_likelihoods = [:classification_binary, :classification_multi]
+        @assert likelihood ∈ available_likelihoods "Specified likelihood not available. Needs to be one of: $(available_likelihoods)."
 
         if all(conditions)
             new(
                 X,
                 y,
+                likelihood,
                 mutability,
                 domain,
                 features_categorical,
@@ -94,6 +102,7 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractMatrix,
     y::RawOutputArrayType;
+    likelihood::Union{Nothing, Symbol}=nothing,
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
@@ -104,9 +113,8 @@ function CounterfactualData(
 
     # Output variable:
     y_raw = deepcopy(y)
-    y_levels = levels(y)
     output_encoder = OutputEncoder(y_raw)
-    y = output_encoder()
+    y, y_levels, likelihood = output_encoder()
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
@@ -124,6 +132,7 @@ function CounterfactualData(
     counterfactual_data = CounterfactualData(
         X,
         y,
+        likelihood,
         mutability,
         domain,
         features_categorical,

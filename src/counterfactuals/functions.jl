@@ -11,7 +11,6 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
     target::RawTargetType
     target_encoded::EncodedTargetType
-    target_encoded_loss::Union{Number,AbstractArray,Nothing}
     s′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
@@ -59,7 +58,6 @@ function CounterfactualExplanation(;
 
     # Target:
     target_encoded = data.output_encoder(target)
-    target_encoded_loss = nothing
 
     # Initial Parameters:
     params = Dict(
@@ -69,7 +67,7 @@ function CounterfactualExplanation(;
         :mutability => DataPreprocessing.mutability_constraints(data),
         :initial_mutability => DataPreprocessing.mutability_constraints(data),
     )
-    ids = getindex.(findall(data.y .== target_encoded), 2)
+    ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
@@ -79,7 +77,6 @@ function CounterfactualExplanation(;
         x,
         target,
         target_encoded,
-        target_encoded_loss,
         x,
         data,
         M,
@@ -166,6 +163,8 @@ function adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
     x = deepcopy(counterfactual_explanation.x)
     s′ = adjust_shape(counterfactual_explanation, x)      # augment to account for specified number of counterfactuals
     counterfactual_explanation.s′ = s′
+    target_encoded = counterfactual_explanation.target_encoded
+    counterfactual_explanation.target_encoded = adjust_shape(counterfactual_explanation, target_encoded)
 
     # Parameters:
     params = counterfactual_explanation.params
@@ -187,8 +186,6 @@ function encode_state(
     # Unpack:
     s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
-
-    
 
     # Latent space:
     if counterfactual_explanation.latent_space
@@ -343,22 +340,6 @@ function reconstruct_cat_encoding(
 end
 
 """
-    _encode_target_for_loss(counterfactual_explanation::CounterfactualExplanation) 
-
-A convenience method to encode the target variable, if necessary.
-"""
-function _encode_target_for_loss(
-    counterfactual_explanation::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing} = nothing,
-)
-    out_dim = output_dim(counterfactual_explanation)
-    target = isnothing(x) ? deepcopy(counterfactual_explanation.target_encoded) : x
-    target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
-    target = repeat(target, outer = [1, 1, counterfactual_explanation.num_counterfactuals])
-    return target
-end
-
-"""
     initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
 Initializes the starting point for the factual(s).
@@ -459,34 +440,21 @@ function target_probs(
     x::Union{AbstractArray,Nothing} = nothing,
 )
 
+    data = counterfactual_explanation.data
+    likelihood = counterfactual_explanation.data.likelihood
     p =
         !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) :
         counterfactual_probability(counterfactual_explanation)
-    target = counterfactual_explanation.target_encoded
-
-    if size(p, 1) == 1
-        h(x) = ifelse(x == -1, 0, x)
-        if target ∉ [0, 1] && target ∉ [-1, 1]
-            throw(
-                DomainError(
-                    "For binary classification expecting target to be in {0,1} or {-1,1}.",
-                ),
-            )
+    target = counterfactual_explanation.target
+    target_idx = get_target_index(data.y_levels, target)
+    if likelihood == :classification_binary
+        if target_idx == 2
+            p_target = p
+        else
+            p_target = 1 - p
         end
-        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
-        p = vcat(1.0 .- p, p)
-        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
-        p_target = selectdim(p, 1, Int(h(target) + 1))
     else
-        if target < 1 || target % 1 != 0
-            throw(
-                DomainError(
-                    "For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.",
-                ),
-            )
-        end
-        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
-        p_target = selectdim(p, 1, Int(target))
+        p_target = p[target_idx]
     end
     return p_target
 end

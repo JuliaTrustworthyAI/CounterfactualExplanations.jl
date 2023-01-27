@@ -178,17 +178,12 @@ function FluxModel(data::CounterfactualData; kwargs...)
     # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
-    output_dim = length(unique(y))
-    output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+    output_dim = size(y, 1)
 
     # Build MLP:
     model = build_mlp(; input_dim=input_dim, output_dim=output_dim, kwargs...)
 
-    if output_dim == 1
-        M = FluxModel(model; likelihood=:classification_binary)
-    else
-        M = FluxModel(model; likelihood=:classification_multi)
-    end
+    M = FluxModel(model; likelihood=data.likelihood)
 
     return M
 end
@@ -201,16 +196,11 @@ Constructs a model with one linear layer. If the output is binary, this correspo
 function Linear(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
-    output_dim = length(unique(y))
-    output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+    output_dim = size(y, 1)
 
     model = build_mlp(; input_dim=input_dim, output_dim=output_dim, n_layers=1)
 
-    if output_dim == 1
-        M = FluxModel(model; likelihood=:classification_binary)
-    else
-        M = FluxModel(model; likelihood=:classification_multi)
-    end
+    M = FluxModel(model; likelihood=data.likelihood)
 
     return M
 end

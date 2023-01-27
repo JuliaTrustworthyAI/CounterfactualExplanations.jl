@@ -8,11 +8,6 @@ Prepares counterfactual data for training in Flux.
 """
 function data_loader(data::CounterfactualData; batchsize=1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
-    output_dim = length(unique(y))
-    if output_dim > 2
-        y = data.output_encoder.y   # get raw outputs
-        y = Flux.onehotbatch(y, data.y_levels)
-    end
     return DataLoader((X, y), batchsize=batchsize)
 end
 
@@ -38,14 +33,8 @@ function predict_label(M::AbstractFittedModel, counterfactual_data::Counterfactu
     p = probs(M, X)
     y_levels = counterfactual_data.y_levels
     binary = M.likelihood == :classification_binary
-    n_levels = length(y_levels)
-    if binary
-        idx = Int.(round.(p) .+ 1)
-        y = y_levels[idx]
-    else
-        idx = Flux.onecold(p, 1:n_levels)
-        y = y_levels[idx]
-    end
+    p = binary ? [1-p, p] : p
+    y = Flux.onecold(p, y_levels)
     return y
 end
 

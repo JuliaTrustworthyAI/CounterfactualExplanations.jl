@@ -1,5 +1,6 @@
 using CategoricalArrays
 using Flux
+using MLJBase
 using Parameters
 
 # Constants:
@@ -32,6 +33,33 @@ Type of encoded output array.
 const EncodedOutputArrayType = AbstractMatrix
 
 """
+    guess_likelihood(y::RawOutputArrayType)
+
+Guess the likelihood based on the scientific type of the output array. Returns a symbol indicating the guessed likelihood and the scientific type of the output array.
+"""
+function guess_likelihood(y::RawOutputArrayType)
+    stype = scitype(y)
+    if stype <: AbstractArray{<:Finite}
+        if stype == AbstractVector{Multiclass{2}}
+            likelihood = :classification_binary
+        else
+            likelihood = :classification_multi
+        end
+    elseif stype <: AbstractArray{Count}
+        if length(unique(y)) == 2
+            likelihood = :classification_binary
+        else
+            likelihood = :classification_multi
+        end
+    elseif stype <: AbstractVector{Continuous}
+        error("You supplied an output array of continuous variables, which indicates a regression problem and is not currently supported.")
+    else
+        error("Could not guess likelihood. Something seems off with your output array.")
+    end
+    return likelihood, stype
+end
+
+"""
     OutputEncoder
 
 The `OutputEncoder` takes a raw output array (`y`) and encodes it.
@@ -41,41 +69,59 @@ struct OutputEncoder
 end
 
 """
-    (encoder::OutputEncoder)(ynew::Union{Nothing,RawTargetType}=nothing)
+    (encoder::OutputEncoder)()
 
-The `OutputEncoder` can be called on `nothing` or a single element `ynew::RawTargetType`. In the first case, the encoding is applied the the yaw output array (`y`). In the second case, the encoding is applied to `ynew`.
+On call, the `OutputEncoder` returns the encoded output array.
 """
-function (encoder::OutputEncoder)(ynew::Union{Nothing,RawTargetType}=nothing)
+function (encoder::OutputEncoder)()
 
     # Setup:
     y = encoder.y
+    likelihood, stype = guess_likelihood(encoder.y)
+
+    # Deal with non-categorical output array:
+    if !(stype <: AbstractArray{<:Finite})
+        y = categorical(y)
+    end
+
+    # Encode:
     y_levels = levels(y)
-    if !isnothing(ynew)
-        ynew = get_target_index(y_levels, ynew)
-    end
-
-    # Transformations:
-    if typeof(y) <: CategoricalArray
-        y_cat = y
-        y = permutedims(Int.(y_cat.refs))
-        # Binary case:
-        if length(levels(y_cat)) == 2
-            y = y .- 1
-            if !isnothing(ynew)
-                ynew -= 1
-            end
-        end
-        y_levels = levels(y_cat)
-    elseif typeof(y) <: AbstractVector
+    y = Int.(y.refs)
+    if likelihood == :classification_binary
         y = permutedims(y)
+        y = y .- 1  # map to [0,1]
+    else
+        # One-hot encode:
+        y = reduce(
+            hcat,
+            map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y)
+        )
     end
 
-    # Output:
-    if isnothing(ynew)
-        return y
+    return y, y_levels, likelihood
+
+end
+
+"""
+    (encoder::OutputEncoder)(ynew::RawTargetType)
+
+When called on a new value `ynew`, the `OutputEncoder` encodes it based on the initial encoding.
+"""
+function (encoder::OutputEncoder)(ynew::RawTargetType)
+
+    # Setup:
+    _, y_levels, likelihood = encoder()
+    @assert ynew ∈ y_levels "Supplied output value is not in `y_levels`."
+
+    # Encode:
+    y = get_target_index(y_levels, ynew)
+    if likelihood == :classification_binary
+        y -= 1
     else
-        return ynew
+        y = Flux.onehot(y, 1:length(y_levels))
     end
+
+    return [y]
 
 end
 
