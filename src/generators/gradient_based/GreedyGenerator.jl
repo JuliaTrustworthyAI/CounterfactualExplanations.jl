@@ -44,7 +44,7 @@ function GreedyGenerator(;
     complexity::Function=LinearAlgebra.norm,
     λ::AbstractFloat=0.0,
     decision_threshold=0.5,
-    opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}, # learning rate
+    opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}=nothing, # learning rate
     kwargs...
 )
 

@@ -14,7 +14,7 @@ eval(setup_docs)
 
 ```{julia}
 n = 200
-data_name = :multi_class
+data_name = :linearly_separable
 model_name = :MLP
 counterfactual_data = data_catalogue[:synthetic][data_name](n)
 M = fit_model(counterfactual_data, model_name)

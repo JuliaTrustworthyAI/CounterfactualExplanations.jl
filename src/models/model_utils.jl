@@ -33,7 +33,13 @@ function predict_label(M::AbstractFittedModel, counterfactual_data::Counterfactu
     p = probs(M, X)
     y_levels = counterfactual_data.y_levels
     binary = M.likelihood == :classification_binary
-    p = binary ? reduce(hcat,map(_p -> [1 .- _p, _p], p)) : p
+    function binary_to_onehot(p)
+        nobs = size(p,2)
+        A = hcat(ones(nobs),zeros(nobs))
+        B = [-1 1; 0 0]
+        return permutedims(permutedims(p) .* A * B .+ A)
+    end
+    p = binary ? binary_to_onehot(p) : p
     y = Flux.onecold(p, y_levels)
     return y
 end
