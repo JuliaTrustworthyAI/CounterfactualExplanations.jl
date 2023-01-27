@@ -188,6 +188,8 @@ function encode_state(
     s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
     data = counterfactual_explanation.data
 
+    
+
     # Latent space:
     if counterfactual_explanation.latent_space
         s′ = map_to_latent(counterfactual_explanation, s′)
@@ -197,11 +199,11 @@ function encode_state(
     # Standardize data unless latent space:
     if !counterfactual_explanation.latent_space
         dt = data.dt
-        features_continuous = data.features_continuous
+        idx = transformable_features(data)
         SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[features_continuous,:]
+            _s = s[idx,:]
             StatsBase.transform!(dt, _s)
-            s[features_continuous,:] = _s
+            s[idx,:] = _s
         end
         return s′
     end
@@ -308,11 +310,11 @@ function decode_state(
         dt = data.dt
 
         # Continuous:
-        features_continuous = data.features_continuous
+        idx = transformable_features(data)
         SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[features_continuous,:]
+            _s = s[idx,:]
             StatsBase.reconstruct!(dt, _s)
-            s[features_continuous,:] = _s
+            s[idx,:] = _s
         end
 
         # Categorical:
@@ -469,7 +471,7 @@ A convenience method to get the predicted label associated with the counterfactu
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
     M = counterfactual_explanation.M
     counterfactual_data = counterfactual_explanation.data
-    y = mapslices(x -> predict_label(M, counterfactual_data, x), counterfactual(counterfactual_explanation), dims=(1, 2))
+    y = SliceMap.slicemap(x -> predict_label(M, counterfactual_data, x), counterfactual(counterfactual_explanation), dims=(1, 2))
     return y
 end
 
@@ -661,10 +663,10 @@ Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(counterfactual_explanation::CounterfactualExplanation)
 
-    if !isnothing(counterfactual_explanation.data.domain) &&
-       total_steps(counterfactual_explanation) == 0
-        @error "Domain constraints not currently implemented for latent space search."
-    end
+    # if !isnothing(counterfactual_explanation.data.domain) &&
+    #    total_steps(counterfactual_explanation) == 0
+    #     @error "Domain constraints not currently implemented for latent space search."
+    # end
 
     s′ = counterfactual_explanation.s′
     counterfactual_explanation.s′ =

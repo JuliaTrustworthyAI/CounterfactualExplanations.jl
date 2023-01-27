@@ -23,7 +23,7 @@ using .GenerativeModels
 # Data preprocessing:
 include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
-export CounterfactualData, select_factual, apply_domain_constraints
+export CounterfactualData, select_factual, apply_domain_constraints, OutputEncoder, transformable_features
 
 ### Models 
 # ℳ[𝒟] : x ↦ y

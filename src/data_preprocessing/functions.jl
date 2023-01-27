@@ -121,9 +121,6 @@ function CounterfactualData(
     compressor = nothing                                                                # dimensionality reduction
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
-    # Data transformations:
-    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims=2)        # standardization
-
     counterfactual_data = CounterfactualData(
         X,
         y,
@@ -132,12 +129,18 @@ function CounterfactualData(
         features_categorical,
         features_continuous,
         standardize,
-        dt,
+        nothing,
         compressor,
         generative_model,
         y_levels,
         output_encoder
     )
+
+    # Data transformations:
+    if transformable_features(counterfactual_data) != counterfactual_data.features_continuous
+        @warn "Some of the underlying features are constant."
+    end
+    counterfactual_data.dt = StatsBase.fit(ZScoreTransform, X[transformable_features(counterfactual_data), :], dims=2)        # standardization
 
     return counterfactual_data
 end
@@ -218,6 +221,18 @@ function reconstruct_cat_encoding(
 end
 
 """
+    transformable_features(counterfactual_data::CounterfactualData)
+
+Returns the indices of all continuous features that can be transformed. For constant features `ZScoreTransform` returns `NaN`.
+"""
+function transformable_features(counterfactual_data::CounterfactualData)
+    # Find all columns that have varying values:
+    idx_not_all_equal = [!allequal(counterfactual_data.X[i, :]) for i in counterfactual_data.features_continuous]
+    # Returns indices of columns that have varying values:
+    return counterfactual_data.features_continuous[idx_not_all_equal]
+end
+
+"""
     mutability_constraints(counterfactual_data::CounterfactualData)
 
 A convience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
@@ -289,8 +304,8 @@ function get_generative_model(counterfactual_data::CounterfactualData; kwargs...
         X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
         output_dim = length(unique(y))
         if output_dim > 2
-            y = data.output_encoder.y   # get raw outputs
-            y = Flux.onehotbatch(y, data.y_levels)
+            y = counterfactual_data.output_encoder.y   # get raw outputs
+            y = Flux.onehotbatch(y, counterfactual_data.y_levels)
         end
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."

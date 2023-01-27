@@ -42,43 +42,28 @@ target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
 ```
 
 ```{julia}
+opt = Descent(0.01)
 # Define generator:
-generator = GenericGenerator()
+generator = GenericGenerator(opt=opt)
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=false)
-ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator, latent_space=true; generative_model_params=(latent_dim=5, epochs=200))
 ```
 
 ```{julia}
-generator = REVISEGenerator()
+generator = REVISEGenerator(opt=opt)
 ce_latent = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 
 ```{julia}
 #| echo: false
-T = maximum([size(path(ce))[1],size(path(ce_latent))[1]])
-p1 = plot(M, counterfactual_data; colorbar=false, title="Standard")
-p2 = plot(M, counterfactual_data; colorbar=false, title="Latent")
-anim = @animate for t in 1:T
-    path_ = path(ce)
-    if t < length(path_)
-        scatter!(p1, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
-    elseif t == length(path_)
-        scatter!(p1, [path_[t][1]], [path_[t][2]], ms=10, color=Int(y), label="")
-    end
-    path_ = path(ce_latent)
-    if t < length(path_)
-        scatter!(p2, [path_[t][1]], [path_[t][2]], ms=5, color=Int(y), label="")
-    elseif t == length(path_)
-        scatter!(p2, [path_[t][1]], [path_[t][2]], ms=10, color=Int(y), label="")
-    end
-    plot(p1,p2,size=(800,400), plot_title="Iteration $(t)/$(T)")
-end
-gif(anim, joinpath(www_path, "latent_2d.gif"), fps=5)
+p1 = plot(ce; colorbar=false, title="Standard")
+p2 = plot(ce_latent; colorbar=false, title="Latent")
+plt = plot(p1,p2,size=(800,400))
+savefig(plt, joinpath(www_path,"latent_2d.png"))
 ```
 
-![Counterfactuals generated through generic search in feature space (left) and latent space (right).](../www/latent_2d.gif)
+![Counterfactuals generated through generic search in feature space (left) and latent space (right).](../www/latent_2d.png)
 
 ### 3D Example
 
@@ -141,10 +126,10 @@ counterfactual_data = CounterfactualData(X,ys)
 
 ```{julia}
 using Random
-Random.seed!(123)
+# Random.seed!(123)
 x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+y = predict_label(M, counterfactual_data, x)
+target = counterfactual_data.y_levels[vec(counterfactual_data.y_levels .!= y)][1]
 ```
 
 ```{julia}
