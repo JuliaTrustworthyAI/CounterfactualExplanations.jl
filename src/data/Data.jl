@@ -7,10 +7,6 @@ using Random
 
 const data_seed = 42
 
-export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear
-export mnist_data, mnist_ensemble, mnist_model, mnist_vae
-export cats_dogs_data, cats_dogs_model
-
 include("synthetic.jl")
 include("tabular.jl")
 include("vision.jl")
@@ -19,6 +15,7 @@ const data_catalogue = Dict(
     :synthetic => Dict(
         :linearly_separable => load_linearly_separable,
         :overlapping => load_overlapping,
+        :multi_class => load_multi_class,
         :blobs => load_blobs,
         :moons => load_moons,
         :circles => load_circles,
@@ -35,7 +32,8 @@ const data_catalogue = Dict(
 )
 
 export data_catalogue
-export load_linearly_separable, load_overlapping, load_blobs, load_circles, load_moons, load_multi_class, load_synthetic_data
+export load_linearly_separable, load_overlapping, load_multi_class
+export load_blobs, load_circles, load_moons, load_multi_class, load_synthetic_data
 export load_california_housing, load_credit_default, load_gmsc
 export load_mnist, load_mnist_test
 

@@ -211,31 +211,6 @@ function encode_state(
 end
 
 """
-    wants_latent_space!(
-        counterfactual_explanation::CounterfactualExplanation, 
-        x::Union{AbstractArray,Nothing} = nothing,
-    )   
-
-
-"""
-function wants_latent_space!(counterfactual_explanation::CounterfactualExplanation)
-
-    # Unpack:
-    data = counterfactual_explanation.data
-    generator = counterfactual_explanation.generator
-    latent_space = counterfactual_explanation.latent_space
-
-    # Check if generative model is available:
-    wants_latent_space =
-        DataPreprocessing.has_pretrained_generative_model(data) ||
-        typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    # Assume that latent space search is wanted unless explicitly set to false:
-    counterfactual_explanation.latent_space =
-        isnothing(latent_space) ? wants_latent_space : latent_space
-
-end
-
-"""
     wants_latent_space(
         counterfactual_explanation::CounterfactualExplanation, 
         x::Union{AbstractArray,Nothing} = nothing,
@@ -252,7 +227,6 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
 
     # Check if generative model is available:
     wants_latent_space =
-        DataPreprocessing.has_pretrained_generative_model(data) ||
         typeof(generator) <: Generators.AbstractLatentSpaceGenerator
     # Assume that latent space search is wanted unless explicitly set to false:
     latent_space =

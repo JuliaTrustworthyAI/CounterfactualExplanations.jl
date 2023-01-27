@@ -16,12 +16,11 @@ setup_docs = quote
     using Random
     using StatsBase
 
+    # Setup:
     theme(:wong)
-    www_path = "docs/src/generators/www/"
     Random.seed!(2023)
-
+    www_path = "docs/src/www"
     include("docs/src/utils.jl")
-
     synthetic = CounterfactualExplanations.Data.load_synthetic_data()
 
-end
+end;

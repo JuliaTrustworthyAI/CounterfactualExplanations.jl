@@ -66,9 +66,6 @@ export animate_path
 # Example data sets:
 include("data/Data.jl")
 using .Data
-export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear
-export mnist_data, mnist_ensemble, mnist_model, mnist_vae
-export cats_dogs_data, cats_dogs_model
 
 include("generate_counterfactual.jl")
 export generate_counterfactual
