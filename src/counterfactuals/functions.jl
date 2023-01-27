@@ -90,11 +90,10 @@ function CounterfactualExplanation(;
     )
 
     # Initialization:
-    adjust_shape!(counterfactual_explanation)                                                   # adjust shape to specified number of counterfactuals
+    adjust_shape!(counterfactual_explanation)                                                # adjust shape to specified number of counterfactuals
     counterfactual_explanation.latent_space = wants_latent_space(counterfactual_explanation)
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
-    counterfactual_explanation.target_encoded_loss = _encode_target_for_loss(counterfactual_explanation)       # encode the target variable
 
     # Initialize search:
     counterfactual_explanation.search = Dict(
@@ -426,7 +425,7 @@ A convenience method to get the predicted label associated with the counterfactu
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
     M = counterfactual_explanation.M
     counterfactual_data = counterfactual_explanation.data
-    y = SliceMap.slicemap(x -> predict_label(M, counterfactual_data, x), counterfactual(counterfactual_explanation), dims=(1, 2))
+    y = SliceMap.slicemap(x -> permutedims([predict_label(M, counterfactual_data, x)]), counterfactual(counterfactual_explanation), dims=(1, 2))
     return y
 end
 
@@ -451,7 +450,7 @@ function target_probs(
         if target_idx == 2
             p_target = p
         else
-            p_target = 1 - p
+            p_target = 1 .- p
         end
     else
         p_target = p[target_idx]

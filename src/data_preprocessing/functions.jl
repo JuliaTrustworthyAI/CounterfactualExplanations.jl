@@ -113,7 +113,7 @@ function CounterfactualData(
 
     # Output variable:
     y_raw = deepcopy(y)
-    output_encoder = OutputEncoder(y_raw)
+    output_encoder = OutputEncoder(y_raw, nothing)
     y, y_levels, likelihood = output_encoder()
 
     # Feature type indices:
@@ -311,11 +311,6 @@ function get_generative_model(counterfactual_data::CounterfactualData; kwargs...
         counterfactual_data.generative_model =
             GenerativeModels.VAE(input_dim(counterfactual_data); kwargs...)
         X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
-        output_dim = length(unique(y))
-        if output_dim > 2
-            y = counterfactual_data.output_encoder.y   # get raw outputs
-            y = Flux.onehotbatch(y, counterfactual_data.y_levels)
-        end
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."
     else

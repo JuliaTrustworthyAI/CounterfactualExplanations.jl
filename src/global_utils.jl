@@ -16,7 +16,7 @@ const RawTargetType = Union{Int,AbstractFloat,String,Symbol}
 
 Type of encoded target variable.
 """
-const EncodedTargetType = Real
+const EncodedTargetType = AbstractArray
 
 """
     RawOutputArrayType 
@@ -64,8 +64,9 @@ end
 
 The `OutputEncoder` takes a raw output array (`y`) and encodes it.
 """
-struct OutputEncoder
+mutable struct OutputEncoder
     y::RawOutputArrayType
+    labels::Union{Nothing,CategoricalArray}
 end
 
 """
@@ -77,12 +78,14 @@ function (encoder::OutputEncoder)()
 
     # Setup:
     y = encoder.y
+    y = ndims(y) == 2 ? vec(y) : y
     likelihood, stype = guess_likelihood(encoder.y)
 
     # Deal with non-categorical output array:
     if !(stype <: AbstractArray{<:Finite})
         y = categorical(y)
     end
+    encoder.labels = y
 
     # Encode:
     y_levels = levels(y)
@@ -117,11 +120,12 @@ function (encoder::OutputEncoder)(ynew::RawTargetType)
     y = get_target_index(y_levels, ynew)
     if likelihood == :classification_binary
         y -= 1
+        y = [y]
     else
         y = Flux.onehot(y, 1:length(y_levels))
     end
 
-    return [y]
+    return y
 
 end
 

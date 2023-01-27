@@ -54,8 +54,8 @@ end
 
 
 function prepare_for_plotting(data::CounterfactualData; dim_red::Symbol = :pca)
-    X, y = unpack_data(data)
-    y = vec(y)
+    X, _ = unpack_data(data)
+    y = data.output_encoder.labels
     @assert size(X, 1) != 1 "Don't know how to plot 1-dimensional data."
     multi_dim = size(X, 1) > 2
     if multi_dim
@@ -66,9 +66,6 @@ end
 
 function Plots.scatter!(data::CounterfactualData; dim_red::Symbol = :pca, kwargs...)
     X, y, _ = prepare_for_plotting(data; dim_red = dim_red)
-    y = MLJBase.categorical(y)
-    y_levels = levels(y)
-    recode!(y, [Pair(old,new) for (old,new) in zip(y_levels,data.y_levels)]...)
     _c = Int.(y.refs)
     Plots.scatter!(X[:, 1], X[:, 2], group = y, colour = _c; kwargs...)
 end
