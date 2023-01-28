@@ -87,7 +87,7 @@ function logo_picture(;
 
     # Decision Boundary:
     setline(db_stroke_size)
-    setcolor(sethue(db_color)..., 1.0)
+    setcolor(db_color)
     w = collect(Flux.params(M.model))[1]
     a = -w[1] / w[2]
     _bias = collect(Flux.params(M.model))[2][1]
