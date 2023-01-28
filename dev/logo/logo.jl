@@ -31,10 +31,10 @@ function logo_picture(;
     ndots=100,
     frame_size=500,
     ms=frame_size // 50,
-    mcolor=(:red, :green),
+    mcolor=(:red, :purple),
     margin=-0.1,
-    db_color=julia_colors[:purple],
-    db_stroke_size=frame_size // 50,
+    db_color=RGBA(julia_colors[:green]...,0.5),
+    db_stroke_size=frame_size // 75,
     switch_ce_color=true,
     m_alpha=0.2,
     seed=2022,
@@ -42,11 +42,10 @@ function logo_picture(;
     γ=0.9,
     η=0.02,
     bg = true,
-    bg_color = bg_color, 
-    clip_frame=circle(O, frame_size // 2, :clip),
-    clip_border=false,
+    bg_color = "transparent", 
+    clip_border=true,
     border_color=julia_colors[:blue],
-    border_stroke_size=db_stroke_size // 2,
+    border_stroke_size=db_stroke_size,
     n_steps = nothing,
 )
 
@@ -57,8 +56,11 @@ function logo_picture(;
 
     # Background 
     if bg
+        circle(O, frame_size // 2, :clip)
         setcolor(bg_color)
         box(Point(0, 0), frame_size, frame_size, action = :fill)
+        setcolor(border_color..., 1.0)
+        circle(O, frame_size // 2, :stroke)
     end
 
     # Data
@@ -114,21 +116,15 @@ function logo_picture(;
         color_idx = lab_path[i]
         _x, _y = _scale .* _point
         _alpha = m_alpha + ((1 - m_alpha) * (i / length(ce_path)))
+        _ms = ms
         if i < length(ce_path) || !switch_ce_color
             setcolor(sethue(ce_color)..., _alpha)
         else
+            _ms = 1.2 * _ms
             setcolor(sethue(mcolor[color_idx]...)..., _alpha)
         end
-        _ms = ms + 1.5 * (ms * (i / length(ce_path)))
+        # _ms = ms + 0 * (ms * (i / length(ce_path)))
         circle(Point(_x, _y), _ms, action=:fill)
-    end
-
-    # Frame:
-    clip_frame
-    if clip_border
-        sethue(border_color)
-        setline(border_stroke_size)
-        circle(O, frame_size // 2, :stroke)
     end
 
 end
@@ -194,7 +190,7 @@ function draw_wide_logo(
 
     # Picture:
     @layer begin
-        translate(cells[1])
+        Luxor.translate(cells[1])
         logo_picture(
             ;
             frame_size=height,
@@ -207,18 +203,18 @@ function draw_wide_logo(
 
     # Text:
     @layer begin
-        translate(cells[2])
+        Luxor.translate(cells[2])
         fontsize(font_size)
         fontface(font_family)
         tiles = Tiler(cells.colwidths[2], height, length(strs), 1)
         for (pos, n) in tiles
             @layer begin
-                translate(pos)
+                Luxor.translate(pos)
                 setline(Int(round(db_stroke_size / 5)))
                 setcolor(font_fill)
                 textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
                 fillpreserve()
-                # setcolor(font_color...,1.0)
+                setcolor(font_color...,1.0)
                 strokepath()
             end
         end
@@ -231,11 +227,12 @@ end
 picture_kwargs = (
     seed=961,
     margin=-0.3,
-    ndots=250,
-    ms=12,
+    ndots=50,
+    ms=30,
     cluster_std=0.3,
     η=0.03,
-    γ=0.95
+    γ=0.95,
+    clip_border=true
 )
 
 draw_small_logo(; picture_kwargs...)

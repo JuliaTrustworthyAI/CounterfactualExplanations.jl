@@ -588,7 +588,7 @@ models = Dict("MLP" => M, "Ensemble" => M_ens)
 using Flux: onecold
 
 # Specific image:
-function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.8, x=X, y=ys, seed=1234, T=100)
+function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.95, x=X, y=ys, seed=1234, T=100)
     
     x = from
     target = to
@@ -606,7 +606,7 @@ function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; 
 end
 
 # Specific digit:
-function from_digit_to_digit(from::Number, to::Number, generator::Dict, model::Dict; γ=0.8, x=X, y=ys, seed=1234, T=100)
+function from_digit_to_digit(from::Number, to::Number, generator::Dict, model::Dict; γ=0.95, x=X, y=ys, seed=1234, T=100)
 
     Random.seed!(seed)
 
@@ -630,7 +630,7 @@ We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 sho
 
 ```{julia}
 to = 4
-counterfactuals = from_digit_to_digit(x,to,generators,models,T=10)
+counterfactuals = from_digit_to_digit(x,to,generators,models,T=100)
 plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
 plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
@@ -642,7 +642,7 @@ savefig(plt, "paper/www/mnist_9_to_4.png")
 ```{julia}
 from = 3
 to = 8
-counterfactuals = from_digit_to_digit(from,to,generators,models)
+counterfactuals = from_digit_to_digit(from,to,generators,models,T=100)
 plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
 plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
