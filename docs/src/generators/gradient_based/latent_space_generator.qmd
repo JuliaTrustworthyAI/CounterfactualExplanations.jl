@@ -32,7 +32,7 @@ We then draw a random factual and generate two counterfactuals - one using gener
 
 ```{julia}
 # Data and Classifier:
-counterfactual_data = load_linearly_separable()
+counterfactual_data = load_blobs(500, k=5, centers=4)
 M = fit_model(counterfactual_data, :Linear)
 
 # Randomly selected factual:
