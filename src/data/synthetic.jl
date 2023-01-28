@@ -7,11 +7,11 @@ using Random
 
 Loads overlapping synthtetic data.
 """
-function load_blobs(n=100; seed=data_seed, kwrgs...)
+function load_blobs(n=100; seed=data_seed, k=2, centers=2, kwrgs...)
 
     Random.seed!(seed)
 
-    X, y = make_blobs(n, 2; kwrgs...)
+    X, y = make_blobs(n, k; centers=centers, kwrgs...)
     counterfactual_data = CounterfactualData(X, y)
 
     return counterfactual_data

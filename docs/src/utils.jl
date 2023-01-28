@@ -364,7 +364,6 @@ function Plots.plot(
         μ_1 = vcat(μ_1, μ_i[1, :])
         μ_2 = vcat(μ_2, μ_i[2, :])
 
-        y = out_dim == 1 ? y : Flux.onecold(y, 1:(out_dim))
         labels = Int.(vcat(labels, vec(y)))
     end
 

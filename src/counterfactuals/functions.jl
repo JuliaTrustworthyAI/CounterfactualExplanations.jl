@@ -609,9 +609,11 @@ function apply_domain_constraints!(counterfactual_explanation::CounterfactualExp
     #     @error "Domain constraints not currently implemented for latent space search."
     # end
 
-    s′ = counterfactual_explanation.s′
-    counterfactual_explanation.s′ =
-        DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    if !wants_latent_space(counterfactual_explanation)
+        s′ = counterfactual_explanation.s′
+        counterfactual_explanation.s′ =
+            DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    end
 
 end
 
