@@ -11,6 +11,7 @@ jupyter: julia-1.8
 using Pkg; Pkg.activate("paper")
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
+using CounterfactualExplanations.DataPreprocessing: unpack_data
 using CounterfactualExplanations.Models
 using Flux
 using GraphRecipes
@@ -284,16 +285,14 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 # Data:
 N = 200
 counterfactual_data = load_blobs(N; centers=4, cluster_std=0.5)
-ys = vec(counterfactual_data.y)
-xs = MLUtils.unstack(counterfactual_data.X, dims=2)
+y = counterfactual_data.y
+X = counterfactual_data.X
 
 # Flux model setup: 
 using Flux
-y_train = Flux.onehotbatch(ys, counterfactual_data.y_levels)
-y_train = Flux.unstack(y_train',1)
-data = zip(xs,y_train)
+data = Flux.DataLoader((X,y), batchsize=1)
 n_hidden = 32
-output_dim = length(unique(ys))
+output_dim = size(y,1)
 input_dim = 2
 activation = σ
 model = Chain(
@@ -367,10 +366,10 @@ M = MyFluxModel(model)
 using Random
 Random.seed!(42)
 x = select_factual(
-    counterfactual_data, rand(1:length(xs))) 
-y = predict_label(
+    counterfactual_data, rand(1:size(X,2))) 
+factual = predict_label(
     M, counterfactual_data, x)
-target = rand(unique(ys)[1:end .!= y]) 
+target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual]) 
 
 # Counterfactual search:
 generator = GenericGenerator()
@@ -527,6 +526,7 @@ On the model side, we will use two pre-trained classifiers^[The pre-trained mode
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
 counterfactual_data = load_mnist()
+X, y = unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 M_ens = load_mnist_ensemble()
@@ -551,10 +551,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 
 ```{julia}
 # Randomly selected factual:
-using Random
-Random.seed!(42)
-x = reshape(X[:,rand(findall(Flux.onecold(ys,0:9).==9))],input_dim,1)
-target = 5
+x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==9))],input_dim,1)
+target = 4
 γ = 0.95
 using Images
 using MLDatasets: convert2image, MNIST
@@ -570,9 +568,18 @@ For the counterfactual search, we will use four different combinations of classi
 
 ```{julia}
 #| echo: false
+
+η = 1
+opt = Descent(η)
 generators = Dict(
-    "Wachter" => GenericGenerator(;decision_threshold=γ),
-    "Greedy" => GreedyGenerator(;decision_threshold=γ)
+    "Wachter" => GenericGenerator(;
+        opt = opt,
+        decision_threshold=γ
+    ),
+    "Greedy" => GreedyGenerator(;
+        ϵ = η,
+        decision_threshold=γ
+    )
 )
 models = Dict("MLP" => M, "Ensemble" => M_ens)
 ```
@@ -584,7 +591,7 @@ using Flux: onecold
 function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.8, x=X, y=ys, seed=1234, T=100)
     
     x = from
-    target = to + 1
+    target = to
     counterfactuals = Dict()
 
     for (k_gen,v_gen) ∈ generators
@@ -605,7 +612,7 @@ function from_digit_to_digit(from::Number, to::Number, generator::Dict, model::D
 
     candidates = findall(onecold(y,0:9).==from)
     x = Flux.unsqueeze(x[:,rand(candidates)],2)
-    target = to + 1
+    target = to
     counterfactuals = Dict()
 
     for (k_gen,v_gen) ∈ generators
@@ -623,7 +630,7 @@ We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 sho
 
 ```{julia}
 to = 4
-counterfactuals = from_digit_to_digit(x,to,generators,models,T=5)
+counterfactuals = from_digit_to_digit(x,to,generators,models,T=10)
 plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
 plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
 plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
