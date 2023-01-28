@@ -311,6 +311,7 @@ function get_generative_model(counterfactual_data::CounterfactualData; kwargs...
         counterfactual_data.generative_model =
             GenerativeModels.VAE(input_dim(counterfactual_data); kwargs...)
         X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
+        # NOTE: y is not actually used, may refactor in the future to make that clearer.
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."
     else
