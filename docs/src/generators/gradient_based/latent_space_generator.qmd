@@ -116,6 +116,7 @@ using Images
 using MLDatasets
 using MLDatasets: convert2image
 counterfactual_data = load_mnist()
+X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 M_ens = load_mnist_ensemble()
@@ -159,12 +160,11 @@ Since the image reconstructions are decent, we can expect the counterfactual sea
 # Randomly selected factual:
 n_factuals = 5
 input_dim = size(X,1)
-factual = 5
+factual = 9
 using Random
-Random.seed!(1234)
 x = select_factual(counterfactual_data,rand(findall(predict_label(M, counterfactual_data, X).==factual), n_factuals))
-target = 8
-γ = 0.95
+target = 4
+γ = 0.975
 ```
 
 ```{julia}
@@ -198,7 +198,7 @@ for (i, _x) in enumerate(x)
     plts = [plts..., plt]
 end
 plt = plot(plts...,layout=(length(plts),1),size=(image_size * 2,image_size * length(plts)))
-savefig(plt, joinpath(www_path, "mnist_$(factual-1)to$(target-1)_latent.png"))
+savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
 ```
 
 ![](../www/mnist_9to4_latent.png)

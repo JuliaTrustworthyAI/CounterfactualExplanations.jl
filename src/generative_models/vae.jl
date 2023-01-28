@@ -57,13 +57,12 @@ function reparameterization_trick(μ, logσ, device = cpu)
     return μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
 end
 
-import Random: rand
 """
-    rand(encoder::Encoder, x, device=cpu)
+    Random.rand(encoder::Encoder, x, device=cpu)
 
 Draws random samples from the latent distribution.
 """
-function rand(encoder::Encoder, x, device = cpu)
+function Random.rand(encoder::Encoder, x, device = cpu)
     μ, logσ = encoder(x)
     z = reparameterization_trick(μ, logσ)
     return z, μ, logσ
