@@ -97,13 +97,7 @@ function logo_picture(;
     m_alpha=0.2,
     seed=2022,
     cluster_std=0.3,
-    γ=0.9,
-    η=0.02,
-    generator=GravitationalGenerator(
-        opt=Flux.Descent(η),
-        decision_threshold=γ,
-        λ=[0.0,10.0]
-    ),
+    generator=GenericGenerator(),
     model=:MLP,
     bg=true,
     bg_color="transparent",
@@ -161,15 +155,13 @@ function logo_picture(;
 
     # Counterfactual path:
     ce_path = CounterfactualExplanations.path(ce)
-    lab_path = CounterfactualExplanations.counterfactual_label_path(ce)
-    lab_path = Int.(categorical(vec(reduce(vcat, lab_path)[:, :, 1])).refs)
     for i in eachindex(ce_path)
         _point = (ce_path[i][1, :, 1][1], ce_path[i][2, :, 1][1])
         _lab = predict_label(M, ce.data, [_point[1], _point[2]])
         color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
-        _alpha = m_alpha + ((1 - m_alpha) * (i / length(ce_path)))
-        _ms = ms + (ms * (i / length(ce_path)))
+        _alpha = i != length(ce_path) ? m_alpha : 1.0
+        _ms = i != length(ce_path) ? db_stroke_size : 1.5 * ms 
         setcolor(sethue(mcolor[color_idx]...)..., _alpha)
         circle(Point(_x, _y), _ms, action=:fill)
     end
@@ -271,15 +263,18 @@ function draw_wide_logo(
     preview()
 end
 
+_seed = rand(1:1000)
 picture_kwargs = (
-    seed=587,
+    seed=_seed,
     margin=0.1,
-    ndots=360,
-    ms=15,
+    ndots=30,
+    ms=30,
     cluster_std=0.05,
-    η=0.005,
-    γ=0.95,
-    clip_border=true
+    clip_border=true,
+    m_alpha=0.5,
+    generator=GravitationalGenerator(
+        opt=Flux.Descent(0.0005)
+    )
 )
 
 draw_small_logo(; picture_kwargs...)
