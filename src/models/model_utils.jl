@@ -25,6 +25,25 @@ function model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
 end
 
 """
+    MLJBase.predict(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::Union{Nothing,AbstractArray})
+
+Returns the predicted output probabilities for a given model `M`, data set `counterfactual_data` and input data `X`.
+"""
+function MLJBase.predict(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::Union{Nothing,AbstractArray})
+    X = isnothing(X) ? counterfactual_data.X : X
+    p = probs(M, X)
+    binary = M.likelihood == :classification_binary
+    function binary_to_onehot(p)
+        nobs = size(p, 2)
+        A = hcat(ones(nobs), zeros(nobs))
+        B = [-1 1; 0 0]
+        return permutedims(permutedims(p) .* A * B .+ A)
+    end
+    p = binary ? binary_to_onehot(p) : p
+    return p
+end
+
+"""
     predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray)
 
 Returns the predicted output label for a given model `M`, data set `counterfactual_data` and input data `X`.
@@ -32,14 +51,7 @@ Returns the predicted output label for a given model `M`, data set `counterfactu
 function predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray)
     p = probs(M, X)
     y_levels = counterfactual_data.y_levels
-    binary = M.likelihood == :classification_binary
-    function binary_to_onehot(p)
-        nobs = size(p,2)
-        A = hcat(ones(nobs),zeros(nobs))
-        B = [-1 1; 0 0]
-        return permutedims(permutedims(p) .* A * B .+ A)
-    end
-    p = binary ? binary_to_onehot(p) : p
+    p = MLJBase.predict(M, counterfactual_data, X)
     y = Flux.onecold(p, y_levels)
     return y
 end

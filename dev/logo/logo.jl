@@ -5,7 +5,10 @@ using Colors
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
+using Distributions
+using EasyFit
 using Flux
+using LinearAlgebra
 using Luxor
 using MLJBase
 using StatsBase: sample
@@ -19,21 +22,76 @@ julia_colors = Dict(
 )
 bg_color = RGBA(julia_colors[:blue]..., 0.25)
 
-function get_data(N=500; seed=1234, centers=2, center_box=(-2 => 2), cluster_std=0.3)
+function (fit::EasyFit.Cubic)(x::Real)
+    a = fit.a
+    b = fit.b
+    c = fit.c
+    d = fit.d
+    return a * x^3 + b * x^2 + c * x + d
+end
 
-    counterfactual_data = load_blobs(N; seed=seed, centers=centers, center_box=center_box, cluster_std=cluster_std)
-    M = fit_model(counterfactual_data, :Linear)
+function get_data(
+    N=600;
+    seed=2023,
+    cluster_std=0.3,
+    generator=GenericGenerator(),
+    model=:Linear,
+    n_steps=nothing
+)
 
-    return counterfactual_data, M
+
+    Random.seed!(seed)
+    
+    n_per = Int.(round(N / 3))
+    d1 = MvNormal([0, 1], UniformScaling(cluster_std)(2))
+    x1 = rand(d1, n_per)
+    d2 = MvNormal([-1, -1], UniformScaling(cluster_std)(2))
+    x2 = rand(d2, n_per)
+    d3 = MvNormal([1, -1], UniformScaling(cluster_std)(2))
+    x3 = rand(d3, n_per)
+    X = hcat(x1, x2, x3)
+    y = categorical(reduce(vcat, permutedims(repeat([1, 2, 3], 1, n_per))))
+    counterfactual_data = CounterfactualData(X, y)
+    M = fit_model(counterfactual_data, model)
+    X = counterfactual_data.X
+    x = X[1, :]
+    y = X[2, :]
+    factual = select_factual(counterfactual_data, rand(1:size(counterfactual_data.X, 2)))
+    factual_label = predict_label(M, counterfactual_data, factual)[1]
+    target = counterfactual_data.y_levels[counterfactual_data.y_levels.!=factual_label][1]
+
+    # Decision boundary:
+    n_range = 100
+    xlims, ylims = extrema(X, dims=2)
+    _zoom = 0.5 * maximum(abs.(X))
+    xrange = range(xlims[1] - _zoom, xlims[2] + _zoom, length=n_range)
+    yrange = range(ylims[1] - _zoom, ylims[2] + _zoom, length=n_range)
+    target_idx = get_target_index(counterfactual_data.y_levels, target)
+    yhat = [MLJBase.predict(M, counterfactual_data, [x, y])[target_idx] for x in xrange, y in yrange]
+    db_points = findall(0.0 .< yhat .- 0.5 .< 0.1)
+    db_points = map(p -> [xrange[p[1]], yrange[p[2]]], db_points)
+    _X = reduce(hcat, db_points)
+    x1 = _X[1, :]
+    x2 = _X[2, :]
+    fit = fitcubic(x1, x2)
+    _yhat = fit.(xrange)
+    db_points = map(x -> [x[1], x[2]], zip(collect(xrange), _yhat))
+
+
+    # Counterfactual:
+    T = isnothing(n_steps) ? 100 : n_steps
+    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; T=T)
+
+    return x, y, M, ce, db_points
 end
 
 function logo_picture(;
     ndots=100,
     frame_size=500,
     ms=frame_size // 50,
-    mcolor=(:red, :purple),
+    mcolor=(:red, :purple, :green),
     margin=-0.1,
-    db_color=RGBA(julia_colors[:green]...,0.5),
+    db_color=RGBA(julia_colors[:blue]..., 0.5),
     db_stroke_size=frame_size // 75,
     switch_ce_color=true,
     m_alpha=0.2,
@@ -41,12 +99,19 @@ function logo_picture(;
     cluster_std=0.3,
     γ=0.9,
     η=0.02,
-    bg = true,
-    bg_color = "transparent", 
+    generator=GravitationalGenerator(
+        opt=Flux.Descent(η),
+        decision_threshold=γ,
+        λ=[0.0,10.0]
+    ),
+    model=:MLP,
+    bg=true,
+    bg_color="transparent",
     clip_border=true,
     border_color=julia_colors[:blue],
     border_stroke_size=db_stroke_size,
-    n_steps = nothing,
+    n_steps=nothing,
+    smooth=4
 )
 
     # Setup
@@ -58,49 +123,37 @@ function logo_picture(;
     if bg
         circle(O, frame_size // 2, :clip)
         setcolor(bg_color)
-        box(Point(0, 0), frame_size, frame_size, action = :fill)
+        box(Point(0, 0), frame_size, frame_size, action=:fill)
         setcolor(border_color..., 1.0)
         circle(O, frame_size // 2, :stroke)
     end
 
     # Data
-    counterfactual_data, M = get_data(seed=seed, cluster_std=cluster_std)
-    X = counterfactual_data.X
-    x = X[1, :]
-    y = X[2, :]
-    factual = select_factual(counterfactual_data, rand(1:size(counterfactual_data.X, 2)))
-    factual_label = predict_label(M, counterfactual_data, factual)[1]
-    target = ifelse(factual_label == 1.0, 2.0, 1.0) # opposite label as target
-
-    # Counterfactual:
-    generator = GravitationalGenerator(
-        opt=Flux.Descent(η),
-        decision_threshold=γ
+    x, y, M, ce, db_points = get_data(
+        seed=seed,
+        cluster_std=cluster_std,
+        generator=generator, model=model, n_steps=n_steps
     )
-    T = isnothing(n_steps) ? 100 : n_steps
-    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; T=T)
 
     # Dots:
-    idx = sample(1:size(X, 2), ndots, replace=false)
+    idx = sample(1:length(x), ndots, replace=false)
     xplot, yplot = (x[idx], y[idx])
-    _scale = (frame_size / (2 * maximum(abs.(counterfactual_data.X)))) * (1 - margin)
+    _scale = (frame_size / (2 * maximum(abs.(ce.data.X)))) * (1 - margin)
 
     # Decision Boundary:
     setline(db_stroke_size)
     setcolor(db_color)
-    w = collect(Flux.params(M.model))[1]
-    a = -w[1] / w[2]
-    _bias = collect(Flux.params(M.model))[2][1]
-    b = -_bias / w[2]
-    _intercept = _scale .* (0, b)
-    rule(Point(_intercept[1], _intercept[2]), atan(a))
+    order_db = sortperm([x[1] for x in db_points])
+    pgon = [Point((_scale .* (_point[1], _point[2]))...) for _point in db_points[order_db]]
+    np = makebezierpath(pgon, smoothing=smooth)
+    drawbezierpath(np, action=:stroke, close=false)
 
     # Data
     data_plot = zip(xplot, yplot)
     for i = 1:length(data_plot)
         _point = collect(data_plot)[i]
-        _lab = predict_label(M, counterfactual_data, [_point[1], _point[2]])
-        color_idx = get_target_index(counterfactual_data.y_levels, _lab[1])
+        _lab = predict_label(M, ce.data, [_point[1], _point[2]])
+        color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
         setcolor(sethue(mcolor[color_idx]...)..., m_alpha)
         circle(Point(_x, _y), ms, action=:fill)
@@ -110,20 +163,14 @@ function logo_picture(;
     ce_path = CounterfactualExplanations.path(ce)
     lab_path = CounterfactualExplanations.counterfactual_label_path(ce)
     lab_path = Int.(categorical(vec(reduce(vcat, lab_path)[:, :, 1])).refs)
-    ce_color = mcolor[lab_path[1]]
     for i in eachindex(ce_path)
         _point = (ce_path[i][1, :, 1][1], ce_path[i][2, :, 1][1])
-        color_idx = lab_path[i]
+        _lab = predict_label(M, ce.data, [_point[1], _point[2]])
+        color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
         _alpha = m_alpha + ((1 - m_alpha) * (i / length(ce_path)))
-        _ms = ms
-        if i < length(ce_path) || !switch_ce_color
-            setcolor(sethue(ce_color)..., _alpha)
-        else
-            _ms = 1.2 * _ms
-            setcolor(sethue(mcolor[color_idx]...)..., _alpha)
-        end
-        # _ms = ms + 0 * (ms * (i / length(ce_path)))
+        _ms = ms + (ms * (i / length(ce_path)))
+        setcolor(sethue(mcolor[color_idx]...)..., _alpha)
         circle(Point(_x, _y), _ms, action=:fill)
     end
 
@@ -225,12 +272,12 @@ function draw_wide_logo(
 end
 
 picture_kwargs = (
-    seed=961,
-    margin=-0.3,
-    ndots=50,
-    ms=30,
-    cluster_std=0.3,
-    η=0.03,
+    seed=587,
+    margin=0.1,
+    ndots=360,
+    ms=15,
+    cluster_std=0.05,
+    η=0.005,
     γ=0.95,
     clip_border=true
 )
