@@ -522,7 +522,7 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 ## Give Me Some Credit
 
 The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}^[It is publicly available from [Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard)]. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\text{no stress},1=\text{stress}\}$ and a number of demographic and credit-related features $X$.
-
+Using the DiCE generator we will generate counterfactuals for a randomly chosen individual in the non-target class. With respect to the mutability of features, we only impose that the `age` cannot be decreased. 
 
 ```{julia}
 counterfactual_data = load_gmsc()
@@ -604,8 +604,6 @@ end
 
 plot(plt, legend=false)
 ```
-
-
 
 ## MNIST
 
