@@ -110,7 +110,7 @@ savefig(plt, joinpath(www_path, "example_3d.png"))
 
 Finally, let's take the ideas introduced above to a more complex example. We first load the MNIST data and a simple pre-trained neural network. The test set accuracy is shown below.
 
-```{julia}
+```{.julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
 using Images
 using MLDatasets
@@ -123,7 +123,41 @@ M_ens = load_mnist_ensemble()
 vae = load_mnist_vae()
 ```
 
-### Training the VAE
+```{julia}
+counterfactual_data = load_mnist()
+input_dim, n_obs = size(counterfactual_data.X)
+```
+
+### Classifiers
+
+```{julia}
+flux_training_params.batchsize = Int(round(n_obs/10))
+flux_training_params.verbose = true
+M = fit_model(counterfactual_data, :MLP, n_hidden=32, batch_norm=false)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32, batch_norm=true)
+CounterfactualExplanations.reset!(flux_training_params)
+```
+
+```{julia}
+test_data = load_mnist_test()
+println("MLP test score (F1): $(model_evaluation(M, test_data))")
+println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
+```
+
+### Generative Model
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: VAE, train!
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
+X = counterfactual_data.X
+y = counterfactual_data.output_encoder.y        # raw output vector
+y = Flux.onehotbatch(y, counterfactual_data.y_levels)
+flux_training_params.verbose = true
+train!(vae, X, y)
+```
+
+
+### Testing the VAE
 
 ```{julia}
 X = counterfactual_data.X

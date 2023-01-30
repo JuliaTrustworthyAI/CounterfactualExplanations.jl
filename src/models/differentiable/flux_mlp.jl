@@ -116,9 +116,8 @@ nn = build_mlp()
 """
 function build_mlp(
     ;
-    input_dim::Int=2, n_hidden::Int=10, n_layers::Int=2, output_dim::Int=1,
-    batch_norm::Bool=false, dropout::Bool=false, activation=Flux.relu,
-    p_dropout=0.25
+    input_dim::Int=2, n_hidden::Int=10, n_layers::Int=2, output_dim::Int=1, 
+    dropout::Bool=false, activation=Flux.relu, p_dropout=0.25
 )
 
     @assert n_layers >= 1 "Need at least one layer."
@@ -128,18 +127,6 @@ function build_mlp(
         # Logistic regression:
         model = Chain(
             Dense(input_dim, output_dim)
-        )
-
-    elseif batch_norm
-
-        hidden_ = repeat([Dense(n_hidden, n_hidden), BatchNorm(n_hidden, activation)], n_layers - 2)
-
-        model = Chain(
-            Dense(input_dim, n_hidden),
-            BatchNorm(n_hidden, activation),
-            hidden_...,
-            Dense(n_hidden, output_dim),
-            BatchNorm(output_dim)
         )
 
     elseif dropout

@@ -25,8 +25,8 @@ input_dim, n_obs = size(counterfactual_data.X)
 ```{julia}
 flux_training_params.batchsize = Int(round(n_obs/10))
 flux_training_params.verbose = true
-M = fit_model(counterfactual_data, :MLP, n_hidden=32, batch_norm=true)
-M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32, batch_norm=true)
+M = fit_model(counterfactual_data, :MLP, n_hidden=32)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32)
 CounterfactualExplanations.reset!(flux_training_params)
 ```
 
@@ -45,15 +45,20 @@ Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens)
 
 ```{julia}
 using CounterfactualExplanations.GenerativeModels: VAE, train!
-vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28)
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28, hidden_dim=50)
 X = counterfactual_data.X
 y = counterfactual_data.output_encoder.y        # raw output vector
-y = Flux.onehotbatch(y, counterfactual_data.y_levels)
 flux_training_params.verbose = true
 train!(vae, X, y)
-Serialization.serialize(joinpath(model_path,"mnist_vae.jls"),vae)
+Serialization.serialize(joinpath(model_path,"mnist_vae_strong.jls"),vae)
 ```
 
+```{julia}
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
+flux_training_params.verbose = true
+train!(vae, X, y)
+Serialization.serialize(joinpath(model_path,"mnist_vae_weak.jls"),vae)
+```
 
 ## Generate Artifacts
 

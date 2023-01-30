@@ -204,7 +204,6 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
         end
 
         avg_loss = mean(avg_loss)
-        println(avg_loss)
         if flux_training_params.verbose
             next!(p_epoch, showvalues=[(:Loss, "$(avg_loss)")])
         end

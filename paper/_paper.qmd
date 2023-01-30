@@ -21,7 +21,7 @@ using MLDatasets: convert2image
 using MLUtils
 using Plots
 using Random
-Random.seed!(1234)
+Random.seed!(2022)
 theme(:wong)
 default(size=(500, 375))
 www_path = "paper/www"
@@ -363,8 +363,6 @@ M = MyFluxModel(model)
 
 ```{julia}
 # Randomly selected factual:
-using Random
-Random.seed!(42)
 x = select_factual(
     counterfactual_data, rand(1:size(X,2))) 
 factual = predict_label(
@@ -519,9 +517,99 @@ savefig(plt, joinpath(www_path, "dropout.png"))
 
 # A Real-World Example --- MNIST {#sec-emp}
 
-Now that we have explained the basic functionality of `CounterfactualExplanations.jl` through some synthetic examples, it is time to work through an example involving real data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations, because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented here. 
+Now that we have explained the basic functionality of `CounterfactualExplanations.jl` through some synthetic examples, it is time to work through examples involving real data.
 
-On the model side, we will use two pre-trained classifiers^[The pre-trained models were stored as package artifacts and loaded through helper functions.]: firstly, a simple multi-layer perceptron (MLP) and, secondly, a deep ensemble composed of five such MLPs following \cite{schut2021generating}. Deep ensembles are approximate Bayesian model averages that have been shown to yield high-quality estimates of predictive uncertainty for neural networks (\cite{wilson2020case}, \cite{lakshminarayanan2016simple}). Our package has native support for ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and prepares the pretrained models:
+## Give Me Some Credit
+
+The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}^[It is publicly available from [Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard)]. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\text{no stress},1=\text{stress}\}$ and a number of demographic and credit-related features $X$.
+
+
+```{julia}
+counterfactual_data = load_gmsc()
+M = fit_model(counterfactual_data, :MLP)
+ŷ = predict_label(M, counterfactual_data)
+# Randomly selected factual:
+target_class = 1
+non_target_class = 0
+x = select_factual(counterfactual_data,rand(findall(vec(ŷ).==non_target_class)))
+```
+
+```{julia}
+input_names = Symbol.([
+  "unsecured_lines",
+  "age",
+  "times_past_due",
+  "debt_ratio",
+  "income",
+  "number_loans",
+  "times_late",
+  "number_mortgages",
+  "times_past_due_2",
+  "number_dependents",
+])
+_mut = [:both for i in 1:length(input_names)]
+_mut[2] = :increase
+counterfactual_data.mutability = _mut
+```
+
+```{julia}
+generator = DiCEGenerator(λ=[0.1, 5.0])
+counterfactual = generate_counterfactual(
+  x, target_class, counterfactual_data, model, generator;
+  num_counterfactuals = 5
+)
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+x1 = :income   # Amount of given credit
+x2 = :age
+x_origin = vcat(x[findall(input_names.==x1)], x[findall(input_names.==x2)])
+
+# Plotting:
+plt = scatter(
+  [x_origin[1]],
+  [x_origin[2]],
+  xlabel = x1,
+  ylabel = x2,
+  colour = non_target_class,
+  ms = 10
+)
+counterfactuals = CounterfactualExplanations.counterfactual(counterfactual)
+
+map(eachslice(counterfactuals, dims=3)) do _x
+
+  _x = vcat(_x[findall(input_names.==x1)], _x[findall(input_names.==x2)])
+
+  # Marker
+  scatter!(
+    plt, 
+    [_x[1]],
+    [_x[2]],
+    colour = target_class + 1,
+    ms = 10
+  )
+
+  # Arrow
+  plot!(
+    plt, 
+    vcat(x_origin[1],_x[1]), 
+    vcat(x_origin[2],_x[2]), 
+    arrow=true, color=:white, linewidth=2, label=""
+  )
+ 
+end
+
+plot(plt, legend=false)
+```
+
+
+
+## MNIST
+
+The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
 
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
@@ -529,25 +617,27 @@ counterfactual_data = load_mnist()
 X, y = unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
-M_ens = load_mnist_ensemble()
 vae = load_mnist_vae()
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
-using Flux
-X, ys = mnist_data() 
-input_dim = size(X)[1]
-counterfactual_data = load_mnist()
-M = load_mnist_model()
-M_ens = load_mnist_ensemble()
-\end{lstlisting}
+On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads a pre-trained Variational Auto-Encoder, which will be used by our counterfactual generator of choice for this task: REVISE. 
 
 ```{julia}
+#| output: true
+using Markdown
 test_data = load_mnist_test()
-println("MLP test score (F1): $(model_evaluation(M, test_data))")
-println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
+Markdown.parse("""
+"The F1-score of our pre-trained image classifier on test data is: $(round(model_evaluation(M, test_data), digits=2))"
+""")
 ```
 
+\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
+counterfactual_data = load_mnist()
+X, y = unpack_data(counterfactual_data)
+input_dim, n_obs = size(counterfactual_data.X)
+M = load_mnist_mlp()
+vae = load_mnist_vae()
+\end{lstlisting}
 
 ```{julia}
 # Randomly selected factual:
@@ -564,100 +654,57 @@ savefig(plt_orig, "paper/www/mnist_original.png")
 
 ![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
 
-For the counterfactual search, we will use four different combinations of classifiers and generators: firstly, the generic approach for the MLP; secondly, the greedy approach for the MLP; thirdly, the generic approach for the deep ensemble; and finally, the greedy approach for the deep ensemble. 
-
-```{julia}
-#| echo: false
-
-η = 0.5
-opt = Descent(η)
-generators = Dict(
-    "Wachter" => GenericGenerator(;
-        opt = opt,
-        decision_threshold=γ
-    ),
-    "Greedy" => GreedyGenerator(;
-        ϵ = η,
-        decision_threshold=γ
-    )
-)
-models = Dict("MLP" => M, "Ensemble" => M_ens)
-```
-
-```{julia}
-using Flux: onecold
-
-# Specific image:
-function from_digit_to_digit(from::AbstractArray, to::Number, generator, model; γ=0.95, x=X, y=y, seed=1234, T=100)
-    
-    x = from
-    target = to
-    counterfactuals = Dict()
-
-    for (k_gen,v_gen) ∈ generators
-        for (k_mod,v_mod) ∈ models 
-            k = k_mod * " - " * k_gen
-            counterfactuals[k] = generate_counterfactual(x, target, counterfactual_data, v_mod, v_gen; T=T)
-        end
-    end
-
-    return counterfactuals
-
-end
-
-# Specific digit:
-function from_digit_to_digit(from::Number, to::Number, generator::Dict, model::Dict; γ=0.95, x=X, y=y, seed=1234, T=100)
-
-    Random.seed!(seed)
-
-    candidates = findall(onecold(y,0:9).==from)
-    x = Flux.unsqueeze(x[:,rand(candidates)],2)
-    target = to
-    counterfactuals = Dict()
-
-    for (k_gen,v_gen) ∈ generators
-        for (k_mod,v_mod) ∈ models 
-            k = k_mod * " - " * k_gen
-            counterfactuals[k] = generate_counterfactual(x, target, counterfactual_data, v_mod, v_gen; T=T)
-        end
-    end
-
-    return counterfactuals
-end
-```
-
-We begin by turning the nine in @fig-mnist-orig into a four. @fig-mnist-9to4 shows the resulting counterfactuals. In every case, the desired label switch is achieved, but arguably from a human perspective, only the counterfactuals for the deep ensemble look like a four. The generic generator produces mild perturbations in regions that seem irrelevant from a human perspective, but still yields a counterfactual that can pass as a four. The greedy approach \cite{schut2021generating} targets pixels at the top of the handwritten nine and yields the best result overall. For the non-bayesian MLP, both the generic and the greedy approaches generate counterfactuals that look much like adversarial examples: they perturb pixels in seemingly random regions on the image. @fig-mnist-3to8 shows another example. This time the goal is to turn a randomly chosen three (3) into an eight (8). Once again the outcomes for the deep ensemble look more realistic, but overall the generated counterfactuals look less effective than those in @fig-mnist-9to4. The results could likely be improved by using adversarial training for the classifiers as recommended in \cite{schut2021generating}.
-
-```{julia}
-to = 4
-counterfactuals = from_digit_to_digit(x,to,generators,models,T=100)
-plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
-plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
-savefig(plt, "paper/www/mnist_9_to_4.png")
-```
-
-![Counterfactual explanations for MNIST: turning a nine (9) into a four (4).](www/mnist_9_to_4.png){#fig-mnist-9to4 width=20pc height=5pc}
-
-```{julia}
-from = 3
-to = 8
-counterfactuals = from_digit_to_digit(from,to,generators,models,T=100)
-plts =  first(values(counterfactuals)).x |> x -> plot(convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim)))),title="Original")
-plts = vcat(plts, [plot(convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(v),Int(√(input_dim)),Int(√(input_dim)))),title=k) for (k,v) in counterfactuals])
-plt = plot(plts...,layout=(1,length(plts)),axis=nothing, size=(1200,300))
-savefig(plt, "paper/www/mnist_$(from)_to_$(to).png")
-```
-
-![Counterfactual explanations for MNIST: turning a three (3) into an eight (8).](www/mnist_3_to_8.png){#fig-mnist-3to8 width=20pc height=5pc}
-
-Overall, the examples in this section demonstrate two points that we have already made earlier: firstly, the findings in \cite{schut2021generating} can complement other existing approaches to counterfactual generation; and secondly, the quality of the classifier is typically reflected in the quality of the Counterfactual Explanations. In other words, we cannot easily generate effective Counterfactual Explanations for a poorly trained model.
-
-A notable exception to this is Latent Space generators. The counterfactual in @fig-mnist-4to9-latent was generated using the REVISE generator introduced earlier. The underlying black-box model is the same as before and yet the quality of the produced counterfactual is arguably the most compelling out of all examples shown here. While in terms of meeting the desiderata for realistic counterfactuals, REVISE does remarkably well here, one has to wonder how desirable it is to generate compelling explanations for inherently unstable models. Applying REVISE blindly to this particular problem may lead users to believe that the classifier is well-specified: after all, the explanation looks plausible from a human perspective. The fact that less plausible counterfactuals also yield a change in the predicted outcome goes unnoticed. 
+The counterfactual in @fig-mnist-4to9-latent was generated using the REVISE generator introduced earlier. The underlying black-box model is the same as before and yet the quality of the produced counterfactual is arguably the most compelling out of all examples shown here. While in terms of meeting the desiderata for realistic counterfactuals, REVISE does remarkably well here, one has to wonder how desirable it is to generate compelling explanations for inherently unstable models. Applying REVISE blindly to this particular problem may lead users to believe that the classifier is well-specified: after all, the explanation looks plausible from a human perspective. The fact that less plausible counterfactuals also yield a change in the predicted outcome goes unnoticed. 
 
 It may therefore actually be desirable that the quality of counterfactuals is inherently linked to the quality of the black-box model: if a model bases its predictions on representations that are not intuitive to a human, we would like that to be evident from the counterfactual explanation. From that perspective, Counterfactual Explanations can help us not only understand a black-box model but potentially also guide us in improving it. 
 
-![Counterfactual explanations for MNIST using a Latent Space generator with a well-specified generative model.](www/mnist_9to4_latent.png){#fig-mnist-4to9-latent width=13pc height=5pc}
+```{julia}
+counterfactual_data.generative_model = vae # assign generative model
+input_dim = size(X,1)
+target = 4
+factual = predict_label(M, counterfactual_data, x)[1]
+γ = 0.975
+
+# Define generator:
+generator = REVISEGenerator(
+  opt = Descent(0.05),
+  decision_threshold = γ
+)
+# Generate recourse:
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+using MLDatasets: convert2image
+using Images
+image_size = 300
+function build_plot(x,ce;kwrgs...)
+    p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
+    target_prob = round(target_probs(ce)[1],digits=2)
+    ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
+    p2 = plot(
+      convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
+      axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target))=$(target_prob)"
+    )
+    plt = plot(p1,p2;size=(500,image_size),kwrgs...)
+    return plt
+end
+plt = build_plot(x, ce; plot_title="Expressive VAE")
+savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
+```
+
+```{julia}
+counterfactual_data.generative_model = nothing
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+
+
+![Counterfactual explanations for MNIST using a Latent Space generator with an expressive generative model.](www/mnist_9to4_latent.png){#fig-mnist-4to9-latent width=13pc height=5pc}
+
+
+
+
 
 # Discussion and Outlook {#sec-outlook}
 

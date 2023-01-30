@@ -65,10 +65,8 @@ function Plots.plot(
         Z = [predict_([x, y]) for x in x_range, y in y_range]
     else
         predict_ = function (X::AbstractVector)
-            z = Models.probs(M, X)
-            if length(z) == 1 # binary
-                z = [1.0 - z[1], z[1]]
-            end
+            X = permutedims(permutedims(X))
+            z = predict_proba(M, data, X)
             return z
         end
         Z = [predict_([x, y]) for x in x_range, y in y_range]

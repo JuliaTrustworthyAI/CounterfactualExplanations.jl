@@ -14,7 +14,7 @@ eval(setup_docs)
 
 ```{julia}
 n = 200
-data_name = :linearly_separable
+data_name = :multi_class
 model_name = :MLP
 counterfactual_data = data_catalogue[:synthetic][data_name](n)
 M = fit_model(counterfactual_data, model_name)
@@ -27,14 +27,14 @@ y = predict_label(M, counterfactual_data, x)[1]
 target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
 # Search params:
 opt = Descent(0.01)
-γ = 0.5
+γ = 0.95
 ces = Dict()
 plts = []
 # Search:
 for (key, Generator) in generator_catalog
     generator = Generator(; 
         opt=opt, 
-        # decision_threshold=γ
+        decision_threshold=γ
     )
     ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
     ces[key] = ce
