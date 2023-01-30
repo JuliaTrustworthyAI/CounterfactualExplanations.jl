@@ -25,9 +25,9 @@ input_dim, n_obs = size(counterfactual_data.X)
 ```{julia}
 flux_training_params.batchsize = Int(round(n_obs/10))
 flux_training_params.verbose = true
-M = fit_model(counterfactual_data, :MLP, n_hidden=32)
-M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32)
-reset!(flux_training_params)
+M = fit_model(counterfactual_data, :MLP, n_hidden=32, batch_norm=true)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32, batch_norm=true)
+CounterfactualExplanations.reset!(flux_training_params)
 ```
 
 ```{julia}

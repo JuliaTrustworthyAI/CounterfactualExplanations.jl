@@ -273,7 +273,8 @@ picture_kwargs = (
     clip_border=true,
     m_alpha=0.5,
     generator=GravitationalGenerator(
-        opt=Flux.Descent(0.0005)
+        decision_threshold=0.75,
+        opt=Descent(0.01)
     )
 )
 

@@ -236,7 +236,7 @@ Returns the indices of all continuous features that can be transformed. For cons
 """
 function transformable_features(counterfactual_data::CounterfactualData)
     # Find all columns that have varying values:
-    idx_not_all_equal = [!allequal(counterfactual_data.X[i, :]) for i in counterfactual_data.features_continuous]
+    idx_not_all_equal = [length(unique(counterfactual_data.X[i, :])) != 1 for i in counterfactual_data.features_continuous]
     # Returns indices of columns that have varying values:
     return counterfactual_data.features_continuous[idx_not_all_equal]
 end
