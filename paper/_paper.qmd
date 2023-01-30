@@ -709,7 +709,7 @@ vae = load_mnist_vae()
 \end{lstlisting}
 
 ```{julia}
-Random.seed!(2023)
+# Random.seed!(2023)
 # Randomly selected factual:
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==9))],input_dim,1)
 target = 4
@@ -766,11 +766,11 @@ savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
 
 ::: {#fig-mnist layout-ncol=3}
 
-![Original image.](www/mnist_factual.png){#fig-mnist-factual height=15pc}
+![Original image.](www/mnist_factual.png){#fig-mnist-factual width="20pc" height="30px"}
 
-![REVISE with expressive VAE.](www/mnist_vae_strong.png){#fig-mnist-strong height=15pc}
+![REVISE with expressive VAE.](www/mnist_vae_strong.png){#fig-mnist-strong width="20pc" height="15pc"}
 
-![REVISE with weak VAE.](www/mnist_vae_weak.png){#fig-mnist-weak height=15pc}
+![REVISE with weak VAE.](www/mnist_vae_weak.png){#fig-mnist-weak width="20pc" height="15pc"}
 
 Counterfactual explanations for MNIST using a Latent Space generator: turning a nine (9) into a four (4).
 :::
