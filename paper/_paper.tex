@@ -145,7 +145,7 @@
 \date{}
 
 \begin{document}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, frame hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, enhanced, sharp corners]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, frame hidden, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, enhanced, interior hidden, breakable]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -440,8 +440,8 @@ AI} infrastructure, which focuses exclusively on interpretable models.
 Arguably the current availability of tools for explaining black-box
 models in Julia is limited, but it appears that the community is
 invested in changing that. The team behind \texttt{MLJ.jl}, for example,
-has contributed contributors for a project about both interpretable and
-explainable AI in 2022.\footnote{For details, see the Google Summer of
+recruited contributors for a project about both Interpretable and
+Explainable AI in 2022.\footnote{For details, see the Google Summer of
   Code 2022 project proposal:
   \url{https://julialang.org/jsoc/gsoc/MLJ/\#interpretable_machine_learning_in_julia}.}
 With our work on Counterfactual Explanations we hope to contribute to
@@ -463,14 +463,19 @@ algorithms.\footnote{We have made an effort to keep the code base a
   point that any counterfactual generator can be implemented without
   further adaptation.} The core function of the package
 \texttt{generate\_counterfactual} uses an instance of type
-\texttt{T\ \textless{}:\ AbstractFittedModel} produced by the
+\texttt{\textless{}:\ AbstractFittedModel} produced by the
 \texttt{Models} module and an instance of type
-\texttt{T\ \textless{}:\ AbstractGenerator} produced by the
+\texttt{\textless{}:\ AbstractGenerator} produced by the
 \texttt{Generators} module. Relating this to the methodology outlined in
 Section~\ref{sec-method}, the former instance corresponds to the model
 \(M\), while the latter defines the rules for the counterfactual search
-(Equation~\ref{eq-solution}). At the time of writing the following
-counterfactual generators have been implemented in the package:
+(Equation~\ref{eq-solution}).
+
+\hypertarget{generators}{%
+\subsection{Generators}\label{generators}}
+
+At the time of writing the following counterfactual generators have been
+implemented in the package:
 
 \begin{itemize}
 \item Generic \cite{wachter2017counterfactual}
@@ -481,8 +486,57 @@ counterfactual generators have been implemented in the package:
 \item Gravitational \cite{altmeyer2023endogenous}
 \end{itemize}
 
+\hypertarget{models}{%
+\subsection{Models}\label{models}}
+
 The package currently offers native support for models built and trained
-in \href{https://fluxml.ai/}{Flux}.
+in \href{https://fluxml.ai/}{Flux}. While in general it is assumed that
+users will use this package to explain their pre-trained models, we
+provide a simple API call to train the following simple default models:
+
+\begin{itemize}
+\item Linear Classifier (Logistic Regression)
+\item Multi-Layer Perceptron (Deep Neural Network)
+\item Deep Ensemble \cite{lakshminarayanan2016simple}
+\end{itemize}
+
+Through optional arguments, users can control the neural network
+architecture and impose regularization through dropout.
+
+As we demonstrate below, it is straightforward to extend the package
+through custom models, although, at the time of writing, models are
+required to support auto-differentiation. Support for \texttt{torch}
+models trained in Python and R is possible, but currently still
+experimental.
+
+\hypertarget{data-and-benchmarking}{%
+\subsection{Data and Benchmarking}\label{data-and-benchmarking}}
+
+To allow researchers and practitioners to test and compare
+counterfactual generators, the package ships with pre-processed
+synthetic and real-world benchmark datasets from different domains.
+Real-world datasets include:
+
+\begin{itemize}
+\item California Housing 
+\item UCI credit.Default
+\item Give Me Some Credit
+\item MNIST
+\end{itemize}
+
+\hypertarget{plotting}{%
+\subsection{Plotting}\label{plotting}}
+
+The package also extends common \texttt{Plots.jl} methods to facilitate
+the visualization of results. Calling the generic \texttt{plot()} method
+on an instance of type \texttt{\textless{}:CounterfactualExplanation},
+for example, generates a plot visualizing the entire counterfactual path
+in the feature space\footnote{For multi-dimensional input data, standard
+  dimensionality reduction techniques are used to compress the data. In
+  this case, the classifier's decision boundary is approximated through
+  a Nearest Neighbour model. This is still somewhat experimental and
+  will be improved in the future.}. We will see several examples of this
+below.
 
 \begin{figure}
 
@@ -871,11 +925,11 @@ import Generators: propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_explanation::State
+    ce::CouterfactualExplanation
 )
-    @$s^\prime$@ = deepcopy(counterfactual_explanation.@$s^\prime$@)
+    @$s^\prime$@ = deepcopy(ce.@$s^\prime$@)
     new_@$s^\prime$@ = propose_state(
-        generator, counterfactual_explanation)
+        generator, ce)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
 
     # Dropout:

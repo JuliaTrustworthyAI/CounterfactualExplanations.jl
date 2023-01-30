@@ -81,11 +81,15 @@ Numerous - and in some cases competing - extensions to this simple approach have
 
 To the best of our knowledge, the package introduced here provides the first implementation of Counterfactual Explanations in Julia and therefore represents a novel contribution to the community. As for other programming languages, we are only aware of one other unifying framework: the recently introduced Python library [CARLA](https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest) \cite{pawelczyk2021carla}. In addition to that, there exists open-source code for some specific approaches to Counterfactual Explanations that have been proposed in recent years. The approach-specific implementations that we have been able to find are generally well-documented, but exclusively in Python. For example, a PyTorch implementation of a greedy generator for Bayesian models proposed in \cite{schut2021generating} has been released. As another example, the popular [InterpretML](https://github.com/interpretml) library includes an implementation of a diverse counterfactual generator proposed by \cite{mothilal2020explaining}. 
 
-Generally speaking, software development in the space of XAI has largely focused on various global methods and surrogate explainers: implementations of PDP, LIME and SHAP are available for both Python (e.g. [`lime`](https://github.com/marcotcr/lime), [`shap`](https://github.com/slundberg/shap)) and R (e.g. [`lime`](https://cran.r-project.org/web/packages/lime/index.html), [`iml`](https://cran.r-project.org/web/packages/lime/index.html), [`shapper`](https://modeloriented.github.io/shapper/), [`fastshap`](https://github.com/bgreenwell/fastshap)). In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely `ShapML.jl` which provides a fast implementation of SHAP.^[See here: [https://github.com/nredell/ShapML.jl](https://github.com/nredell/ShapML.jl)] We also should not fail to mention the comprehensive [Interpretable AI](https://docs.interpretable.ai/stable/IAIBase/data/) infrastructure, which focuses exclusively on interpretable models. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, has contributed contributors for a project about both interpretable and explainable AI in 2022.^[For details, see the Google Summer of Code 2022 project proposal: [https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia](https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia).] With our work on Counterfactual Explanations we hope to contribute to these efforts. We think that because of its unique transparency the Julia language naturally lends itself towards building a greater degree of trust in Machine Learning and Artificial Intelligence.
+Generally speaking, software development in the space of XAI has largely focused on various global methods and surrogate explainers: implementations of PDP, LIME and SHAP are available for both Python (e.g. [`lime`](https://github.com/marcotcr/lime), [`shap`](https://github.com/slundberg/shap)) and R (e.g. [`lime`](https://cran.r-project.org/web/packages/lime/index.html), [`iml`](https://cran.r-project.org/web/packages/lime/index.html), [`shapper`](https://modeloriented.github.io/shapper/), [`fastshap`](https://github.com/bgreenwell/fastshap)). In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely `ShapML.jl` which provides a fast implementation of SHAP.^[See here: [https://github.com/nredell/ShapML.jl](https://github.com/nredell/ShapML.jl)] We also should not fail to mention the comprehensive [Interpretable AI](https://docs.interpretable.ai/stable/IAIBase/data/) infrastructure, which focuses exclusively on interpretable models. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, recruited contributors for a project about both Interpretable and Explainable AI in 2022.^[For details, see the Google Summer of Code 2022 project proposal: [https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia](https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia).] With our work on Counterfactual Explanations we hope to contribute to these efforts. We think that because of its unique transparency the Julia language naturally lends itself towards building a greater degree of trust in Machine Learning and Artificial Intelligence.
 
 # Introducing: `CounterfactualExplanations.jl` {#sec-arch}
 
-@fig-arch provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and extensible as possible, but cannot guarantee at this point that any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `T <: AbstractFittedModel` produced by the `Models` module and an instance of type `T <: AbstractGenerator` produced by the `Generators` module. Relating this to the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution). At the time of writing the following counterfactual generators have been implemented in the package:
+@fig-arch provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and extensible as possible, but cannot guarantee at this point that any counterfactual generator can be implemented without further adaptation.] The core function of the package `generate_counterfactual` uses an instance of type `<: AbstractFittedModel` produced by the `Models` module and an instance of type `<: AbstractGenerator` produced by the `Generators` module. Relating this to the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution). 
+
+## Generators
+
+At the time of writing the following counterfactual generators have been implemented in the package:
 
 \begin{itemize}
 \item Generic \cite{wachter2017counterfactual}
@@ -96,7 +100,34 @@ Generally speaking, software development in the space of XAI has largely focused
 \item Gravitational \cite{altmeyer2023endogenous}
 \end{itemize}
 
-The package currently offers native support for models built and trained in [Flux](https://fluxml.ai/). 
+## Models
+
+The package currently offers native support for models built and trained in [Flux](https://fluxml.ai/). While in general it is assumed that users will use this package to explain their pre-trained models, we provide a simple API call to train the following simple default models:
+
+\begin{itemize}
+\item Linear Classifier (Logistic Regression)
+\item Multi-Layer Perceptron (Deep Neural Network)
+\item Deep Ensemble \cite{lakshminarayanan2016simple}
+\end{itemize}
+
+Through optional arguments, users can control the neural network architecture and impose regularization through dropout. 
+
+As we demonstrate below, it is straightforward to extend the package through custom models, although, at the time of writing, models are required to support auto-differentiation. Support for `torch` models trained in Python and R is possible, but currently still experimental.
+
+## Data and Benchmarking
+
+To allow researchers and practitioners to test and compare counterfactual generators, the package ships with pre-processed synthetic and real-world benchmark datasets from different domains. Real-world datasets include:
+
+\begin{itemize}
+\item California Housing 
+\item UCI credit.Default
+\item Give Me Some Credit
+\item MNIST
+\end{itemize}
+
+## Plotting
+
+The package also extends common `Plots.jl` methods to facilitate the visualization of results. Calling the generic `plot()` method on an instance of type `<:CounterfactualExplanation`, for example, generates a plot visualizing the entire counterfactual path in the feature space^[For multi-dimensional input data, standard dimensionality reduction techniques are used to compress the data. In this case, the classifier's decision boundary is approximated through a Nearest Neighbour model. This is still somewhat experimental and will be improved in the future.]. We will see several examples of this below.
 
 ![High-level schematic overview of package architecture. Modules are shown in red, structs in green and functions in blue.](www/pkg_architecture.png){#fig-arch width=20pc height=12pc}
 
@@ -445,10 +476,10 @@ import .Generators: generate_perturbations, propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_explanation::CounterfactualExplanation
+    current_exceptions::CounterfactualExplanation
 )
-    s′ = deepcopy(counterfactual_explanation.s′)
-    new_s′ = propose_state(generator, counterfactual_explanation)
+    s′ = deepcopy(ceil.s′)
+    new_s′ = propose_state(generator, ce)
     Δs′ = new_s′ - s′ # gradient step
 
     # Dropout:
@@ -469,11 +500,11 @@ import Generators: propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_explanation::State
+    ce::CouterfactualExplanation
 )
-    @$s^\prime$@ = deepcopy(counterfactual_explanation.@$s^\prime$@)
+    @$s^\prime$@ = deepcopy(ce.@$s^\prime$@)
     new_@$s^\prime$@ = propose_state(
-        generator, counterfactual_explanation)
+        generator, ce)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
 
     # Dropout:
@@ -632,7 +663,7 @@ map(enumerate(counterfactuals)) do (idx, x)
         plt, 
         vcat(x_origin[1],_x[1]), 
         vcat(x_origin[2],_x[2]), 
-        arrow=true, color=:white, linewidth=2, label=""
+        arrow=true, color=:black, linewidth=2, label=""
     )
  
 end
