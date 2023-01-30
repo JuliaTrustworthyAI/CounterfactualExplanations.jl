@@ -521,18 +521,33 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 
 ## Give Me Some Credit
 
-The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}^[It is publicly available from [Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard)]. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\text{no stress},1=\text{stress}\}$ and a number of demographic and credit-related features $X$.
-Using the DiCE generator we will generate counterfactuals for a randomly chosen individual in the non-target class. With respect to the mutability of features, we only impose that the `age` cannot be decreased. 
+The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}^[It is publicly available from [Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard)]. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income` $X$. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
 
 ```{julia}
-counterfactual_data = load_gmsc()
-M = fit_model(counterfactual_data, :MLP)
-ŷ = predict_label(M, counterfactual_data)
+counterfactual_data = load_gmsc(10000)
+train_data, test_data = CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
+flux_training_params.batchsize = 50
+flux_training_params.verbose = true
+M = fit_model(train_data, :MLP; dropout=true, n_hidden=64, n_layers=4)
+ŷ = predict_label(M, train_data)
 # Randomly selected factual:
 target_class = 1
 non_target_class = 0
-x = select_factual(counterfactual_data,rand(findall(vec(ŷ).==non_target_class)))
+x = select_factual(train_data,rand(findall(vec(ŷ).==non_target_class),10))
+CounterfactualExplanations.reset!(flux_training_params)
 ```
+
+For the classification task we use a Multi-Layer Perceptron with dropout regularization. 
+
+```{julia}
+#| output: true
+using Markdown
+Markdown.parse("""
+"The F1-score of our pre-trained classifier on test data is: $(round(model_evaluation(M, test_data), digits=2))"
+""")
+```
+
+Using the generic generator (Wachter) we will generate counterfactuals for ten randomly chosen individuals that would be denied credit based on our pre-trained model. With respect to the mutability of features, we only impose that the `age` cannot be decreased. 
 
 ```{julia}
 input_names = Symbol.([
@@ -550,64 +565,89 @@ input_names = Symbol.([
 _mut = [:both for i in 1:length(input_names)]
 _mut[2] = :increase
 counterfactual_data.mutability = _mut
+x1 = :income   # Amount of given credit
+x2 = :age
 ```
 
 ```{julia}
-generator = DiCEGenerator(λ=[0.1, 5.0])
-counterfactual = generate_counterfactual(
-  x, target_class, counterfactual_data, model, generator;
-  num_counterfactuals = 5
+generator = GenericGenerator(
+    decision_threshold = 0.8,
+    opt = Descent(0.1)
+)
+counterfactuals = generate_counterfactual(
+  x, target_class, counterfactual_data, M, generator;
+  initialization = :identity
 )
 ```
+
 
 ```{julia}
 #| echo: false
 #| output: true
 
-x1 = :income   # Amount of given credit
-x2 = :age
-x_origin = vcat(x[findall(input_names.==x1)], x[findall(input_names.==x2)])
-
 # Plotting:
-plt = scatter(
-  [x_origin[1]],
-  [x_origin[2]],
-  xlabel = x1,
-  ylabel = x2,
-  colour = non_target_class,
-  ms = 10
-)
-counterfactuals = CounterfactualExplanations.counterfactual(counterfactual)
+plt = plot()
 
-map(eachslice(counterfactuals, dims=3)) do _x
+map(enumerate(counterfactuals)) do (idx, x)
 
-  _x = vcat(_x[findall(input_names.==x1)], _x[findall(input_names.==x2)])
+    x_origin = x.x
+    x_origin = selectdim(x_origin,3,1)
+    x_origin = vcat(x_origin[findall(input_names.==x1)], x_origin[findall(input_names.==x2)])
 
-  # Marker
-  scatter!(
-    plt, 
-    [_x[1]],
-    [_x[2]],
-    colour = target_class + 1,
-    ms = 10
-  )
+    _x = CounterfactualExplanations.counterfactual(x)
+    _x = selectdim(_x,3,1)
+    _x = vcat(_x[findall(input_names.==x1)], _x[findall(input_names.==x2)])
 
-  # Arrow
-  plot!(
-    plt, 
-    vcat(x_origin[1],_x[1]), 
-    vcat(x_origin[2],_x[2]), 
-    arrow=true, color=:white, linewidth=2, label=""
-  )
+    if idx == 1
+        non_target_label = "loan denied"
+        target_label = "loan provided"
+    else
+        non_target_label = ""
+        target_label = ""
+    end
+
+    scatter!(
+        plt, 
+        [x_origin[1]],
+        [x_origin[2]],
+        xlabel = x1,
+        ylabel = x2,
+        colour = non_target_class,
+        label = non_target_label,
+        ms = 10
+    )
+
+    # Marker
+    scatter!(
+        plt, 
+        [_x[1]],
+        [_x[2]],
+        colour = target_class,
+        label = target_label,
+        ms = 10
+    )
+
+    # Arrow
+    plot!(
+        plt, 
+        vcat(x_origin[1],_x[1]), 
+        vcat(x_origin[2],_x[2]), 
+        arrow=true, color=:white, linewidth=2, label=""
+    )
  
 end
 
-plot(plt, legend=false)
+plt = plot(plt)
+savefig(plt, joinpath(www_path, "credit.png"))
 ```
+
+@fig-credit shows the resulting counterfactuals proposed by Wachter in the two-dimensional feature space spanned by the `age` and `income` variables. An increase in income and age is recommended for the majority of individuals, which seems plausible: both age and income are typically positively related with creditworthiness. 
+
+![Give Me Some Credit: counterfactuals for would-be borrowers proposed by Wachter.](www/credit.png){#fig-credit width=20pc height=15pc}
 
 ## MNIST
 
-The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
+For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
 
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
@@ -616,9 +656,10 @@ X, y = unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 vae = load_mnist_vae()
+vae_weak = load_mnist_vae(;strong=false)
 ```
 
-On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads a pre-trained Variational Auto-Encoder, which will be used by our counterfactual generator of choice for this task: REVISE. 
+On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads a two pre-trained Variational Auto-Encoders, which will be used by our counterfactual generator of choice for this task: REVISE. 
 
 ```{julia}
 #| output: true
@@ -638,6 +679,7 @@ vae = load_mnist_vae()
 \end{lstlisting}
 
 ```{julia}
+Random.seed!(2023)
 # Randomly selected factual:
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==9))],input_dim,1)
 target = 4
@@ -646,63 +688,55 @@ using Images
 using MLDatasets: convert2image, MNIST
 input_dim = size(X)[1]
 img = convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim))))
-plt_orig = plot(img, title="Original", axis=nothing)
+plt_orig = plot(img, title="Original", axis=([],false))
 savefig(plt_orig, "paper/www/mnist_original.png")
 ```
 
 ![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
 
-The counterfactual in @fig-mnist-4to9-latent was generated using the REVISE generator introduced earlier. The underlying black-box model is the same as before and yet the quality of the produced counterfactual is arguably the most compelling out of all examples shown here. While in terms of meeting the desiderata for realistic counterfactuals, REVISE does remarkably well here, one has to wonder how desirable it is to generate compelling explanations for inherently unstable models. Applying REVISE blindly to this particular problem may lead users to believe that the classifier is well-specified: after all, the explanation looks plausible from a human perspective. The fact that less plausible counterfactuals also yield a change in the predicted outcome goes unnoticed. 
-
-It may therefore actually be desirable that the quality of counterfactuals is inherently linked to the quality of the black-box model: if a model bases its predictions on representations that are not intuitive to a human, we would like that to be evident from the counterfactual explanation. From that perspective, Counterfactual Explanations can help us not only understand a black-box model but potentially also guide us in improving it. 
+The proposed counterfactuals are shown in @fig-mnist-4to9-latent. In the case in which REVISE has access to an expressive VAE, the result looks convincing: the perturbed image does look like it represents a four (4). In terms of explainability, we may conclude that removing the top part of the handwritten nine (9) leads the black-box model to predict that the perturbed image represents a four (4). We should note, however, that the quality of counterfactuals produced by REVISE hinges on the performance of the underlying generative model, as demonstrated by the result on the right. In this case, REVISE uses a weak VAE and the resulting counterfactual is invalid. In light of this, we recommend using Latent Space search with care. 
 
 ```{julia}
 counterfactual_data.generative_model = vae # assign generative model
 input_dim = size(X,1)
 target = 4
 factual = predict_label(M, counterfactual_data, x)[1]
-γ = 0.975
+γ = 0.99
 
 # Define generator:
 generator = REVISEGenerator(
-  opt = Descent(0.05),
+  opt = Descent(0.1),
   decision_threshold = γ
 )
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+counterfactual_data = deepcopy(counterfactual_data)
+counterfactual_data.generative_model = vae_weak
+ce_weak = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
 using MLDatasets: convert2image
 using Images
 image_size = 300
-function build_plot(x,ce;kwrgs...)
-    p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=nothing, title="Factual")
-    target_prob = round(target_probs(ce)[1],digits=2)
-    ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
-    p2 = plot(
-      convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
-      axis=nothing,title="ŷ=$(ŷ); p̂(y=$(target))=$(target_prob)"
-    )
-    plt = plot(p1,p2;size=(500,image_size),kwrgs...)
-    return plt
-end
-plt = build_plot(x, ce; plot_title="Expressive VAE")
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=([],false), title="Factual")
+target_prob = round(target_probs(ce)[1],digits=2)
+ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
+p2 = plot(
+    convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
+    axis=([],false),title="Expressive VAE"
+)
+target_prob = round(target_probs(ce_weak)[1],digits=2)
+ŷ = CounterfactualExplanations.counterfactual_label(ce_weak)[1]
+p3 = plot(
+    convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce_weak),28,28)),
+    axis=([],false),title="Weak VAE"
+)
+plt = plot(p1,p2,p3;size=(image_size * 3,image_size), layout=(1,3))
 savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
 ```
 
-```{julia}
-counterfactual_data.generative_model = nothing
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-```
-
-
-
-![Counterfactual explanations for MNIST using a Latent Space generator with an expressive generative model.](www/mnist_9to4_latent.png){#fig-mnist-4to9-latent width=13pc height=5pc}
-
-
-
-
+![Counterfactual explanations for MNIST using a Latent Space generator with an expressive VAE (center) and a weak VAE (right).](www/mnist_9to4_latent.png){#fig-mnist-4to9-latent width=13pc height=5pc}
 
 # Discussion and Outlook {#sec-outlook}
 
