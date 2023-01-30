@@ -21,7 +21,7 @@ using MLDatasets: convert2image
 using MLUtils
 using Plots
 using Random
-Random.seed!(2022)
+Random.seed!(42)
 theme(:wong)
 default(size=(500, 375))
 www_path = "paper/www"
@@ -119,10 +119,10 @@ As we demonstrate below, it is straightforward to extend the package through cus
 To allow researchers and practitioners to test and compare counterfactual generators, the package ships with pre-processed synthetic and real-world benchmark datasets from different domains. Real-world datasets include:
 
 \begin{itemize}
-\item California Housing 
-\item UCI credit.Default
-\item Give Me Some Credit
-\item MNIST
+\item California Housing \cite{pace1997sparse}
+\item UCI defaultCredit \cite{yeh2009comparisons}
+\item Give Me Some Credit \cite{kaggle2011give}
+\item MNIST \cite{lecun1998mnist}
 \end{itemize}
 
 ## Plotting
@@ -476,9 +476,9 @@ import .Generators: generate_perturbations, propose_state
 using StatsBase
 function generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    current_exceptions::CounterfactualExplanation
+    ce::CounterfactualExplanation
 )
-    s′ = deepcopy(ceil.s′)
+    s′ = deepcopy(ce.s′)
     new_s′ = propose_state(generator, ce)
     Δs′ = new_s′ - s′ # gradient step
 
@@ -521,9 +521,8 @@ end
 Finally, we proceed to generate counterfactuals in the same way we always do. The resulting counterfactual path is shown in @fig-dropout.
 
 ```{julia}
-N = 25
 # Data and Classifier:
-counterfactual_data = load_linearly_separable(N)
+counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
 
 # Factual and Target:
@@ -546,13 +545,13 @@ savefig(plt, joinpath(www_path, "dropout.png"))
 
 ![Counterfactual path for a generator with dropout.](www/dropout.png){#fig-dropout width=20pc height=15pc}
 
-# A Real-World Example --- MNIST {#sec-emp}
+# A Real-World Examples {#sec-emp}
 
 Now that we have explained the basic functionality of `CounterfactualExplanations.jl` through some synthetic examples, it is time to work through examples involving real data.
 
 ## Give Me Some Credit
 
-The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}^[It is publicly available from [Kaggle](https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard)]. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income` $X$. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
+The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income` $X$. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
 
 ```{julia}
 counterfactual_data = load_gmsc(10000)
@@ -678,7 +677,7 @@ savefig(plt, joinpath(www_path, "credit.png"))
 
 ## MNIST
 
-For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-orig into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
+For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-factual into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
 
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
@@ -718,14 +717,9 @@ target = 4
 using Images
 using MLDatasets: convert2image, MNIST
 input_dim = size(X)[1]
-img = convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim))))
-plt_orig = plot(img, title="Original", axis=([],false))
-savefig(plt_orig, "paper/www/mnist_original.png")
 ```
 
-![A handwritten nine (9) randomly drawn from the MNIST dataset.](www/mnist_original.png){#fig-mnist-orig width=10pc height=7.5pc}
-
-The proposed counterfactuals are shown in @fig-mnist-4to9-latent. In the case in which REVISE has access to an expressive VAE, the result looks convincing: the perturbed image does look like it represents a four (4). In terms of explainability, we may conclude that removing the top part of the handwritten nine (9) leads the black-box model to predict that the perturbed image represents a four (4). We should note, however, that the quality of counterfactuals produced by REVISE hinges on the performance of the underlying generative model, as demonstrated by the result on the right. In this case, REVISE uses a weak VAE and the resulting counterfactual is invalid. In light of this, we recommend using Latent Space search with care. 
+The proposed counterfactuals are shown in @fig-mnist. In the case in which REVISE has access to an expressive VAE (@fig-mnist-strong), the result looks convincing: the perturbed image does look like it represents a four (4). In terms of explainability, we may conclude that removing the top part of the handwritten nine (9) leads the black-box model to predict that the perturbed image represents a four (4). We should note, however, that the quality of counterfactuals produced by REVISE hinges on the performance of the underlying generative model, as demonstrated by the result on the right (@fig-mnist-weak). In this case, REVISE uses a weak VAE and the resulting counterfactual is invalid. In light of this, we recommend using Latent Space search with care. 
 
 ```{julia}
 counterfactual_data.generative_model = vae # assign generative model
@@ -750,24 +744,36 @@ ce_weak = generate_counterfactual(x, target, counterfactual_data, M, generator)
 using MLDatasets: convert2image
 using Images
 image_size = 300
-p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=([],false), title="Factual")
+p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=([],false), size=(image_size, image_size))
+savefig(p1, joinpath(www_path, "mnist_factual.png"))
 target_prob = round(target_probs(ce)[1],digits=2)
 ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
 p2 = plot(
     convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
-    axis=([],false),title="Expressive VAE"
+    axis=([],false), size=(image_size, image_size)
 )
+savefig(p2, joinpath(www_path, "mnist_vae_strong.png"))
 target_prob = round(target_probs(ce_weak)[1],digits=2)
 ŷ = CounterfactualExplanations.counterfactual_label(ce_weak)[1]
 p3 = plot(
     convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce_weak),28,28)),
-    axis=([],false),title="Weak VAE"
+    axis=([],false), size=(image_size, image_size)
 )
+savefig(p3, joinpath(www_path, "mnist_vae_weak.png"))
 plt = plot(p1,p2,p3;size=(image_size * 3,image_size), layout=(1,3))
 savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
 ```
 
-![Counterfactual explanations for MNIST using a Latent Space generator with an expressive VAE (center) and a weak VAE (right).](www/mnist_9to4_latent.png){#fig-mnist-4to9-latent width=13pc height=5pc}
+::: {#fig-mnist layout-ncol=3}
+
+![Original image.](www/mnist_factual.png){#fig-mnist-factual height=15pc}
+
+![REVISE with expressive VAE.](www/mnist_vae_strong.png){#fig-mnist-strong height=15pc}
+
+![REVISE with weak VAE.](www/mnist_vae_weak.png){#fig-mnist-weak height=15pc}
+
+Counterfactual explanations for MNIST using a Latent Space generator: turning a nine (9) into a four (4).
+:::
 
 # Discussion and Outlook {#sec-outlook}
 

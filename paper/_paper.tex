@@ -145,7 +145,7 @@
 \date{}
 
 \begin{document}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, frame hidden, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, enhanced, interior hidden, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[enhanced, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, frame hidden, interior hidden, sharp corners, breakable]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -518,10 +518,10 @@ synthetic and real-world benchmark datasets from different domains.
 Real-world datasets include:
 
 \begin{itemize}
-\item California Housing 
-\item UCI credit.Default
-\item Give Me Some Credit
-\item MNIST
+\item California Housing \cite{pace1997sparse}
+\item UCI defaultCredit \cite{yeh2009comparisons}
+\item Give Me Some Credit \cite{kaggle2011give}
+\item MNIST \cite{lecun1998mnist}
 \end{itemize}
 
 \hypertarget{plotting}{%
@@ -959,7 +959,7 @@ dropout.}
 \end{figure}
 
 \hypertarget{sec-emp}{%
-\section{A Real-World Example --- MNIST}\label{sec-emp}}
+\section{A Real-World Examples}\label{sec-emp}}
 
 Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations.jl} through some synthetic examples,
@@ -969,12 +969,10 @@ it is time to work through examples involving real data.
 \subsection{Give Me Some Credit}\label{give-me-some-credit}}
 
 The \textbf{Give Me Some Credit} dataset is one of the tabular
-real-world datasets that ship with the package
-\cite{kaggle2011give}\footnote{It is publicly available from
-  \href{https://www.kaggle.com/competitions/GiveMeSomeCredit/leaderboard}{Kaggle}}.
-It can be used to train a binary classifier to predict whether a
-borrower is likely to experience financial difficulties in the next two
-years. In particular, we have an output variable
+real-world datasets that ship with the package \cite{kaggle2011give}. It
+can be used to train a binary classifier to predict whether a borrower
+is likely to experience financial difficulties in the next two years. In
+particular, we have an output variable
 \(y \in \{0=\texttt{no stress},1=\texttt{stress}\}\) and a feature
 matrix \(X\) that includes socio-demographic variables like \texttt{age}
 and \texttt{income} \(X\). A retail bank might use such a classifier to
@@ -1016,8 +1014,8 @@ represents. The data makes for an interesting case study of
 Counterfactual Explanations because humans have a good idea of what
 realistic counterfactuals of digits look like. For example, if you were
 asked to pick up an eraser and turn the digit in
-Figure~\ref{fig-mnist-orig} into a four (4) you would know exactly what
-to do: just erase the top part. Schut et al.~(2021)
+Figure~\ref{fig-mnist-factual} into a four (4) you would know exactly
+what to do: just erase the top part. Schut et al.~(2021)
 \cite{schut2021generating} leverage this idea to illustrate to the
 reader that their methodology produces realistic counterfactuals. In
 what follows we replicate some of their findings. You as the reader are
@@ -1037,39 +1035,68 @@ M = load_mnist_mlp()
 vae = load_mnist_vae()
 \end{lstlisting}
 
-\begin{figure}
-
-{\centering \includegraphics[width=1.66667in,height=1.25in]{www/mnist_original.png}
-
-}
-
-\caption{\label{fig-mnist-orig}A handwritten nine (9) randomly drawn
-from the MNIST dataset.}
-
-\end{figure}
-
-The proposed counterfactuals are shown in
-Figure~\ref{fig-mnist-4to9-latent}. In the case in which REVISE has
-access to an expressive VAE, the result looks convincing: the perturbed
-image does look like it represents a four (4). In terms of
+The proposed counterfactuals are shown in Figure~\ref{fig-mnist}. In the
+case in which REVISE has access to an expressive VAE
+(Figure~\ref{fig-mnist-strong}), the result looks convincing: the
+perturbed image does look like it represents a four (4). In terms of
 explainability, we may conclude that removing the top part of the
 handwritten nine (9) leads the black-box model to predict that the
 perturbed image represents a four (4). We should note, however, that the
 quality of counterfactuals produced by REVISE hinges on the performance
 of the underlying generative model, as demonstrated by the result on the
-right. In this case, REVISE uses a weak VAE and the resulting
-counterfactual is invalid. In light of this, we recommend using Latent
-Space search with care.
+right (Figure~\ref{fig-mnist-weak}). In this case, REVISE uses a weak
+VAE and the resulting counterfactual is invalid. In light of this, we
+recommend using Latent Space search with care.
 
 \begin{figure}
 
-{\centering \includegraphics[width=2.16667in,height=0.83333in]{www/mnist_9to4_latent.png}
+\begin{minipage}[t]{0.33\linewidth}
+
+{\centering 
+
+\raisebox{-\height}{
+
+\includegraphics{www/mnist_factual.png}
 
 }
 
-\caption{\label{fig-mnist-4to9-latent}Counterfactual explanations for
-MNIST using a Latent Space generator with an expressive VAE (center) and
-a weak VAE (right).}
+}
+
+\subcaption{\label{fig-mnist-factual}Original image.}
+\end{minipage}%
+%
+\begin{minipage}[t]{0.33\linewidth}
+
+{\centering 
+
+\raisebox{-\height}{
+
+\includegraphics{www/mnist_vae_strong.png}
+
+}
+
+}
+
+\subcaption{\label{fig-mnist-strong}REVISE with expressive VAE.}
+\end{minipage}%
+%
+\begin{minipage}[t]{0.33\linewidth}
+
+{\centering 
+
+\raisebox{-\height}{
+
+\includegraphics{www/mnist_vae_weak.png}
+
+}
+
+}
+
+\subcaption{\label{fig-mnist-weak}REVISE with weak VAE.}
+\end{minipage}%
+
+\caption{\label{fig-mnist}Counterfactual explanations for MNIST using a
+Latent Space generator: turning a nine (9) into a four (4).}
 
 \end{figure}
 
