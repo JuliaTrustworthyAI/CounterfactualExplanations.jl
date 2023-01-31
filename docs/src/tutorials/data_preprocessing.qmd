@@ -261,7 +261,7 @@ In some cases, we may also want to constrain the domain of some feature. For exa
 
 ```{julia}
 counterfactual_data.mutability = [:both, :both]
-counterfactual_data.domain = (-Inf,0.5)
+counterfactual_data.domain = [(-Inf,0.1) for var in counterfactual_data.features_continuous]
 ```
 
 This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.

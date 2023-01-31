@@ -266,9 +266,10 @@ function apply_domain_constraints(counterfactual_data::CounterfactualData, x::Ab
                     counterfactual_data.domain[i][1],
                     counterfactual_data.domain[i][2],
                 )
-                _x[i,:] = _x_i
+                _x[i,:][1] = _x_i
             end
         end
+        return _x
     end
     
 
