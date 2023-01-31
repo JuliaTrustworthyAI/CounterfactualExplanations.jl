@@ -31,7 +31,7 @@ function (fit::EasyFit.Cubic)(x::Real)
 end
 
 function get_data(
-    N=600;
+    N=300;
     seed=2023,
     cluster_std=0.3,
     generator=GenericGenerator(),
@@ -86,6 +86,7 @@ function get_data(
 end
 
 function logo_picture(;
+    N = 100,
     ndots=100,
     frame_size=500,
     ms=frame_size // 50,
@@ -124,6 +125,7 @@ function logo_picture(;
 
     # Data
     x, y, M, ce, db_points = get_data(
+        N;
         seed=seed,
         cluster_std=cluster_std,
         generator=generator, model=model, n_steps=n_steps
@@ -160,8 +162,8 @@ function logo_picture(;
         _lab = predict_label(M, ce.data, [_point[1], _point[2]])
         color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
-        _alpha = i != length(ce_path) ? m_alpha : 1.0
-        _ms = i != length(ce_path) ? db_stroke_size : 1.5 * ms 
+        _alpha = i != length(ce_path) ? m_alpha + ((1 - m_alpha) * i/length(ce_path)) : 1.0
+        _ms = i != length(ce_path) ? db_stroke_size : 1.0 * ms 
         setcolor(sethue(mcolor[color_idx]...)..., _alpha)
         circle(Point(_x, _y), _ms, action=:fill)
     end
@@ -236,7 +238,7 @@ function draw_wide_logo(
             margin=0.1,
             ms=ms,
             db_stroke_size=db_stroke_size,
-            picture_kwargs...,
+            picture_kwargs...
         )
     end
 
@@ -253,7 +255,7 @@ function draw_wide_logo(
                 setcolor(font_fill)
                 textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
                 fillpreserve()
-                setcolor(font_color...,1.0)
+                setcolor(font_color..., 1.0)
                 strokepath()
             end
         end
@@ -263,18 +265,18 @@ function draw_wide_logo(
     preview()
 end
 
-_seed = rand(1:1000)
+_seed = 405
 picture_kwargs = (
     seed=_seed,
-    margin=0.1,
-    ndots=30,
-    ms=30,
-    cluster_std=0.05,
+    margin=0.2,
+    ndots=60,
+    ms=25,
+    cluster_std=0.1,
     clip_border=true,
-    m_alpha=0.5,
+    m_alpha=0.2,
     generator=GravitationalGenerator(
-        decision_threshold=0.75,
-        opt=Descent(0.01)
+        decision_threshold=0.95,
+        opt=Descent(0.005),
     )
 )
 
