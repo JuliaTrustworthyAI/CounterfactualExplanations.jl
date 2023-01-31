@@ -1,0 +1,37 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Data Catalogue
+
+To allow researchers and practitioners to test and compare counterfactual generators, the package ships with pre-processed synthetic and real-world benchmark datasets from different domains.
+
+## Synthetic Data
+
+```{julia}
+
+```
+
+
+## Real-World Data
+
+```{julia}
+
+```
+
+
+Real-world datasets include:
+
+\begin{itemize}
+\item California Housing \cite{pace1997sparse}
+\item UCI defaultCredit \cite{yeh2009comparisons}
+\item Give Me Some Credit \cite{kaggle2011give}
+\item MNIST \cite{lecun1998mnist}
+\end{itemize}
+

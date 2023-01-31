@@ -1,0 +1,19 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Model Catalogue
+
+While in general it is assumed that users will use this package to explain their pre-trained models, we provide a simple API call to train the following simple default models:
+
+- Linear Classifier (Logistic Regression)
+- Multi-Layer Perceptron (Deep Neural Network)
+- Deep Ensemble
+
+Through optional arguments, users can control the neural network architecture and impose regularization through dropout. 
