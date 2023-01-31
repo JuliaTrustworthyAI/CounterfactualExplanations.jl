@@ -4,6 +4,7 @@ bibliography: ref.bib
 execute:
     eval: false
     echo: false
+    output: false
 jupyter: julia-1.8
 ---
 
@@ -21,10 +22,12 @@ using MLDatasets: convert2image
 using MLUtils
 using Plots
 using Random
+using Serialization
 Random.seed!(42)
 theme(:wong)
 default(size=(500, 375))
 www_path = "paper/www"
+output_path = "paper/output"
 ```
 
 # Introduction {#sec-intro}
@@ -35,7 +38,7 @@ As others have pointed out, this scenario gives rise to an undesirable principal
 
 > “You cannot appeal to (algorithms). They do not listen. Nor do they bend.” \cite{oneil2016weapons}
 
-In light of all this, a quickly growing body of literature on Explainable Artificial Intelligence (XAI) has emerged. Counterfactual Explanations (CE) fall into this broader category. They can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. Explanations that involve realistic and actionable changes can be used for Algorithmic Recourse (AR): they offer the group of principals a way to not only understand their agent's behaviour, but also adjust or react to it.  
+In light of all this, a quickly growing body of literature on Explainable Artificial Intelligence (XAI) has emerged. Counterfactual Explanations (CE) fall into this broader category. They can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance. Explanations that involve realistic and actionable changes can be used for Algorithmic Recourse (AR): they offer the group of principals a way to not only understand their agent's behaviour but also adjust or react to it.  
 
 The availability of open-source software to explain black-box models through counterfactuals is still limited. Most existing implementations are specific to particular methodologies. They are also exclusively built in Python and for Python models. The only existing unifying software approach, for example, is tailored to models built in the two most popular Python libraries for deep learning. The Julia ecosystem has so far lacked an open-source implementation of CE. 
 
@@ -53,7 +56,7 @@ In this section, we first briefly introduce the broad field of Explainable Artif
 
 The field of Explainable AI is still relatively young and made up of a variety of subdomains, definitions, concepts and taxonomies. Covering all of these is beyond the scope of this article, so we will focus only on high-level concepts. The following literature surveys provide more detail: Arrieta et al. (2020) provide a broad overview of XAI \cite{arrieta2020explainable}; Fan et al. (2020) focus on explainability in the context of deep learning \cite{fan2020interpretability}; and finally, Karimi et al. (2020) \cite{karimi2020survey} and Verma et al. (2020) \cite{verma2020counterfactual} offer detailed reviews of the literature on Counterfactual Explanations and Algorithmic Recourse.^[Readers who prefer a text-book approach may also want to consider \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}] Finally, Miller (2019) explicitly discusses the concept of explainability from the perspective of a social scientist \cite{miller2019explanation}.
 
-The first broad distinction we want to make here is between **interpretable** and **explainable** AI. These terms are often used interchangeably, but this can lead to confusion. We find the distinction made in \cite{rudin2019stop} useful: interpretable AI involves models that are inherently interpretable and transparent such as general additive models (GAM), decision trees and rule-based models; explainable AI may involve models that are not inherently interpretable but require additional tools to be explainable to humans. Examples of the latter include ensembles, support vector machines and deep neural networks. Some would argue that we best avoid the second category of models altogether and instead focus solely on interpretable AI \cite{rudin2019stop}. While we agree that initial efforts should always be geared towards interpretable models, avoiding black boxes altogether would entail missed opportunities and anyway is probably not very realistic at this point. For that reason, we expect the need for explainable AI to persist in the near future. Explainable AI can further be broadly divided into **global** and **local** explainability: the former is concerned with explaining the average behaviour of a model, while the latter involves explanations for individual predictions \cite{molnar2020interpretable}. Tools for global explainability include partial dependence plots (PDP), which involve the computation of marginal effects through Monte Carlo, and global surrogates. A surrogate model is an interpretable model that is trained to explain the predictions of a black-box model. 
+The first broad distinction we want to make here is between **interpretable** and **explainable** AI. These terms are often used interchangeably, but this can lead to confusion. We find the distinction made in \cite{rudin2019stop} useful: interpretable AI involves models that are inherently interpretable and transparent such as general additive models (GAM), decision trees and rule-based models; explainable AI may involve models that are not inherently interpretable but require additional tools to be explainable to humans. Examples of the latter include ensembles, support vector machines and deep neural networks. Some would argue that we best avoid the second category of models altogether and instead focus solely on interpretable AI \cite{rudin2019stop}. While we agree that initial efforts should always be geared towards interpretable models, avoiding black boxes altogether would entail missed opportunities and anyway is probably not very realistic at this point. For that reason, we expect the need for explainable AI to persist in the medium term. Explainable AI can further be broadly divided into **global** and **local** explainability: the former is concerned with explaining the average behaviour of a model, while the latter involves explanations for individual predictions \cite{molnar2020interpretable}. Tools for global explainability include partial dependence plots (PDP), which involve the computation of marginal effects through Monte Carlo, and global surrogates. A surrogate model is an interpretable model that is trained to explain the predictions of a black-box model. 
 
 Counterfactual Explanations fall into the category of local methods: they explain how individual predictions change in response to individual feature perturbations. Among the most popular alternatives to Counterfactual Explanations are local surrogate explainers including local interpretable model-agnostic explanations (LIME) and Shapley additive explanations (SHAP). Since explanations produced by LIME and SHAP typically involve simple feature importance plots, they arguably rely on reasonably interpretable features at the very least. Contrary to Counterfactual Explanations, for example, it is not obvious how to apply LIME and SHAP to visual or audio data. Nonetheless, local surrogate explainers are among the most widely used XAI tools today, potentially because they are easily understood, relatively fast and implemented in popular programming languages. Proponents of surrogate explainers also commonly mention that there is a straightforward way to assess their reliability: a surrogate model that generates predictions in line with those produced by the black-box model is said to have high **fidelity** and therefore considered reliable. As intuitive as this notion may be, it also points to an obvious shortfall of surrogate explainers: even a high-fidelity surrogate model that produces the same predictions as the black-box model 99 per cent of the time is useless and potentially misleading for every 1 out of 100 individual predictions. A recent study has shown that even experienced data scientists tend to put too much trust in explanations produced by LIME and SHAP \cite{kaur2020interpreting}. Another recent work has shown that both LIME and SHAP can be easily fooled: both methods depend on random input perturbations, a property that can be abused by adverse agents to essentially whitewash strongly biased black-box models \cite{slack2020fooling}. In a related work the same authors find that while gradient-based Counterfactual Explanations can also be manipulated, there is a straightforward way to protect against this in practice \cite{slack2021counterfactual}. In the context of quality assessment, it is also worth noting that - contrary to surrogate explainers - Counterfactual Explanations always achieve full fidelity by construction: counterfactuals are searched with respect to the black-box classifier, not some proxy for it. That being said, Counterfactual Explanations should also be used with care and research around them is still in its early stages. We shall discuss this in more detail in the following. 
 
@@ -75,7 +78,7 @@ $$ {#eq-solution}
 
 Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the strength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach in our package. The hyperparameter $\lambda$ is typically tuned through grid search or in some sense pre-determined by the nature of the problem. Conventional choices for $\ell$ include margin-based losses like cross-entropy loss and hinge loss. It is worth pointing out that the loss function is typically computed with respect to logits rather than predicted probabilities, a convention that we have chosen to follow.^[While the rationale for this convention is not entirely obvious, implementations of loss functions with respect to logits are often numerically more stable. For example, the `logitbinarycrossentropy(ŷ, y)` implementation in `Flux.Losses` (used here) is more stable than the mathematically equivalent `binarycrossentropy(ŷ, y)`.] 
 
-Numerous - and in some cases competing - extensions to this simple approach have been developed since Counterfactual Explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In the baseline paper \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective Counterfactual Explanations that have been set out. These desiderata include: **closeness** - the average distance between factual and counterfactual features should be small \cite{wachter2017counterfactual}; **actionability** - the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** - the counterfactual explanation should be realistic plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** - a human should have no trouble assigning a label to the counterfactual \cite{schut2021generating}; **sparsity** - the counterfactual explanation should involve as few individual feature changes as possible \cite{schut2021generating}; **robustness** - the counterfactual explanation should be robust to domain and model shifts \cite{upadhyay2021robust}; **diversity** - ideally multiple diverse Counterfactual Explanations should be provided \cite{mothilal2020explaining}; and **causality** - Counterfactual Explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+Numerous - and in some cases competing - extensions to this simple approach have been developed since Counterfactual Explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In the baseline paper \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective Counterfactual Explanations that have been set out. These desiderata include: **closeness** --- the average distance between factual and counterfactual features should be small \cite{wachter2017counterfactual}; **actionability** --- the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** --- the counterfactual explanation should be realistic plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** --- a human should have no trouble assigning a label to the counterfactual \cite{schut2021generating}; **sparsity** --- the counterfactual explanation should involve as few individual feature changes as possible \cite{schut2021generating}; **robustness** --- the counterfactual explanation should be robust to domain and model shifts \cite{upadhyay2021robust}; **diversity** --- ideally multiple diverse Counterfactual Explanations should be provided \cite{mothilal2020explaining}; and **causality** --- Counterfactual Explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
 
 ## Existing software
 
@@ -179,6 +182,7 @@ ce = generate_counterfactual(
 
 ```{julia}
 plt = plot(ce, legend=:topright)
+display(plt)
 savefig(plt, "paper/www/ce_binary.png")
 ```
 
@@ -187,6 +191,8 @@ savefig(plt, "paper/www/ce_binary.png")
 In this simple example, the generic generator produces an effective counterfactual: the decision boundary is crossed (i.e. the counterfactual explanation is valid) and upon visual inspection, the counterfactual seems plausible (@fig-binary). Still, the example also illustrates that things may well go wrong. Since the underlying model produces high-confidence predictions in regions free of any data - that is regions with high epistemic uncertainty - it is easy to think of scenarios that involve valid but unrealistic counterfactuals. Similarly, any degree of overfitting can be expected to result in more ambiguous Counterfactual Explanations, since it reduces the classifier's sensitivity to regions with high aleatoric uncertainty. Consider, for example, the scenario illustrated in @fig-binary-wrong, which involves the same logistic classifier, but a massively overfitted version of it. In this case, generic search may yield an entirely ambiguous counterfactual near the decision boundary (purple marker) or an unrealistic counterfactual that has moved well into the target domain, but remains far away from all other samples (red marker).
 
 ```{julia}
+#| output: true
+
 _overfit = 10
 Flux.params(M.model)[1] .*= _overfit # overfit
 η = 0.01 / _overfit
@@ -218,6 +224,8 @@ end
 x1 = CounterfactualExplanations.counterfactual(ce)[1,:,1]
 x2 = CounterfactualExplanations.counterfactual(ce)[2,:,1]
 scatter!(plt, x1, x2, color="red", ms=10, label="Ambiguous CE")
+
+display(plt)
 
 savefig(plt, "paper/www/binary_wrong.png")
 ```
@@ -277,8 +285,7 @@ counterfactual_data.mutability = [:both, :none]
 ```
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mutability}, caption={}]
-counterfactual_data = CounterfactualData(
-    X,ys';mutability=[:both, :none])
+counterfactual_data.mutability = [:both, :none]
 \end{lstlisting}
 
 The resulting counterfactual path is shown in @fig-mutability below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
@@ -291,7 +298,10 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
+#| output: true
+
 plt = plot(ce)
+display(plt)
 savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 ```
 
@@ -393,6 +403,7 @@ M = MyFluxModel(model)
 \end{lstlisting}
 
 ```{julia}
+Random.seed!(42)
 # Randomly selected factual:
 x = select_factual(
     counterfactual_data, rand(1:size(X,2))) 
@@ -409,7 +420,10 @@ ce = generate_counterfactual(
 The API call for actually generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case, the contour shows the predicted probability that the input is in the target class ($t=2$). Generic search yields a valid, realistic and largely unambiguous counterfactual. 
 
 ```{julia}
+#| output: true
+
 plt = plot(ce)
+display(plt)
 savefig(plt, "paper/www/ce_multi.png")
 ```
 
@@ -455,7 +469,6 @@ generator = DropoutGenerator(
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={}]
 # Abstract suptype:
 abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
-
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Symbol # loss function
@@ -495,10 +508,7 @@ end
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={}]
 using CounterfactualExplanations.Generators
-import Generators: generate_perturbations
-import Generators: propose_state
-using StatsBase
-function generate_perturbations(
+function Generators.generate_perturbations(
     generator::AbstractDropoutGenerator, 
     ce::CouterfactualExplanation
 )
@@ -506,7 +516,6 @@ function generate_perturbations(
     new_@$s^\prime$@ = propose_state(
         generator, ce)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
-
     # Dropout:
     set_to_zero = sample(
         1:length(@$\Delta s^\prime$@),
@@ -539,7 +548,10 @@ ce = generate_counterfactual(
 
 
 ```{julia}
+#| output: true
+
 plt = plot(ce)
+display(plt)
 savefig(plt, joinpath(www_path, "dropout.png"))
 ```
 
@@ -554,6 +566,7 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income` $X$. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
 
 ```{julia}
+Random.seed!(42)
 counterfactual_data = load_gmsc(10000)
 train_data, test_data = CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
 flux_training_params.batchsize = 50
@@ -577,7 +590,7 @@ Markdown.parse("""
 """)
 ```
 
-Using the generic generator (Wachter) we will generate counterfactuals for ten randomly chosen individuals that would be denied credit based on our pre-trained model. With respect to the mutability of features, we only impose that the `age` cannot be decreased. 
+Using the Gravitational generator \cite{altmeyer2023endogenous} we will generate counterfactuals for ten randomly chosen individuals that would be denied credit based on our pre-trained model. Concerning the mutability of features, we only impose that the `age` cannot be decreased. 
 
 ```{julia}
 input_names = Symbol.([
@@ -600,8 +613,8 @@ x2 = :age
 ```
 
 ```{julia}
-generator = GenericGenerator(
-    decision_threshold = 0.8,
+generator = GravitationalGenerator(
+    decision_threshold = 0.9,
     opt = Descent(0.1)
 )
 counterfactuals = generate_counterfactual(
@@ -612,7 +625,6 @@ counterfactuals = generate_counterfactual(
 
 
 ```{julia}
-#| echo: false
 #| output: true
 
 # Plotting:
@@ -667,17 +679,18 @@ map(enumerate(counterfactuals)) do (idx, x)
  
 end
 
-plt = plot(plt)
+plt = plot(plt, size=(500, 200), legend=:bottomright)
+display(plt)
 savefig(plt, joinpath(www_path, "credit.png"))
 ```
 
-@fig-credit shows the resulting counterfactuals proposed by Wachter in the two-dimensional feature space spanned by the `age` and `income` variables. An increase in income and age is recommended for the majority of individuals, which seems plausible: both age and income are typically positively related with creditworthiness. 
+@fig-credit shows the resulting counterfactuals proposed by Wachter in the two-dimensional feature space spanned by the `age` and `income` variables. An increase in income and age is recommended for the majority of individuals, which seems plausible: both age and income are typically positively related to creditworthiness. 
 
-![Give Me Some Credit: counterfactuals for would-be borrowers proposed by Wachter.](www/credit.png){#fig-credit width=20pc height=15pc}
+![Give Me Some Credit: counterfactuals for would-be borrowers proposed by the Gravitational Generator.](www/credit.png){#fig-credit width=20pc height=8pc}
 
 ## MNIST
 
-For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in @fig-mnist-factual into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
+For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of Counterfactual Explanations because humans have a good idea of what realistic counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in the left panel of @fig-mnist into a four (4) you would know exactly what to do: just erase the top part. Schut et al. (2021) \cite{schut2021generating} leverage this idea to illustrate to the reader that their methodology produces realistic counterfactuals. In what follows we replicate some of their findings. You as the reader are therefore the perfect judge to evaluate the quality of the Counterfactual Explanations presented below. 
 
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
@@ -689,7 +702,7 @@ vae = load_mnist_vae()
 vae_weak = load_mnist_vae(;strong=false)
 ```
 
-On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads a two pre-trained Variational Auto-Encoders, which will be used by our counterfactual generator of choice for this task: REVISE. 
+On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads two pre-trained Variational Auto-Encoders, which will be used by our counterfactual generator of choice for this task: REVISE. 
 
 ```{julia}
 #| output: true
@@ -706,22 +719,14 @@ X, y = unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 vae = load_mnist_vae()
+vae_weak = load_mnist_vae(;strong=false)
 \end{lstlisting}
 
+The proposed counterfactuals are shown in @fig-mnist. In the case in which REVISE has access to an expressive VAE (centre), the result looks convincing: the perturbed image does look like it represents a four (4). In terms of explainability, we may conclude that removing the top part of the handwritten nine (9) leads the black-box model to predict that the perturbed image represents a four (4). We should note, however, that the quality of counterfactuals produced by REVISE hinges on the performance of the underlying generative model, as demonstrated by the result on the right. In this case, REVISE uses a weak VAE and the resulting counterfactual is invalid. In light of this, we recommend using Latent Space search with care. 
+
 ```{julia}
-# Random.seed!(2023)
 # Randomly selected factual:
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==9))],input_dim,1)
-target = 4
-γ = 0.95
-using Images
-using MLDatasets: convert2image, MNIST
-input_dim = size(X)[1]
-```
-
-The proposed counterfactuals are shown in @fig-mnist. In the case in which REVISE has access to an expressive VAE (@fig-mnist-strong), the result looks convincing: the perturbed image does look like it represents a four (4). In terms of explainability, we may conclude that removing the top part of the handwritten nine (9) leads the black-box model to predict that the perturbed image represents a four (4). We should note, however, that the quality of counterfactuals produced by REVISE hinges on the performance of the underlying generative model, as demonstrated by the result on the right (@fig-mnist-weak). In this case, REVISE uses a weak VAE and the resulting counterfactual is invalid. In light of this, we recommend using Latent Space search with care. 
-
-```{julia}
 counterfactual_data.generative_model = vae # assign generative model
 input_dim = size(X,1)
 target = 4
@@ -731,7 +736,8 @@ factual = predict_label(M, counterfactual_data, x)[1]
 # Define generator:
 generator = REVISEGenerator(
   opt = Descent(0.1),
-  decision_threshold = γ
+  decision_threshold = γ,
+  λ=0.01
 )
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
@@ -744,36 +750,41 @@ ce_weak = generate_counterfactual(x, target, counterfactual_data, M, generator)
 using MLDatasets: convert2image
 using Images
 image_size = 300
-p1 = plot(convert2image(MNIST, reshape(x,28,28)),axis=([],false), size=(image_size, image_size))
+bg_color = :blue
+p1 = plot(
+    convert2image(MNIST, reshape(x,28,28)),
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="Factual"
+)
 savefig(p1, joinpath(www_path, "mnist_factual.png"))
 target_prob = round(target_probs(ce)[1],digits=2)
 ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
 p2 = plot(
     convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
-    axis=([],false), size=(image_size, image_size)
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="REVISE (strong VAE)"
 )
 savefig(p2, joinpath(www_path, "mnist_vae_strong.png"))
 target_prob = round(target_probs(ce_weak)[1],digits=2)
 ŷ = CounterfactualExplanations.counterfactual_label(ce_weak)[1]
 p3 = plot(
     convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce_weak),28,28)),
-    axis=([],false), size=(image_size, image_size)
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="REVISE (weak VAE)"
 )
 savefig(p3, joinpath(www_path, "mnist_vae_weak.png"))
+display(p1)
+display(p2)
+display(p3)
 plt = plot(p1,p2,p3;size=(image_size * 3,image_size), layout=(1,3))
+display(plt)
 savefig(plt, joinpath(www_path, "mnist_$(factual)to$(target)_latent.png"))
 ```
 
-::: {#fig-mnist layout-ncol=3}
-
-![Original image.](www/mnist_factual.png){#fig-mnist-factual width="20pc" height="30px"}
-
-![REVISE with expressive VAE.](www/mnist_vae_strong.png){#fig-mnist-strong width="20pc" height="15pc"}
-
-![REVISE with weak VAE.](www/mnist_vae_weak.png){#fig-mnist-weak width="20pc" height="15pc"}
-
-Counterfactual explanations for MNIST using a Latent Space generator: turning a nine (9) into a four (4).
-:::
+![Counterfactual explanations for MNIST using a Latent Space generator: turning a nine (9) into a four (4).](www/mnist_9to4_latent.png){#fig-mnist width=20pc height=6.66666pc}
 
 # Discussion and Outlook {#sec-outlook}
 
@@ -781,7 +792,7 @@ We believe that this package in its current form offers a valuable contribution 
 
 ## Candidate models and generators
 
-At the time of writing the package supports a handful of default models and generators either natively or through minimal augmentation. In future work, we would like to prioritize the addition of further predictive models and generators. Concerning the former, it would be useful to add native support for any supervised models built in `MLJ.jl`, an extensive Machine Learning framework for Julia \cite{blaom2020mlj}. This may also involve adding support for regression models as well as non-differentiable models. In terms of counterfactual generators, there is list of recent methodologies that we would like to implement including MINT \cite{karimi2021algorithmic}, ROAR \cite{upadhyay2021robust} and PROBE \cite{pawelczyk2022probabilistically}. Through its composable nature, our package allows for combining different approaches.
+At the time of writing the package supports a handful of default models and generators either natively or through minimal augmentation. In future work, we would like to prioritize the addition of further predictive models and generators. Concerning the former, it would be useful to add native support for any supervised models built in `MLJ.jl`, an extensive Machine Learning framework for Julia \cite{blaom2020mlj}. This may also involve adding support for regression models as well as non-differentiable models. In terms of counterfactual generators, there is a list of recent methodologies that we would like to implement including MINT \cite{karimi2021algorithmic}, ROAR \cite{upadhyay2021robust} and PROBE \cite{pawelczyk2022probabilistically}. Through its composable nature, our package allows for combining different approaches.
 
 ## Additional datasets
 
@@ -797,4 +808,4 @@ The goal of this paper was to illustrate the need for explainability in machine 
 
 # Acknowledgements {#sec-ack}
 
-Patrick is grateful to his PhD supervisors and co-authors, Cynthia C. S. Liem and Arie van Deursen, for being so supportive of his work on open-source developments. The authors are grateful to the Julia community for being welcoming and open and for supporting research contributions like this one.
+Patrick is grateful to his PhD supervisors and co-authors, Cynthia C. S. Liem and Arie van Deursen, for being supportive of his work on open-source developments. The authors are grateful to the Julia community for being welcoming and open and for supporting research contributions like this one.

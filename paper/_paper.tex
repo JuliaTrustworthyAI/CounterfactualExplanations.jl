@@ -145,7 +145,7 @@
 \date{}
 
 \begin{document}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, sharp corners, frame hidden, enhanced, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, sharp corners, interior hidden, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -183,7 +183,7 @@ different decisions. Explainability benefits internal as well as
 external quality assurance. Explanations that involve realistic and
 actionable changes can be used for Algorithmic Recourse (AR): they offer
 the group of principals a way to not only understand their agent's
-behaviour, but also adjust or react to it.
+behaviour but also adjust or react to it.
 
 The availability of open-source software to explain black-box models
 through counterfactuals is still limited. Most existing implementations
@@ -268,7 +268,7 @@ models altogether and instead focus solely on interpretable AI
 be geared towards interpretable models, avoiding black boxes altogether
 would entail missed opportunities and anyway is probably not very
 realistic at this point. For that reason, we expect the need for
-explainable AI to persist in the near future. Explainable AI can further
+explainable AI to persist in the medium term. Explainable AI can further
 be broadly divided into \textbf{global} and \textbf{local}
 explainability: the former is concerned with explaining the average
 behaviour of a model, while the latter involves explanations for
@@ -381,22 +381,22 @@ in terms of the Manhattan distance between factual and counterfactual
 feature values. While this is an intuitive choice, it is too simple to
 address many of the desirable properties of effective Counterfactual
 Explanations that have been set out. These desiderata include:
-\textbf{closeness} - the average distance between factual and
+\textbf{closeness} --- the average distance between factual and
 counterfactual features should be small
-\cite{wachter2017counterfactual}; \textbf{actionability} - the proposed
-feature perturbation should actually be actionable
+\cite{wachter2017counterfactual}; \textbf{actionability} --- the
+proposed feature perturbation should actually be actionable
 (\cite{ustun2019actionable}, \cite{poyiadzi2020face});
-\textbf{plausibility} - the counterfactual explanation should be
+\textbf{plausibility} --- the counterfactual explanation should be
 realistic plausible to a human (\cite{joshi2019realistic},
-\cite{schut2021generating}); \textbf{unambiguity} - a human should have
-no trouble assigning a label to the counterfactual
-\cite{schut2021generating}; \textbf{sparsity} - the counterfactual
+\cite{schut2021generating}); \textbf{unambiguity} --- a human should
+have no trouble assigning a label to the counterfactual
+\cite{schut2021generating}; \textbf{sparsity} --- the counterfactual
 explanation should involve as few individual feature changes as possible
-\cite{schut2021generating}; \textbf{robustness} - the counterfactual
+\cite{schut2021generating}; \textbf{robustness} --- the counterfactual
 explanation should be robust to domain and model shifts
-\cite{upadhyay2021robust}; \textbf{diversity} - ideally multiple diverse
-Counterfactual Explanations should be provided
-\cite{mothilal2020explaining}; and \textbf{causality} - Counterfactual
+\cite{upadhyay2021robust}; \textbf{diversity} --- ideally multiple
+diverse Counterfactual Explanations should be provided
+\cite{mothilal2020explaining}; and \textbf{causality} --- Counterfactual
 Explanations should respect the structural causal model underlying the
 data generating process
 (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
@@ -761,8 +761,7 @@ assumed that all features are mutable in both directions.\footnote{Mutability
 Below we impose that the second feature is immutable.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mutability}, caption={}]
-counterfactual_data = CounterfactualData(
-    X,ys';mutability=[:both, :none])
+counterfactual_data.mutability = [:both, :none]
 \end{lstlisting}
 
 The resulting counterfactual path is shown in
@@ -900,7 +899,6 @@ field for the probability of dropout.
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={}]
 # Abstract suptype:
 abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
-
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Symbol # loss function
@@ -920,10 +918,7 @@ logic.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={}]
 using CounterfactualExplanations.Generators
-import Generators: generate_perturbations
-import Generators: propose_state
-using StatsBase
-function generate_perturbations(
+function Generators.generate_perturbations(
     generator::AbstractDropoutGenerator, 
     ce::CouterfactualExplanation
 )
@@ -931,7 +926,6 @@ function generate_perturbations(
     new_@$s^\prime$@ = propose_state(
         generator, ce)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
-
     # Dropout:
     set_to_zero = sample(
         1:length(@$\Delta s^\prime$@),
@@ -981,25 +975,26 @@ determine if potential borrowers should receive credit or not.
 For the classification task we use a Multi-Layer Perceptron with dropout
 regularization.
 
-Using the generic generator (Wachter) we will generate counterfactuals
-for ten randomly chosen individuals that would be denied credit based on
-our pre-trained model. With respect to the mutability of features, we
-only impose that the \texttt{age} cannot be decreased.
+Using the Gravitational generator \cite{altmeyer2023endogenous} we will
+generate counterfactuals for ten randomly chosen individuals that would
+be denied credit based on our pre-trained model. Concerning the
+mutability of features, we only impose that the \texttt{age} cannot be
+decreased.
 
 Figure~\ref{fig-credit} shows the resulting counterfactuals proposed by
 Wachter in the two-dimensional feature space spanned by the \texttt{age}
 and \texttt{income} variables. An increase in income and age is
 recommended for the majority of individuals, which seems plausible: both
-age and income are typically positively related with creditworthiness.
+age and income are typically positively related to creditworthiness.
 
 \begin{figure}
 
-{\centering \includegraphics[width=3.33333in,height=2.5in]{www/credit.png}
+{\centering \includegraphics[width=3.33333in,height=1.33333in]{www/credit.png}
 
 }
 
 \caption{\label{fig-credit}Give Me Some Credit: counterfactuals for
-would-be borrowers proposed by Wachter.}
+would-be borrowers proposed by the Gravitational Generator.}
 
 \end{figure}
 
@@ -1013,9 +1008,9 @@ associated with a label indicating the digit (0-9) that the image
 represents. The data makes for an interesting case study of
 Counterfactual Explanations because humans have a good idea of what
 realistic counterfactuals of digits look like. For example, if you were
-asked to pick up an eraser and turn the digit in
-Figure~\ref{fig-mnist-factual} into a four (4) you would know exactly
-what to do: just erase the top part. Schut et al.~(2021)
+asked to pick up an eraser and turn the digit in the left panel of
+Figure~\ref{fig-mnist} into a four (4) you would know exactly what to
+do: just erase the top part. Schut et al.~(2021)
 \cite{schut2021generating} leverage this idea to illustrate to the
 reader that their methodology produces realistic counterfactuals. In
 what follows we replicate some of their findings. You as the reader are
@@ -1024,8 +1019,8 @@ Counterfactual Explanations presented below.
 
 On the model side, we will use a simple multi-layer perceptron (MLP).
 Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It
-also loads a two pre-trained Variational Auto-Encoders, which will be
-used by our counterfactual generator of choice for this task: REVISE.
+also loads two pre-trained Variational Auto-Encoders, which will be used
+by our counterfactual generator of choice for this task: REVISE.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
 counterfactual_data = load_mnist()
@@ -1033,67 +1028,26 @@ X, y = unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 vae = load_mnist_vae()
+vae_weak = load_mnist_vae(;strong=false)
 \end{lstlisting}
 
 The proposed counterfactuals are shown in Figure~\ref{fig-mnist}. In the
-case in which REVISE has access to an expressive VAE
-(Figure~\ref{fig-mnist-strong}), the result looks convincing: the
-perturbed image does look like it represents a four (4). In terms of
-explainability, we may conclude that removing the top part of the
-handwritten nine (9) leads the black-box model to predict that the
-perturbed image represents a four (4). We should note, however, that the
-quality of counterfactuals produced by REVISE hinges on the performance
-of the underlying generative model, as demonstrated by the result on the
-right (Figure~\ref{fig-mnist-weak}). In this case, REVISE uses a weak
-VAE and the resulting counterfactual is invalid. In light of this, we
-recommend using Latent Space search with care.
+case in which REVISE has access to an expressive VAE (centre), the
+result looks convincing: the perturbed image does look like it
+represents a four (4). In terms of explainability, we may conclude that
+removing the top part of the handwritten nine (9) leads the black-box
+model to predict that the perturbed image represents a four (4). We
+should note, however, that the quality of counterfactuals produced by
+REVISE hinges on the performance of the underlying generative model, as
+demonstrated by the result on the right. In this case, REVISE uses a
+weak VAE and the resulting counterfactual is invalid. In light of this,
+we recommend using Latent Space search with care.
 
 \begin{figure}
 
-\begin{minipage}[t]{0.33\linewidth}
-
-{\centering 
-
-\raisebox{-\height}{
-
-\includegraphics[width=3.33333in,height=\textheight]{www/mnist_factual.png}
+{\centering \includegraphics[width=3.33333in,height=1.11111in]{www/mnist_9to4_latent.png}
 
 }
-
-}
-
-\subcaption{\label{fig-mnist-factual}Original image.}
-\end{minipage}%
-%
-\begin{minipage}[t]{0.33\linewidth}
-
-{\centering 
-
-\raisebox{-\height}{
-
-\includegraphics[width=3.33333in,height=\textheight]{www/mnist_vae_strong.png}
-
-}
-
-}
-
-\subcaption{\label{fig-mnist-strong}REVISE with expressive VAE.}
-\end{minipage}%
-%
-\begin{minipage}[t]{0.33\linewidth}
-
-{\centering 
-
-\raisebox{-\height}{
-
-\includegraphics[width=3.33333in,height=\textheight]{www/mnist_vae_weak.png}
-
-}
-
-}
-
-\subcaption{\label{fig-mnist-weak}REVISE with weak VAE.}
-\end{minipage}%
 
 \caption{\label{fig-mnist}Counterfactual explanations for MNIST using a
 Latent Space generator: turning a nine (9) into a four (4).}
@@ -1120,8 +1074,8 @@ useful to add native support for any supervised models built in
 \texttt{MLJ.jl}, an extensive Machine Learning framework for Julia
 \cite{blaom2020mlj}. This may also involve adding support for regression
 models as well as non-differentiable models. In terms of counterfactual
-generators, there is list of recent methodologies that we would like to
-implement including MINT \cite{karimi2021algorithmic}, ROAR
+generators, there is a list of recent methodologies that we would like
+to implement including MINT \cite{karimi2021algorithmic}, ROAR
 \cite{upadhyay2021robust} and PROBE
 \cite{pawelczyk2022probabilistically}. Through its composable nature,
 our package allows for combining different approaches.
@@ -1178,7 +1132,7 @@ challenge and active development.
 \section{Acknowledgements}\label{sec-ack}}
 
 Patrick is grateful to his PhD supervisors and co-authors, Cynthia C. S.
-Liem and Arie van Deursen, for being so supportive of his work on
+Liem and Arie van Deursen, for being supportive of his work on
 open-source developments. The authors are grateful to the Julia
 community for being welcoming and open and for supporting research
 contributions like this one.
