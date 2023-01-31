@@ -11,6 +11,7 @@ setup_docs = quote
     using Flux.Optimise: update!, Adam
     using LinearAlgebra
     using Markdown
+    using MLDatasets
     using MLJBase
     using MLJModels: OneHotEncoder
     using Plots

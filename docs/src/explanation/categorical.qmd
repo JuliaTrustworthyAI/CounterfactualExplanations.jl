@@ -38,11 +38,11 @@ The matrix that will actually be perturbed during the counterfactual search look
 X = permutedims(MLJBase.matrix(W))
 ```
 
-The `CounterfactualData` constructor takes two optional arguments that can be used to specify the indices of categorical and continues features. If nothing is supplied, all features are assumed to be continuous. For categorical features, the constructor expects and array of arrays of integers (`Vector{Vector{Int}}`) where each subarray includes the indices of a all one-hot encoded rows related to a single categorical feature. In the example above, the `name` feature is one-hot encoded across rows 1, 2 and 3 of `X`.
+The `CounterfactualData` constructor takes two optional arguments that can be used to specify the indices of categorical and continuous features. If nothing is supplied, all features are assumed to be continuous. For categorical features, the constructor expects and array of arrays of integers (`Vector{Vector{Int}}`) where each subarray includes the indices of a all one-hot encoded rows related to a single categorical feature. In the example above, the `name` feature is one-hot encoded across rows 1, 2 and 3 of `X`.
 
 ```{julia}
 features_categorical = [
-    [1,2,4],    # name
+    [1,2,3,4],    # name
     [5,6,7],    # grade
     [8,9]       # sex
 ]
