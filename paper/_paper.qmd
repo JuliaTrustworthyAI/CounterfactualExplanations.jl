@@ -578,6 +578,7 @@ target_class = 1
 non_target_class = 0
 x = select_factual(train_data,rand(findall(vec(ŷ).==non_target_class),10))
 CounterfactualExplanations.reset!(flux_training_params)
+Serialization.serialize(joinpath(output_path,"credit_classifier.jls"), M)
 ```
 
 For the classification task we use a Multi-Layer Perceptron with dropout regularization. 
@@ -700,6 +701,9 @@ input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
 vae = load_mnist_vae()
 vae_weak = load_mnist_vae(;strong=false)
+Serialization.serialize(joinpath(output_path,"mnist_classifier.jls"), M)
+Serialization.serialize(joinpath(output_path,"mnist_vae.jls"), vae)
+Serialization.serialize(joinpath(output_path,"mnist_vae_weak.jls"), vae_weak)
 ```
 
 On the model side, we will use a simple multi-layer perceptron (MLP). Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It also loads two pre-trained Variational Auto-Encoders, which will be used by our counterfactual generator of choice for this task: REVISE. 

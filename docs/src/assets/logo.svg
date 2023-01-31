@@ -479,8 +479,9 @@
   <path d="M 500 250 C 500 388.070312 388.070312 500 250 500 C 111.929688 500 0 388.070312 0 250 C 0 111.929688 111.929688 0 250 0 C 388.070312 0 500 111.929688 500 250 "/>
 </clipPath>
 </defs>
-<g id="surface518">
+<g id="surface529">
 <g clip-path="url(#clip1)" clip-rule="nonzero">
+<rect x="0" y="0" width="500" height="500" style="fill:rgb(25.1%,38.8%,84.7%);fill-opacity:0.2;stroke:none;"/>
 <path style="fill:none;stroke-width:2;stroke-linecap:butt;stroke-linejoin:miter;stroke:rgb(25.1%,38.8%,84.7%);stroke-opacity:1;stroke-miterlimit:10;" d="M 500 250 C 500 388.070312 388.070312 500 250 500 C 111.929688 500 0 388.070312 0 250 C 0 111.929688 111.929688 0 250 0 C 388.070312 0 500 111.929688 500 250 "/>
 </g>
 <g clip-path="url(#clip2)" clip-rule="nonzero">

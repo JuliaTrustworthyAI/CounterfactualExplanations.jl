@@ -20,7 +20,7 @@ julia_colors = Dict(
     :green => Luxor.julia_green,
     :purple => Luxor.julia_purple,
 )
-bg_color = RGBA(julia_colors[:blue]..., 0.25)
+bg_color = RGBA(julia_colors[:blue]..., 0.2)
 
 function (fit::EasyFit.Cubic)(x::Real)
     a = fit.a
@@ -101,7 +101,7 @@ function logo_picture(;
     generator=GenericGenerator(),
     model=:MLP,
     bg=true,
-    bg_color="transparent",
+    bg_color=bg_color,
     clip_border=true,
     border_color=julia_colors[:blue],
     border_stroke_size=db_stroke_size,
