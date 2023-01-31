@@ -4,7 +4,7 @@ project:
 crossref:
   fig-prefix: Figure
   tbl-prefix: Table
-bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
+bibliography: bib.bib
 
 execute: 
   freeze: auto

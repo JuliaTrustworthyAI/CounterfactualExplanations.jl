@@ -17,6 +17,7 @@ setup_docs = quote
     using Plots
     using Random
     using StatsBase
+    using Tables
 
     # Setup:
     theme(:wong)

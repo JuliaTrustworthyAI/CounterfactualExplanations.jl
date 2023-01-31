@@ -63,6 +63,7 @@ For the counterfactual search, it is important to distinguish between continuous
 Consider the following example:
 
 ```{julia}
+#| output: true
 y = rand([1,0],4)
 X = (
     name=categorical(["Danesh", "Lee", "Mary", "John"]),
@@ -87,6 +88,7 @@ In all likelihood, this pre-processing step already happens at the stage, when t
 The `CounterfactualData` constructor takes two optional arguments that can be used to specify the indices of categorical and continuous features. By default, all features are assumed to be continuous. For categorical features, the constructor expects an array of arrays of integers (`Vector{Vector{Int}}`) where each subarray includes the indices of all one-hot encoded rows related to a single categorical feature. In the example above, the `name` feature is one-hot encoded across rows 1, 2, 3 and 4 of `X`, the `grade` feature is encoded across the following three rows, etc.
 
 ```{julia}
+#| output: true
 schema(W)
 ```
 
@@ -130,6 +132,7 @@ cat_values = ["X","Y","Z"]
 ```
 
 ```{julia}
+#| output: true
 #| echo: false
 Markdown.parse(
     """
@@ -193,6 +196,7 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
 ```{julia}
+#| output: true
 #| echo: false
 Markdown.parse(
     """
@@ -212,10 +216,12 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 The search yields the following counterfactual:
 
 ```{julia}
+#| output: true
 x′ = counterfactual(ce)
 ```
 
 ```{julia}
+#| output: true
 #| echo: false
 Markdown.parse(
     """
@@ -232,7 +238,7 @@ In practice, features usually cannot be perturbed arbitrarily. Suppose, for exam
 
 To illustrate how this can be implemented in `CounterfactualExplanations.jl` we will continue to work with the synthetic data from the previous section. Mutability of features can be defined in terms of four different options: 1) the feature is mutable in both directions, 2) the feature can only increase (e.g. age), 3) the feature can only decrease (e.g. time left until your next deadline) and 4) the feature is not mutable (e.g. skin colour, ethnicity, ...). To specify which category a feature belongs to, you can pass a vector of symbols containing the mutability constraints at the pre-processing stage. For each feature you can choose from these four options: `:both` (mutable in both directions), `:increase` (only up), `:decrease` (only down) and `:none` (immutable). By default, `nothing` is passed to that keyword argument and it is assumed that all features are mutable in both directions.
 
-Below we impose that the second feature is immutable. The resulting counterfactual path is shown in the chart below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
+Below we impose that the second feature is immutable. 
 
 ```{julia}
 counterfactual_data = load_linearly_separable()
@@ -248,25 +254,27 @@ x = select_factual(counterfactual_data, chosen)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
+The resulting counterfactual path is shown in the chart below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
+
 ```{julia}
 #| output: true
 #| label: fig-mutability
-#| fig-cap: Counterfactual path with immutable feature.
+#| fig-cap: Counterfactual path with an immutable feature.
 plot(ce)
 ```
 
-## Domain constraints
+<!-- ## Domain constraints
 
 In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of $0.5$ for our two features.
 
-```{julia}
+```{.julia}
 counterfactual_data.mutability = [:both, :both]
-counterfactual_data.domain = [(-Inf,0.1) for var in counterfactual_data.features_continuous]
+counterfactual_data.domain = [(0,0) for var in counterfactual_data.features_continuous]
 ```
 
 This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.
 
-```{julia}
+```{.julia}
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
-```
+``` -->

@@ -10,10 +10,46 @@ eval(setup_docs)
 
 # Model Catalogue
 
-While in general it is assumed that users will use this package to explain their pre-trained models, we provide a simple API call to train the following simple default models:
+While in general it is assumed that users will use this package to explain their pre-trained models, we provide out-of-the-box functionality to train various simple default models. In this tutorial, we will see how these models can be fitted to `CounterfactualData`.
 
-- Linear Classifier (Logistic Regression)
-- Multi-Layer Perceptron (Deep Neural Network)
-- Deep Ensemble
+## Available Models
+
+The `model_catalogue` can be used to inspect the available default models: 
+
+```{julia}
+model_catalogue
+```
+
+As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
+
+## Fitting Models
+
+First, let's load one of the synthetic datasets:
+
+```{julia}
+n = 500
+counterfactual_data = load_multi_class(n)
+```
+
+We could use a simple Multi-Layer Perceptron (MLP) as follows:
+
+```{julia}
+M = fit_model(counterfactual_data, :MLP)
+```
+
+The resulting fit can be visualised as follows:
+
+```{julia}
+#| output: true
+
+plts = []
+for target in counterfactual_data.y_levels
+    plt = plot(M, counterfactual_data; target=target, title="Target: $(target)")
+    plts = [plts..., plt]
+end
+plot(plts...)
+```
+
+## 
 
 Through optional arguments, users can control the neural network architecture and impose regularization through dropout. 

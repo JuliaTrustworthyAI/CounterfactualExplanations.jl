@@ -687,7 +687,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     )
     Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
     s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
-    apply_domain_constraints!(counterfactual_explanation)           # domain constraints
+    # apply_domain_constraints!(counterfactual_explanation)           # domain constraints
 
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual

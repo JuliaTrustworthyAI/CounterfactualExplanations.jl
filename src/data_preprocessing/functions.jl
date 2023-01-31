@@ -2,7 +2,6 @@ using CategoricalArrays
 using CounterfactualExplanations
 using Flux
 using MultivariateStats
-using SliceMap
 using StatsBase
 using Tables
 using UMAP
@@ -257,21 +256,16 @@ A subroutine that is used to apply the predetermined domain constraints.
 """
 function apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray)
 
-    SliceMap.slicemap(x, dims=(1, 2)) do _x
-        # Continuous variables:    
-        if !isnothing(counterfactual_data.domain)
-            for i in counterfactual_data.features_continuous
-                _x_i = clamp(
-                    _x[i,:][1],
-                    counterfactual_data.domain[i][1],
-                    counterfactual_data.domain[i][2],
-                )
-                _x[i,:][1] = _x_i
-            end
+    # Continuous variables:
+    if !isnothing(counterfactual_data.domain)
+        for i in counterfactual_data.features_continuous
+            x[i] = clamp(
+                x[i],
+                counterfactual_data.domain[i][1],
+                counterfactual_data.domain[i][2],
+            )
         end
-        return _x
     end
-    
 
     return x
 

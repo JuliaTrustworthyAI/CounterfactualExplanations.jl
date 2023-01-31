@@ -1,11 +1,6 @@
-```@meta
-CurrentModule = CounterfactualExplanations 
-```
 
-```{julia}
-#| echo: false
-include("docs/setup_docs.jl")
-eval(setup_docs)
+``` @meta
+CurrentModule = CounterfactualExplanations 
 ```
 
 # Data Catalogue
@@ -16,15 +11,21 @@ To allow researchers and practitioners to test and compare counterfactual genera
 
 The following dictionary can be used to inspect the available methods to generate synthetic datasets where the `key` indicates the name of the data and the `value` is the corresponding method:
 
-```{julia}
-#| output: true
+``` julia
 data_catalogue[:synthetic]
 ```
 
+    Dict{Symbol, Function} with 6 entries:
+      :overlapping        => load_overlapping
+      :linearly_separable => load_linearly_separable
+      :blobs              => load_blobs
+      :moons              => load_moons
+      :circles            => load_circles
+      :multi_class        => load_multi_class
+
 The chart below shows the generated data using default parameters:
 
-```{julia}
-#| output: true
+``` julia
 plts = []
 _height = 200
 _n = length(keys(data_catalogue[:synthetic]))
@@ -37,19 +38,24 @@ end
 plot(plts..., size=(_n * _height, _height), layout=(1, _n))
 ```
 
+![](data_catalogue_files/figure-commonmark/cell-4-output-1.svg)
+
 ## Real-World Data
 
-As for real-world data, the same dictionary can be used to inspect the available data from different domains. 
+As for real-world data, the same dictionary can be used to inspect the available data from different domains.
 
-```{julia}
-#| output: true
+``` julia
 data_catalogue[:tabular]
 ```
 
-```{julia}
-#| output: true
+    Dict{Symbol, Function} with 3 entries:
+      :california_housing => load_california_housing
+      :credit_default     => load_credit_default
+      :gmsc               => load_gmsc
+
+``` julia
 data_catalogue[:vision]
 ```
 
-
-
+    Dict{Symbol, typeof(load_mnist)} with 1 entry:
+      :mnist => load_mnist

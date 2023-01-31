@@ -15,14 +15,6 @@ include("dev/utils.jl") # some plotting functions
 www_path = "docs/src/tutorials/www"
 ```
 
-## Default models
-
-There are currently constructors for two default models, which mainly serve illustrative purposes (@fig-models below). Both take sets of estimated parameters at the point of instantiation: the constructors will not fit a model for you, but assume that you have already estimated the respective model yourself and have access to its parameter estimates. Based on the supplied parameters methods to predict logits and probabilities are already implemented and used in the counterfactual search. 
-
-![Schematic overview of classes in `Models` module.](www/models_uml.png){#fig-models}
-
-For the simple logistic regression model logits are computed as $a=Xw + b$ and probabilities are simply $\sigma(a)$. For the Bayesian logistic regression model logits are computed as $X\mu$ and the predictive posterior is computed through Laplace and Probit approximation.
-
 ## Custom models
 
 Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own Julia model compatible with this package:
