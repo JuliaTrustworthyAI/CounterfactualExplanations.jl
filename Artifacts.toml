@@ -86,6 +86,22 @@ lazy = true
     sha256 = "8fc52166c0828275fc7c020a9c4580743fc63f568d1d287c3e10f0d3fb260135"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/model-vision.tar.gz"
 
+[paper-images]
+git-tree-sha1 = "b1e4ade1fe7c847262189886be2d79d578c351f8"
+lazy = true
+
+    [[paper-images.download]]
+    sha256 = "7b9be02edfd451a209237dfd16d8e089db70b177ea0a8b04aab8091b3e388b6c"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-images.tar.gz"
+
+[paper-models]
+git-tree-sha1 = "7129cfe11ece24ec703473247fd803666deaeee1"
+lazy = true
+
+    [[paper-models.download]]
+    sha256 = "eefcc1390062c323d9490e74b777f53fa380924e3c3f5e35a47055e262885457"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-models.tar.gz"
+
 [synthetic_data]
 git-tree-sha1 = "ebb4ee4a24dcbbbe653de5d7a0b4568e17e297eb"
 lazy = true
