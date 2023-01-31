@@ -23,7 +23,7 @@ using .GenerativeModels
 # Data preprocessing:
 include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
-export CounterfactualData, select_factual, apply_domain_constraints
+export CounterfactualData, select_factual, apply_domain_constraints, OutputEncoder, transformable_features
 
 ### Models 
 # ℳ[𝒟] : x ↦ y
@@ -32,7 +32,8 @@ export CounterfactualData, select_factual, apply_domain_constraints
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel, LogisticModel, BayesianLogisticModel
+export FluxModel, FluxEnsemble, LaplaceReduxModel
+export flux_training_params
 export probs, logits
 export model_catalogue, fit_model, model_evaluation, predict_label
 
@@ -65,9 +66,6 @@ export animate_path
 # Example data sets:
 include("data/Data.jl")
 using .Data
-export load_synthetic, toy_data_linear, toy_data_multi, toy_data_non_linear
-export mnist_data, mnist_ensemble, mnist_model, mnist_vae
-export cats_dogs_data, cats_dogs_model
 
 include("generate_counterfactual.jl")
 export generate_counterfactual

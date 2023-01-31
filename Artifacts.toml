@@ -78,6 +78,14 @@ lazy = true
     sha256 = "b2d0bf8e7e43a9b35dc9813f378ef4336d887510022afd21c0640c327d8e1bed"
     url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_vae.tar.gz"
 
+[model-vision]
+git-tree-sha1 = "01872fd99b0f89966be215239e3109be0fe82fe3"
+lazy = true
+
+    [[model-vision.download]]
+    sha256 = "8fc52166c0828275fc7c020a9c4580743fc63f568d1d287c3e10f0d3fb260135"
+    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/model-vision.tar.gz"
+
 [synthetic_data]
 git-tree-sha1 = "ebb4ee4a24dcbbbe653de5d7a0b4568e17e297eb"
 lazy = true

@@ -25,7 +25,7 @@ function load_california_housing(n::Union{Nothing,Int}=5000)
     X = permutedims(X)
 
     # Counterfactual data:
-    y = df.target
+    y = Int.(df.target)
     counterfactual_data = CounterfactualData(X, y)
 
     # Undersample:

@@ -5,6 +5,8 @@ setup_docs = quote
 
     using CounterfactualExplanations
     using CounterfactualExplanations: animate_path, counterfactual, counterfactual_label
+    using CounterfactualExplanations.Models
+    using CounterfactualExplanations.Data
     using Flux
     using Flux.Optimise: update!, Adam
     using LinearAlgebra
@@ -14,12 +16,11 @@ setup_docs = quote
     using Random
     using StatsBase
 
+    # Setup:
     theme(:wong)
-    www_path = "docs/src/generators/www/"
     Random.seed!(2023)
-
+    www_path = "docs/src/www"
     include("docs/src/utils.jl")
+    synthetic = CounterfactualExplanations.Data.load_synthetic_data()
 
-    synthetic = CounterfactualExplanations.Data.load_synthetic()
-
-end
+end;

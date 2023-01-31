@@ -30,10 +30,24 @@ end
 """
     data_dir(dir="")
 
-Sets up the directory to save images and returns the path.
+Sets up the directory to save data and returns the path.
 """
 function data_dir(dir="")
     root_ = "dev/artifacts/upload/data"
+    _path = joinpath(root_, dir)
+    if !isdir(_path)
+        mkpath(_path)
+    end
+    return _path
+end
+
+"""
+    model_dir(dir="")
+
+Sets up the directory to save models and returns the path.
+"""
+function model_dir(dir="")
+    root_ = "dev/artifacts/upload/model"
     _path = joinpath(root_, dir)
     if !isdir(_path)
         mkpath(_path)

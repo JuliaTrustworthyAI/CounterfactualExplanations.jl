@@ -61,7 +61,7 @@ Default Deep Ensemble training parameters.
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100
-    data_loader::Function = data_loader
+    batchsize::Int = 1
 end
 
 """
@@ -69,23 +69,43 @@ end
 
 Wrapper function to retrain.
 """
-function train(M::FluxEnsemble, data::CounterfactualData; kwargs...)
-
-    args = FluxEnsembleParams(; kwargs...)
+function train(M::FluxEnsemble, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
-    data = args.data_loader(data)
+    data = data_loader(data; batchsize=args.batchsize)
 
-    # Training:
+    # Multi-class case:
+    if M.likelihood == :classification_multi
+        loss = :logitcrossentropy
+    else
+        loss = args.loss
+    end
+
+    # Setup:
     ensemble = M.model
+    if flux_training_params.verbose
+        @info "Begin training Deep Ensemble"
+    end
+    count = 1
+    n_models = length(ensemble)
 
     for model in ensemble
+
+        # Model name
+        models_done = repeat("#",count)
+        models_missing = repeat("-",n_models-count)
+        msg = "MLP $(count): $(models_done)$(models_missing) ($(count)/$(n_models))"
+    
+        # Train:
         forward!(
             model, data;
             loss=args.loss,
             opt=args.opt,
-            n_epochs=args.n_epochs
+            n_epochs=args.n_epochs,
+            model_name=msg
         )
+
+        count += 1
     end
 
     return M
@@ -107,17 +127,12 @@ function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
     # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     input_dim = size(X, 1)
-    output_dim = length(unique(y))
-    output_dim = output_dim == 2 ? output_dim = 1 : output_dim # adjust in case binary
+    output_dim = size(y, 1)
 
     # Build deep ensemble:
     ensemble = build_ensemble(K; input_dim=input_dim, output_dim=output_dim, kwargs...)
 
-    if output_dim == 1
-        M = FluxEnsemble(ensemble; likelihood=:classification_binary)
-    else
-        M = FluxEnsemble(ensemble; likelihood=:classification_multi)
-    end
+    M = FluxEnsemble(ensemble; likelihood=data.likelihood)
 
     return M
 end

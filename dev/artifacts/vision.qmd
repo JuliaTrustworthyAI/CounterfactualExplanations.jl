@@ -1,0 +1,68 @@
+# Vision Data and Models
+
+```{julia}
+#| echo: false
+
+include("dev/artifacts/setup.jl")
+eval(setup)
+www_path = www_dir("vision")
+data_path = data_dir("vision")
+model_path = model_dir("vision")
+www_name = "www-vision"
+data_name = "data-vision"
+model_name = "model-vision"
+```
+
+## MNIST 
+
+```{julia}
+counterfactual_data = load_mnist()
+input_dim, n_obs = size(counterfactual_data.X)
+```
+
+### Classifiers
+
+```{julia}
+flux_training_params.batchsize = Int(round(n_obs/10))
+flux_training_params.verbose = true
+M = fit_model(counterfactual_data, :MLP, n_hidden=32)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=32)
+CounterfactualExplanations.reset!(flux_training_params)
+```
+
+```{julia}
+test_data = load_mnist_test()
+println("MLP test score (F1): $(model_evaluation(M, test_data))")
+println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
+```
+
+```{julia}
+Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M)
+Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens)
+```
+
+### Generative Model
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: VAE, train!
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.0001, latent_dim=28, hidden_dim=50)
+X = counterfactual_data.X
+y = counterfactual_data.output_encoder.y        # raw output vector
+flux_training_params.verbose = true
+train!(vae, X, y)
+Serialization.serialize(joinpath(model_path,"mnist_vae_strong.jls"),vae)
+```
+
+```{julia}
+vae = VAE(input_dim; nll=Flux.logitbinarycrossentropy, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
+flux_training_params.verbose = true
+train!(vae, X, y)
+Serialization.serialize(joinpath(model_path,"mnist_vae_weak.jls"),vae)
+```
+
+## Generate Artifacts
+
+```{julia}
+generate_artifacts(model_path; artifact_name=model_name)
+```
+

@@ -19,7 +19,7 @@ function Plots.plot(
     colorbar = true,
     title = "",
     length_out = 50,
-    zoom = -1,
+    zoom = -0.1,
     xlims = nothing,
     ylims = nothing,
     linewidth = 0.1,
@@ -39,6 +39,7 @@ function Plots.plot(
     X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data; dim_red = dim_red)
 
     # Surface range:
+    zoom = zoom * maximum(abs.(X))
     if isnothing(xlims)
         xlims = (minimum(X[:, 1]), maximum(X[:, 1])) .+ (zoom, -zoom)
     else
@@ -64,10 +65,8 @@ function Plots.plot(
         Z = [predict_([x, y]) for x in x_range, y in y_range]
     else
         predict_ = function (X::AbstractVector)
-            z = Models.probs(M, X)
-            if length(z) == 1 # binary
-                z = [1.0 - z[1], z[1]]
-            end
+            X = permutedims(permutedims(X))
+            z = predict_proba(M, data, X)
             return z
         end
         Z = [predict_([x, y]) for x in x_range, y in y_range]

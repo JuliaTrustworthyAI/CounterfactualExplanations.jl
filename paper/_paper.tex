@@ -145,7 +145,7 @@
 \date{}
 
 \begin{document}
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[breakable, interior hidden, enhanced, sharp corners, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, frame hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[borderline west={3pt}{0pt}{shadecolor}, frame hidden, boxrule=0pt, sharp corners, interior hidden, breakable, enhanced]}{\end{tcolorbox}}\fi
 
 \hypertarget{sec-intro}{%
 \section{Introduction}\label{sec-intro}}
@@ -175,7 +175,7 @@ bend.'' \cite{oneil2016weapons}
 \end{quote}
 
 In light of all this, a quickly growing body of literature on
-explainable artificial intelligence (XAI) has emerged. Counterfactual
+Explainable Artificial Intelligence (XAI) has emerged. Counterfactual
 Explanations (CE) fall into this broader category. They can help human
 stakeholders make sense of the systems they develop, use or endure: they
 explain how inputs into a system need to change for it to produce
@@ -183,7 +183,7 @@ different decisions. Explainability benefits internal as well as
 external quality assurance. Explanations that involve realistic and
 actionable changes can be used for Algorithmic Recourse (AR): they offer
 the group of principals a way to not only understand their agent's
-behaviour, but also adjust or react to it.
+behaviour but also adjust or react to it.
 
 The availability of open-source software to explain black-box models
 through counterfactuals is still limited. Most existing implementations
@@ -214,7 +214,7 @@ explain models that were built and trained in \texttt{Python} and
 experimental.
 
 The remainder of this article is structured as follows:
-Section~\ref{sec-related} presents related work on explainable AI as
+Section~\ref{sec-related} presents related work on Explainable AI as
 well as a brief overview of the methodological framework underlying CE.
 Section~\ref{sec-arch} introduces the Julia package and its high-level
 architecture. Section~\ref{sec-use} then presents a number of basic and
@@ -222,22 +222,22 @@ advanced usage examples. In Section~\ref{sec-custom} we demonstrate how
 the package functionality can be customized and extended. To provide a
 flavour of its practical use, we use the package to explain models
 trained on MNIST data in Section~\ref{sec-emp}. Finally, we also discuss
-current limitations of our package, as well as its future outlook in
+the current limitations of our package, as well as its future outlook in
 Section~\ref{sec-outlook}. Section~\ref{sec-conclude} concludes.
 
 \hypertarget{sec-related}{%
 \section{Background and related work}\label{sec-related}}
 
-In this section we first briefly introduce the broad field of
-explainable artificial intelligence (XAI), before narrowing it down to
+In this section, we first briefly introduce the broad field of
+Explainable Artificial Intelligence (XAI), before narrowing it down to
 Counterfactual Explanations. We introduce the methodological framework
 and finally point to existing open-source software.
 
 \hypertarget{literature-on-explainable-ai}{%
-\subsection{Literature on explainable
+\subsection{Literature on Explainable
 AI}\label{literature-on-explainable-ai}}
 
-The field of explainable AI is still relatively young and made up of a
+The field of Explainable AI is still relatively young and made up of a
 variety of subdomains, definitions, concepts and taxonomies. Covering
 all of these is beyond the scope of this article, so we will focus only
 on high-level concepts. The following literature surveys provide more
@@ -268,7 +268,7 @@ models altogether and instead focus solely on interpretable AI
 be geared towards interpretable models, avoiding black boxes altogether
 would entail missed opportunities and anyway is probably not very
 realistic at this point. For that reason, we expect the need for
-explainable AI to persist in the near future. Explainable AI can further
+explainable AI to persist in the medium term. Explainable AI can further
 be broadly divided into \textbf{global} and \textbf{local}
 explainability: the former is concerned with explaining the average
 behaviour of a model, while the latter involves explanations for
@@ -381,22 +381,22 @@ in terms of the Manhattan distance between factual and counterfactual
 feature values. While this is an intuitive choice, it is too simple to
 address many of the desirable properties of effective Counterfactual
 Explanations that have been set out. These desiderata include:
-\textbf{closeness} - the average distance between factual and
+\textbf{closeness} --- the average distance between factual and
 counterfactual features should be small
-\cite{wachter2017counterfactual}; \textbf{actionability} - the proposed
-feature perturbation should actually be actionable
+\cite{wachter2017counterfactual}; \textbf{actionability} --- the
+proposed feature perturbation should actually be actionable
 (\cite{ustun2019actionable}, \cite{poyiadzi2020face});
-\textbf{plausibility} - the counterfactual explanation should be
+\textbf{plausibility} --- the counterfactual explanation should be
 realistic plausible to a human (\cite{joshi2019realistic},
-\cite{schut2021generating}); \textbf{unambiguity} - a human should have
-no trouble assigning a label to the counterfactual
-\cite{schut2021generating}; \textbf{sparsity} - the counterfactual
+\cite{schut2021generating}); \textbf{unambiguity} --- a human should
+have no trouble assigning a label to the counterfactual
+\cite{schut2021generating}; \textbf{sparsity} --- the counterfactual
 explanation should involve as few individual feature changes as possible
-\cite{schut2021generating}; \textbf{robustness} - the counterfactual
+\cite{schut2021generating}; \textbf{robustness} --- the counterfactual
 explanation should be robust to domain and model shifts
-\cite{upadhyay2021robust}; \textbf{diversity} - ideally multiple diverse
-Counterfactual Explanations should be provided
-\cite{mothilal2020explaining}; and \textbf{causality} - Counterfactual
+\cite{upadhyay2021robust}; \textbf{diversity} --- ideally multiple
+diverse Counterfactual Explanations should be provided
+\cite{mothilal2020explaining}; and \textbf{causality} --- Counterfactual
 Explanations should respect the structural causal model underlying the
 data generating process
 (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
@@ -440,14 +440,14 @@ AI} infrastructure, which focuses exclusively on interpretable models.
 Arguably the current availability of tools for explaining black-box
 models in Julia is limited, but it appears that the community is
 invested in changing that. The team behind \texttt{MLJ.jl}, for example,
-has contributed contributors for a project about both interpretable and
-explainable AI in 2022.\footnote{For details, see the Google Summer of
+recruited contributors for a project about both Interpretable and
+Explainable AI in 2022.\footnote{For details, see the Google Summer of
   Code 2022 project proposal:
   \url{https://julialang.org/jsoc/gsoc/MLJ/\#interpretable_machine_learning_in_julia}.}
 With our work on Counterfactual Explanations we hope to contribute to
 these efforts. We think that because of its unique transparency the
 Julia language naturally lends itself towards building a greater degree
-of trust in machine learning and artificial intelligence.
+of trust in Machine Learning and Artificial Intelligence.
 
 \hypertarget{sec-arch}{%
 \section{\texorpdfstring{Introducing:
@@ -463,24 +463,80 @@ algorithms.\footnote{We have made an effort to keep the code base a
   point that any counterfactual generator can be implemented without
   further adaptation.} The core function of the package
 \texttt{generate\_counterfactual} uses an instance of type
-\texttt{T\ \textless{}:\ AbstractFittedModel} produced by the
+\texttt{\textless{}:\ AbstractFittedModel} produced by the
 \texttt{Models} module and an instance of type
-\texttt{T\ \textless{}:\ AbstractGenerator} produced by the
+\texttt{\textless{}:\ AbstractGenerator} produced by the
 \texttt{Generators} module. Relating this to the methodology outlined in
 Section~\ref{sec-method}, the former instance corresponds to the model
 \(M\), while the latter defines the rules for the counterfactual search
-(Equation~\ref{eq-solution}). At the time of writing the following
-counterfactual generators have been implemented in the package:
+(Equation~\ref{eq-solution}).
+
+\hypertarget{generators}{%
+\subsection{Generators}\label{generators}}
+
+At the time of writing the following counterfactual generators have been
+implemented in the package:
 
 \begin{itemize}
 \item Generic \cite{wachter2017counterfactual}
 \item Greedy \cite{schut2021generating}
 \item DiCE \cite{mothilal2020explaining}
 \item Latent Space Search as in REVISE \cite{joshi2019realistic} and CLUE \cite{antoran2020getting}
+\item ClaPROAR \cite{altmeyer2023endogenous}
+\item Gravitational \cite{altmeyer2023endogenous}
 \end{itemize}
 
-The package currently offers native support for deep learning models
-built in \href{https://fluxml.ai/}{Flux}.
+\hypertarget{models}{%
+\subsection{Models}\label{models}}
+
+The package currently offers native support for models built and trained
+in \href{https://fluxml.ai/}{Flux}. While in general it is assumed that
+users will use this package to explain their pre-trained models, we
+provide a simple API call to train the following simple default models:
+
+\begin{itemize}
+\item Linear Classifier (Logistic Regression)
+\item Multi-Layer Perceptron (Deep Neural Network)
+\item Deep Ensemble \cite{lakshminarayanan2016simple}
+\end{itemize}
+
+Through optional arguments, users can control the neural network
+architecture and impose regularization through dropout.
+
+As we demonstrate below, it is straightforward to extend the package
+through custom models, although, at the time of writing, models are
+required to support auto-differentiation. Support for \texttt{torch}
+models trained in Python and R is possible, but currently still
+experimental.
+
+\hypertarget{data-and-benchmarking}{%
+\subsection{Data and Benchmarking}\label{data-and-benchmarking}}
+
+To allow researchers and practitioners to test and compare
+counterfactual generators, the package ships with pre-processed
+synthetic and real-world benchmark datasets from different domains.
+Real-world datasets include:
+
+\begin{itemize}
+\item California Housing \cite{pace1997sparse}
+\item UCI defaultCredit \cite{yeh2009comparisons}
+\item Give Me Some Credit \cite{kaggle2011give}
+\item MNIST \cite{lecun1998mnist}
+\end{itemize}
+
+\hypertarget{plotting}{%
+\subsection{Plotting}\label{plotting}}
+
+The package also extends common \texttt{Plots.jl} methods to facilitate
+the visualization of results. Calling the generic \texttt{plot()} method
+on an instance of type \texttt{\textless{}:CounterfactualExplanation},
+for example, generates a plot visualizing the entire counterfactual path
+in the feature space\footnote{For multi-dimensional input data, standard
+  dimensionality reduction techniques are used to compress the data. In
+  this case, the classifier's decision boundary is approximated through
+  a Nearest Neighbour model. This is still somewhat experimental and
+  will be improved in the future.}. We will see several examples of this
+below.
 
 \begin{figure}
 
@@ -556,7 +612,7 @@ x = select_factual(counterfactual_data, chosen) @\label{line:simple-x}@
 
 # Counterfactual search:
 generator = GenericGenerator() @\label{line:simple-gen}@
-counterfactual = generate_counterfactual(
+ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator) @\label{line:simple-search}@
 \end{lstlisting}
 
@@ -585,10 +641,10 @@ the classifier's sensitivity to regions with high aleatoric uncertainty.
 Consider, for example, the scenario illustrated in
 Figure~\ref{fig-binary-wrong}, which involves the same logistic
 classifier, but a massively overfitted version of it. In this case,
-generic search may yield an unrealistic counterfactual that is well into
-the yellow region and yet far away from all other samples (red marker)
-or an ambiguous counterfactual near the decision boundary (purple
-marker).
+generic search may yield an entirely ambiguous counterfactual near the
+decision boundary (purple marker) or an unrealistic counterfactual that
+has moved well into the target domain, but remains far away from all
+other samples (red marker).
 
 \begin{figure}
 
@@ -627,37 +683,38 @@ explanations may be suitable depending on the practical context.
 
 Listing \ref{lst:binary-advanced} below shows a more advanced usage
 example involving the DiCE generator. Once again it is worth dwelling on
-this for a moment. In line \ref{line:binary-advanced-opt} we instantiate
-a Flux optimizer that will determine how exactly the counterfactual
-search objective is optimized. That optimizer is then fed to the
-\texttt{DiCEGenerator} in line
-\ref{line:binary-advanced-dice}.\footnote{Note that all differentiable
-  generators except the \texttt{GreedyGenerator} work with Flux
-  optimizers and accept them as an optional key argument.}. The main API
-call to generate counterfactuals is the same as before, but note that in
-line \ref{line:binary-advanced-num} we have specified an optional key
-argument that determines how many counterfactuals are generated. For the
-DiCE generator it naturally makes sense to generate multiple
-counterfactuals, but note that this is in principle also possible for
-all other generators.\footnote{By default counterfactuals are
-  initialized by adding a small, random perturbation, as this improves
-  adversarial robustness \cite{slack2021counterfactual}. Therefore,
-  generating multiple counterfactuals will yield multiple distinct
-  outcomes even without an explicit diversity constraint.}
+this for a moment. The \texttt{DiCEGenerator} is instantiated in line
+\ref{line:binary-advanced-dice} with a custom Flux optimizer and
+decision threshold specified in lines \ref{line:binary-advanced-opt} and
+\ref{line:binary-advanced-thresh}, respectively\footnote{Note that all
+  differentiable generators except the \texttt{GreedyGenerator} work
+  with Flux optimizers and accept them as an optional key argument.}.
+The main API call to generate counterfactuals is the same as before, but
+note that in line \ref{line:binary-advanced-num} we have specified an
+optional key argument that determines how many counterfactuals are
+generated. For the DiCE generator it naturally makes sense to generate
+multiple counterfactuals, but note that this is in principle also
+possible for all other generators.\footnote{By default counterfactuals
+  are initialized by adding a small, random perturbation, as this
+  improves adversarial robustness \cite{slack2021counterfactual}.
+  Therefore, generating multiple counterfactuals will yield multiple
+  distinct outcomes even without an explicit diversity constraint.}
 Figure~\ref{fig-binary-advanced} shows the resulting output. It was
 generated by calling the generic \texttt{plot} method directly on the
 object returned by \texttt{generate\_counterfactual}.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:binary-advanced}, caption={}]
+# Generator:
+generator = DiCEGenerator( @\label{line:binary-advanced-dice}@
+    opt = Flux.Optimise.Descent(0.01), @\label{line:binary-advanced-opt}@
+    decision_threshold = 0.7, @\label{line:binary-advanced-thresh}@
+    λ = [0.1,5]
+)
 # Counterfactual search:
-opt = Flux.Optimise.Descent(1.0) @\label{line:binary-advanced-opt}@
-generator = DiCEGenerator(;opt = opt) @\label{line:binary-advanced-dice}@
 counterfactuals = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
     num_counterfactuals=5 @\label{line:binary-advanced-num}@
 )
-# Plotting
-plt = plot(counterfactuals)
 \end{lstlisting}
 
 \begin{figure}
@@ -704,8 +761,7 @@ assumed that all features are mutable in both directions.\footnote{Mutability
 Below we impose that the second feature is immutable.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mutability}, caption={}]
-counterfactual_data = CounterfactualData(
-    X,ys';mutability=[:both, :none])
+counterfactual_data.mutability = [:both, :none]
 \end{lstlisting}
 
 The resulting counterfactual path is shown in
@@ -843,7 +899,6 @@ field for the probability of dropout.
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={}]
 # Abstract suptype:
 abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
-
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Symbol # loss function
@@ -863,18 +918,14 @@ logic.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={}]
 using CounterfactualExplanations.Generators
-import Generators: generate_perturbations
-import Generators: propose_state
-using StatsBase
-function generate_perturbations(
+function Generators.generate_perturbations(
     generator::AbstractDropoutGenerator, 
-    counterfactual_state::State
+    ce::CouterfactualExplanation
 )
-    @$s^\prime$@ = deepcopy(counterfactual_state.@$s^\prime$@)
+    @$s^\prime$@ = deepcopy(ce.@$s^\prime$@)
     new_@$s^\prime$@ = propose_state(
-        generator, counterfactual_state)
+        generator, ce)
     @$\Delta s^\prime$@ = new_@$s^\prime$@ - @$s^\prime$@ # gradient step
-
     # Dropout:
     set_to_zero = sample(
         1:length(@$\Delta s^\prime$@),
@@ -902,144 +953,104 @@ dropout.}
 \end{figure}
 
 \hypertarget{sec-emp}{%
-\section{A Real-World Example --- MNIST}\label{sec-emp}}
+\section{A Real-World Examples}\label{sec-emp}}
 
 Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations.jl} through some synthetic examples,
-it is time to work through an example involving real data. The MNIST
-dataset contains 60,000 training samples of handwritten digits in the
-form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image
-is associated with a label indicating the digit (0-9) that the image
+it is time to work through examples involving real data.
+
+\hypertarget{give-me-some-credit}{%
+\subsection{Give Me Some Credit}\label{give-me-some-credit}}
+
+The \textbf{Give Me Some Credit} dataset is one of the tabular
+real-world datasets that ship with the package \cite{kaggle2011give}. It
+can be used to train a binary classifier to predict whether a borrower
+is likely to experience financial difficulties in the next two years. In
+particular, we have an output variable
+\(y \in \{0=\texttt{no stress},1=\texttt{stress}\}\) and a feature
+matrix \(X\) that includes socio-demographic variables like \texttt{age}
+and \texttt{income} \(X\). A retail bank might use such a classifier to
+determine if potential borrowers should receive credit or not.
+
+For the classification task we use a Multi-Layer Perceptron with dropout
+regularization.
+
+Using the Gravitational generator \cite{altmeyer2023endogenous} we will
+generate counterfactuals for ten randomly chosen individuals that would
+be denied credit based on our pre-trained model. Concerning the
+mutability of features, we only impose that the \texttt{age} cannot be
+decreased.
+
+Figure~\ref{fig-credit} shows the resulting counterfactuals proposed by
+Wachter in the two-dimensional feature space spanned by the \texttt{age}
+and \texttt{income} variables. An increase in income and age is
+recommended for the majority of individuals, which seems plausible: both
+age and income are typically positively related to creditworthiness.
+
+\begin{figure}
+
+{\centering \includegraphics[width=3.33333in,height=1.33333in]{www/credit.png}
+
+}
+
+\caption{\label{fig-credit}Give Me Some Credit: counterfactuals for
+would-be borrowers proposed by the Gravitational Generator.}
+
+\end{figure}
+
+\hypertarget{mnist}{%
+\subsection{MNIST}\label{mnist}}
+
+For our second example, we will look at image data. The MNIST dataset
+contains 60,000 training samples of handwritten digits in the form of
+28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is
+associated with a label indicating the digit (0-9) that the image
 represents. The data makes for an interesting case study of
-Counterfactual Explanations, because humans have a good idea of what
+Counterfactual Explanations because humans have a good idea of what
 realistic counterfactuals of digits look like. For example, if you were
-asked to pick up an eraser and turn the digit in
-Figure~\ref{fig-mnist-orig} into a four (4) you would know exactly what
-to do: just erase the top part. Schut et al.~(2021)
+asked to pick up an eraser and turn the digit in the left panel of
+Figure~\ref{fig-mnist} into a four (4) you would know exactly what to
+do: just erase the top part. Schut et al.~(2021)
 \cite{schut2021generating} leverage this idea to illustrate to the
 reader that their methodology produces realistic counterfactuals. In
 what follows we replicate some of their findings. You as the reader are
 therefore the perfect judge to evaluate the quality of the
-Counterfactual Explanations presented here.
+Counterfactual Explanations presented below.
 
-On the model side, we will use two pre-trained classifiers\footnote{The
-  pre-trained models were stored as package artifacts and loaded through
-  helper functions.}: firstly, a simple multi-layer perceptron (MLP)
-and, secondly, a deep ensemble composed of five such MLPs following
-\cite{schut2021generating}. Deep ensembles are approximate Bayesian
-model averages that have been shown to yield high-quality estimates of
-predictive uncertainty for neural networks (\cite{wilson2020case},
-\cite{lakshminarayanan2016simple}). Our package has native support for
-ensembles of Flux models. Listing \ref{lst:mnist-setup} loads and
-prepares the pretrained models:
+On the model side, we will use a simple multi-layer perceptron (MLP).
+Listing \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It
+also loads two pre-trained Variational Auto-Encoders, which will be used
+by our counterfactual generator of choice for this task: REVISE.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:mnist-setup}, caption={}]
-using Flux
-X, ys = mnist_data() 
-counterfactual_data = CounterfactualData(X,ys)
-model = mnist_model()
-ensemble = mnist_ensemble()
-M = FluxModel(model)
-M_ensemble = FluxEnsemble(ensemble)
+counterfactual_data = load_mnist()
+X, y = unpack_data(counterfactual_data)
+input_dim, n_obs = size(counterfactual_data.X)
+M = load_mnist_mlp()
+vae = load_mnist_vae()
+vae_weak = load_mnist_vae(;strong=false)
 \end{lstlisting}
 
-\begin{figure}
-
-{\centering \includegraphics[width=1.66667in,height=1.25in]{www/mnist_original.png}
-
-}
-
-\caption{\label{fig-mnist-orig}A handwritten nine (9) randomly drawn
-from the MNIST dataset.}
-
-\end{figure}
-
-For the counterfactual search, we will use four different combinations
-of classifiers and generators: firstly, the generic approach for the
-MLP; secondly, the greedy approach for the MLP; thirdly, the generic
-approach for the deep ensemble; and finally, the greedy approach for the
-deep ensemble.
-
-We begin by turning the nine in Figure~\ref{fig-mnist-orig} into a four.
-Figure~\ref{fig-mnist-9to4} shows the resulting counterfactuals. In
-every case, the desired label switch is achieved, but arguably from a
-human perspective, only the counterfactuals for the deep ensemble look
-like a four. The generic generator produces mild perturbations in
-regions that seem irrelevant from a human perspective, but still yields
-a counterfactual that can pass as a four. The greedy approach
-\cite{schut2021generating} targets pixels at the top of the handwritten
-nine and yields the best result overall. For the non-bayesian MLP, both
-the generic and the greedy approaches generate counterfactuals that look
-much like adversarial examples: they perturb pixels in seemingly random
-regions on the image. Figure~\ref{fig-mnist-3to8} shows another example.
-This time the goal is to turn a randomly chosen three (3) into an eight
-(8). Once again the outcomes for the deep ensemble look more realistic,
-but overall the generated counterfactuals look less effective than those
-in Figure~\ref{fig-mnist-9to4}. The results could likely be improved by
-using adversarial training for the classifiers as recommended in
-\cite{schut2021generating}.
+The proposed counterfactuals are shown in Figure~\ref{fig-mnist}. In the
+case in which REVISE has access to an expressive VAE (centre), the
+result looks convincing: the perturbed image does look like it
+represents a four (4). In terms of explainability, we may conclude that
+removing the top part of the handwritten nine (9) leads the black-box
+model to predict that the perturbed image represents a four (4). We
+should note, however, that the quality of counterfactuals produced by
+REVISE hinges on the performance of the underlying generative model, as
+demonstrated by the result on the right. In this case, REVISE uses a
+weak VAE and the resulting counterfactual is invalid. In light of this,
+we recommend using Latent Space search with care.
 
 \begin{figure}
 
-{\centering \includegraphics[width=3.33333in,height=0.83333in]{www/mnist_9_to_4.png}
+{\centering \includegraphics[width=3.33333in,height=1.11111in]{www/mnist_9to4_latent.png}
 
 }
 
-\caption{\label{fig-mnist-9to4}Counterfactual explanations for MNIST:
-turning a nine (9) into a four (4).}
-
-\end{figure}
-
-\begin{figure}
-
-{\centering \includegraphics[width=3.33333in,height=0.83333in]{www/mnist_3_to_8.png}
-
-}
-
-\caption{\label{fig-mnist-3to8}Counterfactual explanations for MNIST:
-turning a three (3) into an eight (8).}
-
-\end{figure}
-
-Overall, the examples in this section demonstrate two points that we
-have already made earlier: firstly, the findings in
-\cite{schut2021generating} can complement other existing approaches to
-counterfactual generation; and secondly, the quality of the classifier
-is typically reflected in the quality of the Counterfactual
-Explanations. In other words, we cannot easily generate effective
-Counterfactual Explanations for a poorly trained model.
-
-A notable exception to this is Latent Space generators. The
-counterfactual in Figure~\ref{fig-mnist-4to9-latent} was generated using
-the REVISE generator introduced earlier. The underlying black-box model
-is the same as before and yet the quality of the produced counterfactual
-is arguably the most compelling out of all examples shown here. While in
-terms of meeting the desiderata for realistic counterfactuals, REVISE
-does remarkably well here, one has to wonder how desirable it is to
-generate compelling explanations for inherently unstable models.
-Applying REVISE blindly to this particular problem may lead users to
-believe that the classifier is well-specified: after all, the
-explanation looks plausible from a human perspective. The fact that less
-plausible counterfactuals also yield a change in the predicted outcome
-goes unnoticed.
-
-It may therefore actually be desirable that the quality of
-counterfactuals is inherently linked to the quality of the black-box
-model: if a model bases its predictions on representations that are not
-intuitive to a human, we would like that to be evident from the
-counterfactual explanation. From that perspective, Counterfactual
-Explanations can help us not only understand a black-box model but
-potentially also guide us in improving it.
-
-\begin{figure}
-
-{\centering \includegraphics[width=2.16667in,height=0.83333in]{www/mnist_9to4_latent.png}
-
-}
-
-\caption{\label{fig-mnist-4to9-latent}Counterfactual explanations for
-MNIST using a Latent Space generator with a well-specified generative
-model.}
+\caption{\label{fig-mnist}Counterfactual explanations for MNIST using a
+Latent Space generator: turning a nine (9) into a four (4).}
 
 \end{figure}
 
@@ -1047,9 +1058,8 @@ model.}
 \section{Discussion and Outlook}\label{sec-outlook}}
 
 We believe that this package in its current form offers a valuable
-contribution to ongoing efforts towards explainable artificial
-intelligence by the broader Julia community. That being said, there is
-significant scope for exciting future developments, which we briefly
+contribution to ongoing efforts towards XAI in Julia. That being said,
+there is significant scope for future developments, which we briefly
 outline in this final section.
 
 \hypertarget{candidate-models-and-generators}{%
@@ -1059,17 +1069,16 @@ generators}\label{candidate-models-and-generators}}
 At the time of writing the package supports a handful of default models
 and generators either natively or through minimal augmentation. In
 future work, we would like to prioritize the addition of further
-predictive models and especially generators. Concerning the former, it
-would be useful to add native support for any arbitrary Flux model, as
-well as predictive models built in other popular libraries: in
-particular \texttt{MLJ.jl}, but also \texttt{ScikitLearn.jl},
-\texttt{GLM.jl} and \texttt{Turing.jl}. This may also involve adding
-support for regression models as well as non-differentiable models. In
-terms of counterfactual generators, we are particularly interested in
-having the following approaches added in the near future: MINT
-\cite{karimi2021algorithmic} and ROAR \cite{upadhyay2021robust}. Through
-its composable nature, our package may also allow for combining
-different approaches.
+predictive models and generators. Concerning the former, it would be
+useful to add native support for any supervised models built in
+\texttt{MLJ.jl}, an extensive Machine Learning framework for Julia
+\cite{blaom2020mlj}. This may also involve adding support for regression
+models as well as non-differentiable models. In terms of counterfactual
+generators, there is a list of recent methodologies that we would like
+to implement including MINT \cite{karimi2021algorithmic}, ROAR
+\cite{upadhyay2021robust} and PROBE
+\cite{pawelczyk2022probabilistically}. Through its composable nature,
+our package allows for combining different approaches.
 
 \hypertarget{additional-datasets}{%
 \subsection{Additional datasets}\label{additional-datasets}}
@@ -1123,7 +1132,7 @@ challenge and active development.
 \section{Acknowledgements}\label{sec-ack}}
 
 Patrick is grateful to his PhD supervisors and co-authors, Cynthia C. S.
-Liem and Arie van Deursen, for being so supportive of his work on
+Liem and Arie van Deursen, for being supportive of his work on
 open-source developments. The authors are grateful to the Julia
 community for being welcoming and open and for supporting research
 contributions like this one.

@@ -9,6 +9,7 @@ using UMAP
 mutable struct CounterfactualData
     X::AbstractMatrix
     y::EncodedOutputArrayType
+    likelihood::Symbol
     mutability::Union{Vector{Symbol},Nothing}
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
@@ -22,6 +23,7 @@ mutable struct CounterfactualData
     function CounterfactualData(
         X,
         y,
+        likelihood,
         mutability,
         domain,
         features_categorical,
@@ -36,10 +38,12 @@ mutable struct CounterfactualData
 
         # Conditions:
         conditions = []
+        # Feature dimension:
         conditions = vcat(
             conditions...,
             length(size(X)) != 2 ? error("Data should be in tabular format") : true,
         )
+        # Output dimension:
         conditions = vcat(
             conditions...,
             size(X)[2] != size(y)[2] ?
@@ -49,11 +53,15 @@ mutable struct CounterfactualData
                 ),
             ) : true,
         )
+        # Likelihood:
+        available_likelihoods = [:classification_binary, :classification_multi]
+        @assert likelihood ∈ available_likelihoods "Specified likelihood not available. Needs to be one of: $(available_likelihoods)."
 
         if all(conditions)
             new(
                 X,
                 y,
+                likelihood,
                 mutability,
                 domain,
                 features_categorical,
@@ -94,6 +102,7 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractMatrix,
     y::RawOutputArrayType;
+    likelihood::Union{Nothing, Symbol}=nothing,
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
@@ -104,9 +113,8 @@ function CounterfactualData(
 
     # Output variable:
     y_raw = deepcopy(y)
-    y_levels = levels(y)
-    output_encoder = OutputEncoder(y_raw)
-    y = output_encoder()
+    output_encoder = OutputEncoder(y_raw, nothing)
+    y, y_levels, likelihood = output_encoder()
 
     # Feature type indices:
     if isnothing(features_categorical) && isnothing(features_continuous)
@@ -121,23 +129,27 @@ function CounterfactualData(
     compressor = nothing                                                                # dimensionality reduction
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
-    # Data transformations:
-    dt = StatsBase.fit(ZScoreTransform, X[features_continuous, :], dims=2)        # standardization
-
     counterfactual_data = CounterfactualData(
         X,
         y,
+        likelihood,
         mutability,
         domain,
         features_categorical,
         features_continuous,
         standardize,
-        dt,
+        nothing,
         compressor,
         generative_model,
         y_levels,
         output_encoder
     )
+
+    # Data transformations:
+    if transformable_features(counterfactual_data) != counterfactual_data.features_continuous
+        @warn "Some of the underlying features are constant."
+    end
+    counterfactual_data.dt = StatsBase.fit(ZScoreTransform, X[transformable_features(counterfactual_data), :], dims=2)        # standardization
 
     return counterfactual_data
 end
@@ -218,6 +230,18 @@ function reconstruct_cat_encoding(
 end
 
 """
+    transformable_features(counterfactual_data::CounterfactualData)
+
+Returns the indices of all continuous features that can be transformed. For constant features `ZScoreTransform` returns `NaN`.
+"""
+function transformable_features(counterfactual_data::CounterfactualData)
+    # Find all columns that have varying values:
+    idx_not_all_equal = [length(unique(counterfactual_data.X[i, :])) != 1 for i in counterfactual_data.features_continuous]
+    # Returns indices of columns that have varying values:
+    return counterfactual_data.features_continuous[idx_not_all_equal]
+end
+
+"""
     mutability_constraints(counterfactual_data::CounterfactualData)
 
 A convience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
@@ -286,8 +310,8 @@ function get_generative_model(counterfactual_data::CounterfactualData; kwargs...
         @info "No pre-trained generative model found. Using default generative model. Begin training."
         counterfactual_data.generative_model =
             GenerativeModels.VAE(input_dim(counterfactual_data); kwargs...)
-        X = counterfactual_data.X
-        y = counterfactual_data.y
+        X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
+        # NOTE: y is not actually used, may refactor in the future to make that clearer.
         GenerativeModels.train!(counterfactual_data.generative_model, X, y)
         @info "Training of generative model completed."
     else

@@ -11,7 +11,6 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
     target::RawTargetType
     target_encoded::EncodedTargetType
-    target_encoded_loss::Union{Number,AbstractArray,Nothing}
     s′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
@@ -59,7 +58,6 @@ function CounterfactualExplanation(;
 
     # Target:
     target_encoded = data.output_encoder(target)
-    target_encoded_loss = nothing
 
     # Initial Parameters:
     params = Dict(
@@ -69,7 +67,7 @@ function CounterfactualExplanation(;
         :mutability => DataPreprocessing.mutability_constraints(data),
         :initial_mutability => DataPreprocessing.mutability_constraints(data),
     )
-    ids = getindex.(findall(data.y .== target_encoded), 2)
+    ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
@@ -79,10 +77,9 @@ function CounterfactualExplanation(;
         x,
         target,
         target_encoded,
-        target_encoded_loss,
         x,
         data,
-        M,
+        deepcopy(M),
         deepcopy(generator),
         latent_space,
         generative_model_params,
@@ -93,11 +90,10 @@ function CounterfactualExplanation(;
     )
 
     # Initialization:
-    adjust_shape!(counterfactual_explanation)                                                   # adjust shape to specified number of counterfactuals
+    adjust_shape!(counterfactual_explanation)                                                # adjust shape to specified number of counterfactuals
     counterfactual_explanation.latent_space = wants_latent_space(counterfactual_explanation)
     counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
     counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
-    counterfactual_explanation.target_encoded_loss = _encode_target_for_loss(counterfactual_explanation)       # encode the target variable
 
     # Initialize search:
     counterfactual_explanation.search = Dict(
@@ -166,6 +162,8 @@ function adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
     x = deepcopy(counterfactual_explanation.x)
     s′ = adjust_shape(counterfactual_explanation, x)      # augment to account for specified number of counterfactuals
     counterfactual_explanation.s′ = s′
+    target_encoded = counterfactual_explanation.target_encoded
+    counterfactual_explanation.target_encoded = adjust_shape(counterfactual_explanation, target_encoded)
 
     # Parameters:
     params = counterfactual_explanation.params
@@ -197,39 +195,14 @@ function encode_state(
     # Standardize data unless latent space:
     if !counterfactual_explanation.latent_space
         dt = data.dt
-        features_continuous = data.features_continuous
+        idx = transformable_features(data)
         SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[features_continuous,:]
+            _s = s[idx,:]
             StatsBase.transform!(dt, _s)
-            s[features_continuous,:] = _s
+            s[idx,:] = _s
         end
         return s′
     end
-
-end
-
-"""
-    wants_latent_space!(
-        counterfactual_explanation::CounterfactualExplanation, 
-        x::Union{AbstractArray,Nothing} = nothing,
-    )   
-
-
-"""
-function wants_latent_space!(counterfactual_explanation::CounterfactualExplanation)
-
-    # Unpack:
-    data = counterfactual_explanation.data
-    generator = counterfactual_explanation.generator
-    latent_space = counterfactual_explanation.latent_space
-
-    # Check if generative model is available:
-    wants_latent_space =
-        DataPreprocessing.has_pretrained_generative_model(data) ||
-        typeof(generator) <: Generators.AbstractLatentSpaceGenerator
-    # Assume that latent space search is wanted unless explicitly set to false:
-    counterfactual_explanation.latent_space =
-        isnothing(latent_space) ? wants_latent_space : latent_space
 
 end
 
@@ -250,7 +223,6 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
 
     # Check if generative model is available:
     wants_latent_space =
-        DataPreprocessing.has_pretrained_generative_model(data) ||
         typeof(generator) <: Generators.AbstractLatentSpaceGenerator
     # Assume that latent space search is wanted unless explicitly set to false:
     latent_space =
@@ -308,11 +280,11 @@ function decode_state(
         dt = data.dt
 
         # Continuous:
-        features_continuous = data.features_continuous
+        idx = transformable_features(data)
         SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[features_continuous,:]
+            _s = s[idx,:]
             StatsBase.reconstruct!(dt, _s)
-            s[features_continuous,:] = _s
+            s[idx,:] = _s
         end
 
         # Categorical:
@@ -364,22 +336,6 @@ function reconstruct_cat_encoding(
     end
 
     return s′
-end
-
-"""
-    _encode_target_for_loss(counterfactual_explanation::CounterfactualExplanation) 
-
-A convenience method to encode the target variable, if necessary.
-"""
-function _encode_target_for_loss(
-    counterfactual_explanation::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing} = nothing,
-)
-    out_dim = output_dim(counterfactual_explanation)
-    target = isnothing(x) ? deepcopy(counterfactual_explanation.target_encoded) : x
-    target = out_dim > 1 ? Flux.onehot(target, 1:out_dim) : [target]
-    target = repeat(target, outer = [1, 1, counterfactual_explanation.num_counterfactuals])
-    return target
 end
 
 """
@@ -462,24 +418,14 @@ counterfactual_probability(counterfactual_explanation::CounterfactualExplanation
     Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
 
 """
-    _to_label(p::AbstractArray)
-
-Small helper function mapping predicted probabilities to labels.
-"""
-function _to_label(p::AbstractArray)
-    out_dim = size(p)[1]
-    y = out_dim == 1 ? round(p[1]) : Flux.onecold(p, 1:out_dim)
-    return y
-end
-
-"""
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
 
 A convenience method to get the predicted label associated with the counterfactual value.
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
-    p = counterfactual_probability(counterfactual_explanation)
-    y = SliceMap.slicemap(_p -> permutedims([_to_label(_p)]), p, dims = (1, 2)) 
+    M = counterfactual_explanation.M
+    counterfactual_data = counterfactual_explanation.data
+    y = SliceMap.slicemap(x -> permutedims([predict_label(M, counterfactual_data, x)]), counterfactual(counterfactual_explanation), dims=(1, 2))
     return y
 end
 
@@ -493,34 +439,21 @@ function target_probs(
     x::Union{AbstractArray,Nothing} = nothing,
 )
 
+    data = counterfactual_explanation.data
+    likelihood = counterfactual_explanation.data.likelihood
     p =
         !isnothing(x) ? Models.probs(counterfactual_explanation.M, x) :
         counterfactual_probability(counterfactual_explanation)
-    target = counterfactual_explanation.target_encoded
-
-    if size(p, 1) == 1
-        h(x) = ifelse(x == -1, 0, x)
-        if target ∉ [0, 1] && target ∉ [-1, 1]
-            throw(
-                DomainError(
-                    "For binary classification expecting target to be in {0,1} or {-1,1}.",
-                ),
-            )
+    target = counterfactual_explanation.target
+    target_idx = get_target_index(data.y_levels, target)
+    if likelihood == :classification_binary
+        if target_idx == 2
+            p_target = p
+        else
+            p_target = 1 .- p
         end
-        # If target is binary (i.e. outcome 1D from sigmoid), compute p(y=0):
-        p = vcat(1.0 .- p, p)
-        # Choose first (target+1) row if target=0, second row (target+1) if target=1:  
-        p_target = selectdim(p, 1, Int(h(target) + 1))
     else
-        if target < 1 || target % 1 != 0
-            throw(
-                DomainError(
-                    "For multi-class classification expecting `target` ∈ ℕ⁺, i.e. {1,2,3,...}.",
-                ),
-            )
-        end
-        # If target is multi-class, choose corresponding row (e.g. target=2 -> row 2)
-        p_target = selectdim(p, 1, Int(target))
+        p_target = p[target_idx]
     end
     return p_target
 end
@@ -596,8 +529,12 @@ end
 Returns the counterfactual labels for each step of the search.
 """
 function counterfactual_label_path(counterfactual_explanation::CounterfactualExplanation)
-    P = counterfactual_probability_path(counterfactual_explanation)
-    ŷ = map(P -> mapslices(p -> _to_label(p), P, dims = (1, 2)), P)
+    counterfactual_data = counterfactual_explanation.data
+    M = counterfactual_explanation.M
+    ŷ = map(
+        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X, dims = (1, 2)),
+        path(counterfactual_explanation),
+    )
     return ŷ
 end
 
@@ -667,14 +604,16 @@ Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(counterfactual_explanation::CounterfactualExplanation)
 
-    if !isnothing(counterfactual_explanation.data.domain) &&
-       total_steps(counterfactual_explanation) == 0
-        @error "Domain constraints not currently implemented for latent space search."
-    end
+    # if !isnothing(counterfactual_explanation.data.domain) &&
+    #    total_steps(counterfactual_explanation) == 0
+    #     @error "Domain constraints not currently implemented for latent space search."
+    # end
 
-    s′ = counterfactual_explanation.s′
-    counterfactual_explanation.s′ =
-        DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    if !wants_latent_space(counterfactual_explanation)
+        s′ = counterfactual_explanation.s′
+        counterfactual_explanation.s′ =
+            DataPreprocessing.apply_domain_constraints(counterfactual_explanation.data, s′)
+    end
 
 end
 
