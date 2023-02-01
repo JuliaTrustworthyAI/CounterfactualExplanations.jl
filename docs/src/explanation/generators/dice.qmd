@@ -34,7 +34,6 @@ end
 Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in @fig-intro, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function. 
 
 ```{julia}
-theme(:dark)
 lims = 5
 N = 5
 X = rand(2,1,N)
@@ -56,20 +55,27 @@ gif(anim, joinpath(www_path, "dice_intro.gif"))
 
 ![](../www/dice_intro.gif){#fig-intro}
 
-### DiCE 
+## Usage
 
-Now let's see how this concept carries over to our `DiCEGenerator`. Below we first load a simple synthetic data set and instantiate a linear classifier that perfectly separate the two classes. 
-
-We then use DiCE to generate multiple counterfactuals for varying degrees of $\lambda_2$, that is the hyperparameter that governs the strength of the penalty for non-diverse outcomes.
+The approach can be used in our package as follows:
 
 ```{julia}
-Λ₂ = [0.1, 1, 5]
+#| output: true
+generator = DiCEGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+plot(ce)
+```
+
+### Effect of Penalty
+
+```{julia}
+Λ₂ = [0.5, 0.75, 1.0]
 ces = []
 n_cf = 5
 using Flux
 for λ₂ ∈ Λ₂  
-    λ = [0.1, λ₂]
-    generator = DiCEGenerator(;λ=λ)
+    λ = [0.05, λ₂]
+    generator = DiCEGenerator(λ=λ)
     ces = vcat(
       ces...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
@@ -81,22 +87,18 @@ The figure below shows the resulting counterfactual paths. As expected, the resu
 
 ```{julia}
 #| output: true
-#| label: fig-dice
-#| fig-cap: Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\lambda_2) increase from left to right.
+#| echo: false
 
 T = 100
-lim_ = 9
 plts = []
 for i ∈ 1:length(Λ₂)
     λ₂ = Λ₂[i]
-    counterfactual = counterfactuals[i]  
-    plt = plot(counterfactual, xlims=(-lim_,lim_), ylims=(-lim_,lim_), plot_up_to=T, title="λ₂=$(λ₂)")
+    ce = ces[i]  
+    plt = plot(ce, plot_up_to=T, title="λ₂=$(λ₂)")
     plts = vcat(plts..., plt)
 end
 plot(plts..., size=(1200,300), layout=(1,3))
 ```
 
-
-
-# References
+## References
 
