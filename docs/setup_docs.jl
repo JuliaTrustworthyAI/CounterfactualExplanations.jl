@@ -29,6 +29,7 @@ setup_docs = quote
     www_path = "docs/src/www"
     include("docs/src/utils.jl")
     synthetic = CounterfactualExplanations.Data.load_synthetic_data()
+    ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
     # Counteractual data and model:
     counterfactual_data = load_linearly_separable()

@@ -17,7 +17,7 @@ generator_catalog
       :dice          => DiCEGenerator
       :generic       => GenericGenerator
       :greedy        => GreedyGenerator
-      :claproar      => ClapROARGenerator
+      :claproar      => ClaPROARGenerator
 
 The following sections provide brief descriptions of all of them.
 

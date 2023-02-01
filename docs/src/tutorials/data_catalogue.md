@@ -98,3 +98,10 @@ sum(counterfactual_data.y; dims=2)
      10
      10
      10
+
+We can also use a helper function to split the data into train and test sets:
+
+``` julia
+train_data, test_data = 
+    CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
+```

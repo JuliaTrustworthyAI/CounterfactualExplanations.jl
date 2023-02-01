@@ -45,6 +45,12 @@ plot(ce)
 
 ![](gravitational_files/figure-commonmark/cell-4-output-1.svg)
 
+### Comparison to `GenericGenerator`
+
+The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `GravitationalGenerator`.
+
+![](gravitational_files/figure-commonmark/cell-6-output-1.svg)
+
 ## References
 
 Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.

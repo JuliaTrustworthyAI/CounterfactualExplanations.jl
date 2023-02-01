@@ -48,7 +48,7 @@ end
 gif(anim, joinpath(www_path, "dice_intro.gif"))
 ```
 
-![](../www/dice_intro.gif)
+![](../../www/dice_intro.gif)
 
 ## Usage
 

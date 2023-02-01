@@ -24,7 +24,6 @@ Modules = [
     CounterfactualExplanations, 
     CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
-    CounterfactualExplanations.Counterfactuals, 
     CounterfactualExplanations.Models, 
     CounterfactualExplanations.Generators, 
     CounterfactualExplanations.Losses
@@ -39,7 +38,6 @@ Modules = [
     CounterfactualExplanations, 
     CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
-    CounterfactualExplanations.Counterfactuals, 
     CounterfactualExplanations.Models, 
     CounterfactualExplanations.Generators, 
     CounterfactualExplanations.Losses

@@ -151,7 +151,7 @@ Next, we generate a synthetic categorical feature based on the output variable. 
 cat_values = ["X","Y","Z"]
 ```
 
-Next, we impose that the categorical feature is most likely to take the first discrete level, namely X, whenever `y` is equal to 1.
+Next, we impose that the categorical feature is most likely to take the first discrete level, namely X, whenever `y` is equal to $1$.
 
 ``` julia
 xcat = map(ys) do y
@@ -196,7 +196,7 @@ With the data pre-processed we can use the [`fit_model`](@ref) function to train
 M = fit_model(counterfactual_data, :Linear)
 ```
 
-Now it is finally time to generate counterfactuals. We first define 1 as our target and then choose a random sample from the non-target class:
+Now it is finally time to generate counterfactuals. We first define $1$ as our target and then choose a random sample from the non-target class:
 
 ``` julia
 target = 1
@@ -206,13 +206,13 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
     5×1 Matrix{Float64}:
-     -2.0187107665036255
-     -2.1472582003885394
-      0.0
-      0.0
+     -4.0775018769582125
+      5.116963124140119
       1.0
+      0.0
+      0.0
 
-The factual `x` belongs to group Z.
+The factual `x` belongs to group X.
 
 We generate a counterfactual for `x` using the standard API call:
 
@@ -233,8 +233,8 @@ x′ = counterfactual(ce)
 
     5×1×1 Align{Float64, 3} with eltype Float64:
     [:, :, 1] =
-     -1.688050060018926
-      0.7516931376044904
+     -3.0180333412321194
+      0.17907498614730666
       1.0
       0.0
       0.0
