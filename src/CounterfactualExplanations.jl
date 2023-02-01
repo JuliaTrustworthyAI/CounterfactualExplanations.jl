@@ -43,7 +43,7 @@ export model_catalogue, fit_model, model_evaluation, predict_label
 include("generators/Generators.jl")
 using .Generators
 export AbstractGenerator, AbstractGradientBasedGenerator
-export ClapROARGenerator, ClapROARGeneratorParams
+export ClaPROARGenerator, ClaPROARGeneratorParams
 export GenericGenerator, GenericGeneratorParams
 export GravitationalGenerator, GravitationalGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams

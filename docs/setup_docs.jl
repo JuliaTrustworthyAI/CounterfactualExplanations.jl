@@ -9,12 +9,19 @@ setup_docs = quote
     using CounterfactualExplanations.Data
     using Flux
     using Flux.Optimise: update!, Adam
+    using Images
     using LinearAlgebra
+    using Markdown
+    using MLDatasets
+    using MLDatasets: convert2image
     using MLJBase
     using MLJModels: OneHotEncoder
     using Plots
     using Random
+    using RCall
+    using SliceMap
     using StatsBase
+    using Tables
 
     # Setup:
     theme(:wong)
@@ -22,5 +29,14 @@ setup_docs = quote
     www_path = "docs/src/www"
     include("docs/src/utils.jl")
     synthetic = CounterfactualExplanations.Data.load_synthetic_data()
+    ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
+
+    # Counteractual data and model:
+    counterfactual_data = load_linearly_separable()
+    M = fit_model(counterfactual_data, :Linear)
+    target = 2
+    factual = 1
+    chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+    x = select_factual(counterfactual_data, chosen)
 
 end;

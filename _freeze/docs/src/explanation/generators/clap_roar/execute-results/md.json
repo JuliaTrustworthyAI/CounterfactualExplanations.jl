@@ -1,0 +1,10 @@
+{
+  "hash": "f24557d13edfa0825744d889bff50996",
+  "result": {
+    "markdown": "```@meta\nCurrentModule = CounterfactualExplanations \n```\n\n\n\n# `ClaPROARGenerator`\n\nThe `ClaPROARGenerator` was introduced in @altmeyer2023endogenous. \n\n## Description\n\nThe acronym **Clap** stands for **classifier-preserving**. The approach is loosely inspired by ROAR [@upadhyay2021robust]. @altmeyer2023endogenous propose to explicitly penalize the loss incurred by the classifer when evaluated on the counterfactual $x^\\prime$ at given parameter values. Formally, we have\n\n```math\n\\begin{aligned}\n\\text{extcost}(f(\\mathbf{s}^\\prime)) = l(M(f(\\mathbf{s}^\\prime)),y^\\prime)\n\\end{aligned}\n```\n\nfor each counterfactual $k$ where $l$ denotes the loss function used to train $M$. This approach is based on the intuition that (endogenous) model shifts will be triggered by counterfactuals that increase classifier loss [@altmeyer2023endogenous].\n\n\n## Usage \n\nThe approach can be used in our package as follows:\n\n::: {.cell execution_count=2}\n``` {.julia .cell-code}\ngenerator = ClaPROARGenerator()\nce = generate_counterfactual(x, target, counterfactual_data, M, generator)\nplot(ce)\n```\n\n::: {.cell-output .cell-output-display execution_count=3}\n![](clap_roar_files/figure-commonmark/cell-3-output-1.svg){}\n:::\n:::\n\n\n### Comparison to `GenericGenerator`\n\nThe figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `ClaPROARGenerator`. \n\n\n\n::: {.cell execution_count=4}\n\n::: {.cell-output .cell-output-display execution_count=5}\n![](clap_roar_files/figure-commonmark/cell-5-output-1.svg){}\n:::\n:::\n\n\n## References\n\n",
+    "supporting": [
+      "clap_roar_files"
+    ],
+    "filters": []
+  }
+}

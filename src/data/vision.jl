@@ -8,11 +8,15 @@ using MLJBase
 
 Loads and prepares MNIST data.
 """
-function load_mnist()
+function load_mnist(n::Union{Nothing,Int}=nothing)
     X, y = MNIST(:train)[:]
     X = Flux.flatten(X)
     y = categorical(y)
     counterfactual_data = CounterfactualData(X, y; domain=(0, 1))
+    # Undersample:
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.undersample(counterfactual_data, n)
+    end
     return counterfactual_data
 end
 

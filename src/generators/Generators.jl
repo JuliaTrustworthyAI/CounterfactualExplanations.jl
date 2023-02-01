@@ -11,7 +11,7 @@ using ..Losses
 using ..Models
 
 export AbstractGenerator, AbstractGradientBasedGenerator
-export ClapROARGenerator, ClapROARGeneratorParams
+export ClaPROARGenerator, ClaPROARGeneratorParams
 export GenericGenerator, GenericGeneratorParams
 export GravitationalGenerator, GravitationalGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams
@@ -73,7 +73,7 @@ end
 include("gradient_based/functions.jl")
 
 generator_catalog = Dict(
-    :claproar => Generators.ClapROARGenerator,
+    :claproar => Generators.ClaPROARGenerator,
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,

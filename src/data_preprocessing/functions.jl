@@ -102,7 +102,6 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractMatrix,
     y::RawOutputArrayType;
-    likelihood::Union{Nothing, Symbol}=nothing,
     mutability::Union{Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,

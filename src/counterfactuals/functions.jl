@@ -260,18 +260,17 @@ function map_to_latent(
 end
 
 function decode_state(
-    counterfactual_explanation::CounterfactualExplanation, 
-    x::Union{AbstractArray,Nothing} = nothing,
-)    
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
+)
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x
     data = counterfactual_explanation.data
 
     # Latent space:
     if counterfactual_explanation.latent_space
         s′ = map_from_latent(counterfactual_explanation, s′)
-        return s′
     end
 
     # Standardization:
@@ -281,17 +280,18 @@ function decode_state(
 
         # Continuous:
         idx = transformable_features(data)
-        SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[idx,:]
+        SliceMap.slicemap(s′, dims=(1, 2)) do s
+            _s = s[idx, :]
             StatsBase.reconstruct!(dt, _s)
-            s[idx,:] = _s
+            s[idx, :] = _s
         end
 
-        # Categorical:
-        s′ = reconstruct_cat_encoding(counterfactual_explanation,s′)
-
-        return s′
     end
+
+    # Categorical:
+    s′ = reconstruct_cat_encoding(counterfactual_explanation, s′)
+
+    return s′
 
 end
 
@@ -687,7 +687,7 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     )
     Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
     s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
-    apply_domain_constraints!(counterfactual_explanation)           # domain constraints
+    # apply_domain_constraints!(counterfactual_explanation)           # domain constraints
 
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual

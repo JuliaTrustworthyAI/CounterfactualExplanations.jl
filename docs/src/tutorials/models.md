@@ -1,71 +1,58 @@
+
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Models
+# Handling Models
 
-## Default models
+The typical use-case for Counterfactual Explanations and Algorithmic Recourse is as follows: users have trained some supervised model that is not inherently interpretable and are looking for a way to explain it. In this tutorial, we will see how pre-trained models can be used with this package.
 
-There are currently constructors for two default models, which mainly serve illustrative purposes ([Figure 1](#fig-models) below). Both take sets of estimated parameters at the point of instantiation: the constructors will not fit a model for you, but assume that you have already estimated the respective model yourself and have access to its parameter estimates. Based on the supplied parameters methods to predict logits and probabilities are already implemented and used in the counterfactual search.
+## Models trained in `Flux.jl`
 
-![Figure 1: Schematic overview of classes in `Models` module.](www/models_uml.png)
-
-For the simple logistic regression model logits are computed as *a* = *X**w* + *b* and probabilities are simply *σ*(*a*). For the Bayesian logistic regression model logits are computed as *X**μ* and the predictive posterior is computed through Laplace and Probit approximation.
-
-## Custom models
-
-Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own Julia model compatible with this package:
-
-1.  The model needs to be declared as a subtype of `CounterfactualExplanations.Models.AbstractFittedModel`.
-2.  You need to extend the functions `CounterfactualExplanations.Models.logits` and `CounterfactualExplanations.Models.probs` to accept your custom model.
-
-Below we will go through a simple example to see how this can be done in practice. In one of the following sections we will also see how to make model built and trained in other programming languages compatible with this library.
-
-### Neural network
-
-In this example we will build a simple artificial neural network using [Flux](https://fluxml.ai/) for a binary classification task. First we generate some toy data below. The code that generates this data was borrowed from a great tutorial about Bayesian neural networks provided by [Turing.jl](https://turing.ml/dev/), which you may find [here](https://turing.ml/dev/tutorials/03-bayesian-neural-network/).
+We will train a simple binary classifier in `Flux.jl` on the popular Moons dataset:
 
 ``` julia
-# Number of points to generate.
-N = 80
-M = round(Int, N / 4)
-Random.seed!(1234)
-
-using CounterfactualExplanations.Data
-xs, ys = Data.toy_data_non_linear(N)
-X = hcat(xs...)
+n = 500
+counterfactual_data = load_moons(n)
+X = counterfactual_data.X
+y = counterfactual_data.y
+plt = plot()
+scatter!(counterfactual_data)
 ```
 
-The plot below shows the generated samples in the 2D feature space where colours indicate the associated labels. CounterfactualExplanationsly this data is not linearly separable and the default `LogisticModel` would be ill-suited for this classification task.
+![](models_files/figure-commonmark/cell-3-output-1.svg)
 
-![](www/models_samples.png)
-
-#### Training the model
-
-Instead, we will build a simple artificial neural network `nn` with one hidden layer using a simple helper function `build_model`.[1] For additional resources on how to do deep learning with [Flux](https://fluxml.ai/) just have a look at their documentation.
+The following code chunk sets up a Deep Neural Network for the task at hand:
 
 ``` julia
-nn = build_model(dropout=true,activation=Flux.σ)
-loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-ps = Flux.params(nn)
-data = zip(xs,ys);
+data = Flux.DataLoader((X,y),batchsize=1)
+input_dim = size(X,1)
+n_hidden = 32
+activation = relu
+output_dim = 1
+nn = Chain(
+    Dense(input_dim, n_hidden, activation),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)
+loss(yhat, y) = Flux.Losses.logitbinarycrossentropy(nn(yhat), y)
 ```
 
-The code below trains the neural network for the task at hand while keeping track of the training loss. Note that normally we would be interested in loss with respect to a validation data set. But since we are primarily interested in generating counterfactual explanations for a trained classifier here, we will just keep things very simple on the training side.
+Next, we fit the network to the data:
 
 ``` julia
 using Flux.Optimise: update!, Adam
 opt = Adam()
 epochs = 100
 avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-
+show_every = epochs/5
+# Training:
 for epoch = 1:epochs
   for d in data
-    gs = gradient(params(nn)) do
+    gs = gradient(Flux.params(nn)) do
       l = loss(d...)
     end
-    update!(opt, params(nn), gs)
+    update!(opt, Flux.params(nn), gs)
   end
   if epoch % show_every == 0
     println("Epoch " * string(epoch))
@@ -74,107 +61,44 @@ for epoch = 1:epochs
 end
 ```
 
-#### Generating counterfactuals
+    Epoch 20
 
-Now it’s game time: we have a fitted model *M* : 𝒳 ↦ 𝒴 and are interested in generating recourse for some individual *x* ∈ 𝒳. As mentioned above we need to do a bit more work to prepare the model for use with our package.
+    avg_loss(data) = 0.08082846806183959
+    Epoch 40
 
-The code below takes care of all of that: in step 1) it declares our model as a subtype of `Models.AbstractFittedModel` and in step 2) it just extends the two functions.
 
-``` julia
-using CounterfactualExplanations, CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+    avg_loss(data) = 0.025974960258047564
 
-# Step 1)
-struct NeuralNetwork <: Models.AbstractFittedModel
-    model::Any
-end
+    Epoch 60
+    avg_loss(data) = 0.009338310996106358
+    Epoch 80
 
-# Step 2)
-logits(M::NeuralNetwork, X::AbstractArray) = M.model(X)
-probs(M::NeuralNetwork, X::AbstractArray)= σ.(logits(M, X))
-M = NeuralNetwork(nn)
-```
 
-The plot below shows the predicted probabilities in the feature domain. Evidently, our simple neural network is doing well on the training data.
+    avg_loss(data) = 0.006386922069933257
 
-![](www/models_contour.png)
+    Epoch 100
+    avg_loss(data) = 0.004799384258580388
 
-To preprocess the data for use with our package we simply run the following:
+To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2016).
+
+The appropriate API call to wrap our simple network in a container follows below:
 
 ``` julia
-counterfactual_data = CounterfactualData(X,ys')
+M = FluxModel(nn)
 ```
 
-Now we just select a random sample from our data and based on its current label we set as our target the opposite label.
+    FluxModel(Chain(Dense(2 => 32, relu), Dropout(0.1), Dense(32 => 1)), :classification_binary)
+
+The likelihood function of the output variable is automatically inferred from the data. The generic `plot()` method can be called on the model and data to visualise the results:
 
 ``` julia
-using Random
-Random.seed!(123)
-x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+plot(M, counterfactual_data)
 ```
 
-Then finally we use the `GenericGenerator` to generate counterfactual. The plot further below shows the resulting counterfactual path.
+![](models_files/figure-commonmark/cell-7-output-1.svg)
 
-``` julia
-# Define generator:
-generator = GenericGenerator()
-# Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-```
+Our model `M` is now ready for use with the package.
 
-![](www/models_generic_recourse.gif)
+## References
 
-### Ensemble of neural networks
-
-In the context of Bayesian classifiers the `GreedyGenerator` can be used since minimizing the predictive uncertainty acts as a proxy for *realism* and *unambiquity*. In other words, if we have a model that incorporates uncertainty, we can generate realistic counterfactuals without the need for a complexity penalty.
-
-One efficient way to produce uncertainty estimates in the context of deep learning is to simply use an ensemble of artificial neural networks, also referred to as *deep ensemble* (Lakshminarayanan, Pritzel, and Blundell 2016). To this end, we can use the `build_model` function from above repeatedly to compose an ensemble of *K* neural networks:
-
-``` julia
-ensemble = build_ensemble(5;kw=(dropout=true,activation=Flux.σ))
-```
-
-Training this ensemble boils down to training each neural network separately:
-
-``` julia
-ensemble, anim = forward(ensemble, data, opt, n_epochs=epochs, plot_every=show_every); # fit the ensemble
-gif(anim, joinpath(www_path, "models_ensemble_loss.gif"), fps=10)
-```
-
-![](www/models_ensemble_loss.gif)
-
-Once again it is straight-forward to make the model compatible with the package. Note that for an ensemble model the predicted logits and probabilities are just averages over predictions produced by all *K* models.
-
-``` julia
-# Step 1)
-struct FittedEnsemble <: Models.AbstractFittedModel
-    ensemble::AbstractArray
-end
-
-# Step 2)
-logits(M::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([nn(X) for nn in M.ensemble],1)),dims=1)
-probs(M::FittedEnsemble, X::AbstractArray) = mean(Flux.flatten(Flux.stack([σ.(nn(X)) for nn in M.ensemble],1)),dims=1)
-
-M=FittedEnsemble(ensemble)
-```
-
-Again we plot the predicted probabilities in the feature domain. As expected the ensemble is more *conservative* because it incorporates uncertainty: the predicted probabilities splash out more than before, especially in regions that are not populated by samples.
-
-![](www/models_ensemble_contour.png)
-
-Finally, we use the `GreedyGenerator` for the counterfactual search.
-
-``` julia
-generator = GreedyGenerator(Dict(:δ=>0.1,:n=>30))
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
-```
-
-![](www/models_greedy_recourse.gif)
-
-# References
-
-Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” *arXiv Preprint arXiv:1612.01474*.
-
-[1] Helper functions like this one are not part of our package functionality. They can be found [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/main/dev/utils.jl).
+Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” <https://arxiv.org/abs/1612.01474>.

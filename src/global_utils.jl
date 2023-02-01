@@ -39,7 +39,7 @@ Guess the likelihood based on the scientific type of the output array. Returns a
 """
 function guess_likelihood(y::RawOutputArrayType)
     stype = scitype(y)
-    if stype <: AbstractArray{<:Finite}
+    if stype <: Union{AbstractArray{<:Finite}, AbstractArray{<:Textual}}
         if stype == AbstractVector{Multiclass{2}}
             likelihood = :classification_binary
         else
