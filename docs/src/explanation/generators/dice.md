@@ -3,17 +3,19 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Diversity
+# `DiCEGenerator`
+
+The `DiCEGenerator` can be used to generate multiple diverse counterfactuals for a single factual.
+
+## Description
 
 Counterfactual Explanations are not unique and there are therefore many different ways through which valid counterfactuals can be generated. In the context of Algorithmic Recourse this can be leveraged to offer individuals not one, but possibly many different ways to change a negative outcome into a positive one. One might argue that it makes sense for those different options to be as diverse as possible. This idea is at the core of **DiCE**, a counterfactual generator introduce by Mothilal, Sharma, and Tan (2020) that generate a diverse set of counterfactual explanations.
 
-![](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2.png)
+### Defining Diversity
 
-## Adding a diversity constraint
+To ensure that the generated counterfactuals are diverse, Mothilal, Sharma, and Tan (2020) add a diversity constraint to the counterfactual search objective. In particular, diversity is explicitly proxied via Determinantal Point Processes (DDP).
 
-To ensure that the generates counterfactuals are diverse Mothilal, Sharma, and Tan (2020) add a diversity constraint to the counterfactual search objective. In particular, they define diversity in terms of …
-
-We can implement this metric in Julia as follows:[1]
+We can implement DDP in Julia as follows:[1]
 
 ``` julia
 using LinearAlgebra
@@ -24,10 +26,9 @@ function ddp_diversity(X::AbstractArray{<:Real, 3})
 end
 ```
 
-Below we generate some random points in ℝ² and apply gradient ascent on this function evaluated at the whole array of points. As we can see in [Figure 1](#fig-intro), the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function.
+Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in the animation below, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function.
 
 ``` julia
-theme(:dark)
 lims = 5
 N = 5
 X = rand(2,1,N)
@@ -47,66 +48,42 @@ end
 gif(anim, joinpath(www_path, "dice_intro.gif"))
 ```
 
-![Figure 1: Diversifying an array of points.](../www/dice_intro.gif)
+![](../www/dice_intro.gif)
 
-## DiCE
+## Usage
 
-Now let’s see how this concept carries over to our `DiCEGenerator`. Below we first load a simple synthetic data set and instantiate a linear classifier that perfectly separate the two classes.
+The approach can be used in our package as follows:
 
 ``` julia
-# Some random data:
-Random.seed!(1234)
-N = 100
-w = [1.0 1.0]# true coefficients
-b = 0
-xs, ys = toy_data_linear(N)
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
-M = LogisticModel(w, [b])
-# Randomly selected factual:
-Random.seed!(123)
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+generator = DiCEGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+plot(ce)
 ```
 
-We then use DiCE to generate multiple counterfactuals for varying degrees of *λ*₂, that is the hyperparameter that governs the strength of the penalty for non-diverse outcomes.
+![](dice_files/figure-commonmark/cell-5-output-1.svg)
+
+### Effect of Penalty
 
 ``` julia
-Λ₂ = [0.1, 1, 5]
-counterfactuals = []
+Λ₂ = [0.5, 0.75, 1.0]
+ces = []
 n_cf = 5
+using Flux
 for λ₂ ∈ Λ₂  
-    λ = [0.1, λ₂]
-    generator = DiCEGenerator(λ=λ; ϵ=1)
-    counterfactuals = vcat(
-      counterfactuals...,
+    λ = [0.05, λ₂]
+    generator = DiCEGenerator(λ=λ)
+    ces = vcat(
+      ces...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
     )
 end
 ```
 
-[Figure 2](#fig-dice) shows the resulting counterfactual paths. As expected, the resulting counterfactuals are more dispersed across the feature domain for higher choices of *λ*₂
+The figure below shows the resulting counterfactual paths. As expected, the resulting counterfactuals are more dispersed across the feature domain for higher choices of $\lambda_2$
 
-``` julia
-using CounterfactualExplanations.Counterfactuals: animate_path
-theme(:wong)
-T = 100
-lim_ = 9
-plts = []
-for i ∈ 1:length(Λ₂)
-    λ₂ = Λ₂[i]
-    counterfactual = counterfactuals[i]  
-    plt = plot(counterfactual, xlims=(-lim_,lim_), ylims=(-lim_,lim_), plot_up_to=T, title="λ₂=$(λ₂)")
-    plts = vcat(plts..., plt)
-end
-plt = plot(plts..., size=(1200,300), layout=(1,3))
-savefig(plt, joinpath(www_path,"dice.png"))
-```
+![](dice_files/figure-commonmark/cell-7-output-1.svg)
 
-![Figure 2: Generating diverse counterfactuals through DiCE. The penalty for non-diverse outcomes ($\_2) increase from left to right.](../www/dice.png)
-
-# References
+## References
 
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
 

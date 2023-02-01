@@ -31,7 +31,7 @@ function ddp_diversity(X::AbstractArray{<:Real, 3})
 end
 ```
 
-Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in @fig-intro, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function. 
+Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in the animation below, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function. 
 
 ```{julia}
 lims = 5

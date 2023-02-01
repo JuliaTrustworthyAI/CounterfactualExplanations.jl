@@ -1,19 +1,13 @@
 
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
-```
-
-```{julia}
-#| echo: false
-include("docs/setup_docs.jl")
-eval(setup_docs)
 ```
 
 # Categorical Features
 
 To illustrate how data is preprocessed under the hood, we consider a simple toy dataset with three categorical features (`name`, `grade` and `sex`) and one continuous feature (`age`):
 
-```{julia}
+``` julia
 X = (
     name=categorical(["Danesh", "Lee", "Mary", "John"]),
     grade=categorical(["A", "B", "A", "C"], ordered=true),
@@ -25,24 +19,49 @@ schema(X)
 
 Categorical features are expected to be one-hot or dummy encoded. To this end, we could use `MLJ`, for example:
 
-```{julia}
-#| output: true
+``` julia
 hot = OneHotEncoder()
 mach = fit!(machine(hot, X))
 W = transform(mach, X)
 schema(W)
 ```
 
+    ┌──────────────┬────────────┬─────────┐
+    │ names        │ scitypes   │ types   │
+    ├──────────────┼────────────┼─────────┤
+    │ name__Danesh │ Continuous │ Float64 │
+    │ name__John   │ Continuous │ Float64 │
+    │ name__Lee    │ Continuous │ Float64 │
+    │ name__Mary   │ Continuous │ Float64 │
+    │ grade__A     │ Continuous │ Float64 │
+    │ grade__B     │ Continuous │ Float64 │
+    │ grade__C     │ Continuous │ Float64 │
+    │ sex__female  │ Continuous │ Float64 │
+    │ sex__male    │ Continuous │ Float64 │
+    │ height       │ Continuous │ Float64 │
+    └──────────────┴────────────┴─────────┘
+
 The matrix that will be perturbed during the counterfactual search looks as follows:
 
-```{julia}
-#| output: true
+``` julia
 X = permutedims(MLJBase.matrix(W))
 ```
 
+    10×4 Matrix{Float64}:
+     1.0   0.0   0.0  0.0
+     0.0   0.0   0.0  1.0
+     0.0   1.0   0.0  0.0
+     0.0   0.0   1.0  0.0
+     1.0   0.0   1.0  0.0
+     0.0   1.0   0.0  0.0
+     0.0   0.0   0.0  1.0
+     0.0   1.0   0.0  0.0
+     1.0   0.0   1.0  1.0
+     1.85  1.67  1.5  1.67
+
 The `CounterfactualData` constructor takes two optional arguments that can be used to specify the indices of categorical and continuous features. If nothing is supplied, all features are assumed to be continuous. For categorical features, the constructor expects and array of arrays of integers (`Vector{Vector{Int}}`) where each subarray includes the indices of a all one-hot encoded rows related to a single categorical feature. In the example above, the `name` feature is one-hot encoded across rows 1, 2 and 3 of `X`.
 
-```{julia}
+``` julia
 features_categorical = [
     [1,2,3,4],    # name
     [5,6,7],    # grade
@@ -56,7 +75,7 @@ We propose the following simple logic for reconstructing categorical encodings a
 - For one-hot encoded features with multiple classes, choose the maximum.
 - For binary features, clip the perturbed value to fall into $[0,1]$ and round to the nearest of the two integers.
 
-```{julia}
+``` julia
 function reconstruct_cat_encoding(x)
     map(features_categorical) do cat_group_index
         if length(cat_group_index) > 1
@@ -76,49 +95,115 @@ function reconstruct_cat_encoding(x)
 end
 ```
 
-Let's look at a few simple examples to see how this function works. Firstly, consider the case of perturbing a single element:
+Let’s look at a few simple examples to see how this function works. Firstly, consider the case of perturbing a single element:
 
-```{julia}
-#| output: true
+``` julia
 x = X[:,1]
 x[1] = 1.1
 x
 ```
 
-The reconstructed one-hot-encoded vector will look like this: 
+    10-element Vector{Float64}:
+     1.1
+     0.0
+     0.0
+     0.0
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     1.85
 
-```{julia}
-#| output: true
+The reconstructed one-hot-encoded vector will look like this:
+
+``` julia
 reconstruct_cat_encoding(x)
 ```
 
+    10-element Vector{Float64}:
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     1.85
+
 Next, consider the case of perturbing multiple elements:
 
-```{julia}
-#| output: true
+``` julia
 x[2] = 1.1
 x[3] = -1.2
 x
 ```
 
-The reconstructed one-hot-encoded vector will look like this: 
+    10-element Vector{Float64}:
+      1.0
+      1.1
+     -1.2
+      0.0
+      1.0
+      0.0
+      0.0
+      0.0
+      1.0
+      1.85
 
-```{julia}
-#| output: true
+The reconstructed one-hot-encoded vector will look like this:
+
+``` julia
 reconstruct_cat_encoding(x)
 ```
 
-Finally, let's introduce a tie:
+    10-element Vector{Float64}:
+     0.0
+     1.0
+     0.0
+     0.0
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     1.85
 
-```{julia}
-#| output: true
+Finally, let’s introduce a tie:
+
+``` julia
 x[1] = 1.0
 x
 ```
 
-The reconstructed one-hot-encoded vector will look like this: 
+    10-element Vector{Float64}:
+     1.0
+     1.0
+     0.0
+     0.0
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     1.85
 
-```{julia}
-#| output: true
+The reconstructed one-hot-encoded vector will look like this:
+
+``` julia
 reconstruct_cat_encoding(x)
 ```
+
+    10-element Vector{Float64}:
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     0.0
+     0.0
+     0.0
+     1.0
+     1.85

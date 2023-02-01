@@ -41,11 +41,10 @@ makedocs(;
                 "Greedy" => "explanation/generators/greedy.md", 
             ],
             "Categorical Features" => "explanation/categorical.md",
-            "Loss functions" => "explanation/loss.md",
+            # "Loss functions" => "explanation/loss.md",
         ],
         "🫡 How-To ..." => [
             "Overview" => "how_to_guides/_index.md",
-            "... explain an image classifer" => "how_to_guides/mnist.md",
             "... add custom models" => "how_to_guides/custom_models.md",
             "... add custom generators" => "how_to_guides/custom_generators.md",
             "... explain R/Python models" => "how_to_guides/interop.md",
