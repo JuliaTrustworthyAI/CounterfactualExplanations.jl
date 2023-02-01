@@ -84,10 +84,6 @@ plot(M, counterfactual_data)
 
 Our model `M` is now ready for use with the package.
 
-
-
-
-
-
+## References
 
 

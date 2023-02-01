@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 # MNIST
 
-In this example we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. @fig-samples shows a random sample of handwritten digits.
+In this example, we will see how different counterfactual generators can be used to explain deep learning models for image classification. In particular, we will look at MNIST data and visually inspect how the different generators perturb images of handwritten digits in order to change the predicted label to a target label. @fig-samples shows a random sample of handwritten digits.
 
 ```{julia}
 #| echo: false

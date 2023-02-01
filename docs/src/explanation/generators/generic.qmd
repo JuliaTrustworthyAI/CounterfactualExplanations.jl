@@ -10,60 +10,29 @@ eval(setup_docs)
 
 # `GenericGenerator`
 
-```{julia}
-N = 1000
-X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
-ys .= ys.==2
-X = X'
-xs = Flux.unstack(X,2)
-data = zip(xs,ys)
-counterfactual_data = CounterfactualData(X,ys')
-```
+We use the term **generic** to relate to the counterfactual generator proposed by @wachter2017counterfactual. 
+
+## Description
+
+As the term indicates, this approach is simple: it forms the baseline approach for gradient-based counterfactual generators. @wachter2017counterfactual were among the first to realise that 
+
+> [...] explanations can, in principle, be offered without opening the “black box.”
+>
+> --- @wachter2017counterfactual
+
+Gradient descent is performed directly in the feature space. Concerning the cost heuristic, the authors choose to penalize the distance of counterfactuals from the factual value. This is based on the intuitive notion that larger feature perturbations require greater effort.
+
+## Usage
+
+The approach can be used in our package as follows:
 
 ```{julia}
-nn = Chain(Dense(2,1))
-opt = Adam()
-epochs = 100
-loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-for epoch = 1:epochs
-  for d in data
-    gs = gradient(Flux.params(nn)) do
-      l = loss(d...)
-    end
-    update!(opt, Flux.params(nn), gs)
-  end
-  if epoch % show_every == 0
-    println("Epoch " * string(epoch))
-    @show avg_loss(data)
-  end
-end
-```
-
-```{julia}
-M = FluxModel(nn)
-```
-
-```{julia}
-x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-```
-
-```{julia}
-# Define generator:
+#| output: true
 generator = GenericGenerator()
-# Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
 ```
 
-```{julia}
-anim = animate_path(ce)
-gif(anim, joinpath(www_path, "generic.gif"), fps=10)
-```
 
-```{julia}
-n = 1
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n)
-```
+
+## References

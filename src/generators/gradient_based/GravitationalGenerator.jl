@@ -40,7 +40,7 @@ generator = GravitationalGenerator()
 function GravitationalGenerator(;
     loss::Union{Nothing,Symbol} = nothing,
     complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 5.0],
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
     decision_threshold = nothing,
     kwargs...,
 )

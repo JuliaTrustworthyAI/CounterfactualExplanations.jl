@@ -30,6 +30,14 @@ include("docs/src/utils.jl")
 
 # `GreedyGenerator`
 
+Next we will repeat the exercise above, but instead use the `GreedyGenerator` in the context of a Bayesian classifier. This generator is greedy in the sense that it simply chooses the most salient feature {x′}ᵈ where 
+
+```math
+d=\arg\max_{d \in [1,D]} \nabla_{x\prime} \ell(M(x\prime),t)
+```
+
+and perturbs it by a fixed amount $\delta$. In other words, optimization is penalty-free. This is possible in the Bayesian context, because maximizing the predictive probability corresponds to minimizing the predictive uncertainty: by construction the generated counterfactual will therefore be *realistic* (low epistemic uncertainty) and *unambiguous* (low aleotoric uncertainty).
+
 ```{julia}
 using MLJ
 N = 1000

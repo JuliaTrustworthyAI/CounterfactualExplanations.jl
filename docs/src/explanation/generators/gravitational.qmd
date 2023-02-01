@@ -1,4 +1,6 @@
-## Gravitational Generator
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
 
 ```{julia}
 #| echo: false
@@ -6,83 +8,72 @@ include("docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
-```{julia}
-#| eval: true
-N = 1000
-X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
-ys .= ys.==2
-X = X'
-xs = Flux.unstack(X,2)
-data = zip(xs,ys)
-counterfactual_data = CounterfactualData(X,ys')
+# `GravitationalGenerator`
+
+The `GravitationalGenerator` was introduced in @altmeyer2023endogenous. It is named so because it generates counterfactuals that gravitate towards some sensible point in the target domain.
+
+## Description
+
+@altmeyer2023endogenous extend the general framework as follows,
+
+```math
+\begin{aligned}
+\mathbf{s}^\prime &= \arg \min_{\mathbf{s}^\prime \in \mathcal{S}} \{ {\text{yloss}(M(f(\mathbf{s}^\prime)),y^*)} \\ &+ \lambda_1 {\text{cost}(f(\mathbf{s}^\prime))} + \lambda_2 {\text{extcost}(f(\mathbf{s}^\prime))} \}  (\#eq:collective)
+\end{aligned} 
 ```
 
-```{julia}
-#| eval: true
-nn = Chain(Dense(2,1))
-opt = Adam()
-epochs = 100
-loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-for epoch = 1:epochs
-  for d in data
-    gs = gradient(Flux.params(nn)) do
-      l = loss(d...)
-    end
-    update!(opt, Flux.params(nn), gs)
-  end
-  if epoch % show_every == 0
-    println("Epoch " * string(epoch))
-    @show avg_loss(data)
-  end
-end
+where $\text{cost}(f(\mathbf{s}^\prime))$ denotes the proxy for costs faced by the individual. "The newly introduced term $\text{extcost}(f(\mathbf{s}^\prime))$ is meant to capture and address external costs incurred by the collective of individuals in response to changes in $\mathbf{s}^\prime$." [@altmeyer2023endogenous]
+
+For the `GravitationalGenerator` we have,
+
+```math
+\begin{aligned}
+\text{extcost}(f(\mathbf{s}^\prime)) = \text{dist}(f(\mathbf{s}^\prime),\bar{x}^*)  (\#eq:grav)
+\end{aligned}
 ```
 
-```{julia}
-#| eval: true
-M = FluxModel(nn)
-```
+where $\bar{x}$ is some sensible point in the target domain, for example, the subsample average $\bar{x}^*=\text{mean}(x)$, $x \in \mathcal{D}_1$. 
+
+There is a tradeoff then, between the distance of counterfactuals from their factual value and the chosen point in the target domain. The chart below illustrates how the counterfactual outcome changes as the penalty $\lambda_2$ on the distance to the point in the target domain is increased from left to right (holding the other penalty term constant).
 
 ```{julia}
-#| eval: true
-x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+#| echo: false
+#| output: true
+
 T = 100
-```
-
-```{julia}
-#| eval: true
-Λ₂ = [0.01, 0.1, 1]
-counterfactuals_strict = []
+Λ₂ = [0.0, 0.5, 1.0]
+ces = []
 generators = []
 for λ₂ ∈ Λ₂  
-    λ = [0.1, λ₂]
+    λ = [1.0, λ₂]
     generator = GravitationalGenerator(λ=λ)
     generators = vcat(generators..., generator)
-    counterfactuals_strict = vcat(
-      counterfactuals_strict...,
+    ces = vcat(
+      ces...,
       generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
     )
 end
-```
-
-```{julia}
-#| eval: true
-#| fig-cap: |
-#|    Generating counterfactuals through `GravitationalGenerator`. The magnitude of attraction ($\lambda_2) increases from left to right.
-#| label: fig-grav
 
 T_ = 500
 plts = []
 for i ∈ 1:length(Λ₂)
     λ₂ = Λ₂[i]
-    counterfactual = counterfactuals_strict[i]  
-    plt = plot(counterfactual, plot_up_to=minimum([T,T_]), title="λ₂=$(λ₂)")
-    x1,x2 = generators[i].centroid[1], generators[i].centroid[2]
-    scatter!(plt, [x1], [x2], colour=:purple, label="attractor")
+    ce = ces[i]  
+    plt = plot(ce, plot_up_to=minimum([T,T_]), title="λ₂=$(λ₂)")
     plts = vcat(plts..., plt)
 end
-plt = plot(plts..., size=(1200,300), layout=(1,3))
+plot(plts..., size=(1200,250), layout=(1,3))
 ```
+
+## Usage 
+
+The approach can be used in our package as follows:
+
+```{julia}
+#| output: true
+generator = GravitationalGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+## References

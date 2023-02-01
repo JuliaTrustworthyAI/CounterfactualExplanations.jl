@@ -59,3 +59,42 @@ data_catalogue[:vision]
 
     Dict{Symbol, typeof(load_mnist)} with 1 entry:
       :mnist => load_mnist
+
+## Loading Data
+
+To load or generate any of the datasets listed above, you can just use the corresponding method, for example:
+
+``` julia
+counterfactual_data = load_linearly_separable()
+```
+
+Optionally, you can specify how many samples you want to generate like so:
+
+``` julia
+n = 100
+counterfactual_data = load_overlapping(n)
+```
+
+This also applies to real-world datasets, which by default are loaded in their entirety. If `n` is supplied, the dataset will be randomly undersampled:
+
+``` julia
+counterfactual_data = load_mnist(n)
+```
+
+The undersampled dataset is automatically balanced:
+
+``` julia
+sum(counterfactual_data.y; dims=2)
+```
+
+    10×1 Matrix{Int64}:
+     10
+     10
+     10
+     10
+     10
+     10
+     10
+     10
+     10
+     10

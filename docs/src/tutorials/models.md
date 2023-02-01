@@ -99,4 +99,6 @@ plot(M, counterfactual_data)
 
 Our model `M` is now ready for use with the package.
 
+## References
+
 Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” <https://arxiv.org/abs/1612.01474>.

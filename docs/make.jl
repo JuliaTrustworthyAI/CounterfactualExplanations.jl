@@ -32,6 +32,7 @@ makedocs(;
             "Overview" => "explanation/_index.md",
             "Package Architecture" => "explanation/architecture.md",
             "Generators" => [
+                "Overview" => "explanation/generators/overview.md", 
                 "Generic" => "explanation/generators/generic.md", 
                 "Gravitational" => "explanation/generators/gravitational.md", 
                 "REVISE" => "explanation/generators/revise.md",

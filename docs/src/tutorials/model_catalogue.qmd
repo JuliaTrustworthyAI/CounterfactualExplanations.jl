@@ -17,6 +17,7 @@ While in general it is assumed that users will use this package to explain their
 The `model_catalogue` can be used to inspect the available default models: 
 
 ```{julia}
+#| output: true
 model_catalogue
 ```
 
@@ -31,25 +32,98 @@ n = 500
 counterfactual_data = load_multi_class(n)
 ```
 
-We could use a simple Multi-Layer Perceptron (MLP) as follows:
+We could use a Deep Ensemble [@lakshminarayanan2016simple] as follows:
 
 ```{julia}
-M = fit_model(counterfactual_data, :MLP)
+M = fit_model(counterfactual_data, :DeepEnsemble)
 ```
 
-The resulting fit can be visualised as follows:
+The returned object is an instance of type `FluxEnsemble <: AbstractFittedModel` and can be used in downstream tasks without further ado. For example, the resulting fit can be visualised using the generic `plot()` method as:
 
 ```{julia}
 #| output: true
 
 plts = []
 for target in counterfactual_data.y_levels
-    plt = plot(M, counterfactual_data; target=target, title="Target: $(target)")
+    plt = plot(M, counterfactual_data; target=target, title="p(y=$(target)|x,θ)")
     plts = [plts..., plt]
 end
 plot(plts...)
 ```
 
-## 
+## Tuning Models
 
-Through optional arguments, users can control the neural network architecture and impose regularization through dropout. 
+By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
+
+```{julia}
+counterfactual_data = load_mnist(10000)
+train_data, test_data = 
+    CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+img_size = 200
+n_images = 5
+input_dim = size(train_data.X, 1)
+plts = []
+for i in 1:n_images
+    x = counterfactual_data.X[:,rand(1:end)]
+    img = convert2image(MNIST, reshape(x,Int(√(input_dim)),Int(√(input_dim))))
+    plt = plot(img, axis=nothing)
+    plts = [plts..., plt]
+end
+plot(plts..., size=(n_images * img_size, img_size), layout=(1, n_images))
+```
+
+In this case, we will use a Multi-Layer Perceptron (MLP) but we will adjust the model and training hyperparameters. Parameters related to training of `Flux.jl` models are currently stored in a mutable container:
+
+```{julia}
+#| output: true
+
+flux_training_params
+```
+
+In cases like this one, where model training can be expected to take a few moments, it can be useful to activate verbosity, so let's set the corresponding field value to `true`. We'll also impose mini-batch training:
+
+```{julia}
+flux_training_params.verbose = true
+flux_training_params.batchsize = round(size(train_data.X,2)/10)
+```
+
+To account for the fact that this is a slightly more challenging task, we will use an appropriate number of hidden neurons per layer. We will also activate dropout regularization. To scale networks up further, it is also possible to adjust the number of hidden layers, which we will not do here.
+
+```{julia}
+model_params = (
+    n_hidden = 32,
+    dropout = true
+)
+```
+
+The `model_params` can be supplied to the familiar API call:
+
+```{julia}
+#| output: true
+M = fit_model(train_data, :MLP; model_params...)
+```
+
+The model performance on our test set can be evaluated as follows:
+
+```{julia}
+#| output: true
+model_evaluation(M, test_data)
+```
+
+Finally, let's restore the default training parameters:
+
+```{julia}
+CounterfactualExplanations.reset!(flux_training_params)
+```
+
+## References
+
+
+
+
