@@ -1,4 +1,6 @@
-## ClapROAR Generator
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
 
 ```{julia}
 #| echo: false
@@ -6,161 +8,68 @@ include("docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
-Generate some toy data:
+# `ClaPROARGenerator`
 
-```{julia}
-#| eval: true
-N = 1000
-X, ys = make_blobs(N, 2; centers=2, as_table=false, center_box=(-5 => 5), cluster_std=0.5)
-ys .= ys.==2
-X = X'
-xs = Flux.unstack(X,2)
-data = zip(xs,ys)
-counterfactual_data = CounterfactualData(X,ys')
+The `ClaPROARGenerator` was introduced in @altmeyer2023endogenous. 
+
+## Description
+
+The acronym **Clap** stands for **classifier-preserving**. The approach is loosely inspired by ROAR [@upadhyay2021robust]. @altmeyer2023endogenous propose to explicitly penalize the loss incurred by the classifer when evaluated on the counterfactual $x^\prime$ at given parameter values. Formally, we have
+
+```math
+\begin{aligned}
+\text{extcost}(f(\mathbf{s}^\prime)) = l(M(f(\mathbf{s}^\prime)),y^\prime)
+\end{aligned}
 ```
 
-Build and train simple MLP:
+for each counterfactual $k$ where $l$ denotes the loss function used to train $M$. This approach is based on the intuition that (endogenous) model shifts will be triggered by counterfactuals that increase classifier loss [@altmeyer2023endogenous].
+
+
+## Usage 
+
+The approach can be used in our package as follows:
 
 ```{julia}
-#| eval: true
-nn = Chain(Dense(2,1))
-opt = ADAM()
-epochs = 50
-loss(x, y) = Flux.Losses.logitbinarycrossentropy(nn(x), y)
-avg_loss(data) = mean(map(d -> loss(d[1],d[2]), data))
-show_every = epochs/10
-grad_norms = []
-using LinearAlgebra
-for epoch = 1:epochs
-    grads_ = []
-    for d in data
-        gs = gradient(Flux.params(nn)) do
-            l = loss(d...)
-        end
-        update!(opt, Flux.params(nn), gs)
-        grads_ = vcat(grads_..., gs)
-    end
-    if epoch % show_every == 0
-        println("Epoch " * string(epoch))
-        @show avg_loss(data)
-    end
-    grad_norms = vcat(grad_norms..., norm(grads_))
-end
+#| output: true
+generator = ClaPROARGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
 ```
 
-Declare as `<:AbstractFittedModel`:
+### Comparison to `GenericGenerator`
+
+The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `ClaPROARGenerator`. 
 
 ```{julia}
-#| eval: true
-M = FluxModel(nn)
-```
-
-Select random factual:
-
-```{julia}
-#| eval: true
-x = select_factual(counterfactual_data, rand(1:size(X)[2])) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
-```
-
-Generate recourse using generic approach:
-
-```{julia}
-#| eval: true
-generator = GenericGenerator()
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
+#| echo: false
+counterfactual_data = load_linearly_separable(1000)
+M = fit_model(counterfactual_data, :Linear)
+target = 1
+factual_label = 2
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual_label))
+x = select_factual(counterfactual_data, chosen)
+opt = Flux.Descent(0.01)
 ```
 
 ```{julia}
-generator = ClapROARGenerator()
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator)
-```
-
-```{julia}
-factuals = select_factual(counterfactual_data, rand(findall(vec(counterfactual_data.y) .!= target), 10))
-results = generate_counterfactual(factuals, target,counterfactual_data, M, generator; num_counterfactuals=5)
-```
-
-
-Check how the model gradient changes along the counterfactual path (model loss correlates strongly):
-
-```{julia}
-#| eval: true
-x_ = path(ce)
-y_ = CounterfactualExplanations.counterfactual_label_path(ce)
-data_ = zip(x_,y_)
-grad_norms = []
-loss_ = []
-for d in data_
-    gs = gradient(Flux.params(nn)) do
-        loss(d...)
-    end
-    loss_ = vcat(loss_...,loss(d...))
-    grad_norms = vcat(grad_norms..., norm(gs))
-end
-```
-
-Generate recourse using ClaPROAR generator under varying degrees of penalty:
-
-```{julia}
-#| eval: true
-
-T = 100
-Λ₂ = [0.1, 1, 10]
-counterfactuals_strict = []
-generators = []
-for λ₂ ∈ Λ₂  
-    λ = [1, λ₂]
-    generator = ClapROARGenerator(λ=λ)
-    generators = vcat(generators..., generator)
-    counterfactuals_strict = vcat(
-      counterfactuals_strict...,
-      generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
-    )
-end
-```
-
-Visualize the results:
-
-```{julia}
-#| eval: true
-#| fig-cap: |
-#|    Generating counterfactuals through `ClapROARGenerator`. The strength of the penalty ($\lambda_2) increases from left to right.
-#| label: clap
-T_ = 500
-plts = []
-for i ∈ 1:length(Λ₂)
-    λ₂ = Λ₂[i]
-    counterfactual = counterfactuals_strict[i]  
-    plt = plot(counterfactual, plot_up_to=minimum([T,T_]), title="λ₂=$(λ₂)")
-    plts = vcat(plts..., plt)
-end
-plt = plot(plts..., size=(1200,300), layout=(1,3))
-display(plt)
-```
-
-Compare ClaPROAR to generic approach:
-
-```{julia}
-#| eval: true
+#| output: true
+#| echo: false
+# Generators:
 generators = Dict(
-    :Generic => GenericGenerator(),
-    :ROAR => ClapROARGenerator()
+    "Generic (γ=0.5)" => GenericGenerator(opt = opt, decision_threshold=0.5),
+    "Generic (γ=0.9)" => GenericGenerator(opt = opt, decision_threshold=0.9),
+    "ClaPROAR" => ClaPROARGenerator(opt = opt)
 )
-counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; T=T) for (name, gen) in generators])
-```
 
-```{julia}
-#| eval: true
-#| fig-cap: |
-#|    Comparison of ClaPROAR to Wachter.
-#| label: comparison
+
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen;) for (name, gen) in generators])
+# Plots:
 plts = []
 for (name,ce) ∈ counterfactuals
-    plt = plot(ce, plot_up_to=minimum([T,T_]), title=name)
+    plt = plot(ce; title=name, colorbar=false, ticks = false, legend=false, zoom=0)
     plts = vcat(plts..., plt)
 end
-plt = plot(plts..., size=(800,300), layout=(1,2))
-display(plt)
+plot(plts..., size=(550,200), layout=(1,3))
 ```
+
+## References

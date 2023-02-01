@@ -1,6 +1,11 @@
-using LinearAlgebra, CounterfactualExplanations
+using CounterfactualExplanations
+using CounterfactualExplanations.Generators
+using Flux
+using LinearAlgebra
+using Parameters
+using Statistics
 
-mutable struct ClapROARGenerator <: AbstractGradientBasedGenerator
+mutable struct ClaPROARGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
     complexity::Function # complexity function
     λ::Union{AbstractFloat,AbstractVector} # strength of penalty
@@ -10,14 +15,13 @@ mutable struct ClapROARGenerator <: AbstractGradientBasedGenerator
 end
 
 # API streamlining:
-using Parameters, Flux
-@with_kw struct ClapROARGeneratorParams
+@with_kw struct ClaPROARGeneratorParams
     opt::Flux.Optimise.AbstractOptimiser = Descent()
     τ::AbstractFloat = 1e-3
 end
 
 """
-    ClapROARGenerator(
+    ClaPROARGenerator(
         ;
         loss::Symbol=:logitbinarycrossentropy,
         complexity::Function=norm,
@@ -30,36 +34,41 @@ An outer constructor method that instantiates a generic generator.
 
 # Examples
 ```julia-repl
-generator = ClapROARGenerator()
+generator = ClaPROARGenerator()
 ```
 """
-function ClapROARGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 5.0],
-    decision_threshold = nothing,
-    kwargs...,
+function ClaPROARGenerator(;
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=nothing,
+    kwargs...
 )
-    params = ClapROARGeneratorParams(; kwargs...)
-    ClapROARGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
+    params = ClaPROARGeneratorParams(; kwargs...)
+    ClaPROARGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
 end
 
-using Flux
+"""
+    gradient_penalty(
+        generator::ClaPROARGenerator,
+        counterfactual_explanation::AbstractCounterfactualExplanation,
+    )
+
+Additional penalty for ClaPROARGenerator.
+"""
 function gradient_penalty(
-    generator::ClapROARGenerator,
+    generator::ClaPROARGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
 
     x_ = CounterfactualExplanations.decode_state(counterfactual_explanation)
     M = counterfactual_explanation.M
     model = isa(M.model, Vector) ? M.model : [M.model]
-    y_ = CounterfactualExplanations.counterfactual_label(counterfactual_explanation)
+    y_ = counterfactual_explanation.target_encoded
 
     if M.likelihood == :classification_binary
         loss_type = :logitbinarycrossentropy
     else
-        out_dim = CounterfactualExplanations.output_dim(counterfactual_explanation)
-        y_ = Flux.onehot(y_, 1:out_dim)
         loss_type = :logitcrossentropy
     end
 
@@ -70,15 +79,13 @@ function gradient_penalty(
 end
 
 # Complexity:
-using Statistics, LinearAlgebra
-import CounterfactualExplanations.Generators: h
 """
     h(generator::AbstractGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(
-    generator::ClapROARGenerator,
+function Generators.h(
+    generator::ClaPROARGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
 
@@ -89,10 +96,8 @@ function h(
     )
 
     # Euclidean norm of gradient:
-    if all(
-        CounterfactualExplanations.counterfactual_label(counterfactual_explanation) .==
-        counterfactual_explanation.target,
-    )
+    in_target_domain = all(target_probs(counterfactual_explanation) .>= 0.5)
+    if in_target_domain
         grad_norm = gradient_penalty(generator, counterfactual_explanation)
     else
         grad_norm = 0

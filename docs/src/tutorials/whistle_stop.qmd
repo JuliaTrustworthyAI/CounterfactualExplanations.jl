@@ -18,7 +18,7 @@ In this tutorial, we will go through a simple example involving synthetic data. 
 #| echo: false
 n_dim = 2
 n_classes = 4
-n_samples = 250
+n_samples = 400
 model_name = :MLP
 ```
 

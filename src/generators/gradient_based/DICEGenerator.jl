@@ -37,7 +37,7 @@ generator = DiCEGenerator()
 function DiCEGenerator(;
     loss::Union{Nothing,Symbol} = nothing,
     complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.05, 1.0],
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
     decision_threshold = nothing,
     kwargs...,
 )

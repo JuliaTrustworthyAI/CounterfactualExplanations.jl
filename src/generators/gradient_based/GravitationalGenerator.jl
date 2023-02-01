@@ -1,4 +1,8 @@
-using LinearAlgebra, CounterfactualExplanations
+using CounterfactualExplanations
+using CounterfactualExplanations.Generators
+using LinearAlgebra
+using Parameters
+using Statistics
 
 mutable struct GravitationalGenerator <: AbstractGradientBasedGenerator
     loss::Union{Nothing,Symbol} # loss function
@@ -12,7 +16,6 @@ mutable struct GravitationalGenerator <: AbstractGradientBasedGenerator
 end
 
 # API streamlining:
-using Parameters, Flux
 @with_kw struct GravitationalGeneratorParams
     opt::Flux.Optimise.AbstractOptimiser = Descent()
     τ::AbstractFloat = 1e-3
@@ -38,11 +41,11 @@ generator = GravitationalGenerator()
 ```
 """
 function GravitationalGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
-    decision_threshold = nothing,
-    kwargs...,
+    loss::Union{Nothing,Symbol}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=nothing,
+    kwargs...
 )
     params = GravitationalGeneratorParams(; kwargs...)
     GravitationalGenerator(
@@ -58,14 +61,12 @@ function GravitationalGenerator(;
 end
 
 # Complexity:
-using Statistics, LinearAlgebra
-import CounterfactualExplanations.Generators: h
 """
     h(generator::AbstractGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
-function h(
+function Generators.h(
     generator::GravitationalGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
@@ -83,7 +84,7 @@ function h(
             generator.K,
         )
         neighbours = counterfactual_explanation.params[:potential_neighbours][:, ids]
-        generator.centroid = mean(neighbours, dims = 2)
+        generator.centroid = mean(neighbours, dims=2)
     end
 
     # Distance from gravitational center:

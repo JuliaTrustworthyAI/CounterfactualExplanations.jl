@@ -22,7 +22,7 @@ makedocs(;
         "🏠 Home" => "index.md",
         "🫣 Tutorials" => [
             "Overview" => "tutorials/_index.md",
-            "Whiste-Stop Tour" => "tutorials/whistle-stop.md",
+            "Whiste-Stop Tour" => "tutorials/whistle_stop.md",
             "Handling Data" => "tutorials/data_preprocessing.md",
             "Data Catalogue" => "tutorials/data_catalogue.md",
             "Handling Models" => "tutorials/models.md",

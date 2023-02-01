@@ -133,7 +133,7 @@ include("GenericGenerator.jl")          # Wachter et al. (2017)
 include("GreedyGenerator.jl")           # Schut et al. (2021)
 include("DICEGenerator.jl")             # Mothilal et al. (2020)
 include("GravitationalGenerator.jl")    # Altmeyer et al. (2023)
-include("ClapROARGenerator.jl")         # Altmeyer et al. (2023)
+include("ClaPROARGenerator.jl")         # Altmeyer et al. (2023)
 
 # Latent space
 """

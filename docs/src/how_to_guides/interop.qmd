@@ -120,7 +120,7 @@ function Generators.∂ℓ(
       R"""
       x <- torch_tensor(t($x), requires_grad=TRUE)
       target <- torch_tensor($target)
-      output <- $nn(x)
+      # output <- $nn(x)
       # obj_loss <- nnf_binary_cross_entropy_with_logits(output,$target)
       # obj_loss$backward()
       """
