@@ -1,11 +1,6 @@
-```@meta
-CurrentModule = CounterfactualExplanations 
-```
 
-```{julia}
-#| echo: false
-include("docs/setup_docs.jl")
-eval(setup_docs)
+``` @meta
+CurrentModule = CounterfactualExplanations 
 ```
 
 # How to add Custom Models
@@ -18,7 +13,7 @@ To illustrate how custom generators can be implemented we will consider a simple
 
 The first code chunk below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor similar to the `GenericConstructor`, but with one additional field for the probability of dropout.
 
-```{julia}
+``` julia
 # Abstract suptype:
 abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
@@ -48,7 +43,7 @@ generator = DropoutGenerator(
 
 Next, we define how feature perturbations are generated for our dropout generator: in particular, we extend the relevant function through a method that implemented the dropout logic.
 
-```{julia}
+``` julia
 using CounterfactualExplanations.Generators
 using StatsBase
 function Generators.generate_perturbations(
@@ -72,9 +67,9 @@ end
 
 Finally, we proceed to generate counterfactuals in the same way we always do:
 
-```{julia}
-#| output: true
-#| 
+``` julia
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
+
+![](custom_generators_files/figure-commonmark/cell-5-output-1.svg)

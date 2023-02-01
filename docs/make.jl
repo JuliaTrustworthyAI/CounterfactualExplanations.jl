@@ -45,12 +45,12 @@ makedocs(;
         ],
         "🫡 How-To ..." => [
             "Overview" => "how_to_guides/_index.md",
-            "... add custom models" => "how_to_guides/custom_models.md",
             "... add custom generators" => "how_to_guides/custom_generators.md",
-            "... explain R/Python models" => "how_to_guides/interop.md",
+            "... add custom models" => "how_to_guides/custom_models.md",
+            # "... explain R/Python models" => "how_to_guides/interop.md",
         ],
         "🧐 Reference" => "_reference.md",
-        "🛠 Contribute" => "contribute.md",
+        "🛠 Contribute" => "_contribute.md",
         "📚 Additional Resources" => "assets/_resources.md",
     ]
 )

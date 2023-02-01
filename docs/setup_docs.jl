@@ -18,6 +18,8 @@ setup_docs = quote
     using MLJModels: OneHotEncoder
     using Plots
     using Random
+    using RCall
+    using SliceMap
     using StatsBase
     using Tables
 
