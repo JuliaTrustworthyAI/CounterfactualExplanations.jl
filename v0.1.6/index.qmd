@@ -1,0 +1,9 @@
+```@meta
+CurrentModule = CounterfactualExplanations
+```
+
+![](assets/wide_logo.png)
+
+Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/CounterfactualExplanations.jl).
+
+{{< include _intro.qmd >}}
