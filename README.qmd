@@ -1,15 +1,20 @@
 ---
 format: 
   commonmark:
-    variant: -raw_html
+    variant: -raw_html+tex_math_dollars
     wrap: none
-    self-contained: true
+    mermaid-format: png
 crossref:
   fig-prefix: Figure
   tbl-prefix: Table
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 output: asis
 jupyter: julia-1.8
+execute: 
+  freeze: auto
+  eval: true
+  echo: true
+  output: false
 ---
 
 ![](docs/src/assets/wide_logo.png)

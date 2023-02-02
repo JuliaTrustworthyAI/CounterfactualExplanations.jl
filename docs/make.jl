@@ -21,7 +21,7 @@ makedocs(;
     pages=[
         "🏠 Home" => "index.md",
         "🫣 Tutorials" => [
-            "Overview" => "tutorials/_index.md",
+            "Overview" => "tutorials/index.md",
             "Whiste-Stop Tour" => "tutorials/whistle_stop.md",
             "Handling Data" => "tutorials/data_preprocessing.md",
             "Data Catalogue" => "tutorials/data_catalogue.md",
@@ -29,7 +29,7 @@ makedocs(;
             "Model Catalogue" => "tutorials/model_catalogue.md",
         ],
         "🤓 Explanation" => [
-            "Overview" => "explanation/_index.md",
+            "Overview" => "explanation/index.md",
             "Package Architecture" => "explanation/architecture.md",
             "Generators" => [
                 "Overview" => "explanation/generators/overview.md", 
@@ -44,7 +44,7 @@ makedocs(;
             # "Loss functions" => "explanation/loss.md",
         ],
         "🫡 How-To ..." => [
-            "Overview" => "how_to_guides/_index.md",
+            "Overview" => "how_to_guides/index.md",
             "... add custom generators" => "how_to_guides/custom_generators.md",
             "... add custom models" => "how_to_guides/custom_models.md",
             # "... explain R/Python models" => "how_to_guides/interop.md",
