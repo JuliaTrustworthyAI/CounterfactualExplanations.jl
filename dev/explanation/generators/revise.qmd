@@ -84,9 +84,6 @@ Let's carry the ideas introduced above over to a more complex example. The code 
 
 ```{julia}
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
-using Images
-using MLDatasets
-using MLDatasets: convert2image
 counterfactual_data = load_mnist()
 X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
