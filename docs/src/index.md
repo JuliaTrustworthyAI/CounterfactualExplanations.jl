@@ -7,13 +7,9 @@ CurrentModule = CounterfactualExplanations
 
 Documentation for [CounterfactualExplanations.jl](https://github.com/pat-alt/CounterfactualExplanations.jl).
 
-``` @meta
-CurrentModule = CounterfactualExplanations 
-```
-
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
 
-## Installation 🚩
+## 🚩 Installation
 
 You can install the stable release from [Julia’s General Registry](https://github.com/JuliaRegistries/General) as follows:
 
@@ -122,7 +118,7 @@ The animation below shows the resulting counterfactual path:
 
 ![](README_files/intro.gif)
 
-## Implemented Counterfactual Generators:
+## ☑️ Implemented Counterfactual Generators
 
 Currently, the following counterfactual generators are implemented:
 
@@ -161,7 +157,7 @@ If any of the below applies to you, this might be the right open-source project 
 
 For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
 
-## Citation 🎓
+## 🎓 Citation
 
 If you want to use this codebase, please consider citing:
 
@@ -172,7 +168,7 @@ If you want to use this codebase, please consider citing:
       year = {2022}
     }
 
-## References 📚
+## 📚 References
 
 Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.
 
