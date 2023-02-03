@@ -30,4 +30,6 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
 
+## References
+
 
