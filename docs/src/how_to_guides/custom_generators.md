@@ -3,7 +3,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# How to add Custom Models
+# How to add Custom Generators
 
 As we will see in this short tutorial, building custom counterfactual generators is straightforward. We hope that this will facilitate contributions through the community.
 

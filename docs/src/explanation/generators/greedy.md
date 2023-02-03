@@ -26,4 +26,6 @@ plot(ce)
 
 ![](greedy_files/figure-commonmark/cell-3-output-1.svg)
 
+## References
+
 Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
