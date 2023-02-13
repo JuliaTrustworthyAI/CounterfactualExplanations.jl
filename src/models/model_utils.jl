@@ -6,9 +6,9 @@ using MLJBase
 
 Prepares counterfactual data for training in Flux.
 """
-function data_loader(data::CounterfactualData; batchsize=1)
+function data_loader(data::CounterfactualData; batchsize = 1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
-    return DataLoader((X, y), batchsize=batchsize)
+    return DataLoader((X, y), batchsize = batchsize)
 end
 
 """
@@ -29,7 +29,11 @@ end
 
 Returns the predicted output probabilities for a given model `M`, data set `counterfactual_data` and input data `X`.
 """
-function predict_proba(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::Union{Nothing,AbstractArray})
+function predict_proba(
+    M::AbstractFittedModel,
+    counterfactual_data::CounterfactualData,
+    X::Union{Nothing,AbstractArray},
+)
     X = isnothing(X) ? counterfactual_data.X : X
     p = probs(M, X)
     # println(p)
@@ -49,7 +53,11 @@ end
 
 Returns the predicted output label for a given model `M`, data set `counterfactual_data` and input data `X`.
 """
-function predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray)
+function predict_label(
+    M::AbstractFittedModel,
+    counterfactual_data::CounterfactualData,
+    X::AbstractArray,
+)
     y_levels = counterfactual_data.y_levels
     p = predict_proba(M, counterfactual_data, X)
     y = Flux.onecold(p, y_levels)

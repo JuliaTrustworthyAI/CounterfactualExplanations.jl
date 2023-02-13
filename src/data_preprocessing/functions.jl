@@ -33,7 +33,7 @@ mutable struct CounterfactualData
         compressor,
         generative_model,
         y_levels,
-        output_encoder
+        output_encoder,
     )
 
         # Conditions:
@@ -71,7 +71,7 @@ mutable struct CounterfactualData
                 compressor,
                 generative_model,
                 y_levels,
-                output_encoder
+                output_encoder,
             )
         end
     end
@@ -102,12 +102,12 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractMatrix,
     y::RawOutputArrayType;
-    mutability::Union{Vector{Symbol},Nothing}=nothing,
-    domain::Union{Any,Nothing}=nothing,
-    features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
-    features_continuous::Union{Vector{Int},Nothing}=nothing,
-    standardize::Bool=false,
-    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing
+    mutability::Union{Vector{Symbol},Nothing} = nothing,
+    domain::Union{Any,Nothing} = nothing,
+    features_categorical::Union{Vector{Vector{Int}},Nothing} = nothing,
+    features_continuous::Union{Vector{Int},Nothing} = nothing,
+    standardize::Bool = false,
+    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} = nothing,
 )
 
     # Output variable:
@@ -141,14 +141,19 @@ function CounterfactualData(
         compressor,
         generative_model,
         y_levels,
-        output_encoder
+        output_encoder,
     )
 
     # Data transformations:
-    if transformable_features(counterfactual_data) != counterfactual_data.features_continuous
+    if transformable_features(counterfactual_data) !=
+       counterfactual_data.features_continuous
         @warn "Some of the underlying features are constant."
     end
-    counterfactual_data.dt = StatsBase.fit(ZScoreTransform, X[transformable_features(counterfactual_data), :], dims=2)        # standardization
+    counterfactual_data.dt = StatsBase.fit(
+        ZScoreTransform,
+        X[transformable_features(counterfactual_data), :],
+        dims = 2,
+    )        # standardization
 
     return counterfactual_data
 end
@@ -163,14 +168,11 @@ end
 Outer constructor method that accepts a `Tables.MatrixTable`. By default, the indices of categorical and continuous features are automatically inferred the features' `scitype`.
 
 """
-function CounterfactualData(
-    X::Tables.MatrixTable,
-    y::RawOutputArrayType;
-    kwrgs...
-)
+function CounterfactualData(X::Tables.MatrixTable, y::RawOutputArrayType; kwrgs...)
 
     features_categorical = findall([scitype(x) <: AbstractVector{<:Finite} for x in X])
-    features_categorical = length(features_categorical) == 0 ? nothing : features_categorical
+    features_categorical =
+        length(features_categorical) == 0 ? nothing : features_categorical
     features_continuous = findall([scitype(x) <: AbstractVector{<:Continuous} for x in X])
     features_continuous = length(features_continuous) == 0 ? nothing : features_continuous
     X = permutedims(MLJBase.matrix(X))
@@ -198,10 +200,7 @@ select_factual(
 
 Reconstruct the categorical encoding for a single instance. 
 """
-function reconstruct_cat_encoding(
-    counterfactual_data::CounterfactualData,
-    x::AbstractArray,
-)
+function reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::AbstractArray)
 
     features_categorical = counterfactual_data.features_categorical
 
@@ -235,7 +234,10 @@ Returns the indices of all continuous features that can be transformed. For cons
 """
 function transformable_features(counterfactual_data::CounterfactualData)
     # Find all columns that have varying values:
-    idx_not_all_equal = [length(unique(counterfactual_data.X[i, :])) != 1 for i in counterfactual_data.features_continuous]
+    idx_not_all_equal = [
+        length(unique(counterfactual_data.X[i, :])) != 1 for
+        i in counterfactual_data.features_continuous
+    ]
     # Returns indices of columns that have varying values:
     return counterfactual_data.features_continuous[idx_not_all_equal]
 end

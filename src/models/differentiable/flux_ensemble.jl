@@ -25,26 +25,26 @@ struct FluxEnsemble <: AbstractDifferentiableJuliaModel
 end
 
 # Outer constructor method:
-function FluxEnsemble(model; likelihood::Symbol=:classification_binary)
+function FluxEnsemble(model; likelihood::Symbol = :classification_binary)
     FluxEnsemble(model, likelihood)
 end
 
 
 function logits(M::FluxEnsemble, X::AbstractArray)
-    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims=(1, 2)), M.model)) /
+    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims = (1, 2)), M.model)) /
     length(M.model)
 end
 
 function probs(M::FluxEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
         output =
-            sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims=(1, 2)), M.model)) /
+            sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims = (1, 2)), M.model)) /
             length(M.model)
     elseif M.likelihood == :classification_multi
         output =
             sum(
                 map(
-                    nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims=(1, 2)),
+                    nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims = (1, 2)),
                     M.model,
                 ),
             ) / length(M.model)
@@ -69,10 +69,10 @@ end
 
 Wrapper function to retrain.
 """
-function train(M::FluxEnsemble, data::CounterfactualData; args=flux_training_params)
+function train(M::FluxEnsemble, data::CounterfactualData; args = flux_training_params)
 
     # Prepare data:
-    data = data_loader(data; batchsize=args.batchsize)
+    data = data_loader(data; batchsize = args.batchsize)
 
     # Multi-class case:
     if M.likelihood == :classification_multi
@@ -92,17 +92,18 @@ function train(M::FluxEnsemble, data::CounterfactualData; args=flux_training_par
     for model in ensemble
 
         # Model name
-        models_done = repeat("#",count)
-        models_missing = repeat("-",n_models-count)
+        models_done = repeat("#", count)
+        models_missing = repeat("-", n_models - count)
         msg = "MLP $(count): $(models_done)$(models_missing) ($(count)/$(n_models))"
-    
+
         # Train:
         forward!(
-            model, data;
-            loss=args.loss,
-            opt=args.opt,
-            n_epochs=args.n_epochs,
-            model_name=msg
+            model,
+            data;
+            loss = args.loss,
+            opt = args.opt,
+            n_epochs = args.n_epochs,
+            model_name = msg,
         )
 
         count += 1
@@ -118,11 +119,11 @@ end
 Helper function that builds an ensemble of `K` models.
 """
 function build_ensemble(K::Int; kwargs...)
-    ensemble = [build_mlp(; kwargs...) for i in 1:K]
+    ensemble = [build_mlp(; kwargs...) for i = 1:K]
     return ensemble
 end
 
-function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
+function FluxEnsemble(data::CounterfactualData, K::Int = 5; kwargs...)
 
     # Basic setup:
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
@@ -130,9 +131,9 @@ function FluxEnsemble(data::CounterfactualData, K::Int=5; kwargs...)
     output_dim = size(y, 1)
 
     # Build deep ensemble:
-    ensemble = build_ensemble(K; input_dim=input_dim, output_dim=output_dim, kwargs...)
+    ensemble = build_ensemble(K; input_dim = input_dim, output_dim = output_dim, kwargs...)
 
-    M = FluxEnsemble(ensemble; likelihood=data.likelihood)
+    M = FluxEnsemble(ensemble; likelihood = data.likelihood)
 
     return M
 end

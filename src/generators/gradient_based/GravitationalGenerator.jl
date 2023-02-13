@@ -41,11 +41,11 @@ generator = GravitationalGenerator()
 ```
 """
 function GravitationalGenerator(;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
-    decision_threshold=nothing,
-    kwargs...
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = norm,
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
+    decision_threshold = nothing,
+    kwargs...,
 )
     params = GravitationalGeneratorParams(; kwargs...)
     GravitationalGenerator(
@@ -84,7 +84,7 @@ function Generators.h(
             generator.K,
         )
         neighbours = counterfactual_explanation.params[:potential_neighbours][:, ids]
-        generator.centroid = mean(neighbours, dims=2)
+        generator.centroid = mean(neighbours, dims = 2)
     end
 
     # Distance from gravitational center:

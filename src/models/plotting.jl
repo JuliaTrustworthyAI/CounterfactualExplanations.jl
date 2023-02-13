@@ -76,7 +76,7 @@ function Plots.plot(
     Z = reduce(hcat, Z)
     if isnothing(target)
         target = data.y_levels[1]
-        if size(Z,1) > 2
+        if size(Z, 1) > 2
             @info "No target label supplied, using first."
         end
     end

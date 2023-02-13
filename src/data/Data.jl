@@ -27,9 +27,7 @@ const data_catalogue = Dict(
         :credit_default => load_credit_default,
         :gmsc => load_gmsc,
     ),
-    :vision => Dict(
-        :mnist => load_mnist,
-    ),
+    :vision => Dict(:mnist => load_mnist),
 )
 
 export data_catalogue

@@ -39,7 +39,7 @@ Guess the likelihood based on the scientific type of the output array. Returns a
 """
 function guess_likelihood(y::RawOutputArrayType)
     stype = scitype(y)
-    if stype <: Union{AbstractArray{<:Finite}, AbstractArray{<:Textual}}
+    if stype <: Union{AbstractArray{<:Finite},AbstractArray{<:Textual}}
         if stype == AbstractVector{Multiclass{2}}
             likelihood = :classification_binary
         else
@@ -52,7 +52,9 @@ function guess_likelihood(y::RawOutputArrayType)
             likelihood = :classification_multi
         end
     elseif stype <: AbstractVector{Continuous}
-        error("You supplied an output array of continuous variables, which indicates a regression problem and is not currently supported.")
+        error(
+            "You supplied an output array of continuous variables, which indicates a regression problem and is not currently supported.",
+        )
     else
         error("Could not guess likelihood. Something seems off with your output array.")
     end
@@ -95,10 +97,7 @@ function (encoder::OutputEncoder)()
         y = y .- 1  # map to [0,1]
     else
         # One-hot encode:
-        y = reduce(
-            hcat,
-            map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y)
-        )
+        y = reduce(hcat, map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y))
     end
 
     return y, y_levels, likelihood
@@ -167,7 +166,11 @@ Restores the default parameter values.
 function reset!(flux_training_params::FluxModelParams)
     default_flux_training_params = FluxModelParams()
     for _name in fieldnames(typeof(flux_training_params))
-        setfield!(flux_training_params, _name, getfield(default_flux_training_params, _name))
+        setfield!(
+            flux_training_params,
+            _name,
+            getfield(default_flux_training_params, _name),
+        )
     end
     return flux_training_params
 end

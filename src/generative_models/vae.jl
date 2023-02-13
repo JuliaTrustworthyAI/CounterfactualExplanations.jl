@@ -161,11 +161,11 @@ function model_loss(generative_model::VAE, λ, x, device)
     # KL-divergence
     kl_q_p = 0.5f0 * sum(@. (exp(2.0f0 * logσ) + μ^2 - 1.0f0 - 2.0f0 * logσ)) / len
     # Negative log-likelihood: - log(p(x|z))
-    nll_x_z = - generative_model.params.nll(z, x, agg = sum) / len
+    nll_x_z = -generative_model.params.nll(z, x, agg = sum) / len
     # Weight regularization:
     reg = λ * sum(x -> sum(x .^ 2), Flux.params(generative_model.decoder))
 
-    elbo = - nll_x_z + kl_q_p + reg
+    elbo = -nll_x_z + kl_q_p + reg
 
     return elbo
 end
@@ -185,7 +185,12 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     # Verbosity
     if flux_training_params.verbose
         @info "Begin training VAE"
-        p_epoch = Progress(args.epochs; desc="Progress on epochs:", showspeed=true, color=:green)
+        p_epoch = Progress(
+            args.epochs;
+            desc = "Progress on epochs:",
+            showspeed = true,
+            color = :green,
+        )
     end
 
     # training
@@ -205,13 +210,13 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
 
         avg_loss = mean(avg_loss)
         if flux_training_params.verbose
-            next!(p_epoch, showvalues=[(:Loss, "$(avg_loss)")])
+            next!(p_epoch, showvalues = [(:Loss, "$(avg_loss)")])
         end
 
     end
 
     # Set training status to true:
-    generative_model.trained = true;
+    generative_model.trained = true
 
 end
 
@@ -230,7 +235,12 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
     # Verbosity
     if flux_training_params.verbose
         @info "Begin training VAE"
-        p_epoch = Progress(args.epochs; desc="Progress on epochs:", showspeed=true, color=:green)
+        p_epoch = Progress(
+            args.epochs;
+            desc = "Progress on epochs:",
+            showspeed = true,
+            color = :green,
+        )
     end
 
     # training
@@ -253,7 +263,7 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
 
         avg_loss = mean(avg_loss)
         if flux_training_params.verbose
-            next!(p_epoch, showvalues=[(:Loss, "$(avg_loss)")])
+            next!(p_epoch, showvalues = [(:Loss, "$(avg_loss)")])
         end
 
     end

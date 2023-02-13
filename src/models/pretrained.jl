@@ -6,7 +6,7 @@ const artifacts_warning = "Pre-trained models have been serialized and may not b
 
 function load_mnist_mlp()
     @warn artifacts_warning
-    M = deserialize(joinpath(vision_dir,"mnist_mlp.jls"))
+    M = deserialize(joinpath(vision_dir, "mnist_mlp.jls"))
     return M
 end
 
@@ -16,7 +16,7 @@ function load_mnist_ensemble()
     return M
 end
 
-function load_mnist_vae(;strong=true)
+function load_mnist_vae(; strong = true)
     @warn artifacts_warning
     if strong
         vae = deserialize(joinpath(vision_dir, "mnist_vae_strong.jls"))

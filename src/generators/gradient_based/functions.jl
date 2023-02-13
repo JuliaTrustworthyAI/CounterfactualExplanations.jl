@@ -93,7 +93,7 @@ end
 
 Helper function to deal with exploding gradients. This is only a temporary fix and will be improved.
 """
-function _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
+function _replace_nans(Δs′::AbstractArray, old_new::Pair = (NaN => 0))
     replace(Δs′, old_new)
 end
 

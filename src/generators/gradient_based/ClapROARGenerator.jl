@@ -38,11 +38,11 @@ generator = ClaPROARGenerator()
 ```
 """
 function ClaPROARGenerator(;
-    loss::Union{Nothing,Symbol}=nothing,
-    complexity::Function=norm,
-    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
-    decision_threshold=nothing,
-    kwargs...
+    loss::Union{Nothing,Symbol} = nothing,
+    complexity::Function = norm,
+    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
+    decision_threshold = nothing,
+    kwargs...,
 )
     params = ClaPROARGeneratorParams(; kwargs...)
     ClaPROARGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
