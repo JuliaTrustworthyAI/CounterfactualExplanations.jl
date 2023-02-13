@@ -11,6 +11,7 @@ include("synthetic.jl")
 include("tabular.jl")
 include("vision.jl")
 
+"A dictionary that provides an overview of the various benchmark datasets and the methods to load them."
 const data_catalogue = Dict(
     :synthetic => Dict(
         :linearly_separable => load_linearly_separable,

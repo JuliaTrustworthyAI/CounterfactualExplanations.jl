@@ -6,6 +6,17 @@ export benchmark
 
 include("functions.jl")
 
+"""
+    benchmark(
+        counterfactual_explanation::Union{
+            CounterfactualExplanation,
+            Vector{CounterfactualExplanation},
+        };
+        to_dataframe = true,
+    )
+
+Computes evaluation metrics for a single or multiple counterfactual explantions and returns a dataframe. This functionality is still basic and will be enhanced in the future. 
+"""
 function benchmark(
     counterfactual_explanation::Union{
         CounterfactualExplanation,

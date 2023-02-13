@@ -1,10 +1,12 @@
 using CounterfactualExplanations
 using Documenter
 
+include("setup_docs.jl")
+
 DocMeta.setdocmeta!(
     CounterfactualExplanations,
     :DocTestSetup,
-    :(using CounterfactualExplanations);
+    :(setup_docs);
     recursive = true,
 )
 

@@ -40,4 +40,8 @@ setup_docs = quote
     chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
     x = select_factual(counterfactual_data, chosen)
 
+    # Search:
+    generator = GenericGenerator()
+    ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+
 end;

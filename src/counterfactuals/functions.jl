@@ -5,7 +5,7 @@ using Statistics
 using StatsBase
 
 """
-A struct that collects all information relevant to a specific counterfactual explanations for a single individual.
+A struct that collects all information relevant to a specific counterfactual explanation for a single individual.
 """
 mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     x::AbstractArray
@@ -24,19 +24,18 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
 end
 
 """
-    function CounterfactualExplanation(
-        ;
-        x::AbstractArray, 
-        target::RawTargetType, 
-        data::CounterfactualData,  
+    function CounterfactualExplanation(;
+        x::AbstractArray,
+        target::RawTargetType,
+        data::CounterfactualData,
         M::Models.AbstractFittedModel,
         generator::Generators.AbstractGenerator,
-        T::Int=100,
-        latent_space::Union{Nothing, Bool}=nothing,
-        num_counterfactuals::Int=1,
-        initialization::Symbol=:add_perturbation,
-        generative_model_params::NamedTuple=(;)
-    ) 
+        T::Int = 100,
+        latent_space::Union{Nothing,Bool} = nothing,
+        num_counterfactuals::Int = 1,
+        initialization::Symbol = :add_perturbation,
+        generative_model_params::NamedTuple = (;),
+    )
 
 Outer method to construct a `CounterfactualExplanation` structure.
 """
@@ -46,11 +45,11 @@ function CounterfactualExplanation(;
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
-    T::Int = 100,
-    latent_space::Union{Nothing,Bool} = nothing,
-    num_counterfactuals::Int = 1,
-    initialization::Symbol = :add_perturbation,
-    generative_model_params::NamedTuple = (;),
+    T::Int=100,
+    latent_space::Union{Nothing,Bool}=nothing,
+    num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation,
+    generative_model_params::NamedTuple=(;)
 )
 
     # Factual:
@@ -119,7 +118,7 @@ end
 """
     output_dim(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method that computes the output dimension of the predictive model.
+A convenience method that returns the output dimension of the predictive model.
 """
 output_dim(counterfactual_explanation::CounterfactualExplanation) =
     size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
@@ -130,10 +129,10 @@ output_dim(counterfactual_explanation::CounterfactualExplanation) =
         x::AbstractArray
     )
 
-A convenience method that adjust the dimensions of `x`.
+A convenience method that adjusts the dimensions of `x`.
 """
 function adjust_shape(
-    counterfactual_explanation::CounterfactualExplanation, 
+    counterfactual_explanation::CounterfactualExplanation,
     x::AbstractArray
 )
 
@@ -144,10 +143,10 @@ function adjust_shape(
                 counterfactual_explanation.num_counterfactuals,
             )
         )
-    s′ = copy(x)                    
-    s′ = repeat(x, outer = size_) 
+    s′ = copy(x)
+    s′ = repeat(x, outer=size_)
 
-    return s′ 
+    return s′
 
 end
 
@@ -173,17 +172,25 @@ function adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
 end
 
 """
-    encode_state(counterfactual_explanations::CounterfactualExplanation)
+    function encode_state(
+        counterfactual_explanation::CounterfactualExplanation, 
+        x::Union{AbstractArray,Nothing} = nothing,
+    )
 
-Encodes counterfactual.
+Applies all required encodings to `x`:
+
+1. If applicable, it maps `x` to the latent space learned by the generative model.
+2. If and where applicable, it rescales features. 
+
+Finally, it returns the encoded state variable.
 """
 function encode_state(
-    counterfactual_explanation::CounterfactualExplanation, 
-    x::Union{AbstractArray,Nothing} = nothing,
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x
     data = counterfactual_explanation.data
 
     # Latent space:
@@ -196,10 +203,10 @@ function encode_state(
     if !counterfactual_explanation.latent_space
         dt = data.dt
         idx = transformable_features(data)
-        SliceMap.slicemap(s′, dims=(1,2)) do s
-            _s = s[idx,:]
+        SliceMap.slicemap(s′, dims=(1, 2)) do s
+            _s = s[idx, :]
             StatsBase.transform!(dt, _s)
-            s[idx,:] = _s
+            s[idx, :] = _s
         end
         return s′
     end
@@ -212,7 +219,7 @@ end
         x::Union{AbstractArray,Nothing} = nothing,
     )   
 
-
+A convenience function that checks if latent space search is applicable.
 """
 function wants_latent_space(counterfactual_explanation::CounterfactualExplanation)
 
@@ -235,21 +242,31 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
 
 end
 
+
+
+@doc raw"""
+   function map_to_latent(
+        counterfactual_explanation::CounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    ) 
+
+Maps `x` from the feature space $\mathcal{X}$ to the latent space learned by the generative model.
+"""
 function map_to_latent(
-    counterfactual_explanation::CounterfactualExplanation, 
-    x::Union{AbstractArray,Nothing} = nothing,
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x
     data = counterfactual_explanation.data
     generator = counterfactual_explanation.generator
-    
-    if counterfactual_explanation.latent_space 
+
+    if counterfactual_explanation.latent_space
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(
             data;
-            counterfactual_explanation.generative_model_params...,
+            counterfactual_explanation.generative_model_params...
         )
         # map counterfactual to latent space: s′=z′∼p(z|x)
         s′, _, _ = GenerativeModels.rand(generative_model.encoder, s′)
@@ -259,6 +276,20 @@ function map_to_latent(
 
 end
 
+"""
+    function decode_state(
+        counterfactual_explanation::CounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
+
+Applies all the applicable decoding functions:
+
+1. If applicable, map the state variable back from the latent space to the feature space.
+2. If and where applicable, inverse-transform features.
+3. Reconstruct all categorical encodings.
+
+Finally, the decoded counterfactual is returned.
+"""
 function decode_state(
     counterfactual_explanation::CounterfactualExplanation,
     x::Union{AbstractArray,Nothing}=nothing,
@@ -295,13 +326,21 @@ function decode_state(
 
 end
 
+"""
+    map_from_latent(
+        counterfactual_explanation::CounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
+
+Maps the state variable back from the latent space to the feature space.
+"""
 function map_from_latent(
-    counterfactual_explanation::CounterfactualExplanation, 
-    x::Union{AbstractArray,Nothing} = nothing,
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x
     data = counterfactual_explanation.data
 
     # Latent space:
@@ -321,15 +360,23 @@ function map_from_latent(
 
 end
 
+"""
+    reconstruct_cat_encoding(
+        counterfactual_explanation::CounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
+
+Reconstructs all categorical encodings. See [`DataPreprocessing.reconstruct_cat_encoding`](@ref) for details.
+"""
 function reconstruct_cat_encoding(
-    counterfactual_explanation::CounterfactualExplanation, 
-    x::Union{AbstractArray,Nothing} = nothing,
-)   
+    counterfactual_explanation::CounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
+)
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x 
+    s′ = isnothing(x) ? deepcopy(counterfactual_explanation.s′) : x
     data = counterfactual_explanation.data
 
-    s′ = SliceMap.slicemap(s′, dims=(1,2)) do s
+    s′ = SliceMap.slicemap(s′, dims=(1, 2)) do s
         s_encoded = DataPreprocessing.reconstruct_cat_encoding(data, s)
         s = reshape(s_encoded, size(s)...)
         return s
@@ -341,7 +388,10 @@ end
 """
     initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
-Initializes the starting point for the factual(s).
+Initializes the starting point for the factual(s):
+    
+1. If `counterfactual_explanation.initialization` is set to `:identity` or counterfactuals are searched in a latent space, then nothing is done.
+2. If `counterfactual_explanation.initialization` is set to `:add_perturbation`, then a random perturbation is added to the factual following following Slack (2021): https://arxiv.org/abs/2106.02666. The authors show that this improves adversarial robustness.
 """
 function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
@@ -362,12 +412,14 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if counterfactual_explanation.initialization == :add_perturbation
-        s′ = SliceMap.slicemap(s′, dims = (1, 2)) do s
-            Δs′ = randn(size(s, 1)) * 0.1   
+        s′ = SliceMap.slicemap(s′, dims=(1, 2)) do s
+            Δs′ = randn(size(s, 1)) * 0.1
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
         end
     end
+
+    return s′
 
 end
 
@@ -375,7 +427,7 @@ end
 """
     factual(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method to get the factual value.
+A convenience method to retrieve the factual `x`.
 """
 factual(counterfactual_explanation::CounterfactualExplanation) =
     counterfactual_explanation.x
@@ -383,7 +435,7 @@ factual(counterfactual_explanation::CounterfactualExplanation) =
 """
     factual_probability(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method to compute the class probabilities of the factual value.
+A convenience method to compute the class probabilities of the factual.
 """
 factual_probability(counterfactual_explanation::CounterfactualExplanation) =
     Models.probs(counterfactual_explanation.M, counterfactual_explanation.x)
@@ -391,7 +443,7 @@ factual_probability(counterfactual_explanation::CounterfactualExplanation) =
 """
     factual_label(counterfactual_explanation::CounterfactualExplanation)  
 
-A convenience method to get the predicted label associated with the factual value.
+A convenience method to get the predicted label associated with the factual.
 """
 function factual_label(counterfactual_explanation::CounterfactualExplanation)
     M = counterfactual_explanation.M
@@ -404,7 +456,7 @@ end
 """
     counterfactual(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method to get the counterfactual value.
+A convenience method that returns the counterfactual.
 """
 counterfactual(counterfactual_explanation::CounterfactualExplanation) =
     decode_state(counterfactual_explanation)
@@ -412,7 +464,7 @@ counterfactual(counterfactual_explanation::CounterfactualExplanation) =
 """
     counterfactual_probability(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method to compute the class probabilities of the counterfactual value.
+A convenience method that computes the class probabilities of the counterfactual.
 """
 counterfactual_probability(counterfactual_explanation::CounterfactualExplanation) =
     Models.probs(counterfactual_explanation.M, counterfactual(counterfactual_explanation))
@@ -420,7 +472,7 @@ counterfactual_probability(counterfactual_explanation::CounterfactualExplanation
 """
     counterfactual_label(counterfactual_explanation::CounterfactualExplanation) 
 
-A convenience method to get the predicted label associated with the counterfactual value.
+A convenience method that returns the predicted label of the counterfactual.
 """
 function counterfactual_label(counterfactual_explanation::CounterfactualExplanation)
     M = counterfactual_explanation.M
@@ -430,13 +482,16 @@ function counterfactual_label(counterfactual_explanation::CounterfactualExplanat
 end
 
 """
-    target_probs(counterfactual_explanation::CounterfactualExplanation, x::Union{AbstractArray, Nothing}=nothing)
+    target_probs(
+        counterfactual_explanation::CounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
 
 Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
 """
 function target_probs(
     counterfactual_explanation::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing} = nothing,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
 
     data = counterfactual_explanation.data
@@ -453,7 +508,7 @@ function target_probs(
             p_target = 1 .- p
         end
     else
-        p_target = p[target_idx]
+        p_target = SliceMap.slicemap(_p -> permutedims([_p[target_idx]]), p, dims=(1,2))
     end
     return p_target
 end
@@ -471,7 +526,7 @@ end
 """
     converged(counterfactual_explanation::CounterfactualExplanation)
 
-A convenience method to determine if the counterfactual search has converged.
+A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
 """
 function converged(counterfactual_explanation::CounterfactualExplanation)
     # If strict, also look at gradient and other generator-specific conditions.
@@ -499,7 +554,7 @@ total_steps(counterfactual_explanation::CounterfactualExplanation) =
 
 A convenience method that returns the entire counterfactual path.
 """
-function path(counterfactual_explanation::CounterfactualExplanation; feature_space = true)
+function path(counterfactual_explanation::CounterfactualExplanation; feature_space=true)
     path = deepcopy(counterfactual_explanation.search[:path])
     if feature_space
         path = [decode_state(counterfactual_explanation, z) for z ∈ path]
@@ -517,7 +572,7 @@ function counterfactual_probability_path(
 )
     M = counterfactual_explanation.M
     p = map(
-        X -> mapslices(x -> probs(M, x), X, dims = (1, 2)),
+        X -> mapslices(x -> probs(M, x), X, dims=(1, 2)),
         path(counterfactual_explanation),
     )
     return p
@@ -532,7 +587,7 @@ function counterfactual_label_path(counterfactual_explanation::CounterfactualExp
     counterfactual_data = counterfactual_explanation.data
     M = counterfactual_explanation.M
     ŷ = map(
-        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X, dims = (1, 2)),
+        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X, dims=(1, 2)),
         path(counterfactual_explanation),
     )
     return ŷ
@@ -546,7 +601,7 @@ Returns the target probabilities for each step of the search.
 function target_probs_path(counterfactual_explanation::CounterfactualExplanation)
     X = path(counterfactual_explanation)
     P = map(
-        X -> mapslices(x -> target_probs(counterfactual_explanation, x), X, dims = (1, 2)),
+        X -> mapslices(x -> target_probs(counterfactual_explanation, x), X, dims=(1, 2)),
         X,
     )
     return P
@@ -559,14 +614,17 @@ Helper function that embeds path into two dimensions for plotting.
 """
 function embed_path(counterfactual_explanation::CounterfactualExplanation)
     data_ = counterfactual_explanation.data
-    path_ = MLUtils.stack(path(counterfactual_explanation); dims = 1)
-    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims = (1, 2))
-    path_embedded = unstack(path_embedded, dims = 2)
+    path_ = MLUtils.stack(path(counterfactual_explanation); dims=1)
+    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_, dims=(1, 2))
+    path_embedded = unstack(path_embedded, dims=2)
     return path_embedded
 end
 
 """
-    apply_mutability(counterfactual_explanation::CounterfactualExplanation, Δs′::AbstractArray)
+    apply_mutability(
+        counterfactual_explanation::CounterfactualExplanation,
+        Δs′::AbstractArray,
+    )
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
@@ -575,7 +633,7 @@ function apply_mutability(
     Δs′::AbstractArray,
 )
 
-    if counterfactual_explanation.latent_space 
+    if counterfactual_explanation.latent_space
         if isnothing(counterfactual_explanation.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
@@ -588,7 +646,7 @@ function apply_mutability(
     increase(x) = ifelse(x < 0.0, 0.0, x)
     decrease(x) = ifelse(x > 0.0, 0.0, x)
     none(x) = 0.0
-    cases = (both = both, increase = increase, decrease = decrease, none = none)
+    cases = (both=both, increase=increase, decrease=decrease, none=none)
 
     # Apply:
     Δs′ = map((case, s) -> getfield(cases, case)(s), mutability, Δs′)
@@ -687,7 +745,6 @@ function update!(counterfactual_explanation::CounterfactualExplanation)
     )
     Δs′ = apply_mutability(counterfactual_explanation, Δs′)         # mutability constraints
     s′ = counterfactual_explanation.s′ + Δs′                        # new proposed state
-    # apply_domain_constraints!(counterfactual_explanation)           # domain constraints
 
     # Updates:
     counterfactual_explanation.s′ = s′                                                  # update counterfactual
@@ -718,14 +775,14 @@ function Base.show(io::IO, z::CounterfactualExplanation)
                 printstyled(
                     io,
                     "Threshold reached: $(all(threshold_reached(z)) ? "✅"  : "❌")",
-                    bold = true,
+                    bold=true,
                 )
                 print(" after $(first(n_reached)) steps.\n")
             end
-            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold = true)
+            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold=true)
             print(" after $(total_steps(z)) steps.\n")
         else
-            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold = true)
+            printstyled(io, "Convergence: $(converged(z) ? "✅"  : "❌")", bold=true)
             print(" after $(total_steps(z)) steps.\n")
         end
     end
