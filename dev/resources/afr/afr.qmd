@@ -54,7 +54,7 @@ execute:
 
 We have fitted some black box classifier to divide cats and dogs. One 🐱 is friends with a lot of cool 🐶  and wants to remain part of that group. The counterfactual path below shows her how to fool the classifier:
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
+![](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){fig-align="center"}
 
 ## Limited Software Availability  
 
@@ -66,9 +66,9 @@ We have fitted some black box classifier to divide cats and dogs. One 🐱 is fr
 
 ## Enter: `CounterfactualExplanations.jl` 📦
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
-[![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
-[![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev)
+[![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl)
 
 - A unifying framework for generating counterfactual explanations and aglorithmic recourse.
 - Built in Julia, but essentially language agnostic: supporting explanations for models built in Python, R, ...
@@ -158,7 +158,7 @@ Pkg.add("CounterfactualExplanations")
 
 ### Counterfactual path
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_generic_recourse.gif)
+![](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_generic_recourse.gif)
 
 ### Code 
 
@@ -197,7 +197,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ### Counterfactual path
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_greedy_recourse.gif)
+![](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/tutorials/www/binary_greedy_recourse.gif)
 
 ### Code
 
@@ -221,7 +221,7 @@ counterfactual = generate_counterfactual(x, target, counterfactual_data, M, gene
 
 ### Counterfactual path
 
-![](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/tutorials/www/interop_r.gif)
+![](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/tutorials/www/interop_r.gif)
 
 ### R
 
@@ -408,11 +408,11 @@ counterfactual_data = CounterfactualData(X,ys';domain=[(-Inf,Inf),(-Inf,-0.5)])
 
 > This looks nice 🤓
 
-![Turning a nine (9) into a four (4).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png){fig-align="center"}
+![Turning a nine (9) into a four (4).](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_9to4.png){fig-align="center"}
 
 > And this ... ugh 🥴
 
-![Turning a seven (7) into a (2).](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
+![Turning a seven (7) into a (2).](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/examples/image/www/MNIST_7to2.png){fig-align="center"}
 
 # Discussion and Outlook
 

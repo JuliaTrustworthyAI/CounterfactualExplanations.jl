@@ -13,11 +13,11 @@ DocMeta.setdocmeta!(
 makedocs(;
     modules=[CounterfactualExplanations],
     authors="Patrick Altmeyer",
-    repo="https://github.com/pat-alt/CounterfactualExplanations.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/{commit}{path}#{line}",
     sitename="CounterfactualExplanations.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://pat-alt.github.io/CounterfactualExplanations.jl",
+        canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl",
         assets=String[]
     ),
     pages=[
@@ -57,4 +57,4 @@ makedocs(;
     ]
 )
 
-deploydocs(; repo = "github.com/pat-alt/CounterfactualExplanations.jl.git")
+deploydocs(; repo = "github.com/juliatrustworthyai/CounterfactualExplanations.jl.git")

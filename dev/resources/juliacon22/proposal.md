@@ -52,8 +52,8 @@ The package is designed to be extensible, which should facilitate contributions 
 For some additional colour you may find the following resources helpful:
 
 - [Blog post](https://towardsdatascience.com/individual-recourse-for-black-box-models-5e9ed1e4b4cc) and [motivating example](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/cats_dogs/).
-- Package docs: [[stable]](https://pat-alt.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://pat-alt.github.io/CounterfactualExplanations.jl/dev).
-- [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl).
+- Package docs: [[stable]](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
+- [GitHub repo](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl).
 
 ## Notes
 
@@ -61,9 +61,9 @@ The package has been developed by [presenter] during the first few months of the
 
 Below is a list of links pointing to additional resources related to the package:
 
-- [Companion Paper](https://github.com/pat-alt/CounterfactualExplanations.jl/tree/paper) for JuliaCon proceedings (draft)
-- [GitHub repo](https://github.com/pat-alt/CounterfactualExplanations.jl)
-- Package docs: [[stable]](https://pat-alt.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://pat-alt.github.io/CounterfactualExplanations.jl/dev)
+- [Companion Paper](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/tree/paper) for JuliaCon proceedings (draft)
+- [GitHub repo](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl)
+- Package docs: [[stable]](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable), [[dev]](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev)
 
 We would love to present this work at JuliaCon 22 for the following reasons:
 

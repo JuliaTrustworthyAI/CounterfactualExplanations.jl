@@ -4,7 +4,7 @@ lazy = true
 
     [[cats_dogs_data.download]]
     sha256 = "aca3df23d230a913ad3c2a7e12bd4c10ff7e69230bdee2ecf496b04d9fe25a3f"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_data.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_data.tar.gz"
 
 [cats_dogs_images]
 git-tree-sha1 = "4f62372007fc7f73c108720000861bc412a4b759"
@@ -12,7 +12,7 @@ lazy = true
 
     [[cats_dogs_images.download]]
     sha256 = "2c0a849fbc4e7258399a8b822281d241c1027d9521026d3ef26d9faa7385b05d"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_images.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_images.tar.gz"
 
 [cats_dogs_laplace]
 git-tree-sha1 = "79fd6ec6bb5800e775a9680fbbe7d0df046411ea"
@@ -20,7 +20,7 @@ lazy = true
 
     [[cats_dogs_laplace.download]]
     sha256 = "15b0cd4819c63218589a87ad04a2e711d7747bb356b9e6fef2d55eca87a97d55"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_laplace.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_laplace.tar.gz"
 
 [cats_dogs_model]
 git-tree-sha1 = "71fdacce1cd28aa26b3e8dd1c4d3c582dbd674f2"
@@ -28,7 +28,7 @@ lazy = true
 
     [[cats_dogs_model.download]]
     sha256 = "6f43a710595ecc6f287ba8230a5185202fd3a73a8fd30620db560ca4ef89f335"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
 [data-tabular]
 git-tree-sha1 = "a79dd553e972e54976b8c8700bbdf6e021b8ab1e"
@@ -36,7 +36,7 @@ lazy = true
 
     [[data-tabular.download]]
     sha256 = "2f118285b571d89281c99af48c2a9e92368c06382b2761ead880bd3ae1db7338"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/data-tabular.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/artifacts/data-tabular.tar.gz"
 
 [dev-artifacts-upload-data-tabular]
 git-tree-sha1 = "77bfb9490f7a615700899358177126a59b8b7529"
@@ -44,7 +44,7 @@ lazy = true
 
     [[dev-artifacts-upload-data-tabular.download]]
     sha256 = "74a61e7032d4bdaf2e87f3cc0bad100ba933ba6d68e0356f2eee485b01ba6b44"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/dev-artifacts-upload-data-tabular.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/artifacts/dev-artifacts-upload-data-tabular.tar.gz"
 
 [mnist_data]
 git-tree-sha1 = "57053f5d58979856be84cac48992177fc01f6f73"
@@ -52,7 +52,7 @@ lazy = true
 
     [[mnist_data.download]]
     sha256 = "c6f04c0f47f034f864cb0955e63a882134a71c24190083a699672611a6871980"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_data.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_data.tar.gz"
 
 [mnist_ensemble]
 git-tree-sha1 = "f961cc3dca86a3250941ffeb1aa1e0fc33535823"
@@ -60,7 +60,7 @@ lazy = true
 
     [[mnist_ensemble.download]]
     sha256 = "76ea8c12401694e524a4907c4247ee558c5f0ad2ead8f952572d57d41e449f57"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_ensemble.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_ensemble.tar.gz"
 
 [mnist_model]
 git-tree-sha1 = "ff3673b2a266db40f4b982b7e6013e417039ff94"
@@ -68,7 +68,7 @@ lazy = true
 
     [[mnist_model.download]]
     sha256 = "9a027ebcfa606898976e68ca828ccfafb2b771dd0445a0152fbcfbb5f5413b2b"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_model.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_model.tar.gz"
 
 [mnist_vae]
 git-tree-sha1 = "feb5222aa6b320b0393daf16f711068e4c620cf7"
@@ -76,7 +76,7 @@ lazy = true
 
     [[mnist_vae.download]]
     sha256 = "b2d0bf8e7e43a9b35dc9813f378ef4336d887510022afd21c0640c327d8e1bed"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/mnist_vae.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_vae.tar.gz"
 
 [model-vision]
 git-tree-sha1 = "01872fd99b0f89966be215239e3109be0fe82fe3"
@@ -84,7 +84,7 @@ lazy = true
 
     [[model-vision.download]]
     sha256 = "8fc52166c0828275fc7c020a9c4580743fc63f568d1d287c3e10f0d3fb260135"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/artifacts/model-vision.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/artifacts/model-vision.tar.gz"
 
 [paper-images]
 git-tree-sha1 = "b1e4ade1fe7c847262189886be2d79d578c351f8"
@@ -92,7 +92,7 @@ lazy = true
 
     [[paper-images.download]]
     sha256 = "7b9be02edfd451a209237dfd16d8e089db70b177ea0a8b04aab8091b3e388b6c"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-images.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-images.tar.gz"
 
 [paper-models]
 git-tree-sha1 = "7129cfe11ece24ec703473247fd803666deaeee1"
@@ -100,7 +100,7 @@ lazy = true
 
     [[paper-models.download]]
     sha256 = "eefcc1390062c323d9490e74b777f53fa380924e3c3f5e35a47055e262885457"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-models.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/juliacon-proceedings-jan-2023/paper-models.tar.gz"
 
 [synthetic_data]
 git-tree-sha1 = "ebb4ee4a24dcbbbe653de5d7a0b4568e17e297eb"
@@ -108,7 +108,7 @@ lazy = true
 
     [[synthetic_data.download]]
     sha256 = "aea63cf916705355879a630c12e10693338c9dca72f32b0a6b46086cfaad9de8"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_data.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/synthetic_data.tar.gz"
 
 [synthetic_flux]
 git-tree-sha1 = "c5249fd00ff20ab131b232611ff94582abdb8df9"
@@ -116,7 +116,7 @@ lazy = true
 
     [[synthetic_flux.download]]
     sha256 = "7e76d9db783cf7c29ae3a0d55c82da920cc9e022489362cf5221d981e99a4bae"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_flux.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/synthetic_flux.tar.gz"
 
 [synthetic_r_torch]
 git-tree-sha1 = "88e4f3b146f8240379cf55f6c25ab37c0e867b6c"
@@ -124,7 +124,7 @@ lazy = true
 
     [[synthetic_r_torch.download]]
     sha256 = "cbf5e75ec6619ba479ce6c47b3e2a03002c6f1383c077aa6916686b632fbffc5"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/synthetic_r_torch.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/synthetic_r_torch.tar.gz"
 
 [ucr_data]
 git-tree-sha1 = "6767d796c1f5e75d924f1cd72c0bec2dbaf46dfe"
@@ -132,7 +132,7 @@ lazy = true
 
     [[ucr_data.download]]
     sha256 = "e474c53de1cb8ed974e0a4ccfd13b93a58bd5fe445eee348a0889bc4cc4a0d48"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/ucr_data.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/ucr_data.tar.gz"
 
 [ucr_model]
 git-tree-sha1 = "0f66aebcbafc26fbc2e151a02ec527864dbe1206"
@@ -140,4 +140,4 @@ lazy = true
 
     [[ucr_model.download]]
     sha256 = "6b9d8aae8b2e1065494910f0c519d4c60bada9e08b6e0f45e794c36588c20522"
-    url = "https://github.com/pat-alt/CounterfactualExplanations.jl/releases/download/data/ucr_model.tar.gz"
+    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/ucr_model.tar.gz"

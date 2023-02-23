@@ -39,7 +39,7 @@ www_path = "dev/resources/juliacon22/www"
 - Enter: Counterfactual Explanations 🔮
     - What are they? What are they not?
 - Counterfactual Explanations in Julia (and beyond!) 📦
-    - Introducing: [`CounterfactualExplanations.jl`](https://github.com/pat-alt/CounterfactualExplanations.jl){preview-link="false"}
+    - Introducing: [`CounterfactualExplanations.jl`](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl){preview-link="false"}
     - Package architecture
     - Usage examples - what can it do?
 - Goals and Ambitions 🎯
@@ -267,7 +267,7 @@ $$ {#eq-solution}
 
 . . .
 
-![A cat performing gradient descent in the feature space à la @wachter2017counterfactual.](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
+![A cat performing gradient descent in the feature space à la @wachter2017counterfactual.](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/www/recourse_mlp.gif){#fig-cat-mlp}
 
 :::
 ::::
@@ -346,7 +346,7 @@ $$ {#eq-bayes}
 :::
 
 :::{.column width="50%"}
-![A cat performing gradient descent in the feature space à la @schut2021generating](https://raw.githubusercontent.com/pat-alt/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){#fig-cat-laplace width="70%"}
+![A cat performing gradient descent in the feature space à la @schut2021generating](https://raw.githubusercontent.com/juliatrustworthyai/CounterfactualExplanations.jl/main/docs/src/www/recourse_laplace.gif){#fig-cat-laplace width="70%"}
 :::
 
 ::::
@@ -407,7 +407,7 @@ where $dec(\cdot)$ is the decoder function.
 
 ## Enter: `CounterfactualExplanations.jl` 📦
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://pat-alt.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/pat-alt/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/pat-alt/CounterfactualExplanations.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl)
 
 > ... until now!
 
@@ -804,17 +804,17 @@ Adding support for `torch` models was easy! Here's how I implemented it for `tor
 
 **Step 1**: add composite type as subtype of `AbstractFittedModel`
 
-> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10){preview-link="false"}.
+> Implemented [here](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L10){preview-link="false"}.
 
 **Step 2**: dispatch `logits` and `probs` methods for new model type.
 
-> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21){preview-link="false"}.
+> Implemented [here](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/models/differentiable/R.jl#L21){preview-link="false"}.
 
 . . .
 
 **Step 3**: add gradient access.
 
-> Implemented [here](https://github.com/pat-alt/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22){preview-link="false"}.
+> Implemented [here](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/19795f547d87d561d5906d7966e6fd1022fa8ceb/src/generators/gradient_based/functions.jl#L22){preview-link="false"}.
 
 :::
 
