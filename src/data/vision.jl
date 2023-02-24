@@ -13,6 +13,7 @@ function load_mnist(n::Union{Nothing,Int} = nothing)
     X = Flux.flatten(X)
     y = categorical(y)
     counterfactual_data = CounterfactualData(X, y; domain = (0, 1))
+    counterfactual_data.X = Float32.(counterfactual_data.X)
     # Undersample:
     if !isnothing(n)
         counterfactual_data =
@@ -31,5 +32,6 @@ function load_mnist_test()
     X = Flux.flatten(X)
     y = categorical(y)
     counterfactual_data = CounterfactualData(X, y; domain = (0, 1))
+    counterfactual_data.X = Float32.(counterfactual_data.X)
     return counterfactual_data
 end

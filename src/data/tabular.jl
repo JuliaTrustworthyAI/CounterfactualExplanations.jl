@@ -27,6 +27,7 @@ function load_california_housing(n::Union{Nothing,Int} = 5000)
     # Counterfactual data:
     y = Int.(df.target)
     counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     # Undersample:
     if !isnothing(n)
@@ -57,6 +58,7 @@ function load_gmsc(n::Union{Nothing,Int} = 5000)
     # Counterfactual data:
     y = df.target
     counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     # Undersample:
     if !isnothing(n)
@@ -95,6 +97,7 @@ function load_credit_default(n::Union{Nothing,Int} = 5000)
     y = df.target
     counterfactual_data =
         CounterfactualData(X, y; features_categorical = features_categorical)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     # Undersample:
     if !isnothing(n)

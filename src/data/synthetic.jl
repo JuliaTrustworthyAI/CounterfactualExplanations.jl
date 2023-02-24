@@ -13,6 +13,7 @@ function load_blobs(n = 100; seed = data_seed, k = 2, centers = 2, kwrgs...)
 
     X, y = make_blobs(n, k; centers = centers, kwrgs...)
     counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     return counterfactual_data
 
@@ -76,6 +77,7 @@ function load_circles(n = 100; seed = data_seed, noise = 0.15, factor = 0.01)
 
     X, y = make_circles(n; noise = noise, factor = factor)
     counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     return counterfactual_data
 
@@ -92,6 +94,7 @@ function load_moons(n = 100; seed = data_seed, kwrgs...)
 
     X, y = make_moons(n; kwrgs...)
     counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     return counterfactual_data
 
