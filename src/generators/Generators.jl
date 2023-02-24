@@ -7,10 +7,10 @@ using ..CounterfactualExplanations
 using ..GenerativeModels
 using Flux
 using LinearAlgebra
-using ..Losses
 using ..Models
+using ..Objectives
 
-export AbstractGenerator, AbstractGradientBasedGenerator
+export AbstractGradientBasedGenerator
 export ClaPROARGenerator, ClaPROARGeneratorParams
 export GenericGenerator, GenericGeneratorParams
 export GravitationalGenerator, GravitationalGeneratorParams
@@ -19,13 +19,6 @@ export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalog
 export generate_perturbations, conditions_satisified, mutability_constraints
-
-"""
-    AbstractGenerator
-
-An abstract type that serves as the base type for counterfactual generators. 
-"""
-abstract type AbstractGenerator end
 
 # Loss:
 """
@@ -39,16 +32,10 @@ function ℓ(
 )
 
     loss_fun =
-        !isnothing(generator.loss) ? getfield(Losses, generator.loss) :
+        !isnothing(generator.loss) ? getfield(Objectives, generator.loss) :
         CounterfactualExplanations.guess_loss(counterfactual_explanation)
     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
-    loss = loss_fun(
-        getfield(Models, :logits)(
-            counterfactual_explanation.M,
-            CounterfactualExplanations.decode_state(counterfactual_explanation),
-        ),
-        counterfactual_explanation.target_encoded,
-    )
+    loss = loss_fun(counterfactual_explanation)
     return loss
 end
 

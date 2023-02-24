@@ -724,9 +724,9 @@ Guesses the loss function to be used for the counterfactual search in case `like
 function guess_loss(counterfactual_explanation::CounterfactualExplanation)
     if :likelihood in fieldnames(typeof(counterfactual_explanation.M))
         if counterfactual_explanation.M.likelihood == :classification_binary
-            loss_fun = Flux.Losses.logitbinarycrossentropy
+            loss_fun = Objectives.logitbinarycrossentropy
         elseif counterfactual_explanation.M.likelihood == :classification_multi
-            loss_fun = Flux.Losses.logitcrossentropy
+            loss_fun = Objectives.logitcrossentropy
         else
             loss_fun = Flux.Losses.mse
         end

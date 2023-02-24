@@ -1,11 +1,12 @@
 module CounterfactualExplanations
 
-abstract type AbstractCounterfactualExplanation end
+include("base_types.jl")
 export AbstractCounterfactualExplanation
+export AbstractFittedModel
+export AbstractGenerator
 
 # Dependencies:
 using Flux
-import Flux.Losses
 
 # Global constants:
 include("global_utils.jl")
@@ -29,21 +30,26 @@ export CounterfactualData,
 ### Models 
 # ℳ[𝒟] : x ↦ y
 ###
-
 include("models/Models.jl")
 using .Models
-export AbstractFittedModel, AbstractDifferentiableModel
+export AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 export model_catalogue, fit_model, model_evaluation, predict_label
+
+### Objectives
+# ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
+###
+include("objectives/Objectives.jl")
+using .Objectives
 
 ### Generators
 # ℓ( ℳ[𝒟](xᵢ) , target )
 ###
 include("generators/Generators.jl")
 using .Generators
-export AbstractGenerator, AbstractGradientBasedGenerator
+export AbstractGradientBasedGenerator
 export ClaPROARGenerator, ClaPROARGeneratorParams
 export GenericGenerator, GenericGeneratorParams
 export GravitationalGenerator, GravitationalGeneratorParams

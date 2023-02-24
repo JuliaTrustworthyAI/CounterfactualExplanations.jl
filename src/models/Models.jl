@@ -4,15 +4,10 @@ using ..CounterfactualExplanations
 using ..DataPreprocessing
 using Parameters
 
-export AbstractFittedModel, AbstractDifferentiableModel
+export AbstractDifferentiableModel
 export FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
-
-"""
-Base type for fitted models.
-"""
-abstract type AbstractFittedModel end
 
 """
     logits(M::AbstractFittedModel, X::AbstractArray)
