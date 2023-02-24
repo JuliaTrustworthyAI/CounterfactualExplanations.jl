@@ -479,7 +479,7 @@ function counterfactual_label(counterfactual_explanation::CounterfactualExplanat
     M = counterfactual_explanation.M
     counterfactual_data = counterfactual_explanation.data
     y = SliceMap.slicemap(
-        x -> permutedims([predict_label(M, counterfactual_data, x)]),
+        x -> permutedims([predict_label(M, counterfactual_data, x)[1]]),
         counterfactual(counterfactual_explanation),
         dims = (1, 2),
     )
