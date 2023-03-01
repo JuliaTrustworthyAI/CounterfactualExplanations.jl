@@ -6,9 +6,9 @@ using MLJBase
 
 Prepares counterfactual data for training in Flux.
 """
-function data_loader(data::CounterfactualData; batchsize = 1)
+function data_loader(data::CounterfactualData; batchsize=1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
-    return DataLoader((X, y), batchsize = batchsize)
+    return DataLoader((X, y), batchsize=batchsize)
 end
 
 """
@@ -25,6 +25,18 @@ function model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
 end
 
 """
+    binary_to_onehot(p)
+
+Helper function to turn dummy-encoded variable into onehot-encoded variable.
+"""
+function binary_to_onehot(p)
+    nobs = size(p, 2)
+    A = hcat(ones(nobs), zeros(nobs))
+    B = [-1 1; 0 0]
+    return permutedims(permutedims(p) .* A * B .+ A)
+end
+
+"""
     predict_proba(M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::Union{Nothing,AbstractArray})
 
 Returns the predicted output probabilities for a given model `M`, data set `counterfactual_data` and input data `X`.
@@ -38,12 +50,6 @@ function predict_proba(
     p = probs(M, X)
     # println(p)
     binary = M.likelihood == :classification_binary
-    function binary_to_onehot(p)
-        nobs = size(p, 2)
-        A = hcat(ones(nobs), zeros(nobs))
-        B = [-1 1; 0 0]
-        return permutedims(permutedims(p) .* A * B .+ A)
-    end
     p = binary ? binary_to_onehot(p) : p
     return p
 end

@@ -5,13 +5,14 @@ using LinearAlgebra
 using Parameters
 using Statistics
 
+"Class for ClaPROAR counterfactual generator."
 mutable struct ClaPROARGenerator <: AbstractGradientBasedGenerator
-    loss::Union{Nothing,Symbol} # loss function
-    complexity::Function # complexity function
-    λ::Union{AbstractFloat,AbstractVector} # strength of penalty
+    loss::Union{Nothing,Function}                       # loss function
+    complexity::Function                                # complexity function
+    λ::Union{AbstractFloat,AbstractVector}              # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat}
-    opt::Flux.Optimise.AbstractOptimiser # optimizer
-    τ::AbstractFloat # tolerance for convergence
+    opt::Flux.Optimise.AbstractOptimiser                # optimizer
+    τ::AbstractFloat                                    # tolerance for convergence
 end
 
 # API streamlining:
@@ -21,15 +22,14 @@ end
 end
 
 """
-    ClaPROARGenerator(
-        ;
-        loss::Symbol=:logitbinarycrossentropy,
+    ClaPROARGenerator(;
+        loss::Union{Nothing,Function}=nothing,
         complexity::Function=norm,
-        λ::AbstractFloat=0.1,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
-        τ::AbstractFloat=1e-5
+        λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+        decision_threshold=nothing,
+        kwargs...
     )
-
+    
 An outer constructor method that instantiates a generic generator.
 
 # Examples
@@ -38,11 +38,11 @@ generator = ClaPROARGenerator()
 ```
 """
 function ClaPROARGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
-    decision_threshold = nothing,
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=nothing,
+    kwargs...
 )
     params = ClaPROARGeneratorParams(; kwargs...)
     ClaPROARGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)

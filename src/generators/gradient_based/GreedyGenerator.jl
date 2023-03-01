@@ -2,9 +2,9 @@ using Parameters
 using LinearAlgebra
 using SliceMap
 
-# -------- Schut et al (2020): 
+"Class for Greedy counterfactual generator following Schut et al (2020)."
 mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
-    loss::Union{Nothing,Symbol} # loss function
+    loss::Union{Nothing,Function} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
@@ -23,12 +23,12 @@ end
 
 """
     GreedyGenerator(;
-        loss::Union{Nothing,Symbol}=nothing,
-        complexity::Function=LinearAlgebra.norm,
-        λ::AbstractFloat=0.0,
-        decision_threshold=0.5,
-        opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}, # learning rate
-        kwargs...
+        loss::Union{Nothing,Function} = nothing,
+        complexity::Function = LinearAlgebra.norm,
+        λ::AbstractFloat = 0.0,
+        decision_threshold = 0.5,
+        opt::Union{Nothing,Flux.Optimise.AbstractOptimiser} = nothing, # learning rate
+        kwargs...,
     )
 
 An outer constructor method that instantiates a greedy generator.
@@ -40,12 +40,12 @@ generator = GreedyGenerator()
 ```
 """
 function GreedyGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = LinearAlgebra.norm,
-    λ::AbstractFloat = 0.0,
-    decision_threshold = 0.5,
-    opt::Union{Nothing,Flux.Optimise.AbstractOptimiser} = nothing, # learning rate
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=LinearAlgebra.norm,
+    λ::AbstractFloat=0.0,
+    decision_threshold=0.5,
+    opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}=nothing, # learning rate
+    kwargs...
 )
 
     if !isnothing(opt)
@@ -103,7 +103,7 @@ function generate_perturbations(
     𝐠ₜ = ∇(generator, counterfactual_explanation.M, counterfactual_explanation) # gradient
     𝐠ₜ[counterfactual_explanation.params[:mutability].==:none] .= 0
     function choose_most_salient(x)
-        s = -((abs.(x) .== maximum(abs.(x), dims = 1)) .* generator.ϵ .* sign.(x))
+        s = -((abs.(x) .== maximum(abs.(x), dims=1)) .* generator.ϵ .* sign.(x))
         non_zero_elements = findall(vec(s) .!= 0)
         # If more than one equal, randomise:
         if length(non_zero_elements) > 1
@@ -114,7 +114,7 @@ function generate_perturbations(
         end
         return s
     end
-    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims = 1) # choose most salient feature
+    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims=1) # choose most salient feature
     return Δs′
 end
 

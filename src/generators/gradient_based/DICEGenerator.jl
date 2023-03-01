@@ -1,14 +1,14 @@
 using LinearAlgebra
 using Parameters
 
-# -------- Following Mothilal et al. (2020): 
+"Class for DiCE counterfactual generator following Mothilal et al. (2020)"
 mutable struct DiCEGenerator <: AbstractGradientBasedGenerator
-    loss::Union{Nothing,Symbol} # loss function
-    complexity::Function # complexity function
-    λ::Union{AbstractFloat,AbstractVector} # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
-    opt::Flux.Optimise.AbstractOptimiser # learning rate
-    τ::AbstractFloat # tolerance for convergence
+    loss::Union{Nothing,Function}                       # loss function
+    complexity::Function                                # complexity function
+    λ::Union{AbstractFloat,AbstractVector}              # strength of penalty
+    decision_threshold::Union{Nothing,AbstractFloat}    # probability threshold
+    opt::Flux.Optimise.AbstractOptimiser                # learning rate
+    τ::AbstractFloat                                    # tolerance for convergence
 end
 
 # API streamlining:
@@ -18,13 +18,12 @@ end
 end
 
 """
-    DiCEGenerator(
-        ;
-        loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=LinearAlgebra.norm,
-        λ::AbstractFloat=0.1,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
-        τ::AbstractFloat=1e-5
+    DiCEGenerator(;
+        loss::Union{Nothing,Function}=nothing,
+        complexity::Function=norm,
+        λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+        decision_threshold=nothing,
+        kwargs...
     )
 
 An outer constructor method that instantiates a generic generator.
@@ -35,11 +34,11 @@ generator = DiCEGenerator()
 ```
 """
 function DiCEGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
-    decision_threshold = nothing,
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=nothing,
+    kwargs...
 )
     params = DiCEGeneratorParams(; kwargs...)
     DiCEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
@@ -49,10 +48,10 @@ end
 # With thanks to various respondents here: https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/3
 function ddp_diversity(
     counterfactual_explanation::AbstractCounterfactualExplanation;
-    perturbation_size = 1e-5,
+    perturbation_size=1e-5
 )
     X = counterfactual_explanation.s′
-    xs = eachslice(X, dims = ndims(X))
+    xs = eachslice(X, dims=ndims(X))
     K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
     K += Diagonal(randn(size(X, 3)) * perturbation_size)
     return det(K)

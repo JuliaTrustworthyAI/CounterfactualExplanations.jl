@@ -51,6 +51,8 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
+    println("loss: $(ℓ(generator, counterfactual_explanation))")
+    # println(∂ℓ(generator, M, counterfactual_explanation))
     ∂ℓ(generator, M, counterfactual_explanation) + ∂h(generator, counterfactual_explanation)
 end
 

@@ -32,7 +32,7 @@ function ℓ(
 )
 
     loss_fun =
-        !isnothing(generator.loss) ? getfield(Objectives, generator.loss) :
+        !isnothing(generator.loss) ? generator.loss :
         CounterfactualExplanations.guess_loss(counterfactual_explanation)
     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
     loss = loss_fun(counterfactual_explanation)

@@ -4,8 +4,9 @@ using LinearAlgebra
 using Parameters
 using Statistics
 
+"Class for Gravitational counterfactual generator following Altmeyer et al (2023)"
 mutable struct GravitationalGenerator <: AbstractGradientBasedGenerator
-    loss::Union{Nothing,Symbol} # loss function
+    loss::Union{Nothing,Function} # loss function
     complexity::Function # complexity function
     λ::Union{AbstractFloat,AbstractVector} # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat}
@@ -24,13 +25,12 @@ end
 end
 
 """
-    GravitationalGenerator(
-        ;
-        loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=norm,
-        λ::AbstractFloat=0.1,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
-        τ::AbstractFloat=1e-5
+    GravitationalGenerator(;
+        loss::Union{Nothing,Function} = nothing,
+        complexity::Function = norm,
+        λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
+        decision_threshold = nothing,
+        kwargs...,
     )
 
 An outer constructor method that instantiates a generic generator.
@@ -41,11 +41,11 @@ generator = GravitationalGenerator()
 ```
 """
 function GravitationalGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = norm,
-    λ::Union{AbstractFloat,AbstractVector} = [0.1, 1.0],
-    decision_threshold = nothing,
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=norm,
+    λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
+    decision_threshold=nothing,
+    kwargs...
 )
     params = GravitationalGeneratorParams(; kwargs...)
     GravitationalGenerator(
@@ -84,7 +84,7 @@ function Generators.h(
             generator.K,
         )
         neighbours = counterfactual_explanation.params[:potential_neighbours][:, ids]
-        generator.centroid = mean(neighbours, dims = 2)
+        generator.centroid = mean(neighbours, dims=2)
     end
 
     # Distance from gravitational center:

@@ -2,14 +2,14 @@ using Flux
 using LinearAlgebra
 using Parameters
 
-# -------- Wachter et al (2018): 
+"Class for Generic counterfactual generator following Wachter et al (2018)"
 mutable struct GenericGenerator <: AbstractGradientBasedGenerator
-    loss::Union{Nothing,Symbol} # loss function
-    complexity::Function # complexity function
-    λ::AbstractFloat # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
-    opt::Flux.Optimise.AbstractOptimiser # optimizer
-    τ::AbstractFloat # tolerance for convergence
+    loss::Union{Nothing,Function}                       # loss function
+    complexity::Function                                # complexity function
+    λ::AbstractFloat                                    # strength of penalty
+    decision_threshold::Union{Nothing,AbstractFloat}    # probability threshold
+    opt::Flux.Optimise.AbstractOptimiser                # optimizer
+    τ::AbstractFloat                                    # tolerance for convergence
 end
 
 # API streamlining:
@@ -19,13 +19,12 @@ end
 end
 
 """
-    GenericGenerator(
-        ;
-        loss::Symbol=:logitbinarycrossentropy,
+    GenericGenerator(;
+        loss::Union{Nothing,Function}=nothing,
         complexity::Function=LinearAlgebra.norm,
         λ::AbstractFloat=0.1,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
-        τ::AbstractFloat=1e-5
+        decision_threshold=0.5,
+        kwargs...
     )
 
 An outer constructor method that instantiates a generic generator.
@@ -36,11 +35,11 @@ generator = GenericGenerator()
 ```
 """
 function GenericGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = LinearAlgebra.norm,
-    λ::AbstractFloat = 0.1,
-    decision_threshold = 0.5,
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=LinearAlgebra.norm,
+    λ::AbstractFloat=0.1,
+    decision_threshold=0.5,
+    kwargs...
 )
     params = GenericGeneratorParams(; kwargs...)
     GenericGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)

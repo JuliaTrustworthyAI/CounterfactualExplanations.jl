@@ -1,9 +1,9 @@
 using LinearAlgebra
 using Parameters
 
-# -------- Joshi et al (2019): 
+"Class for Gravitational counterfactual generator following Joshi et al (2019)."
 mutable struct REVISEGenerator <: AbstractLatentSpaceGenerator
-    loss::Union{Nothing,Symbol} # loss function
+    loss::Union{Nothing,Function} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
@@ -18,13 +18,12 @@ end
 end
 
 """
-    REVISEGenerator(
-        ;
-        loss::Symbol=:logitbinarycrossentropy,
-        complexity::Function=LinearAlgebra.norm,
-        λ::AbstractFloat=0.1,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Optimise.Descent(),
-        τ::AbstractFloat=1e-5
+    REVISEGenerator(;
+        loss::Union{Nothing,Function} = nothing,
+        complexity::Function = LinearAlgebra.norm,
+        λ::AbstractFloat = 0.1,
+        decision_threshold = 0.5,
+        kwargs...,
     )
 
 An outer constructor method that instantiates a REVISE generator.
@@ -35,11 +34,11 @@ generator = REVISEGenerator()
 ```
 """
 function REVISEGenerator(;
-    loss::Union{Nothing,Symbol} = nothing,
-    complexity::Function = LinearAlgebra.norm,
-    λ::AbstractFloat = 0.1,
-    decision_threshold = 0.5,
-    kwargs...,
+    loss::Union{Nothing,Function}=nothing,
+    complexity::Function=LinearAlgebra.norm,
+    λ::AbstractFloat=0.1,
+    decision_threshold=0.5,
+    kwargs...
 )
     params = REVISEGeneratorParams(; kwargs...)
     REVISEGenerator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
