@@ -2,11 +2,11 @@ using LinearAlgebra
 using Statistics
 
 """
-    success_rate(counterfactual_explanation::CounterfactualExplanation; agg=mean)
+    validity(counterfactual_explanation::CounterfactualExplanation; agg=mean)
 
 Checks of the counterfactual search has been successful. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
-function success_rate(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+function validity(counterfactual_explanation::CounterfactualExplanation; agg = mean)
     agg(
         CounterfactualExplanations.target_probs(counterfactual_explanation) .>=
         counterfactual_explanation.params[:γ],
@@ -14,18 +14,18 @@ function success_rate(counterfactual_explanation::CounterfactualExplanation; agg
 end
 
 """
-    success_rate(
+    validity(
         counterfactual_explanations::Vector{CounterfactualExplanation};
         agg = mean,
     )
 
 Computes the proportion of successful counterfactuals acress a vector of counterfactual explanations.
 """
-function success_rate(
+function validity(
     counterfactual_explanations::Vector{CounterfactualExplanation};
     agg = mean,
 )
-    agg(success_rate.(counterfactual_explanations))
+    agg(validity.(counterfactual_explanations))
 end
 
 """

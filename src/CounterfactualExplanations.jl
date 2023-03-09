@@ -73,6 +73,5 @@ export generate_counterfactual
 
 include("benchmark/Benchmark.jl")
 using .Benchmark
-export benchmark
 
 end

@@ -25,6 +25,7 @@ Depth = 3
 ``` @autodocs
 Modules = [
     CounterfactualExplanations, 
+    CounterfactualExplanations.Benchmark,
     CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
     CounterfactualExplanations.Models, 
@@ -39,6 +40,7 @@ Private = false
 ``` @autodocs
 Modules = [
     CounterfactualExplanations, 
+    CounterfactualExplanations.Benchmark,
     CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
     CounterfactualExplanations.Models, 

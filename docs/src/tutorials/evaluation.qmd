@@ -1,0 +1,53 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Performance Evaluation
+
+Comparing the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators. 
+
+## Evaluating Counterfactual Explanations
+
+Numerous evaluation measures for counterfactual explanations have been proposed. One of the most important measures is [`validity`](@ref), which simply determines whether or not a counterfactual explanation $x^{\prime}$ is valid in the sense that it yields the target prediction: $M(x^{\prime})=t$. We can evaluate the validity of a single counterfactual explanation `ce` using the [`Benchmark.evaluate`](@ref) function as follows:
+
+```{julia}
+using CounterfactualExplanations.Benchmark: evaluate, validity
+evaluate(ce; measure=validity)
+```
+
+For a single counterfactual explanation, this evaluation measure can only take two values: it is either equal to `1`, if the explanation is valid or `0` otherwise. Another important measure is [`distance`](@ref), which relates to the distance between the factual $x$ and the counterfactual $x^{\prime}$. In the context of Algorithmic Recourse, higher distances are typically associated with higher costs to individuals seeking recourse. 
+
+```{julia}
+using CounterfactualExplanations.Benchmark: distance
+evaluate(ce; measure=distance)
+```
+
+If no `measure` is specified, the `evaluate` method will return all default measures:
+
+```{julia}
+CounterfactualExplanations.Benchmark.default_measures
+```
+
+We can also evaluate multiple counterfactual explanations at once:
+
+```{julia}
+generator = DiCEGenerator()
+ces = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+evaluate(ces)
+```
+
+By default, the computed evaluation measures are aggregated across all counterfactual explanations. To return individual measures for each counterfactual explanation you can specify `report_each=true`
+
+```{julia}
+evaluate(ces; report_each=true)
+```
+
+
+
+

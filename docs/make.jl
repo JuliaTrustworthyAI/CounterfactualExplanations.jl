@@ -29,6 +29,7 @@ makedocs(;
             "Data Catalogue" => "tutorials/data_catalogue.md",
             "Handling Models" => "tutorials/models.md",
             "Model Catalogue" => "tutorials/model_catalogue.md",
+            "Performance Evaluation" => "tutorials/evaluation.md",
         ],
         "🤓 Explanation" => [
             "Overview" => "explanation/index.md",
