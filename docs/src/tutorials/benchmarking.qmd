@@ -53,3 +53,7 @@ generators = Dict(
 ```{julia}
 benchmark(x, target, counterfactual_data; models=models, generators=generators)
 ```
+
+```{julia}
+benchmark(counterfactual_data)
+```

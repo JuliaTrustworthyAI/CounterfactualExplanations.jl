@@ -106,6 +106,8 @@ function evaluate(
             end
             df_meta.sample .= i
             evaluation = outerjoin(evaluation, df_meta, on=:sample)
+            evaluation.target .= ce.target
+            evaluation.factual .= CounterfactualExplanations.factual_label(ce)
         end
         evaluations = [evaluations..., evaluation]
     end
