@@ -1,5 +1,5 @@
 using CounterfactualExplanations
-using CounterfactualExplanations.Benchmark
+using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
@@ -80,7 +80,7 @@ for (key, generator_) ∈ generators
                                 ) == probs(M, x)
                             end
 
-                            @testset "Benchmark" begin
+                            @testset "Evaluation" begin
                                 @test isa(benchmark(counterfactual), DataFrame)
                                 @test isa(
                                     benchmark(counterfactuals; to_dataframe = false),

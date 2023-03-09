@@ -71,7 +71,7 @@ using .Data
 include("generate_counterfactual.jl")
 export generate_counterfactual
 
-include("benchmark/Benchmark.jl")
-using .Benchmark
+include("evaluation/Evaluation.jl")
+using .Evaluation
 
 end
