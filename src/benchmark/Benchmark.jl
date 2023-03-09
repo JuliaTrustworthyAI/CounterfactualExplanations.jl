@@ -8,10 +8,20 @@ export benchmark, evaluate, default_measures
 export validity, distance, redundancy
 
 include("measures.jl")
+
+"The default evaluation measures."
 const default_measures = [
     validity,
     distance,
     redundancy
+]
+
+"All distance measures."
+const distance_measures = [
+    distance_l0,
+    distance_l1,
+    distance_l2,
+    distance_linf
 ]
 
 """
