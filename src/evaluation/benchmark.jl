@@ -23,3 +23,46 @@ function benchmark(
     bmk = Benchmark(counterfactual_explanations, evaluations)
     return bmk
 end
+
+function benchmark(
+    x::Union{AbstractArray,Base.Iterators.Zip},
+    target::RawTargetType,
+    data::CounterfactualData;
+    models::Dict{<:Any, <:AbstractFittedModel},
+    generators::Dict{<:Any, <:AbstractGenerator},
+    measure::Union{Function,Vector{Function}}=default_measures,
+    kwrgs...
+)
+    # Counterfactual Search:
+    meta_data = Vector{Dict}()
+    ces = Vector{CounterfactualExplanation}()
+    for (model_name, model) in models, (gen_name, generator) in generators
+        ce = generate_counterfactual(x,target,data,model,generator; kwrgs...)
+        push!(ces, ce)
+        push!(meta_data, Dict(:model => model_name, :generator => gen_name))
+    end
+
+    # Performance Evaluation:
+    bmk = benchmark(ces; meta_data=meta_data, measure=measure)
+    return bmk
+end
+
+# function benchmark(
+#     data::CounterfactualData;
+#     models::Union{Nothing,Dict{<:Any,<:AbstractFittedModel}},
+#     generators::Dict{<:Any,<:AbstractGenerator},
+#     measure::Union{Function,Vector{Function}}=default_measures,
+#     n_individuals::Int=1,
+#     kwrgs...
+# )
+#     # Setup
+#     factual = rand(data.y_levels)
+#     target = rand(data.y_levels[data.y_levels .!= factual])
+#     chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
+#     x = select_factual(counterfactual_data,chosen)
+
+#     # Performance Evaluation:
+#     bmk = benchmark(x, target, ces; models=models, generators=generators, measure=measure, kwrgs...)
+
+#     return bmk
+# end

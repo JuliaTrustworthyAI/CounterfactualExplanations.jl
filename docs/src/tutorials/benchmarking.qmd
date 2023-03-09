@@ -29,8 +29,27 @@ benchmark(ces)
 meta_data = Dict(
     :generator => "Generic",
     :model => "MLP",
-    :data => "Simple Data",
 )
 meta_data = [meta_data for i in 1:length(ces)]
 benchmark(ces; meta_data=meta_data)
+```
+
+## Ad-hoc Benchmark
+
+```{julia}
+models = Dict(
+    :MLP => fit_model(counterfactual_data, :MLP),
+    :Linear => fit_model(counterfactual_data, :Linear),
+)
+```
+
+```{julia}
+generators = Dict(
+    :Generic => GenericGenerator(),
+    :Gravitational => GravitationalGenerator(),
+)
+```
+
+```{julia}
+benchmark(x, target, counterfactual_data; models=models, generators=generators)
 ```
