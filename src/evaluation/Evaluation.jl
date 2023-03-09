@@ -68,6 +68,7 @@ function evaluate(
         if pivot_longer
             evaluation = stack(evaluation, Not(:id))
         end
+        select!(evaluation, :id, :)
     end
 
     return evaluation
@@ -84,7 +85,7 @@ function evaluate(
         evaluations = [evaluations..., evaluation]
     end
     evaluations = reduce(vcat, evaluations)
-
+    select!(evaluations, :sample, :id, :)
     return evaluations
 
 end

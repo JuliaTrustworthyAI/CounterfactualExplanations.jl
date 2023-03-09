@@ -110,15 +110,22 @@ By default, data frames are pivoted to long format using individual counterfactu
 
 ## Multiple Counterfactual Explanations
 
-It may be necessary to generate counterfactual explanations for multiple individuals. Below, for example, we first select multiple samples from the non-target class and then generate counterfactual explanations for all of them. 
+It may be necessary to generate counterfactual explanations for multiple individuals. 
 
 ```{julia}
 #| echo: false
 n_individuals = 5
+Markdown.parse(
+    """
+    Below, for example, we first select multiple samples ($n_individuals) from the non-target class and then generate counterfactual explanations for all of them. 
+    """
+)
 ```
 
 ```{julia}
 # Factual and target:
 ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
 xs = select_factual(counterfactual_data, ids)
+ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
+evaluate(ces)
 ```
