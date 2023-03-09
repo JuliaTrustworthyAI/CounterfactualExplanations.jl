@@ -129,3 +129,5 @@ xs = select_factual(counterfactual_data, ids)
 ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
 evaluate(ces)
 ```
+
+This leads us to our next topic: Performance Benchmarks.

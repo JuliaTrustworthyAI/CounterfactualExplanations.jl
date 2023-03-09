@@ -26,11 +26,12 @@ const distance_measures = [
 
 """
     evaluate(
-        counterfactual_explanation::Union{
-            CounterfactualExplanation,
-            Vector{CounterfactualExplanation},
-        };
-        measure::Union{Function,Vector{Function}} = default_measures,
+        counterfactual_explanation::CounterfactualExplanation;
+        measure::Union{Function,Vector{Function}}=default_measures,
+        agg::Function=mean,
+        report_each::Bool=false,
+        output_format::Symbol=:Vector,
+        pivot_longer::Bool=true
     )
 
 Just computes evaluation `measures` for the counterfactual explanation.
@@ -47,7 +48,7 @@ function evaluate(
     @assert output_format ∈ [:Vector, :Dict, :DataFrame]
     measure = typeof(measure) <: Function ? [measure] : measure
     agg = report_each ? (x -> x) : agg
-    function _compute_measure(ce, fun) 
+    function _compute_measure(ce, fun)
         val = agg(fun(ce))
         val = ndims(val) > 1 ? vec(val) : [val]
         return val
@@ -58,7 +59,7 @@ function evaluate(
 
     # As Dict:
     if output_format == :Dict
-        evaluation = Dict(m => ndims(val) > 1 ? vec(val) : val for (m, val) in zip(Symbol.(measure), evaluation)) 
+        evaluation = Dict(m => ndims(val) > 1 ? vec(val) : val for (m, val) in zip(Symbol.(measure), evaluation))
     end
 
     # As DataFrame:
@@ -74,14 +75,38 @@ function evaluate(
     return evaluation
 end
 
+"""
+    evaluate(
+        counterfactual_explanations::Vector{CounterfactualExplanation};
+        report_meta::Bool=false,
+        meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
+        kwargs...
+    )
+
+Computes evaluation `measures` for a vector of counterfactual explanations. By default, no meta data is reported. For `report_meta=true`, meta data is automatically inferred, unless this overwritted by `meta_data`. The optional `meta_data` argument should be a vector of dictionaries of the same length as the vector of counterfactual explanations. 
+
+Additional `kwargs...` can be provided (see [`evaluate(counterfactual_explanation::CounterfactualExplanation`](@ref) for details).
+"""
 function evaluate(
     counterfactual_explanations::Vector{CounterfactualExplanation};
+    report_meta::Bool=false,
+    meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     kwargs...
 )
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
         evaluation = evaluate(ce; output_format=:DataFrame)
         evaluation.sample .= i
+        if report_meta || !isnothing(meta_data)
+            if !isnothing(meta_data)
+                @assert length(counterfactual_explanations) == length(meta_data)
+                df_meta = DataFrame(meta_data[i])
+            else
+                df_meta = DataFrame(CounterfactualExplanations.get_meta(ce))
+            end
+            df_meta.sample .= i
+            evaluation = outerjoin(evaluation, df_meta, on=:sample)
+        end
         evaluations = [evaluations..., evaluation]
     end
     evaluations = reduce(vcat, evaluations)
@@ -90,6 +115,6 @@ function evaluate(
 
 end
 
-    include("benchmark.jl")
+include("benchmark.jl")
 
 end

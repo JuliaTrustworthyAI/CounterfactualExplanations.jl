@@ -7,6 +7,7 @@ setup_docs = quote
     using CounterfactualExplanations: animate_path, counterfactual, counterfactual_label
     using CounterfactualExplanations.Data
     using CounterfactualExplanations.DataPreprocessing: unpack_data
+    using CounterfactualExplanations.Evaluation: benchmark
     using CounterfactualExplanations.Models
     using Flux
     using Flux.Optimise: update!, Adam

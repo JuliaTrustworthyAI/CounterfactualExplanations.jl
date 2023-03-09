@@ -11,3 +11,26 @@ eval(setup_docs)
 # Performance Benchmarks
 
 In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators. 
+
+## Post-hoc Benchmark
+
+```{julia}
+# Factual and target:
+ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
+xs = select_factual(counterfactual_data, ids)
+ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
+```
+
+```{julia}
+benchmark(ces)
+```
+
+```{julia}
+meta_data = Dict(
+    :generator => "Generic",
+    :model => "MLP",
+    :data => "Simple Data",
+)
+meta_data = [meta_data for i in 1:length(ces)]
+benchmark(ces; meta_data=meta_data)
+```
