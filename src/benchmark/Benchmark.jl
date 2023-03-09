@@ -34,11 +34,9 @@ function evaluate(
     agg::Function=mean,
     report_each::Bool=false,
 )
-    if typeof(measure) <: Function
-        measure = [measure]
-    end
+    measure = typeof(measure) <: Function ? [measure] : measure
     agg = report_each ? (x -> x) : agg
-    return [fun(counterfactual_explanation; agg=agg) for fun in measure]
+    return [agg(fun(counterfactual_explanation)) for fun in measure]
 end
 
 """

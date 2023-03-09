@@ -12,7 +12,7 @@ eval(setup_docs)
 
 Comparing the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators. 
 
-## Evaluating Counterfactual Explanations
+## Default Measures
 
 Numerous evaluation measures for counterfactual explanations have been proposed. One of the most important measures is [`validity`](@ref), which simply determines whether or not a counterfactual explanation $x^{\prime}$ is valid in the sense that it yields the target prediction: $M(x^{\prime})=t$. We can evaluate the validity of a single counterfactual explanation `ce` using the [`Benchmark.evaluate`](@ref) function as follows:
 
@@ -46,6 +46,15 @@ By default, the computed evaluation measures are aggregated across all counterfa
 
 ```{julia}
 evaluate(ces; report_each=true)
+```
+
+## Custom Measures
+
+A `measure` is just a method that takes a `CounterfactualExplanation` as its only positional argument. Defining custom measures is therefore straightforward. For example, we could defined the a measure to compute the inverse target probability as follows:
+
+```{julia}
+my_measure(ce::CounterfactualExplanation) = 1 .- CounterfactualExplanations.target_probs(ce)
+evaluate(ce; measure=my_measure)
 ```
 
 

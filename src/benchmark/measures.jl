@@ -2,80 +2,34 @@ using LinearAlgebra
 using Statistics
 
 """
-    validity(counterfactual_explanation::CounterfactualExplanation; agg=mean)
+    validity(counterfactual_explanation::CounterfactualExplanation)
 
 Checks of the counterfactual search has been successful. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
-function validity(counterfactual_explanation::CounterfactualExplanation; agg = mean)
-    agg(
-        CounterfactualExplanations.target_probs(counterfactual_explanation) .>=
-        counterfactual_explanation.params[:γ],
-    )
+function validity(counterfactual_explanation::CounterfactualExplanation)
+    CounterfactualExplanations.target_probs(counterfactual_explanation) .>= counterfactual_explanation.params[:γ]
 end
 
 """
-    validity(
-        counterfactual_explanations::Vector{CounterfactualExplanation};
-        agg = mean,
-    )
-
-Computes the proportion of successful counterfactuals acress a vector of counterfactual explanations.
-"""
-function validity(
-    counterfactual_explanations::Vector{CounterfactualExplanation};
-    agg = mean,
-)
-    agg(validity.(counterfactual_explanations))
-end
-
-"""
-    distance(counterfactual_explanation::CounterfactualExplanation; agg=mean)
+    distance(counterfactual_explanation::CounterfactualExplanation)
 
 Computes the Euclidean distance of the counterfactual to the original factual.
 """
-function distance(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+function distance(counterfactual_explanation::CounterfactualExplanation)
     x = CounterfactualExplanations.factual(counterfactual_explanation)
     x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
-    return agg(LinearAlgebra.norm.(x .- x′))
+    Δ = mapslices(_x -> LinearAlgebra.norm(_x .- x), x′, dims=[1, 2])
+    return Δ
 end
 
 """
-    distance(
-        counterfactual_explanations::Vector{CounterfactualExplanation};
-        agg=mean
-    )
-
-Computes the average Euclidean distance of multiple counterfactuals from their corresponding factuals.
-"""
-function distance(
-    counterfactual_explanations::Vector{CounterfactualExplanation};
-    agg = mean,
-)
-    agg(distance.(counterfactual_explanations))
-end
-
-"""
-    redundancy(counterfactual_explanation::CounterfactualExplanation; agg=mean)
+    redundancy(counterfactual_explanation::CounterfactualExplanation)
 
 Computes the feature redundancy: that is, the number of features that remain unchanged from their original, factual values.
 """
-function redundancy(counterfactual_explanation::CounterfactualExplanation; agg = mean)
+function redundancy(counterfactual_explanation::CounterfactualExplanation)
     x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
     redundant_x = mapslices(x -> sum(x .== 0) / size(x, 1), x′, dims = [1, 2])
-    return agg(redundant_x)
+    return redundant_x
 end
 
-"""
-    redundancy(
-        counterfactual_explanations::Vector{CounterfactualExplanation};
-        agg=mean
-    )
-
-Computes the average redundancy across multiple counterfactuals.
-"""
-function redundancy(
-    counterfactual_explanations::Vector{CounterfactualExplanation};
-    agg = mean,
-)
-    agg(redundancy.(counterfactual_explanations))
-end
