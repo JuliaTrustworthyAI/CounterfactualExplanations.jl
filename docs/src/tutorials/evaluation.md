@@ -30,8 +30,8 @@ using CounterfactualExplanations.Evaluation: distance
 evaluate(ce; measure=distance)
 ```
 
-    1-element Vector{Vector{Float64}}:
-     [0.7746574005639171]
+    1-element Vector{Vector{Float32}}:
+     [0.77465737]
 
 By default, `distance` computes the L2 (Euclidean) distance.
 
@@ -56,11 +56,11 @@ We can use this vector of evaluation measures as follows:
 evaluate(ce; measure=distance_measures)
 ```
 
-    4-element Vector{Vector{Float64}}:
+    4-element Vector{Vector{Float32}}:
      [2.0]
-     [1.0941725863975873]
-     [0.7746574005639171]
-     [0.5743559084917548]
+     [1.0941725]
+     [0.77465737]
+     [0.5743559]
 
 If no `measure` is specified, the `evaluate` method will return all default measures,
 
@@ -68,9 +68,9 @@ If no `measure` is specified, the `evaluate` method will return all default meas
 evaluate(ce)
 ```
 
-    3-element Vector{Vector{Float64}}:
+    3-element Vector{Vector}:
      [1.0]
-     [0.7746574005639171]
+     Float32[0.77465737]
      [0.0]
 
 which include:
@@ -94,9 +94,9 @@ ces = generate_counterfactual(x, target, counterfactual_data, M, generator; num_
 evaluate(ces)
 ```
 
-    3-element Vector{Vector{Float64}}:
+    3-element Vector{Vector}:
      [1.0]
-     [1.2301144669473314]
+     Float32[1.2271137]
      [0.0]
 
 By default, each evaluation measure is aggregated across all counterfactual explanations. To return individual measures for each counterfactual explanation you can specify `report_each=true`
@@ -107,7 +107,7 @@ evaluate(ces; report_each=true)
 
     3-element Vector{AbstractVector}:
      Bool[1, 1, 1, 1, 1]
-     [1.2569921340312415, 1.2264824140495325, 1.1942210044404975, 1.2486051151163093, 1.224271667099076]
+     Float32[1.2219326, 1.2272075, 1.2317328, 1.2253546, 1.2293411]
      [0.0, 0.0, 0.0, 0.0, 0.0]
 
 ## Custom Measures
@@ -119,8 +119,8 @@ my_measure(ce::CounterfactualExplanation) = 1 .- CounterfactualExplanations.targ
 evaluate(ce; measure=my_measure)
 ```
 
-    1-element Vector{Vector{Float64}}:
-     [0.3637938396750189]
+    1-element Vector{Vector{Float32}}:
+     [0.3637939]
 
 ## Tidy Output
 
@@ -133,7 +133,7 @@ evaluate(ces; output_format=:Dict, report_each=true)
     Dict{Symbol, AbstractVector} with 3 entries:
       :validity   => Bool[1, 1, 1, 1, 1]
       :redundancy => [0.0, 0.0, 0.0, 0.0, 0.0]
-      :distance   => [1.25699, 1.22648, 1.19422, 1.24861, 1.22427]
+      :distance   => Float32[1.22193, 1.22721, 1.23173, 1.22535, 1.22934]
 
 Secondly, to return the output as a data frame, specify `output_format=:DataFrame`.
 
@@ -142,3 +142,39 @@ evaluate(ces; output_format=:DataFrame, report_each=true)
 ```
 
 By default, data frames are pivoted to long format using individual counterfactuals as the `id` column. This behaviour can be suppressed by specifying `pivot_longer=false`.
+
+## Multiple Counterfactual Explanations
+
+It may be necessary to generate counterfactual explanations for multiple individuals.
+
+Below, for example, we first select multiple samples (5) from the non-target class and then generate counterfactual explanations for all of them.
+
+``` julia
+# Factual and target:
+ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
+xs = select_factual(counterfactual_data, ids)
+ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
+evaluation = evaluate(ces)
+```
+
+    15×4 DataFrame
+     Row │ sample  num_counterfactual  variable    value   
+         │ Int64   Int64               String      Float64 
+    ─────┼─────────────────────────────────────────────────
+       1 │      1                   1  distance    1.17712
+       2 │      1                   1  redundancy  0.0
+       3 │      1                   1  validity    1.0
+       4 │      2                   1  distance    1.13625
+       5 │      2                   1  redundancy  0.0
+       6 │      2                   1  validity    1.0
+       7 │      3                   1  distance    1.13287
+       8 │      3                   1  redundancy  0.0
+       9 │      3                   1  validity    1.0
+      10 │      4                   1  distance    1.09652
+      11 │      4                   1  redundancy  0.0
+      12 │      4                   1  validity    1.0
+      13 │      5                   1  distance    1.1731
+      14 │      5                   1  redundancy  0.0
+      15 │      5                   1  validity    1.0
+
+This leads us to our next topic: Performance Benchmarks.

@@ -35,11 +35,60 @@ For convenience, the `DataFrame` containing the evaluation can be returned by si
 bmk()
 ```
 
+    15×7 DataFrame
+     Row │ sample  variable    value     generator                          model  ⋯
+         │ Int64   String      Float64   Symbol                             Symbol ⋯
+    ─────┼──────────────────────────────────────────────────────────────────────────
+       1 │      1  distance    0.752493  GenericGenerator(nothing, Linear…  FluxMo ⋯
+       2 │      1  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
+       3 │      1  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
+       4 │      2  distance    0.733512  GenericGenerator(nothing, Linear…  FluxMo
+       5 │      2  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo ⋯
+       6 │      2  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
+       7 │      3  distance    0.727664  GenericGenerator(nothing, Linear…  FluxMo
+       8 │      3  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
+       9 │      3  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo ⋯
+      10 │      4  distance    0.598759  GenericGenerator(nothing, Linear…  FluxMo
+      11 │      4  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
+      12 │      4  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
+      13 │      5  distance    0.725115  GenericGenerator(nothing, Linear…  FluxMo ⋯
+      14 │      5  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
+      15 │      5  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
+                                                                   3 columns omitted
+
 To retrieve the granular dataset, simply do:
 
 ``` julia
 bmk(agg=nothing)
 ```
+
+    75×8 DataFrame
+     Row │ sample  num_counterfactual  variable    value     generator             ⋯
+         │ Int64   Int64               String      Float64   Symbol                ⋯
+    ─────┼──────────────────────────────────────────────────────────────────────────
+       1 │      1                   1  distance    0.74913   GenericGenerator(noth ⋯
+       2 │      1                   2  distance    0.758537  GenericGenerator(noth
+       3 │      1                   3  distance    0.760605  GenericGenerator(noth
+       4 │      1                   4  distance    0.76034   GenericGenerator(noth
+       5 │      1                   5  distance    0.733853  GenericGenerator(noth ⋯
+       6 │      1                   1  redundancy  0.0       GenericGenerator(noth
+       7 │      1                   2  redundancy  0.0       GenericGenerator(noth
+       8 │      1                   3  redundancy  0.0       GenericGenerator(noth
+       9 │      1                   4  redundancy  0.0       GenericGenerator(noth ⋯
+      10 │      1                   5  redundancy  0.0       GenericGenerator(noth
+      11 │      1                   1  validity    1.0       GenericGenerator(noth
+      ⋮  │   ⋮             ⋮               ⋮          ⋮                      ⋮     ⋱
+      66 │      5                   1  redundancy  0.0       GenericGenerator(noth
+      67 │      5                   2  redundancy  0.0       GenericGenerator(noth ⋯
+      68 │      5                   3  redundancy  0.0       GenericGenerator(noth
+      69 │      5                   4  redundancy  0.0       GenericGenerator(noth
+      70 │      5                   5  redundancy  0.0       GenericGenerator(noth
+      71 │      5                   1  validity    1.0       GenericGenerator(noth ⋯
+      72 │      5                   2  validity    1.0       GenericGenerator(noth
+      73 │      5                   3  validity    1.0       GenericGenerator(noth
+      74 │      5                   4  validity    1.0       GenericGenerator(noth
+      75 │      5                   5  validity    1.0       GenericGenerator(noth ⋯
+                                                       4 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
 
@@ -50,6 +99,16 @@ using Tidier
     @select(sample, variable, value)
 end
 ```
+
+    5×3 DataFrame
+     Row │ sample  variable  value    
+         │ Int64   String    Float64  
+    ─────┼────────────────────────────
+       1 │      1  distance  0.752493
+       2 │      2  distance  0.733512
+       3 │      3  distance  0.727664
+       4 │      4  distance  0.598759
+       5 │      5  distance  0.725115
 
 ### Metadata for Counterfactual Explanations
 
@@ -63,6 +122,17 @@ Benchmarks always report metadata for each counterfactual explanation, which is 
     @ungroup
 end
 ```
+
+    5×3 DataFrame
+     Row │ sample  model                              generator                    ⋯
+         │ Int64   Symbol                             Symbol                       ⋯
+    ─────┼──────────────────────────────────────────────────────────────────────────
+       1 │      1  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li ⋯
+       2 │      2  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
+       3 │      3  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
+       4 │      4  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
+       5 │      5  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li ⋯
+                                                                    1 column omitted
 
 Metadata can also be provided as an optional key argument.
 
@@ -80,6 +150,16 @@ bmk = benchmark(ces; meta_data=meta_data)
     @ungroup
 end
 ```
+
+    5×3 DataFrame
+     Row │ sample  model   generator 
+         │ Int64   String  String    
+    ─────┼───────────────────────────
+       1 │      1  MLP     Generic
+       2 │      2  MLP     Generic
+       3 │      3  MLP     Generic
+       4 │      4  MLP     Generic
+       5 │      5  MLP     Generic
 
 ## Ad Hoc Benchmarking
 
@@ -131,6 +211,15 @@ In this case, metadata is automatically inferred from the dictionaries:
 end
 ```
 
+    4×5 DataFrame
+     Row │ sample  variable  value     model   generator     
+         │ Int64   String    Float64   Symbol  Symbol        
+    ─────┼───────────────────────────────────────────────────
+       1 │      1  distance  1.25303   Linear  Gravitational
+       2 │      1  distance  0.713449  Linear  Generic
+       3 │      1  distance  1.21735   MLP     Gravitational
+       4 │      1  distance  0.966432  MLP     Generic
+
 ### Everything at once
 
 Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:
@@ -151,6 +240,34 @@ This will use the default models from [`model_catalogue`](@ref) and train them o
     @select(sample, variable, value, model, generator)
 end
 ```
+
+    90×5 DataFrame
+     Row │ sample  variable  value    model   generator     
+         │ Int64   String    Float64  Symbol  Symbol        
+    ─────┼──────────────────────────────────────────────────
+       1 │      1  validity      1.0  Linear  gravitational
+       2 │      2  validity      1.0  Linear  gravitational
+       3 │      3  validity      1.0  Linear  gravitational
+       4 │      4  validity      1.0  Linear  gravitational
+       5 │      5  validity      1.0  Linear  gravitational
+       6 │      1  validity      1.0  Linear  revise
+       7 │      2  validity      1.0  Linear  revise
+       8 │      3  validity      1.0  Linear  revise
+       9 │      4  validity      1.0  Linear  revise
+      10 │      5  validity      1.0  Linear  revise
+      11 │      1  validity      1.0  Linear  dice
+      ⋮  │   ⋮        ⋮         ⋮       ⋮           ⋮
+      81 │     11  validity      1.0  MLP     greedy
+      82 │     12  validity      1.0  MLP     greedy
+      83 │     13  validity      1.0  MLP     greedy
+      84 │     14  validity      1.0  MLP     greedy
+      85 │     15  validity      1.0  MLP     greedy
+      86 │     11  validity      1.0  MLP     claproar
+      87 │     12  validity      1.0  MLP     claproar
+      88 │     13  validity      1.0  MLP     claproar
+      89 │     14  validity      1.0  MLP     claproar
+      90 │     15  validity      1.0  MLP     claproar
+                                             69 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
@@ -209,3 +326,12 @@ When `ids` are supplied, then a new id column is added to the evaluation data fr
     @ungroup
 end
 ```
+
+    4×3 DataFrame
+     Row │ dataset  generator  L1_norm  
+         │ Symbol   Symbol     Float32  
+    ─────┼──────────────────────────────
+       1 │ circles  Generic    0.835715
+       2 │ circles  Greedy     0.472852
+       3 │ moons    Generic    0.863226
+       4 │ moons    Greedy     0.704552

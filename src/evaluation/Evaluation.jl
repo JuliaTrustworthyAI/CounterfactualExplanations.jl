@@ -4,7 +4,7 @@ using ..CounterfactualExplanations
 using DataFrames
 using Statistics
 
-export benchmark, evaluate, default_measures
+export Benchmark, benchmark, evaluate, default_measures
 export validity, distance, redundancy
 
 include("measures.jl")

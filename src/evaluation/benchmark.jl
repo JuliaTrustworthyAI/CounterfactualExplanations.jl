@@ -2,6 +2,7 @@ using DataFrames
 using Statistics
 using ..Models: train
 
+"A container for benchmarks of counterfactual explations."
 struct Benchmark
     counterfactual_explanations::Vector{CounterfactualExplanation}
     evaluation::DataFrame

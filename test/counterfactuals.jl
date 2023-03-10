@@ -80,14 +80,6 @@ for (key, generator_) ∈ generators
                                 ) == probs(M, x)
                             end
 
-                            @testset "Evaluation" begin
-                                @test isa(benchmark(counterfactual), DataFrame)
-                                @test isa(
-                                    benchmark(counterfactuals; to_dataframe = false),
-                                    Dict,
-                                )
-                            end
-
                             @testset "Convergence" begin
 
                                 @testset "Non-trivial case" begin

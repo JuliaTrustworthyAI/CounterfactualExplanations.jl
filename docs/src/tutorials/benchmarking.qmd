@@ -37,6 +37,7 @@ You may be interested in comparing the outcomes across individuals. To benchmark
 
 ```{julia}
 #| output: false
+
 bmk = benchmark(ces)
 ```
 
@@ -50,10 +51,22 @@ For convenience, the `DataFrame` containing the evaluation can be returned by si
 bmk()
 ```
 
+```{julia}
+#| echo: false
+
+show(ans)
+```
+
 To retrieve the granular dataset, simply do:
 
 ```{julia}
 bmk(agg=nothing)
+```
+
+```{julia}
+#| echo: false
+
+show(ans)
 ```
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
@@ -64,6 +77,12 @@ using Tidier
     @filter(variable == "distance")
     @select(sample, variable, value)
 end
+```
+
+```{julia}
+#| echo: false
+
+show(ans)
 ```
 
 ### Metadata for Counterfactual Explanations
@@ -77,6 +96,12 @@ Benchmarks always report metadata for each counterfactual explanation, which is 
     @summarize(model=unique(model),generator=unique(generator))
     @ungroup
 end
+```
+
+```{julia}
+#| echo: false
+
+show(ans)
 ```
 
 Metadata can also be provided as an optional key argument.
@@ -94,6 +119,12 @@ bmk = benchmark(ces; meta_data=meta_data)
     @summarize(model=unique(model),generator=unique(generator))
     @ungroup
 end
+```
+
+```{julia}
+#| echo: false
+
+show(ans)
 ```
 
 ## Ad Hoc Benchmarking
@@ -152,6 +183,12 @@ In this case, metadata is automatically inferred from the dictionaries:
 end
 ```
 
+```{julia}
+#| echo: false
+
+show(ans)
+```
+
 ### Everything at once
 
 Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:
@@ -175,9 +212,16 @@ This will use the default models from [`model_catalogue`](@ref) and train them o
 end
 ```
 
+```{julia}
+#| echo: false
+
+show(ans)
+```
+
+
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
-a. Either be an object `M` of type [`<:AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
+a. Either be an object `M` of type [`AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
 b. Or a `DataType` that can be called on [`CounterfactualData`](@ref) to create an object `M` as in (a).
 
 ## Multiple Datasets
@@ -235,4 +279,10 @@ When `ids` are supplied, then a new id column is added to the evaluation data fr
     @summarize(L1_norm=mean(value))
     @ungroup
 end
+```
+
+```{julia}
+#| echo: false
+
+show(ans)
 ```

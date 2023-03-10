@@ -72,6 +72,7 @@ end
 
 include("gradient_based/functions.jl")
 
+"A dictionary countaining the contructors of all available counterfactual generators."
 generator_catalogue = Dict(
     :claproar => Generators.ClaPROARGenerator,
     :generic => Generators.GenericGenerator,
