@@ -7,6 +7,10 @@ CurrentModule = CounterfactualExplanations
 
 Documentation for [CounterfactualExplanations.jl](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl).
 
+*Counterfactual Explanations and Algorithmic Recourse in Julia.*
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
+
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
 
 ## 🚩 Installation
