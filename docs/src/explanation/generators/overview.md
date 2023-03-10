@@ -5,10 +5,10 @@ CurrentModule = CounterfactualExplanations
 
 # Counterfactual Generators
 
-Counterfactual generators form the very core of this package. The [`generator_catalog`](@ref) can be used to inspect the available generators:
+Counterfactual generators form the very core of this package. The [`generator_catalogue`](@ref) can be used to inspect the available generators:
 
 ``` julia
-generator_catalog
+generator_catalogue
 ```
 
     Dict{Symbol, DataType} with 6 entries:

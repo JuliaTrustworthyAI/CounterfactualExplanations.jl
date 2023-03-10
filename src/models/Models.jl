@@ -5,7 +5,7 @@ using ..DataPreprocessing
 using Parameters
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 

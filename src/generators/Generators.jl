@@ -17,7 +17,7 @@ export GravitationalGenerator, GravitationalGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
-export generator_catalog
+export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
 
 """
@@ -72,7 +72,7 @@ end
 
 include("gradient_based/functions.jl")
 
-generator_catalog = Dict(
+generator_catalogue = Dict(
     :claproar => Generators.ClaPROARGenerator,
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,

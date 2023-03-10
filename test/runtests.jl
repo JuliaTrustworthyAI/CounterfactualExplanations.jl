@@ -16,7 +16,7 @@ include("utils.jl")
 
 # Load synthetic data, models, generators
 synthetic = _load_synthetic()
-generators = generator_catalog
+generators = generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
 
@@ -46,6 +46,10 @@ generators = generator_catalog
 
     @testset "Plotting" begin
         include("plotting.jl")
+    end
+
+    @testset "Evaluation" begin
+        include("evaluation.jl")
     end
 
 end

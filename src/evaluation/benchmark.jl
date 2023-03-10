@@ -26,8 +26,13 @@ end
 
 Vertically concatenates two `Benchmark` objects.
 """
-function Base.vcat(bmk1::Benchmark, bmk2::Benchmark)
+function Base.vcat(bmk1::Benchmark, bmk2::Benchmark; ids::Union{Nothing,AbstractArray}=nothing, idcol_name="dataset")
+    @assert isnothing(ids) || length(ids) == 2
     ces = vcat(bmk1.counterfactual_explanations, bmk2.counterfactual_explanations)
+    if !isnothing(ids)
+        bmk1.evaluation[!,idcol_name] .= ids[1]
+        bmk2.evaluation[!,idcol_name] .= ids[2]
+    end
     evaluation = vcat(bmk1.evaluation, bmk2.evaluation)
     bmk = Benchmark(ces, evaluation)
     return bmk
@@ -136,16 +141,21 @@ function benchmark(
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
+    suppress_training::Bool=false,
     kwrgs...
 )
     # Setup
     factual = rand(data.y_levels)
     target = rand(data.y_levels[data.y_levels.!=factual])
-    if !(typeof(models) <: Dict{<:Any,<:AbstractFittedModel})
+    if !suppress_training
         @info "Training models on data."
-        models = Dict(key => train(model(data),data) for (key, model) in models)
+        if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
+            models = Dict(key => train(model,data) for (key, model) in models)
+        else
+            models = Dict(key => train(model(data),data) for (key, model) in models)
+        end
     end
-    generators = isnothing(generators) ? Dict(key => gen() for (key, gen) in generator_catalog) : generators
+    generators = isnothing(generators) ? Dict(key => gen() for (key, gen) in generator_catalogue) : generators
 
     # Performance Evaluation:
     bmk = Vector{Benchmark}()

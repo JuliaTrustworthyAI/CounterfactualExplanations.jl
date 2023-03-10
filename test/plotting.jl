@@ -1,7 +1,7 @@
 using MLUtils
 using Plots
 
-generator = generator_catalog[:generic]()
+generator = generator_catalogue[:generic]()
 
 
 
