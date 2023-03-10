@@ -146,8 +146,11 @@ It involves calling `benchmark` directly on counterfactual data.
 
 ```{julia}
 bmk = benchmark(counterfactual_data)
+```
+
+```{julia}
 @chain bmk() begin
-    @filter(variable == "distance")
+    @filter(variable == "validity")
     @select(sample, variable, value, model, generator)
 end
 ```
