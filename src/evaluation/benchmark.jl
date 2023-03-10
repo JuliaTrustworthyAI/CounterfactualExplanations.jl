@@ -6,15 +6,12 @@ struct Benchmark
     evaluation::DataFrame
 end
 
-"On call, the `Benchmark` returns the evaluation."
-(bmk::Benchmark)() = bmk.evaluation
-
 """
     (bmk::Benchmark)(; agg=mean)
 
 Returns a `DataFrame` containing evaluation measures aggregated by `id`.
 """
-function (bmk::Benchmark)(;agg::Union{Nothing,Function}=nothing)
+function (bmk::Benchmark)(;agg::Union{Nothing,Function}=mean)
     df = bmk.evaluation
     if !isnothing(agg)
         df = combine(groupby(df, Not([:id, :value])), :value => agg => :value)

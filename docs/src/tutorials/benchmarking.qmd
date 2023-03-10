@@ -34,23 +34,23 @@ Under the hood, the [`benchmark(counterfactual_explanations::Vector{Counterfactu
 
 ### Working with `Benchmark`s
 
-For convenience, the `DataFrame` containing the evaluation can be returned by simply calling the `Benchmark` object:
+For convenience, the `DataFrame` containing the evaluation can be returned by simply calling the `Benchmark` object. By default, the aggregated evaluation measures across `id` (in line with the default behaviour of `evaluate`).
 
 ```{julia}
 bmk()
 ```
 
-To return the aggregated evaluation measures across `id` (the default behaviour of `evaluate`), simply do:
+To retrieve the granular dataset, simply do:
 
 ```{julia}
-bmk(agg=mean)
+bmk(agg=nothing)
 ```
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
 
 ```{julia}
 using Tidier
-@chain bmk(agg=mean) begin
+@chain bmk() begin
     @filter(variable == "distance")
     @select(sample, variable, value)
 end
@@ -61,7 +61,7 @@ end
 Benchmarks always report metadata for each counterfactual explanation, which is automatically inferred by default. The default metadata concerns the explained `model` and the employed `generator`. In the current example, we used the same model and generator for each individual:
 
 ```{julia}
-@chain bmk(agg=mean) begin
+@chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
     @summarize(model=unique(model),generator=unique(generator))
@@ -78,7 +78,7 @@ meta_data = Dict(
 )
 meta_data = [meta_data for i in 1:length(ces)]
 bmk = benchmark(ces; meta_data=meta_data)
-@chain bmk(agg=mean) begin
+@chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
     @summarize(model=unique(model),generator=unique(generator))
@@ -100,10 +100,10 @@ In many cases, it may be preferable to combine these steps. To this end, we have
 
 In the first scenario, it is assumed that the machine learning models have been pre-trained and so the workflow can be summarized as follows:
 
-1. Fit some machine learning model.
+1. Fit some machine learning model(s).
 2. Generate counterfactual explanations and benchmark them. 
 
-We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let's go through this workflow using a simple example. We firstly train some models and store them in a dictionary:
+We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let's go through this workflow using a simple example. We first train some models and store them in a dictionary:
 
 ```{julia}
 models = Dict(
@@ -124,11 +124,13 @@ generators = Dict(
 Then we can run a benchmark for individual(s) `x`, a pre-specified `target` and `counterfactual_data` as follows:
 
 ```{julia}
-benchmark(x, target, counterfactual_data; models=models, generators=generators)
+bmk = benchmark(x, target, counterfactual_data; models=models, generators=generators)
 ```
 
+In this case, metadata is automatically inferred from the dictionaries:
+
 ```{julia}
-@chain bmk(agg=mean) begin
+@chain bmk() begin
     @filter(variable == "distance")
     @select(sample, variable, value, model, generator)
 end
@@ -136,8 +138,17 @@ end
 
 ### Everything at once
 
-Finally, 
+Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:
+
+1. Fit some machine learning model(s), generate counterfactual explanations and benchmark them. 
+
+It involves calling `benchmark` directly on counterfactual data. 
 
 ```{julia}
-benchmark(counterfactual_data)
+bmk = benchmark(counterfactual_data)
+@chain bmk() begin
+    @filter(variable == "distance")
+    @select(sample, variable, value, model, generator)
+end
 ```
+
