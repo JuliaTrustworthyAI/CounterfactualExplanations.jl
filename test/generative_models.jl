@@ -5,7 +5,7 @@ M = synthetic[:classification_binary][:models][:MLP][:model]
 counterfactual_data = synthetic[:classification_binary][:data]
 X = counterfactual_data.X
 ys = counterfactual_data.y
-generator = generator_catalog[:revise]()
+generator = generator_catalogue[:revise]()
 
 # Coutnerfactual search
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))

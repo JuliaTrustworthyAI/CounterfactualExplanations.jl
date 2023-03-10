@@ -84,6 +84,7 @@ function generate_perturbations(
     Δs′ = new_s′ - s′                                           # gradient step
     Δs′ = _replace_nans(Δs′)
     Δs′ *= counterfactual_explanation.num_counterfactuals       # rescale to account for number of counterfactuals
+    Δs′ = convert.(eltype(counterfactual_explanation.x), Δs′)
 
     return Δs′
 end

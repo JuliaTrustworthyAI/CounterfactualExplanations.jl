@@ -1,5 +1,5 @@
 using CounterfactualExplanations
-using CounterfactualExplanations.Benchmark
+using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
@@ -78,14 +78,6 @@ for (key, generator_) ∈ generators
                                 @test CounterfactualExplanations.factual_probability(
                                     counterfactual,
                                 ) == probs(M, x)
-                            end
-
-                            @testset "Benchmark" begin
-                                @test isa(benchmark(counterfactual), DataFrame)
-                                @test isa(
-                                    benchmark(counterfactuals; to_dataframe = false),
-                                    Dict,
-                                )
                             end
 
                             @testset "Convergence" begin

@@ -10,11 +10,11 @@ eval(setup_docs)
 
 # Counterfactual Generators
 
-Counterfactual generators form the very core of this package. The [`generator_catalog`](@ref) can be used to inspect the available generators:
+Counterfactual generators form the very core of this package. The [`generator_catalogue`](@ref) can be used to inspect the available generators:
 
 ```{julia}
 #| output: true
-generator_catalog
+generator_catalogue
 ```
 
 The following sections provide brief descriptions of all of them.

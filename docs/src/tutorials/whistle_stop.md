@@ -49,7 +49,7 @@ The code below runs the counterfactual search for each generator available in th
 ces = Dict()
 plts = []
 # Search:
-for (key, Generator) in generator_catalog
+for (key, Generator) in generator_catalogue
     generator = Generator(; 
         opt=opt, 
         decision_threshold=decision_threshold
