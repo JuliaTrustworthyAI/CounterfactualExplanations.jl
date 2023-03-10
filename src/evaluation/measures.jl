@@ -2,13 +2,20 @@ using LinearAlgebra
 using Statistics
 
 """
-    validity(counterfactual_explanation::CounterfactualExplanation)
+    validity(counterfactual_explanation::CounterfactualExplanation; γ=0.5)
 
-Checks of the counterfactual search has been successful. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
+Checks of the counterfactual search has been successful with respect to the probability treshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
-function validity(counterfactual_explanation::CounterfactualExplanation)
-    CounterfactualExplanations.target_probs(counterfactual_explanation) .>= counterfactual_explanation.params[:γ]
+function validity(counterfactual_explanation::CounterfactualExplanation; γ=0.5)
+    CounterfactualExplanations.target_probs(counterfactual_explanation) .>= γ
 end
+
+"""
+    validity_strict(counterfactual_explanation::CounterfactualExplanation)
+
+Checks if the counterfactual search has been strictly valid in the sense that it has converged with respect to the pre-specified target probability `γ`.
+"""
+validity_strict(counterfactual_explanation::CounterfactualExplanation) = validity(counterfactual_explanation; γ=counterfactual_explanation.params[:γ])
 
 """
     distance(counterfactual_explanation::CounterfactualExplanation, p::Real=2)

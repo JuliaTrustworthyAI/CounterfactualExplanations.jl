@@ -65,11 +65,11 @@ function evaluate(
     # As DataFrame:
     if output_format == :DataFrame
         evaluation = Dict(m => ndims(val) > 1 ? vec(val) : val for (m, val) in zip(Symbol.(measure), evaluation)) |> DataFrame
-        evaluation.id = 1:nrow(evaluation)
+        evaluation.num_counterfactual = 1:nrow(evaluation)
         if pivot_longer
-            evaluation = stack(evaluation, Not(:id))
+            evaluation = stack(evaluation, Not(:num_counterfactual))
         end
-        select!(evaluation, :id, :)
+        select!(evaluation, :num_counterfactual, :)
     end
 
     return evaluation
@@ -96,7 +96,6 @@ function evaluate(
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
         evaluation = evaluate(ce; output_format=:DataFrame, kwargs...)
-        evaluation.sample .= i
         if report_meta || !isnothing(meta_data)
             if !isnothing(meta_data)
                 @assert length(counterfactual_explanations) == length(meta_data)
@@ -104,15 +103,20 @@ function evaluate(
             else
                 df_meta = DataFrame(CounterfactualExplanations.get_meta(ce))
             end
-            df_meta.sample .= i
-            evaluation = outerjoin(evaluation, df_meta, on=:sample)
+            if !("sample" ∈ names(df_meta)) 
+                df_meta.sample .= i
+            end
+            evaluation = crossjoin(evaluation, df_meta, makeunique=true)
             evaluation.target .= ce.target
             evaluation.factual .= CounterfactualExplanations.factual_label(ce)
+        end
+        if !("sample" ∈ names(evaluation)) 
+            evaluation.sample .= i
         end
         evaluations = [evaluations..., evaluation]
     end
     evaluations = reduce(vcat, evaluations)
-    select!(evaluations, :sample, :id, :)
+    select!(evaluations, :sample, :num_counterfactual, :)
     return evaluations
 
 end

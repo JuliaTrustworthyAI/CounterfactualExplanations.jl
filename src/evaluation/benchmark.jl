@@ -10,12 +10,12 @@ end
 """
     (bmk::Benchmark)(; agg=mean)
 
-Returns a `DataFrame` containing evaluation measures aggregated by `id`.
+Returns a `DataFrame` containing evaluation measures aggregated by `num_counterfactual`.
 """
 function (bmk::Benchmark)(;agg::Union{Nothing,Function}=mean)
     df = bmk.evaluation
     if !isnothing(agg)
-        df = combine(groupby(df, Not([:id, :value])), :value => agg => :value)
+        df = combine(groupby(df, Not([:num_counterfactual, :value])), :value => agg => :value)
         select!(df, :sample, :variable, :value, :)
     end
     return df
@@ -80,17 +80,30 @@ function benchmark(
     models::Dict{<:Any,<:AbstractFittedModel},
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
+    xids::Union{Nothing,AbstractArray}=nothing,
     kwrgs...
 )
+
+    @assert isnothing(xids) || length(xids) == length(x)
+
     # Counterfactual Search:
     meta_data = Vector{Dict}()
     ces = Vector{CounterfactualExplanation}()
-    for (model_name, model) in models, (gen_name, generator) in generators
-        _ces = generate_counterfactual(x, target, data, model, generator; kwrgs...)
-        _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
-        push!(ces, _ces...)
-        _meta_data = [Dict(:model => model_name, :generator => gen_name) for i in eachindex(_ces)]
-        push!(meta_data, _meta_data...)
+    for (_sample, kv_pair) in enumerate(models)
+        model_name = kv_pair[1]
+        model = kv_pair[2]
+        _sample = _sample * length(generators) - length(generators) + 1
+        for (gen_name, generator) in generators
+            _ces = generate_counterfactual(x, target, data, model, generator; kwrgs...)
+            _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
+            push!(ces, _ces...)
+            _meta_data = map(eachindex(_ces)) do i 
+                sample_id = isnothing(xids) ? i : xids[i]
+                Dict(:model => model_name, :generator => gen_name, :sample => sample_id) 
+            end
+            push!(meta_data, _meta_data...)
+            _sample += 1
+        end
     end
 
     # Performance Evaluation:
@@ -136,11 +149,14 @@ function benchmark(
 
     # Performance Evaluation:
     bmk = Vector{Benchmark}()
-    for (key, M) in models
+    for (i, kv) in enumerate(models)
+        key = kv[1]
+        M = kv[2]
         chosen = rand(findall(predict_label(M, data) .== factual), n_individuals)
-        x = select_factual(data, chosen)
+        xs = select_factual(data, chosen)
         _models = Dict(key => M)
-        _bmk = benchmark(x, target, data; models=_models, generators=generators, measure=measure, kwrgs...)
+        xids = (i - 1) * n_individuals .+ collect(1:n_individuals) # unique ids for samples
+        _bmk = benchmark(xs, target, data; models=_models, generators=generators, measure=measure, xids=xids, kwrgs...)
         push!(bmk, _bmk)
     end
     bmk = reduce(vcat, bmk)
