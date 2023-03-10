@@ -59,4 +59,7 @@ makedocs(;
     ]
 )
 
-deploydocs(; repo = "github.com/juliatrustworthyai/CounterfactualExplanations.jl.git")
+deploydocs(; 
+    repo = "github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl", 
+    devbranch = "main"
+)

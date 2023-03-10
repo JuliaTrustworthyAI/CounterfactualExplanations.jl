@@ -60,14 +60,14 @@ The counterfactual was produced using REVISE (Joshi et al. 2019):
 # Define generator:
 generator = REVISEGenerator(
   opt = Descent(0.1),
-  decision_threshold = 0.95,
-  λ = 0.01
+  decision_threshold = 0.99,
+  λ = 0.001
 )
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
-![](README_files/figure-commonmark/cell-10-output-1.svg)
+![](README_files/figure-commonmark/cell-11-output-1.svg)
 
 ## 🔍 Usage example
 

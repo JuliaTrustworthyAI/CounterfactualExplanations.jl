@@ -192,6 +192,12 @@ counterfactual_data.generative_model = vae # assign generative model
 
 ```{julia}
 #| echo: false
+
+Random.seed!(12345)
+```
+
+```{julia}
+#| echo: false
 factual_label = 9
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
 target = 4
@@ -215,8 +221,8 @@ The counterfactual was produced using REVISE [@joshi2019realistic]:
 # Define generator:
 generator = REVISEGenerator(
   opt = Descent(0.1),
-  decision_threshold = 0.95,
-  λ = 0.01
+  decision_threshold = 0.99,
+  λ = 0.001
 )
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
