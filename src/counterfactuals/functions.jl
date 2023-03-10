@@ -52,6 +52,9 @@ function CounterfactualExplanation(;
     generative_model_params::NamedTuple=(;)
 )
 
+    # Assertions:
+    @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
+
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
 

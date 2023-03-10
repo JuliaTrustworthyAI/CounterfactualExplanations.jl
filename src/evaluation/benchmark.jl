@@ -1,5 +1,6 @@
 using DataFrames
 using Statistics
+using ..Models: train
 
 struct Benchmark
     counterfactual_explanations::Vector{CounterfactualExplanation}
@@ -129,7 +130,7 @@ function benchmark(
     target = rand(data.y_levels[data.y_levels.!=factual])
     if !(typeof(models) <: Dict{<:Any,<:AbstractFittedModel})
         @info "Training models on data."
-        models = Dict(key => model(data) for (key, model) in models)
+        models = Dict(key => train(model(data),data) for (key, model) in models)
     end
     generators = isnothing(generators) ? Dict(key => gen() for (key, gen) in generator_catalog) : generators
 
