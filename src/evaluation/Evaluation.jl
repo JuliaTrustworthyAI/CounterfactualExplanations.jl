@@ -95,7 +95,7 @@ function evaluate(
 )
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
-        evaluation = evaluate(ce; output_format=:DataFrame)
+        evaluation = evaluate(ce; output_format=:DataFrame, kwargs...)
         evaluation.sample .= i
         if report_meta || !isnothing(meta_data)
             if !isnothing(meta_data)

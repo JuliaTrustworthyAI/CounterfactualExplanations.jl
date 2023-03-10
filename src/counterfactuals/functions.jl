@@ -414,10 +414,10 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if counterfactual_explanation.initialization == :add_perturbation
         s′ = SliceMap.slicemap(s′, dims=(1, 2)) do s
-            Δs′ = randn(size(s, 1)) * 0.1
+            Δs′ = randn(eltype(s), size(s, 1)) * convert(eltype(s), 0.1)
             Δs′ = apply_mutability(counterfactual_explanation, Δs′)
             s .+ Δs′
-        end
+        end 
     end
 
     return s′

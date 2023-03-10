@@ -12,18 +12,64 @@ eval(setup_docs)
 
 In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators. 
 
-## Post-hoc Benchmark
+## Post Hoc Benchmarking
+
+We begin by continuing the discussion from the previous tutorial: suppose you have generated multiple counterfactual explanations for multiple individuals, like below:
 
 ```{julia}
 # Factual and target:
+n_individuals = 5
 ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
 xs = select_factual(counterfactual_data, ids)
 ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
 ```
 
+You may be interested in comparing the outcomes across individuals. To benchmark the various counterfactual explanations using default evaluation measures, you can simply proceed as follows:
+
 ```{julia}
-benchmark(ces)
+bmk = benchmark(ces)
 ```
+
+Under the hood, the [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) uses [`evaluate(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) to generate a [`Benchmark`](@ref) object, which contains the evaluation in its most granular form as a `DataFrame`.
+
+### Working with `Benchmark`s
+
+For convenience, the `DataFrame` containing the evaluation can be returned by simply calling the `Benchmark` object:
+
+```{julia}
+bmk()
+```
+
+To return the aggregated evaluation measures across `id` (the default behaviour of `evaluate`), simply do:
+
+```{julia}
+bmk(agg=mean)
+```
+
+Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
+
+```{julia}
+using Tidier
+@chain bmk(agg=mean) begin
+    @filter(variable == "distance")
+    @select(sample, variable, value)
+end
+```
+
+### Metadata for Counterfactual Explanations
+
+Benchmarks always report metadata for each counterfactual explanation, which is automatically inferred by default. The default metadata concerns the explained `model` and the employed `generator`. In the current example, we used the same model and generator for each individual:
+
+```{julia}
+@chain bmk(agg=mean) begin
+    @group_by(sample)
+    @select(sample, model, generator)
+    @summarize(model=unique(model),generator=unique(generator))
+    @ungroup
+end
+```
+
+Metadata can also be provided as an optional key argument.
 
 ```{julia}
 meta_data = Dict(
@@ -31,10 +77,33 @@ meta_data = Dict(
     :model => "MLP",
 )
 meta_data = [meta_data for i in 1:length(ces)]
-benchmark(ces; meta_data=meta_data)
+bmk = benchmark(ces; meta_data=meta_data)
+@chain bmk(agg=mean) begin
+    @group_by(sample)
+    @select(sample, model, generator)
+    @summarize(model=unique(model),generator=unique(generator))
+    @ungroup
+end
 ```
 
-## Ad-hoc Benchmark
+## Ad Hoc Benchmarking
+
+So far we have assumed the following workflow:
+
+1. Fit some machine learning model.
+2. Generate counterfactual explanations for some individual(s) (`generate_counterfactual`).
+3. Evaluate and benchmark them (`benchmark(ces::Vector{CounterfactualExplanation})`).
+
+In many cases, it may be preferable to combine these steps. To this end, we have added support for two scenarios of Ad Hoc Benchmarking.
+
+### Pre-trained Models
+
+In the first scenario, it is assumed that the machine learning models have been pre-trained and so the workflow can be summarized as follows:
+
+1. Fit some machine learning model.
+2. Generate counterfactual explanations and benchmark them. 
+
+We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let's go through this workflow using a simple example. We firstly train some models and store them in a dictionary:
 
 ```{julia}
 models = Dict(
@@ -43,6 +112,8 @@ models = Dict(
 )
 ```
 
+Next, we store the counterfactual generators of interest in a dictionary as well:
+
 ```{julia}
 generators = Dict(
     :Generic => GenericGenerator(),
@@ -50,9 +121,22 @@ generators = Dict(
 )
 ```
 
+Then we can run a benchmark for individual(s) `x`, a pre-specified `target` and `counterfactual_data` as follows:
+
 ```{julia}
 benchmark(x, target, counterfactual_data; models=models, generators=generators)
 ```
+
+```{julia}
+@chain bmk(agg=mean) begin
+    @filter(variable == "distance")
+    @select(sample, variable, value, model, generator)
+end
+```
+
+### Everything at once
+
+Finally, 
 
 ```{julia}
 benchmark(counterfactual_data)

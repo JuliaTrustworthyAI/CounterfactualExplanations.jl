@@ -1,8 +1,26 @@
 using DataFrames
+using Statistics
 
 struct Benchmark
     counterfactual_explanations::Vector{CounterfactualExplanation}
     evaluation::DataFrame
+end
+
+"On call, the `Benchmark` returns the evaluation."
+(bmk::Benchmark)() = bmk.evaluation
+
+"""
+    (bmk::Benchmark)(; agg=mean)
+
+Returns a `DataFrame` containing evaluation measures aggregated by `id`.
+"""
+function (bmk::Benchmark)(;agg::Union{Nothing,Function}=nothing)
+    df = bmk.evaluation
+    if !isnothing(agg)
+        df = combine(groupby(df, Not([:id, :value])), :value => agg => :value)
+        select!(df, :sample, :variable, :value, :)
+    end
+    return df
 end
 
 """
@@ -15,6 +33,10 @@ function Base.vcat(bmk1::Benchmark, bmk2::Benchmark)
     evaluation = vcat(bmk1.evaluation, bmk2.evaluation)
     bmk = Benchmark(ces, evaluation)
     return bmk
+end
+
+function aggregate(bmk::Benchmark)
+
 end
 
 """
@@ -31,7 +53,11 @@ function benchmark(
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures
 )
-    evaluations = evaluate(counterfactual_explanations; measure=measure, report_meta=true, meta_data=meta_data)
+    evaluations = evaluate(
+        counterfactual_explanations;
+        measure=measure, report_each=true,
+        report_meta=true, meta_data=meta_data
+    )
     bmk = Benchmark(counterfactual_explanations, evaluations)
     return bmk
 end
@@ -120,6 +146,6 @@ function benchmark(
         push!(bmk, _bmk)
     end
     bmk = reduce(vcat, bmk)
-    
+
     return bmk
 end
