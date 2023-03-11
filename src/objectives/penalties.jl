@@ -1,4 +1,5 @@
 using ..CounterfactualExplanations
+using SliceMap
 
 """
     distance(counterfactual_explanation::AbstractCounterfactualExplanation, p::Real=2)
