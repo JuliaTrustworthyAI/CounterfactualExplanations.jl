@@ -32,8 +32,8 @@ export CounterfactualData,
 ###
 include("models/Models.jl")
 using .Models
-export AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel
+export AbstractFittedModel, AbstractDifferentiableModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 export model_catalogue, fit_model, model_evaluation, predict_label
@@ -56,7 +56,7 @@ export GravitationalGenerator, GravitationalGeneratorParams
 export GreedyGenerator, GreedyGeneratorParams
 export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
-export generator_catalog
+export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
 
 ### CounterfactualExplanation
@@ -77,8 +77,7 @@ using .Data
 include("generate_counterfactual.jl")
 export generate_counterfactual
 
-include("benchmark/Benchmark.jl")
-using .Benchmark
-export benchmark
+include("evaluation/Evaluation.jl")
+using .Evaluation
 
 end

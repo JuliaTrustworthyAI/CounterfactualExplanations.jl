@@ -50,8 +50,8 @@ function Plots.plot(
     else
         ylims = ylims .+ (zoom, -zoom)
     end
-    x_range = range(xlims[1], stop = xlims[2], length = length_out)
-    y_range = range(ylims[1], stop = ylims[2], length = length_out)
+    x_range = convert.(eltype(X), range(xlims[1], stop = xlims[2], length = length_out))
+    y_range = convert.(eltype(X), range(ylims[1], stop = ylims[2], length = length_out))
 
     if multi_dim
         knn1, y_train = voronoi(X, ŷ)

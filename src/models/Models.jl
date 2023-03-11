@@ -4,8 +4,8 @@ using ..CounterfactualExplanations
 using ..DataPreprocessing
 using Parameters
 
-export AbstractDifferentiableModel
-export FluxModel, FluxEnsemble, LaplaceReduxModel
+export AbstractFittedModel, AbstractDifferentiableModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 

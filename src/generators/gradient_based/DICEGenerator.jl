@@ -53,7 +53,7 @@ function ddp_diversity(
     X = counterfactual_explanation.s′
     xs = eachslice(X, dims=ndims(X))
     K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
-    K += Diagonal(randn(size(X, 3)) * perturbation_size)
+    K += Diagonal(randn(eltype(X), size(X, 3)) * convert(eltype(X), perturbation_size))
     return det(K)
 end
 

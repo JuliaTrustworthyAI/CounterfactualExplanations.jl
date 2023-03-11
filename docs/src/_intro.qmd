@@ -1,3 +1,13 @@
+*Counterfactual Explanations and Algorithmic Recourse in Julia.*
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable)
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev)
+[![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain)
+[![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl)
+[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle)
+[![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE)
+[![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
+
 ```{julia}
 #| echo: false
 include("docs/setup_docs.jl")
@@ -182,6 +192,12 @@ counterfactual_data.generative_model = vae # assign generative model
 
 ```{julia}
 #| echo: false
+
+Random.seed!(12345)
+```
+
+```{julia}
+#| echo: false
 factual_label = 9
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
 target = 4
@@ -205,8 +221,8 @@ The counterfactual was produced using REVISE [@joshi2019realistic]:
 # Define generator:
 generator = REVISEGenerator(
   opt = Descent(0.1),
-  decision_threshold = 0.95,
-  λ = 0.01
+  decision_threshold = 0.99,
+  λ = 0.001
 )
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)

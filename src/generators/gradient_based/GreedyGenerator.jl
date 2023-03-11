@@ -114,7 +114,8 @@ function generate_perturbations(
         end
         return s
     end
-    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims=1) # choose most salient feature
+    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims = 1) # choose most salient feature
+    Δs′ = convert.(eltype(counterfactual_explanation.x), Δs′)
     return Δs′
 end
 
