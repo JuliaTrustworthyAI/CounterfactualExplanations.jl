@@ -1,4 +1,5 @@
 using ..CounterfactualExplanations
+using LinearAlgebra
 using SliceMap
 
 """
