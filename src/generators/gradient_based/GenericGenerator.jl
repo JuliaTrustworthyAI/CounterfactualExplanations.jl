@@ -36,7 +36,7 @@ generator = GenericGenerator()
 """
 function GenericGenerator(;
     loss::Union{Nothing,Function}=nothing,
-    complexity::Function=LinearAlgebra.norm,
+    complexity::Function=Objectives.distance_l2,
     λ::AbstractFloat=0.1,
     decision_threshold=0.5,
     kwargs...

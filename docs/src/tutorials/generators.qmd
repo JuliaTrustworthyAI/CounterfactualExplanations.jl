@@ -1,0 +1,25 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Handling Generators
+
+
+## Off-the-Shelf Generators 
+
+## Composing Generators through Objectives
+
+```{julia}
+using CounterfactualExplanations.Evaluation: distance
+```
+
+```{julia}
+ces = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+```
+
