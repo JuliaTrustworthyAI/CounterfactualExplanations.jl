@@ -41,7 +41,7 @@ generator = GreedyGenerator()
 """
 function GreedyGenerator(;
     loss::Union{Nothing,Function}=nothing,
-    complexity::Function=LinearAlgebra.norm,
+    complexity::Function=norm,
     λ::AbstractFloat=0.0,
     decision_threshold=0.5,
     opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}=nothing, # learning rate

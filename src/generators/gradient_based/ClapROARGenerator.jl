@@ -39,7 +39,7 @@ generator = ClaPROARGenerator()
 """
 function ClaPROARGenerator(;
     loss::Union{Nothing,Function}=nothing,
-    complexity::Function=norm,
+    complexity::Function=Objectives.distance_l2,
     λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
     decision_threshold=nothing,
     kwargs...
@@ -90,10 +90,7 @@ function Generators.h(
 )
 
     # Distance from factual:
-    dist_ = generator.complexity(
-        counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
-    )
+    dist_ = generator.complexity(counterfactual_explanation)
 
     # Euclidean norm of gradient:
     in_target_domain = all(target_probs(counterfactual_explanation) .>= 0.5)

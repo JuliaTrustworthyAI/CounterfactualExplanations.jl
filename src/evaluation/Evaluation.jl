@@ -50,7 +50,7 @@ function evaluate(
     measure = typeof(measure) <: Function ? [measure] : measure
     agg = report_each ? (x -> x) : agg
     function _compute_measure(ce, fun)
-        val = agg(fun(ce))
+        val = fun(ce; agg=agg)
         val = ndims(val) > 1 ? vec(val) : [val]
         return val
     end

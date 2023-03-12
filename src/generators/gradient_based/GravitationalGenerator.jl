@@ -42,7 +42,7 @@ generator = GravitationalGenerator()
 """
 function GravitationalGenerator(;
     loss::Union{Nothing,Function}=nothing,
-    complexity::Function=norm,
+    complexity::Function=Objectives.distance_l2,
     λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
     decision_threshold=nothing,
     kwargs...
@@ -72,10 +72,7 @@ function Generators.h(
 )
 
     # Distance from factual:
-    dist_ = generator.complexity(
-        counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
-    )
+    dist_ = generator.complexity(counterfactual_explanation)
 
     # Gravitational center:
     if isnothing(generator.centroid)
@@ -88,7 +85,7 @@ function Generators.h(
     end
 
     # Distance from gravitational center:
-    gravity_ = generator.complexity(
+    gravity_ = norm(
         generator.centroid .-
         CounterfactualExplanations.decode_state(counterfactual_explanation),
     )

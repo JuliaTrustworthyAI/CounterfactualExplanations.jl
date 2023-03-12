@@ -48,10 +48,9 @@ The default method to apply the generator complexity penalty to the current coun
 """
 function h(
     generator::AbstractGenerator,
-    counterfactual_explanation::AbstractCounterfactualExplanation;
-    agg=mean
+    counterfactual_explanation::AbstractCounterfactualExplanation
 )
-    cost = agg(generator.complexity(counterfactual_explanation))
+    cost = generator.complexity(counterfactual_explanation)
     penalty = generator.λ * cost
     return penalty
 end

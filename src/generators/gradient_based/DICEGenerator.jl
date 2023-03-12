@@ -35,7 +35,7 @@ generator = DiCEGenerator()
 """
 function DiCEGenerator(;
     loss::Union{Nothing,Function}=nothing,
-    complexity::Function=norm,
+    complexity::Function=Objectives.distance_l2,
     λ::Union{AbstractFloat,AbstractVector}=[0.1, 1.0],
     decision_threshold=nothing,
     kwargs...
@@ -66,10 +66,7 @@ function h(
     generator::DiCEGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
-    dist_ = generator.complexity(
-        counterfactual_explanation.x .-
-        CounterfactualExplanations.decode_state(counterfactual_explanation),
-    )
+    dist_ = generator.complexity(counterfactual_explanation)
     ddp_ = ddp_diversity(counterfactual_explanation)
     if length(generator.λ) == 1
         penalty = generator.λ * (dist_ .- ddp_)
