@@ -17,12 +17,16 @@ Generating Counterfactual Explanations can be seen as a generative modelling tas
 Currently, the following off-the-shelf counterfactual generators are implemented in the package. 
 
 ```{julia}
+#| output: true
+
 generator_catalogue
 ```
 
 These `Generator`s are just composite types that contain information about how counterfactuals ought to be generated. To specify the type of generator you want to use, you can simply instantiate it:
 
 ```{julia}
+#| output: true
+
 # Search:
 generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
@@ -31,8 +35,8 @@ plot(ce)
 
 ## Composable Generators 
 
-!!! warning "Breaking Changes Expected"
-    Work on this feature is still in its very early stages and breaking changes should be expected. 
+| !!! warning "Breaking Changes Expected"
+|     Work on this feature is still in its very early stages and breaking changes should be expected. 
 
 One of the key objectives for this package is **Composability**. It turns out that many of the various counterfactual generators that have been proposed in the literature, essentially do the same thing: they optimize an objective function. Formally we have,
 
@@ -54,7 +58,7 @@ The [`ComposableGenerator`](@ref) class provides a straightforward way to do thi
 generator = ComposableGenerator()
 ```
 
-By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`objective`](@ref) macro:
+By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`@objective`](@ref) macro:
 
 ```{julia}
 @objective(generator, logitbinarycrossentropy + 0.1distance_l2 + 1.0ddp_diversity)
@@ -63,7 +67,11 @@ By default, this creates a `generator` that simply performs gradient descent wit
 Here we have essentially created a version of the [`DiCEGenerator`](@ref):
 
 ```{julia}
+#| output: true
+
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
 plot(ce)
 ```
 
+
+## References

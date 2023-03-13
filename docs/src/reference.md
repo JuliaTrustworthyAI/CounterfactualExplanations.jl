@@ -30,7 +30,7 @@ Modules = [
     CounterfactualExplanations.DataPreprocessing,
     CounterfactualExplanations.Models, 
     CounterfactualExplanations.Generators, 
-    CounterfactualExplanations.Losses
+    CounterfactualExplanations.Objectives
 ]
 Private = false
 ```
@@ -45,7 +45,7 @@ Modules = [
     CounterfactualExplanations.DataPreprocessing,
     CounterfactualExplanations.Models, 
     CounterfactualExplanations.Generators, 
-    CounterfactualExplanations.Losses
+    CounterfactualExplanations.Objectives
 ]
 Public = false
 ```
