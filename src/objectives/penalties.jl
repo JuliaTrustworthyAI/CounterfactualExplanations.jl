@@ -60,7 +60,7 @@ function ddp_diversity(
     xs = eachslice(X, dims=ndims(X))
     K = [1 / (1 + norm(x .- y)) for x in xs, y in xs]
     K += LinearAlgebra.Diagonal(randn(eltype(X), size(X, 3)) * convert(eltype(X), perturbation_size))
-    cost = agg(K)
+    cost = -agg(K)
     return cost
 end
 

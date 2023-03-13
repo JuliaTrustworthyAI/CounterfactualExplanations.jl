@@ -20,7 +20,7 @@ end
 
 function ComposableGenerator()
     params = ComposableGeneratorParams()
-    return ComposableGenerator(nothing, nothing, nothing, 0.5, params.opt, params.τ)
+    return ComposableGenerator(nothing, nothing, nothing, nothing, params.opt, params.τ)
 end
 
 """
@@ -29,6 +29,7 @@ end
 A macro that can be used to define the counterfactual search objective.
 """
 macro objective(generator, ex)
+    gen = esc(generator)
     loss = getfield(CounterfactualExplanations.Objectives, ex.args[2])
     Λ = Vector{AbstractFloat}()
     costs = Vector{Function}()
@@ -40,10 +41,10 @@ macro objective(generator, ex)
         push!(costs, cost)
     end
     ex_generator = quote
-        $Main.generator.loss = $loss
-        $Main.generator.complexity = $costs
-        $Main.generator.λ = $Λ
-        Main.generator
+        $gen.loss = $loss
+        $gen.complexity = $costs
+        $gen.λ = $Λ
+        $gen
     end
     return ex_generator
 end
@@ -54,5 +55,5 @@ end
 A simple macro that can be used to define the decision threshold `γ`.
 """
 macro threshold(generator, γ)
-    return :($Main.generator.decision_threshold = $γ; Main.generator)
+    return esc(:($generator.decision_threshold = $γ; $generator))
 end
