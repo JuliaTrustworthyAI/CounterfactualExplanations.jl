@@ -20,6 +20,7 @@ export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
+export ComposableGenerator, @objective, @threshold
 
 # Loss:
 """
@@ -50,8 +51,14 @@ function h(
     generator::AbstractGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation
 )
-    cost = generator.complexity(counterfactual_explanation)
-    penalty = generator.λ * cost
+    if isnothing(generator.complexity)
+        penalty = 0.0
+    elseif typeof(generator.complexity) <: Vector
+        cost = [fun(counterfactual_explanation) for fun in generator.complexity]
+    else
+        cost = generator.complexity(counterfactual_explanation)
+    end
+    penalty = sum(generator.λ .* cost)
     return penalty
 end
 
@@ -66,5 +73,7 @@ generator_catalogue = Dict(
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
 )
+
+include("ComposableGenerator.jl")
 
 end

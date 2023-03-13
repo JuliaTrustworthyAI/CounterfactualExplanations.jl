@@ -1,5 +1,5 @@
 using ..CounterfactualExplanations
-using LinearAlgebra: norm
+using LinearAlgebra
 using SliceMap
 using Statistics: mean
 
@@ -42,4 +42,25 @@ distance_l2(counterfactual_explanation::AbstractCounterfactualExplanation; agg=m
 Computes the L-inf distance of the counterfactual to the original factual.
 """
 distance_linf(counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean) = distance(counterfactual_explanation, Inf; agg=agg)
+
+"""
+    ddp_diversity(
+        counterfactual_explanation::AbstractCounterfactualExplanation;
+        perturbation_size=1e-5
+    )
+
+Evaluates how diverse the counterfactuals are using a Determintal Point Process (DDP).
+"""
+function ddp_diversity(
+    counterfactual_explanation::AbstractCounterfactualExplanation;
+    perturbation_size=1e-5,
+    agg=det,
+)
+    X = counterfactual_explanation.s′
+    xs = eachslice(X, dims=ndims(X))
+    K = [1 / (1 + norm(x .- y)) for x in xs, y in xs]
+    K += LinearAlgebra.Diagonal(randn(eltype(X), size(X, 3)) * convert(eltype(X), perturbation_size))
+    cost = agg(K)
+    return cost
+end
 

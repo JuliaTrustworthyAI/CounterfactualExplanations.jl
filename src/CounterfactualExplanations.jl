@@ -58,6 +58,11 @@ export REVISEGenerator, REVISEGeneratorParams
 export DiCEGenerator, DiCEGeneratorParams
 export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
+export ComposableGenerator, @objective, @threshold
+
+macro sayhello(name)
+    return :( println("Hello, $name") )
+end
 
 ### CounterfactualExplanation
 # argmin 
