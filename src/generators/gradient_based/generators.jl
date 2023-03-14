@@ -23,5 +23,5 @@ end
 
 "Constructor for `REVISEGenerator`."
 function REVISEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
-    return Generator(; λ=λ, latent_space=latent_space, kwargs...)
+    return Generator(; complexity=Objectives.distance_l2, λ=λ, latent_space=latent_space, kwargs...)
 end
