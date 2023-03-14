@@ -20,3 +20,8 @@ function GravitationalGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 1.0], kwargs
     _penalties = [Objectives.distance_l2, Objectives.distance_from_target]
     return Generator(; complexity=_penalties, λ=λ, kwargs...)
 end
+
+"Constructor for `REVISEGenerator`."
+function REVISEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
+    return Generator(; λ=λ, latent_space=latent_space, kwargs...)
+end

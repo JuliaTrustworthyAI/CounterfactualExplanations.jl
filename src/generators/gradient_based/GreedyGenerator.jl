@@ -8,6 +8,7 @@ mutable struct GreedyGenerator <: AbstractGradientBasedGenerator
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat} # probability threshold
+    latent_space::Bool 
     ϵ::AbstractFloat # learning rate
     τ::AbstractFloat # tolerance for convergence
     n::Int # maximum number of times any feature can be changed
@@ -27,6 +28,7 @@ end
         complexity::Function = LinearAlgebra.norm,
         λ::AbstractFloat = 0.0,
         decision_threshold = 0.5,
+        latent_space::Bool=false,
         opt::Union{Nothing,Flux.Optimise.AbstractOptimiser} = nothing, # learning rate
         kwargs...,
     )
@@ -44,6 +46,7 @@ function GreedyGenerator(;
     complexity::Function=norm,
     λ::AbstractFloat=0.0,
     decision_threshold=0.5,
+    latent_space::Bool=false,
     opt::Union{Nothing,Flux.Optimise.AbstractOptimiser}=nothing, # learning rate
     kwargs...
 )
@@ -74,7 +77,7 @@ function GreedyGenerator(;
         @warn "Specifying `complexity` has no effect on `GreedyGenerator`, since no penalty term is involved."
     end
 
-    generator = GreedyGenerator(loss, complexity, λ, decision_threshold, ϵ, params.τ, n, 0)
+    generator = GreedyGenerator(loss, complexity, λ, decision_threshold, latent_space, ϵ, params.τ, n, 0)
 
     return generator
 end
@@ -114,7 +117,7 @@ function generate_perturbations(
         end
         return s
     end
-    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims = 1) # choose most salient feature
+    Δs′ = SliceMap.slicemap(x -> choose_most_salient(x), 𝐠ₜ, dims=1) # choose most salient feature
     Δs′ = convert.(eltype(counterfactual_explanation.x), Δs′)
     return Δs′
 end

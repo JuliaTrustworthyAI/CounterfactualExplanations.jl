@@ -15,6 +15,7 @@ mutable struct Generator <: AbstractGradientBasedGenerator
     complexity::Union{Nothing,Function,Vector{Function}}
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}
     decision_threshold::Union{Nothing,AbstractFloat}
+    latent_space::Bool
     opt::Flux.Optimise.AbstractOptimiser
     τ::AbstractFloat
 end
@@ -31,6 +32,7 @@ end
         complexity::Union{Nothing,Function,Vector{Function}}=nothing,
         λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
         decision_threshold::Union{Nothing,AbstractFloat}=nothing,
+        latent_space::Bool::false,
     )
 
 Default outer constructor for `Generator`.
@@ -39,10 +41,11 @@ function Generator(;
     loss::Union{Nothing,Function}=nothing,
     complexity::Union{Nothing,Function,Vector{Function}}=nothing,
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
-    decision_threshold::Union{Nothing,AbstractFloat}=nothing
+    decision_threshold::Union{Nothing,AbstractFloat}=nothing,
+    latent_space::Bool=false,
 )
     params = GeneratorParams()
-    return Generator(loss, complexity, λ, decision_threshold, params.opt, params.τ)
+    return Generator(loss, complexity, λ, decision_threshold, latent_space, params.opt, params.τ)
 end
 
 

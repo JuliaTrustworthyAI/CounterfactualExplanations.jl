@@ -237,7 +237,7 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
     latent_space = counterfactual_explanation.latent_space
 
     # Check if generative model is available:
-    wants_latent_space = typeof(generator) <: Generators.AbstractLatentSpaceGenerator
+    wants_latent_space = generator.latent_space
     # Assume that latent space search is wanted unless explicitly set to false:
     latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
 
