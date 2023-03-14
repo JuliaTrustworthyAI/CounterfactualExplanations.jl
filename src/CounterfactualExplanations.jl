@@ -85,4 +85,7 @@ export generate_counterfactual
 include("evaluation/Evaluation.jl")
 using .Evaluation
 
+# Precompile:
+include("precompile.jl")
+
 end
