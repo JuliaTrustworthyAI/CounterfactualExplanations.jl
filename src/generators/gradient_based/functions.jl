@@ -1,15 +1,5 @@
 using Statistics
 
-################################################################################
-# --------------- Base type for gradient-based generator:
-################################################################################
-"""
-    AbstractGradientBasedGenerator
-
-An abstract type that serves as the base type for gradient-based counterfactual generators. 
-"""
-abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
-
 """
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, counterfactual_explanation::AbstractCounterfactualExplanation)
 
@@ -121,7 +111,8 @@ function conditions_satisified(
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
     Δs′ = generate_perturbations(generator, counterfactual_explanation)
-    status = all(abs.(Δs′) .< generator.τ)
+    success_rate = sum(abs.(Δs′) .< generator.τ) / counterfactual_explanation.num_counterfactuals
+    status = success_rate > counterfactual_explanation.params[:min_success_rate]
     return status
 end
 
@@ -130,11 +121,7 @@ end
 ##################################################
 
 # Baseline
-include("GenericGenerator.jl")          # Wachter et al. (2017)
 include("GreedyGenerator.jl")           # Schut et al. (2021)
-include("DICEGenerator.jl")             # Mothilal et al. (2020)
-include("GravitationalGenerator.jl")    # Altmeyer et al. (2023)
-include("ClapROARGenerator.jl")         # Altmeyer et al. (2023)
 
 # Latent space
 """

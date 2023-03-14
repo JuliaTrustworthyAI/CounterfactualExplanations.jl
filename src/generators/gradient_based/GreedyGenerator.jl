@@ -17,7 +17,7 @@ end
 # API streamlining:
 @with_kw struct GreedyGeneratorParams
     ϵ::Union{AbstractFloat,Nothing} = nothing
-    τ::AbstractFloat = 1e-3
+    τ::AbstractFloat = CounterfactualExplanations.parameters[:τ]
     n::Union{Int,Nothing} = nothing
 end
 

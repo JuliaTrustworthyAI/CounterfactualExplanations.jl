@@ -35,6 +35,7 @@ end
         num_counterfactuals::Int = 1,
         initialization::Symbol = :add_perturbation,
         generative_model_params::NamedTuple = (;),
+        min_success_rate::AbstractFloat=0.99,
     )
 
 Outer method to construct a `CounterfactualExplanation` structure.
@@ -49,11 +50,13 @@ function CounterfactualExplanation(;
     latent_space::Union{Nothing,Bool}=nothing,
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    generative_model_params::NamedTuple=(;)
+    generative_model_params::NamedTuple=(;),
+    min_success_rate::AbstractFloat=0.99,
 )
 
     # Assertions:
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
+    @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -68,6 +71,7 @@ function CounterfactualExplanation(;
         :T => T,
         :mutability => DataPreprocessing.mutability_constraints(data),
         :initial_mutability => DataPreprocessing.mutability_constraints(data),
+        :min_success_rate => min_success_rate,
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
@@ -670,11 +674,6 @@ Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(counterfactual_explanation::CounterfactualExplanation)
 
-    # if !isnothing(counterfactual_explanation.data.domain) &&
-    #    total_steps(counterfactual_explanation) == 0
-    #     @error "Domain constraints not currently implemented for latent space search."
-    # end
-
     if !wants_latent_space(counterfactual_explanation)
         s′ = counterfactual_explanation.s′
         counterfactual_explanation.s′ =
@@ -692,7 +691,8 @@ function threshold_reached(counterfactual_explanation::CounterfactualExplanation
     γ =
         isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 :
         counterfactual_explanation.generator.decision_threshold
-    all(target_probs(counterfactual_explanation) .>= γ)
+    success_rate = sum(target_probs(counterfactual_explanation) .>= γ) / counterfactual_explanation.num_counterfactuals 
+    return success_rate > counterfactual_explanation.params[:min_success_rate]
 end
 
 """
@@ -702,12 +702,13 @@ A convenience method that determines if the predefined threshold for the target 
 """
 function threshold_reached(
     counterfactual_explanation::CounterfactualExplanation,
-    x::AbstractArray,
+    x::AbstractArray
 )
     γ =
         isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 :
         counterfactual_explanation.generator.decision_threshold
-    all(target_probs(counterfactual_explanation, x) .>= γ)
+    success_rate = sum(target_probs(counterfactual_explanation, x) .>= γ) / counterfactual_explanation.num_counterfactuals
+    return success_rate > counterfactual_explanation.params[:min_success_rate]
 end
 
 """
@@ -788,6 +789,7 @@ end
 
 function Base.show(io::IO, z::CounterfactualExplanation)
 
+    println(io, "")
     if z.search[:iteration_count] > 0
         if isnothing(z.params[:γ])
             p_path = target_probs_path(z)
@@ -807,11 +809,5 @@ function Base.show(io::IO, z::CounterfactualExplanation)
             print(" after $(total_steps(z)) steps.\n")
         end
     end
-
-end
-
-function Base.show(io::IO, z::Vector{CounterfactualExplanation})
-
-    println(io, "")
 
 end

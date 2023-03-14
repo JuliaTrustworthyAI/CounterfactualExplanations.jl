@@ -45,29 +45,34 @@ function generate_counterfactual(
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;
-    T::Int = 100,
-    latent_space::Union{Nothing,Bool} = nothing,
-    num_counterfactuals::Int = 1,
-    initialization::Symbol = :add_perturbation,
-    generative_model_params::NamedTuple = (;),
+    T::Int=100,
+    latent_space::Union{Nothing,Bool}=nothing,
+    num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation,
+    generative_model_params::NamedTuple=(;),
+    min_success_rate::AbstractFloat=0.99,
+    timer::Timer=Timer(60.0)
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(
-        x = x,
-        target = target,
-        data = data,
-        M = M,
-        generator = generator,
-        T = T,
-        latent_space = latent_space,
-        num_counterfactuals = num_counterfactuals,
-        initialization = initialization,
-        generative_model_params = generative_model_params,
+        x=x,
+        target=target,
+        data=data,
+        M=M,
+        generator=generator,
+        T=T,
+        latent_space=latent_space,
+        num_counterfactuals=num_counterfactuals,
+        initialization=initialization,
+        generative_model_params=generative_model_params,
+        min_success_rate=min_success_rate
     )
 
     # Search:
     while !counterfactual.search[:terminated]
+        isopen(timer) || break
         update!(counterfactual)
+        yield()
     end
 
     return counterfactual

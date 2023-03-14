@@ -52,10 +52,10 @@ Without going into further detail here, the important thing to mention is that @
 
 > Why not compose generators that combine ideas from different off-the-shelf generators?
 
-The [`ComposableGenerator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `Generator`s from scratch. It can be instantiated as follows:
+The [`Generator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `Generator`s from scratch. It can be instantiated as follows:
 
 ```{julia}
-generator = ComposableGenerator()
+generator = Generator()
 ```
 
 By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`@objective`](@ref) macro:

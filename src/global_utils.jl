@@ -3,10 +3,14 @@ using Flux
 using MLJBase
 using Parameters
 
-# Abstract Base Types
+# Global constants:
+"A container for global parameters."
+const parameters = Dict(
+    :τ => 1e-2,
+    :min_success_rate => 0.99,
+)
 
-
-# Constants:
+# Abstract Base Types:
 """
     RawTargetType
 

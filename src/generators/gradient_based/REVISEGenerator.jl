@@ -14,7 +14,7 @@ end
 # API streamlining:
 @with_kw struct REVISEGeneratorParams
     opt::Flux.Optimise.AbstractOptimiser = Descent()
-    τ::AbstractFloat = 1e-3
+    τ::AbstractFloat = CounterfactualExplanations.parameters[:τ]
 end
 
 """
