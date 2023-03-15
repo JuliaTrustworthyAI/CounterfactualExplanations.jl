@@ -29,6 +29,7 @@ include("macros.jl")
 include("gradient_based/base.jl")
 include("gradient_based/functions.jl")
 include("gradient_based/generators.jl")
+include("gradient_based/optimisers.jl")
 
 "A dictionary countaining the contructors of all available counterfactual generators."
 generator_catalogue = Dict(

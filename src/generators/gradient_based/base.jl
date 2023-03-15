@@ -22,7 +22,7 @@ end
 
 # API streamlining:
 @with_kw struct GeneratorParams
-    opt::Flux.Optimise.AbstractOptimiser = Descent()
+    opt::Flux.Optimise.AbstractOptimiser = Flux.Descent()
     τ::AbstractFloat = CounterfactualExplanations.parameters[:τ]
 end
 

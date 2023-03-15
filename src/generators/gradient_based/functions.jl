@@ -1,3 +1,4 @@
+using Flux
 using Statistics
 
 """
@@ -59,7 +60,6 @@ function propose_state(
     return new_s′
 end
 
-using Flux
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 

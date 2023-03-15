@@ -1,0 +1,33 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+
+# Jacobian-based Saliency Map Attack
+
+```{julia}
+x = [10 10]
+mod(x) = x
+loss(x) = sum(mod(x)'mod(x))
+```
+
+```{julia}
+using CounterfactualExplanations.Generators: JSMADescent
+opt = JSMADescent()
+opt_state = Flux.setup(opt, mod)
+```
+
+
+```{julia}
+n_epochs = 50
+for i in 1:n_epochs
+    Δ = gradient(loss, x)[1]
+    Flux.Optimise.update!(opt_state, x, Δ)
+end
+```
