@@ -64,9 +64,8 @@ for (key, generator_) ∈ generators
                             )
 
                             @testset "Predetermined outputs" begin
-                                if typeof(generator) <:
-                                   Generators.AbstractLatentSpaceGenerator
-                                    @test counterfactual.latent_space
+                                if generator.latent_space
+                                   @test counterfactual.latent_space
                                 end
                                 @test counterfactual.target == target
                                 @test counterfactual.x == x &&

@@ -50,12 +50,12 @@ using .Objectives
 include("generators/Generators.jl")
 using .Generators
 export AbstractGradientBasedGenerator
-export ClaPROARGenerator, ClaPROARGeneratorParams
-export GenericGenerator, GenericGeneratorParams
-export GravitationalGenerator, GravitationalGeneratorParams
-export GreedyGenerator, GreedyGeneratorParams
-export REVISEGenerator, REVISEGeneratorParams
-export DiCEGenerator, DiCEGeneratorParams
+export ClaPROARGenerator
+export GenericGenerator
+export GravitationalGenerator
+export GreedyGenerator
+export REVISEGenerator
+export DiCEGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
 export Generator, @objective, @threshold

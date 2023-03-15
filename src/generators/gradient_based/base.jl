@@ -20,12 +20,6 @@ mutable struct Generator <: AbstractGradientBasedGenerator
     τ::AbstractFloat
 end
 
-# API streamlining:
-@with_kw struct GeneratorParams
-    opt::Flux.Optimise.AbstractOptimiser = Flux.Descent()
-    τ::AbstractFloat = CounterfactualExplanations.parameters[:τ]
-end
-
 """
     Generator(;
         loss::Union{Nothing,Function}=nothing,
@@ -43,9 +37,10 @@ function Generator(;
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     decision_threshold::Union{Nothing,AbstractFloat}=nothing,
     latent_space::Bool=false,
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+    τ::AbstractFloat = CounterfactualExplanations.parameters[:τ],
 )
-    params = GeneratorParams()
-    return Generator(loss, complexity, λ, decision_threshold, latent_space, params.opt, params.τ)
+    return Generator(loss, complexity, λ, decision_threshold, latent_space, opt, τ)
 end
 
 

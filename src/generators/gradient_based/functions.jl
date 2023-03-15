@@ -115,10 +115,3 @@ function conditions_satisified(
     status = success_rate > counterfactual_explanation.params[:min_success_rate]
     return status
 end
-
-##################################################
-# Specific Generators
-##################################################
-
-# Baseline
-include("GreedyGenerator.jl")           # Schut et al. (2021)

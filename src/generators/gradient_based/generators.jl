@@ -25,3 +25,8 @@ end
 function REVISEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
     return Generator(; complexity=Objectives.distance_l2, λ=λ, latent_space=latent_space, kwargs...)
 end
+
+"Constructor for `GreedyGenerator`."
+function GreedyGenerator(; λ::AbstractFloat=0.1, opt=CounterfactualExplanations.Generators.JSMADescent(), kwargs...)
+    return Generator(; complexity=Objectives.distance_l2, λ=λ, opt=opt, kwargs...)
+end

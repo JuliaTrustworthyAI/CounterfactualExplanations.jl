@@ -8,26 +8,25 @@ include("docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
-
 # Jacobian-based Saliency Map Attack
 
+@schut2021generating propose to use a ...
+
 ```{julia}
-x = [10 10]
-mod(x) = x
-loss(x) = sum(mod(x)'mod(x))
+generator = GenericGenerator()
+generator.opt = Descent(0.01)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
 ```
 
 ```{julia}
 using CounterfactualExplanations.Generators: JSMADescent
-opt = JSMADescent()
-opt_state = Flux.setup(opt, mod)
+opt = JSMADescent(;η=0.1)
 ```
-
 
 ```{julia}
-n_epochs = 50
-for i in 1:n_epochs
-    Δ = gradient(loss, x)[1]
-    Flux.Optimise.update!(opt_state, x, Δ)
-end
+generator.opt = opt
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
 ```
+

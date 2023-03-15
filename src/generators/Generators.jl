@@ -15,7 +15,7 @@ export AbstractGradientBasedGenerator
 export ClaPROARGenerator
 export GenericGenerator
 export GravitationalGenerator
-export GreedyGenerator, GreedyGeneratorParams
+export GreedyGenerator
 export REVISEGenerator
 export DiCEGenerator
 export generator_catalogue
