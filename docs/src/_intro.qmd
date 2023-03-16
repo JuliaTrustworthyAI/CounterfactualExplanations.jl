@@ -93,7 +93,6 @@ x2 = :age
 
 # Generator:
 generator = GravitationalGenerator(
-    decision_threshold = 0.9,
     opt = Descent(0.1)
 )
 ```
@@ -118,7 +117,8 @@ Markdown.parse(
 
 counterfactuals = generate_counterfactual(
   x, target_class, counterfactual_data, M, generator;
-  initialization = :identity
+  initialization = :identity, decision_threshold=0.975,
+  converge_when = :generator_conditions,
 )
 
 # Plotting:
@@ -215,22 +215,26 @@ Markdown.parse(
 )
 ```
 
-The counterfactual was produced using REVISE [@joshi2019realistic]:
+Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from @joshi2019realistic (REVISE) and @schut2021generating:
 
 ```{julia}
-# Define generator:
-generator = REVISEGenerator(
-  opt = Descent(0.1),
-  decision_threshold = 0.99,
-  λ = 0.001
-)
-# Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+# Compose generator:
+generator = Generator()
+@chain generator begin
+    @objective logitcrossentropy + 0.001distance_l2     
+    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+end
 ```
 
 ```{julia}
 #| echo: false
 #| output: true
+
+ce = generate_counterfactual(
+  x, target, counterfactual_data, M, generator;
+  decision_threshold = 0.99
+)
 
 image_size = 300
 p1 = plot(
@@ -296,7 +300,8 @@ With all of our ingredients specified, we finally generate counterfactuals using
 ```{julia}
 ce = generate_counterfactual(
   x, target, counterfactual_data, M, generator; 
-  num_counterfactuals=3
+  num_counterfactuals=3, converge_when=:generator_conditions,
+  gradient_tol=1e-3
 )
 ```
 
@@ -306,8 +311,8 @@ The animation below shows the resulting counterfactual path:
 #| echo: false
 
 anim = animate_path(ce; title="Factual: $(y) → Target: $(target)")
-gif(anim, joinpath(www_path, "intro.gif"))
-gif(anim, "README_files/intro.gif")
+gif(anim, joinpath(www_path, "intro.gif"), fps=10)
+gif(anim, "README_files/intro.gif", fps=10)
 ```
 
 ![](www/intro.gif)

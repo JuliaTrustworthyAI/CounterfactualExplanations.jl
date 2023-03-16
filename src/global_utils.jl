@@ -7,7 +7,7 @@ using Parameters
 "A container for global parameters."
 const parameters = Dict(
     :τ => 1e-2,
-    :min_success_rate => 0.99,
+    :min_success_rate => 0.90,
 )
 
 # Abstract Base Types:

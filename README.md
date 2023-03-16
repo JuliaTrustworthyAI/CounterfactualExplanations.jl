@@ -54,17 +54,16 @@ The figure below shows counterfactuals for 10 randomly chosen individuals that w
 
 The figure below shows a counterfactual generated for an image classifier trained on MNIST: in particular, it demonstrates which pixels need to change in order for the classifier to predict 4 instead of 9.
 
-The counterfactual was produced using REVISE (Joshi et al. 2019):
+Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from Joshi et al. (2019) (REVISE) and Schut et al. (2021):
 
 ``` julia
-# Define generator:
-generator = REVISEGenerator(
-  opt = Descent(0.1),
-  decision_threshold = 0.99,
-  λ = 0.001
-)
-# Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+# Compose generator:
+generator = Generator()
+@chain generator begin
+    @objective logitcrossentropy + 0.001distance_l2     
+    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+end
 ```
 
 ![](README_files/figure-commonmark/cell-11-output-1.svg)
@@ -99,14 +98,15 @@ generator = DiCEGenerator(
 )
 ```
 
-Here, we have chosen to use the `DiCEGenerator` to move the individual from its factual label 2 to the target label 1.
+Here, we have chosen to use the `Generator` to move the individual from its factual label 2 to the target label 1.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 
 ``` julia
 ce = generate_counterfactual(
   x, target, counterfactual_data, M, generator; 
-  num_counterfactuals=3
+  num_counterfactuals=3, converge_when=:generator_conditions,
+  gradient_tol=1e-3
 )
 ```
 
