@@ -57,7 +57,6 @@ Multiple macros can be chained using `Chains.jl` making it easy to create entire
 ```{julia}
 @chain generator begin
     @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @threshold 0.95
     @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
@@ -132,6 +131,18 @@ Off-the-shelf generators are just default recipes for counterfactual generators.
 #| output: true
 
 generator_catalogue
+```
+
+```{julia}
+#| echo: false
+
+# Counteractual data and model:
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :Linear)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
 ```
 
 To specify the type of generator you want to use, you can simply instantiate it:

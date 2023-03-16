@@ -65,7 +65,7 @@ for (key, generator_) ∈ generators
 
                             @testset "Predetermined outputs" begin
                                 if generator.latent_space
-                                   @test counterfactual.latent_space
+                                   @test counterfactual.params[:latent_space]
                                 end
                                 @test counterfactual.target == target
                                 @test counterfactual.x == x &&
@@ -85,22 +85,22 @@ for (key, generator_) ∈ generators
                                     counterfactual_data.generative_model = nothing
                                     # Threshold reached if converged:
                                     γ = 0.9
-                                    generator.decision_threshold = γ
-                                    T = 1000
+                                    max_iter = 1000
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,
                                         counterfactual_data,
                                         M,
                                         generator;
-                                        T = T,
+                                        max_iter = max_iter,
+                                        decision_threshold = γ,
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
                                     @test !converged(counterfactual) ||
                                           target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                     @test !converged(counterfactual) ||
-                                          length(path(counterfactual)) <= T
+                                          length(path(counterfactual)) <= max_iter
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
@@ -108,13 +108,14 @@ for (key, generator_) ∈ generators
                                     # Already in target and exceeding threshold probability:
                                     y = predict_label(M, counterfactual_data, x)
                                     target = y[1]
-                                    generator.decision_threshold = minimum([1/length(counterfactual_data.y_levels), 0.5])
+                                    γ = minimum([1/length(counterfactual_data.y_levels), 0.5])
                                     counterfactual = generate_counterfactual(
                                         x,
                                         target,
                                         counterfactual_data,
                                         M,
                                         generator;
+                                        decision_threshold = γ,
                                     )
                                     @test length(path(counterfactual)) == 1
                                     @test maximum(

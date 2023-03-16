@@ -111,7 +111,8 @@ function conditions_satisified(
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
     Δs′ = generate_perturbations(generator, counterfactual_explanation)
-    success_rate = sum(abs.(Δs′) .< generator.τ) / counterfactual_explanation.num_counterfactuals
-    status = success_rate > counterfactual_explanation.params[:min_success_rate]
+    τ = counterfactual_explanation.convergence[:gradient_tol]
+    success_rate = sum(abs.(Δs′) .< τ) / counterfactual_explanation.num_counterfactuals
+    status = success_rate > counterfactual_explanation.convergence[:min_success_rate]
     return status
 end

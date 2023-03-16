@@ -27,12 +27,12 @@ function h(
     generator::AbstractGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation
 )
-    if isnothing(generator.complexity)
+    if isnothing(generator.penalty)
         penalty = 0.0
-    elseif typeof(generator.complexity) <: Vector
-        cost = [fun(counterfactual_explanation) for fun in generator.complexity]
+    elseif typeof(generator.penalty) <: Vector
+        cost = [fun(counterfactual_explanation) for fun in generator.penalty]
     else
-        cost = generator.complexity(counterfactual_explanation)
+        cost = generator.penalty(counterfactual_explanation)
     end
     penalty = sum(generator.λ .* cost)
     return penalty

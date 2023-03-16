@@ -2,7 +2,7 @@
 """
     generate_counterfactual(
         x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-        γ::AbstractFloat=0.75, T=1000
+        γ::AbstractFloat=0.75, max_iter=1000
     )
 
 The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
@@ -45,11 +45,12 @@ function generate_counterfactual(
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;
-    T::Int=100,
-    latent_space::Union{Nothing,Bool}=nothing,
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
     generative_model_params::NamedTuple=(;),
+    max_iter::Int=100,
+    decision_threshold::AbstractFloat=0.5,
+    gradient_tol::AbstractFloat=0.1,
     min_success_rate::AbstractFloat=0.99,
     timer::Timer=Timer(60.0)
 )
@@ -60,12 +61,13 @@ function generate_counterfactual(
         data=data,
         M=M,
         generator=generator,
-        T=T,
-        latent_space=latent_space,
         num_counterfactuals=num_counterfactuals,
         initialization=initialization,
         generative_model_params=generative_model_params,
-        min_success_rate=min_success_rate
+        max_iter=max_iter,
+        min_success_rate=min_success_rate,
+        decision_threshold=decision_threshold,
+        gradient_tol=gradient_tol,
     )
 
     # Search:

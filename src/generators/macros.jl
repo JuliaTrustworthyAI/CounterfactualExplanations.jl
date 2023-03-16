@@ -17,20 +17,11 @@ macro objective(generator, ex)
     end
     ex_generator = quote
         $gen.loss = $loss
-        $gen.complexity = $costs
+        $gen.penalty = $costs
         $gen.λ = $Λ
         $gen
     end
     return ex_generator
-end
-
-"""
-    threshold(generator, γ)
-
-A simple macro that can be used to define the decision threshold `γ`.
-"""
-macro threshold(generator, γ)
-    return esc(:($generator.decision_threshold = $γ; $generator))
 end
 
 """

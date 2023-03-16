@@ -16,7 +16,7 @@ end
 
 Checks if the counterfactual search has been strictly valid in the sense that it has converged with respect to the pre-specified target probability `γ`.
 """
-validity_strict(counterfactual_explanation::CounterfactualExplanation) = validity(counterfactual_explanation; γ=counterfactual_explanation.params[:γ])
+validity_strict(counterfactual_explanation::CounterfactualExplanation) = validity(counterfactual_explanation; γ=counterfactual_explanation.convergence[:decision_threshold])
 
 """
     redundancy(counterfactual_explanation::CounterfactualExplanation)

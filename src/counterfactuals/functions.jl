@@ -15,10 +15,10 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
-    latent_space::Union{Nothing,Bool}
     generative_model_params::NamedTuple
     params::Dict
     search::Union{Dict,Nothing}
+    convergence::Dict
     num_counterfactuals::Int
     initialization::Symbol
 end
@@ -30,8 +30,7 @@ end
         data::CounterfactualData,
         M::Models.AbstractFittedModel,
         generator::Generators.AbstractGenerator,
-        T::Int = 100,
-        latent_space::Union{Nothing,Bool} = nothing,
+        max_iter::Int = 100,
         num_counterfactuals::Int = 1,
         initialization::Symbol = :add_perturbation,
         generative_model_params::NamedTuple = (;),
@@ -46,17 +45,20 @@ function CounterfactualExplanation(;
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator,
-    T::Int=100,
-    latent_space::Union{Nothing,Bool}=nothing,
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
     generative_model_params::NamedTuple=(;),
+    max_iter::Int=100,
+    decision_threshold::AbstractFloat=0.5,
+    gradient_tol::AbstractFloat=0.1,
     min_success_rate::AbstractFloat=0.99,
+    converge_when::Symbol=:decision_threshold
 )
 
     # Assertions:
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
+    @assert converge_when ∈ [:decision_threshold, :generator_conditions, :max_iter]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -65,18 +67,23 @@ function CounterfactualExplanation(;
     target_encoded = data.output_encoder(target)
 
     # Initial Parameters:
-    params = Dict(
-        :γ =>
-            isnothing(generator.decision_threshold) ? 0.5 : generator.decision_threshold,
-        :T => T,
+    params = Dict{Symbol,Any}(
         :mutability => DataPreprocessing.mutability_constraints(data),
-        :initial_mutability => DataPreprocessing.mutability_constraints(data),
-        :min_success_rate => min_success_rate,
+        :latent_space => generator.latent_space
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
+
+    # Convergence Parameters:
+    convergence = Dict(
+        :max_iter => max_iter,
+        :decision_threshold => decision_threshold,
+        :gradient_tol => gradient_tol,
+        :min_success_rate => min_success_rate,
+        :converge_when => converge_when,
+    )
 
     # Instantiate: 
     counterfactual_explanation = CounterfactualExplanation(
@@ -87,19 +94,18 @@ function CounterfactualExplanation(;
         data,
         deepcopy(M),
         deepcopy(generator),
-        latent_space,
         generative_model_params,
         params,
         nothing,
+        convergence,
         num_counterfactuals,
         initialization,
     )
 
     # Initialization:
-    adjust_shape!(counterfactual_explanation)                                                # adjust shape to specified number of counterfactuals
-    counterfactual_explanation.latent_space = wants_latent_space(counterfactual_explanation)
-    counterfactual_explanation.s′ = encode_state(counterfactual_explanation)                    # encode the counterfactual state
-    counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)                # initialize the counterfactual state
+    adjust_shape!(counterfactual_explanation)                                           # adjust shape to specified number of counterfactuals
+    counterfactual_explanation.s′ = encode_state(counterfactual_explanation)            # encode the counterfactual state
+    counterfactual_explanation.s′ = initialize_state(counterfactual_explanation)        # initialize the counterfactual state
 
     # Initialize search:
     counterfactual_explanation.search = Dict(
@@ -121,7 +127,7 @@ function CounterfactualExplanation(;
 
 end
 
-# Convenience methods:
+# 1.) Convenience methods:
 """
     output_dim(counterfactual_explanation::CounterfactualExplanation)
 
@@ -130,6 +136,27 @@ A convenience method that returns the output dimension of the predictive model.
 output_dim(counterfactual_explanation::CounterfactualExplanation) =
     size(Models.probs(counterfactual_explanation.M, counterfactual_explanation.x))[1]
 
+"""
+    guess_loss(counterfactual_explanation::CounterfactualExplanation)
+
+Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
+"""
+function guess_loss(counterfactual_explanation::CounterfactualExplanation)
+    if :likelihood in fieldnames(typeof(counterfactual_explanation.M))
+        if counterfactual_explanation.M.likelihood == :classification_binary
+            loss_fun = Objectives.logitbinarycrossentropy
+        elseif counterfactual_explanation.M.likelihood == :classification_multi
+            loss_fun = Objectives.logitcrossentropy
+        else
+            loss_fun = Flux.Losses.mse
+        end
+    else
+        loss_fun = nothing
+    end
+    return loss_fun
+end
+
+# 2.) Initialisation
 """
     adjust_shape(
         counterfactual_explanation::CounterfactualExplanation, 
@@ -175,7 +202,6 @@ function adjust_shape!(counterfactual_explanation::CounterfactualExplanation)
     # Parameters:
     params = counterfactual_explanation.params
     params[:mutability] = adjust_shape(counterfactual_explanation, params[:mutability])      # augment to account for specified number of counterfactuals
-    params[:initial_mutability] = params[:mutability]
     counterfactual_explanation.params = params
 end
 
@@ -202,13 +228,13 @@ function encode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         s′ = map_to_latent(counterfactual_explanation, s′)
         return s′
     end
 
     # Standardize data unless latent space:
-    if !counterfactual_explanation.latent_space
+    if !counterfactual_explanation.params[:latent_space]
         dt = data.dt
         idx = transformable_features(data)
         SliceMap.slicemap(s′, dims=(1, 2)) do s
@@ -232,14 +258,7 @@ A convenience function that checks if latent space search is applicable.
 function wants_latent_space(counterfactual_explanation::CounterfactualExplanation)
 
     # Unpack:
-    data = counterfactual_explanation.data
-    generator = counterfactual_explanation.generator
-    latent_space = counterfactual_explanation.latent_space
-
-    # Check if generative model is available:
-    wants_latent_space = generator.latent_space
-    # Assume that latent space search is wanted unless explicitly set to false:
-    latent_space = isnothing(latent_space) ? wants_latent_space : latent_space
+    latent_space = counterfactual_explanation.params[:latent_space]
 
     # If threshold is already reached, training GM is redundant:
     latent_space =
@@ -249,8 +268,6 @@ function wants_latent_space(counterfactual_explanation::CounterfactualExplanatio
     return latent_space
 
 end
-
-
 
 @doc raw"""
    function map_to_latent(
@@ -270,7 +287,7 @@ function map_to_latent(
     data = counterfactual_explanation.data
     generator = counterfactual_explanation.generator
 
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(
             data;
@@ -308,12 +325,12 @@ function decode_state(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         s′ = map_from_latent(counterfactual_explanation, s′)
     end
 
     # Standardization:
-    if !counterfactual_explanation.latent_space
+    if !counterfactual_explanation.params[:latent_space]
 
         dt = data.dt
 
@@ -352,7 +369,7 @@ function map_from_latent(
     data = counterfactual_explanation.data
 
     # Latent space:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         generative_model = data.generative_model
         if !isnothing(generative_model)
             # NOTE! This is not very clean, will be improved.
@@ -414,7 +431,7 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
     end
 
     # If latent space, initial point is random anyway:
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         return s′
     end
 
@@ -431,7 +448,7 @@ function initialize_state(counterfactual_explanation::CounterfactualExplanation)
 
 end
 
-# 1) Factual values
+# 3.) Information about CE
 """
     factual(counterfactual_explanation::CounterfactualExplanation)
 
@@ -460,7 +477,6 @@ function factual_label(counterfactual_explanation::CounterfactualExplanation)
     return y
 end
 
-# 2) Counterfactual values:
 """
     counterfactual(counterfactual_explanation::CounterfactualExplanation)
 
@@ -525,42 +541,7 @@ function target_probs(
     return p_target
 end
 
-# 3) Search related methods:
-"""
-    terminated(counterfactual_explanation::CounterfactualExplanation)
-
-A convenience method to determine if the counterfactual search has terminated.
-"""
-function terminated(counterfactual_explanation::CounterfactualExplanation)
-    converged(counterfactual_explanation) || steps_exhausted(counterfactual_explanation)
-end
-
-"""
-    converged(counterfactual_explanation::CounterfactualExplanation)
-
-A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
-"""
-function converged(counterfactual_explanation::CounterfactualExplanation)
-    # If strict, also look at gradient and other generator-specific conditions.
-    # Otherwise only check if probability threshold has been reached.
-    if isnothing(counterfactual_explanation.generator.decision_threshold)
-        threshold_reached(counterfactual_explanation) && Generators.conditions_satisified(
-            counterfactual_explanation.generator,
-            counterfactual_explanation,
-        )
-    else
-        threshold_reached(counterfactual_explanation)
-    end
-end
-
-"""
-    total_steps(counterfactual_explanation::CounterfactualExplanation)
-
-A convenience method that returns the total number of steps of the counterfactual search.
-"""
-total_steps(counterfactual_explanation::CounterfactualExplanation) =
-    counterfactual_explanation.search[:iteration_count]
-
+# 4.) Search related methods:
 """
     path(counterfactual_explanation::CounterfactualExplanation)
 
@@ -645,7 +626,7 @@ function apply_mutability(
     Δs′::AbstractArray,
 )
 
-    if counterfactual_explanation.latent_space
+    if counterfactual_explanation.params[:latent_space]
         if isnothing(counterfactual_explanation.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
@@ -682,17 +663,47 @@ function apply_domain_constraints!(counterfactual_explanation::CounterfactualExp
 
 end
 
+# 5.) Convergence related methods:
+"""
+    terminated(counterfactual_explanation::CounterfactualExplanation)
+
+A convenience method to determine if the counterfactual search has terminated.
+"""
+function terminated(counterfactual_explanation::CounterfactualExplanation)
+    converged(counterfactual_explanation) || steps_exhausted(counterfactual_explanation)
+end
+
+"""
+    converged(counterfactual_explanation::CounterfactualExplanation)
+
+A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
+"""
+function converged(counterfactual_explanation::CounterfactualExplanation)
+
+    if counterfactual_explanation.convergence[:converge_when] == :decision_threshold
+        conv = threshold_reached(counterfactual_explanation)
+    elseif counterfactual_explanation.convergence[:converge_when] == :generator_conditions
+        conv = threshold_reached(counterfactual_explanation) && 
+            Generators.conditions_satisified(
+                counterfactual_explanation.generator,
+                counterfactual_explanation,
+            )
+    elseif counterfactual_explanation.convergence[:converge_when] == :max_iter
+        conv = false
+    end
+
+    return conv
+end
+
 """
     threshold_reached(counterfactual_explanation::CounterfactualExplanation)
 
 A convenience method that determines if the predefined threshold for the target class probability has been reached.
 """
 function threshold_reached(counterfactual_explanation::CounterfactualExplanation)
-    γ =
-        isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 :
-        counterfactual_explanation.generator.decision_threshold
+    γ = counterfactual_explanation.convergence[:decision_threshold]
     success_rate = sum(target_probs(counterfactual_explanation) .>= γ) / counterfactual_explanation.num_counterfactuals 
-    return success_rate > counterfactual_explanation.params[:min_success_rate]
+    return success_rate > counterfactual_explanation.convergence[:min_success_rate]
 end
 
 """
@@ -704,11 +715,9 @@ function threshold_reached(
     counterfactual_explanation::CounterfactualExplanation,
     x::AbstractArray
 )
-    γ =
-        isnothing(counterfactual_explanation.generator.decision_threshold) ? 0.5 :
-        counterfactual_explanation.generator.decision_threshold
+    γ = counterfactual_explanation.convergence[:decision_threshold]
     success_rate = sum(target_probs(counterfactual_explanation, x) .>= γ) / counterfactual_explanation.num_counterfactuals
-    return success_rate > counterfactual_explanation.params[:min_success_rate]
+    return success_rate > counterfactual_explanation.convergence[:min_success_rate]
 end
 
 """
@@ -718,28 +727,17 @@ A convenience method that checks if the number of maximum iterations has been ex
 """
 steps_exhausted(counterfactual_explanation::CounterfactualExplanation) =
     counterfactual_explanation.search[:iteration_count] ==
-    counterfactual_explanation.params[:T]
+    counterfactual_explanation.convergence[:max_iter]
 
 """
-    guess_loss(counterfactual_explanation::CounterfactualExplanation)
+    total_steps(counterfactual_explanation::CounterfactualExplanation)
 
-Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
+A convenience method that returns the total number of steps of the counterfactual search.
 """
-function guess_loss(counterfactual_explanation::CounterfactualExplanation)
-    if :likelihood in fieldnames(typeof(counterfactual_explanation.M))
-        if counterfactual_explanation.M.likelihood == :classification_binary
-            loss_fun = Objectives.logitbinarycrossentropy
-        elseif counterfactual_explanation.M.likelihood == :classification_multi
-            loss_fun = Objectives.logitcrossentropy
-        else
-            loss_fun = Flux.Losses.mse
-        end
-    else
-        loss_fun = nothing
-    end
-    return loss_fun
-end
+total_steps(counterfactual_explanation::CounterfactualExplanation) =
+    counterfactual_explanation.search[:iteration_count]
 
+# UPDATES
 """
     update!(counterfactual_explanation::CounterfactualExplanation) 
 
@@ -791,9 +789,9 @@ function Base.show(io::IO, z::CounterfactualExplanation)
 
     println(io, "")
     if z.search[:iteration_count] > 0
-        if isnothing(z.params[:γ])
+        if isnothing(z.convergence[:decision_threshold])
             p_path = target_probs_path(z)
-            n_reached = findall([all(p .>= z.params[:γ]) for p in p_path])
+            n_reached = findall([all(p .>= z.convergence[:decision_threshold]) for p in p_path])
             if length(n_reached) > 0
                 printstyled(
                     io,
