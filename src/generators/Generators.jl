@@ -20,7 +20,9 @@ export REVISEGenerator
 export DiCEGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisified, mutability_constraints
-export Generator, @objective, @threshold
+export Generator
+export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
+export JSMADescent
 
 include("functions.jl")
 include("macros.jl")

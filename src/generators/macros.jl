@@ -32,3 +32,30 @@ A simple macro that can be used to define the decision threshold `γ`.
 macro threshold(generator, γ)
     return esc(:($generator.decision_threshold = $γ; $generator))
 end
+
+"""
+    search_latent_space(generator)
+
+A simple macro that can be used to specify latent space search.
+"""
+macro search_latent_space(generator)
+    return esc(:($generator.latent_space = true; $generator))
+end
+
+"""
+    search_feature_space(generator)
+
+A simple macro that can be used to specify feature space search.
+"""
+macro search_feature_space(generator)
+    return esc(:($generator.feature_space = false; $generator))
+end
+
+"""
+    with_optimiser(generator, optimiser)
+
+A simple macro that can be used to specify the optimiser to be used.
+"""
+macro with_optimiser(generator, optimiser)
+    return esc(:($generator.opt = $optimiser; $generator))
+end

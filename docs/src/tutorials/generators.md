@@ -7,36 +7,9 @@ CurrentModule = CounterfactualExplanations
 
 Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `Generator`s are used. They are discussed in more detail in the explanatory section of the documentation.
 
-## Off-the-Shelf Generators
-
-Currently, the following off-the-shelf counterfactual generators are implemented in the package.
-
-``` julia
-generator_catalogue
-```
-
-    Dict{Symbol, DataType} with 6 entries:
-      :gravitational => GravitationalGenerator
-      :revise        => REVISEGenerator
-      :dice          => DiCEGenerator
-      :generic       => GenericGenerator
-      :greedy        => GreedyGenerator
-      :claproar      => ClaPROARGenerator
-
-These `Generator`s are just composite types that contain information about how counterfactuals ought to be generated. To specify the type of generator you want to use, you can simply instantiate it:
-
-``` julia
-# Search:
-generator = GenericGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-plot(ce)
-```
-
-![](generators_files/figure-commonmark/cell-4-output-1.svg)
-
 ## Composable Generators
 
-!!! warning "Breaking Changes Expected"
+!!! warning "Breaking Changes Expected"  
     Work on this feature is still in its very early stages and breaking changes should be expected.
 
 One of the key objectives for this package is **Composability**. It turns out that many of the various counterfactual generators that have been proposed in the literature, essentially do the same thing: they optimize an objective function. Formally we have,
@@ -72,8 +45,58 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_c
 plot(ce)
 ```
 
-![](generators_files/figure-commonmark/cell-7-output-1.svg)
+![](generators_files/figure-commonmark/cell-5-output-1.svg)
+
+Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE (Mothilal, Sharma, and Tan 2020), REVISE (Joshi et al. 2019) and Greedy (Schut et al. 2021):
+
+``` julia
+@chain generator begin
+    @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
+    @threshold 0.95
+    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+end
+```
+
+Let’s take this generator to our MNIST dataset and generate a counterfactual explanation for turning a 0 into a 8.
+
+![](generators_files/figure-commonmark/cell-10-output-1.svg)
+
+## Off-the-Shelf Generators
+
+Off-the-shelf generators are just default recipes for counterfactual generators. Currently, the following off-the-shelf counterfactual generators are implemented in the package:
+
+``` julia
+generator_catalogue
+```
+
+    Dict{Symbol, Function} with 6 entries:
+      :gravitational => GravitationalGenerator
+      :revise        => REVISEGenerator
+      :dice          => DiCEGenerator
+      :generic       => GenericGenerator
+      :greedy        => GreedyGenerator
+      :claproar      => ClaPROARGenerator
+
+To specify the type of generator you want to use, you can simply instantiate it:
+
+``` julia
+# Search:
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+![](generators_files/figure-commonmark/cell-12-output-1.svg)
+
+We generally make an effort to follow the literature as closely as possible when implementing off-the-shelf generators.
 
 ## References
 
 Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.
+
+Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
+
+Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
+
+Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.

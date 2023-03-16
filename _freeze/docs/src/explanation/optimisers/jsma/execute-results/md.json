@@ -1,0 +1,10 @@
+{
+  "hash": "c6c98252be124e5f973e156cdb4e433a",
+  "result": {
+    "markdown": "```@meta\nCurrentModule = CounterfactualExplanations \n```\n\n\n\n# Jacobian-based Saliency Map Attack\n\nTo search counterfactuals, @schut2021generating propose to use a Jacobian-Based Saliency Map Attack (JSMA) inspired by the literature on adversarial attacks. It works by moving in the direction of the most salient feature at a fixed step size in each iteration. @schut2021generating use this optimisation rule in the context of Bayesian classifiers and demonstrate good results in terms of plausibility --- how realistic counterfactuals are --- and redundancy --- how sparse the proposed feature changes are.\n\n## `JSMADescent`\n\nTo implement this approach in a reusable manner, we have added JSMA as a `Flux` optimiser. In particular, we have added a class `JSMADescent<:Flux.Optimise.AbstractOptimiser`, for which we have overloaded the `Flux.Optimise.apply!` method. This makes it possible to reuse `JSMADescent` as an optimiser in composable generators.\n\n\n\nThe optimiser can be used with with any generator as follows:\n\n::: {.cell execution_count=3}\n``` {.julia .cell-code}\nusing CounterfactualExplanations.Generators: JSMADescent\ngenerator = GenericGenerator() |>\n    gen -> @with_optimiser(gen,JSMADescent(;η=0.1))\nce = generate_counterfactual(x, target, counterfactual_data, M, generator)\n```\n:::\n\n\n\n\nThe figure below compares the resulting counterfactual search outcome to the corresponding outcome with generic `Descent`.\n\n::: {.cell execution_count=5}\n``` {.julia .cell-code}\nplot(p1,p2,size=(1000,400))\n```\n\n::: {.cell-output .cell-output-display execution_count=6}\n![](jsma_files/figure-commonmark/cell-6-output-1.svg){}\n:::\n:::\n\n\n",
+    "supporting": [
+      "jsma_files"
+    ],
+    "filters": []
+  }
+}
