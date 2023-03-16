@@ -10,11 +10,6 @@ export flux_training_params
 export probs, logits
 
 """
-Base type for fitted models.
-"""
-abstract type AbstractFittedModel end
-
-"""
     logits(M::AbstractFittedModel, X::AbstractArray)
 
 Generic method that is compulsory for all models. It returns the raw model predictions. In classification this is sometimes referred to as *logits*: the non-normalized predictions that are fed into a link function to produce predicted probabilities. In regression (not currently implemented) raw outputs typically correspond to final outputs. In other words, there is typically no normalization involved.

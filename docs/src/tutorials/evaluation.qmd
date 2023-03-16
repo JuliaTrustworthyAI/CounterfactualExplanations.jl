@@ -85,10 +85,10 @@ evaluate(ces; report_each=true)
 
 ## Custom Measures
 
-A `measure` is just a method that takes a `CounterfactualExplanation` as its only positional argument. Defining custom measures is therefore straightforward. For example, we could define a measure to compute the inverse target probability as follows:
+A `measure` is just a method that takes a `CounterfactualExplanation` as its only positional argument and `agg::Function` as a key argument specifying how measures should be aggregated across counterfactuals. Defining custom measures is therefore straightforward. For example, we could define a measure to compute the inverse target probability as follows:
 
 ```{julia}
-my_measure(ce::CounterfactualExplanation) = 1 .- CounterfactualExplanations.target_probs(ce)
+my_measure(ce::CounterfactualExplanation; agg=mean) = agg(1 .- CounterfactualExplanations.target_probs(ce))
 evaluate(ce; measure=my_measure)
 ```
 

@@ -1,6 +1,7 @@
 module Evaluation
 
 using ..CounterfactualExplanations
+using ..CounterfactualExplanations.Objectives
 using DataFrames
 using Statistics
 
@@ -49,7 +50,7 @@ function evaluate(
     measure = typeof(measure) <: Function ? [measure] : measure
     agg = report_each ? (x -> x) : agg
     function _compute_measure(ce, fun)
-        val = agg(fun(ce))
+        val = fun(ce; agg=agg)
         val = ndims(val) > 1 ? vec(val) : [val]
         return val
     end
@@ -103,14 +104,14 @@ function evaluate(
             else
                 df_meta = DataFrame(CounterfactualExplanations.get_meta(ce))
             end
-            if !("sample" ∈ names(df_meta)) 
+            if !("sample" ∈ names(df_meta))
                 df_meta.sample .= i
             end
             evaluation = crossjoin(evaluation, df_meta, makeunique=true)
             evaluation.target .= ce.target
             evaluation.factual .= CounterfactualExplanations.factual_label(ce)
         end
-        if !("sample" ∈ names(evaluation)) 
+        if !("sample" ∈ names(evaluation))
             evaluation.sample .= i
         end
         evaluations = [evaluations..., evaluation]

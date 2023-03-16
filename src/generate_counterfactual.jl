@@ -2,7 +2,7 @@
 """
     generate_counterfactual(
         x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-        γ::AbstractFloat=0.75, T=1000
+        γ::AbstractFloat=0.75, max_iter=1000
     )
 
 The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
@@ -45,29 +45,38 @@ function generate_counterfactual(
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
     generator::AbstractGenerator;
-    T::Int = 100,
-    latent_space::Union{Nothing,Bool} = nothing,
-    num_counterfactuals::Int = 1,
-    initialization::Symbol = :add_perturbation,
-    generative_model_params::NamedTuple = (;),
+    num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation,
+    generative_model_params::NamedTuple=(;),
+    max_iter::Int=100,
+    decision_threshold::AbstractFloat=0.5,
+    gradient_tol::AbstractFloat=0.1,
+    min_success_rate::AbstractFloat=0.99,
+    converge_when::Symbol=:decision_threshold,
+    timer::Timer=Timer(60.0),
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(
-        x = x,
-        target = target,
-        data = data,
-        M = M,
-        generator = generator,
-        T = T,
-        latent_space = latent_space,
-        num_counterfactuals = num_counterfactuals,
-        initialization = initialization,
-        generative_model_params = generative_model_params,
+        x=x,
+        target=target,
+        data=data,
+        M=M,
+        generator=generator,
+        num_counterfactuals=num_counterfactuals,
+        initialization=initialization,
+        generative_model_params=generative_model_params,
+        max_iter=max_iter,
+        min_success_rate=min_success_rate,
+        decision_threshold=decision_threshold,
+        gradient_tol=gradient_tol,
+        converge_when=converge_when,
     )
 
     # Search:
     while !counterfactual.search[:terminated]
+        isopen(timer) || break
         update!(counterfactual)
+        yield()
     end
 
     return counterfactual

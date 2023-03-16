@@ -33,11 +33,11 @@ function Plots.plot(
     kwargs...,
 )
 
-    T = total_steps(counterfactual_explanation)
-    T =
+    max_iter = total_steps(counterfactual_explanation)
+    max_iter =
         isnothing(plot_up_to) ? total_steps(counterfactual_explanation) :
-        minimum([plot_up_to, T])
-    T += 1
+        minimum([plot_up_to, max_iter])
+    max_iter += 1
     ingredients = set_up_plots(
         counterfactual_explanation;
         alpha = alpha_,
@@ -45,8 +45,8 @@ function Plots.plot(
         kwargs...,
     )
 
-    for t ∈ 1:T
-        final_state = t == T
+    for t ∈ 1:max_iter
+        final_state = t == max_iter
         plot_state(counterfactual_explanation, t, final_state; ingredients...)
     end
 
@@ -81,11 +81,11 @@ function animate_path(
     plot_proba::Bool = false,
     kwargs...,
 )
-    T = total_steps(counterfactual_explanation)
-    T =
+    max_iter = total_steps(counterfactual_explanation)
+    max_iter =
         isnothing(plot_up_to) ? total_steps(counterfactual_explanation) :
-        minimum([plot_up_to, T])
-    T += 1
+        minimum([plot_up_to, max_iter])
+    max_iter += 1
     ingredients = set_up_plots(
         counterfactual_explanation;
         alpha = alpha_,
@@ -93,8 +93,8 @@ function animate_path(
         kwargs...,
     )
 
-    anim = @animate for t ∈ 1:T
-        final_state = t == T
+    anim = @animate for t ∈ 1:max_iter
+        final_state = t == max_iter
         plot_state(counterfactual_explanation, t, final_state; ingredients...)
         plot_proba ? plot(ingredients.p1, ingredients.p2; kwargs...) :
         plot(ingredients.p1; kwargs...)

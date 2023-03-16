@@ -24,7 +24,7 @@ abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
-    loss::Union{Nothing,Symbol} # loss function
+    loss::Union{Nothing,Function} # loss function
     complexity::Function # complexity function
     λ::AbstractFloat # strength of penalty
     decision_threshold::Union{Nothing,AbstractFloat} 

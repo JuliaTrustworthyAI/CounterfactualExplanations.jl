@@ -3,7 +3,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Counterfactual Generators
+# Counterfactual Generators (**id?** generators_explanation)
 
 Counterfactual generators form the very core of this package. The [`generator_catalogue`](@ref) can be used to inspect the available generators:
 
