@@ -45,6 +45,10 @@ makedocs(;
                 "ClaPROAR" => "explanation/generators/clap_roar.md", 
                 "Greedy" => "explanation/generators/greedy.md", 
             ],
+            "Optimisers" => [
+                "Overview" => "explanation/optimisers/overview.md", 
+                "JSMA" => "explanation/optimisers/jsma.md", 
+            ],
             "Categorical Features" => "explanation/categorical.md",
             # "Loss functions" => "explanation/loss.md",
         ],
