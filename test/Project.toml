@@ -1,4 +1,5 @@
 [deps]
+Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 CompatHelperLocal = "5224ae11-6099-4aaa-941d-3aab004bd678"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"

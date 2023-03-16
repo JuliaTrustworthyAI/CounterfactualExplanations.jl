@@ -102,11 +102,11 @@ function mutability_constraints(
 end
 
 """
-    conditions_satisified(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
+    conditions_satisfied(generator::AbstractGradientBasedGenerator, counterfactual_explanation::AbstractCounterfactualExplanation)
 
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators. By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
-function conditions_satisified(
+function conditions_satisfied(
     generator::AbstractGradientBasedGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )

@@ -19,7 +19,7 @@ export GreedyGenerator
 export REVISEGenerator
 export DiCEGenerator
 export generator_catalogue
-export generate_perturbations, conditions_satisified, mutability_constraints
+export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent

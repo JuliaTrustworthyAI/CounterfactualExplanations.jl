@@ -684,7 +684,7 @@ function converged(counterfactual_explanation::CounterfactualExplanation)
         conv = threshold_reached(counterfactual_explanation)
     elseif counterfactual_explanation.convergence[:converge_when] == :generator_conditions
         conv = threshold_reached(counterfactual_explanation) && 
-            Generators.conditions_satisified(
+            Generators.conditions_satisfied(
                 counterfactual_explanation.generator,
                 counterfactual_explanation,
             )

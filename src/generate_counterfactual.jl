@@ -52,7 +52,8 @@ function generate_counterfactual(
     decision_threshold::AbstractFloat=0.5,
     gradient_tol::AbstractFloat=0.1,
     min_success_rate::AbstractFloat=0.99,
-    timer::Timer=Timer(60.0)
+    converge_when::Symbol=:decision_threshold,
+    timer::Timer=Timer(60.0),
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(
@@ -68,6 +69,7 @@ function generate_counterfactual(
         min_success_rate=min_success_rate,
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
+        converge_when=converge_when,
     )
 
     # Search:

@@ -10,9 +10,16 @@ using Random
         @test typeof(generator) <: AbstractGradientBasedGenerator
     end
 
-    @testset "Greedy" begin
-        generator = GreedyGenerator()
-        @test typeof(generator) <: AbstractGradientBasedGenerator
+    @testset "Macros" begin
+        generator = GenericGenerator()
+        @chain generator begin
+            @objective logitcrossentropy + 5.0ddp_diversity
+            @with_optimiser JSMADescent(η=0.5)
+            @search_latent_space
+        end
+        @test typeof(generator.loss) <: Function
+        @test typeof(generator.opt) == JSMADescent
+        @test generator.latent_space
     end
 
 end

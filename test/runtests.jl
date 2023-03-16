@@ -1,3 +1,4 @@
+using Chain: @chain
 import CompatHelperLocal as CHL
 CHL.@check()
 using CounterfactualExplanations
