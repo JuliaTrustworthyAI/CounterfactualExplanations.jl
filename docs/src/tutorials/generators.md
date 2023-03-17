@@ -52,7 +52,6 @@ Multiple macros can be chained using `Chains.jl` making it easy to create entire
 ``` julia
 @chain generator begin
     @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @threshold 0.95
     @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
@@ -87,7 +86,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
 
-![](generators_files/figure-commonmark/cell-12-output-1.svg)
+![](generators_files/figure-commonmark/cell-13-output-1.svg)
 
 We generally make an effort to follow the literature as closely as possible when implementing off-the-shelf generators.
 
