@@ -7,7 +7,7 @@ X = counterfactual_data.X
 ys = counterfactual_data.y
 generator = generator_catalogue[:revise]()
 
-# Coutnerfactual search
+# Counterfactual search
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))
 y = predict_label(M, counterfactual_data, x)
 target = get_target(counterfactual_data, y[1])

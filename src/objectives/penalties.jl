@@ -16,7 +16,7 @@ function distance(counterfactual_explanation::AbstractCounterfactualExplanation,
 end
 
 """
-    distance_l0(counterfactual_explanaation::AbstractCounterfactualExplanation)
+    distance_l0(counterfactual_explanation::AbstractCounterfactualExplanation)
 
 Computes the L0 distance of the counterfactual to the original factual.
 """
@@ -49,7 +49,7 @@ distance_linf(counterfactual_explanation::AbstractCounterfactualExplanation; agg
         perturbation_size=1e-5
     )
 
-Evaluates how diverse the counterfactuals are using a Determintal Point Process (DDP).
+Evaluates how diverse the counterfactuals are using a Determinantal Point Process (DDP).
 """
 function ddp_diversity(
     counterfactual_explanation::AbstractCounterfactualExplanation;
