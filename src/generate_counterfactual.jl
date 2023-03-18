@@ -50,8 +50,8 @@ function generate_counterfactual(
     generative_model_params::NamedTuple=(;),
     max_iter::Int=100,
     decision_threshold::AbstractFloat=0.5,
-    gradient_tol::AbstractFloat=0.1,
-    min_success_rate::AbstractFloat=0.99,
+    gradient_tol::AbstractFloat=parameters[:τ],
+    min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timer::Timer=Timer(60.0),
 )

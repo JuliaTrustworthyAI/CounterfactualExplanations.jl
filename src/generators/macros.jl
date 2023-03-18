@@ -1,3 +1,11 @@
+function get_fun(ex)
+    if ex ∈ names(CounterfactualExplanations.Objectives)
+        return getfield(CounterfactualExplanations.Objectives, ex)
+    else
+        return getfield(Main, ex)
+    end
+end
+
 """
     objective(generator, ex)
 
@@ -5,14 +13,18 @@ A macro that can be used to define the counterfactual search objective.
 """
 macro objective(generator, ex)
     gen = esc(generator)
-    loss = getfield(CounterfactualExplanations.Objectives, ex.args[2])
+    if ex.args[2] == :_
+        loss = nothing
+    else
+        loss = get_fun(ex.args[2])
+    end
     Λ = Vector{AbstractFloat}()
     costs = Vector{Function}()
     for i in 3:length(ex.args)
         ex_penalty = ex.args[i]
         λ = ex_penalty.args[2]
         push!(Λ, λ)
-        cost = getfield(CounterfactualExplanations.Objectives, ex_penalty.args[3])
+        cost = get_fun(ex_penalty.args[3])
         push!(costs, cost)
     end
     ex_generator = quote

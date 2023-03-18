@@ -1,6 +1,5 @@
 using Flux
 using MLUtils
-using SliceMap
 using Statistics
 
 """
@@ -29,25 +28,20 @@ function FluxEnsemble(model; likelihood::Symbol = :classification_binary)
     FluxEnsemble(model, likelihood)
 end
 
-
 function logits(M::FluxEnsemble, X::AbstractArray)
-    sum(map(nn -> SliceMap.slicemap(x -> nn(x), X, dims = (1, 2)), M.model)) /
+    sum(map(nn -> nn(X), M.model)) /
     length(M.model)
 end
 
 function probs(M::FluxEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
         output =
-            sum(map(nn -> SliceMap.slicemap(x -> σ.(nn(x)), X, dims = (1, 2)), M.model)) /
+            sum(map(nn -> σ.(nn(X)), M.model)) /
             length(M.model)
     elseif M.likelihood == :classification_multi
         output =
-            sum(
-                map(
-                    nn -> SliceMap.slicemap(x -> softmax(nn(x)), X, dims = (1, 2)),
-                    M.model,
-                ),
-            ) / length(M.model)
+            sum(map(nn -> softmax(nn(X)), M.model)) / 
+            length(M.model)
     end
     return output
 end

@@ -43,9 +43,10 @@ Returns the predicted output probabilities for a given model `M`, data set `coun
 """
 function predict_proba(
     M::AbstractFittedModel,
-    counterfactual_data::CounterfactualData,
+    counterfactual_data::Union{Nothing,CounterfactualData},
     X::Union{Nothing,AbstractArray},
 )
+    @assert !(isnothing(counterfactual_data) && isnothing(X))
     X = isnothing(X) ? counterfactual_data.X : X
     p = probs(M, X)
     # println(p)
