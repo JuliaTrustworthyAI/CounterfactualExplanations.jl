@@ -112,7 +112,7 @@ function conditions_satisfied(
 )
     Δs′ = generate_perturbations(generator, counterfactual_explanation)
     τ = counterfactual_explanation.convergence[:gradient_tol]
-    satisfied = map(x -> median(abs.(x)) < τ, eachslice(Δs′, dims=3))
+    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′, dims=3))
     success_rate = sum(satisfied) / counterfactual_explanation.num_counterfactuals
     status = success_rate > counterfactual_explanation.convergence[:min_success_rate]
     return status

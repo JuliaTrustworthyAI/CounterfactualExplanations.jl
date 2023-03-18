@@ -1,7 +1,6 @@
 using Flux
 using MLUtils
 using ProgressMeter
-using SliceMap
 using Statistics
 
 """
@@ -32,7 +31,7 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    return SliceMap.slicemap(x -> M.model(x), X, dims = (1, 2))
+    return M.model(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)
