@@ -7,7 +7,7 @@ using SnoopPrecompile
 
     @precompile_all_calls begin
 
-        # Counteractual data and model:
+        # Counterfactual data and model:
         counterfactual_data = load_linearly_separable()
         M = fit_model(counterfactual_data, :Linear)
         chosen = rand(findall(predict_label(M, counterfactual_data) .== y_fact))

@@ -19,7 +19,7 @@ function logits(M::AbstractFittedModel, X::AbstractArray) end
 """
     probs(M::AbstractFittedModel, X::AbstractArray)
 
-Generic method that is compulsory for all models. It returns the normalized model predictions, so the predicted probabilities in the case of classifiation. In regression (not currently implemented) this method is redundant. 
+Generic method that is compulsory for all models. It returns the normalized model predictions, so the predicted probabilities in the case of classification. In regression (not currently implemented) this method is redundant. 
 """
 function probs(M::AbstractFittedModel, X::AbstractArray) end
 

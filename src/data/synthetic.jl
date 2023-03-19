@@ -5,7 +5,7 @@ using Random
 """
     load_blobs(n=100; seed=data_seed, kwrgs...)
 
-Loads overlapping synthtetic data.
+Loads overlapping synthetic data.
 """
 function load_blobs(n = 100; seed = data_seed, k = 2, centers = 2, kwrgs...)
 
@@ -22,7 +22,7 @@ end
 """
     load_linearly_separable(n=100; seed=data_seed)
 
-Loads linearly separable synthtetic data.
+Loads linearly separable synthetic data.
 """
 function load_linearly_separable(n = 100; seed = data_seed)
 
@@ -36,7 +36,7 @@ end
 """
     load_overlapping(n=100; seed=data_seed)
 
-Loads overlapping synthtetic data.
+Loads overlapping synthetic data.
 """
 function load_overlapping(n = 100; seed = data_seed)
 
@@ -50,7 +50,7 @@ end
 """
     load_multi_class(n=100; seed=data_seed)
 
-Loads multi-class synthtetic data.
+Loads multi-class synthetic data.
 """
 function load_multi_class(n = 100; seed = data_seed, centers = 4)
 

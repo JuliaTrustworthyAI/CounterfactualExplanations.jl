@@ -245,7 +245,7 @@ end
 """
     mutability_constraints(counterfactual_data::CounterfactualData)
 
-A convience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
+A convenience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
 """
 mutability_constraints(counterfactual_data::CounterfactualData) =
     isnothing(counterfactual_data.mutability) ?

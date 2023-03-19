@@ -84,7 +84,7 @@ end
         kwargs...
     )
 
-Computes evaluation `measures` for a vector of counterfactual explanations. By default, no meta data is reported. For `report_meta=true`, meta data is automatically inferred, unless this overwritted by `meta_data`. The optional `meta_data` argument should be a vector of dictionaries of the same length as the vector of counterfactual explanations. 
+Computes evaluation `measures` for a vector of counterfactual explanations. By default, no meta data is reported. For `report_meta=true`, meta data is automatically inferred, unless this overwritten by `meta_data`. The optional `meta_data` argument should be a vector of dictionaries of the same length as the vector of counterfactual explanations. 
 
 Additional `kwargs...` can be provided (see [`evaluate(counterfactual_explanation::CounterfactualExplanation`](@ref) for details).
 """

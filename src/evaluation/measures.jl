@@ -5,7 +5,7 @@ using Statistics: mean
 """
     validity(counterfactual_explanation::CounterfactualExplanation; γ=0.5)
 
-Checks of the counterfactual search has been successful with respect to the probability treshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
+Checks of the counterfactual search has been successful with respect to the probability threshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
 function validity(counterfactual_explanation::CounterfactualExplanation; agg=mean, γ=0.5)
     agg(CounterfactualExplanations.target_probs(counterfactual_explanation) .>= γ)
