@@ -85,7 +85,9 @@ function load_credit_default(n::Union{Nothing,Int}=5000)
     df.SEX = categorical(df.SEX)
     df.EDUCATION = categorical(df.EDUCATION)
     df.MARRIAGE = categorical(df.MARRIAGE)
+    #! format: off
     transformer = Standardizer(count = true) |> ContinuousEncoder()
+    #! format: on
     mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
     X = MLJBase.transform(mach, df[:, Not(:target)])
     X = permutedims(Matrix(X))
