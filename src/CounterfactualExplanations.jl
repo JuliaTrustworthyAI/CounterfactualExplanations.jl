@@ -61,7 +61,7 @@ export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
 
 macro sayhello(name)
-    return :( println("Hello, $name") )
+    return :(println("Hello, $name"))
 end
 
 ### CounterfactualExplanation
@@ -72,7 +72,6 @@ export CounterfactualExplanation
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
-
 
 ### Other
 # Example data sets:

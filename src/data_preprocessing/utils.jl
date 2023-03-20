@@ -16,7 +16,7 @@ end
 
 Splits data into train and test split.
 """
-function train_test_split(data::CounterfactualData; test_size = 0.2)
+function train_test_split(data::CounterfactualData; test_size=0.2)
     N = size(data.X, 2)
     classes_ = data.y_levels
     n_per_class = round(N / length(classes_))
@@ -27,8 +27,8 @@ function train_test_split(data::CounterfactualData; test_size = 0.2)
             [
                 sample(
                     findall(vec(y .== cls)),
-                    Int(floor(test_size * n_per_class)),
-                    replace = false,
+                    Int(floor(test_size * n_per_class));
+                    replace=false,
                 ) for cls in classes_
             ],
         ),
@@ -45,7 +45,6 @@ end
 Helper function to randomly undersample `data::CounterfactualData`.
 """
 function undersample(data::CounterfactualData, n::Int)
-
     X, y = unpack_data(data)
     classes_ = data.y_levels
     n_classes = length(classes_)
@@ -56,7 +55,7 @@ function undersample(data::CounterfactualData, n::Int)
         reduce(
             vcat,
             [
-                sample(findall(vec(y_cls .== cls)), n_per_class, replace = false) for
+                sample(findall(vec(y_cls .== cls)), n_per_class; replace=false) for
                 cls in classes_
             ],
         ),
@@ -66,5 +65,4 @@ function undersample(data::CounterfactualData, n::Int)
     data.output_encoder.y = data.output_encoder.y[idx]
 
     return data
-
 end

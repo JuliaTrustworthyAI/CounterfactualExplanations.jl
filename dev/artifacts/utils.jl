@@ -61,9 +61,8 @@ function generate_artifacts(
     root=".",
     artifact_toml=joinpath(root, "Artifacts.toml"),
     deploy=true,
-    tag="artifacts"
+    tag="artifacts",
 )
-
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
         @warn "For automatic github deployment, need GITHUB_TOKEN. Not found in ENV, attemptimg global git config."
     end
@@ -76,7 +75,6 @@ function generate_artifacts(
         # as shown in the commented-out line)
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(splitext(basename(origin_url))[1])"
-
     end
 
     # Name for hash/artifact:
@@ -89,7 +87,6 @@ function generate_artifacts(
 
     # Spit tarballs to be hosted out to local temporary directory:
     if deploy
-
         tarball_hash = archive_artifact(hash, joinpath(tempdir, "$(artifact_name).tar.gz"))
 
         # Calculate tarball url
@@ -98,8 +95,12 @@ function generate_artifacts(
         # Bind this to an Artifacts.toml file
         @info("Binding $(artifact_name) in Artifacts.toml...")
         bind_artifact!(
-            artifact_toml, artifact_name, hash;
-            download_info=[(tarball_url, tarball_hash)], lazy=true, force=true
+            artifact_toml,
+            artifact_name,
+            hash;
+            download_info=[(tarball_url, tarball_hash)],
+            lazy=true,
+            force=true,
         )
     end
 
@@ -108,17 +109,23 @@ function generate_artifacts(
         @info("Uploading tarballs to $(deploy_repo) tag `$(tag)`")
 
         ghr() do ghr_exe
-            println(readchomp(`$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`))
+            println(
+                readchomp(
+                    `$ghr_exe -replace -u $(dirname(deploy_repo)) -r $(basename(deploy_repo)) $(tag) $(tempdir)`,
+                ),
+            )
         end
 
         @info("Artifacts.toml file now contains all bound artifact names")
     end
-
 end
 
-function create_artifact_name_from_path(datafiles::String, artifact_name::Union{Nothing,String})
+function create_artifact_name_from_path(
+    datafiles::String, artifact_name::Union{Nothing,String}
+)
     # Name for hash/artifact:
-    artifact_name = isnothing(artifact_name) ? replace(datafiles, ("/" => "-")) : artifact_name
+    artifact_name =
+        isnothing(artifact_name) ? replace(datafiles, ("/" => "-")) : artifact_name
     return artifact_name
 end
 

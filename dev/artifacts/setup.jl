@@ -1,5 +1,4 @@
 setup = quote
-
     using Pkg
     Pkg.activate("dev/artifacts")
 
@@ -12,5 +11,4 @@ setup = quote
 
     # Utils
     include("dev/artifacts/utils.jl")
-
 end

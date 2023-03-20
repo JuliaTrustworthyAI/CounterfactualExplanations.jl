@@ -13,10 +13,12 @@ end
 
 Returns a `DataFrame` containing evaluation measures aggregated by `num_counterfactual`.
 """
-function (bmk::Benchmark)(;agg::Union{Nothing,Function}=mean)
+function (bmk::Benchmark)(; agg::Union{Nothing,Function}=mean)
     df = bmk.evaluation
     if !isnothing(agg)
-        df = combine(groupby(df, Not([:num_counterfactual, :value])), :value => agg => :value)
+        df = combine(
+            groupby(df, Not([:num_counterfactual, :value])), :value => agg => :value
+        )
         select!(df, :sample, :variable, :value, :)
     end
     return df
@@ -27,21 +29,24 @@ end
 
 Vertically concatenates two `Benchmark` objects.
 """
-function Base.vcat(bmk1::Benchmark, bmk2::Benchmark; ids::Union{Nothing,AbstractArray}=nothing, idcol_name="dataset")
+function Base.vcat(
+    bmk1::Benchmark,
+    bmk2::Benchmark;
+    ids::Union{Nothing,AbstractArray}=nothing,
+    idcol_name="dataset",
+)
     @assert isnothing(ids) || length(ids) == 2
     ces = vcat(bmk1.counterfactual_explanations, bmk2.counterfactual_explanations)
     if !isnothing(ids)
-        bmk1.evaluation[!,idcol_name] .= ids[1]
-        bmk2.evaluation[!,idcol_name] .= ids[2]
+        bmk1.evaluation[!, idcol_name] .= ids[1]
+        bmk2.evaluation[!, idcol_name] .= ids[2]
     end
     evaluation = vcat(bmk1.evaluation, bmk2.evaluation)
     bmk = Benchmark(ces, evaluation)
     return bmk
 end
 
-function aggregate(bmk::Benchmark)
-
-end
+function aggregate(bmk::Benchmark) end
 
 """
     benchmark(
@@ -55,12 +60,14 @@ Generates a `Benchmark` for a vector of counterfactual explanations. Optionally 
 function benchmark(
     counterfactual_explanations::Vector{CounterfactualExplanation};
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
-    measure::Union{Function,Vector{Function}}=default_measures
+    measure::Union{Function,Vector{Function}}=default_measures,
 )
     evaluations = evaluate(
         counterfactual_explanations;
-        measure=measure, report_each=true,
-        report_meta=true, meta_data=meta_data
+        measure=measure,
+        report_each=true,
+        report_meta=true,
+        meta_data=meta_data,
     )
     bmk = Benchmark(counterfactual_explanations, evaluations)
     return bmk
@@ -87,9 +94,8 @@ function benchmark(
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
     xids::Union{Nothing,AbstractArray}=nothing,
-    kwrgs...
+    kwrgs...,
 )
-
     @assert isnothing(xids) || length(xids) == length(x)
 
     # Counterfactual Search:
@@ -103,9 +109,9 @@ function benchmark(
             _ces = generate_counterfactual(x, target, data, model, generator; kwrgs...)
             _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
             push!(ces, _ces...)
-            _meta_data = map(eachindex(_ces)) do i 
+            _meta_data = map(eachindex(_ces)) do i
                 sample_id = isnothing(xids) ? i : xids[i]
-                Dict(:model => model_name, :generator => gen_name, :sample => sample_id) 
+                Dict(:model => model_name, :generator => gen_name, :sample => sample_id)
             end
             push!(meta_data, _meta_data...)
             _sample += 1
@@ -143,20 +149,24 @@ function benchmark(
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
     suppress_training::Bool=false,
-    kwrgs...
+    kwrgs...,
 )
     # Setup
     factual = rand(data.y_levels)
-    target = rand(data.y_levels[data.y_levels.!=factual])
+    target = rand(data.y_levels[data.y_levels .!= factual])
     if !suppress_training
         @info "Training models on data."
         if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
-            models = Dict(key => train(model,data) for (key, model) in models)
+            models = Dict(key => train(model, data) for (key, model) in models)
         else
-            models = Dict(key => train(model(data),data) for (key, model) in models)
+            models = Dict(key => train(model(data), data) for (key, model) in models)
         end
     end
-    generators = isnothing(generators) ? Dict(key => gen() for (key, gen) in generator_catalogue) : generators
+    generators = if isnothing(generators)
+        Dict(key => gen() for (key, gen) in generator_catalogue)
+    else
+        generators
+    end
 
     # Performance Evaluation:
     bmk = Vector{Benchmark}()
@@ -167,7 +177,16 @@ function benchmark(
         xs = select_factual(data, chosen)
         _models = Dict(key => M)
         xids = (i - 1) * n_individuals .+ collect(1:n_individuals) # unique ids for samples
-        _bmk = benchmark(xs, target, data; models=_models, generators=generators, measure=measure, xids=xids, kwrgs...)
+        _bmk = benchmark(
+            xs,
+            target,
+            data;
+            models=_models,
+            generators=generators,
+            measure=measure,
+            xids=xids,
+            kwrgs...,
+        )
         push!(bmk, _bmk)
     end
     bmk = reduce(vcat, bmk)

@@ -4,13 +4,12 @@ using Pkg.Artifacts
 
 function generate_artifact(
     datafiles;
-    data_dir = "dev/artifacts/data",
-    root = ".",
-    artifact_toml = joinpath(root, "Artifacts.toml"),
-    deploy = true,
-    tag = "data",
+    data_dir="dev/artifacts/data",
+    root=".",
+    artifact_toml=joinpath(root, "Artifacts.toml"),
+    deploy=true,
+    tag="data",
 )
-
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
         @warn "For automatic github deployment, need GITHUB_TOKEN. Not found in ENV, attemptimg global git config."
     end
@@ -29,7 +28,6 @@ function generate_artifact(
         # as shown in the commented-out line)
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(splitext(basename(origin_url))[1])"
-
     end
 
     # For each BSON file, generate its own artifact:
@@ -45,7 +43,6 @@ function generate_artifact(
 
         # Spit tarballs to be hosted out to local temporary directory:
         if deploy
-
             tarball_hash = archive_artifact(hash, joinpath(tempdir, "$(name).tar.gz"))
 
             # Calculate tarball url
@@ -57,12 +54,11 @@ function generate_artifact(
                 artifact_toml,
                 name,
                 hash;
-                download_info = [(tarball_url, tarball_hash)],
-                lazy = true,
-                force = true,
+                download_info=[(tarball_url, tarball_hash)],
+                lazy=true,
+                force=true,
             )
         end
-
     end
 
     if deploy
@@ -79,7 +75,6 @@ function generate_artifact(
 
         @info("Artifacts.toml file now contains all bound artifact names")
     end
-
 end
 
 # generate_artifact()

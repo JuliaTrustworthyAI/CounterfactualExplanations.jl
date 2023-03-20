@@ -11,19 +11,10 @@ export validity, distance, redundancy
 include("measures.jl")
 
 "The default evaluation measures."
-const default_measures = [
-    validity,
-    distance,
-    redundancy
-]
+const default_measures = [validity, distance, redundancy]
 
 "All distance measures."
-const distance_measures = [
-    distance_l0,
-    distance_l1,
-    distance_l2,
-    distance_linf
-]
+const distance_measures = [distance_l0, distance_l1, distance_l2, distance_linf]
 
 """
     evaluate(
@@ -43,7 +34,7 @@ function evaluate(
     agg::Function=mean,
     report_each::Bool=false,
     output_format::Symbol=:Vector,
-    pivot_longer::Bool=true
+    pivot_longer::Bool=true,
 )
     # Setup:
     @assert output_format ∈ [:Vector, :Dict, :DataFrame]
@@ -60,12 +51,20 @@ function evaluate(
 
     # As Dict:
     if output_format == :Dict
-        evaluation = Dict(m => ndims(val) > 1 ? vec(val) : val for (m, val) in zip(Symbol.(measure), evaluation))
+        evaluation = Dict(
+            m => ndims(val) > 1 ? vec(val) : val for
+            (m, val) in zip(Symbol.(measure), evaluation)
+        )
     end
 
     # As DataFrame:
     if output_format == :DataFrame
-        evaluation = Dict(m => ndims(val) > 1 ? vec(val) : val for (m, val) in zip(Symbol.(measure), evaluation)) |> DataFrame
+        evaluation = DataFrame(
+            Dict(
+                m => ndims(val) > 1 ? vec(val) : val for
+                (m, val) in zip(Symbol.(measure), evaluation)
+            ),
+        )
         evaluation.num_counterfactual = 1:nrow(evaluation)
         if pivot_longer
             evaluation = stack(evaluation, Not(:num_counterfactual))
@@ -92,7 +91,7 @@ function evaluate(
     counterfactual_explanations::Vector{CounterfactualExplanation};
     report_meta::Bool=false,
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
-    kwargs...
+    kwargs...,
 )
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
@@ -107,7 +106,7 @@ function evaluate(
             if !("sample" ∈ names(df_meta))
                 df_meta.sample .= i
             end
-            evaluation = crossjoin(evaluation, df_meta, makeunique=true)
+            evaluation = crossjoin(evaluation, df_meta; makeunique=true)
             evaluation.target .= ce.target
             evaluation.factual .= CounterfactualExplanations.factual_label(ce)
         end
@@ -119,7 +118,6 @@ function evaluate(
     evaluations = reduce(vcat, evaluations)
     select!(evaluations, :sample, :num_counterfactual, :)
     return evaluations
-
 end
 
 include("benchmark.jl")

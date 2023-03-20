@@ -23,13 +23,15 @@ end
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
-∂h(
+function ∂h(
     generator::AbstractGradientBasedGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
-) = gradient(
-    () -> h(generator, counterfactual_explanation),
-    Flux.params(counterfactual_explanation.s′),
-)[counterfactual_explanation.s′]
+)
+    return gradient(
+        () -> h(generator, counterfactual_explanation),
+        Flux.params(counterfactual_explanation.s′),
+    )[counterfactual_explanation.s′]
+end
 
 # Gradient:
 """
@@ -42,7 +44,8 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
-    ∂ℓ(generator, M, counterfactual_explanation) + ∂h(generator, counterfactual_explanation)
+    return ∂ℓ(generator, M, counterfactual_explanation) +
+           ∂h(generator, counterfactual_explanation)
 end
 
 """
@@ -84,8 +87,8 @@ end
 
 Helper function to deal with exploding gradients. This is only a temporary fix and will be improved.
 """
-function _replace_nans(Δs′::AbstractArray, old_new::Pair = (NaN => 0))
-    replace(Δs′, old_new)
+function _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
+    return replace(Δs′, old_new)
 end
 
 """
@@ -112,7 +115,7 @@ function conditions_satisfied(
 )
     Δs′ = generate_perturbations(generator, counterfactual_explanation)
     τ = counterfactual_explanation.convergence[:gradient_tol]
-    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′, dims=3))
+    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=3))
     success_rate = sum(satisfied) / counterfactual_explanation.num_counterfactuals
     status = success_rate > counterfactual_explanation.convergence[:min_success_rate]
     return status

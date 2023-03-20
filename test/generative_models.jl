@@ -15,7 +15,5 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 using CounterfactualExplanations.GenerativeModels: retrain!
 CounterfactualExplanations.GenerativeModels.retrain!(
-    counterfactual_data.generative_model,
-    X,
-    ys,
+    counterfactual_data.generative_model, X, ys
 )

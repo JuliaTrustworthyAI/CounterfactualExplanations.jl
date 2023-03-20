@@ -16,7 +16,7 @@ function load_mnist_ensemble()
     return M
 end
 
-function load_mnist_vae(; strong = true)
+function load_mnist_vae(; strong=true)
     @warn artifacts_warning
     if strong
         vae = deserialize(joinpath(vision_dir, "mnist_vae_strong.jls"))

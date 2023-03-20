@@ -5,10 +5,7 @@ using Parameters
 
 # Global constants:
 "A container for global parameters."
-const parameters = Dict(
-    :τ => 1e-3,
-    :min_success_rate => 0.90,
-)
+const parameters = Dict(:τ => 1e-3, :min_success_rate => 0.90)
 
 # Abstract Base Types:
 """
@@ -108,7 +105,6 @@ function (encoder::OutputEncoder)()
     end
 
     return y, y_levels, likelihood
-
 end
 
 """
@@ -132,7 +128,6 @@ function (encoder::OutputEncoder)(ynew::RawTargetType)
     end
 
     return y
-
 end
 
 """
@@ -142,7 +137,7 @@ Utility that returns the index of `target` in `y_levels`.
 """
 function get_target_index(y_levels, target)
     @assert target in y_levels "Specified `target` variable does not match any values of `y`."
-    findall(y_levels .== target)[1]
+    return findall(y_levels .== target)[1]
 end
 
 """
@@ -174,9 +169,7 @@ function reset!(flux_training_params::FluxModelParams)
     default_flux_training_params = FluxModelParams()
     for _name in fieldnames(typeof(flux_training_params))
         setfield!(
-            flux_training_params,
-            _name,
-            getfield(default_flux_training_params, _name),
+            flux_training_params, _name, getfield(default_flux_training_params, _name)
         )
     end
     return flux_training_params

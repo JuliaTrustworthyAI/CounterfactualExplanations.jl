@@ -4,7 +4,6 @@ using CounterfactualExplanations.Generators
 using Random
 
 @testset "Construction" begin
-
     @testset "Generic" begin
         generator = GenericGenerator()
         @test typeof(generator) <: AbstractGradientBasedGenerator
@@ -21,5 +20,4 @@ using Random
         @test typeof(generator.opt) == JSMADescent
         @test generator.latent_space
     end
-
 end

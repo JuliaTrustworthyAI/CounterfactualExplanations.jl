@@ -22,7 +22,7 @@ using Statistics
 Preparing data for mini-batch training .
 """
 function get_data(X::AbstractArray, y::AbstractArray, batch_size)
-    DataLoader((X, y), batchsize = batch_size, shuffle = true)
+    return DataLoader((X, y); batchsize=batch_size, shuffle=true)
 end
 
 """
@@ -37,15 +37,17 @@ struct Encoder
 end
 @functor Encoder
 
-Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation = sigmoid) = Encoder(
-    Dense(input_dim, hidden_dim, activation),   # linear
-    Dense(hidden_dim, latent_dim),        # μ
-    Dense(hidden_dim, latent_dim),        # logσ
-)
+function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
+    return Encoder(
+        Dense(input_dim, hidden_dim, activation),   # linear
+        Dense(hidden_dim, latent_dim),        # μ
+        Dense(hidden_dim, latent_dim),        # logσ
+    )
+end
 
 function (encoder::Encoder)(x)
     h = encoder.linear(x)
-    encoder.μ(h), encoder.logσ(h)
+    return encoder.μ(h), encoder.logσ(h)
 end
 
 """
@@ -53,7 +55,7 @@ end
 
 Helper function that implements the reparameterization trick: `z ∼ 𝒩(μ,σ²) ⇔ z=μ + σ ⊙ ε, ε ∼ 𝒩(0,I).`
 """
-function reparameterization_trick(μ, logσ, device = cpu)
+function reparameterization_trick(μ, logσ, device=cpu)
     return μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
 end
 
@@ -62,7 +64,7 @@ end
 
 Draws random samples from the latent distribution.
 """
-function Random.rand(encoder::Encoder, x, device = cpu)
+function Random.rand(encoder::Encoder, x, device=cpu)
     μ, logσ = encoder(x)
     z = reparameterization_trick(μ, logσ)
     return z, μ, logσ
@@ -73,8 +75,9 @@ end
 
 The default decoder architecture is just a Flux Chain with one hidden layer and a linear output layer. 
 """
-Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation = tanh) =
-    Chain(Dense(latent_dim, hidden_dim, activation), Dense(hidden_dim, input_dim))
+function Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=tanh)
+    return Chain(Dense(latent_dim, hidden_dim, activation), Dense(hidden_dim, input_dim))
+end
 
 """
     VAEParams <: AbstractGMParams
@@ -126,17 +129,16 @@ function VAE(input_dim; kws...)
     end
 
     # initialize encoder and decoder
-    encoder = Encoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
-    decoder = Decoder(input_dim, args.latent_dim, args.hidden_dim) |> args.device
+    encoder = args.device(Encoder(input_dim, args.latent_dim, args.hidden_dim))
+    decoder = args.device(Decoder(input_dim, args.latent_dim, args.hidden_dim))
 
-    VAE(encoder, decoder, args, false)
-
+    return VAE(encoder, decoder, args, false)
 end
 
 Flux.@functor VAE
 
 function Flux.trainable(generative_model::VAE)
-    (encoder = generative_model.encoder, decoder = generative_model.decoder)
+    return (encoder=generative_model.encoder, decoder=generative_model.decoder)
 end
 
 """
@@ -144,9 +146,9 @@ end
 
 Implements a full pass of some input `x` through the VAE: `x ↦ x̂`.
 """
-function reconstruct(generative_model::VAE, x, device = cpu)
+function reconstruct(generative_model::VAE, x, device=cpu)
     z, μ, logσ = rand(generative_model.encoder, x, device)
-    generative_model.decoder(z), μ, logσ
+    return generative_model.decoder(z), μ, logσ
 end
 
 """
@@ -155,13 +157,12 @@ end
 
 """
 function model_loss(generative_model::VAE, λ, x, device)
-
     z, μ, logσ = reconstruct(generative_model, x, device)
     len = size(x)[end]
     # KL-divergence
     kl_q_p = 0.5f0 * sum(@. (exp(2.0f0 * logσ) + μ^2 - 1.0f0 - 2.0f0 * logσ)) / len
     # Negative log-likelihood: - log(p(x|z))
-    nll_x_z = -generative_model.params.nll(z, x, agg = sum) / len
+    nll_x_z = -generative_model.params.nll(z, x; agg=sum) / len
     # Weight regularization:
     reg = λ * sum(x -> sum(x .^ 2), Flux.params(generative_model.decoder))
 
@@ -186,21 +187,16 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     if flux_training_params.verbose
         @info "Begin training VAE"
         p_epoch = Progress(
-            args.epochs;
-            desc = "Progress on epochs:",
-            showspeed = true,
-            color = :green,
+            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
         )
     end
 
     # training
-    for epoch = 1:args.epochs
-
+    for epoch in 1:(args.epochs)
         avg_loss = []
         for (x, _) in loader
-
             loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, x |> args.device, args.device)
+                model_loss(generative_model, args.λ, args.device(x), args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
@@ -210,17 +206,15 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
 
         avg_loss = mean(avg_loss)
         if flux_training_params.verbose
-            next!(p_epoch, showvalues = [(:Loss, "$(avg_loss)")])
+            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss)")])
         end
-
     end
 
     # Set training status to true:
-    generative_model.trained = true
-
+    return generative_model.trained = true
 end
 
-function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs = 10)
+function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs=10)
 
     # load hyperparameters
     args = generative_model.params
@@ -236,22 +230,17 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
     if flux_training_params.verbose
         @info "Begin training VAE"
         p_epoch = Progress(
-            args.epochs;
-            desc = "Progress on epochs:",
-            showspeed = true,
-            color = :green,
+            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
         )
     end
 
     # training
     train_steps = 0
-    for epoch = 1:n_epochs
-
+    for epoch in 1:n_epochs
         avg_loss = []
         for (x, _) in loader
-
             loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, x |> args.device, args.device)
+                model_loss(generative_model, args.λ, args.device(x), args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
@@ -263,8 +252,7 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
 
         avg_loss = mean(avg_loss)
         if flux_training_params.verbose
-            next!(p_epoch, showvalues = [(:Loss, "$(avg_loss)")])
+            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss)")])
         end
-
     end
 end

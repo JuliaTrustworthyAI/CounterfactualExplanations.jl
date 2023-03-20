@@ -1,5 +1,4 @@
 setup_docs = quote
-
     using Pkg
     Pkg.activate("docs")
 
@@ -46,5 +45,4 @@ setup_docs = quote
     # Search:
     generator = GenericGenerator()
     ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-
 end;

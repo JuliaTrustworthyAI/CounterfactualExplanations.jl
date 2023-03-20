@@ -36,12 +36,10 @@ function get_data(
     cluster_std=0.3,
     generator=GenericGenerator(),
     model=:Linear,
-    n_steps=nothing
+    n_steps=nothing,
 )
-
-
     Random.seed!(seed)
-    
+
     n_per = Int.(round(N / 3))
     d1 = MvNormal([0, 1], UniformScaling(cluster_std)(2))
     x1 = rand(d1, n_per)
@@ -58,16 +56,19 @@ function get_data(
     y = X[2, :]
     factual = select_factual(counterfactual_data, rand(1:size(counterfactual_data.X, 2)))
     factual_label = predict_label(M, counterfactual_data, factual)[1]
-    target = counterfactual_data.y_levels[counterfactual_data.y_levels.!=factual_label][1]
+    target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual_label][1]
 
     # Decision boundary:
     n_range = 100
-    xlims, ylims = extrema(X, dims=2)
+    xlims, ylims = extrema(X; dims=2)
     _zoom = 0.5 * maximum(abs.(X))
-    xrange = range(xlims[1] - _zoom, xlims[2] + _zoom, length=n_range)
-    yrange = range(ylims[1] - _zoom, ylims[2] + _zoom, length=n_range)
+    xrange = range(xlims[1] - _zoom, xlims[2] + _zoom; length=n_range)
+    yrange = range(ylims[1] - _zoom, ylims[2] + _zoom; length=n_range)
     target_idx = get_target_index(counterfactual_data.y_levels, target)
-    yhat = [predict_proba(M, counterfactual_data, [x, y])[target_idx] for x in xrange, y in yrange]
+    yhat = [
+        predict_proba(M, counterfactual_data, [x, y])[target_idx] for x in xrange,
+        y in yrange
+    ]
     db_points = findall(0.0 .< yhat .- 0.5 .< 0.1)
     db_points = map(p -> [xrange[p[1]], yrange[p[2]]], db_points)
     _X = reduce(hcat, db_points)
@@ -77,7 +78,6 @@ function get_data(
     _yhat = fit.(xrange)
     db_points = map(x -> [x[1], x[2]], zip(collect(xrange), _yhat))
 
-
     # Counterfactual:
     T = isnothing(n_steps) ? 100 : n_steps
     ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; T=T)
@@ -86,14 +86,14 @@ function get_data(
 end
 
 function logo_picture(;
-    N = 100,
+    N=100,
     ndots=100,
     frame_size=500,
-    ms=frame_size // 50,
+    ms=frame_size//50,
     mcolor=(:red, :purple, :green),
     margin=-0.1,
     db_color=RGBA(julia_colors[:blue]..., 0.5),
-    db_stroke_size=frame_size // 75,
+    db_stroke_size=frame_size//75,
     switch_ce_color=true,
     m_alpha=0.2,
     seed=2022,
@@ -106,7 +106,7 @@ function logo_picture(;
     border_color=julia_colors[:blue],
     border_stroke_size=db_stroke_size,
     n_steps=nothing,
-    smooth=4
+    smooth=4,
 )
 
     # Setup
@@ -116,11 +116,11 @@ function logo_picture(;
 
     # Background 
     if bg
-        circle(O, frame_size // 2, :clip)
+        circle(O, frame_size//2, :clip)
         setcolor(bg_color)
-        box(Point(0, 0), frame_size, frame_size, action=:fill)
+        box(Point(0, 0), frame_size, frame_size; action=:fill)
         setcolor(border_color..., 1.0)
-        circle(O, frame_size // 2, :stroke)
+        circle(O, frame_size//2, :stroke)
     end
 
     # Data
@@ -128,11 +128,13 @@ function logo_picture(;
         N;
         seed=seed,
         cluster_std=cluster_std,
-        generator=generator, model=model, n_steps=n_steps
+        generator=generator,
+        model=model,
+        n_steps=n_steps,
     )
 
     # Dots:
-    idx = sample(1:length(x), ndots, replace=false)
+    idx = sample(1:length(x), ndots; replace=false)
     xplot, yplot = (x[idx], y[idx])
     _scale = (frame_size / (2 * maximum(abs.(ce.data.X)))) * (1 - margin)
 
@@ -141,18 +143,18 @@ function logo_picture(;
     setcolor(db_color)
     order_db = sortperm([x[1] for x in db_points])
     pgon = [Point((_scale .* (_point[1], _point[2]))...) for _point in db_points[order_db]]
-    np = makebezierpath(pgon, smoothing=smooth)
-    drawbezierpath(np, action=:stroke, close=false)
+    np = makebezierpath(pgon; smoothing=smooth)
+    drawbezierpath(np; action=:stroke, close=false)
 
     # Data
     data_plot = zip(xplot, yplot)
-    for i = 1:length(data_plot)
+    for i in 1:length(data_plot)
         _point = collect(data_plot)[i]
         _lab = predict_label(M, ce.data, [_point[1], _point[2]])
         color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
         setcolor(sethue(mcolor[color_idx]...)..., m_alpha)
-        circle(Point(_x, _y), ms, action=:fill)
+        circle(Point(_x, _y), ms; action=:fill)
     end
 
     # Counterfactual path:
@@ -162,15 +164,17 @@ function logo_picture(;
         _lab = predict_label(M, ce.data, [_point[1], _point[2]])
         color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
-        _alpha = i != length(ce_path) ? m_alpha + ((1 - m_alpha) * i/length(ce_path)) : 1.0
-        _ms = i != length(ce_path) ? db_stroke_size : 1.0 * ms 
+        _alpha =
+            i != length(ce_path) ? m_alpha + ((1 - m_alpha) * i / length(ce_path)) : 1.0
+        _ms = i != length(ce_path) ? db_stroke_size : 1.0 * ms
         setcolor(sethue(mcolor[color_idx]...)..., _alpha)
-        circle(Point(_x, _y), _ms, action=:fill)
+        circle(Point(_x, _y), _ms; action=:fill)
     end
-
 end
 
-function draw_small_logo(filename="docs/src/assets/logo.svg", width=500; bg_color="transparent", kwrgs...)
+function draw_small_logo(
+    filename="docs/src/assets/logo.svg", width=500; bg_color="transparent", kwrgs...
+)
     frame_size = width
     Drawing(frame_size, frame_size, filename)
     if !isnothing(bg_color)
@@ -179,26 +183,34 @@ function draw_small_logo(filename="docs/src/assets/logo.svg", width=500; bg_colo
     origin()
     logo_picture(; kwrgs...)
     finish()
-    preview()
+    return preview()
 end
 
-function animate_small_logo(filename="docs/src/assets/logo.gif", width=500; bg_color="transparent", kwrgs...)
+function animate_small_logo(
+    filename="docs/src/assets/logo.gif", width=500; bg_color="transparent", kwrgs...
+)
     frame_size = width
     anim = Movie(frame_size, frame_size, "logo", 1:10)
     function backdrop(scene, framenumber)
-        background(bg_color)
+        return background(bg_color)
     end
     function frame(scene, framenumber)
-        logo_picture(; kwrgs..., m_alpha=1.0, switch_ce_color=false, bg_color=julia_colors[:blue], n_steps=framenumber)
+        return logo_picture(;
+            kwrgs...,
+            m_alpha=1.0,
+            switch_ce_color=false,
+            bg_color=julia_colors[:blue],
+            n_steps=framenumber,
+        )
     end
-    animate(
-        anim, 
+    return animate(
+        anim,
         [
             Scene(anim, backdrop, 1:10),
-            Scene(anim, frame, 1:10, easingfunction=easeinoutcubic)
-        ],
+            Scene(anim, frame, 1:10; easingfunction=easeinoutcubic),
+        ];
         creategif=true,
-        pathname=filename
+        pathname=filename,
     )
 end
 
@@ -210,7 +222,7 @@ function draw_wide_logo(
     font_fill=bg_color,
     font_color=Luxor.julia_blue,
     bg_color="transparent",
-    picture_kwargs...
+    picture_kwargs...,
 )
 
     # Setup:
@@ -232,13 +244,12 @@ function draw_wide_logo(
     # Picture:
     @layer begin
         Luxor.translate(cells[1])
-        logo_picture(
-            ;
+        logo_picture(;
             frame_size=height,
             margin=0.1,
             ms=ms,
             db_stroke_size=db_stroke_size,
-            picture_kwargs...
+            picture_kwargs...,
         )
     end
 
@@ -253,7 +264,7 @@ function draw_wide_logo(
                 Luxor.translate(pos)
                 setline(Int(round(db_stroke_size / 5)))
                 setcolor(font_fill)
-                textoutlines(strs[n], O, :path, valign=:middle, halign=:center)
+                textoutlines(strs[n], O, :path; valign=:middle, halign=:center)
                 fillpreserve()
                 setcolor(font_color..., 1.0)
                 strokepath()
@@ -262,7 +273,7 @@ function draw_wide_logo(
     end
 
     finish()
-    preview()
+    return preview()
 end
 
 _seed = 405
@@ -274,10 +285,7 @@ picture_kwargs = (
     cluster_std=0.1,
     clip_border=true,
     m_alpha=0.2,
-    generator=GravitationalGenerator(
-        decision_threshold=0.95,
-        opt=Descent(0.005),
-    )
+    generator=GravitationalGenerator(; decision_threshold=0.95, opt=Descent(0.005)),
 )
 
 draw_small_logo(; picture_kwargs...)
