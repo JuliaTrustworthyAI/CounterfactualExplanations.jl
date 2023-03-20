@@ -4,7 +4,7 @@ using NearestNeighborModels
 using Plots
 
 function voronoi(X::AbstractMatrix, y::AbstractVector)
-    knnc = KNNClassifier(K = 1) # KNNClassifier instantiation
+    knnc = KNNClassifier(; K=1) # KNNClassifier instantiation
     X = MLJBase.table(X)
     y = categorical(y)
     knnc_mach = machine(knnc, X, y)
@@ -15,19 +15,18 @@ end
 function Plots.plot(
     M::AbstractFittedModel,
     data::DataPreprocessing.CounterfactualData;
-    target::Union{Nothing,RawTargetType} = nothing,
-    colorbar = true,
-    title = "",
-    length_out = 50,
-    zoom = -0.1,
-    xlims = nothing,
-    ylims = nothing,
-    linewidth = 0.1,
-    alpha = 1.0,
-    dim_red::Symbol = :pca,
+    target::Union{Nothing,RawTargetType}=nothing,
+    colorbar=true,
+    title="",
+    length_out=50,
+    zoom=-0.1,
+    xlims=nothing,
+    ylims=nothing,
+    linewidth=0.1,
+    alpha=1.0,
+    dim_red::Symbol=:pca,
     kwargs...,
 )
-
     X, _ = DataPreprocessing.unpack_data(data)
     ŷ = Models.probs(M, X) # true predictions
     if size(ŷ, 1) > 1
@@ -36,7 +35,7 @@ function Plots.plot(
         ŷ = vec(ŷ)
     end
 
-    X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data; dim_red = dim_red)
+    X, y, multi_dim = DataPreprocessing.prepare_for_plotting(data; dim_red=dim_red)
 
     # Surface range:
     zoom = zoom * maximum(abs.(X))
@@ -50,8 +49,8 @@ function Plots.plot(
     else
         ylims = ylims .+ (zoom, -zoom)
     end
-    x_range = convert.(eltype(X), range(xlims[1], stop = xlims[2], length = length_out))
-    y_range = convert.(eltype(X), range(ylims[1], stop = ylims[2], length = length_out))
+    x_range = convert.(eltype(X), range(xlims[1]; stop=xlims[2], length=length_out))
+    y_range = convert.(eltype(X), range(ylims[1]; stop=ylims[2], length=length_out))
 
     if multi_dim
         knn1, y_train = voronoi(X, ŷ)
@@ -87,15 +86,14 @@ function Plots.plot(
         x_range,
         y_range,
         Z[Int(target_idx), :];
-        colorbar = colorbar,
-        title = title,
-        linewidth = linewidth,
-        xlims = xlims,
-        ylims = ylims,
+        colorbar=colorbar,
+        title=title,
+        linewidth=linewidth,
+        xlims=xlims,
+        ylims=ylims,
         kwargs...,
     )
 
     # Samples:
-    scatter!(data; dim_red = dim_red, alpha = alpha, kwargs...)
-
+    return scatter!(data; dim_red=dim_red, alpha=alpha, kwargs...)
 end

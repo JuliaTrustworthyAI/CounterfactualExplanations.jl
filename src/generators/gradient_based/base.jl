@@ -38,7 +38,3 @@ function Generator(;
 )
     return Generator(loss, penalty, λ, latent_space, opt)
 end
-
-
-
-

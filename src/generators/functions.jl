@@ -8,10 +8,11 @@ function ℓ(
     generator::AbstractGenerator,
     counterfactual_explanation::AbstractCounterfactualExplanation,
 )
-
-    loss_fun =
-        !isnothing(generator.loss) ? generator.loss :
+    loss_fun = if !isnothing(generator.loss)
+        generator.loss
+    else
         CounterfactualExplanations.guess_loss(counterfactual_explanation)
+    end
     @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
     loss = loss_fun(counterfactual_explanation)
     return loss
@@ -25,7 +26,7 @@ The default method to apply the generator complexity penalty to the current coun
 """
 function h(
     generator::AbstractGenerator,
-    counterfactual_explanation::AbstractCounterfactualExplanation
+    counterfactual_explanation::AbstractCounterfactualExplanation,
 )
     if isnothing(generator.penalty)
         penalty = 0.0

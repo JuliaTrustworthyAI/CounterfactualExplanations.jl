@@ -4,10 +4,7 @@ using Documenter
 include("setup_docs.jl")
 
 DocMeta.setdocmeta!(
-    CounterfactualExplanations,
-    :DocTestSetup,
-    :(setup_docs);
-    recursive = true,
+    CounterfactualExplanations, :DocTestSetup, :(setup_docs); recursive=true
 )
 
 makedocs(;
@@ -18,7 +15,7 @@ makedocs(;
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl",
-        assets=String[]
+        assets=String[],
     ),
     pages=[
         "🏠 Home" => "index.md",
@@ -37,17 +34,17 @@ makedocs(;
             "Overview" => "explanation/index.md",
             "Package Architecture" => "explanation/architecture.md",
             "Generators" => [
-                "Overview" => "explanation/generators/overview.md", 
-                "Generic" => "explanation/generators/generic.md", 
-                "Gravitational" => "explanation/generators/gravitational.md", 
+                "Overview" => "explanation/generators/overview.md",
+                "Generic" => "explanation/generators/generic.md",
+                "Gravitational" => "explanation/generators/gravitational.md",
                 "REVISE" => "explanation/generators/revise.md",
                 "DiCE" => "explanation/generators/dice.md",
-                "ClaPROAR" => "explanation/generators/clap_roar.md", 
-                "Greedy" => "explanation/generators/greedy.md", 
+                "ClaPROAR" => "explanation/generators/clap_roar.md",
+                "Greedy" => "explanation/generators/greedy.md",
             ],
             "Optimisers" => [
-                "Overview" => "explanation/optimisers/overview.md", 
-                "JSMA" => "explanation/optimisers/jsma.md", 
+                "Overview" => "explanation/optimisers/overview.md",
+                "JSMA" => "explanation/optimisers/jsma.md",
             ],
             "Categorical Features" => "explanation/categorical.md",
             # "Loss functions" => "explanation/loss.md",
@@ -61,10 +58,9 @@ makedocs(;
         "🧐 Reference" => "reference.md",
         "🛠 Contribute" => "contribute.md",
         "📚 Additional Resources" => "assets/resources.md",
-    ]
+    ],
 )
 
-deploydocs(; 
-    repo = "github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl", 
-    devbranch = "main"
+deploydocs(;
+    repo="github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl", devbranch="main"
 )

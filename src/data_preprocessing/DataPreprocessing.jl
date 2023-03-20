@@ -8,5 +8,4 @@ export CounterfactualData,
 include("plotting.jl")
 include("utils.jl")
 
-
 end

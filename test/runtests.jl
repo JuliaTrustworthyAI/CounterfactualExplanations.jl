@@ -20,7 +20,6 @@ synthetic = _load_synthetic()
 generators = generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-
     @testset "Data" begin
         include("data.jl")
     end
@@ -52,5 +51,4 @@ generators = generator_catalogue
     @testset "Evaluation" begin
         include("evaluation.jl")
     end
-
 end

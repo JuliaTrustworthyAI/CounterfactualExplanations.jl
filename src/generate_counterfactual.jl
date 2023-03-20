@@ -56,7 +56,7 @@ function generate_counterfactual(
     timer::Timer=Timer(60.0),
 )
     # Initialize:
-    counterfactual = CounterfactualExplanation(
+    counterfactual = CounterfactualExplanation(;
         x=x,
         target=target,
         data=data,
@@ -80,9 +80,7 @@ function generate_counterfactual(
     end
 
     return counterfactual
-
 end
-
 
 function generate_counterfactual(
     x::Base.Iterators.Zip,
@@ -92,9 +90,9 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     kwargs...,
 )
-    counterfactuals =
-        map(x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x)
+    counterfactuals = map(
+        x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x
+    )
 
     return counterfactuals
-
 end

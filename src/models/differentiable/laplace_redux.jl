@@ -21,7 +21,7 @@ struct LaplaceReduxModel <: AbstractDifferentiableJuliaModel
         else
             throw(
                 ArgumentError(
-                    "`type` should be in `[:classification_binary,:classification_multi]`",
+                    "`type` should be in `[:classification_binary,:classification_multi]`"
                 ),
             )
         end
@@ -29,8 +29,8 @@ struct LaplaceReduxModel <: AbstractDifferentiableJuliaModel
 end
 
 # Outer constructor method:
-function LaplaceReduxModel(model; likelihood::Symbol = :classification_binary)
-    LaplaceReduxModel(model, likelihood)
+function LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
+    return LaplaceReduxModel(model, likelihood)
 end
 
 # Methods

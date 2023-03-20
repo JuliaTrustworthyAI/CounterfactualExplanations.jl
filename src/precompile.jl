@@ -1,7 +1,6 @@
 using SnoopPrecompile
 
 @precompile_setup begin
-
     y_target = 2
     y_fact = 1
 
@@ -17,7 +16,5 @@ using SnoopPrecompile
         generator = GenericGenerator()
         ce = generate_counterfactual(x, y_target, counterfactual_data, M, generator)
         plot(ce)
-
     end
-
 end

@@ -27,35 +27,34 @@ plot(ce)
 """
 function Plots.plot(
     counterfactual_explanation::CounterfactualExplanation;
-    alpha_ = 0.5,
-    plot_up_to::Union{Nothing,Int} = nothing,
-    plot_proba::Bool = false,
+    alpha_=0.5,
+    plot_up_to::Union{Nothing,Int}=nothing,
+    plot_proba::Bool=false,
     kwargs...,
 )
-
     max_iter = total_steps(counterfactual_explanation)
-    max_iter =
-        isnothing(plot_up_to) ? total_steps(counterfactual_explanation) :
+    max_iter = if isnothing(plot_up_to)
+        total_steps(counterfactual_explanation)
+    else
         minimum([plot_up_to, max_iter])
+    end
     max_iter += 1
     ingredients = set_up_plots(
-        counterfactual_explanation;
-        alpha = alpha_,
-        plot_proba = plot_proba,
-        kwargs...,
+        counterfactual_explanation; alpha=alpha_, plot_proba=plot_proba, kwargs...
     )
 
-    for t ∈ 1:max_iter
+    for t in 1:max_iter
         final_state = t == max_iter
         plot_state(counterfactual_explanation, t, final_state; ingredients...)
     end
 
-    plt =
-        plot_proba ? plot(ingredients.p1, ingredients.p2; kwargs...) :
+    plt = if plot_proba
+        plot(ingredients.p1, ingredients.p2; kwargs...)
+    else
         plot(ingredients.p1; kwargs...)
+    end
 
     return plt
-
 end
 
 """
@@ -75,29 +74,31 @@ animate_path(ce)
 """
 function animate_path(
     counterfactual_explanation::CounterfactualExplanation,
-    path = tempdir();
-    alpha_ = 0.5,
-    plot_up_to::Union{Nothing,Int} = nothing,
-    plot_proba::Bool = false,
+    path=tempdir();
+    alpha_=0.5,
+    plot_up_to::Union{Nothing,Int}=nothing,
+    plot_proba::Bool=false,
     kwargs...,
 )
     max_iter = total_steps(counterfactual_explanation)
-    max_iter =
-        isnothing(plot_up_to) ? total_steps(counterfactual_explanation) :
+    max_iter = if isnothing(plot_up_to)
+        total_steps(counterfactual_explanation)
+    else
         minimum([plot_up_to, max_iter])
+    end
     max_iter += 1
     ingredients = set_up_plots(
-        counterfactual_explanation;
-        alpha = alpha_,
-        plot_proba = plot_proba,
-        kwargs...,
+        counterfactual_explanation; alpha=alpha_, plot_proba=plot_proba, kwargs...
     )
 
-    anim = @animate for t ∈ 1:max_iter
+    anim = @animate for t in 1:max_iter
         final_state = t == max_iter
         plot_state(counterfactual_explanation, t, final_state; ingredients...)
-        plot_proba ? plot(ingredients.p1, ingredients.p2; kwargs...) :
-        plot(ingredients.p1; kwargs...)
+        if plot_proba
+            plot(ingredients.p1, ingredients.p2; kwargs...)
+        else
+            plot(ingredients.p1; kwargs...)
+        end
     end
     return anim
 end
@@ -119,16 +120,16 @@ function plot_state(
     kwargs...,
 )
     args = PlotIngredients(; kwargs...)
-    x1 = vec(mapslices(X -> X[1], args.path_embedded[t], dims = (1, 2)))
-    x2 = vec(mapslices(X -> X[2], args.path_embedded[t], dims = (1, 2)))
+    x1 = vec(mapslices(X -> X[1], args.path_embedded[t]; dims=(1, 2)))
+    x2 = vec(mapslices(X -> X[2], args.path_embedded[t]; dims=(1, 2)))
     y = vec(selectdim(args.path_labels, 1, t))
     _c = levelcode.(y)
     n_ = counterfactual_explanation.num_counterfactuals
-    label_ = reshape(["C$i" for i = 1:n_], 1, n_)
+    label_ = reshape(["C$i" for i in 1:n_], 1, n_)
     if !final_sate
-        scatter!(args.p1, x1, x2, group = y, colour = _c; ms = 5, label = "")
+        scatter!(args.p1, x1, x2; group=y, colour=_c, ms=5, label="")
     else
-        scatter!(args.p1, x1, x2, group = y, colour = _c; ms = 10, label = "")
+        scatter!(args.p1, x1, x2; group=y, colour=_c, ms=10, label="")
         if n_ > 1
             label_1 = vec([text(lab, 5) for lab in label_])
             annotate!(x1, x2, label_1)
@@ -143,10 +144,10 @@ function plot_state(
         end
         plot!(
             args.p2,
-            probs_,
-            label = label_2,
-            color = reshape(1:n_, 1, n_),
-            title = "p(y=$(counterfactual_explanation.target))",
+            probs_;
+            label=label_2,
+            color=reshape(1:n_, 1, n_),
+            title="p(y=$(counterfactual_explanation.target))",
         )
     end
 end
@@ -173,33 +174,31 @@ end
 A helper method that prepares data for plotting.
 """
 function set_up_plots(
-    counterfactual_explanation::CounterfactualExplanation;
-    alpha,
-    plot_proba,
-    kwargs...,
+    counterfactual_explanation::CounterfactualExplanation; alpha, plot_proba, kwargs...
 )
     p1 = Models.plot(
         counterfactual_explanation.M,
         counterfactual_explanation.data;
-        target = counterfactual_explanation.target,
-        alpha = alpha,
+        target=counterfactual_explanation.target,
+        alpha=alpha,
         kwargs...,
     )
-    p2 = plot(xlims = (1, total_steps(counterfactual_explanation) + 1), ylims = (0, 1))
+    p2 = plot(; xlims=(1, total_steps(counterfactual_explanation) + 1), ylims=(0, 1))
     path_embedded = embed_path(counterfactual_explanation)
     path_labels = reduce(vcat, (counterfactual_label_path(counterfactual_explanation)))
     y_levels = counterfactual_explanation.data.y_levels
-    path_labels =
-        mapslices(y -> categorical(vec(y); levels = y_levels), path_labels, dims = (1, 2))
+    path_labels = mapslices(
+        y -> categorical(vec(y); levels=y_levels), path_labels; dims=(1, 2)
+    )
     path_probs = target_probs_path(counterfactual_explanation)
     output = (
-        p1 = p1,
-        p2 = p2,
-        path_embedded = path_embedded,
-        path_labels = path_labels,
-        path_probs = path_probs,
-        alpha = alpha,
-        plot_proba = plot_proba,
+        p1=p1,
+        p2=p2,
+        path_embedded=path_embedded,
+        path_labels=path_labels,
+        path_probs=path_probs,
+        alpha=alpha,
+        plot_proba=plot_proba,
     )
     return output
 end
