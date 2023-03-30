@@ -21,7 +21,7 @@ function JSMADescent(;
     elseif isnothing(η) && !isnothing(n)
         η = 1 / n
     elseif !isnothing(η) && isnothing(n)
-        n = 1 / η
+        n = Int(maximum([1,1/η]))
     end
     return JSMADescent(η, n, mutability, IdDict())
 end

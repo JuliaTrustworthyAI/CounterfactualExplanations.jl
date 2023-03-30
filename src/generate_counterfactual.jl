@@ -53,7 +53,7 @@ function generate_counterfactual(
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
-    timer::Timer=Timer(60.0),
+    timeout::Union{Nothing,Int}=nothing,
 )
     # Initialize:
     counterfactual = CounterfactualExplanation(;
@@ -73,10 +73,16 @@ function generate_counterfactual(
     )
 
     # Search:
+    timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !counterfactual.search[:terminated]
-        isopen(timer) || break
         update!(counterfactual)
-        yield()
+        if !isnothing(timer)
+            yield()
+            if !isopen(timer) 
+                @info "Counterfactual search timed out before convergence"
+                break
+            end
+        end
     end
 
     return counterfactual

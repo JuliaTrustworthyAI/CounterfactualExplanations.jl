@@ -94,6 +94,7 @@ function benchmark(
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
     xids::Union{Nothing,AbstractArray}=nothing,
+    dataname::Union{Nothing,Symbol,String}=nothing,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
@@ -111,7 +112,11 @@ function benchmark(
             push!(ces, _ces...)
             _meta_data = map(eachindex(_ces)) do i
                 sample_id = isnothing(xids) ? i : xids[i]
-                Dict(:model => model_name, :generator => gen_name, :sample => sample_id)
+                _dict = Dict(:model => model_name, :generator => gen_name, :sample => sample_id)
+                if !isnothing(dataname)
+                    _dict[:dataname] = dataname
+                end
+                return _dict
             end
             push!(meta_data, _meta_data...)
             _sample += 1
@@ -144,7 +149,7 @@ Runs the benchmarking exercise as follows:
 """
 function benchmark(
     data::CounterfactualData;
-    models::Dict{Symbol,Any}=model_catalogue,
+    models::Dict{Symbol,<:Any}=model_catalogue,
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
