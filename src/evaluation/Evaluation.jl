@@ -35,11 +35,15 @@ function evaluate(
     report_each::Bool=false,
     output_format::Symbol=:Vector,
     pivot_longer::Bool=true,
+    store_ce::Bool=false,
 )
     # Setup:
     @assert output_format ∈ [:Vector, :Dict, :DataFrame]
     measure = typeof(measure) <: Function ? [measure] : measure
     agg = report_each ? (x -> x) : agg
+    if store_ce
+        output_format = :DataFrame
+    end
     function _compute_measure(ce, fun)
         val = fun(ce; agg=agg)
         val = ndims(val) > 1 ? vec(val) : [val]
@@ -68,6 +72,9 @@ function evaluate(
         evaluation.num_counterfactual = 1:nrow(evaluation)
         if pivot_longer
             evaluation = stack(evaluation, Not(:num_counterfactual))
+        end
+        if store_ce
+            evaluation.ce = repeat([counterfactual_explanation], nrow(evaluation))
         end
         select!(evaluation, :num_counterfactual, :)
     end

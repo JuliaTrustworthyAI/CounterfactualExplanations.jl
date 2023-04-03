@@ -68,6 +68,7 @@ function benchmark(
         report_each=true,
         report_meta=true,
         meta_data=meta_data,
+        store_ce=true,
     )
     bmk = Benchmark(counterfactual_explanations, evaluations)
     return bmk
