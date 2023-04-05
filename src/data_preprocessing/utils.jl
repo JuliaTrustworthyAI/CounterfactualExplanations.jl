@@ -45,7 +45,7 @@ end
 Helper function to randomly undersample `data::CounterfactualData`.
 """
 function undersample(data::CounterfactualData, n::Int)
-    X, y = unpack_data(data)
+    X, y = data.X, data.output_encoder.y
     classes_ = data.y_levels
     n_classes = length(classes_)
     n_per_class = Int(round(n / n_classes))
@@ -60,9 +60,16 @@ function undersample(data::CounterfactualData, n::Int)
             ],
         ),
     )
-    data.X = X[:, idx]
-    data.y = y[:, idx]
-    data.output_encoder.y = data.output_encoder.y[idx]
+    X = X[:, idx]
+    y = y[idx]
+    new_data = CounterfactualData(
+        X, y;
+        domain = data.domain,
+        features_continuous = data.features_continuous,
+        features_categorical = data.features_categorical,
+        mutability = data.mutability,
+        standardize = data.standardize,
+    )
 
-    return data
+    return new_data
 end
