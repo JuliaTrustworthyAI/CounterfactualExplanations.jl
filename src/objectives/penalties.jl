@@ -71,7 +71,7 @@ Evaluates how diverse the counterfactuals are using a Determinantal Point Proces
 """
 function ddp_diversity(
     counterfactual_explanation::AbstractCounterfactualExplanation;
-    perturbation_size=1e-5,
+    perturbation_size=1e-3,
     agg=det,
 )
     X = counterfactual_explanation.s′
