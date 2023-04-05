@@ -70,7 +70,6 @@ Counterfactual generators accept several default parameters that can be used to 
 
 ```{julia}
 # Search params:
-opt = Descent()
 decision_threshold = 0.75
 num_counterfactuals = 3
 ```
@@ -82,13 +81,12 @@ ces = Dict()
 plts = []
 # Search:
 for (key, Generator) in generator_catalogue
-    generator = Generator(; 
-        opt=opt, 
-        decision_threshold=decision_threshold
-    )
+    generator = Generator()
     ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator;
-        num_counterfactuals = num_counterfactuals
+        num_counterfactuals = num_counterfactuals,
+        decision_threshold=decision_threshold,
+        converge_when=:generator_conditions
     )
     ces[key] = ce
     plts = [plts..., plot(ce; title=key, colorbar=false)]
