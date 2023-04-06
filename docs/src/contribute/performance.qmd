@@ -8,6 +8,7 @@ eval(setup_docs)
 ```{julia}
 # Counteractual data and model:
 counterfactual_data = load_linearly_separable()
+counterfactual_data.standardize = false
 M = fit_model(counterfactual_data, :Linear)
 target = 2
 factual = 1
@@ -22,14 +23,26 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 ```{julia}
 counterfactual_data_large = load_linearly_separable(100000)
+counterfactual_data_large.standardize = false
 ```
 
 
 ```{julia}
-@time generate_counterfactual(x, target, counterfactual_data, M, generator)
+@time ce = generate_counterfactual(x, target, counterfactual_data, M, generator; initialization=:identity)
 ```
 
 
 ```{julia}
-@time generate_counterfactual(x, target, counterfactual_data_large, M, generator)
+@time ce_large = generate_counterfactual(x, target, counterfactual_data_large, M, generator; initialization=:identity)
+```
+
+
+```{julia}
+@time CounterfactualExplanation(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+using CounterfactualExplanations.DataPreprocessing: undersample
+dt_reduced = undersample(counterfactual_data_large, 10)
+@time ce_reduced = generate_counterfactual(x, target, dt_reduced, M, generator; initialization=:identity)
 ```

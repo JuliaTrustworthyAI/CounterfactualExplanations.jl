@@ -15,11 +15,11 @@ generator = generator_catalogue[:generic]()
     x = select_factual(counterfactual_data, rand(1:size(X, 2)))
     y = predict_label(M, counterfactual_data, x)
     target = get_target(counterfactual_data, y[1])
-    counterfactual_explanation = generate_counterfactual(
+    ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator
     )
-    plt = plot(counterfactual_explanation)
-    anim = animate_path(counterfactual_explanation)
+    plt = plot(ce)
+    anim = animate_path(ce)
 end
 
 @testset "Multi-dimensional" begin

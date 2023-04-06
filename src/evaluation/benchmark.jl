@@ -4,7 +4,7 @@ using ..Models: train
 
 "A container for benchmarks of counterfactual explanations."
 struct Benchmark
-    counterfactual_explanations::Vector{CounterfactualExplanation}
+    ces::Vector{CounterfactualExplanation}
     evaluation::DataFrame
 end
 
@@ -36,7 +36,7 @@ function Base.vcat(
     idcol_name="dataset",
 )
     @assert isnothing(ids) || length(ids) == 2
-    ces = vcat(bmk1.counterfactual_explanations, bmk2.counterfactual_explanations)
+    ces = vcat(bmk1.ces, bmk2.ces)
     if !isnothing(ids)
         bmk1.evaluation[!, idcol_name] .= ids[1]
         bmk2.evaluation[!, idcol_name] .= ids[2]
@@ -50,7 +50,7 @@ function aggregate(bmk::Benchmark) end
 
 """
     benchmark(
-        counterfactual_explanations::Vector{CounterfactualExplanation};
+        ces::Vector{CounterfactualExplanation};
         meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures
     )
@@ -58,19 +58,19 @@ function aggregate(bmk::Benchmark) end
 Generates a `Benchmark` for a vector of counterfactual explanations. Optionally `meta_data` describing each individual counterfactual explanation can be supplied. This should be a vector of dictionaries of the same length as the vector of counterfactuals. If no `meta_data` is supplied, it will be automatically inferred. 
 """
 function benchmark(
-    counterfactual_explanations::Vector{CounterfactualExplanation};
+    ces::Vector{CounterfactualExplanation};
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
 )
     evaluations = evaluate(
-        counterfactual_explanations;
+        ces;
         measure=measure,
         report_each=true,
         report_meta=true,
         meta_data=meta_data,
         store_ce=true,
     )
-    bmk = Benchmark(counterfactual_explanations, evaluations)
+    bmk = Benchmark(ces, evaluations)
     return bmk
 end
 
@@ -85,7 +85,7 @@ end
         kwrgs...
     )
 
-First generates counterfactual explanations for factual `x`, the `target` and `data` using each of the provided `models` and `generators`. Then generates a `Benchmark` for the vector of counterfactual explanations as in [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref).
+First generates counterfactual explanations for factual `x`, the `target` and `data` using each of the provided `models` and `generators`. Then generates a `Benchmark` for the vector of counterfactual explanations as in [`benchmark(ces::Vector{CounterfactualExplanation})`](@ref).
 """
 function benchmark(
     x::Union{AbstractArray,Base.Iterators.Zip},

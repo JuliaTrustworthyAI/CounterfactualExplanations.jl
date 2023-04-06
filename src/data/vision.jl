@@ -32,7 +32,7 @@ function load_mnist_test()
     X, y = MNIST(:test)[:]
     X = Flux.flatten(X)
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(0, 1))
+    counterfactual_data = CounterfactualData(X, y; domain=(0, 1), standardize=false)
     counterfactual_data.X = Float32.(counterfactual_data.X)
     return counterfactual_data
 end
