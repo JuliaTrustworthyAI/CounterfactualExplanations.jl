@@ -18,7 +18,7 @@ const distance_measures = [distance_l0, distance_l1, distance_l2, distance_linf]
 
 """
     evaluate(
-        counterfactual_explanation::CounterfactualExplanation;
+        ce::CounterfactualExplanation;
         measure::Union{Function,Vector{Function}}=default_measures,
         agg::Function=mean,
         report_each::Bool=false,
@@ -29,7 +29,7 @@ const distance_measures = [distance_l0, distance_l1, distance_l2, distance_linf]
 Just computes evaluation `measures` for the counterfactual explanation.
 """
 function evaluate(
-    counterfactual_explanation::CounterfactualExplanation;
+    ce::CounterfactualExplanation;
     measure::Union{Function,Vector{Function}}=default_measures,
     agg::Function=mean,
     report_each::Bool=false,
@@ -51,7 +51,7 @@ function evaluate(
     end
 
     # Evaluate:
-    evaluation = [_compute_measure(counterfactual_explanation, fun) for fun in measure]
+    evaluation = [_compute_measure(ce, fun) for fun in measure]
 
     # As Dict:
     if output_format == :Dict
@@ -74,7 +74,7 @@ function evaluate(
             evaluation = stack(evaluation, Not(:num_counterfactual))
         end
         if store_ce
-            evaluation.ce = repeat([counterfactual_explanation], nrow(evaluation))
+            evaluation.ce = repeat([ce], nrow(evaluation))
         end
         select!(evaluation, :num_counterfactual, :)
     end
@@ -92,7 +92,7 @@ end
 
 Computes evaluation `measures` for a vector of counterfactual explanations. By default, no meta data is reported. For `report_meta=true`, meta data is automatically inferred, unless this overwritten by `meta_data`. The optional `meta_data` argument should be a vector of dictionaries of the same length as the vector of counterfactual explanations. 
 
-Additional `kwargs...` can be provided (see [`evaluate(counterfactual_explanation::CounterfactualExplanation`](@ref) for details).
+Additional `kwargs...` can be provided (see [`evaluate(ce::CounterfactualExplanation`](@ref) for details).
 """
 function evaluate(
     counterfactual_explanations::Vector{CounterfactualExplanation};

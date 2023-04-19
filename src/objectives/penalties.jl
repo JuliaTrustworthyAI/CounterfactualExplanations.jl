@@ -4,77 +4,77 @@ using SliceMap
 using Statistics: mean
 
 """
-    distance(counterfactual_explanation::AbstractCounterfactualExplanation, p::Real=2)
+    distance(ce::AbstractCounterfactualExplanation, p::Real=2)
 
 Computes the distance of the counterfactual to the original factual.
 """
 function distance(
-    counterfactual_explanation::AbstractCounterfactualExplanation, p::Real=2; agg=mean
+    ce::AbstractCounterfactualExplanation, p::Real=2; agg=mean
 )
-    x = CounterfactualExplanations.factual(counterfactual_explanation)
-    x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
+    x = CounterfactualExplanations.factual(ce)
+    x′ = CounterfactualExplanations.counterfactual(ce)
     Δ = agg(SliceMap.slicemap(_x -> permutedims([norm(_x .- x, p)]), x′; dims=(1, 2)))
     return Δ
 end
 
 """
-    distance_l0(counterfactual_explanation::AbstractCounterfactualExplanation)
+    distance_l0(ce::AbstractCounterfactualExplanation)
 
 Computes the L0 distance of the counterfactual to the original factual.
 """
 function distance_l0(
-    counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean
+    ce::AbstractCounterfactualExplanation; agg=mean
 )
-    return distance(counterfactual_explanation, 0; agg=agg)
+    return distance(ce, 0; agg=agg)
 end
 
 """
-    distance_l1(counterfactual_explanation::AbstractCounterfactualExplanation)
+    distance_l1(ce::AbstractCounterfactualExplanation)
 
 Computes the L1 distance of the counterfactual to the original factual.
 """
 function distance_l1(
-    counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean
+    ce::AbstractCounterfactualExplanation; agg=mean
 )
-    return distance(counterfactual_explanation, 1; agg=agg)
+    return distance(ce, 1; agg=agg)
 end
 
 """
-    distance_l2(counterfactual_explanation::AbstractCounterfactualExplanation)
+    distance_l2(ce::AbstractCounterfactualExplanation)
 
 Computes the L2 (Euclidean) distance of the counterfactual to the original factual.
 """
 function distance_l2(
-    counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean
+    ce::AbstractCounterfactualExplanation; agg=mean
 )
-    return distance(counterfactual_explanation, 2; agg=agg)
+    return distance(ce, 2; agg=agg)
 end
 
 """
-    distance_linf(counterfactual_explanation::AbstractCounterfactualExplanation)
+    distance_linf(ce::AbstractCounterfactualExplanation)
 
 Computes the L-inf distance of the counterfactual to the original factual.
 """
 function distance_linf(
-    counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean
+    ce::AbstractCounterfactualExplanation; agg=mean
 )
-    return distance(counterfactual_explanation, Inf; agg=agg)
+    return distance(ce, Inf; agg=agg)
 end
 
 """
     ddp_diversity(
-        counterfactual_explanation::AbstractCounterfactualExplanation;
+        ce::AbstractCounterfactualExplanation;
         perturbation_size=1e-5
     )
 
 Evaluates how diverse the counterfactuals are using a Determinantal Point Process (DDP).
 """
 function ddp_diversity(
-    counterfactual_explanation::AbstractCounterfactualExplanation;
+    ce::AbstractCounterfactualExplanation;
     perturbation_size=1e-3,
     agg=det,
 )
-    X = counterfactual_explanation.s′
+    X = ce.s′
     xs = eachslice(X; dims=ndims(X))
     K = [1 / (1 + norm(x .- y)) for x in xs, y in xs]
     K += LinearAlgebra.Diagonal(
@@ -86,22 +86,22 @@ end
 
 """
     distance_from_target(
-        counterfactual_explanation::AbstractCounterfactualExplanation, p::Int=2; 
+        ce::AbstractCounterfactualExplanation, p::Int=2; 
         agg=mean, K::Int=50
     )
 
 Computes the distance of the counterfactual from a point in the target main.
 """
 function distance_from_target(
-    counterfactual_explanation::AbstractCounterfactualExplanation,
+    ce::AbstractCounterfactualExplanation,
     p::Int=2;
     agg=mean,
     K::Int=50,
 )
-    ids = rand(1:size(counterfactual_explanation.params[:potential_neighbours], 2), K)
-    neighbours = counterfactual_explanation.params[:potential_neighbours][:, ids]
+    ids = rand(1:size(ce.params[:potential_neighbours], 2), K)
+    neighbours = ce.params[:potential_neighbours][:, ids]
     centroid = mean(neighbours; dims=2)
-    x′ = CounterfactualExplanations.counterfactual(counterfactual_explanation)
+    x′ = CounterfactualExplanations.counterfactual(ce)
     Δ = agg(
         SliceMap.slicemap(_x -> permutedims([norm(_x .- centroid, p)]), x′; dims=(1, 2))
     )
@@ -110,19 +110,19 @@ end
 
 """
     function model_loss_penalty(
-        counterfactual_explanation::AbstractCounterfactualExplanation;
+        ce::AbstractCounterfactualExplanation;
         agg=mean
     )
 
 Additional penalty for ClaPROARGenerator.
 """
 function model_loss_penalty(
-    counterfactual_explanation::AbstractCounterfactualExplanation; agg=mean
+    ce::AbstractCounterfactualExplanation; agg=mean
 )
-    x_ = CounterfactualExplanations.decode_state(counterfactual_explanation)
-    M = counterfactual_explanation.M
+    x_ = CounterfactualExplanations.decode_state(ce)
+    M = ce.M
     model = isa(M.model, Vector) ? M.model : [M.model]
-    y_ = counterfactual_explanation.target_encoded
+    y_ = ce.target_encoded
 
     if M.likelihood == :classification_binary
         loss_type = :logitbinarycrossentropy
