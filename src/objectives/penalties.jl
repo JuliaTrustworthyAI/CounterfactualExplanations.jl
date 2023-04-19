@@ -13,7 +13,7 @@ function distance(
 )
     x = CounterfactualExplanations.factual(ce)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    Δ = agg(SliceMap.slicemap(_x -> permutedims([norm(_x .- x, p)]), x′; dims=(1, 2)))
+    Δ = agg(norm(x′ .- x))
     return Δ
 end
 
@@ -102,9 +102,7 @@ function distance_from_target(
     neighbours = ce.params[:potential_neighbours][:, ids]
     centroid = mean(neighbours; dims=2)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    Δ = agg(
-        SliceMap.slicemap(_x -> permutedims([norm(_x .- centroid, p)]), x′; dims=(1, 2))
-    )
+    Δ = agg(norm(x′ .- centroid, p))
     return Δ
 end
 

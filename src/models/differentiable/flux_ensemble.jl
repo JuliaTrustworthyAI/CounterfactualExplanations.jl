@@ -25,6 +25,7 @@ end
 
 # Outer constructor method:
 function FluxEnsemble(model; likelihood::Symbol=:classification_binary)
+    @.(testmode!(model))
     return FluxEnsemble(model, likelihood)
 end
 

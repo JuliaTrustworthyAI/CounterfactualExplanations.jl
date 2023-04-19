@@ -26,6 +26,7 @@ end
 
 # Outer constructor method:
 function FluxModel(model; likelihood::Symbol=:classification_binary)
+    testmode!(model)
     return FluxModel(model, likelihood)
 end
 
@@ -64,6 +65,7 @@ function train(M::FluxModel, data::CounterfactualData; args=flux_training_params
     model = M.model
     forward!(model, data; loss=loss, opt=args.opt, n_epochs=args.n_epochs)
 
+
     return M
 end
 
@@ -86,6 +88,7 @@ function forward!(
         )
     end
 
+    trainmode!(model)
     for epoch in 1:n_epochs
         for d in data
             gs = Flux.gradient(Flux.params(model)) do
@@ -97,6 +100,7 @@ function forward!(
             next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])
         end
     end
+    testmode!(model)
 end
 
 """

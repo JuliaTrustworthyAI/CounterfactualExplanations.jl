@@ -120,9 +120,9 @@ function plot_state(
     kwargs...,
 )
     args = PlotIngredients(; kwargs...)
-    x1 = vec(mapslices(X -> X[1], args.path_embedded[t]; dims=(1, 2)))
-    x2 = vec(mapslices(X -> X[2], args.path_embedded[t]; dims=(1, 2)))
-    y = vec(selectdim(args.path_labels, 1, t))
+    x1 = selectdim(args.path_embedded[t], 1, 1)
+    x2 = selectdim(args.path_embedded[t], 1, 2)
+    y = args.path_labels[t]
     _c = levelcode.(y)
     n_ = ce.num_counterfactuals
     label_ = reshape(["C$i" for i in 1:n_], 1, n_)
@@ -185,11 +185,9 @@ function set_up_plots(
     )
     p2 = plot(; xlims=(1, total_steps(ce) + 1), ylims=(0, 1))
     path_embedded = embed_path(ce)
-    path_labels = reduce(vcat, (counterfactual_label_path(ce)))
+    path_labels = counterfactual_label_path(ce)
     y_levels = ce.data.y_levels
-    path_labels = mapslices(
-        y -> categorical(vec(y); levels=y_levels), path_labels; dims=(1, 2)
-    )
+    path_labels = map(x -> categorical(x; levels=y_levels),path_labels)
     path_probs = target_probs_path(ce)
     output = (
         p1=p1,

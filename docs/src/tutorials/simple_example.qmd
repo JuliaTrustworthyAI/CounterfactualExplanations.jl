@@ -26,12 +26,13 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
 ```{julia}
-plot(M, counterfactual_data)
+plot(M, counterfactual_data, target=2)
 ```
 
 
 ```{julia}
 # Search:
-generator = GenericGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+generator = GenericGenerator(opt=Descent(0.01))
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+plot(ce)
 ```

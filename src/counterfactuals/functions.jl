@@ -39,12 +39,12 @@ end
 
 Outer method to construct a `CounterfactualExplanation` structure.
 """
-function CounterfactualExplanation(;
+function CounterfactualExplanation(
     x::AbstractArray,
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
-    generator::Generators.AbstractGenerator,
+    generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
     generative_model_params::NamedTuple=(;),
@@ -167,15 +167,7 @@ A convenience method that adjusts the dimensions of `x`.
 function adjust_shape(
     ce::CounterfactualExplanation, x::AbstractArray
 )
-    size_ =
-        Int.(
-            vcat(
-                ones(maximum([ndims(x), 2])), ce.num_counterfactuals
-            )
-        )
-    s′ = copy(x)
-    s′ = repeat(x; outer=size_)
-
+    s′ = repeat(x; outer=(1, ce.num_counterfactuals))
     return s′
 end
 
@@ -215,8 +207,7 @@ Applies all required encodings to `x`:
 Finally, it returns the encoded state variable.
 """
 function encode_state(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -226,20 +217,18 @@ function encode_state(
     # Latent space:
     if ce.params[:latent_space]
         s′ = map_to_latent(ce, s′)
-        return s′
     end
 
     # Standardize data unless latent space:
-    if !ce.params[:latent_space]
+    if !ce.params[:latent_space] && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        SliceMap.slicemap(s′; dims=(1, 2)) do s
-            _s = s[idx, :]
-            StatsBase.transform!(dt, _s)
-            s[idx, :] = _s
-        end
-        return s′
+        s = s′[idx, :]
+        StatsBase.transform!(dt, s)
+        s′[idx, :] = s
     end
+
+    return s′
 end
 
 """
@@ -322,16 +311,14 @@ function decode_state(
     end
 
     # Standardization:
-    if !ce.params[:latent_space]
+    if !ce.params[:latent_space] && data.standardize
         dt = data.dt
 
         # Continuous:
         idx = transformable_features(data)
-        SliceMap.slicemap(s′; dims=(1, 2)) do s
-            _s = s[idx, :]
-            StatsBase.reconstruct!(dt, _s)
-            s[idx, :] = _s
-        end
+        s = s′[idx, :]
+        StatsBase.reconstruct!(dt, s′[idx, :])
+        s′[idx, :] = s
     end
 
     # Categorical:
@@ -389,11 +376,7 @@ function reconstruct_cat_encoding(
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
     data = ce.data
 
-    s′ = SliceMap.slicemap(s′; dims=(1, 2)) do s
-        s_encoded = DataPreprocessing.reconstruct_cat_encoding(data, s)
-        s = reshape(s_encoded, size(s)...)
-        return s
-    end
+    s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
 
     return s′
 end
@@ -424,11 +407,9 @@ function initialize_state(ce::CounterfactualExplanation)
 
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if ce.initialization == :add_perturbation
-        s′ = SliceMap.slicemap(s′; dims=(1, 2)) do s
-            Δs′ = randn(eltype(s), size(s, 1)) * convert(eltype(s), 0.1)
-            Δs′ = apply_mutability(ce, Δs′)
-            s .+ Δs′
-        end
+        Δs′ = randn(eltype(s′), size(s′)) * convert(eltype(s′), 0.1)
+        Δs′ = apply_mutability(ce, Δs′)
+        s′ .+= Δs′
     end
 
     return s′
@@ -479,9 +460,11 @@ end
 
 A convenience method that computes the class probabilities of the counterfactual.
 """
-function counterfactual_probability(ce::CounterfactualExplanation)
-    x′ = CounterfactualExplanations.counterfactual(ce)
-    p = Models.probs(ce.M, x′)
+function counterfactual_probability(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+    if isnothing(x)
+        x = counterfactual(ce)
+    end
+    p = Models.probs(ce.M, x)
     return p
 end
 
@@ -493,11 +476,7 @@ A convenience method that returns the predicted label of the counterfactual.
 function counterfactual_label(ce::CounterfactualExplanation)
     M = ce.M
     counterfactual_data = ce.data
-    y = SliceMap.slicemap(
-        x -> permutedims([predict_label(M, counterfactual_data, x)[1]]),
-        counterfactual(ce);
-        dims=(1, 2),
-    )
+    y = predict_label(M, counterfactual_data, counterfactual(ce))
     return y
 end
 
@@ -515,11 +494,7 @@ function target_probs(
 )
     data = ce.data
     likelihood = ce.data.likelihood
-    p = if !isnothing(x)
-        Models.probs(ce.M, x)
-    else
-        counterfactual_probability(ce)
-    end
+    p = counterfactual_probability(ce, x)
     target = ce.target
     target_idx = get_target_index(data.y_levels, target)
     if likelihood == :classification_binary
@@ -557,9 +532,7 @@ function counterfactual_probability_path(
     ce::CounterfactualExplanation
 )
     M = ce.M
-    p = map(
-        X -> mapslices(x -> probs(M, x), X; dims=(1, 2)), path(ce)
-    )
+    p = map(X -> counterfactual_probability(ce, X), path(ce))
     return p
 end
 
@@ -572,7 +545,7 @@ function counterfactual_label_path(ce::CounterfactualExplanation)
     counterfactual_data = ce.data
     M = ce.M
     ŷ = map(
-        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X; dims=(1, 2)),
+        X -> predict_label(M, counterfactual_data, X),
         path(ce),
     )
     return ŷ
@@ -585,9 +558,7 @@ Returns the target probabilities for each step of the search.
 """
 function target_probs_path(ce::CounterfactualExplanation)
     X = path(ce)
-    P = map(
-        X -> mapslices(x -> target_probs(ce, x), X; dims=(1, 2)), X
-    )
+    P = map(x -> target_probs(ce, x), X)
     return P
 end
 
@@ -598,10 +569,7 @@ Helper function that embeds path into two dimensions for plotting.
 """
 function embed_path(ce::CounterfactualExplanation)
     data_ = ce.data
-    path_ = MLUtils.stack(path(ce); dims=1)
-    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_; dims=(1, 2))
-    path_embedded = unstack(path_embedded; dims=2)
-    return path_embedded
+    return DataPreprocessing.embed(data_, path(ce))
 end
 
 """

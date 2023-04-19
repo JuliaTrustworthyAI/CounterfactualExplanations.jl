@@ -36,6 +36,7 @@ setup_docs = quote
 
     # Counteractual data and model:
     counterfactual_data = load_linearly_separable()
+    counterfactual_data.standardize = false
     M = fit_model(counterfactual_data, :Linear)
     target = 2
     factual = 1
