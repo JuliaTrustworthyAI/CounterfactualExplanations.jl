@@ -1,0 +1,37 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Simple Example
+
+In this tutorial, we will go through a simple example involving synthetic data and a generic counterfactual generator.
+
+## Data and Classifier
+
+```{julia}
+# Counteractual data and model:
+flux_training_params.batchsize = 10
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :MLP, batch_norm=true)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+```
+
+```{julia}
+plot(M, counterfactual_data)
+```
+
+
+```{julia}
+# Search:
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
