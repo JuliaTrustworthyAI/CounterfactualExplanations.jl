@@ -78,7 +78,7 @@ function ddp_diversity(
     xs = eachslice(X; dims=ndims(X))
     K = [1 / (1 + norm(x .- y)) for x in xs, y in xs]
     K += LinearAlgebra.Diagonal(
-        randn(eltype(X), size(X, 3)) * convert(eltype(X), perturbation_size)
+        randn(eltype(X), size(X)[end]) * convert(eltype(X), perturbation_size)
     )
     cost = -agg(K)
     return cost
@@ -100,7 +100,7 @@ function distance_from_target(
 )
     ids = rand(1:size(ce.params[:potential_neighbours], 2), K)
     neighbours = ce.params[:potential_neighbours][:, ids]
-    centroid = mean(neighbours; dims=2)
+    centroid = mean(neighbours; dims=ndims(neighbours))
     x′ = CounterfactualExplanations.counterfactual(ce)
     Δ = agg(norm(x′ .- centroid, p))
     return Δ

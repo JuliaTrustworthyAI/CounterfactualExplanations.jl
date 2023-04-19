@@ -115,7 +115,7 @@ function conditions_satisfied(
 )
     Δs′ = generate_perturbations(generator, ce)
     τ = ce.convergence[:gradient_tol]
-    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=3))
+    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
     success_rate = sum(satisfied) / ce.num_counterfactuals
     status = success_rate > ce.convergence[:min_success_rate]
     return status

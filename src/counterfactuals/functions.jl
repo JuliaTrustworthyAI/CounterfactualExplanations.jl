@@ -1,3 +1,4 @@
+using ChainRulesCore
 using Flux
 using MLUtils
 using SliceMap
@@ -223,9 +224,11 @@ function encode_state(
     if !ce.params[:latent_space] && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        s = s′[idx, :]
-        StatsBase.transform!(dt, s)
-        s′[idx, :] = s
+        ignore_derivatives() do
+            s = s′[idx, :]
+            StatsBase.transform!(dt, s)
+            s′[idx, :] = s
+        end
     end
 
     return s′
@@ -316,9 +319,11 @@ function decode_state(
 
         # Continuous:
         idx = transformable_features(data)
-        s = s′[idx, :]
-        StatsBase.reconstruct!(dt, s′[idx, :])
-        s′[idx, :] = s
+        ignore_derivatives() do
+            s = s′[idx, :]
+            StatsBase.reconstruct!(dt, s)
+            s′[idx, :] = s
+        end
     end
 
     # Categorical:

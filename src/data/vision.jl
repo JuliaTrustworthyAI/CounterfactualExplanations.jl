@@ -16,7 +16,7 @@ function load_mnist(n::Union{Nothing,Int}=nothing)
     counterfactual_data.X = Float32.(counterfactual_data.X)
     # Undersample:
     if !isnothing(n)
-        counterfactual_data = CounterfactualExplanations.DataPreprocessing.undersample(
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
             counterfactual_data, n
         )
     end

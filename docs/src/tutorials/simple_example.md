@@ -1,11 +1,6 @@
-```@meta
-CurrentModule = CounterfactualExplanations 
-```
 
-```{julia}
-#| echo: false
-include("docs/setup_docs.jl")
-eval(setup_docs)
+``` @meta
+CurrentModule = CounterfactualExplanations 
 ```
 
 # Simple Example
@@ -14,9 +9,9 @@ In this tutorial, we will go through a simple example involving synthetic data a
 
 ## Data and Classifier
 
-Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it. 
+Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it.
 
-```{julia}
+``` julia
 # Counteractual data and model:
 flux_training_params.batchsize = 10
 counterfactual_data = load_linearly_separable()
@@ -28,7 +23,7 @@ M = fit_model(counterfactual_data, :MLP, batch_norm=true)
 
 Next, determine a target and factual class for our counterfactual search and select a random factual instance to explain.
 
-```{julia}
+``` julia
 target = 2
 factual = 1
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
@@ -37,12 +32,11 @@ x = select_factual(counterfactual_data, chosen)
 
 Finally, we generate and visualize the generated counterfactual:
 
-```{julia}
-#| output: true
-
+``` julia
 # Search:
 generator = GenericGenerator(opt=Descent(0.01))
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
 
+![](simple_example_files/figure-commonmark/cell-5-output-1.svg)
