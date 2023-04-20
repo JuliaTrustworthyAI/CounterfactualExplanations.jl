@@ -509,7 +509,7 @@ function target_probs(
             p_target = 1 .- p
         end
     else
-        p_target = SliceMap.slicemap(_p -> permutedims([_p[target_idx]]), p; dims=(1, 2))
+        p_target = selectdim(p, 1, target_idx)
     end
     return p_target
 end
