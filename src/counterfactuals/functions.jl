@@ -165,9 +165,7 @@ end
 
 A convenience method that adjusts the dimensions of `x`.
 """
-function adjust_shape(
-    ce::CounterfactualExplanation, x::AbstractArray
-)
+function adjust_shape(ce::CounterfactualExplanation, x::AbstractArray)
     s′ = repeat(x; outer=(1, ce.num_counterfactuals))
     return s′
 end
