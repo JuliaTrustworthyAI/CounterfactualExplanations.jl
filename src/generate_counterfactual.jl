@@ -57,7 +57,11 @@ function generate_counterfactual(
 )
     # Initialize:
     ce = CounterfactualExplanation(
-        x, target, data, M, generator;
+        x,
+        target,
+        data,
+        M,
+        generator;
         num_counterfactuals=num_counterfactuals,
         initialization=initialization,
         generative_model_params=generative_model_params,
