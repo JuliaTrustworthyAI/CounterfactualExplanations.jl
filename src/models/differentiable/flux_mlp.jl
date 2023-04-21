@@ -65,7 +65,6 @@ function train(M::FluxModel, data::CounterfactualData; args=flux_training_params
     model = M.model
     forward!(model, data; loss=loss, opt=args.opt, n_epochs=args.n_epochs)
 
-
     return M
 end
 
