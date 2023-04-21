@@ -78,7 +78,7 @@ function generate_counterfactual(
         update!(ce)
         if !isnothing(timer)
             yield()
-            if !isopen(timer) 
+            if !isopen(timer)
                 @info "Counterfactual search timed out before convergence"
                 break
             end
