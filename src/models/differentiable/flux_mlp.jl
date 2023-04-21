@@ -139,7 +139,9 @@ function build_mlp(;
             Dense(n_hidden, output_dim),
         )
     elseif batch_norm
-        hidden_ = repeat([Dense(n_hidden,n_hidden),BatchNorm(n_hidden,activation)],n_layers-2)
+        hidden_ = repeat(
+            [Dense(n_hidden, n_hidden), BatchNorm(n_hidden, activation)], n_layers - 2
+        )
         model = Chain(
             Dense(input_dim, n_hidden),
             BatchNorm(n_hidden, activation),
