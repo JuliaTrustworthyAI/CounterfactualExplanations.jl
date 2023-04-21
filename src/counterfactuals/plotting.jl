@@ -187,7 +187,7 @@ function set_up_plots(
     path_embedded = embed_path(ce)
     path_labels = counterfactual_label_path(ce)
     y_levels = ce.data.y_levels
-    path_labels = map(x -> categorical(x; levels=y_levels),path_labels)
+    path_labels = map(x -> categorical(x; levels=y_levels), path_labels)
     path_probs = target_probs_path(ce)
     output = (
         p1=p1,
