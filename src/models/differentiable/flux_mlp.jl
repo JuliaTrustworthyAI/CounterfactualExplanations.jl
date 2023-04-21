@@ -147,8 +147,8 @@ function build_mlp(;
             BatchNorm(n_hidden, activation),
             hidden_...,
             Dense(n_hidden, output_dim),
-            BatchNorm(output_dim)
-        )  
+            BatchNorm(output_dim),
+        )
     else
         hidden_ = repeat([Dense(n_hidden, n_hidden, activation)], n_layers - 2)
         model = Chain(
