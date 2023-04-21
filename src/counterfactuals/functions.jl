@@ -463,7 +463,9 @@ end
 
 A convenience method that computes the class probabilities of the counterfactual.
 """
-function counterfactual_probability(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+function counterfactual_probability(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
     if isnothing(x)
         x = counterfactual(ce)
     end
