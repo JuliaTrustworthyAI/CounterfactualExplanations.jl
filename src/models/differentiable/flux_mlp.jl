@@ -99,7 +99,7 @@ function forward!(
             next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])
         end
     end
-    testmode!(model)
+    return testmode!(model)
 end
 
 """
