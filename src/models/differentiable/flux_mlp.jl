@@ -152,9 +152,7 @@ function build_mlp(;
     else
         hidden_ = repeat([Dense(n_hidden, n_hidden, activation)], n_layers - 2)
         model = Chain(
-            Dense(input_dim, n_hidden, activation), 
-            hidden_..., 
-            Dense(n_hidden, output_dim)
+            Dense(input_dim, n_hidden, activation), hidden_..., Dense(n_hidden, output_dim)
         )
     end
 
