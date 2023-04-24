@@ -63,12 +63,13 @@ function subsample(data::CounterfactualData, n::Int)
     X = X[:, idx]
     y = y[idx]
     new_data = CounterfactualData(
-        X, y;
-        domain = data.domain,
-        features_continuous = data.features_continuous,
-        features_categorical = data.features_categorical,
-        mutability = data.mutability,
-        standardize = data.standardize,
+        X,
+        y;
+        domain=data.domain,
+        features_continuous=data.features_continuous,
+        features_categorical=data.features_categorical,
+        mutability=data.mutability,
+        standardize=data.standardize,
     )
 
     return new_data

@@ -113,8 +113,7 @@ function CounterfactualExplanation(
         :iteration_count => 0,
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [ce.s′],
-        :terminated =>
-            threshold_reached(ce, ce.x),
+        :terminated => threshold_reached(ce, ce.x),
         :converged => converged(ce),
     )
 
@@ -182,9 +181,7 @@ function adjust_shape!(ce::CounterfactualExplanation)
     s′ = adjust_shape(ce, x)      # augment to account for specified number of counterfactuals
     ce.s′ = s′
     target_encoded = ce.target_encoded
-    ce.target_encoded = adjust_shape(
-        ce, target_encoded
-    )
+    ce.target_encoded = adjust_shape(ce, target_encoded)
 
     # Parameters:
     params = ce.params
@@ -246,9 +243,7 @@ function wants_latent_space(ce::CounterfactualExplanation)
     latent_space = ce.params[:latent_space]
 
     # If threshold is already reached, training GM is redundant:
-    latent_space =
-        latent_space &&
-        !threshold_reached(ce, ce.x)
+    latent_space = latent_space && !threshold_reached(ce, ce.x)
 
     return latent_space
 end
@@ -262,8 +257,7 @@ end
 Maps `x` from the feature space $\mathcal{X}$ to the latent space learned by the generative model.
 """
 function map_to_latent(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -298,8 +292,7 @@ Applies all the applicable decoding functions:
 Finally, the decoded counterfactual is returned.
 """
 function decode_state(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -339,8 +332,7 @@ end
 Maps the state variable back from the latent space to the feature space.
 """
 function map_from_latent(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -372,8 +364,7 @@ end
 Reconstructs all categorical encodings. See [`DataPreprocessing.reconstruct_cat_encoding`](@ref) for details.
 """
 function reconstruct_cat_encoding(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
@@ -494,8 +485,7 @@ end
 Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
 """
 function target_probs(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
     data = ce.data
     likelihood = ce.data.likelihood
@@ -533,9 +523,7 @@ end
 
 Returns the counterfactual probabilities for each step of the search.
 """
-function counterfactual_probability_path(
-    ce::CounterfactualExplanation
-)
+function counterfactual_probability_path(ce::CounterfactualExplanation)
     M = ce.M
     p = map(X -> counterfactual_probability(ce, X), path(ce))
     return p
@@ -549,10 +537,7 @@ Returns the counterfactual labels for each step of the search.
 function counterfactual_label_path(ce::CounterfactualExplanation)
     counterfactual_data = ce.data
     M = ce.M
-    ŷ = map(
-        X -> predict_label(M, counterfactual_data, X),
-        path(ce),
-    )
+    ŷ = map(X -> predict_label(M, counterfactual_data, X), path(ce))
     return ŷ
 end
 
@@ -585,9 +570,7 @@ end
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(
-    ce::CounterfactualExplanation, Δs′::AbstractArray
-)
+function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
     if ce.params[:latent_space]
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
@@ -617,9 +600,7 @@ Wrapper function that applies underlying domain constraints.
 function apply_domain_constraints!(ce::CounterfactualExplanation)
     if !wants_latent_space(ce)
         s′ = ce.s′
-        ce.s′ = DataPreprocessing.apply_domain_constraints(
-            ce.data, s′
-        )
+        ce.s′ = DataPreprocessing.apply_domain_constraints(ce.data, s′)
     end
 end
 
@@ -630,8 +611,7 @@ end
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    return converged(ce) ||
-           steps_exhausted(ce)
+    return converged(ce) || steps_exhausted(ce)
 end
 
 """
@@ -643,11 +623,7 @@ function converged(ce::CounterfactualExplanation)
     if ce.convergence[:converge_when] == :decision_threshold
         conv = threshold_reached(ce)
     elseif ce.convergence[:converge_when] == :generator_conditions
-        conv =
-            threshold_reached(ce) &&
-            Generators.conditions_satisfied(
-                ce.generator, ce
-            )
+        conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
     elseif ce.convergence[:converge_when] == :max_iter
         conv = false
     end
@@ -662,9 +638,7 @@ A convenience method that determines if the predefined threshold for the target 
 """
 function threshold_reached(ce::CounterfactualExplanation)
     γ = ce.convergence[:decision_threshold]
-    success_rate =
-        sum(target_probs(ce) .>= γ) /
-        ce.num_counterfactuals
+    success_rate = sum(target_probs(ce) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence[:min_success_rate]
 end
 
@@ -673,13 +647,9 @@ end
 
 A convenience method that determines if the predefined threshold for the target class probability has been reached for a specific sample `x`.
 """
-function threshold_reached(
-    ce::CounterfactualExplanation, x::AbstractArray
-)
+function threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
     γ = ce.convergence[:decision_threshold]
-    success_rate =
-        sum(target_probs(ce, x) .>= γ) /
-        ce.num_counterfactuals
+    success_rate = sum(target_probs(ce, x) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence[:min_success_rate]
 end
 
@@ -689,8 +659,7 @@ end
 A convenience method that checks if the number of maximum iterations has been exhausted.
 """
 function steps_exhausted(ce::CounterfactualExplanation)
-    return ce.search[:iteration_count] ==
-           ce.convergence[:max_iter]
+    return ce.search[:iteration_count] == ce.convergence[:max_iter]
 end
 
 """
@@ -711,30 +680,21 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 function update!(ce::CounterfactualExplanation)
 
     # Generate peturbations:
-    Δs′ = Generators.generate_perturbations(
-        ce.generator, ce
-    )
+    Δs′ = Generators.generate_perturbations(ce.generator, ce)
     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
     s′ = ce.s′ + Δs′                        # new proposed state
 
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
     _times_changed = reshape(
-        decode_state(ce, Δs′) .!= 0,
-        size(ce.search[:times_changed_features]),
+        decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
-    ce.search[:mutability] = Generators.mutability_constraints(
-        ce.generator, ce
-    )
+    ce.search[:mutability] = Generators.mutability_constraints(ce.generator, ce)
     ce.search[:iteration_count] += 1                            # update iteration counter   
-    ce.search[:path] = [
-        ce.search[:path]..., ce.s′
-    ]
+    ce.search[:path] = [ce.search[:path]..., ce.s′]
     ce.search[:converged] = converged(ce)
-    return ce.search[:terminated] = terminated(
-        ce
-    )
+    return ce.search[:terminated] = terminated(ce)
 end
 
 """
@@ -743,10 +703,7 @@ end
 Returns meta data for a counterfactual explanation.
 """
 function get_meta(ce::CounterfactualExplanation)
-    meta_data = Dict(
-        :model => Symbol(ce.M),
-        :generator => Symbol(ce.generator),
-    )
+    meta_data = Dict(:model => Symbol(ce.M), :generator => Symbol(ce.generator))
     return meta_data
 end
 
