@@ -10,7 +10,7 @@ eval(setup_docs)
 
 # Whistle-Stop Tour
 
-In this tutorial, we will go through a simple example involving synthetic data. We will generate Counterfactual Explanations using different generators and visualize the results.
+In this tutorial, we will go through a slightly more complex example involving synthetic data. We will generate Counterfactual Explanations using different generators and visualize the results.
 
 ## Data and Classifier
 

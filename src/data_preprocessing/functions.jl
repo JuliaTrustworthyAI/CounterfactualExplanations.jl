@@ -153,7 +153,7 @@ function CounterfactualData(
         @warn "Some of the underlying features are constant."
     end
     counterfactual_data.dt = StatsBase.fit(
-        ZScoreTransform, X[transformable_features(counterfactual_data), :]; dims=2
+        ZScoreTransform, X[transformable_features(counterfactual_data), :]; dims=ndims(X)
     )        # standardization
 
     return counterfactual_data

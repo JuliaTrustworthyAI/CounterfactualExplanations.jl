@@ -113,7 +113,9 @@ function benchmark(
             push!(ces, _ces...)
             _meta_data = map(eachindex(_ces)) do i
                 sample_id = isnothing(xids) ? i : xids[i]
-                _dict = Dict(:model => model_name, :generator => gen_name, :sample => sample_id)
+                _dict = Dict(
+                    :model => model_name, :generator => gen_name, :sample => sample_id
+                )
                 if !isnothing(dataname)
                     _dict[:dataname] = dataname
                 end

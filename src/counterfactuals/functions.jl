@@ -1,3 +1,4 @@
+using ChainRulesCore
 using Flux
 using MLUtils
 using SliceMap
@@ -39,12 +40,12 @@ end
 
 Outer method to construct a `CounterfactualExplanation` structure.
 """
-function CounterfactualExplanation(;
+function CounterfactualExplanation(
     x::AbstractArray,
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
-    generator::Generators.AbstractGenerator,
+    generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
     generative_model_params::NamedTuple=(;),
@@ -112,8 +113,7 @@ function CounterfactualExplanation(;
         :iteration_count => 0,
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [ce.s′],
-        :terminated =>
-            threshold_reached(ce, ce.x),
+        :terminated => threshold_reached(ce, ce.x),
         :converged => converged(ce),
     )
 
@@ -164,18 +164,8 @@ end
 
 A convenience method that adjusts the dimensions of `x`.
 """
-function adjust_shape(
-    ce::CounterfactualExplanation, x::AbstractArray
-)
-    size_ =
-        Int.(
-            vcat(
-                ones(maximum([ndims(x), 2])), ce.num_counterfactuals
-            )
-        )
-    s′ = copy(x)
-    s′ = repeat(x; outer=size_)
-
+function adjust_shape(ce::CounterfactualExplanation, x::AbstractArray)
+    s′ = repeat(x; outer=(1, ce.num_counterfactuals))
     return s′
 end
 
@@ -191,9 +181,7 @@ function adjust_shape!(ce::CounterfactualExplanation)
     s′ = adjust_shape(ce, x)      # augment to account for specified number of counterfactuals
     ce.s′ = s′
     target_encoded = ce.target_encoded
-    ce.target_encoded = adjust_shape(
-        ce, target_encoded
-    )
+    ce.target_encoded = adjust_shape(ce, target_encoded)
 
     # Parameters:
     params = ce.params
@@ -215,8 +203,7 @@ Applies all required encodings to `x`:
 Finally, it returns the encoded state variable.
 """
 function encode_state(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -226,20 +213,20 @@ function encode_state(
     # Latent space:
     if ce.params[:latent_space]
         s′ = map_to_latent(ce, s′)
-        return s′
     end
 
     # Standardize data unless latent space:
-    if !ce.params[:latent_space]
+    if !ce.params[:latent_space] && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        SliceMap.slicemap(s′; dims=(1, 2)) do s
-            _s = s[idx, :]
-            StatsBase.transform!(dt, _s)
-            s[idx, :] = _s
+        ignore_derivatives() do
+            s = s′[idx, :]
+            StatsBase.transform!(dt, s)
+            s′[idx, :] = s
         end
-        return s′
     end
+
+    return s′
 end
 
 """
@@ -256,9 +243,7 @@ function wants_latent_space(ce::CounterfactualExplanation)
     latent_space = ce.params[:latent_space]
 
     # If threshold is already reached, training GM is redundant:
-    latent_space =
-        latent_space &&
-        !threshold_reached(ce, ce.x)
+    latent_space = latent_space && !threshold_reached(ce, ce.x)
 
     return latent_space
 end
@@ -272,8 +257,7 @@ end
 Maps `x` from the feature space $\mathcal{X}$ to the latent space learned by the generative model.
 """
 function map_to_latent(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -308,8 +292,7 @@ Applies all the applicable decoding functions:
 Finally, the decoded counterfactual is returned.
 """
 function decode_state(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -322,15 +305,15 @@ function decode_state(
     end
 
     # Standardization:
-    if !ce.params[:latent_space]
+    if !ce.params[:latent_space] && data.standardize
         dt = data.dt
 
         # Continuous:
         idx = transformable_features(data)
-        SliceMap.slicemap(s′; dims=(1, 2)) do s
-            _s = s[idx, :]
-            StatsBase.reconstruct!(dt, _s)
-            s[idx, :] = _s
+        ignore_derivatives() do
+            s = s′[idx, :]
+            StatsBase.reconstruct!(dt, s)
+            s′[idx, :] = s
         end
     end
 
@@ -349,8 +332,7 @@ end
 Maps the state variable back from the latent space to the feature space.
 """
 function map_from_latent(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
 
     # Unpack:
@@ -382,18 +364,13 @@ end
 Reconstructs all categorical encodings. See [`DataPreprocessing.reconstruct_cat_encoding`](@ref) for details.
 """
 function reconstruct_cat_encoding(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
     data = ce.data
 
-    s′ = SliceMap.slicemap(s′; dims=(1, 2)) do s
-        s_encoded = DataPreprocessing.reconstruct_cat_encoding(data, s)
-        s = reshape(s_encoded, size(s)...)
-        return s
-    end
+    s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
 
     return s′
 end
@@ -424,11 +401,9 @@ function initialize_state(ce::CounterfactualExplanation)
 
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if ce.initialization == :add_perturbation
-        s′ = SliceMap.slicemap(s′; dims=(1, 2)) do s
-            Δs′ = randn(eltype(s), size(s, 1)) * convert(eltype(s), 0.1)
-            Δs′ = apply_mutability(ce, Δs′)
-            s .+ Δs′
-        end
+        Δs′ = randn(eltype(s′), size(s′)) * convert(eltype(s′), 0.1)
+        Δs′ = apply_mutability(ce, Δs′)
+        s′ .+= Δs′
     end
 
     return s′
@@ -479,9 +454,13 @@ end
 
 A convenience method that computes the class probabilities of the counterfactual.
 """
-function counterfactual_probability(ce::CounterfactualExplanation)
-    x′ = CounterfactualExplanations.counterfactual(ce)
-    p = Models.probs(ce.M, x′)
+function counterfactual_probability(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
+    if isnothing(x)
+        x = counterfactual(ce)
+    end
+    p = Models.probs(ce.M, x)
     return p
 end
 
@@ -493,11 +472,7 @@ A convenience method that returns the predicted label of the counterfactual.
 function counterfactual_label(ce::CounterfactualExplanation)
     M = ce.M
     counterfactual_data = ce.data
-    y = SliceMap.slicemap(
-        x -> permutedims([predict_label(M, counterfactual_data, x)[1]]),
-        counterfactual(ce);
-        dims=(1, 2),
-    )
+    y = predict_label(M, counterfactual_data, counterfactual(ce))
     return y
 end
 
@@ -510,16 +485,11 @@ end
 Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
 """
 function target_probs(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
     data = ce.data
     likelihood = ce.data.likelihood
-    p = if !isnothing(x)
-        Models.probs(ce.M, x)
-    else
-        counterfactual_probability(ce)
-    end
+    p = counterfactual_probability(ce, x)
     target = ce.target
     target_idx = get_target_index(data.y_levels, target)
     if likelihood == :classification_binary
@@ -529,7 +499,7 @@ function target_probs(
             p_target = 1 .- p
         end
     else
-        p_target = SliceMap.slicemap(_p -> permutedims([_p[target_idx]]), p; dims=(1, 2))
+        p_target = selectdim(p, 1, target_idx)
     end
     return p_target
 end
@@ -553,13 +523,9 @@ end
 
 Returns the counterfactual probabilities for each step of the search.
 """
-function counterfactual_probability_path(
-    ce::CounterfactualExplanation
-)
+function counterfactual_probability_path(ce::CounterfactualExplanation)
     M = ce.M
-    p = map(
-        X -> mapslices(x -> probs(M, x), X; dims=(1, 2)), path(ce)
-    )
+    p = map(X -> counterfactual_probability(ce, X), path(ce))
     return p
 end
 
@@ -571,10 +537,7 @@ Returns the counterfactual labels for each step of the search.
 function counterfactual_label_path(ce::CounterfactualExplanation)
     counterfactual_data = ce.data
     M = ce.M
-    ŷ = map(
-        X -> mapslices(x -> predict_label(M, counterfactual_data, x), X; dims=(1, 2)),
-        path(ce),
-    )
+    ŷ = map(X -> predict_label(M, counterfactual_data, X), path(ce))
     return ŷ
 end
 
@@ -585,9 +548,7 @@ Returns the target probabilities for each step of the search.
 """
 function target_probs_path(ce::CounterfactualExplanation)
     X = path(ce)
-    P = map(
-        X -> mapslices(x -> target_probs(ce, x), X; dims=(1, 2)), X
-    )
+    P = map(x -> target_probs(ce, x), X)
     return P
 end
 
@@ -598,10 +559,7 @@ Helper function that embeds path into two dimensions for plotting.
 """
 function embed_path(ce::CounterfactualExplanation)
     data_ = ce.data
-    path_ = MLUtils.stack(path(ce); dims=1)
-    path_embedded = mapslices(X -> DataPreprocessing.embed(data_, X'), path_; dims=(1, 2))
-    path_embedded = unstack(path_embedded; dims=2)
-    return path_embedded
+    return DataPreprocessing.embed(data_, path(ce))
 end
 
 """
@@ -612,9 +570,7 @@ end
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(
-    ce::CounterfactualExplanation, Δs′::AbstractArray
-)
+function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
     if ce.params[:latent_space]
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
@@ -644,9 +600,7 @@ Wrapper function that applies underlying domain constraints.
 function apply_domain_constraints!(ce::CounterfactualExplanation)
     if !wants_latent_space(ce)
         s′ = ce.s′
-        ce.s′ = DataPreprocessing.apply_domain_constraints(
-            ce.data, s′
-        )
+        ce.s′ = DataPreprocessing.apply_domain_constraints(ce.data, s′)
     end
 end
 
@@ -657,8 +611,7 @@ end
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    return converged(ce) ||
-           steps_exhausted(ce)
+    return converged(ce) || steps_exhausted(ce)
 end
 
 """
@@ -670,11 +623,7 @@ function converged(ce::CounterfactualExplanation)
     if ce.convergence[:converge_when] == :decision_threshold
         conv = threshold_reached(ce)
     elseif ce.convergence[:converge_when] == :generator_conditions
-        conv =
-            threshold_reached(ce) &&
-            Generators.conditions_satisfied(
-                ce.generator, ce
-            )
+        conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
     elseif ce.convergence[:converge_when] == :max_iter
         conv = false
     end
@@ -689,9 +638,7 @@ A convenience method that determines if the predefined threshold for the target 
 """
 function threshold_reached(ce::CounterfactualExplanation)
     γ = ce.convergence[:decision_threshold]
-    success_rate =
-        sum(target_probs(ce) .>= γ) /
-        ce.num_counterfactuals
+    success_rate = sum(target_probs(ce) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence[:min_success_rate]
 end
 
@@ -700,13 +647,9 @@ end
 
 A convenience method that determines if the predefined threshold for the target class probability has been reached for a specific sample `x`.
 """
-function threshold_reached(
-    ce::CounterfactualExplanation, x::AbstractArray
-)
+function threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
     γ = ce.convergence[:decision_threshold]
-    success_rate =
-        sum(target_probs(ce, x) .>= γ) /
-        ce.num_counterfactuals
+    success_rate = sum(target_probs(ce, x) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence[:min_success_rate]
 end
 
@@ -716,8 +659,7 @@ end
 A convenience method that checks if the number of maximum iterations has been exhausted.
 """
 function steps_exhausted(ce::CounterfactualExplanation)
-    return ce.search[:iteration_count] ==
-           ce.convergence[:max_iter]
+    return ce.search[:iteration_count] == ce.convergence[:max_iter]
 end
 
 """
@@ -738,30 +680,21 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 function update!(ce::CounterfactualExplanation)
 
     # Generate peturbations:
-    Δs′ = Generators.generate_perturbations(
-        ce.generator, ce
-    )
+    Δs′ = Generators.generate_perturbations(ce.generator, ce)
     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
     s′ = ce.s′ + Δs′                        # new proposed state
 
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
     _times_changed = reshape(
-        decode_state(ce, Δs′) .!= 0,
-        size(ce.search[:times_changed_features]),
+        decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
-    ce.search[:mutability] = Generators.mutability_constraints(
-        ce.generator, ce
-    )
+    ce.search[:mutability] = Generators.mutability_constraints(ce.generator, ce)
     ce.search[:iteration_count] += 1                            # update iteration counter   
-    ce.search[:path] = [
-        ce.search[:path]..., ce.s′
-    ]
+    ce.search[:path] = [ce.search[:path]..., ce.s′]
     ce.search[:converged] = converged(ce)
-    return ce.search[:terminated] = terminated(
-        ce
-    )
+    return ce.search[:terminated] = terminated(ce)
 end
 
 """
@@ -770,10 +703,7 @@ end
 Returns meta data for a counterfactual explanation.
 """
 function get_meta(ce::CounterfactualExplanation)
-    meta_data = Dict(
-        :model => Symbol(ce.M),
-        :generator => Symbol(ce.generator),
-    )
+    meta_data = Dict(:model => Symbol(ce.M), :generator => Symbol(ce.generator))
     return meta_data
 end
 

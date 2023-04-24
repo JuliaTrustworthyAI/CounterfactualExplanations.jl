@@ -11,10 +11,7 @@ function ∂ℓ(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    gs = gradient(
-        () -> ℓ(generator, ce),
-        Flux.params(ce.s′),
-    )[ce.s′]
+    gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     return gs
 end
 
@@ -24,13 +21,9 @@ end
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
 """
 function ∂h(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    return gradient(
-        () -> h(generator, ce),
-        Flux.params(ce.s′),
-    )[ce.s′]
+    return gradient(() -> h(generator, ce), Flux.params(ce.s′))[ce.s′]
 end
 
 # Gradient:
@@ -44,8 +37,7 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) +
-           ∂h(generator, ce)
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce)
 end
 
 """
@@ -54,8 +46,7 @@ end
 Proposes new state based on backpropagation.
 """
 function propose_state(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     grads = ∇(generator, ce.M, ce) # gradient
     new_s′ = deepcopy(ce.s′)
@@ -69,8 +60,7 @@ end
 The default method to generate feature perturbations for gradient-based generators through simple gradient descent.
 """
 function generate_perturbations(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     s′ = deepcopy(ce.s′)
     new_s′ = propose_state(generator, ce)
@@ -97,8 +87,7 @@ end
 The default method to return mutability constraints that are dependent on the current counterfactual search state. For generic gradient-based generators, no state-dependent constraints are added.
 """
 function mutability_constraints(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     mutability = ce.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
@@ -110,12 +99,11 @@ end
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators. By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
 function conditions_satisfied(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     Δs′ = generate_perturbations(generator, ce)
     τ = ce.convergence[:gradient_tol]
-    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=3))
+    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
     success_rate = sum(satisfied) / ce.num_counterfactuals
     status = success_rate > ce.convergence[:min_success_rate]
     return status

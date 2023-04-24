@@ -36,7 +36,7 @@ target = round(probs(M, x)[1])==0 ? 1 : 0
 
 # Counterfactual search:
 generator = GenericGenerator()
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 """
 function generate_counterfactual(
@@ -56,12 +56,12 @@ function generate_counterfactual(
     timeout::Union{Nothing,Int}=nothing,
 )
     # Initialize:
-    counterfactual = CounterfactualExplanation(;
-        x=x,
-        target=target,
-        data=data,
-        M=M,
-        generator=generator,
+    ce = CounterfactualExplanation(
+        x,
+        target,
+        data,
+        M,
+        generator;
         num_counterfactuals=num_counterfactuals,
         initialization=initialization,
         generative_model_params=generative_model_params,
@@ -74,18 +74,18 @@ function generate_counterfactual(
 
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
-    while !counterfactual.search[:terminated]
-        update!(counterfactual)
+    while !ce.search[:terminated]
+        update!(ce)
         if !isnothing(timer)
             yield()
-            if !isopen(timer) 
+            if !isopen(timer)
                 @info "Counterfactual search timed out before convergence"
                 break
             end
         end
     end
 
-    return counterfactual
+    return ce
 end
 
 function generate_counterfactual(

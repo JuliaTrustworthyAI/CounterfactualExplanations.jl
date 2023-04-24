@@ -40,11 +40,11 @@ function train_test_split(data::CounterfactualData; test_size=0.2)
 end
 
 """
-    undersample(data::CounterfactualData, n::Int)
+    subsample(data::CounterfactualData, n::Int)
 
-Helper function to randomly undersample `data::CounterfactualData`.
+Helper function to randomly subsample `data::CounterfactualData`.
 """
-function undersample(data::CounterfactualData, n::Int)
+function subsample(data::CounterfactualData, n::Int)
     X, y = data.X, data.output_encoder.y
     classes_ = data.y_levels
     n_classes = length(classes_)
@@ -55,7 +55,7 @@ function undersample(data::CounterfactualData, n::Int)
         reduce(
             vcat,
             [
-                sample(findall(vec(y_cls .== cls)), n_per_class; replace=false) for
+                sample(findall(vec(y_cls .== cls)), n_per_class; replace=true) for
                 cls in classes_
             ],
         ),
@@ -63,12 +63,13 @@ function undersample(data::CounterfactualData, n::Int)
     X = X[:, idx]
     y = y[idx]
     new_data = CounterfactualData(
-        X, y;
-        domain = data.domain,
-        features_continuous = data.features_continuous,
-        features_categorical = data.features_categorical,
-        mutability = data.mutability,
-        standardize = data.standardize,
+        X,
+        y;
+        domain=data.domain,
+        features_continuous=data.features_continuous,
+        features_categorical=data.features_categorical,
+        mutability=data.mutability,
+        standardize=data.standardize,
     )
 
     return new_data

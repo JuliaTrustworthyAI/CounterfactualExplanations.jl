@@ -17,10 +17,7 @@ end
 Checks if the counterfactual search has been strictly valid in the sense that it has converged with respect to the pre-specified target probability `γ`.
 """
 function validity_strict(ce::CounterfactualExplanation)
-    return validity(
-        ce;
-        γ=ce.convergence[:decision_threshold],
-    )
+    return validity(ce; γ=ce.convergence[:decision_threshold])
 end
 
 """
@@ -30,6 +27,6 @@ Computes the feature redundancy: that is, the number of features that remain unc
 """
 function redundancy(ce::CounterfactualExplanation; agg=mean)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    redundant_x = agg(mapslices(x -> sum(x .== 0) / size(x, 1), x′; dims=[1, 2]))
+    redundant_x = agg(sum(x′ .== 0) / size(x′, 1))
     return redundant_x
 end
