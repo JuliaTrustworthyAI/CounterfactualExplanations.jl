@@ -21,6 +21,7 @@ makedocs(;
         "🏠 Home" => "index.md",
         "🫣 Tutorials" => [
             "Overview" => "tutorials/index.md",
+            "Simple Example" => "tutorials/simple_example.md",
             "Whiste-Stop Tour" => "tutorials/whistle_stop.md",
             "Handling Data" => "tutorials/data_preprocessing.md",
             "Data Catalogue" => "tutorials/data_catalogue.md",

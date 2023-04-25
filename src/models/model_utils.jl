@@ -16,12 +16,15 @@ end
 
 Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set.
 """
-function model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
+function model_evaluation(
+    M::AbstractFittedModel, test_data::CounterfactualData; 
+    measure=multiclass_f1score
+)
+    measure = measure isa AbstractVector ? measure : [measure]
     y = test_data.output_encoder.y
-    m = MulticlassFScore()
     ŷ = predict_label(M, test_data)
-    fscore = m(ŷ, vec(y))
-    return fscore
+    _eval = [m(ŷ, vec(y)) for m in measure]
+    return _eval
 end
 
 """
