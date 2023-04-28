@@ -143,7 +143,7 @@ end
 
 Runs the benchmarking exercise as follows:
 
-1. Randomly choose a `factual` and `target` label. 
+1. Randomly choose a `factual` and `target` label unless specified. 
 2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `model_catalogue`). 
 3. Each of these models is then trained on the data. 
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(x::Union{AbstractArray,Base.Iterators.Zip},...)`](@ref).
@@ -152,16 +152,18 @@ Runs the benchmarking exercise as follows:
 """
 function benchmark(
     data::CounterfactualData;
-    models::Dict{Symbol,<:Any}=model_catalogue,
+    models::Dict{<:Any,<:Any}=model_catalogue,
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
     suppress_training::Bool=false,
+    factual::Union{Nothing,RawTargetType}=nothing,
+    target::Union{Nothing,RawTargetType}=nothing,
     kwrgs...,
 )
     # Setup
-    factual = rand(data.y_levels)
-    target = rand(data.y_levels[data.y_levels .!= factual])
+    factual = isnothing(factual) ? rand(data.y_levels) : factual
+    target = isnothing(target) ? rand(data.y_levels[data.y_levels .!= factual]) : target
     if !suppress_training
         @info "Training models on data."
         if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}

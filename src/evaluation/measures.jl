@@ -8,7 +8,7 @@ using Statistics: mean
 Checks of the counterfactual search has been successful with respect to the probability threshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
 function validity(ce::CounterfactualExplanation; agg=mean, γ=0.5)
-    return agg(CounterfactualExplanations.target_probs(ce) .>= γ)
+    return agg(CounterfactualExplanations.target_probs(ce) .>= γ)[1]
 end
 
 """
@@ -25,8 +25,8 @@ end
 
 Computes the feature redundancy: that is, the number of features that remain unchanged from their original, factual values.
 """
-function redundancy(ce::CounterfactualExplanation; agg=mean)
+function redundancy(ce::CounterfactualExplanation; agg=mean, tol=1e-5)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    redundant_x = agg(sum(x′ .== 0) / size(x′, 1))
+    redundant_x = agg(sum(abs.(x′ .- ce.x) .< tol) / size(x′, 1))
     return redundant_x
 end
