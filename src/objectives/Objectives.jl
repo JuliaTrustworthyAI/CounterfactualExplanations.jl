@@ -16,11 +16,12 @@ export losses_catalogue
 
 # Penalities
 include("penalties.jl")
-export distance, distance_l0, distance_l1, distance_l2, distance_linf
+export distance, distance_mad, distance_l0, distance_l1, distance_l2, distance_linf
 export ddp_diversity
 
 # Catalogue:
 const penalties_catalogue = Dict(
+    :distance_mad => distance_mad,
     :distance_l0 => distance_l0,
     :distance_l1 => distance_l1,
     :distance_l2 => distance_l2,
