@@ -10,24 +10,24 @@ using Statistics: mean, median
 Computes the distance of the counterfactual to the original factual.
 """
 function distance(
-    ce::AbstractCounterfactualExplanation; 
-    from::Union{Nothing,AbstractArray}=nothing, 
-    agg=mean, 
-    p::Real=1, 
-    weights::Union{Nothing,AbstractArray}=nothing
+    ce::AbstractCounterfactualExplanation;
+    from::Union{Nothing,AbstractArray}=nothing,
+    agg=mean,
+    p::Real=1,
+    weights::Union{Nothing,AbstractArray}=nothing,
 )
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
     x = CounterfactualExplanations.factual(ce)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    xs = eachslice(x′, dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
+    xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
     if isnothing(weights)
         Δ = agg(map(x′ -> norm(x′ .- from, p), xs))            # aggregate across counterfactuals
     else
         @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
         Δ = agg(map(x′ -> norm.(x′ .- from, p)'weights, xs))   # aggregate across counterfactuals
-    end            
+    end
     return Δ
 end
 
@@ -40,7 +40,7 @@ function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
     X = ce.data.X
     mad = []
     ignore_derivatives() do
-        _mad = median(abs.(X .- median(X, dims=ndims(X))), dims=ndims(X))
+        _mad = median(abs.(X .- median(X; dims=ndims(X))); dims=ndims(X))
         push!(mad, _mad)
     end
     return distance(ce; agg=agg, weights=1.0 ./ mad[1])[1]
@@ -111,9 +111,7 @@ end
 
 Computes the distance of the counterfactual from a point in the target main.
 """
-function distance_from_target(
-    ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...
-)
+function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
     ids = rand(1:size(ce.params[:potential_neighbours], 2), K)
     neighbours = ce.params[:potential_neighbours][:, ids]
     centroid = mean(neighbours; dims=ndims(neighbours))

@@ -17,8 +17,7 @@ end
 Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set.
 """
 function model_evaluation(
-    M::AbstractFittedModel, test_data::CounterfactualData; 
-    measure=multiclass_f1score
+    M::AbstractFittedModel, test_data::CounterfactualData; measure=multiclass_f1score
 )
     measure = measure isa AbstractVector ? measure : [measure]
     y = test_data.output_encoder.y
