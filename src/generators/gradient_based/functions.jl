@@ -101,7 +101,8 @@ The default method to check if the all conditions for convergence of the counter
 function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    Δs′ = generate_perturbations(generator, ce)
+    Δs′ = ∇(generator, ce.M, ce)
+    Δs′ = CounterfactualExplanations.apply_mutability(ce, Δs′)
     τ = ce.convergence[:gradient_tol]
     satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
     success_rate = sum(satisfied) / ce.num_counterfactuals
