@@ -11,7 +11,7 @@ Computes the distance of the counterfactual to the original factual.
 function distance(ce::AbstractCounterfactualExplanation, p::Real=2; agg=mean)
     x = CounterfactualExplanations.factual(ce)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    Δ = agg(norm(x′ .- x))
+    Δ = agg(norm(x′ .- x, p))
     return Δ
 end
 
