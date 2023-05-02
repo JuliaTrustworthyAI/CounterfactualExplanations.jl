@@ -1,18 +1,49 @@
+using ChainRulesCore
 using ..CounterfactualExplanations
 using LinearAlgebra
 using SliceMap
-using Statistics: mean
+using Statistics: mean, median
 
 """
     distance(ce::AbstractCounterfactualExplanation, p::Real=2)
 
 Computes the distance of the counterfactual to the original factual.
 """
-function distance(ce::AbstractCounterfactualExplanation, p::Real=2; agg=mean)
+function distance(
+    ce::AbstractCounterfactualExplanation;
+    from::Union{Nothing,AbstractArray}=nothing,
+    agg=mean,
+    p::Real=1,
+    weights::Union{Nothing,AbstractArray}=nothing,
+)
+    if isnothing(from)
+        from = CounterfactualExplanations.factual(ce)
+    end
     x = CounterfactualExplanations.factual(ce)
     x′ = CounterfactualExplanations.counterfactual(ce)
-    Δ = agg(norm(x′ .- x, p))
+    xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
+    if isnothing(weights)
+        Δ = agg(map(x′ -> norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+    else
+        @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
+        Δ = agg(map(x′ -> norm.(x′ .- from, p)'weights, xs))   # aggregate across counterfactuals
+    end
     return Δ
+end
+
+"""
+    distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
+
+This is the distance measure proposed by Wachter et al. (2017).
+"""
+function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
+    X = ce.data.X
+    mad = []
+    ignore_derivatives() do
+        _mad = median(abs.(X .- median(X; dims=ndims(X))); dims=ndims(X))
+        push!(mad, _mad)
+    end
+    return distance(ce; agg=agg, weights=1.0 ./ mad[1])[1]
 end
 
 """
@@ -20,8 +51,8 @@ end
 
 Computes the L0 distance of the counterfactual to the original factual.
 """
-function distance_l0(ce::AbstractCounterfactualExplanation; agg=mean)
-    return distance(ce, 0; agg=agg)
+function distance_l0(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; p=0, kwrgs...)
 end
 
 """
@@ -29,8 +60,8 @@ end
 
 Computes the L1 distance of the counterfactual to the original factual.
 """
-function distance_l1(ce::AbstractCounterfactualExplanation; agg=mean)
-    return distance(ce, 1; agg=agg)
+function distance_l1(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; p=1, kwrgs...)
 end
 
 """
@@ -38,8 +69,8 @@ end
 
 Computes the L2 (Euclidean) distance of the counterfactual to the original factual.
 """
-function distance_l2(ce::AbstractCounterfactualExplanation; agg=mean)
-    return distance(ce, 2; agg=agg)
+function distance_l2(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; p=3, kwrgs...)
 end
 
 """
@@ -47,8 +78,8 @@ end
 
 Computes the L-inf distance of the counterfactual to the original factual.
 """
-function distance_linf(ce::AbstractCounterfactualExplanation; agg=mean)
-    return distance(ce, Inf; agg=agg)
+function distance_linf(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; p=Inf, kwrgs...)
 end
 
 """
@@ -80,14 +111,11 @@ end
 
 Computes the distance of the counterfactual from a point in the target main.
 """
-function distance_from_target(
-    ce::AbstractCounterfactualExplanation, p::Int=2; agg=mean, K::Int=50
-)
+function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
     ids = rand(1:size(ce.params[:potential_neighbours], 2), K)
     neighbours = ce.params[:potential_neighbours][:, ids]
     centroid = mean(neighbours; dims=ndims(neighbours))
-    x′ = CounterfactualExplanations.counterfactual(ce)
-    Δ = agg(norm(x′ .- centroid, p))
+    Δ = distance(ce; from=centroid, kwrgs...)
     return Δ
 end
 

@@ -41,7 +41,7 @@ Finally, we generate and visualize the generated counterfactual:
 #| output: true
 
 # Search:
-generator = GenericGenerator(opt=Descent(0.01))
+generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```

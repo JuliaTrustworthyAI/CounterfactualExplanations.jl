@@ -56,6 +56,7 @@ export GravitationalGenerator
 export GreedyGenerator
 export REVISEGenerator
 export DiCEGenerator
+export WachterGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
@@ -85,6 +86,6 @@ include("evaluation/Evaluation.jl")
 using .Evaluation
 
 # Precompile:
-# include("precompile.jl")
+include("precompile.jl")
 
 end

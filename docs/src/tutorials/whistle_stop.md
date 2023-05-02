@@ -1,16 +1,16 @@
+# Whistle-Stop Tour
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Whistle-Stop Tour
-
-In this tutorial, we will go through a simple example involving synthetic data. We will generate Counterfactual Explanations using different generators and visualize the results.
+In this tutorial, we will go through a slightly more complex example involving synthetic data. We will generate Counterfactual Explanations using different generators and visualize the results.
 
 ## Data and Classifier
 
 ``` julia
 counterfactual_data = load_blobs(n_samples; k=n_dim, centers=n_classes)
+counterfactual_data.standardize = true
 M = fit_model(counterfactual_data, model_name)
 ```
 
@@ -38,7 +38,6 @@ Counterfactual generators accept several default parameters that can be used to 
 
 ``` julia
 # Search params:
-opt = Descent()
 decision_threshold = 0.75
 num_counterfactuals = 3
 ```
@@ -50,13 +49,12 @@ ces = Dict()
 plts = []
 # Search:
 for (key, Generator) in generator_catalogue
-    generator = Generator(; 
-        opt=opt, 
-        decision_threshold=decision_threshold
-    )
+    generator = Generator()
     ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator;
-        num_counterfactuals = num_counterfactuals
+        num_counterfactuals = num_counterfactuals,
+        decision_threshold=decision_threshold,
+        converge_when=:generator_conditions
     )
     ces[key] = ce
     plts = [plts..., plot(ce; title=key, colorbar=false)]

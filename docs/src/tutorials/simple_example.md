@@ -1,9 +1,8 @@
+# Simple Example
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Simple Example
 
 In this tutorial, we will go through a simple example involving synthetic data and a generic counterfactual generator.
 
@@ -34,7 +33,7 @@ Finally, we generate and visualize the generated counterfactual:
 
 ``` julia
 # Search:
-generator = GenericGenerator(opt=Descent(0.01))
+generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
