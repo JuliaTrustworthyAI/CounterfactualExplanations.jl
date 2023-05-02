@@ -98,7 +98,7 @@ vae = load_mnist_vae()
 test_data = load_mnist_test()
 Markdown.parse(
   """
-  The F1-score of our pre-trained image classifier on test data is: $(round(model_evaluation(M, test_data), digits=2))
+  The F1-score of our pre-trained image classifier on test data is: $(round(model_evaluation(M, test_data)[1], digits=2))
   """
 )
 ```
@@ -136,13 +136,9 @@ The API call is the same as always:
 ```{julia}
 γ = 0.95
 # Define generator:
-generator = REVISEGenerator(
-  opt = Descent(0.1),
-  decision_threshold = γ,
-  λ=0.01
-)
+generator = REVISEGenerator(opt=Flux.Adam(0.5))
 # Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; decision_threshold=γ)
 ```
 
 The chart below shows the results:
@@ -156,7 +152,7 @@ p1 = plot(
     convert2image(MNIST, reshape(x,28,28)),
     axis=nothing, 
     size=(image_size, image_size),
-    title="Factual"
+    title="Factual: $(factual_label)"
 )
 savefig(p1, joinpath(www_path, "mnist_factual.png"))
 target_prob = round(target_probs(ce)[1],digits=2)
@@ -165,7 +161,7 @@ p2 = plot(
     convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
     axis=nothing, 
     size=(image_size, image_size),
-    title="Counterfactual"
+    title="Counterfactual: $(ŷ) (p=$(target_prob))"
 )
 plot(p1,p2;size=(image_size * 2,image_size), layout=(1,2))
 ```
