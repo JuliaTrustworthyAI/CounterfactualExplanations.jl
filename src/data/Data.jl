@@ -34,19 +34,34 @@ const data_catalogue = Dict(
 
 Loads all synthetic datasets and wraps them in a dictionary.
 """
-function load_synthetic_data(n=100; seed=data_seed)
-    _dict = filter(((k,v),) -> k != :blobs, data_catalogue[:synthetic])
-    data = Dict(key => fun(n; seed=seed) for (key,fun) in _dict)
+function load_synthetic_data(n=100; seed=data_seed, drop=nothing)
+    _dict = data_catalogue[:synthetic]
+    if !isnothing(drop)
+        drop = drop isa Vector ? drop : [drop]
+        @assert all(_drop in keys(_dict) for _drop in drop)
+    else
+        drop = []
+    end
+    _dict = filter(((k, v),) -> k ∉ [drop...,:blobs], _dict)
+    data = Dict(key => fun(n; seed=seed) for (key, fun) in _dict)
     return data
 end
 
 """
-    load_tabular_data(n=nothing; seed=data_seed)
+    load_tabular_data(n=nothing; drop=nothing)
 
 Loads all tabular datasets and wraps them in a dictionary.
 """
-function load_tabular_data(n=nothing)
-    data = Dict(key => fun(n) for (key,fun) in data_catalogue[:tabular])
+function load_tabular_data(n=nothing; drop=nothing)
+    _dict = data_catalogue[:tabular]
+    if !isnothing(drop)
+        drop = drop isa Vector ? drop : [drop]
+        @assert all(_drop in keys(_dict) for _drop in drop)
+    else
+        drop = []
+    end
+    _dict = filter(((k, v),) -> k ∉ drop, _dict)
+    data = Dict(key => fun(n) for (key, fun) in _dict)
     return data
 end
 
