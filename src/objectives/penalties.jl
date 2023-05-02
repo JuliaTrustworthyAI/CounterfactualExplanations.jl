@@ -36,11 +36,17 @@ end
 
 This is the distance measure proposed by Wachter et al. (2017).
 """
-function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
+function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean, noise=1e-5)
     X = ce.data.X
     mad = []
     ignore_derivatives() do
-        _mad = median(abs.(X .- median(X; dims=ndims(X))); dims=ndims(X))
+        _dict = ce.params
+        if !(:mad_features ∈ collect(keys(_dict)))
+            X̄ = median(X; dims=ndims(X))
+            _mad = median(abs.(X .- X̄); dims=ndims(X))
+            _dict[:mad_features] = _mad .+ size(X,1)*noise        # add noise to avoid division by zero
+        end
+        _mad = _dict[:mad_features]
         push!(mad, _mad)
     end
     return distance(ce; agg=agg, weights=1.0 ./ mad[1])[1]
