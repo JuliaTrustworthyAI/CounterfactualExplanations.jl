@@ -85,19 +85,3 @@ function load_moons(n=100; seed=data_seed, kwrgs...)
 
     return counterfactual_data
 end
-
-"""
-    load_synthetic_data(n=100; seed=data_seed)
-
-Loads all synthetic datasets and wraps them in a dictionary.
-"""
-function load_synthetic_data(n=100; seed=data_seed)
-    data = Dict(
-        :linearly_separable => load_linearly_separable(n; seed=seed),
-        :overlapping => load_overlapping(n; seed=seed),
-        :multi_class => load_multi_class(n; seed=seed),
-        :circles => load_circles(n; seed=seed),
-        :moons => load_moons(n; seed=seed),
-    )
-    return data
-end

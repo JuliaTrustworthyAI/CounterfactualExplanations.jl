@@ -61,10 +61,6 @@ export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
 
-macro sayhello(name)
-    return :(println("Hello, $name"))
-end
-
 ### CounterfactualExplanation
 # argmin 
 ###
