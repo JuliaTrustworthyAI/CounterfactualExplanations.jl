@@ -44,7 +44,7 @@ function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean, noise=1e-
         if !(:mad_features ∈ collect(keys(_dict)))
             X̄ = median(X; dims=ndims(X))
             _mad = median(abs.(X .- X̄); dims=ndims(X))
-            _dict[:mad_features] = _mad .+ size(X,1)*noise        # add noise to avoid division by zero
+            _dict[:mad_features] = _mad .+ size(X, 1) * noise        # add noise to avoid division by zero
         end
         _mad = _dict[:mad_features]
         push!(mad, _mad)
