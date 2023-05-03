@@ -102,7 +102,9 @@ function evaluate(
 )
     if :output_format ∈ keys(kwargs)
         output_format = kwargs[:output_format]
-        @assert output_format == :DataFrame ArgumentError("Only output_format=:DataFrame supported for multiple counterfactual explanations")
+        @assert output_format == :DataFrame ArgumentError(
+            "Only output_format=:DataFrame supported for multiple counterfactual explanations",
+        )
     end
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
