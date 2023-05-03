@@ -42,7 +42,7 @@ function load_synthetic_data(n=100; seed=data_seed, drop=nothing)
     else
         drop = []
     end
-    _dict = filter(((k, v),) -> k ∉ [drop...,:blobs], _dict)
+    _dict = filter(((k, v),) -> k ∉ [drop..., :blobs], _dict)
     data = Dict(key => fun(n; seed=seed) for (key, fun) in _dict)
     return data
 end
