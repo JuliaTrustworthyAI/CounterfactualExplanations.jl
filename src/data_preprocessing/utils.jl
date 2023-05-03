@@ -8,13 +8,14 @@ function _subset(data::CounterfactualData, idx::Vector{Int})
     dsub.X = dsub.X[:, idx]
     dsub.y = dsub.y[:, idx]
     dsub.output_encoder.y = data.output_encoder.y[idx]
+    dsub.output_encoder.labels = data.output_encoder.labels[idx]
     return dsub
 end
 
 """
     train_test_split(data::CounterfactualData;test_size=0.2)
 
-Splits data into train and test split.
+Splits data into train and test split where `test_size` is the proportion of the data to be used for testing.
 """
 function train_test_split(data::CounterfactualData; test_size=0.2)
     N = size(data.X, 2)

@@ -39,21 +39,21 @@ bmk()
      Row │ sample  variable    value     generator                          model  ⋯
          │ Int64   String      Float64   Symbol                             Symbol ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  distance    0.752493  GenericGenerator(nothing, Linear…  FluxMo ⋯
-       2 │      1  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
-       3 │      1  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
-       4 │      2  distance    0.733512  GenericGenerator(nothing, Linear…  FluxMo
-       5 │      2  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo ⋯
-       6 │      2  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
-       7 │      3  distance    0.727664  GenericGenerator(nothing, Linear…  FluxMo
-       8 │      3  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
-       9 │      3  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo ⋯
-      10 │      4  distance    0.598759  GenericGenerator(nothing, Linear…  FluxMo
-      11 │      4  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
-      12 │      4  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
-      13 │      5  distance    0.725115  GenericGenerator(nothing, Linear…  FluxMo ⋯
-      14 │      5  redundancy  0.0       GenericGenerator(nothing, Linear…  FluxMo
-      15 │      5  validity    1.0       GenericGenerator(nothing, Linear…  FluxMo
+       1 │      1  distance    0.956787  Generator(nothing, Counterfactua…  FluxMo ⋯
+       2 │      1  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
+       3 │      1  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
+       4 │      2  distance    1.05868   Generator(nothing, Counterfactua…  FluxMo
+       5 │      2  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo ⋯
+       6 │      2  validity    1.0       Generator(nothing, Counterfactua…  FluxMo
+       7 │      3  distance    1.04356   Generator(nothing, Counterfactua…  FluxMo
+       8 │      3  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
+       9 │      3  validity    0.8       Generator(nothing, Counterfactua…  FluxMo ⋯
+      10 │      4  distance    0.92757   Generator(nothing, Counterfactua…  FluxMo
+      11 │      4  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
+      12 │      4  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
+      13 │      5  distance    1.02967   Generator(nothing, Counterfactua…  FluxMo ⋯
+      14 │      5  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
+      15 │      5  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
                                                                    3 columns omitted
 
 To retrieve the granular dataset, simply do:
@@ -66,28 +66,28 @@ bmk(agg=nothing)
      Row │ sample  num_counterfactual  variable    value     generator             ⋯
          │ Int64   Int64               String      Float64   Symbol                ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    0.74913   GenericGenerator(noth ⋯
-       2 │      1                   2  distance    0.758537  GenericGenerator(noth
-       3 │      1                   3  distance    0.760605  GenericGenerator(noth
-       4 │      1                   4  distance    0.76034   GenericGenerator(noth
-       5 │      1                   5  distance    0.733853  GenericGenerator(noth ⋯
-       6 │      1                   1  redundancy  0.0       GenericGenerator(noth
-       7 │      1                   2  redundancy  0.0       GenericGenerator(noth
-       8 │      1                   3  redundancy  0.0       GenericGenerator(noth
-       9 │      1                   4  redundancy  0.0       GenericGenerator(noth ⋯
-      10 │      1                   5  redundancy  0.0       GenericGenerator(noth
-      11 │      1                   1  validity    1.0       GenericGenerator(noth
+       1 │      1                   1  distance    0.962456  Generator(nothing, Co ⋯
+       2 │      1                   2  distance    0.998482  Generator(nothing, Co
+       3 │      1                   3  distance    0.993182  Generator(nothing, Co
+       4 │      1                   4  distance    1.01803   Generator(nothing, Co
+       5 │      1                   5  distance    0.81178   Generator(nothing, Co ⋯
+       6 │      1                   1  redundancy  0.0       Generator(nothing, Co
+       7 │      1                   2  redundancy  0.0       Generator(nothing, Co
+       8 │      1                   3  redundancy  0.0       Generator(nothing, Co
+       9 │      1                   4  redundancy  0.0       Generator(nothing, Co ⋯
+      10 │      1                   5  redundancy  0.0       Generator(nothing, Co
+      11 │      1                   1  validity    1.0       Generator(nothing, Co
       ⋮  │   ⋮             ⋮               ⋮          ⋮                      ⋮     ⋱
-      66 │      5                   1  redundancy  0.0       GenericGenerator(noth
-      67 │      5                   2  redundancy  0.0       GenericGenerator(noth ⋯
-      68 │      5                   3  redundancy  0.0       GenericGenerator(noth
-      69 │      5                   4  redundancy  0.0       GenericGenerator(noth
-      70 │      5                   5  redundancy  0.0       GenericGenerator(noth
-      71 │      5                   1  validity    1.0       GenericGenerator(noth ⋯
-      72 │      5                   2  validity    1.0       GenericGenerator(noth
-      73 │      5                   3  validity    1.0       GenericGenerator(noth
-      74 │      5                   4  validity    1.0       GenericGenerator(noth
-      75 │      5                   5  validity    1.0       GenericGenerator(noth ⋯
+      66 │      5                   1  redundancy  0.0       Generator(nothing, Co
+      67 │      5                   2  redundancy  0.0       Generator(nothing, Co ⋯
+      68 │      5                   3  redundancy  0.0       Generator(nothing, Co
+      69 │      5                   4  redundancy  0.0       Generator(nothing, Co
+      70 │      5                   5  redundancy  0.0       Generator(nothing, Co
+      71 │      5                   1  validity    1.0       Generator(nothing, Co ⋯
+      72 │      5                   2  validity    0.0       Generator(nothing, Co
+      73 │      5                   3  validity    1.0       Generator(nothing, Co
+      74 │      5                   4  validity    1.0       Generator(nothing, Co
+      75 │      5                   5  validity    1.0       Generator(nothing, Co ⋯
                                                        4 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
@@ -100,15 +100,17 @@ using Tidier
 end
 ```
 
+    [ Info: Precompiling Tidier [f0413319-3358-4bb0-8e7c-0c83523a93bd]
+
     5×3 DataFrame
      Row │ sample  variable  value    
          │ Int64   String    Float64  
     ─────┼────────────────────────────
-       1 │      1  distance  0.752493
-       2 │      2  distance  0.733512
-       3 │      3  distance  0.727664
-       4 │      4  distance  0.598759
-       5 │      5  distance  0.725115
+       1 │      1  distance  0.956787
+       2 │      2  distance  1.05868
+       3 │      3  distance  1.04356
+       4 │      4  distance  0.92757
+       5 │      5  distance  1.02967
 
 ### Metadata for Counterfactual Explanations
 
@@ -127,11 +129,11 @@ end
      Row │ sample  model                              generator                    ⋯
          │ Int64   Symbol                             Symbol                       ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li ⋯
-       2 │      2  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
-       3 │      3  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
-       4 │      4  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li
-       5 │      5  FluxModel(Chain(Dense(2 => 1)), …  GenericGenerator(nothing, Li ⋯
+       1 │      1  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa ⋯
+       2 │      2  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
+       3 │      3  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
+       4 │      4  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
+       5 │      5  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa ⋯
                                                                     1 column omitted
 
 Metadata can also be provided as an optional key argument.
@@ -215,10 +217,10 @@ end
      Row │ sample  variable  value     model   generator     
          │ Int64   String    Float64   Symbol  Symbol        
     ─────┼───────────────────────────────────────────────────
-       1 │      1  distance  1.25303   Linear  Gravitational
-       2 │      1  distance  0.713449  Linear  Generic
-       3 │      1  distance  1.21735   MLP     Gravitational
-       4 │      1  distance  0.966432  MLP     Generic
+       1 │      1  distance  0.978056  Linear  Gravitational
+       2 │      1  distance  0.985401  Linear  Generic
+       3 │      1  distance  1.15321   MLP     Gravitational
+       4 │      1  distance  1.16994   MLP     Generic
 
 ### Everything at once
 
@@ -241,7 +243,7 @@ This will use the default models from [`model_catalogue`](@ref) and train them o
 end
 ```
 
-    90×5 DataFrame
+    105×5 DataFrame
      Row │ sample  variable  value    model   generator     
          │ Int64   String    Float64  Symbol  Symbol        
     ─────┼──────────────────────────────────────────────────
@@ -250,28 +252,28 @@ end
        3 │      3  validity      1.0  Linear  gravitational
        4 │      4  validity      1.0  Linear  gravitational
        5 │      5  validity      1.0  Linear  gravitational
-       6 │      1  validity      1.0  Linear  revise
+       6 │      1  validity      0.0  Linear  revise
        7 │      2  validity      1.0  Linear  revise
        8 │      3  validity      1.0  Linear  revise
        9 │      4  validity      1.0  Linear  revise
       10 │      5  validity      1.0  Linear  revise
       11 │      1  validity      1.0  Linear  dice
       ⋮  │   ⋮        ⋮         ⋮       ⋮           ⋮
-      81 │     11  validity      1.0  MLP     greedy
-      82 │     12  validity      1.0  MLP     greedy
-      83 │     13  validity      1.0  MLP     greedy
-      84 │     14  validity      1.0  MLP     greedy
-      85 │     15  validity      1.0  MLP     greedy
-      86 │     11  validity      1.0  MLP     claproar
-      87 │     12  validity      1.0  MLP     claproar
-      88 │     13  validity      1.0  MLP     claproar
-      89 │     14  validity      1.0  MLP     claproar
-      90 │     15  validity      1.0  MLP     claproar
-                                             69 rows omitted
+      96 │     11  validity      1.0  MLP     claproar
+      97 │     12  validity      1.0  MLP     claproar
+      98 │     13  validity      1.0  MLP     claproar
+      99 │     14  validity      1.0  MLP     claproar
+     100 │     15  validity      1.0  MLP     claproar
+     101 │     11  validity      1.0  MLP     wachter
+     102 │     12  validity      1.0  MLP     wachter
+     103 │     13  validity      1.0  MLP     wachter
+     104 │     14  validity      1.0  MLP     wachter
+     105 │     15  validity      1.0  MLP     wachter
+                                             84 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
-1.  Either be an object `M` of type [`<:AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
+1.  Either be an object `M` of type [`AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
 2.  Or a `DataType` that can be called on [`CounterfactualData`](@ref) to create an object `M` as in (a).
 
 ## Multiple Datasets
@@ -331,7 +333,7 @@ end
      Row │ dataset  generator  L1_norm  
          │ Symbol   Symbol     Float32  
     ─────┼──────────────────────────────
-       1 │ circles  Generic    0.835715
-       2 │ circles  Greedy     0.472852
-       3 │ moons    Generic    0.863226
-       4 │ moons    Greedy     0.704552
+       1 │ circles  Generic    0.581888
+       2 │ circles  Greedy     0.540684
+       3 │ moons    Generic    0.9289
+       4 │ moons    Greedy     0.75273
