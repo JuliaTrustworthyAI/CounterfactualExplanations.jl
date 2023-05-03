@@ -65,7 +65,7 @@ function evaluate(
     if output_format == :DataFrame
         evaluation = DataFrame(
             Dict(
-                m => ndims(val) > 1 ? vec(val) : val for
+                m => report_each ? val[1] : val for
                 (m, val) in zip(Symbol.(measure), evaluation)
             ),
         )
@@ -100,6 +100,12 @@ function evaluate(
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     kwargs...,
 )
+    if :output_format ∈ keys(kwargs)
+        output_format = kwargs[:output_format]
+        @assert output_format == :DataFrame ArgumentError(
+            "Only output_format=:DataFrame supported for multiple counterfactual explanations",
+        )
+    end
     evaluations = []
     for (i, ce) in enumerate(counterfactual_explanations)
         evaluation = evaluate(ce; output_format=:DataFrame, kwargs...)
