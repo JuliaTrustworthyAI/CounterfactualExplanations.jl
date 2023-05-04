@@ -26,7 +26,7 @@ function distance(
         Δ = agg(map(x′ -> norm(x′ .- from, p), xs))            # aggregate across counterfactuals
     else
         @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
-        Δ = agg(map(x′ -> norm.(x′ .- from, p)'weights, xs))   # aggregate across counterfactuals
+        Δ = agg(map(x′ -> (norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
     end
     return Δ
 end
@@ -36,7 +36,7 @@ end
 
 This is the distance measure proposed by Wachter et al. (2017).
 """
-function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean, noise=1e-5)
+function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean, noise=1e-5, kwrgs...)
     X = ce.data.X
     mad = []
     ignore_derivatives() do
@@ -49,7 +49,7 @@ function distance_mad(ce::AbstractCounterfactualExplanation; agg=mean, noise=1e-
         _mad = _dict[:mad_features]
         push!(mad, _mad)
     end
-    return distance(ce; agg=agg, weights=1.0 ./ mad[1])[1]
+    return distance(ce; agg=agg, weights=1.0 ./ mad[1], kwrgs...)
 end
 
 """
