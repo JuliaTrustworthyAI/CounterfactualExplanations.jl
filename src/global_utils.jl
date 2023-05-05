@@ -44,17 +44,9 @@ Guess the likelihood based on the scientific type of the output array. Returns a
 function guess_likelihood(y::RawOutputArrayType)
     stype = scitype(y)
     if stype <: Union{AbstractArray{<:Finite},AbstractArray{<:Textual}}
-        if stype == AbstractVector{Multiclass{2}}
-            likelihood = :classification_binary
-        else
-            likelihood = :classification_multi
-        end
+        likelihood = :classification_multi
     elseif stype <: AbstractArray{Count}
-        if length(unique(y)) == 2
-            likelihood = :classification_binary
-        else
-            likelihood = :classification_multi
-        end
+        likelihood = :classification_multi
     elseif stype <: AbstractVector{Continuous}
         error(
             "You supplied an output array of continuous variables, which indicates a regression problem and is not currently supported.",
