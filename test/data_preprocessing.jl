@@ -5,7 +5,7 @@ import CounterfactualExplanations.DataPreprocessing
 @testset "Convenience functions" begin
     counterfactual_data = load_overlapping()
     X = counterfactual_data.X
-    y = counterfactual_data.y
+    y = counterfactual_data.output_encoder.y
 
     # Select factual:
     idx = rand(1:size(X, 2))
