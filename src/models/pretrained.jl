@@ -1,8 +1,10 @@
 using LazyArtifacts
 using Serialization
 
-vision_dir = joinpath(artifact"model-vision", "model-vision")
-const artifacts_warning = "Pre-trained models have been serialized and may not be compatible depending on which Julia version you are using. We originally relied on BSON, but this too led to issues."
+_version = "$(Int(VERSION.major)).$(Int(VERSION.minor))"
+artifact_name = "model-vision-$(_version)"
+vision_dir = joinpath(@artifact_str(artifact_name), artifact_name)
+const artifacts_warning = "Pre-trained models have been serialized on version $(_version) and may not be compatible depending on which Julia version you are using. We originally relied on BSON, but this too led to issues."
 
 function load_mnist_mlp()
     @warn artifacts_warning

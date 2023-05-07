@@ -1,8 +1,9 @@
-# `REVISEGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `REVISEGenerator`
 
 REVISE is a Latent Space generator introduced by Joshi et al. (2019).
 
@@ -69,7 +70,7 @@ M = load_mnist_mlp()
 vae = load_mnist_vae()
 ```
 
-The F1-score of our pre-trained image classifier on test data is: 0.96
+The F1-score of our pre-trained image classifier on test data is: 0.94
 
 Before continuing, we supply the pre-trained generative model to our data container:
 
