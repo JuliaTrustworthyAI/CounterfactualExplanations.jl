@@ -11,8 +11,9 @@ Loads and prepares MNIST data.
 function load_mnist(n::Union{Nothing,Int}=nothing)
     X, y = MNIST(:train)[:]
     X = Flux.flatten(X)
+    X = X .* 2.0f0 .- 1.0f0
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(0, 1), standardize=false)
+    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0), standardize=false)
     counterfactual_data.X = Float32.(counterfactual_data.X)
     # Undersample:
     if !isnothing(n)
@@ -31,8 +32,9 @@ Loads and prepares MNIST test data.
 function load_mnist_test()
     X, y = MNIST(:test)[:]
     X = Flux.flatten(X)
+    X = X .* 2.0f0 .- 1.0f0
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(0, 1))
+    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0))
     counterfactual_data.X = Float32.(counterfactual_data.X)
     return counterfactual_data
 end
