@@ -39,9 +39,9 @@ end
 
 function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
     return Encoder(
-        Dense(input_dim, hidden_dim, activation),   # linear
-        Dense(hidden_dim, latent_dim),        # μ
-        Dense(hidden_dim, latent_dim),        # logσ
+        Dense(input_dim, hidden_dim, activation),       # linear
+        Dense(hidden_dim, latent_dim),                  # μ
+        Dense(hidden_dim, latent_dim),                  # logσ
     )
 end
 
@@ -151,11 +151,6 @@ function reconstruct(generative_model::VAE, x, device=cpu)
     return generative_model.decoder(z), μ, logσ
 end
 
-"""
-    
-
-
-"""
 function model_loss(generative_model::VAE, λ, x, device)
     z, μ, logσ = reconstruct(generative_model, x, device)
     len = size(x)[end]
