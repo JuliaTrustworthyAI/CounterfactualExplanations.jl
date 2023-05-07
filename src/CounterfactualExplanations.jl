@@ -1,5 +1,8 @@
 module CounterfactualExplanations
 
+# Setup:
+include("artifacts_setup.jl")
+
 include("base_types.jl")
 export AbstractCounterfactualExplanation
 export AbstractFittedModel
