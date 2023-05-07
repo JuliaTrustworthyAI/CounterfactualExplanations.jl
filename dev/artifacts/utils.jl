@@ -136,7 +136,6 @@ function get_git_remote_url(repo_path::String)
     return LibGit2.url(origin)
 end
 
-
 """
     Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
 
