@@ -1,7 +1,7 @@
 using LazyArtifacts
 using Serialization
 
-vision_dir = generate_artifact_dir("model-vision")
+vision_dir = CounterfactualExplanations.generate_artifact_dir("model-vision")
 
 function load_mnist_mlp()
     M = deserialize(joinpath(vision_dir, "mnist_mlp.jls"))
