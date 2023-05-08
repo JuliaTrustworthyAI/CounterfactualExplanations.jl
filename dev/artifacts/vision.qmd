@@ -17,7 +17,9 @@ model_name = "model-vision"
 
 ```{julia}
 counterfactual_data = load_mnist()
-input_dim, n_obs = size(counterfactual_data.X)
+X = counterfactual_data.X
+y = counterfactual_data.output_encoder.y  
+input_dim, n_obs = size(X)
 ```
 
 ### Classifiers
@@ -46,8 +48,6 @@ Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens)
 ```{julia}
 using CounterfactualExplanations.GenerativeModels: VAE, train!
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.0001, latent_dim=28, hidden_dim=50)
-X = counterfactual_data.X
-y = counterfactual_data.output_encoder.y        # raw output vector
 flux_training_params.verbose = true
 train!(vae, X, y)
 Serialization.serialize(joinpath(model_path,"mnist_vae_strong.jls"),vae)
@@ -80,7 +80,7 @@ savefig(plt, joinpath(www_path, "mnist_vae_strong.png"))
 ```
 
 ```{julia}
-vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
+vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=5)
 flux_training_params.verbose = true
 train!(vae, X, y)
 Serialization.serialize(joinpath(model_path,"mnist_vae_weak.jls"),vae)
@@ -110,6 +110,111 @@ p1 = plot(mosaic(images..., ncol=10), title="Images")
 p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
 plt = plot(p1, p2, axis=false, size=(800,375))
 savefig(plt, joinpath(www_path, "mnist_vae_weak.png"))
+```
+
+## FashionMNIST 
+
+```{julia}
+counterfactual_data = load_fashion_mnist()
+X = counterfactual_data.X
+y = counterfactual_data.output_encoder.y  
+input_dim, n_obs = size(X)
+```
+
+```{julia}
+images = []
+for i in 0:9
+    j = 0
+    while j < 10
+        x = X[:,rand(findall(y .== i))]
+        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |> 
+            x -> reshape(x, 28,28) |>
+            x -> convert2image(FashionMNIST, x)
+        push!(images, x)
+        j += 1
+    end
+end
+mosaic(images..., ncol=10) |> display
+```
+
+### Classifiers
+
+```{julia}
+flux_training_params.batchsize = Int(round(n_obs/10))
+flux_training_params.verbose = true
+M = fit_model(counterfactual_data, :MLP, n_hidden=64)
+M_ens = fit_model(counterfactual_data, :DeepEnsemble, n_hidden=64)
+CounterfactualExplanations.reset!(flux_training_params)
+```
+
+```{julia}
+test_data = load_fashion_mnist_test()
+println("MLP test score (F1): $(model_evaluation(M, test_data)[1])")
+println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])")
+```
+
+```{julia}
+Serialization.serialize(joinpath(model_path,"fashion_mnist_mlp.jls"),M)
+Serialization.serialize(joinpath(model_path,"fashion_mnist_ensemble.jls"),M_ens)
+```
+
+### Generative Model
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: VAE, train!
+vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.0001, latent_dim=32, hidden_dim=64)
+flux_training_params.verbose = true
+train!(vae, X, y)
+Serialization.serialize(joinpath(model_path,"fashion_mnist_vae_strong.jls"),vae)
+```
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: reconstruct
+rec_images = []
+for i in 0:9
+    j = 0
+    while j < 10
+        x = X[:,rand(findall(y .== i))]
+        x̂ = reconstruct(vae, x)[1] |> 
+            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
+            x̂ -> reshape(x̂, 28,28) |>
+            x̂ -> convert2image(FashionMNIST, x̂)
+        push!(rec_images, x̂)
+        j += 1
+    end
+end
+p1 = plot(mosaic(images..., ncol=10), title="Images")
+p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
+plt = plot(p1, p2, axis=false, size=(800,375))
+savefig(plt, joinpath(www_path, "fashion_mnist_vae_strong.png"))
+```
+
+```{julia}
+vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
+flux_training_params.verbose = true
+train!(vae, X, y)
+Serialization.serialize(joinpath(model_path,"fashion_mnist_vae_weak.jls"),vae)
+```
+
+```{julia}
+using CounterfactualExplanations.GenerativeModels: reconstruct
+rec_images = []
+for i in 0:9
+    j = 0
+    while j < 10
+        x = X[:,rand(findall(y .== i))]
+        x̂ = reconstruct(vae, x)[1] |> 
+            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
+            x̂ -> reshape(x̂, 28,28) |>
+            x̂ -> convert2image(FashionMNIST, x̂)
+        push!(rec_images, x̂)
+        j += 1
+    end
+end
+p1 = plot(mosaic(images..., ncol=10), title="Images")
+p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
+plt = plot(p1, p2, axis=false, size=(800,375))
+savefig(plt, joinpath(www_path, "fashion_mnist_vae_weak.png"))
 ```
 
 ## Generate Artifacts

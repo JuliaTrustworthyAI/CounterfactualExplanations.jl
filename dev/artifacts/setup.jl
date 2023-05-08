@@ -8,6 +8,8 @@ setup = quote
     using CounterfactualExplanations.Data
     using CSV
     using Flux
+    using Images
+    using MLDatasets
 
     # Utils
     include("dev/artifacts/utils.jl")
