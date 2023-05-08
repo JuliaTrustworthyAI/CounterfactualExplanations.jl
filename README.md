@@ -98,7 +98,7 @@ generator = DiCEGenerator(
 )
 ```
 
-Here, we have chosen to use the `Generator` to move the individual from its factual label 2 to the target label 1.
+Here, we have chosen to use the `Generator` to move the individual from its factual label 1 to the target label 2.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 

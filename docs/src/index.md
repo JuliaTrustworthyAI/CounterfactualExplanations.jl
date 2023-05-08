@@ -50,7 +50,7 @@ Counterfactual Explanations have a few properties that are desirable in the cont
 
 ### Example: Give Me Some Credit
 
-Consider the following real-world scenario: a retail bank is using a black-box model trained on their clients’ credit history to decide whether they will provide credit to new applicants. To simulate this scenario, we have pre-trained a binary classifier on the publically available Give Me Some Credit dataset that ships with this package (Kaggle 2011).
+Consider the following real-world scenario: a retail bank is using a black-box model trained on their clients’ credit history to decide whether they will provide credit to new applicants. To simulate this scenario, we have pre-trained a binary classifier on the publicly available Give Me Some Credit dataset that ships with this package (Kaggle 2011).
 
 The figure below shows counterfactuals for 10 randomly chosen individuals that would have been denied credit initially.
 
@@ -104,7 +104,7 @@ generator = DiCEGenerator(
 )
 ```
 
-Here, we have chosen to use the `Generator` to move the individual from its factual label 2 to the target label 1.
+Here, we have chosen to use the `Generator` to move the individual from its factual label 1 to the target label 2.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 

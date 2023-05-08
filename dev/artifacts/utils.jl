@@ -7,6 +7,7 @@ using MLJBase
 using MLJModels: ContinuousEncoder, OneHotEncoder, Standardizer
 using MLUtils
 using Pkg.Artifacts
+using Plots
 using Serialization
 using StatsBase
 
@@ -61,7 +62,7 @@ function generate_artifacts(
     root=".",
     artifact_toml=joinpath(root, "Artifacts.toml"),
     deploy=true,
-    tag="artifacts",
+    tag="artifacts-$(Int(VERSION.major)).$(Int(VERSION.minor))",
 )
     if deploy && !haskey(ENV, "GITHUB_TOKEN")
         @warn "For automatic github deployment, need GITHUB_TOKEN. Not found in ENV, attemptimg global git config."
@@ -133,4 +134,66 @@ function get_git_remote_url(repo_path::String)
     repo = LibGit2.GitRepo(repo_path)
     origin = LibGit2.get(LibGit2.GitRemote, repo, "origin")
     return LibGit2.url(origin)
+end
+
+"""
+    Plots.plot(generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...)
+
+Helper function to plot the latent space of a VAE.
+"""
+function Plots.plot(
+    generative_model::VAE, X::AbstractArray, y::AbstractArray; image_data=false, kws...
+)
+    args = generative_model.params
+    device = args.device
+    encoder, decoder = device(generative_model.encoder), device(generative_model.decoder)
+
+    # load data
+    loader = CounterfactualExplanations.GenerativeModels.get_data(X, y, args.batch_size)
+    labels = []
+    μ_1 = []
+    μ_2 = []
+
+    # clustering in the latent space
+    # visualize first two dims
+    out_dim = size(y)[1]
+    pal = out_dim > 1 ? cgrad(:rainbow, out_dim; categorical=true) : :rainbow
+    plt_clustering = scatter(; palette=pal, kws...)
+    for (i, (x, y)) in enumerate(loader)
+        i < 20 || break
+        μ_i, _ = encoder(device(x))
+        μ_1 = vcat(μ_1, μ_i[1, :])
+        μ_2 = vcat(μ_2, μ_i[2, :])
+
+        labels = Int.(vcat(labels, vec(y)))
+    end
+
+    scatter!(
+        μ_1,
+        μ_2;
+        markerstrokewidth=0,
+        markeralpha=0.8,
+        aspect_ratio=1,
+        # markercolor=labels,
+        group=labels,
+    )
+
+    if image_data
+        z = range(-2.0; stop=2.0, length=11)
+        len = Base.length(z)
+        z1 = repeat(z, len)
+        z2 = sort(z1)
+        x = device(zeros(Float32, args.latent_dim, len^2))
+        x[1, :] = z1
+        x[2, :] = z2
+        samples = decoder(x)
+        samples = sigmoid.(samples)
+        samples = convert_to_image(samples, len)
+        plt_manifold = Plots.plot(samples; axis=nothing, title="2D Manifold")
+        plt = Plots.plot(plt_clustering, plt_manifold)
+    else
+        plt = plt_clustering
+    end
+
+    return plt
 end
