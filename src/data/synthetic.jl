@@ -23,9 +23,7 @@ end
 Loads linearly separable synthetic data.
 """
 function load_linearly_separable(n=100; seed=data_seed)
-    counterfactual_data = load_blobs(
-        n; seed=seed, centers=2, center_box=(-2 => 2), cluster_std=0.1
-    )
+    counterfactual_data = load_blobs(n; seed=seed, centers=2, cluster_std=0.5)
 
     return counterfactual_data
 end
@@ -36,9 +34,7 @@ end
 Loads overlapping synthetic data.
 """
 function load_overlapping(n=100; seed=data_seed)
-    counterfactual_data = load_blobs(
-        n; seed=seed, centers=2, center_box=(-2 => 2), cluster_std=0.5
-    )
+    counterfactual_data = load_blobs(n; seed=seed, centers=2, cluster_std=2.0)
 
     return counterfactual_data
 end
@@ -49,9 +45,7 @@ end
 Loads multi-class synthetic data.
 """
 function load_multi_class(n=100; seed=data_seed, centers=4)
-    counterfactual_data = load_blobs(
-        n; seed=seed, centers=centers, center_box=(-2 => 2), cluster_std=0.1
-    )
+    counterfactual_data = load_blobs(n; seed=seed, centers=centers, cluster_std=0.5)
 
     return counterfactual_data
 end

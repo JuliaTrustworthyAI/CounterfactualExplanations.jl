@@ -34,7 +34,7 @@ function Generator(;
     penalty::Union{Nothing,Function,Vector{Function}}=nothing,
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.Adam(0.01),
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
     return Generator(loss, penalty, λ, latent_space, opt)
 end

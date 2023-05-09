@@ -32,7 +32,7 @@ Markdown.parse(
 ```
 
 ```{julia}
-counterfactual_data = load_blobs(n_samples; k=n_dim, centers=n_classes)
+counterfactual_data = load_multi_class(n_samples)
 counterfactual_data.standardize = true
 M = fit_model(counterfactual_data, model_name)
 ```
