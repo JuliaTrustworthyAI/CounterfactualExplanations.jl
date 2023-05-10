@@ -3,6 +3,8 @@ using Flux
 using MLDatasets
 using MLJBase
 
+import MLUtils: flatten
+
 """
     load_mnist()
 
@@ -72,5 +74,27 @@ function load_fashion_mnist_test()
     y = categorical(y)
     counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0))
     counterfactual_data.X = Float32.(counterfactual_data.X)
+    return counterfactual_data
+end
+
+function load_cifar_10(n::Union{Nothing,Int}=nothing)
+    X, y = CIFAR10()[:] # [:] gives us X, y
+    X = flatten(X)
+    X = X .* 2 .- 1 # normalization between [-1, 1]
+    y = categorical(y)
+    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0), standardize=false)
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(counterfactual_data, n)
+    end
+    
+    return counterfactual_data
+end
+
+function load_cifar_10_test()
+    X, y = CIFAR10(:test)[:]
+    X = flatten(X)
+    X = X .* 2 .- 1 # normalization between [-1, 1]
+    y = categorical(y)
+    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0))
     return counterfactual_data
 end
