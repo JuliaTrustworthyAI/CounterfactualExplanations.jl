@@ -13,7 +13,7 @@ The following equation displays how a true negative instance x can be transforme
 
 ```math
 \begin{aligned}
-\mathbf{x}^\prime &= \arg_{\mathbf{x^*}} \min \{ {\delta(\mathbf{x}, \mathbf{x^*}) | \hat{f}(\mathbf{x}) &= -1 \wedge \hat{f}(\mathbf{x^*}) &= +1} \}
+\mathbf{x}^\prime = \arg_{\mathbf{x^*}} \min \{ {\delta(\mathbf{x}, \mathbf{x^*}) | \hat{f}(\mathbf{x}) = -1 \wedge \hat{f}(\mathbf{x^*}) = +1} \}
 \end{aligned}
 ```
 
