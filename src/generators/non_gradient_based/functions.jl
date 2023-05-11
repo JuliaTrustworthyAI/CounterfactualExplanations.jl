@@ -1,11 +1,8 @@
-<<<<<<< HEAD
-
 """
     search_path(estimator, class_labels, target)
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
-
 function search_path(decision_tree, class_labels, target)
     children_left = decision_tree[:tree_][:children_left]
     children_right = decision_tree[:tree_][:children_right]
@@ -64,7 +61,8 @@ function search_path(decision_tree, class_labels, target)
         end
     end
     return path_info
-=======
+end
+
 """
     feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target, epsilon, loss)
 
@@ -112,5 +110,4 @@ function esatisfactory_instance(x, epsilon, paths)
         end
     end
     return esatisfactory
->>>>>>> 4b7c9d6603607d6f77fe3eb5c506ea289f46498f
 end
