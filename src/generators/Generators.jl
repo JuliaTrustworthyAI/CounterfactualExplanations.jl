@@ -21,7 +21,7 @@ export DiCEGenerator
 export WachterGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
-export Generator
+export GradientBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
 
