@@ -6,6 +6,7 @@ CurrentModule = CounterfactualExplanations
 # `FeatureTweakGenerator`
 
 **Feature Tweak** refers to the generator introduced by Tolomei et al. (2017)
+Our implementation takes inspiration from the [featureTweakPy library](https://github.com/upura/featureTweakPy)
 
 ## Description
 
