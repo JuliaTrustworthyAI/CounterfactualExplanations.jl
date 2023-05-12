@@ -1,17 +1,19 @@
 """
-    search_path(estimator, class_labels, target)
+    search_path(classifier, class_labels, target)
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
-function search_path(decision_tree, class_labels, target)
-    children_left = decision_tree[:tree_][:children_left]
-    children_right = decision_tree[:tree_][:children_right]
-    feature = decision_tree[:tree_][:feature]
-    threshold = decision_tree[:tree_][:threshold]
-    leaf_nodes = findall(children_left .== -1)
-    leaf_values = reshape(decision_tree[:tree_][:value][leaf_nodes], length(leaf_nodes), length(class_labels))
-    leaf_nodes = findall(leaf_values[:, target] .!= 0)
+function search_path(classifier, class_labels, target)
+    children_left = classifier[:tree_][:children_left]
+    children_right = classifier[:tree_][:children_right]
+    feature = classifier[:tree_][:feature]
+    threshold = classifier[:tree_][:threshold]
+    # leaf nodes whose outcome is target
+    leaf_nodes = findfirst(children_left .== -1)
+    leaf_values = reshape(classifier[:tree_][:value][leaf_nodes], length(leaf_nodes), length(class_labels))
+    leaf_nodes = findfirst(leaf_values[:, target] .!= 0)
 
+    # search path to above leaf nodes
     paths = Dict()
     for leaf_node in leaf_nodes
         child_node = leaf_node
@@ -35,10 +37,11 @@ function search_path(decision_tree, class_labels, target)
         paths[leaf_node] = (parents_left, parents_right)
     end
 
+
     path_info = Dict()
     for i in keys(paths)
-        node_ids = []
-        inequality_symbols = []
+        node_ids = [] 
+        inequality_symbols = [] 
         thresholds = []
         features = []
         parents_left, parents_right = paths[i]
@@ -56,8 +59,10 @@ function search_path(decision_tree, class_labels, target)
                 push!(thresholds, threshold[node_id])
                 push!(features, feature[node_id])
             end
-            path_info[i] = Dict("node_id" => node_ids, "inequality_symbol" => inequality_symbols,
-                                "threshold" => thresholds, "feature" => features)
+            path_info[i] = Dict("node_id" => node_ids, 
+                                "inequality_symbol" => inequality_symbols,
+                                "threshold" => thresholds, 
+                                "feature" => features)
         end
     end
     return path_info
@@ -74,6 +79,7 @@ function feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData
     for classifier in ensemble
         if predict_label(ensemble, input_data, x) == predict_label(classifier, input_data, x) &&
             predict_label(classifier, input_data, x) != target
+            
             paths = search_path(classifier, class_labels, target)
             for key in keys(paths)
                 path = paths[key]
