@@ -18,12 +18,13 @@ function Plots.plot(
     target::Union{Nothing,RawTargetType}=nothing,
     colorbar=true,
     title="",
-    length_out=50,
+    length_out=100,
     zoom=-0.1,
     xlims=nothing,
     ylims=nothing,
     linewidth=0.1,
     alpha=1.0,
+    contour_alpha=1.0,
     dim_red::Symbol=:pca,
     kwargs...,
 )
@@ -92,6 +93,7 @@ function Plots.plot(
         xlims=xlims,
         ylims=ylims,
         kwargs...,
+        alpha=contour_alpha,
     )
 
     # Samples:
