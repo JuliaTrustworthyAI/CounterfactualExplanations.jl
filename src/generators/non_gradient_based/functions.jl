@@ -69,11 +69,11 @@ function search_path(classifier, class_labels, target)
 end
 
 """
-    feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target, epsilon, loss)
+feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target, epsilon, loss)
+function feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
     x_out = deepcopy(x)
     delta = 10^3
     for classifier in ensemble
@@ -83,11 +83,11 @@ function feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData
             paths = search_path(classifier, class_labels, target)
             for key in keys(paths)
                 path = paths[key]
-                es_instance = esatisfactory_instance(x, epsilon, path)
+                es_instance = esatisfactory_instance(generator, x, path)
                 if predict_label(classifier, input_data, es_instance) == target
-                    if loss(x, es_instance) < delta
+                    if generator.loss(x, es_instance) < delta
                         x_out = es_instance
-                        delta = loss(x, es_instance)
+                        delta = generator.loss(x, es_instance)
                     end
                 end
             end
@@ -97,20 +97,20 @@ function feature_tweaking(ensemble::FluxEnsemble, input_data::CounterfactualData
 end
 
 """
-    esatisfactory_instance(x, epsilon, paths)
+esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::FeatureTweakGenerator, x, epsilon, paths)
+function esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
     esatisfactory = deepcopy(x)
     for i in 1:length(paths["feature"])
         feature_idx = paths["feature"][i]
         threshold_value = paths["threshold"][i]
         inequality_symbol = paths["inequality_symbol"][i]
         if inequality_symbol == 0
-            esatisfactory[feature_idx] = threshold_value - epsilon
+            esatisfactory[feature_idx] = threshold_value - generator.ϵ
         elseif inequality_symbol == 1
-            esatisfactory[feature_idx] = threshold_value + epsilon
+            esatisfactory[feature_idx] = threshold_value + generator.ϵ
         else
             println("something wrong")
         end
