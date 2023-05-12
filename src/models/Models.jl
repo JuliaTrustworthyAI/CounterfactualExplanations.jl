@@ -25,6 +25,7 @@ function probs(M::AbstractFittedModel, X::AbstractArray) end
 
 include("model_utils.jl")
 include("differentiable/differentiable.jl")
+include("nondifferentiable/nondifferentiable.jl")
 include("plotting.jl")
 include("pretrained.jl")
 
@@ -34,7 +35,7 @@ include("pretrained.jl")
 A dictionary containing all trainable machine learning models.
 """
 const model_catalogue = Dict(
-    :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble
+    :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble, :Forest => TreeModel, :DecisionTree => TreeModel
 )
 
 """
