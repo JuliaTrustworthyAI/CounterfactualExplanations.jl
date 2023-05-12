@@ -73,5 +73,6 @@ export load_california_housing, load_credit_default, load_gmsc
 export load_tabular_data
 export load_mnist, load_mnist_test
 export load_fashion_mnist, load_fashion_mnist_test
+export load_cifar_10, load_cifar_10_test
 
 end
