@@ -95,7 +95,7 @@ end
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(x, epsilon, paths)
+function esatisfactory_instance(generator::FeatureTweakGenerator, x, epsilon, paths)
     esatisfactory = deepcopy(x)
     for i in 1:length(paths["feature"])
         feature_idx = paths["feature"][i]
