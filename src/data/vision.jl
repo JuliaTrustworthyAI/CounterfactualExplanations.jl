@@ -99,7 +99,9 @@ function load_cifar_10(n::Union{Nothing,Int}=nothing)
     y = categorical(y)
     counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0), standardize=false)
     if !isnothing(n)
-        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
+            counterfactual_data, n
+        )
     end
     return counterfactual_data
 end
