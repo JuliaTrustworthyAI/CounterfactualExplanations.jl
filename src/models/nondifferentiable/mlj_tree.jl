@@ -1,5 +1,7 @@
 using MLJ: DecisionTree
 
+# The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/DecisionTree.jl
+
 """
     TreeModel <: AbstractNonDifferentiableJuliaModel
 
@@ -45,16 +47,30 @@ end
 
 # Methods
 """
-    individual_outputs(M::TreeModel, X::AbstractArray)
+    predict_label(M::TreeModel, input_data::CounterfactualData, X::AbstractArray)
 
-Returns the individual outputs of the trees in the forest.
+Returns the predicted label for X.
 """
-function individual_outputs(M::TreeModel, X::AbstractArray)
+function predict_label(M::TreeModel, input_data::CounterfactualData, X::AbstractArray)
     if M isa DecisionTreeClassifier
+        DecisionTree.apply_tree(M, X)
         return DecisionTree.apply_tree(M, X)
     end
     votes = [DecisionTree.apply_tree(tree, X) for tree in M.trees]
     return votes
+end
+
+
+"""
+    get_individual_classifiers(M::TreeModel)
+
+Returns the individual classifiers in the forest.
+"""
+function get_individual_classifiers(M::TreeModel)
+    if M isa DecisionTreeClassifier
+        return [M]
+    end
+    return M.trees
 end
 
 

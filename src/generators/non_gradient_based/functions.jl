@@ -45,7 +45,7 @@ function search_path(classifier, class_labels, target)
         thresholds = []
         features = []
         parents_left, parents_right = paths[i]
-        for idx in 1:length(parents_left)
+        for idx in eachindex(parents_left)
             if parents_left[idx] != -1
                 node_id = parents_left[idx]
                 push!(node_ids, node_id)
@@ -69,15 +69,16 @@ function search_path(classifier, class_labels, target)
 end
 
 """
-    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
+    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, target)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, input_data::CounterfactualData, x, class_labels, target)
+function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, input_data::CounterfactualData, x, target)
     x_out = deepcopy(x)
     delta = 10^3
-    for classifier in ensemble
-        if predict_label(ensemble, input_data, x) == predict_label(classifier, input_data, x) &&
+    ensemble_prediction = predict_label(ensemble, input_data, x)
+    for classifier in get_individual_classifiers(ensemble)
+        if ensemble_prediction == predict_label(classifier, input_data, x) &&
             predict_label(classifier, input_data, x) != target
             
             paths = search_path(classifier, class_labels, target)

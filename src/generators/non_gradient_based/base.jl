@@ -6,21 +6,21 @@ abstract type AbstractNonGradientBasedGenerator <: AbstractGenerator end
 
 "Base class for heuristic/tree based counterfactual generators."
 mutable struct HeuristicBasedGenerator <: AbstractNonGradientBasedGenerator
-    loss::Union{Nothing,Function}
+    penalty::Union{Nothing,Function,Vector{Function}}
     ϵ::Union{Nothing,AbstractFloat}
 end
 
 """
     HeuristicBasedGenerator(;
-        loss::Union{Nothing,Function}=nothing,
+        enalty::Union{Nothing,Function,Vector{Function}}=nothing,
         ϵ::Union{Nothing,AbstractFloat}=nothing,
     )
 
 Default outer constructor for `HeuristicBasedGenerator`.
 """
 function HeuristicBasedGenerator(;
-    loss::Union{Nothing,Function}=nothing,
+    penalty::Union{Nothing,Function,Vector{Function}}=nothing,
     ϵ::Union{Nothing,AbstractFloat}=nothing,
 )
-    return HeuristicBasedGenerator(loss, ϵ)
+    return HeuristicBasedGenerator(penalty, ϵ)
 end
