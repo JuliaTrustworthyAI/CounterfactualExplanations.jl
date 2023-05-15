@@ -101,7 +101,6 @@ function load_cifar_10(n::Union{Nothing,Int}=nothing)
     if !isnothing(n)
         counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(counterfactual_data, n)
     end
-    
     return counterfactual_data
 end
 
