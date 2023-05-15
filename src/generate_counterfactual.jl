@@ -5,7 +5,8 @@
         γ::AbstractFloat=0.75, max_iter=1000
     )
 
-The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
+The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. 
+Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
 
 # Examples
 
@@ -73,17 +74,23 @@ function generate_counterfactual(
     )
 
     # Search:
-    timer = isnothing(timeout) ? nothing : Timer(timeout)
-    while !ce.search[:terminated]
-        update!(ce)
-        if !isnothing(timer)
-            yield()
-            if !isopen(timer)
-                @info "Counterfactual search timed out before convergence"
-                break
+    if isa(generator, GradientBasedGenerator)
+        timer = isnothing(timeout) ? nothing : Timer(timeout)
+        while !ce.search[:terminated]
+            update!(ce)
+            if !isnothing(timer)
+                yield()
+                if !isopen(timer)
+                    @info "Counterfactual search timed out before convergence"
+                    break
+                end
             end
         end
-    end
+    # Non-gradient-based generators - REVIEW PLEASE:
+    elseif isa(generator, HeuristicBasedGenerator)
+        if isa(M, TreeModel)
+            x' = feature_tweaking(generator, M, data, x, class_labels, target)
+            ce.x = x'
 
     return ce
 end

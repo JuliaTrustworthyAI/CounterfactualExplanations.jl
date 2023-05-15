@@ -69,11 +69,11 @@ function search_path(classifier, class_labels, target)
 end
 
 """
-feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
+    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, class_labels, target)
+function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, input_data::CounterfactualData, x, class_labels, target)
     x_out = deepcopy(x)
     delta = 10^3
     for classifier in ensemble
@@ -97,11 +97,11 @@ function feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemb
 end
 
 """
-esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
+    esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
+function esatisfactory_instance(generator::HeuristicBasedGenerator, x, paths)
     esatisfactory = deepcopy(x)
     for i in 1:length(paths["feature"])
         feature_idx = paths["feature"][i]
