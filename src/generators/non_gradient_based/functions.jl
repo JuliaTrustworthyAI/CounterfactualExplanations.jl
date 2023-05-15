@@ -1,16 +1,16 @@
 """
-    search_path(classifier, class_labels, target)
+    search_path(classifier::TreeModel, num_models::Int, target)
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
-function search_path(classifier, class_labels, target)
+function search_path(classifier::TreeModel, num_models::Int, target)
     children_left = classifier[:tree_][:children_left]
     children_right = classifier[:tree_][:children_right]
     feature = classifier[:tree_][:feature]
     threshold = classifier[:tree_][:threshold]
     # leaf nodes whose outcome is target
     leaf_nodes = findfirst(children_left .== -1)
-    leaf_values = reshape(classifier[:tree_][:value][leaf_nodes], length(leaf_nodes), length(class_labels))
+    leaf_values = reshape(classifier[:tree_][:value][leaf_nodes], length(leaf_nodes), num_models)
     leaf_nodes = findfirst(leaf_values[:, target] .!= 0)
 
     # search path to above leaf nodes
@@ -68,27 +68,28 @@ function search_path(classifier, class_labels, target)
     return path_info
 end
 
+
 """
-    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, input_data::CounterfactualData, x, target)
+    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, input_data::CounterfactualData, x, target)
+function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, x::AbstractArray, target)
     x_out = deepcopy(x)
     delta = 10^3
-    ensemble_prediction = predict_label(ensemble, input_data, x)
+    ensemble_prediction = predict_label(ensemble, x)
     for classifier in get_individual_classifiers(ensemble)
-        if ensemble_prediction == predict_label(classifier, input_data, x) &&
-            predict_label(classifier, input_data, x) != target
+        if ensemble_prediction == predict_label(classifier, x) &&
+            predict_label(classifier, x) != target
             
-            paths = search_path(classifier, class_labels, target)
+            paths = search_path(classifier, length(M.trees), target)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
-                if predict_label(classifier, input_data, es_instance) == target
+                if predict_label(classifier, es_instance) == target
                     if generator.loss(x, es_instance) < delta
                         x_out = es_instance
-                        delta = generator.loss(x, es_instance)
+                        delta = generator.penalty(x, es_instance)
                     end
                 end
             end
@@ -97,12 +98,13 @@ function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeMode
     return x_out
 end
 
+
 """
-    esatisfactory_instance(generator::FeatureTweakGenerator, x, paths)
+    esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths)
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::HeuristicBasedGenerator, x, paths)
+function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths)
     esatisfactory = deepcopy(x)
     for i in 1:length(paths["feature"])
         feature_idx = paths["feature"][i]

@@ -1,6 +1,6 @@
 using MLJ: DecisionTree
 
-# The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/DecisionTree.jl
+# The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/classification/main.jl
 
 """
     TreeModel <: AbstractNonDifferentiableJuliaModel
@@ -51,13 +51,11 @@ end
 
 Returns the predicted label for X.
 """
-function predict_label(M::TreeModel, input_data::CounterfactualData, X::AbstractArray)
+function predict_label(M::TreeModel, X::AbstractArray)
     if M isa DecisionTreeClassifier
-        DecisionTree.apply_tree(M, X)
         return DecisionTree.apply_tree(M, X)
     end
-    votes = [DecisionTree.apply_tree(tree, X) for tree in M.trees]
-    return votes
+    return DecisionTree.apply_forest(M, X)
 end
 
 
