@@ -5,7 +5,9 @@ In this notebook, we document the new features that we have added to the Counter
 ## Must haves
 
 ### <feature_name>
+
 <feature_description>
+
 ```{julia}
 print("Hello world!")
 ```
@@ -13,7 +15,9 @@ print("Hello world!")
 ## Should haves
 
 ### <feature_name>
+
 <feature_description>
+
 ```{julia}
 print("Hello world!")
 ```
@@ -21,7 +25,9 @@ print("Hello world!")
 ## Could haves
 
 ### <feature_name>
+
 <feature_description>
+
 ```{julia}
 print("Hello world!")
 ```
