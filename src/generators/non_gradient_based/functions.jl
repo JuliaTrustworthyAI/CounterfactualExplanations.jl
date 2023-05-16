@@ -39,12 +39,12 @@ function search_path(classifier::TreeModel, num_models::Int, target)
 
 
     path_info = Dict()
-    for i in keys(paths)
+    for key in keys(paths)
         node_ids = [] 
         inequality_symbols = [] 
         thresholds = []
         features = []
-        parents_left, parents_right = paths[i]
+        parents_left, parents_right = paths[key]
         for idx in eachindex(parents_left)
             if parents_left[idx] != -1
                 node_id = parents_left[idx]
@@ -59,7 +59,7 @@ function search_path(classifier::TreeModel, num_models::Int, target)
                 push!(thresholds, threshold[node_id])
                 push!(features, feature[node_id])
             end
-            path_info[i] = Dict("node_id" => node_ids, 
+            path_info[key] = Dict("node_id" => node_ids, 
                                 "inequality_symbol" => inequality_symbols,
                                 "threshold" => thresholds, 
                                 "feature" => features)
