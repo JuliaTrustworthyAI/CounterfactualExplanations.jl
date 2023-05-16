@@ -3,7 +3,7 @@
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
-function search_path(classifier::TreeModel, num_models::Int, target::RawTargetType)
+function search_path(classifier::Models.TreeModel, num_models::Int, target::RawTargetType)
     children_left = classifier[:tree_][:children_left]
     children_right = classifier[:tree_][:children_right]
     feature = classifier[:tree_][:feature]
@@ -74,7 +74,7 @@ end
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, x::AbstractArray, target::RawTargetType)
+function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.TreeModel, x::AbstractArray, target::RawTargetType)
     x_out = deepcopy(x)
     delta = 10^3
     ensemble_prediction = predict_label(ensemble, x)

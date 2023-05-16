@@ -35,7 +35,11 @@ include("pretrained.jl")
 A dictionary containing all trainable machine learning models.
 """
 const model_catalogue = Dict(
-    :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble, :Forest => TreeModel, :DecisionTree => TreeModel
+    :Linear => Linear,
+    :MLP => FluxModel,
+    :DeepEnsemble => FluxEnsemble,
+    :Forest => TreeModel,
+    :DecisionTree => TreeModel
 )
 
 """
