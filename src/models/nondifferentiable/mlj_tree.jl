@@ -1,4 +1,4 @@
-using MLJ: DecisionTree
+using DecisionTree
 
 # The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/classification/main.jl
 

@@ -51,7 +51,7 @@ generator_catalogue = Dict(
     :greedy => Generators.GreedyGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
-    :wachter => Generators.WachterGenerator,
+    :wachter => Generators.WachterGenerator
 )
 
 end

@@ -10,7 +10,6 @@ setup = quote
     using Flux
     using Images
     using MLDatasets
-    using MLJ
 
     # Utils
     include("$(pwd())/dev/artifacts/utils.jl")
