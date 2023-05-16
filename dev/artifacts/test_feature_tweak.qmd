@@ -1,0 +1,10 @@
+```{julia}
+#| echo: false
+
+include("$(pwd())/dev/artifacts/setup.jl")
+eval(setup)
+```
+
+```{julia}
+model_catalogue
+```

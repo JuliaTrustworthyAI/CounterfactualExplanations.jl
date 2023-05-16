@@ -29,7 +29,7 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
         else
             throw(
                 ArgumentError(
-                    "`type` should be in `[:classification_binary,:classification_multi]`"
+                    "`type` should be in `[:classification_binary]`"
                 ),
             )
         end
@@ -40,7 +40,7 @@ end
 """
 Outer constructor method for TreeModel.
 """
-function TreeModel(model; likelihood::Symbol=:classification_binary)
+function TreeModel(model::Any; likelihood::Symbol=:classification_binary)
     return TreeModel(model, likelihood)
 end
 

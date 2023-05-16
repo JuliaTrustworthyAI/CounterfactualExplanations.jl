@@ -1,9 +1,9 @@
 """
-    search_path(classifier::TreeModel, num_models::Int, target)
+    search_path(classifier::TreeModel, num_models::Int, target::RawTargetType)
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
-function search_path(classifier::TreeModel, num_models::Int, target)
+function search_path(classifier::TreeModel, num_models::Int, target::RawTargetType)
     children_left = classifier[:tree_][:children_left]
     children_right = classifier[:tree_][:children_right]
     feature = classifier[:tree_][:feature]
@@ -70,11 +70,11 @@ end
 
 
 """
-    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target)
+    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, x::AbstractArray, target)
+function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::TreeModel, x::AbstractArray, target::RawTargetType)
     x_out = deepcopy(x)
     delta = 10^3
     ensemble_prediction = predict_label(ensemble, x)
@@ -100,11 +100,11 @@ end
 
 
 """
-    esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths)
+    esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths)
+function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
     esatisfactory = deepcopy(x)
     for i in 1:length(paths["feature"])
         feature_idx = paths["feature"][i]
