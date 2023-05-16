@@ -1,4 +1,4 @@
-![counterfactual_explanations_logo](./pictures/logo.png)
+![](./pictures/logo.png)
 
 ## Description of project
 
@@ -6,10 +6,14 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 ## Group members
 
-| Name           | Email                         |
-| -------------- | ----------------------------- |
-| Lauri Keskul   |                               |
-| Rauno Arike    |                               |
-| Vincent Pikand |                               |
-| Simon Kasdorp  |                               |
-| Mariusz Kicior | m.a.kicior@student.tudelft.nl |
+| Name           | Email                          |
+| -------------- | ------------------------------ |
+| Lauri Keskul   | l.keskull@student.tudelft.nl   |
+| Rauno Arike    | r.arike@student.tudelft.nl     |
+| Vincent Pikand | v.pikand@student.tudelft.nl    |
+| Simon Kasdorp  | s.a.kasdorp@student.tudelft.nl |
+| Mariusz Kicior | m.a.kicior@student.tudelft.nl  |
+
+## Repository structure
+
+TODO
