@@ -76,7 +76,7 @@ end
 Computes the L2 (Euclidean) distance of the counterfactual to the original factual.
 """
 function distance_l2(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; p=3, kwrgs...)
+    return distance(ce; p=2, kwrgs...)
 end
 
 """
