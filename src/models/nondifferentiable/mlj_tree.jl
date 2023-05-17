@@ -52,10 +52,10 @@ end
 Returns the predicted label for X.
 """
 function predict_label(M::TreeModel, X::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree(M, X)
+    if M.model isa DecisionTreeClassifier
+        return DecisionTree.apply_tree(M.model, X)
     end
-    return DecisionTree.apply_forest(M, X)
+    return DecisionTree.apply_forest(M.model, X)
 end
 
 
@@ -65,24 +65,18 @@ end
 Returns the individual classifiers in the forest.
 """
 function get_individual_classifiers(M::TreeModel)
-    if M isa DecisionTreeClassifier
-        return [M]
+    if M.model isa DecisionTreeClassifier
+        return [M.model]
     end
-    return M.trees
+    return M.model.trees
 end
 
 
-function logits(M::TreeModel, X::AbstractArray, labels::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree_proba(M, X, labels)
-    end
-    return DecisionTree.apply_forest_proba(M, X, labels)
+function logits(M::TreeModel, X::AbstractArray)
+    return DecisionTree.predict_proba(M.model, X)
 end
 
 
-function probs(M::TreeModel, X::AbstractArray, labels::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree_proba(M, X, labels)
-    end
-    return DecisionTree.apply_forest_proba(M, X, labels)
+function probs(M::TreeModel, X::AbstractArray)
+    return DecisionTree.predict_proba(M.model, X)
 end

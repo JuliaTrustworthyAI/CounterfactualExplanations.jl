@@ -8,11 +8,12 @@ abstract type AbstractNonGradientBasedGenerator <: AbstractGenerator end
 mutable struct HeuristicBasedGenerator <: AbstractNonGradientBasedGenerator
     penalty::Union{Nothing,Function,Vector{Function}}
     ϵ::Union{Nothing,AbstractFloat}
+    latent_space::Bool
 end
 
 """
     HeuristicBasedGenerator(;
-        enalty::Union{Nothing,Function,Vector{Function}}=nothing,
+        penalty::Union{Nothing,Function,Vector{Function}}=nothing,
         ϵ::Union{Nothing,AbstractFloat}=nothing,
     )
 
@@ -21,6 +22,7 @@ Default outer constructor for `HeuristicBasedGenerator`.
 function HeuristicBasedGenerator(;
     penalty::Union{Nothing,Function,Vector{Function}}=nothing,
     ϵ::Union{Nothing,AbstractFloat}=nothing,
+    latent_space::Bool=false,
 )
-    return HeuristicBasedGenerator(penalty, ϵ)
+    return HeuristicBasedGenerator(penalty, ϵ, latent_space)
 end
