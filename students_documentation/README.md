@@ -22,7 +22,7 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Added Datasets
 
-- CIFAR 10 
+- CIFAR10 
   - Logic: `src\data\vision.jl`
   - Tests: `test\data.jl`
   - Example: `dev\artifacts\vision.qmd`
