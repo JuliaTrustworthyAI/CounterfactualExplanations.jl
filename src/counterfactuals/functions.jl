@@ -675,7 +675,11 @@ end
 """
     update!(ce::CounterfactualExplanation) 
 
-An important subroutine that updates the counterfactual explanation. It takes a snapshot of the current counterfactual search state and passes it to the generator. Based on the current state the generator generates perturbations. Various constraints are then applied to the proposed vector of feature perturbations. Finally, the counterfactual search state is updated.
+An important subroutine that updates the counterfactual explanation.
+It takes a snapshot of the current counterfactual search state and passes it to the generator.
+Based on the current state the generator generates perturbations.
+Various constraints are then applied to the proposed vector of feature perturbations.
+Finally, the counterfactual search state is updated.
 """
 function update!(ce::CounterfactualExplanation)
 
