@@ -1,73 +1,47 @@
+using DecisionTree
+
 """
     search_path(classifier::TreeModel, num_models::Int, target::RawTargetType)
 
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
 function search_path(classifier::Models.TreeModel, num_models::Int, target::RawTargetType)
-    children_left = classifier.model.root.node.left
-    children_right = classifier.model.root.node.right
-    feature = classifier.model.root.node.featval
-    threshold = classifier.model.root.node.featid
-    # leaf nodes whose outcome is target
-    leaf_nodes = findfirst(children_left .== -1)
-    leaf_values = reshape(classifier.model[:tree_][:value][leaf_nodes], length(leaf_nodes), num_models)
-    leaf_nodes = findfirst(leaf_values[:, target] .!= 0)
-
-    # search path to above leaf nodes
-    paths = Dict()
-    for leaf_node in leaf_nodes
-        child_node = leaf_node
-        parent_node = -100
-        parents_left = []
-        parents_right = []
-        while parent_node != 0
-            if length(findall(children_left .== child_node)) == 0
-                parent_left = -1
-                parent_right = findfirst(children_right .== child_node)
-                parent_node = parent_right
-            elseif length(findall(children_right .== child_node)) == 0
-                parent_right = -1
-                parent_left = findfirst(children_left .== child_node)
-                parent_node = parent_left
-            end
-            push!(parents_left, parent_left)
-            push!(parents_right, parent_right)
-            child_node = parent_node
-        end
-        paths[leaf_node] = (parents_left, parents_right)
-    end
-
-
-    path_info = Dict()
-    for key in keys(paths)
-        node_ids = [] 
-        inequality_symbols = [] 
-        thresholds = []
-        features = []
-        parents_left, parents_right = paths[key]
-        for idx in eachindex(parents_left)
-            if parents_left[idx] != -1
-                node_id = parents_left[idx]
-                push!(node_ids, node_id)
-                push!(inequality_symbols, 0)
-                push!(thresholds, threshold[node_id])
-                push!(features, feature[node_id])
-            elseif parents_right[idx] != -1
-                node_id = parents_right[idx]
-                push!(node_ids, node_id)
-                push!(inequality_symbols, 1)
-                push!(thresholds, threshold[node_id])
-                push!(features, feature[node_id])
-            end
-            path_info[key] = Dict("node_id" => node_ids, 
-                                "inequality_symbol" => inequality_symbols,
-                                "threshold" => thresholds, 
-                                "feature" => features)
-        end
-    end
-    return path_info
+    println(DecisionTree.get_classes(classifier.model))
+    search_path(classifier.model.root, target, DecisionTree.get_classes(classifier.model))
 end
 
+
+function search_path(tree::Union{DecisionTree.Leaf, DecisionTree.Node}, target, classes::AbstractArray, path=[])
+    # Check if the current tree is a leaf
+    
+    if DecisionTree.is_leaf(tree)
+        # Check if the leaf's majority value matches the target
+        println(tree.majority == classes[target + 1])
+        if tree.majority == classes[target + 1]
+            return [path]
+        else
+            return []
+        end
+    else
+        # Search the left and right subtrees
+        paths = []
+        append!(paths, search_path(tree.left, target, classes, vcat(path, ("L", tree.featid, tree.featval))))
+        append!(paths, search_path(tree.right, target, classes, vcat(path, ("R", tree.featid, tree.featval))))
+        return paths
+    end
+end
+
+function search_path(root::DecisionTree.Root, target, classes::AbstractArray)
+    return search_path(root.node, target, classes)
+end
+
+function search_path(ensemble::DecisionTree.Ensemble, target)
+    paths = []
+    for tree in ensemble.trees
+        append!(paths, search_path(tree, target))
+    end
+    return paths
+end
 
 """
     feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
@@ -84,6 +58,7 @@ function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.T
             predict_label(classifier, x) != target
             
             paths = search_path(classifier, length(Models.get_individual_classifiers(ensemble)), target)
+            println(paths)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
@@ -97,6 +72,7 @@ function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.T
             end
         end
     end
+    println("x_out: ", x_out)
     return x_out
 end
 
