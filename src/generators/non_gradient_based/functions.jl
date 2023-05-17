@@ -1,23 +1,16 @@
 using DecisionTree
+using LinearAlgebra
 
 """
-    search_path(classifier::TreeModel, num_models::Int, target::RawTargetType)
+    search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::AbstractArray, path::AbstractArray)
 
-Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
+Return a path index list with the inequality symbols, thresholds and feature indices.
 """
-function search_path(classifier::Models.TreeModel, num_models::Int, target::RawTargetType)
-    println(DecisionTree.get_classes(classifier.model))
-    search_path(classifier.model.root, target, DecisionTree.get_classes(classifier.model))
-end
-
-
-function search_path(tree::Union{DecisionTree.Leaf, DecisionTree.Node}, target, classes::AbstractArray, path=[])
+function search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::AbstractArray, path::AbstractArray=[])
     # Check if the current tree is a leaf
-    
     if DecisionTree.is_leaf(tree)
         # Check if the leaf's majority value matches the target
-        println(tree.majority == classes[target + 1])
-        if tree.majority == classes[target + 1]
+        if tree.majority == tree.majority == classes[target + 1]
             return [path]
         else
             return []
@@ -25,23 +18,38 @@ function search_path(tree::Union{DecisionTree.Leaf, DecisionTree.Node}, target, 
     else
         # Search the left and right subtrees
         paths = []
-        append!(paths, search_path(tree.left, target, classes, vcat(path, ("L", tree.featid, tree.featval))))
-        append!(paths, search_path(tree.right, target, classes, vcat(path, ("R", tree.featid, tree.featval))))
+        append!(paths, search_path(tree.left, target, classes, vcat(path, Dict("inequality_symbol" => 0, 
+                                                                      "threshold" => tree.featval,
+                                                                      "feature" => tree.featid))))
+        append!(paths, search_path(tree.right, target, classes, vcat(path, Dict("inequality_symbol" => 1, 
+                                                                       "threshold" => tree.featval,
+                                                                       "feature" => tree.featid))))
         return paths
     end
 end
 
-function search_path(root::DecisionTree.Root, target, classes::AbstractArray)
-    return search_path(root.node, target, classes)
+"""
+    search_path(model::DecisionTreeClassifier, target::RawTargetType, classes::AbstractArray)
+
+Calls `search_path` on the root node of a decision tree.
+"""
+function search_path(model::DecisionTreeClassifier, target::RawTargetType, classes::AbstractArray)
+    return search_path(model.root.node, target, classes)
 end
 
-function search_path(ensemble::DecisionTree.Ensemble, target)
+"""
+    search_path(model::RandomForestClassifier, target::RawTargetType, classes::AbstractArray)
+
+Calls `search_path` on the root node of a random forest.
+"""
+function search_path(model::RandomForestClassifier, target::RawTargetType, classes::AbstractArray)
     paths = []
-    for tree in ensemble.trees
-        append!(paths, search_path(tree, target))
+    for tree in model.trees
+        append!(paths, search_path(tree, target, classes))
     end
     return paths
 end
+
 
 """
     feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
@@ -50,23 +58,22 @@ Returns a counterfactual instance of `x` based on the ensemble of classifiers pr
 """
 function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.TreeModel, x::AbstractArray, target::RawTargetType)
     x_out = deepcopy(x)
+    classes = DecisionTree.get_classes(ensemble.model)
     delta = 10^3
     ensemble_prediction = predict_label(ensemble, x)
     for tree in Models.get_individual_classifiers(ensemble)
         classifier = Models.TreeModel(tree, :classification_binary)
         if ensemble_prediction == predict_label(classifier, x) &&
-            predict_label(classifier, x) != target
+            predict_label(classifier, x) != classes[target + 1]
             
-            paths = search_path(classifier, length(Models.get_individual_classifiers(ensemble)), target)
-            println(paths)
+            paths = search_path(classifier.model, target, classes)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
-                println(typeof(es_instance))
-                if predict_label(classifier, es_instance) == target
-                    if generator.loss(x, es_instance) < delta
+                if predict_label(classifier, es_instance) == classes[target + 1]
+                    if LinearAlgebra.norm(x - es_instance) < delta
                         x_out = es_instance
-                        delta = generator.penalty(x, es_instance)
+                        delta = LinearAlgebra.norm(x - es_instance)
                     end
                 end
             end
@@ -82,12 +89,12 @@ end
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
+function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray)
     esatisfactory = deepcopy(x)
-    for i in 1:length(paths["feature"])
-        feature_idx = paths["feature"][i]
-        threshold_value = paths["threshold"][i]
-        inequality_symbol = paths["inequality_symbol"][i]
+    for path in paths
+        feature_idx = path["feature"]
+        threshold_value = path["threshold"]
+        inequality_symbol = path["inequality_symbol"]
         if inequality_symbol == 0
             esatisfactory[feature_idx] = threshold_value - generator.ϵ
         elseif inequality_symbol == 1
@@ -96,5 +103,6 @@ function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractA
             println("something wrong")
         end
     end
+    println("Esatisfactory: ", esatisfactory)
     return esatisfactory
 end
