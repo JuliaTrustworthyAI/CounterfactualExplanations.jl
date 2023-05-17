@@ -53,9 +53,9 @@ Returns the predicted label for X.
 """
 function predict_label(M::TreeModel, X::AbstractArray)
     if M.model isa DecisionTreeClassifier
-        return DecisionTree.apply_tree(M.model, X)
+        return DecisionTree.predict(M.model, X)
     end
-    return DecisionTree.apply_forest(M.model, X)
+    return DecisionTree.predict(M.model, X)
 end
 
 

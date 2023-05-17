@@ -27,6 +27,7 @@ y = string.(y[2,:])
 using DecisionTree
 model = DecisionTreeClassifier(max_depth=2)
 DecisionTree.fit!(model, X', y)
+DecisionTree.print_tree(model)
 ```
 
 ```{julia}
@@ -44,4 +45,8 @@ x = float32.([-1.0,0.5])
 target = 1
 generator = FeatureTweakGenerator(ϵ=0.1)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+DecisionTree.predict_proba(model, float32.([-0.95992476; 0.38319513;;]))
 ```

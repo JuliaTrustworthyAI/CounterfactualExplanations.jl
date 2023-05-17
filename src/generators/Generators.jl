@@ -21,6 +21,7 @@ export GreedyGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
+export feature_tweaking
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator

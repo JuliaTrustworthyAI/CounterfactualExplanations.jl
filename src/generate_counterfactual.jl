@@ -89,7 +89,7 @@ function generate_counterfactual(
     # Non-gradient-based generators - REVIEW PLEASE:
     # Main issue is that this isn't very expandable I think, might recheck later
     elseif isa(generator, HeuristicBasedGenerator)
-        if isa(M, TreeModel)
+        if isa(M, Models.TreeModel)
             ce.x = feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
         end
     end

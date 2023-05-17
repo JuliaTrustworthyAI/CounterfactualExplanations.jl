@@ -4,13 +4,13 @@
 Return a path index list with the ids of the leaf nodes, inequality symbols, thresholds and feature indices
 """
 function search_path(classifier::Models.TreeModel, num_models::Int, target::RawTargetType)
-    children_left = classifier[:tree_][:children_left]
-    children_right = classifier[:tree_][:children_right]
-    feature = classifier[:tree_][:feature]
-    threshold = classifier[:tree_][:threshold]
+    children_left = classifier.model.root.node.left
+    children_right = classifier.model.root.node.right
+    feature = classifier.model.root.node.featval
+    threshold = classifier.model.root.node.featid
     # leaf nodes whose outcome is target
     leaf_nodes = findfirst(children_left .== -1)
-    leaf_values = reshape(classifier[:tree_][:value][leaf_nodes], length(leaf_nodes), num_models)
+    leaf_values = reshape(classifier.model[:tree_][:value][leaf_nodes], length(leaf_nodes), num_models)
     leaf_nodes = findfirst(leaf_values[:, target] .!= 0)
 
     # search path to above leaf nodes
@@ -78,14 +78,16 @@ function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.T
     x_out = deepcopy(x)
     delta = 10^3
     ensemble_prediction = predict_label(ensemble, x)
-    for classifier in get_individual_classifiers(ensemble)
+    for tree in Models.get_individual_classifiers(ensemble)
+        classifier = Models.TreeModel(tree, :classification_binary)
         if ensemble_prediction == predict_label(classifier, x) &&
             predict_label(classifier, x) != target
             
-            paths = search_path(classifier, length(M.trees), target)
+            paths = search_path(classifier, length(Models.get_individual_classifiers(ensemble)), target)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
+                println(typeof(es_instance))
                 if predict_label(classifier, es_instance) == target
                     if generator.loss(x, es_instance) < delta
                         x_out = es_instance
