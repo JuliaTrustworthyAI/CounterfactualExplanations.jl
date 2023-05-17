@@ -3,7 +3,7 @@
 ```{julia}
 #| echo: false
 
-include("dev/artifacts/setup.jl")
+include("$(pwd())/dev/artifacts/setup.jl")
 eval(setup)
 www_path = www_dir("vision")
 data_path = data_dir("vision")
