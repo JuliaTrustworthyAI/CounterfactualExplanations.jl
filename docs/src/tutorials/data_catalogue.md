@@ -57,8 +57,10 @@ data_catalogue[:tabular]
 data_catalogue[:vision]
 ```
 
-    Dict{Symbol, typeof(load_mnist)} with 1 entry:
-      :mnist => load_mnist
+    Dict{Symbol, Function} with 3 entries:
+      :fashion_mnist => load_fashion_mnist
+      :mnist         => load_mnist
+      :cifar_10      => load_cifar_10
 
 ## Loading Data
 
