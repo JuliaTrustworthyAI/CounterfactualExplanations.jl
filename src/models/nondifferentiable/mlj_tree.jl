@@ -43,32 +43,11 @@ function TreeModel(model; likelihood::Symbol=:classification_binary)
 end
 
 
-# Methods
-"""
-    individual_outputs(M::TreeModel, X::AbstractArray)
-
-Returns the individual outputs of the trees in the forest.
-"""
-function individual_outputs(M::TreeModel, X::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree(M, X)
-    end
-    votes = [DecisionTree.apply_tree(tree, X) for tree in M.trees]
-    return votes
+function logits(M::TreeModel, X::AbstractArray)
+    return DecisionTree.predict_proba(M.model, X)
 end
 
 
-function logits(M::TreeModel, X::AbstractArray, labels::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree_proba(M, X, labels)
-    end
-    return DecisionTree.apply_forest_proba(M, X, labels)
-end
-
-
-function probs(M::TreeModel, X::AbstractArray, labels::AbstractArray)
-    if M isa DecisionTreeClassifier
-        return DecisionTree.apply_tree_proba(M, X, labels)
-    end
-    return DecisionTree.apply_forest_proba(M, X, labels)
+function probs(M::TreeModel, X::AbstractArray)
+    return DecisionTree.predict_proba(M.model, X)
 end
