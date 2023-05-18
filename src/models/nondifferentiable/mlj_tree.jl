@@ -1,4 +1,4 @@
-using MLJ: DecisionTree
+import DecisionTree
 
 """
     TreeModel <: AbstractNonDifferentiableJuliaModel
