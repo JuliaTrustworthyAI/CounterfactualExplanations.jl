@@ -1,6 +1,6 @@
 # Added Features to CounterfactualExplanations.jl
 
-In this notebook, we document the new features that we have added to the CounterfactualExplanations.jl package. These features include increasing the scope of predictive models that are compatible with the package, adding unit testing and documentation, and improving the package infrastructure. We hope that this notebook will serve as a useful reference for both ourselves and the course staff.
+In this notebook, we document the new features that we have added to the CounterfactualExplanations.jl package. These features include adding new counterfactual generators into the package, increasing the scope of predictive models that are compatible with the package, adding unit testing and documentation, and improving the package infrastructure. We hope that this notebook will serve as a useful reference for both ourselves and the course staff.
 
 # Setup
 
