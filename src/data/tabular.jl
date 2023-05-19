@@ -139,17 +139,10 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
     end
 
     # Load:
-    df = CSV.read(joinpath(data_dir, "german_credit.csv"), DataFrame)
-
-    # Pre-process features:
-    transformer = Standardizer(; count=true)
-    mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
-    X = MLJBase.transform(mach, df[:, Not(:target)])
-    X = Matrix(X)
-    X = permutedims(X)
-    X = Float32.(X)
+    df = CSV.read(joinpath(data_dir, "credit_default.csv"), DataFrame)
 
     # Counterfactual data:
+    X = df[:, Not(:target)]
     y = df.target
     counterfactual_data = CounterfactualData(X, y)
 
