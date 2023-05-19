@@ -95,7 +95,7 @@ generate_artifacts(data_path; artifact_name=artifact_name)
 
 Fetching the data using Python (run this in the Python REPL):
 
-```{.python}
+```{python}
 import os
 import numpy as np
 import pandas as pd
