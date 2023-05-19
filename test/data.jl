@@ -44,15 +44,15 @@ end
 @testset "German credit statlog dataset" begin
     # Test loading german_credit dataset with default parameters
     counterfactual_data = load_german_credit()
-    @test size(counterfactual_data.X)[2] == 1000
+    @test length(counterfactual_data.X)[2] == 1000
     @test size(counterfactual_data.X)[1] == 20
-    @test size(counterfactual_data.y)[2] == 1000
+    @test length(counterfactual_data.y)[2] == 1000
 
     # Test loading german_credit dataset with subsampled data
     counterfactual_data = load_german_credit(500)
-    @test size(counterfactual_data.X)[2] == 500
+    @test length(counterfactual_data.X)[2] == 500
     @test size(counterfactual_data.X)[1] == 20
-    @test size(counterfactual_data.y)[2] == 500
+    @test length(counterfactual_data.y)[2] == 500
 
     # Test case: Load data with n > 1000, expecting an error
     @test_throws ArgumentError load_german_credit(1500)
