@@ -26,7 +26,11 @@ const data_catalogue = Dict(
         :credit_default => load_credit_default,
         :gmsc => load_gmsc,
     ),
-    :vision => Dict(:mnist => load_mnist, :fashion_mnist => load_fashion_mnist),
+    :vision => Dict(
+        :mnist => load_mnist,
+        :fashion_mnist => load_fashion_mnist,
+        :cifar_10 => load_cifar_10,
+    ),
 )
 
 """

@@ -1,0 +1,76 @@
+# Added Features to CounterfactualExplanations.jl
+
+In this notebook, we document the new features that we have added to the CounterfactualExplanations.jl package. These features include increasing the scope of predictive models that are compatible with the package, adding unit testing and documentation, and improving the package infrastructure. We hope that this notebook will serve as a useful reference for both ourselves and the course staff.
+
+# Setup
+
+```{julia}
+using Pkg
+Pkg.activate("students_documentation/summary_notebook")
+
+# Dependencies
+using Revise
+using CounterfactualExplanations
+using Images
+using MLDatasets
+```
+
+## Must haves
+
+### <feature_name>
+
+<feature_description>
+
+```{julia}
+print("Hello world!")
+```
+
+## Should haves
+
+### Added Datasets
+
+#### CIFAR10 dataset
+
+Added CIFAR10 from MLDatasets.jl as a benchmark dataset.
+
+```{julia}
+cifar_10_data = CounterfactualExplanations.Data.load_cifar_10()
+cifar_10_x = cifar_10_data.X
+cifar_10_y = cifar_10_data.output_encoder.y
+```
+
+```{julia}
+images = []
+
+for i in 0:9
+    ys = findall(cifar_10_y .== i)
+    for j in 0:9
+        x = cifar_10_x[:,rand(ys)]
+
+        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
+            x -> reshape(x, 32, 32, 3) |>
+            x -> convert2image(CIFAR10, x)
+        push!(images, x)
+    end
+end
+
+mosaic(images..., ncol=10) |> display
+```
+
+### <feature_name>
+
+<feature_description>
+
+```{julia}
+print("Hello world!")
+```
+
+## Could haves
+
+### <feature_name>
+
+<feature_description>
+
+```{julia}
+print("Hello world!")
+```

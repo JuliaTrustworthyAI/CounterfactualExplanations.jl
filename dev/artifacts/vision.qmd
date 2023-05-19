@@ -237,7 +237,7 @@ images = []
 for i in 0:9
     for j in 0:9
         x = X[:,rand(findall(y .== i))]
-        # println(size(x, 1))
+
         x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
             x -> reshape(x, 32, 32, 3) |>
             x -> convert2image(CIFAR10, x)

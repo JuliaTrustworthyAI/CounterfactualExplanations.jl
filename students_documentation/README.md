@@ -16,4 +16,17 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 ## Repository structure
 
-TODO
+### Must Have Features
+
+#### Generators
+
+#### Added Datasets
+
+- CIFAR10 
+  - Logic: `src\data\vision.jl`
+  - Tests: `test\data.jl`
+  - Example: `dev\artifacts\vision.qmd`
+
+#### Model Compatibility
+
+#### Exports
