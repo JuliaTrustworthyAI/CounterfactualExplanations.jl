@@ -31,12 +31,12 @@ lazy = true
     url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
 [data-tabular]
-git-tree-sha1 = "a79dd553e972e54976b8c8700bbdf6e021b8ab1e"
+git-tree-sha1 = "584ecd0c091b7d288baa0e49a35151812743c4d5"
 lazy = true
 
     [[data-tabular.download]]
-    sha256 = "2f118285b571d89281c99af48c2a9e92368c06382b2761ead880bd3ae1db7338"
-    url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/artifacts/data-tabular.tar.gz"
+    sha256 = "aa726db71fb55453b792fe67fb4368705ebf1d394078a4cbff16bfb067af4829"
+    url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl.git/releases/download/artifacts-1.8/data-tabular.tar.gz"
 
 [dev-artifacts-upload-data-tabular]
 git-tree-sha1 = "77bfb9490f7a615700899358177126a59b8b7529"
