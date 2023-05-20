@@ -144,6 +144,11 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
     # Counterfactual data:
     X = df[:, Not(:target)]
     y = df.target
+
+    # Fix types, X has to be a matrix, you can take some inspiration from the above code.
+    println(typeof(X))
+    println(typeof(y))
+
     counterfactual_data = CounterfactualData(X, y)
 
     # Undersample:
