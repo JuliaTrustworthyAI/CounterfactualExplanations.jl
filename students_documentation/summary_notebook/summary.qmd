@@ -17,6 +17,22 @@ using MLDatasets
 
 ## Must haves
 
+### Added Datasets
+
+#### Statlog German credit dataset
+
+Added Statlog German credit as a benchmark dataset.
+
+```{julia}
+german_credit_data = CounterfactualExplanations.Data.load_german_credit()
+german_credit_data_x = german_credit_data.X
+german_credit_data_y = german_credit_data.output_encoder.y
+```
+
+```{julia}
+# Add some code here displaying the dataset somehow
+```
+
 ### <feature_name>
 
 <feature_description>
