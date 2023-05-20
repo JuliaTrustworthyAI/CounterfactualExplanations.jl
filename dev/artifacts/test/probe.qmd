@@ -1,49 +1,38 @@
-# make julia 
+# OLDDDD
 
 ```{julia}
 using Pkg
 Pkg.activate("dev/artifacts/test")
+using Revise
 ```
+
 ```{julia}
 using CounterfactualExplanations
-using LinearAlgebra
-using Random, Distributions
-
-function create_identity_matrix(n; variance=0.01)
-    mat = Matrix{Float64}(I, n, n)
-    return mat * variance
-end
-print(create_identity_matrix(3; variance=0.6))
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Generators
 ```
 
 ```{julia}
-using Flux
-using Flux.Losses
-import CounterfactualExplanations.Data as DataAPI
-import CounterfactualExplanations.Generators as GeneratorsAPI
-```
-```{julia}
-# Counteractual data and model:
-counterfactual_data = DataAPI.load_linearly_separable()
+
+counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
 target = 2
 factual = 1
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
-generator = GenericGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-f = Flux.Losses.logitcrossentropy(
-    logits(ce.M, CounterfactualExplanations.decode_state(ce)), ce.target_encoded;
+generator = ProbeGenerator()
+ce = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    timeout=120,
 )
+```
 
-grad = GeneratorsAPI.∂ℓ(generator, ce.M, ce)
-gradT = transpose(grad)
-denominatorFi = gradT * create_identity_matrix(2) * grad
+```{julia}
 
-normalized_gradient = f / sqrt(denominatorFi[1])
-phiPercentile = cdf(Normal(0, 1), normalized_gradient)
-println(phiPercentile)
-``` 
-
-
+```
