@@ -127,7 +127,7 @@ Loads and pre-processes UCI German Credit data.
 data = load_german_credit(500) # loads and preprocesses 500 samples from the German Credit dataset
 
 """
-function load_german_credit(n::Union{Nothing, Int}=nothing)
+function load_german_credit(n::Union{Nothing,Int}=nothing)
     # Throw an exceptoin if n > 1000:
     if !isnothing(n) && n > 1000
         throw(ArgumentError("n must be <= 1000"))
@@ -144,6 +144,11 @@ function load_german_credit(n::Union{Nothing, Int}=nothing)
     # Counterfactual data:
     X = df[:, Not(:target)]
     y = df.target
+
+    # Fix types, X has to be a matrix, you can take some inspiration from the above code.
+    println(typeof(X))
+    println(typeof(y))
+
     counterfactual_data = CounterfactualData(X, y)
 
     # Undersample:
