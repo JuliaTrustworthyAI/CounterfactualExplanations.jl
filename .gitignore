@@ -25,8 +25,6 @@ Manifest.toml
 
 # Other:
 *.DS_Store
-dev/artifacts/data/
-dev/resources/build
 .vscode/
 *.Rproj
 .Rproj.user
@@ -43,6 +41,8 @@ paper/paper.pdf
 *.synctex.gz
 *.log
 
-# Dev:
+# Dev and Artifacts:
 dev/resources/*.html
 /.quarto/
+dev/artifacts/upload/
+dev/resources/build
