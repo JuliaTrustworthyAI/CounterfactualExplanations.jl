@@ -22,11 +22,22 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Added Datasets
 
-- CIFAR10 
-  - Logic: `src\data\vision.jl`
+- Statlog German credit dataset 
+  - Logic: `src\data\tabular.jl`
   - Tests: `test\data.jl`
-  - Example: `dev\artifacts\vision.qmd`
+  - Example: TBD
 
 #### Model Compatibility
 
 #### Exports
+
+### Should Have Features
+
+#### Generators
+
+#### Added Datasets
+
+- CIFAR10 
+  - Logic: `src\data\vision.jl`
+  - Tests: `test\data.jl`
+  - Example: `dev\artifacts\vision.qmd`
