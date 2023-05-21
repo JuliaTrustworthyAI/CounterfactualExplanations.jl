@@ -15,7 +15,9 @@ function ∂ℓ(
 )
     gs = 0
     if (ce.convergence[:converge_when] == :invalidation_rate)
-        gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′] .+ hingeLoss(ce)
+        gs =
+            gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′] .+
+            R_loss_function(ce)
     else
         gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     end
