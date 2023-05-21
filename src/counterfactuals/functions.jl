@@ -712,6 +712,9 @@ function get_meta(ce::CounterfactualExplanation)
 end
 
 function Base.show(io::IO, z::CounterfactualExplanation)
+    if z.generator isa Generators.HeuristicBasedGenerator
+        return
+    end
     println(io, "")
     if z.search[:iteration_count] > 0
         if isnothing(z.convergence[:decision_threshold])

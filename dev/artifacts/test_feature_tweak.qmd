@@ -30,22 +30,35 @@ DecisionTree.print_tree(model)
 ```
 
 ```{julia}
-DecisionTree.predict_proba(model, float32.([1.0,1.0]))
-DecisionTree.predict(model, float32.([-1.0,0.5]))
-```
-
-```{julia}
-DecisionTree.predict(model, float32.([2, 0]))
+DecisionTree.predict(model, float32.([2, 0.25]))
 ```
 
 ```{julia}
 M = model_catalogue[:DecisionTree](model, :classification_binary)
-x = float32.([2, 0])
+x = float32.([2, 0.25])
 target = 0
 generator = FeatureTweakGenerator(ϵ=0.1)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ```{julia}
-DecisionTree.predict_proba(model, float32.([-0.95992476; 0.38319513;;]))
+DecisionTree.predict(model, float32.([1.375425, 0.0928731]))
+```
+
+```{julia}
+scatter!(plt, [x[1]], [x[2]], color="red", markersize=10, label="x_old")
+scatter!(plt, [ce.x[1]], [ce.x[2]], color="dark blue", markersize=10, label="x_new")
+
+hline!(plt, [-0.007127], linestyle=:dash, linecolor=:black, label=nothing)
+vline!(plt, [-0.5219], linestyle=:dash, linecolor=:black, label=nothing)
+vline!(plt, [1.475], linestyle=:dash, linecolor=:black, label=nothing)
+```
+
+```{julia}
+using MLJ
+using EvoTrees
+model = @load EvoTreeClassifier pkg=DecisionTree
+M = model(max_depth=3)
+df = DataFrame(X'[1:300, :], :auto)
+mach = machine(M, df, categorical(y)[1:300]) |> fit!
 ```
