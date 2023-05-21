@@ -29,10 +29,37 @@ ce = generate_counterfactual(
     M,
     generator;
     converge_when=:invalidation_rate,
-    timeout=120,
 )
 ```
 
 ```{julia}
+n_dim = 2
+n_classes = 4
+n_samples = 400
+model_name = :MLP
+counterfactual_data = load_blobs(n_samples; k=n_dim, centers=n_classes)
+counterfactual_data.standardize = true
+M = fit_model(counterfactual_data, :MLP)
+target = 2
+factual = 4
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data,chosen)
+# Search:
+generator = ProbeGenerator()
+ce = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+)
+```
 
+```{julia}
+    ce2 = generate_counterfactual(x, target, counterfactual_data, M, GenericGenerator())
+```
+```{julia}
+CounterfactualExplanations.plot(ce)
+# CounterfactualExplanations.plot(ce2)
 ```
