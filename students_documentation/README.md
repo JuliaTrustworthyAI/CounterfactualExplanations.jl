@@ -25,7 +25,7 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 - Statlog German credit dataset 
   - Logic: `src\data\tabular.jl`
   - Tests: `test\data.jl`
-  - Example: TBD
+  - Example: `students_documentation\summary_notebook\summary.qmd`
 
 #### Model Compatibility
 
