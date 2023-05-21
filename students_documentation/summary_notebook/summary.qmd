@@ -30,8 +30,50 @@ german_credit_data_x = german_credit_data.X
 german_credit_data_y = german_credit_data.output_encoder.y
 ```
 
+##### Post Hoc benchmarking with Statlog German credit dataset
+
 ```{julia}
-# Add some code here displaying the dataset somehow
+# Train a model
+M = fit_model(german_credit_data, :Linear)
+
+# Factual and target labels:
+target = 1
+factual = 0
+```
+
+```{julia}
+n_individuals = 5
+
+# Choose random factual individuals
+ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
+xs = select_factual(german_credit_data, ids)
+
+generator = GenericGenerator()
+
+generated_counterfactuals_german_credit_data = generate_counterfactual(
+    xs,
+    target,
+    german_credit_data,
+    M, 
+    generator; 
+    num_counterfactuals=1
+)
+```
+
+```{julia}
+benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
+
+@chain benchmark_german_credit_data() begin
+    @filter(variable == "distance")
+    @select(sample, variable, value)
+end
+```
+
+```{julia}
+factual_datapoint = first(xs)[1]
+counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
+
+df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
 ### <feature_name>
