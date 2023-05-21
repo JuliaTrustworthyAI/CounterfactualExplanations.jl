@@ -1,3 +1,6 @@
 [deps]
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
+Tidier = "f0413319-3358-4bb0-8e7c-0c83523a93bd"
+UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"
