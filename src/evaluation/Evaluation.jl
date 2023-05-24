@@ -3,6 +3,7 @@ module Evaluation
 using ..CounterfactualExplanations
 using ..CounterfactualExplanations.Objectives
 using DataFrames
+using ProgressMeter
 using Statistics
 
 export Benchmark, benchmark, evaluate, default_measures

@@ -1,6 +1,7 @@
 using DataFrames
-using Statistics
 using ..Models: train
+using ProgressMeter
+using Statistics
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark
@@ -94,9 +95,21 @@ function benchmark(
     measure::Union{Function,Vector{Function}}=default_measures,
     xids::Union{Nothing,AbstractArray}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
+    verbose::Bool=true,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
+
+    # Progress Bar:
+    println(length(generators))
+    if verbose
+        p_models = Progress(
+            length(models); desc="Progress on models:", showspeed=true, color=:green
+        )
+        p_generators = Progress(
+            length(generators); desc="Progress on generators:", showspeed=true, color=:blue
+        )
+    end
 
     # Counterfactual Search:
     meta_data = Vector{Dict}()
@@ -121,6 +134,12 @@ function benchmark(
             end
             push!(meta_data, _meta_data...)
             _sample += 1
+            if verbose
+                next!(p_generators)
+            end
+        end
+        if verbose
+            next!(p_models)
         end
     end
 
