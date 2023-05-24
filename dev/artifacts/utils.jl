@@ -76,7 +76,7 @@ function generate_artifacts(
         # as shown in the commented-out line)
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(basename(origin_url))"
-        deploy_repo = replace(deploy_repo,".git" => "")
+        deploy_repo = replace(deploy_repo, ".git" => "")
     end
 
     # Name for hash/artifact:
