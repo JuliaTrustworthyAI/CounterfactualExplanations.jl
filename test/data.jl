@@ -40,3 +40,24 @@ end
     @test counterfactual_data.standardize == false
     @test eltype(counterfactual_data.X) == Float32
 end
+
+@testset "German credit statlog dataset" begin
+    # Test loading german_credit dataset with default parameters
+    counterfactual_data = load_german_credit()
+    @test size(counterfactual_data.X)[2] == 1000
+    @test size(counterfactual_data.X)[1] == 20
+    @test size(counterfactual_data.y)[2] == 1000
+
+    # Test loading german_credit dataset with subsampled data
+    counterfactual_data = load_german_credit(500)
+    @test size(counterfactual_data.X)[2] == 500
+    @test size(counterfactual_data.X)[1] == 20
+    @test size(counterfactual_data.y)[2] == 500
+
+    # Test case: Load data with n > 1000, expecting an error
+    @test_throws ArgumentError load_german_credit(1500)
+
+    # Test case: Load data with n < 1, expecting an error
+    @test_throws ArgumentError load_german_credit(0)
+    @test_throws ArgumentError load_german_credit(-100)
+end
