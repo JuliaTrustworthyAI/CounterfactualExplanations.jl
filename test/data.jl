@@ -59,4 +59,5 @@ end
 
     # Test case: Load data with n < 1, expecting an error
     @test_throws ArgumentError load_german_credit(0)
+    @test_throws ArgumentError load_german_credit(-100)
 end

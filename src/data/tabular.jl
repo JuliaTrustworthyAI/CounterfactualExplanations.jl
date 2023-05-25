@@ -128,12 +128,12 @@ data = load_german_credit(500) # loads and preprocesses 500 samples from the Ger
 
 """
 function load_german_credit(n::Union{Nothing,Int}=nothing)
-    # Throw an exceptoin if n > 1000:
+    # Throw an exception if n > 1000:
     if !isnothing(n) && n > 1000
         throw(ArgumentError("n must be <= 1000"))
     end
 
-    # Throw an exceptoin if n < 1:
+    # Throw an exception if n < 1:
     if !isnothing(n) && n < 1
         throw(ArgumentError("n must be >= 1"))
     end
