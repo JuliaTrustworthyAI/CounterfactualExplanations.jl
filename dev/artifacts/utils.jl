@@ -76,9 +76,6 @@ function generate_artifacts(
         # as shown in the commented-out line)
         origin_url = get_git_remote_url(root)
         deploy_repo = "$(basename(dirname(origin_url)))/$(basename(origin_url))"
-
-        # I had to use this hack to get the correct repo name (otherwise I was getting `.git` in the end and it was failing):
-        # deploy_repo = "JuliaTrustworthyAI/CounterfactualExplanations.jl"
     end
 
     # Name for hash/artifact:
