@@ -12,3 +12,4 @@ abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel en
 include("flux_mlp.jl")
 include("flux_ensemble.jl")
 include("laplace_redux.jl")
+include("pytorch_model.jl")
