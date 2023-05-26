@@ -11,7 +11,6 @@ using CounterfactualExplanations.Generators
 ```
 
 ```{julia}
-
 counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
 target = 2
@@ -20,20 +19,21 @@ chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
 generator = ProbeGenerator()
-
 ```
 ```{julia}
-ce = generate_counterfactual(
+linear_counterfactual = generate_counterfactual(
     x,
     target,
     counterfactual_data,
     M,
     generator;
     converge_when=:invalidation_rate,
-    max_iter=10000,
+    max_iter=1000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
 )
-CounterfactualExplanations.plot(ce)
-
+println(linear_counterfactual.search[:iteration_count])
+CounterfactualExplanations.plot(linear_counterfactual)
 ```
 
 ```{julia}
@@ -50,7 +50,10 @@ chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
 generator = ProbeGenerator()
-ce = generate_counterfactual(
+
+```
+```{julia}
+blobs_counterfactual = generate_counterfactual(
     x,
     target,
     counterfactual_data,
@@ -58,29 +61,38 @@ ce = generate_counterfactual(
     generator;
     converge_when=:invalidation_rate,
     max_iter=10000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
 )
-CounterfactualExplanations.plot(ce)
+CounterfactualExplanations.plot(blobs_counterfactual)
+```
+```{julia}
+counterfactual_data = load_moons(10)
+M = fit_model(counterfactual_data, :MLP)
 ```
 
 ```{julia}
-ce2 = generate_counterfactual(x, target, counterfactual_data, M, GenericGenerator())
-```
-```{julia}
-counterfactual_data = load_moons()
-M = fit_model(counterfactual_data, :MLP)
+
 target = 1
 factual = 0
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
-generator = ProbeGenerator()
+generator = ProbeGenerator(; loss=:logitbinarycrossentropy)
 ```
 
 ```{julia}
-# CounterfactualExplanations.plot(ce2)
 moons = generate_counterfactual(
-    x, target, counterfactual_data, M, generator; converge_when=:invalidation_rate
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    invalidation_rate=0.9,
+    learning_rate=0.1,
 )
+println(linear_counterfactual.search[:iteration_count])
 CounterfactualExplanations.plot(moons)
-
+# legend!("r = 0.1")
 ```

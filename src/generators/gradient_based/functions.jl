@@ -16,7 +16,7 @@ function ∂ℓ(
     if (ce.convergence[:converge_when] == :invalidation_rate)
         gs =
             gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′] .+
-            R_loss_function(ce)
+            hinge_loss(ce)
     else
         gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     end
@@ -59,7 +59,7 @@ function propose_state(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     grads = ∇(generator, ce.M, ce) # gradient
-    new_s′ = deepcopy(ce.s′)
+    new_s′ = deepcopy(ce.s′)    
     Flux.Optimise.update!(generator.opt, new_s′, grads)
     return new_s′
 end
