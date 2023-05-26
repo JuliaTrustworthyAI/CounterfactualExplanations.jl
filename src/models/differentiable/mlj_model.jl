@@ -30,7 +30,6 @@ function MLJModel(mach::Any; likelihood::Symbol=:classification_binary)
     return MLJModel(mach, likelihood)
 end
 
-
 # Methods
 """
     logits(M::MLJModel, X::AbstractArray)
@@ -50,7 +49,7 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function logits(M::MLJModel, X::AbstractArray)
     p = probs(M, X)
     if M.likelihood == :classification_binary
-        output = log.(p./(1 .- p))
+        output = log.(p ./ (1 .- p))
     else
         output = log.(p)
     end

@@ -28,11 +28,10 @@ using MLJ
     end
 end
 
-
 @testset "MLJ models for synthetic data" begin
-    evotree = @load EvoTreeClassifier pkg=EvoTrees
-    nn = @load NeuralNetworkClassifier pkg=MLJFlux
-    xgboost = @load XGBoostClassifier pkg=XGBoost
+    evotree = @load EvoTreeClassifier pkg = EvoTrees
+    nn = @load NeuralNetworkClassifier pkg = MLJFlux
+    xgboost = @load XGBoostClassifier pkg = XGBoost
     mlj_models = [evotree, nn, xgboost]
     for (key, value) in synthetic
         name = string(key)
