@@ -55,6 +55,8 @@ function CounterfactualExplanation(
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     invalidation_rate::AbstractFloat=0.5,
+    learning_rate::AbstractFloat=1.0,
+    variance::AbstractFloat=0.01,
 )
 
     # Assertions:
@@ -74,6 +76,8 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
         :invalidation_rate => invalidation_rate,
+        :learning_rate => learning_rate,
+        :variance => variance
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
@@ -630,11 +634,10 @@ function converged(ce::CounterfactualExplanation)
     elseif ce.convergence[:converge_when] == :max_iter
         conv = false
     elseif ce.convergence[:converge_when] == :invalidation_rate
-        hl = hingeLoss(ce)
-        println("Invalidation rate: ", hl)
-        conv =
-            predict_label(ce.M, ce.data, decode_state(ce)) == ce.target &&
-            ce.params[:invalidation_rate] > hl
+        ir = Generators.invalidation_rate(ce)
+        # gets the label from an array, not sure why it is an array though.
+        label = predict_label(ce.M, ce.data, decode_state(ce))[1]
+        conv = label == ce.target && ce.params[:invalidation_rate] > ir
     else
         @error "Convergence criterion not recognized."
     end
@@ -697,7 +700,7 @@ function update!(ce::CounterfactualExplanation)
     # Generate peturbations:
     Δs′ = Generators.generate_perturbations(ce.generator, ce)
     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
-    s′ = ce.s′ + Δs′                         # new proposed state
+    s′ = ce.s′ + ce.params[:learning_rate] .* Δs′                         # new proposed state
 
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
