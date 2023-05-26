@@ -1,0 +1,117 @@
+# Notebook for testing the pytorch model
+
+
+```{julia}
+using PyCall
+py"""
+# Data
+import torch
+from torch import nn
+X = torch.Tensor($X).T
+ys = torch.Tensor($ys)
+class MLP(nn.Module):
+  def __init__(self):
+    super(MLP, self).__init__()
+    self.model = nn.Sequential(
+      nn.Flatten(),
+      nn.Linear(2, 32),
+      nn.Sigmoid(),
+      nn.Linear(32, 1)
+    )
+  def forward(self, x):
+    logits = self.model(x)
+    return logits
+model = MLP()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = nn.BCEWithLogitsLoss()
+"""
+```
+
+```{julia}
+py"""
+for epoch in range(100):
+  # Compute prediction and loss:
+  output = model(X).squeeze()
+  loss = loss_fun(output, ys)
+  
+  # Backpropagation:
+  optimizer.zero_grad()
+  loss.backward()
+  optimizer.step()
+  print(f"Loss at epoch {epoch+1}: {loss.item():>7f}")
+"""
+```
+
+```{julia}
+using Flux
+using CounterfactualExplanations, CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
+# Step 1)
+struct MyPyTorchModel <: Models.AbstractDifferentiableModel
+    nn::Any
+end
+# Step 2)
+function logits(M::MyPyTorchModel, X::AbstractArray)
+  nn = M.nn
+  if !isa(X, Matrix)
+    X = reshape(X, length(X), 1)
+  end
+  ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  return ŷ'
+end
+probs(M::MyPyTorchModel, X::AbstractArray)= σ.(logits(M, X))
+M = MyPyTorchModel(py"model")
+```
+
+```{julia}
+import CounterfactualExplanations.Generators: ∂ℓ
+using LinearAlgebra
+# Countefactual loss:
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualState) 
+  nn = M.nn
+  x′ = counterfactual_state.x′
+  t = counterfactual_state.target_encoded
+  x = reshape(x′, 1, length(x′))
+  py"""
+  x = torch.Tensor($x)
+  x.requires_grad = True
+  t = torch.Tensor($[t]).squeeze()
+  output = $nn(x).squeeze()
+  obj_loss = nn.BCEWithLogitsLoss()(output,t)
+  obj_loss.backward()
+  """
+  grad = vec(py"x.grad.detach().numpy()")
+  return grad
+end
+```
+
+```{julia}
+# Randomly selected factual:
+Random.seed!(123)
+x = select_factual(counterfactual_data, rand(1:length(xs))) 
+y = round(probs(M, x)[1])
+target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+```
+
+```{julia}
+# Define generator:
+generator = GenericGenerator()
+# Generate recourse:
+counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+```{julia}
+#| echo: false
+T = total_steps(counterfactual)
+X_path = reduce(hcat,path(counterfactual))
+ŷ = target_probs(counterfactual,X_path)
+p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive")
+anim = @animate for t in 1:T
+    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
+    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
+    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
+    plot(p1,p2,size=(800,400))
+end
+gif(anim, joinpath(www_path, "interop_py.gif"), fps=5)
+```
