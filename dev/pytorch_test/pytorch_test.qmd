@@ -1,30 +1,52 @@
 # Notebook for testing the pytorch model
 
+### Set up
+```{julia}
+using Pkg
+Pkg.activate("$(pwd())/pytorch_test")
+
+# Dependencise
+using PythonCall
+using CounterfactualExplanations
+```
 
 ```{julia}
-using PyCall
-py"""
+using Random
+# Some random data:
+Random.seed!(1234);
+N = 100
+
+@info "Generating data..."
+counterfactual_data = CounterfactualExplanations.Data.load_blobs(N)
+
+x = counterfactual_data.X
+y = counterfactual_data.y
+
+@info "Data generated."
+```
+
+```{julia}
+
+torch = pyimport("torch")
+
 # Data
-import torch
-from torch import nn
-X = torch.Tensor($X).T
-ys = torch.Tensor($ys)
-class MLP(nn.Module):
-  def __init__(self):
-    super(MLP, self).__init__()
-    self.model = nn.Sequential(
-      nn.Flatten(),
-      nn.Linear(2, 32),
-      nn.Sigmoid(),
-      nn.Linear(32, 1)
-    )
-  def forward(self, x):
-    logits = self.model(x)
-    return logits
-model = MLP()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-loss_fun = nn.BCEWithLogitsLoss()
-"""
+# x = torch.Tensor(x).T
+# y = torch.Tensor(y)
+# class MLP(nn.Module):
+#   def __init__(self):
+#     super(MLP, self).__init__()
+#     self.model = nn.Sequential(
+#       nn.Flatten(),
+#       nn.Linear(2, 32),
+#       nn.Sigmoid(),
+#       nn.Linear(32, 1)
+#     )
+#   def forward(self, x):
+#     logits = self.model(x)
+#     return logits
+# model = MLP()
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+# loss_fun = nn.BCEWithLogitsLoss()
 ```
 
 ```{julia}
