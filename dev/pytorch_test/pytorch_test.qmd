@@ -47,29 +47,55 @@ y = torch.Tensor(y)
 ```
 
 ```{julia}
+MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
+    "__module__" => "__main__",
 
-class MLP(torch.nn.Module):
-  @info "ASdadsa"
-  def __init__(self):
-    super(MLP, self).__init__()
-    self.model = torch.nn.Sequential(
-      torch.nn.Flatten(),
-      torch.nn.Linear(2, 32),
-      torch.nn.Sigmoid(),
-      torch.nn.Linear(32, 1)
+    pyfunc(
+        name = "__init__",
+        function(self)
+            # This line doesn't work, but I have no idea what we could use to implement inheritance
+            PythonCall.pybuiltin("super")(MLP, self).__init__()
+            self.model = torch.nn.Sequential(
+                torch.nn.Flatten(),
+                torch.nn.Linear(2, 32),
+                torch.nn.Sigmoid(),
+                torch.nn.Linear(32, 1)
+            )
+            return
+        end
+    ),
+
+    pyfunc(
+        name = "forward",
+        function(self, x)
+            return self.model(x)
+        end
     )
+])
 
-  @info "asda"
-  def forward(self, x):
-    logits = self.model(x)
-    return logits
+
+# class MLP(torch.nn.Module):
+#   @info "ASdadsa"
+#   def __init__(self):
+#     super(MLP, self).__init__()
+#     self.model = torch.nn.Sequential(
+#       torch.nn.Flatten(),
+#       torch.nn.Linear(2, 32),
+#       torch.nn.Sigmoid(),
+#       torch.nn.Linear(32, 1)
+#     )
+
+#   @info "asda"
+#   def forward(self, x):
+#     logits = self.model(x)
+#     return logits
 ```
 
 ```{julia}
 @info "Training"
 model = MLP()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-loss_fun = nn.BCEWithLogitsLoss()
+loss_fun = torch.nn.BCEWithLogitsLoss()
 ```
 
 ```{julia}
