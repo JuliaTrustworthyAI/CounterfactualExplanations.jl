@@ -2,10 +2,13 @@
 
 ### Set up
 ```{julia}
-using Pkg
-Pkg.activate("$(pwd())/pytorch_test")
+# Don't use CONDA
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
 
 # Dependencise
+using Pkg
+Pkg.activate("$(pwd())/dev/pytorch_test")
+
 using PythonCall
 using CounterfactualExplanations
 ```
@@ -22,31 +25,51 @@ counterfactual_data = CounterfactualExplanations.Data.load_blobs(N)
 x = counterfactual_data.X
 y = counterfactual_data.y
 
+x = PyArray(x)
+y = PyArray(y)
+
 @info "Data generated."
 ```
 
 ```{julia}
-
 torch = pyimport("torch")
+np = pyimport("numpy")
 
-# Data
-# x = torch.Tensor(x).T
-# y = torch.Tensor(y)
-# class MLP(nn.Module):
-#   def __init__(self):
-#     super(MLP, self).__init__()
-#     self.model = nn.Sequential(
-#       nn.Flatten(),
-#       nn.Linear(2, 32),
-#       nn.Sigmoid(),
-#       nn.Linear(32, 1)
-#     )
-#   def forward(self, x):
-#     logits = self.model(x)
-#     return logits
-# model = MLP()
-# optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-# loss_fun = nn.BCEWithLogitsLoss()
+x = counterfactual_data.X
+x = np.array(x)
+x = torch.Tensor(x).T
+```
+
+```{julia}
+y = counterfactual_data.y
+y = np.array(y)
+y = torch.Tensor(y)
+```
+
+```{julia}
+
+class MLP(torch.nn.Module):
+  @info "ASdadsa"
+  def __init__(self):
+    super(MLP, self).__init__()
+    self.model = torch.nn.Sequential(
+      torch.nn.Flatten(),
+      torch.nn.Linear(2, 32),
+      torch.nn.Sigmoid(),
+      torch.nn.Linear(32, 1)
+    )
+
+  @info "asda"
+  def forward(self, x):
+    logits = self.model(x)
+    return logits
+```
+
+```{julia}
+@info "Training"
+model = MLP()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = nn.BCEWithLogitsLoss()
 ```
 
 ```{julia}
