@@ -42,12 +42,15 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation; kwargs...)
     f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[ce.target]
 	grad = []
     # This has to be done with a for loop because flux does not know how to take a gradient from an array of logits.
- 	for i in 1:length(ce.s′)
-		push!(grad, gradient(
-			() -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
-			Flux.params(ce.s′),
-		)[ce.s′])
-	end
+    for i in 1:length(ce.s′)
+        push!(
+            grad,
+            gradient(
+                () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
+                Flux.params(ce.s′),
+            )[ce.s′],
+        )
+    end
     gradᵀ = transpose(grad)
 
     identity_matrix = Matrix{Float64}(I, length(grad), length(grad))
