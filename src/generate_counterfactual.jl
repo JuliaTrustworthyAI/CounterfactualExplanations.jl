@@ -91,7 +91,7 @@ function generate_counterfactual(
         end
     end
 
-	return ce
+    return ce
 end
 
 function generate_counterfactual(
