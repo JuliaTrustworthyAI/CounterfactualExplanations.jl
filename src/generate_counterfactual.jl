@@ -95,12 +95,12 @@ function generate_counterfactual(
 end
 
 function generate_counterfactual(
-	x::Base.Iterators.Zip,
-	target::RawTargetType,
-	data::CounterfactualData,
-	M::Models.AbstractFittedModel,
-	generator::AbstractGenerator;
-	kwargs...,
+    x::Base.Iterators.Zip,
+    target::RawTargetType,
+    data::CounterfactualData,
+    M::Models.AbstractFittedModel,
+    generator::AbstractGenerator;
+    kwargs...,
 )
 	counterfactuals = map(
 		x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x,
