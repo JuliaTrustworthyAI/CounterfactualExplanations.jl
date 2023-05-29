@@ -37,10 +37,10 @@ end
 Simply extends the `mse` method to work with objects of type `AbstractCounterfactualExplanation`.
 """
 function Flux.Losses.mse(ce::AbstractCounterfactualExplanation; kwargs...)
-	loss = Flux.Losses.mse(
-		logits(ce.M, CounterfactualExplanations.decode_state(ce)),
-		ce.target_encoded;
-		kwargs...,
-	)
-	return loss
+    loss = Flux.Losses.mse(
+        logits(ce.M, CounterfactualExplanations.decode_state(ce)),
+        ce.target_encoded;
+        kwargs...,
+    )
+    return loss
 end
