@@ -40,23 +40,23 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 """
 function generate_counterfactual(
-	x::AbstractArray,
-	target::RawTargetType,
-	data::CounterfactualData,
-	M::Models.AbstractFittedModel,
-	generator::AbstractGenerator;
-	num_counterfactuals::Int = 1,
-	initialization::Symbol = :add_perturbation,
-	generative_model_params::NamedTuple = (;),
-	max_iter::Int = 100,
-	decision_threshold::AbstractFloat = 0.5,
-	gradient_tol::AbstractFloat = parameters[:τ],
-	min_success_rate::AbstractFloat = parameters[:min_success_rate],
-	converge_when::Symbol = :decision_threshold,
-	timeout::Union{Nothing, Int} = nothing,
-	invalidation_rate::AbstractFloat = 0.1,
-	learning_rate::AbstractFloat = 1.0,
-	variance::AbstractFloat = 0.01,
+    x::AbstractArray,
+    target::RawTargetType,
+    data::CounterfactualData,
+    M::Models.AbstractFittedModel,
+    generator::AbstractGenerator;
+    num_counterfactuals::Int=1,
+    initialization::Symbol=:add_perturbation,
+    generative_model_params::NamedTuple=(;),
+    max_iter::Int=100,
+    decision_threshold::AbstractFloat=0.5,
+    gradient_tol::AbstractFloat=parameters[:τ],
+    min_success_rate::AbstractFloat=parameters[:min_success_rate],
+    converge_when::Symbol=:decision_threshold,
+    timeout::Union{Nothing,Int}=nothing,
+    invalidation_rate::AbstractFloat=0.1,
+    learning_rate::AbstractFloat=1.0,
+    variance::AbstractFloat=0.01,
 )
 	# Initialize:
 	ce = CounterfactualExplanation(
