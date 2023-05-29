@@ -36,5 +36,5 @@ function Generator(;
     latent_space::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
-	return Generator(loss, penalty, λ, latent_space, opt)
+    return Generator(loss, penalty, λ, latent_space, opt)
 end
