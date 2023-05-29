@@ -102,9 +102,9 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     kwargs...,
 )
-	counterfactuals = map(
-		x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x,
-	)
+    counterfactuals = map(
+        x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x
+    )
 
     return counterfactuals
 end
