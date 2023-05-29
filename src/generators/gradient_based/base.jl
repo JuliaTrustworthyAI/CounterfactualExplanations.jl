@@ -11,11 +11,11 @@ abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
 "Base class for counterfactual generators."
 mutable struct Generator <: AbstractGradientBasedGenerator
-	loss::Union{Nothing, Function}
-	penalty::Union{Nothing, Function, Vector{Function}}
-	λ::Union{Nothing, AbstractFloat, Vector{<:AbstractFloat}}
-	latent_space::Bool
-	opt::Flux.Optimise.AbstractOptimiser
+    loss::Union{Nothing,Function}
+    penalty::Union{Nothing,Function,Vector{Function}}
+    λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}
+    latent_space::Bool
+    opt::Flux.Optimise.AbstractOptimiser
 end
 
 """
