@@ -23,12 +23,12 @@ end
 Simply extends the `logitcrossentropy` method to work with objects of type `AbstractCounterfactualExplanation`.
 """
 function Flux.Losses.logitcrossentropy(ce::AbstractCounterfactualExplanation; kwargs...)
-	loss = Flux.Losses.logitcrossentropy(
-		logits(ce.M, CounterfactualExplanations.decode_state(ce)),
-		ce.target_encoded;
-		kwargs...,
-	)
-	return loss
+    loss = Flux.Losses.logitcrossentropy(
+        logits(ce.M, CounterfactualExplanations.decode_state(ce)),
+        ce.target_encoded;
+        kwargs...,
+    )
+    return loss
 end
 
 """
