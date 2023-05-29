@@ -1,5 +1,7 @@
 # Notebook for testing the pytorch model
-
+```{julia}
+using Revise
+```
 ### Set up
 ```{julia}
 # Don't use CONDA
@@ -13,6 +15,7 @@ using PythonCall
 using CounterfactualExplanations
 ```
 
+# Load data
 ```{julia}
 using Random
 # Some random data:
@@ -31,6 +34,7 @@ y = PyArray(y)
 @info "Data generated."
 ```
 
+# Separate x and y data
 ```{julia}
 torch = pyimport("torch")
 np = pyimport("numpy")
@@ -38,14 +42,13 @@ np = pyimport("numpy")
 x = counterfactual_data.X
 x = np.array(x)
 x = torch.Tensor(x).T
-```
 
-```{julia}
 y = counterfactual_data.y
 y = np.array(y[1, :])
 y = torch.Tensor(y)
 ```
 
+# Define model
 ```{julia}
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
@@ -72,23 +75,9 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
         end
     )
 ])
-
-
-# class MLP(torch.nn.Module):
-#   def __init__(self):
-#     super(MLP, self).__init__()
-#     self.model = torch.nn.Sequential(
-#       torch.nn.Flatten(),
-#       torch.nn.Linear(2, 32),
-#       torch.nn.Sigmoid(),
-#       torch.nn.Linear(32, 1)
-#     )
-
-#   def forward(self, x):
-#     logits = self.model(x)
-#     return logits
 ```
 
+# Declare model, optimizer and loss function
 ```{julia}
 @info "Training"
 model = MLP()
@@ -96,6 +85,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
 loss_fun = torch.nn.BCEWithLogitsLoss()
 ```
 
+# Training
 ```{julia}
 for epoch in 1:100
   # Compute prediction and loss:
@@ -115,6 +105,7 @@ for epoch in 1:100
 end
 ```
 
+# Declare MyPyTorchModel
 ```{julia}
 using Flux
 using CounterfactualExplanations, CounterfactualExplanations.Models
@@ -122,32 +113,58 @@ import CounterfactualExplanations.Models: logits, probs # import functions in or
 
 struct MyPyTorchModel <: AbstractDifferentiableModel
     nn::Any
+    likelihood::Symbol
 end
 
 function logits(M::MyPyTorchModel, X::AbstractArray)    
-    @info "logits"
     if !isa(X, Matrix)
       X = reshape(X, length(X), 1)
     end
 
-    @info "X"
-    ŷ = M.nn(torch.Tensor(X).T)
-    @info "X"
-    ŷ = ŷ.detach()
-    @info "X"
-    ŷ = ŷ.numpy()
-    
-    @info "ŷ"
-    ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+    ŷ_python = M.nn(torch.Tensor(np.array(X)).T).detach().numpy()
+    ŷ = []
+    for i in ŷ_python
+        
+    end
+    ŷ = pyconvert(Vector, ŷ)
+    println("=====")
+    println(typeof(ŷ))
 
+    # There was a transpose operation but we don't understand it and we believe it's not necessary
     return ŷ'
 end
 
-probs(M::MyPyTorchModel, X::AbstractArray) = σ.(logits(M, X))
+function probs(M::MyPyTorchModel, X::AbstractArray)
+    println("It's idiotic")
+    return σ.(logits(M, X))
+end
 
-M = MyPyTorchModel(model)
+M = MyPyTorchModel(model, :classification_binary)
+
+# ----- PyTorch Model ----- #
+# using PyCall
+# struct PyTorchModel <: AbstractDifferentiableModel
+#     nn::Any
+# end
+
+# function logits(M::PyTorchModel, X::AbstractArray)
+#     py"""
+#     import torch
+#     from torch import nn
+#     """
+#     nn = M.nn
+#     if !isa(X, Matrix)
+#       X = reshape(X, length(X), 1)
+#     end
+#     ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
+#     ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+#     return ŷ'
+# end
+
+# probs(M::PyTorchModel, X::AbstractArray)= σ.(logits(M, X))
 ```
 
+# Declare ∂ℓ
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
@@ -182,21 +199,34 @@ end
 ```{julia}
 Random.seed!(123)
 
-@info "Generating random factual data..."
 x_random_factual = select_factual(counterfactual_data, rand(1:length(x))) 
+y_tmp = probs(M, x_random_factual)
+y_random_factual = round(y_tmp[1])
 
-@info "Generating random target..."
-y_random_factual = round(probs(M, x_random_factual)[1])
+target = ifelse(y_random_factual==1.0,0.0,1.0)
 
-@info "Generating counterfactual target..."
-target = ifelse(y==1.0,0.0,1.0)
+# Random.seed!(123)
+# x = select_factual(counterfactual_data, rand(1:length(xs))) 
+# y = round(probs(M, x)[1])
+# target = ifelse(y==1.0,0.0,1.0) # opposite label as target
 ```
 
 ```{julia}
-# Define generator:
+# Define a generator:
 generator = GenericGenerator()
-# Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+
+# Generate a recourse:
+
+println(size(counterfactual_data.X))
+println(x_random_factual)
+
+counterfactual = generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    M, 
+    generator
+)
 ```
 
 ```{julia}
@@ -212,4 +242,20 @@ anim = @animate for t in 1:T
     plot(p1,p2,size=(800,400))
 end
 gif(anim, joinpath(www_path, "interop_py.gif"), fps=5)
+```
+
+```{julia}
+j = [1 2]
+j = np.array(j)
+
+println(j.shape)
+e = []
+
+for i in j
+    tmp = pyconvert(Vector, i)
+    println(typeof(tmp))
+    # push!(e, pyconvert(Float32, i))
+end
+
+println(typeof(j))
 ```
