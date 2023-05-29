@@ -106,5 +106,5 @@ function generate_counterfactual(
 		x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x,
 	)
 
-	return counterfactuals
+    return counterfactuals
 end
