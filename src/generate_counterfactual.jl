@@ -78,18 +78,18 @@ function generate_counterfactual(
         variance=variance,
     )
 
-	# Search:
-	timer = isnothing(timeout) ? nothing : Timer(timeout)
-	while !ce.search[:terminated]
-		update!(ce)
-		if !isnothing(timer)
-			yield()
-			if !isopen(timer)
-				@info "Counterfactual search timed out before convergence"
-				break
-			end
-		end
-	end
+    # Search:
+    timer = isnothing(timeout) ? nothing : Timer(timeout)
+    while !ce.search[:terminated]
+        update!(ce)
+        if !isnothing(timer)
+            yield()
+            if !isopen(timer)
+                @info "Counterfactual search timed out before convergence"
+                break
+            end
+        end
+    end
 
 	return ce
 end
