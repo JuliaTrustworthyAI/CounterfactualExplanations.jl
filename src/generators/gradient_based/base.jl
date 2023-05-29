@@ -30,11 +30,11 @@ end
 Default outer constructor for `Generator`.
 """
 function Generator(;
-	loss::Union{Nothing, Function} = nothing,
-	penalty::Union{Nothing, Function, Vector{Function}} = nothing,
-	λ::Union{Nothing, AbstractFloat, Vector{<:AbstractFloat}} = nothing,
-	latent_space::Bool = false,
-	opt::Flux.Optimise.AbstractOptimiser = Flux.Descent(),
+    loss::Union{Nothing,Function}=nothing,
+    penalty::Union{Nothing,Function,Vector{Function}}=nothing,
+    λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
+    latent_space::Bool=false,
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
 	return Generator(loss, penalty, λ, latent_space, opt)
 end
