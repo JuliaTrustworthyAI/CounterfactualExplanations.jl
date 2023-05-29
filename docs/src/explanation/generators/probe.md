@@ -14,9 +14,9 @@ Usage
 ### Explanation
 
 ``` math
-\begin{aligned}
-\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) &= 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \tag{4}
-\end{aligned}
+\begin{equation}
+\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) = 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \label{eq:4}
+\end{equation}
 ```
 
 ``` math
