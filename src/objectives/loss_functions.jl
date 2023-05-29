@@ -9,12 +9,12 @@ Simply extends the `logitbinarycrossentropy` method to work with objects of type
 function Flux.Losses.logitbinarycrossentropy(
 	ce::AbstractCounterfactualExplanation; kwargs...,
 )
-	loss = Flux.Losses.logitbinarycrossentropy(
-		logits(ce.M, CounterfactualExplanations.decode_state(ce)),
-		ce.target_encoded;
-		kwargs...,
-	)
-	return loss
+    loss = Flux.Losses.logitbinarycrossentropy(
+        logits(ce.M, CounterfactualExplanations.decode_state(ce)),
+        ce.target_encoded;
+        kwargs...,
+    )
+    return loss
 end
 
 """
