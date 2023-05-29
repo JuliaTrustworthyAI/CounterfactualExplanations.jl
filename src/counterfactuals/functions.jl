@@ -77,7 +77,7 @@ function CounterfactualExplanation(
         :latent_space => generator.latent_space,
         :invalidation_rate => invalidation_rate,
         :learning_rate => learning_rate,
-        :variance => variance
+        :variance => variance,
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
