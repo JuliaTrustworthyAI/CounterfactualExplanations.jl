@@ -42,7 +42,7 @@ x = torch.Tensor(x).T
 
 ```{julia}
 y = counterfactual_data.y
-y = np.array(y)
+y = np.array(y[1, :])
 y = torch.Tensor(y)
 ```
 
@@ -53,8 +53,8 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     pyfunc(
         name = "__init__",
         function(self)
-            # This line doesn't work, but I have no idea what we could use to implement inheritance
-            PythonCall.pybuiltin("super")(MLP, self).__init__()
+            # Not fully sure about the following line
+            torch.nn.Module.__init__(self)
             self.model = torch.nn.Sequential(
                 torch.nn.Flatten(),
                 torch.nn.Linear(2, 32),
@@ -75,7 +75,6 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
 
 
 # class MLP(torch.nn.Module):
-#   @info "ASdadsa"
 #   def __init__(self):
 #     super(MLP, self).__init__()
 #     self.model = torch.nn.Sequential(
@@ -85,7 +84,6 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
 #       torch.nn.Linear(32, 1)
 #     )
 
-#   @info "asda"
 #   def forward(self, x):
 #     logits = self.model(x)
 #     return logits
@@ -99,70 +97,99 @@ loss_fun = torch.nn.BCEWithLogitsLoss()
 ```
 
 ```{julia}
-py"""
-for epoch in range(100):
+for epoch in 1:100
   # Compute prediction and loss:
-  output = model(X).squeeze()
-  loss = loss_fun(output, ys)
+  @info "Epoch $epoch"
+  output = model(x).squeeze()
+
+  @info "Loss"
+  println(y.shape)
+  loss = loss_fun(output, y)
   
+  @info "Backpropagation"
   # Backpropagation:
   optimizer.zero_grad()
   loss.backward()
   optimizer.step()
-  print(f"Loss at epoch {epoch+1}: {loss.item():>7f}")
-"""
+  println("Loss at epoch $epoch: $(loss.item())")
+end
 ```
 
 ```{julia}
 using Flux
 using CounterfactualExplanations, CounterfactualExplanations.Models
 import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
-# Step 1)
-struct MyPyTorchModel <: Models.AbstractDifferentiableModel
+
+struct MyPyTorchModel <: AbstractDifferentiableModel
     nn::Any
 end
-# Step 2)
-function logits(M::MyPyTorchModel, X::AbstractArray)
-  nn = M.nn
-  if !isa(X, Matrix)
-    X = reshape(X, length(X), 1)
-  end
-  ŷ = py"$nn(torch.Tensor($X).T).detach().numpy()"
-  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ'
+
+function logits(M::MyPyTorchModel, X::AbstractArray)    
+    @info "logits"
+    if !isa(X, Matrix)
+      X = reshape(X, length(X), 1)
+    end
+
+    @info "X"
+    ŷ = M.nn(torch.Tensor(X).T)
+    @info "X"
+    ŷ = ŷ.detach()
+    @info "X"
+    ŷ = ŷ.numpy()
+    
+    @info "ŷ"
+    ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+
+    return ŷ'
 end
-probs(M::MyPyTorchModel, X::AbstractArray)= σ.(logits(M, X))
-M = MyPyTorchModel(py"model")
+
+probs(M::MyPyTorchModel, X::AbstractArray) = σ.(logits(M, X))
+
+M = MyPyTorchModel(model)
 ```
 
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
+
 # Countefactual loss:
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualState) 
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation) 
   nn = M.nn
-  x′ = counterfactual_state.x′
-  t = counterfactual_state.target_encoded
+  x′ = counterfactual_state.x
+  t = counterfactual_state.target
   x = reshape(x′, 1, length(x′))
-  py"""
-  x = torch.Tensor($x)
-  x.requires_grad = True
-  t = torch.Tensor($[t]).squeeze()
-  output = $nn(x).squeeze()
+
+  x = np.array(x)
+  x = torch.Tensor(x)
+  x.requires_grad = true
+
+  t = np.array(t)
+  t = torch.Tensor(t).squeeze()
+
+  output = nn(x).squeeze()
+
   obj_loss = nn.BCEWithLogitsLoss()(output,t)
   obj_loss.backward()
-  """
-  grad = vec(py"x.grad.detach().numpy()")
+
+  # grad = vec(py"x.grad.detach().numpy()")
+
+  grad = vec(x.grad.detach().numpy())
+
   return grad
 end
 ```
 
 ```{julia}
-# Randomly selected factual:
 Random.seed!(123)
-x = select_factual(counterfactual_data, rand(1:length(xs))) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+
+@info "Generating random factual data..."
+x_random_factual = select_factual(counterfactual_data, rand(1:length(x))) 
+
+@info "Generating random target..."
+y_random_factual = round(probs(M, x_random_factual)[1])
+
+@info "Generating counterfactual target..."
+target = ifelse(y==1.0,0.0,1.0)
 ```
 
 ```{julia}
