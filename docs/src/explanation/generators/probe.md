@@ -11,9 +11,30 @@ The `ProbeGenerator` is designed to navigate the trade-offs between costs and ro
 The goal of ProbeGenerator is to find a recourse x' whose prediction at any point y within some set around x' belongs to the positive class with probability 1 - r, where r is the recourse invalidation rate. It minimizes the gap between the achieved and desired recourse invalidation rates, minimizes recourse costs, and also ensures that the resulting recourse achieves a positive model prediction.
 Usage
 
+### Explanation
+
+``` math
+\begin{aligned}
+\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) &= 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \tag{4}
+\end{aligned}
+```
+
+``` math
+\begin{aligned}
+R(x'; \sigma^2 I) + l(f(x'), s) + \lambda d_c(x', x)
+\end{aligned}
+```
+
+``` math
+\begin{aligned}
+\Delta(x^{\hat{E}}) &= E_{\varepsilon}[h(x^{\hat{E}}) - h(x^{\hat{E}} + \varepsilon)]
+\end{aligned}
+```
+
+
 ### Usage
 
-```{julia}
+```julia
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Generators
@@ -30,7 +51,7 @@ generator = ProbeGenerator()
 
 Then you can use the generator to produce a counterfactual as follows:
 
-```{julia}
+```julia
 linear_counterfactual = generate_counterfactual(
     x,
     target,
