@@ -7,7 +7,7 @@ using Flux.Losses
 Simply extends the `logitbinarycrossentropy` method to work with objects of type `AbstractCounterfactualExplanation`.
 """
 function Flux.Losses.logitbinarycrossentropy(
-	ce::AbstractCounterfactualExplanation; kwargs...,
+    ce::AbstractCounterfactualExplanation; kwargs...
 )
     loss = Flux.Losses.logitbinarycrossentropy(
         logits(ce.M, CounterfactualExplanations.decode_state(ce)),
