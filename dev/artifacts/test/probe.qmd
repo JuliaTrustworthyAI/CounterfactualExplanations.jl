@@ -32,7 +32,6 @@ linear_counterfactual = generate_counterfactual(
     invalidation_rate=0.1,
     learning_rate=0.1,
 )
-println(linear_counterfactual.search[:iteration_count])
 CounterfactualExplanations.plot(linear_counterfactual)
 ```
 
