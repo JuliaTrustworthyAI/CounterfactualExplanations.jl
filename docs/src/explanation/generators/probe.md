@@ -13,11 +13,7 @@ Usage
 
 ### Explanation
 
-``` math
-\begin{equation}
-\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) = 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \label{eq:4}
-\end{equation}
-```
+The loss function this generator is defined below. R is a hinge loss parameter which helps control for robustness. The loss and penalty functions can still be chosen freely.
 
 ``` math
 \begin{aligned}
@@ -25,11 +21,23 @@ R(x'; \sigma^2 I) + l(f(x'), s) + \lambda d_c(x', x)
 \end{aligned}
 ```
 
+R uses the following formula to control for noise. It generates small perturbations and checks how often the counterfactual explanation flips back to a factual one, when small amounts of noise are added to it.
+
 ``` math
 \begin{aligned}
 \Delta(x^{\hat{E}}) &= E_{\varepsilon}[h(x^{\hat{E}}) - h(x^{\hat{E}} + \varepsilon)]
 \end{aligned}
 ```
+
+The above formula is not differentiable. For this reason the generator uses the closed form version of the formula below.
+
+``` math
+\begin{equation}
+\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) = 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \label{eq:4}
+\end{equation}
+```
+
+
 
 
 ### Usage
