@@ -10,7 +10,7 @@ function search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::Ab
     # Check if the current tree is a leaf
     if DecisionTree.is_leaf(tree)
         # Check if the leaf's majority value matches the target
-        if tree.majority == tree.majority == classes[target + 1]
+        if tree.majority == tree.majority == classes[target]
             return [path]
         else
             return []
@@ -64,13 +64,13 @@ function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.T
     for tree in Models.get_individual_classifiers(ensemble)
         classifier = Models.TreeModel(tree, :classification_binary)
         if ensemble_prediction == predict_label(classifier, x) &&
-            predict_label(classifier, x) != classes[target + 1]
+            predict_label(classifier, x) != classes[target]
             
             paths = search_path(classifier.model, target, classes)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
-                if predict_label(classifier, es_instance) == classes[target + 1]
+                if predict_label(classifier, es_instance) == classes[target]
                     if LinearAlgebra.norm(x - es_instance) < delta
                         x_out = es_instance
                         delta = LinearAlgebra.norm(x - es_instance)

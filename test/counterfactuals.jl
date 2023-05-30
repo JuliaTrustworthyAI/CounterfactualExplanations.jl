@@ -109,7 +109,9 @@ for (key, generator_) in generators
                                         generator;
                                         decision_threshold=γ,
                                     )
-                                    @test length(path(counterfactual)) == 1
+                                    if !(M isa TreeModel)
+                                        @test length(path(counterfactual)) == 1
+                                    end
                                     @test maximum(
                                         abs.(
                                             counterfactual.x .-

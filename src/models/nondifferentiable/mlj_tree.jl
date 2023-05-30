@@ -36,6 +36,17 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
     end
 end
 
+function TreeModel(data::CounterfactualData, likelihood::Symbol=:classification_binary)
+    model = DecisionTreeClassifier()
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
+
+    X = Float32.(X')
+    y = string.(y[2,:])
+
+    DecisionTree.fit!(model, X, y)
+
+    return TreeModel(model, likelihood)
+end
 
 """
 Outer constructor method for TreeModel.

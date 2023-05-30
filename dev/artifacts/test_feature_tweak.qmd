@@ -10,7 +10,7 @@ generator_catalogue
 
 ```{julia}
 n = 500
-counterfactual_data = load_moons(n)
+counterfactual_data = load_linearly_separable(n)
 X = counterfactual_data.X
 y = counterfactual_data.y
 plt = plot()
@@ -41,7 +41,7 @@ DecisionTree.predict(model, float32.([2, 0]))
 ```{julia}
 M = model_catalogue[:DecisionTree](model, :classification_binary)
 x = float32.([2, 0])
-target = 0
+target = 1
 generator = FeatureTweakGenerator(ϵ=0.1)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```

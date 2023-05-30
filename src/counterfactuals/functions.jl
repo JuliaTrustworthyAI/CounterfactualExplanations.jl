@@ -109,6 +109,13 @@ function CounterfactualExplanation(
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
 
     if generator isa Generators.HeuristicBasedGenerator
+        ce.search = Dict(
+            :iteration_count => 0,
+            :times_changed_features => zeros(size(decode_state(ce))),
+            :path => [ce.s′],
+            :terminated => true,
+            :converged => true,
+        )
         return ce
     end
 
