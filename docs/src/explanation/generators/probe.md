@@ -57,7 +57,10 @@ generator = ProbeGenerator()
 ```
 
 
-Then you can use the generator to produce a counterfactual as follows:
+Generating a counterfactual with the data loaded and generator chosen works as follows:
+
+Note: It is important to set the convergence to ":invalidation_rate" here.
+
 
 ```julia
 linear_counterfactual = generate_counterfactual(
@@ -78,5 +81,5 @@ CounterfactualExplanations.plot(linear_counterfactual)
 
 ## References
 
-Our Framework: Probabilistically Robust Recourse. "Probabilistically Robust Recourse: Navigating the Trade-offs between Costs and Robustness in Algorithmic Recourse". University of Tübingen, 2022.
+Pawelczyk, M., Datta, T., van-den-Heuvel, J., Kasneci, G., & Lakkaraju, H. (2023). Probabilistically Robust Recourse: Navigating the Trade-offs between Costs and Robustness in Algorithmic Recourse. In Proceedings of the 11th International Conference on Learning Representations (ICLR) 2023
 

@@ -19,7 +19,10 @@ A `Generator` object that can be used to generate counterfactual probes.
 based on https://arxiv.org/abs/2203.06768
 """
 function ProbeGenerator(;
-    λ::AbstractFloat=0.1, loss::Symbol=:mse, penalty=distance_l1, kwargs...
+    λ::AbstractFloat=0.1,
+    loss::Symbol=:logitbinarycrossentropy,
+    penalty=distance_l1,
+    kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = losses_catalogue[loss]
@@ -53,7 +56,7 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation; kwargs...)
     end
     gradᵀ = transpose(grad)
 
-    identity_matrix = Matrix{Float64}(I, length(grad), length(grad))
+    identity_matrix = Matrix{Float32}(I, length(grad), length(grad))
     denominator = sqrt(gradᵀ * ce.params[:variance] * identity_matrix * grad)[1]
 
     normalized_gradient = f_loss / denominator
