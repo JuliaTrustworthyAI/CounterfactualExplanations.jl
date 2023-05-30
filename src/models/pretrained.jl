@@ -47,7 +47,7 @@ function load_cifar10_mlp()
 end
 
 function load_cifar10_ensemble()
-    M = deserialize(joinpath(vision_dir, "cifar_10_ensemble.jls.jls"))
+    M = deserialize(joinpath(vision_dir, "cifar_10_ensemble.jls"))
     return M
 end
 
