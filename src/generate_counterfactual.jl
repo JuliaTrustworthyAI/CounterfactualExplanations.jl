@@ -71,7 +71,7 @@ function generate_counterfactual(
         gradient_tol=gradient_tol,
         converge_when=converge_when,
     )
-
+    
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !ce.search[:terminated]

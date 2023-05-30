@@ -51,7 +51,7 @@ function predict_proba(
     @assert !(isnothing(counterfactual_data) && isnothing(X))
     X = isnothing(X) ? counterfactual_data.X : X
     p = probs(M, X)
-    # println(p)
+    println(typeof(p))
     binary = M.likelihood == :classification_binary
     p = binary ? binary_to_onehot(p) : p
     return p
@@ -65,9 +65,10 @@ Returns the predicted output label for a given model `M`, data set `counterfactu
 function predict_label(
     M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray
 )
-    y_levels = counterfactual_data.y_levels
     p = predict_proba(M, counterfactual_data, X)
-    y = Flux.onecold(p, y_levels)
+    println("Predicted probabilities:")
+    println(p)
+    y = Flux.onecold(p, counterfactual_data.y_levels)
     return y
 end
 
