@@ -35,6 +35,7 @@ include("gradient_based/optimisers.jl")
 include("gradient_based/probe.jl")
 export ProbeGenerator
 export hingeLoss
+export hinge_loss, invalidation_rate
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
     :claproar => Generators.ClaPROARGenerator,
