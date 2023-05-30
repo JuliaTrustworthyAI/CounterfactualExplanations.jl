@@ -1,16 +1,18 @@
 using DecisionTree
-using LinearAlgebra
+using DataFrames
+using MLJBase
+using MLJDecisionTreeInterface
 
 """
-    search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::AbstractArray, path::AbstractArray)
+    search_path(tree::Union{Leaf, Node}, target::RawTargetType, path::AbstractArray)
 
 Return a path index list with the inequality symbols, thresholds and feature indices.
 """
-function search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::AbstractArray, path::AbstractArray=[])
+function search_path(tree::Union{Leaf, DecisionTree.Node}, target::RawTargetType, path::AbstractArray=[])
     # Check if the current tree is a leaf
     if DecisionTree.is_leaf(tree)
         # Check if the leaf's majority value matches the target
-        if tree.majority == tree.majority == classes[target]
+        if tree.majority == target + 1
             return [path]
         else
             return []
@@ -18,10 +20,10 @@ function search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::Ab
     else
         # Search the left and right subtrees
         paths = []
-        append!(paths, search_path(tree.left, target, classes, vcat(path, Dict("inequality_symbol" => 0, 
+        append!(paths, search_path(tree.left, target, vcat(path, Dict("inequality_symbol" => 0, 
                                                                       "threshold" => tree.featval,
                                                                       "feature" => tree.featid))))
-        append!(paths, search_path(tree.right, target, classes, vcat(path, Dict("inequality_symbol" => 1, 
+        append!(paths, search_path(tree.right, target, vcat(path, Dict("inequality_symbol" => 1, 
                                                                        "threshold" => tree.featval,
                                                                        "feature" => tree.featid))))
         return paths
@@ -29,60 +31,61 @@ function search_path(tree::Union{Leaf, Node}, target::RawTargetType, classes::Ab
 end
 
 """
-    search_path(model::DecisionTreeClassifier, target::RawTargetType, classes::AbstractArray)
+    search_path(model::DecisionTreeClassifier, target::RawTargetType)
 
 Calls `search_path` on the root node of a decision tree.
 """
-function search_path(model::DecisionTreeClassifier, target::RawTargetType, classes::AbstractArray)
-    return search_path(model.root.node, target, classes)
+function search_path(model::MLJDecisionTreeInterface.DecisionTreeClassifier, target::RawTargetType)
+    return search_path(model.root.node, target)
 end
 
 """
-    search_path(model::RandomForestClassifier, target::RawTargetType, classes::AbstractArray)
+    search_path(model::RandomForestClassifier, target::RawTargetType)
 
 Calls `search_path` on the root node of a random forest.
 """
-function search_path(model::RandomForestClassifier, target::RawTargetType, classes::AbstractArray)
+function search_path(model::MLJDecisionTreeInterface.RandomForestClassifier, target::RawTargetType)
     paths = []
     for tree in model.trees
-        append!(paths, search_path(tree, target, classes))
+        append!(paths, search_path(tree, target))
     end
     return paths
 end
-
 
 """
     feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, ensemble::Models.TreeModel, x::AbstractArray, target::RawTargetType)
+function feature_tweaking(generator::HeuristicBasedGenerator, M::Models.TreeModel, x::AbstractArray, target::RawTargetType)
     x_out = deepcopy(x)
-    classes = DecisionTree.get_classes(ensemble.model)
+    machine = M.mach
     delta = 10^3
-    ensemble_prediction = predict_label(ensemble, x)
-    for tree in Models.get_individual_classifiers(ensemble)
-        classifier = Models.TreeModel(tree, :classification_binary)
-        if ensemble_prediction == predict_label(classifier, x) &&
-            predict_label(classifier, x) != classes[target]
+    # ensemble_prediction = predict_label(M, x)
+    fp = MLJBase.fitted_params(machine)
+    model = fp.tree.node
+
+    # for tree in Models.get_individual_classifiers(M)
+    #     classifier = Models.TreeModel(tree, :classification_binary)
+    #     if ensemble_prediction == predict_label(classifier, x) &&
+    #         predict_label(classifier, x) != classes[target + 1]
             
-            paths = search_path(classifier.model, target, classes)
-            for key in keys(paths)
-                path = paths[key]
-                es_instance = esatisfactory_instance(generator, x, path)
-                if predict_label(classifier, es_instance) == classes[target]
-                    if LinearAlgebra.norm(x - es_instance) < delta
-                        x_out = es_instance
-                        delta = LinearAlgebra.norm(x - es_instance)
-                    end
-                end
+    paths = search_path(model, target)
+    for key in keys(paths)
+        path = paths[key]
+        es_instance = esatisfactory_instance(generator, x, path)
+        if predict_label(M, es_instance) == target + 1
+            if LinearAlgebra.norm(x - es_instance) < delta
+                x_out = es_instance
+                delta = LinearAlgebra.norm(x - es_instance)
             end
         end
     end
+    #     end
+    # end
     println("x_out: ", x_out)
     return x_out
 end
-
 
 """
     esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
@@ -103,6 +106,5 @@ function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractA
             println("something wrong")
         end
     end
-    println("Esatisfactory: ", esatisfactory)
     return esatisfactory
 end

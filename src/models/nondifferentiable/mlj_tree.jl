@@ -1,4 +1,6 @@
-using DecisionTree
+using MLJDecisionTreeInterface
+using DataFrames
+using MLJBase
 
 # The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/classification/main.jl
 
@@ -8,10 +10,10 @@ using DecisionTree
 Constructor for tree-based models from the MLJ library. 
 """
 struct TreeModel <: AbstractNonDifferentiableJuliaModel
-    model::Any
+    mach::Any
     likelihood::Symbol
-    function TreeModel(model, likelihood)
-        if !(model isa DecisionTreeClassifier || model isa RandomForestClassifier)
+    function TreeModel(mach, likelihood)
+        if !(mach.model isa MLJDecisionTreeInterface.DecisionTreeClassifier || mach.model isa MLJDecisionTreeInterface.RandomForestClassifier)
             throw(
                 ArgumentError(
                     "model should be of type DecisionTreeClassifier or RandomForestClassifier",
@@ -19,7 +21,7 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
                 )
         end
         if likelihood == :classification_binary
-            new(model, likelihood)
+            new(mach, likelihood)
         elseif likelihood == :classification_multi
             throw(
                 ArgumentError(
@@ -51,24 +53,19 @@ end
 """
 Outer constructor method for TreeModel.
 """
-function TreeModel(model::Any; likelihood::Symbol=:classification_binary)
-    return TreeModel(model, likelihood)
+function TreeModel(mach::Any; likelihood::Symbol=:classification_binary)
+    return TreeModel(mach, likelihood)
 end
-
 
 # Methods
 """
-    predict_label(M::TreeModel, input_data::CounterfactualData, X::AbstractArray)
+    predict_label(M::TreeModel, X::AbstractArray)
 
 Returns the predicted label for X.
 """
 function predict_label(M::TreeModel, X::AbstractArray)
-    if M.model isa DecisionTreeClassifier
-        return DecisionTree.predict(M.model, X)
-    end
-    return DecisionTree.predict(M.model, X)
+    return argmax(probs(M, X))[1]
 end
-
 
 """
     get_individual_classifiers(M::TreeModel)
@@ -76,18 +73,18 @@ end
 Returns the individual classifiers in the forest.
 """
 function get_individual_classifiers(M::TreeModel)
-    if M.model isa DecisionTreeClassifier
-        return [M.model]
+    if M.mach.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
+        return [M.mach.model]
     end
-    return M.model.trees
+    return M.mach.model.trees
 end
-
 
 function logits(M::TreeModel, X::AbstractArray)
-    return DecisionTree.predict_proba(M.model, X)
+    df = DataFrame(reshape(X, 1, :), :auto)
+    return MLJBase.predict(M.mach, df)
 end
 
-
 function probs(M::TreeModel, X::AbstractArray)
-    return DecisionTree.predict_proba(M.model, X)
+    df = DataFrame(reshape(X, 1, :), :auto)
+    return pdf(MLJBase.predict(M.mach, df), MLJBase.report(M.mach).classes_seen)
 end
