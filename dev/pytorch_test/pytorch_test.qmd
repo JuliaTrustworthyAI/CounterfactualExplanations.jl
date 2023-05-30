@@ -61,7 +61,7 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
                 torch.nn.Flatten(),
                 torch.nn.Linear(2, 32),
                 torch.nn.Sigmoid(),
-                torch.nn.Linear(32, 1)
+                torch.nn.Linear(32, 2)
             )
             return
         end
@@ -89,9 +89,7 @@ loss_fun = torch.nn.BCEWithLogitsLoss()
 for epoch in 1:100
   # Compute prediction and loss:
   output = model(x).squeeze()
-
-  println(y.shape)
-  loss = loss_fun(output, y)
+  loss = loss_fun(output, y.t())
   
   # Backpropagation:
   optimizer.zero_grad()
@@ -117,10 +115,10 @@ function logits(M::MyPyTorchModel, X::AbstractArray)
       X = reshape(X, length(X), 1)
     end
 
-    ŷ_python = M.nn(torch.Tensor(np.array(X)).T).view(-1).detach().numpy()
-    ŷ = pyconvert(Vector, ŷ_python)
+    ŷ_python = M.nn(torch.Tensor(np.array(X)).T).detach().numpy()
+    ŷ = pyconvert(Matrix, ŷ_python)
 
-    return ŷ'
+    return transpose(ŷ)
 end
 
 function probs(M::MyPyTorchModel, X::AbstractArray)
@@ -140,36 +138,37 @@ import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
 # Countefactual loss:
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation) 
-  nn = M.nn
-  x′ = counterfactual_state.x
-  t = counterfactual_state.target
-  x = reshape(x′, 1, length(x′))
+function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation)
+    nn = M.nn
+    x′ = counterfactual_state.x
+    target = counterfactual_state.target
+    x = reshape(x′, 1, length(x′))
 
-  x = np.array(x)
-  x = torch.Tensor(x)
-  x.requires_grad = true
+    x = np.array(x)
+    x = torch.Tensor(x)
+    x.requires_grad = true
 
-  t = np.array(t)
-  t = torch.Tensor(t).squeeze()
+    target = torch.Tensor([target])
+    println(target)
 
-  output = nn(x).squeeze()
+    output = nn(x).squeeze()
 
-  obj_loss = nn.BCEWithLogitsLoss()(output,t)
-  obj_loss.backward()
+    obj_loss = loss_fun(output, target)
 
-  grad = vec(x.grad.detach().numpy())
+    obj_loss.backward()
 
-  return grad
+    grad = pyconvert(Matrix, x.grad.t().detach().numpy())
+
+    return grad
 end
 ```
 
 # Select random factual
 ```{julia}
-Random.seed!(42)
+Random.seed!(420)
 
-target = 2
-factual = 1
+target = 1
+factual = 2
 
 @info "Choose factual's index"
 y_chosen_factual_idx = rand(findall(predict_label(M, counterfactual_data) .== factual))
@@ -191,7 +190,8 @@ counterfactual = generate_counterfactual(
     target, 
     counterfactual_data, 
     M, 
-    generator
+    generator;
+    max_iter=1000
 )
 ```
 
