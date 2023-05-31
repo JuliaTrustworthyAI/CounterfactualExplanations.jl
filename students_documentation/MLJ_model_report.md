@@ -76,18 +76,28 @@ The package also contains various regressors which are incompatible with all gen
 
 ### MLJLIBSVMInterface.jl
 
+| **Model** | **Analysis** |
+| LinearSVC, SVC, NuSVC | Though Support Vector Classifiers (SVCs) are not differentiable in general, there have been recent efforts to propose counterfactual generators for such models: see, e.g., ["Counterfactual Explanations for Support Vector Machine Models"](https://arxiv.org/abs/2212.07432) by Salazar et al. However, adding support for these kinds of models requires implementing new counterfactual generators, which is infeasible for us to do in the scope of the software project, as we're already working on various other counterfactual generators. Furthermore, research in this area seems to be very recent, so it might be better to wait with implementing these generators until further research is published and generators such as the one proposed in the paper by Salazar et al. become more mature. Nevertheless, adding support for these models seems like a promising future direction for the package. |
+| NuSVR, EpsilonSVR, OneClassSVM | Since these models are either regression or unsupervised models, support for them will not be implemented at the moment. |
+
+
+### MLJMultivariateStatsInterface.jl
+
+| **Model** | **Analysis** |
+| LDA, BayesianLDA, SubspaceLDA, BayesianSubspaceLDA | These are all statistical models for which numerical optimization techniques are commonly not used. However, all of these models have linear decision boundaries, which means that it is possible to compute gradients of these models' decision functions with respect to their input. This makes them compatible with the package's existing counterfactual generators in theory. In practice, however, they are very different from all of the models for which the generators are used 
+
 
 ### EvoLinear.jl, PartialLeastSquaresRegressor.jl
 
 All models from the package are incompatible with all generators, since the package only offers regression models, which the generators don't currently support.
 
 
-### ScikitLearn.jl
+### ScikitLearn.jl, LightGBM.jl
 
-Since the models offered by this library are not native to Julia and the task of generating counterfactuals for them is thus expected to be more difficult compared to native Julia models, we will explore the possible compatibility of models from this library once we have finished working on MLJ models natively implemented in Julia.
+Since the models offered by these libraries are not native to Julia (both are interfaces to Python models) and the task of generating counterfactuals for them is thus expected to be more difficult compared to native Julia models, we will explore the possible compatibility of models from this library once we have finished working on MLJ models natively implemented in Julia.
 
 
-### LightGBM.jl, MLJMultivariateStatsInterface.jl, NearestNeighborModels.jl
+### MLJMultivariateStatsInterface.jl, NearestNeighborModels.jl
 
 The compatibility of models from these packages has not been evaluated yet, but will be evaluated soon.
 
