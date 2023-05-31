@@ -1,54 +1,50 @@
 # Notebook for testing the pytorch model
+
+## Set up
+
+### Dependencies
 ```{julia}
-using Revise
-```
-### Set up
-```{julia}
-# Don't use CONDA
+# We decided not to use CONDA
 ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
 
 # Dependencies
+using Revise
 using Pkg
 Pkg.activate("$(pwd())/dev/pytorch_test")
-
 using PythonCall
 using CounterfactualExplanations
 ```
 
-# Load data
+### Load data
 ```{julia}
 using Random
-# Some random data:
+
 Random.seed!(1234);
 N = 100
 
-@info "Generating data..."
-counterfactual_data = CounterfactualExplanations.Data.load_blobs(N)
+counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 
-x = counterfactual_data.X
-y = counterfactual_data.y
-
-x = PyArray(x)
-y = PyArray(y)
-
-@info "Data generated."
+x_julia = counterfactual_data.X
+y_julia = counterfactual_data.y
 ```
 
-# Separate x and y data
+### Separate x and y data
 ```{julia}
 torch = pyimport("torch")
 np = pyimport("numpy")
 
-x = counterfactual_data.X
-x = np.array(x)
-x = torch.Tensor(x).T
+x_python = counterfactual_data.X
+x_python = np.array(x_python)
+x_python = torch.Tensor(x_python).T
 
-y = counterfactual_data.y
-y = np.array(y)
-y = torch.Tensor(y)
+y_python = counterfactual_data.y
+y_python = np.array(y_python)
+y_python = torch.Tensor(y_python)
 ```
 
-# Define model
+## Implement and train PyTorch model
+
+### PyTorch model interface 
 ```{julia}
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
@@ -76,7 +72,7 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
 ])
 ```
 
-# Declare model, optimizer and loss function
+### Declare model, optimizer and loss function
 ```{julia}
 @info "Training"
 model = MLP()
@@ -84,12 +80,12 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
 loss_fun = torch.nn.BCEWithLogitsLoss()
 ```
 
-# Training
+### Training
 ```{julia}
 for epoch in 1:100
   # Compute prediction and loss:
-  output = model(x).squeeze()
-  loss = loss_fun(output, y.t())
+  output = model(x_python).squeeze()
+  loss = loss_fun(output, y_python.t())
   
   # Backpropagation:
   optimizer.zero_grad()
@@ -99,7 +95,9 @@ for epoch in 1:100
 end
 ```
 
-# Declare MyPyTorchModel
+## Declare MyPyTorchModel
+
+### MyPyTorch class
 ```{julia}
 using Flux
 using CounterfactualExplanations, CounterfactualExplanations.Models
@@ -110,68 +108,118 @@ struct MyPyTorchModel <: AbstractDifferentiableModel
     likelihood::Symbol
 end
 
-function logits(M::MyPyTorchModel, X::AbstractArray)    
-    if !isa(X, Matrix)
-      X = reshape(X, length(X), 1)
+# Returns Transpose{Float32, Matrix{Float32}}
+function logits(model::MyPyTorchModel, x::AbstractArray)    
+    if !isa(x, Matrix)
+      x = reshape(x, length(x), 1)
     end
 
-    ŷ_python = M.nn(torch.Tensor(np.array(X)).T).detach().numpy()
+    ŷ_python = model.nn(torch.Tensor(np.array(x)).T).detach().numpy()
     ŷ = pyconvert(Matrix, ŷ_python)
 
     return transpose(ŷ)
 end
 
-function probs(M::MyPyTorchModel, X::AbstractArray)
+function probs(model::MyPyTorchModel, x::AbstractArray)
     if M.likelihood == :classification_binary
-        return σ.(logits(M, X))
+        return σ.(logits(model, x))
     elseif M.likelihood == :classification_multi
-        return softmax(logits(M, X))
+        return softmax(logits(model, x))
     end
 end
 
-M = MyPyTorchModel(model, :classification_multi)
+model_pytorch = MyPyTorchModel(model, :classification_multi)
 ```
 
-# Declare ∂ℓ
+### Declare ∂ℓ
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
 # Countefactual loss:
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation)
-    nn = M.nn
-    x′ = counterfactual_state.x
-    target = counterfactual_state.target
-    x = reshape(x′, 1, length(x′))
+    x = counterfactual_state.x
+    target = Float32.(counterfactual_state.target_encoded)
 
-    x = np.array(x)
-    x = torch.Tensor(x)
+    x = to_tensor(x)
     x.requires_grad = true
 
-    target = torch.Tensor([target])
-    println(target)
+    target = to_tensor(target)
+    target = target.squeeze()
 
-    output = nn(x).squeeze()
+    output = M.nn(x).squeeze()
 
     obj_loss = loss_fun(output, target)
-
     obj_loss.backward()
 
     grad = pyconvert(Matrix, x.grad.t().detach().numpy())
 
     return grad
 end
+
+function to_tensor(array::AbstractArray)
+    reshaped_array = reshape(array, 1, length(array))
+    np_array = np.array(reshaped_array)
+    tensor_array = torch.tensor(np_array)
+    return tensor_array
+end
 ```
 
-# Select random factual
-```{julia}
-Random.seed!(420)
+## Create a flux mlp model
 
-target = 1
-factual = 2
+### Set up the NN_flux
+```{julia}
+# Data: x_julia, y_julia
+data = Flux.DataLoader((x_julia, y_julia), batchsize = 1)
+input_dim = size(x_julia, 1)
+n_hidden = 32
+activation = relu
+output_dim = 2
+
+nn_flux = Chain(
+    Dense(input_dim, n_hidden, activation),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)
+
+loss(yhat, y_julia) = Flux.Losses.logitbinarycrossentropy(nn_flux(yhat), y_julia)
+```
+
+### Train the NN_flux
+```{julia}
+using Flux.Optimise: update!, Adam
+using Statistics
+
+opt = Adam()
+avg_loss(data) = Statistics.mean(map(d -> loss(d[1],d[2]), data))
+
+# Training:
+for epoch = 1:100
+    for d in data
+        gs = gradient(Flux.params(nn_flux)) do
+            l = loss(d...)
+    end
+        update!(opt, Flux.params(nn_flux), gs)
+    end
+
+    println("Epoch " * string(epoch))
+    @show avg_loss(data)
+end
+
+M_flux = FluxModel(nn_flux, :classification_multi)
+```
+
+## Testing models
+
+### Select random factual
+```{julia}
+Random.seed!(42)
+
+target = 0
+factual = 1
 
 @info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(predict_label(M, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(findall(predict_label(model_pytorch, counterfactual_data) .== factual))
 
 @info "Select factual"
 x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
@@ -179,36 +227,60 @@ x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 println(target)
 ```
 
-# Generate counterfactual
+### Generate counterfactual
 ```{julia}
 # Define a generator:
 generator = GenericGenerator()
 
 # Generate a recourse:
-counterfactual = generate_counterfactual(
+println("")
+@info "Generate counterfactual_flux"
+println("")
+counterfactual_flux = generate_counterfactual(
     x_random_factual, 
     target, 
     counterfactual_data, 
-    M, 
+    M_flux, 
     generator;
     max_iter=1000
 )
+
+@info "Generate counterfactual_pytorch"
+println("")
+counterfactual_pytorch = generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_pytorch, 
+    generator;
+    max_iter=1000
+)
+
 ```
 
-# Plot
+### Plot model and datapoints only
 ```{julia}
-#| echo: false
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual, X_path)
-p1 = CounterfactualExplanations.plot(counterfactual)
-# Now we can use animate_path
+CounterfactualExplanations.plot(M_flux, counterfactual_data)
+```
 
-# anim = @animateounter for t in 1:T
-#     scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-#     p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-#     Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-#     plot(p1,p2,size=(800,400))
-# end
-# gif(anim, joinpath(www_path, "interop_py.gif"), fps=5)
+### Plot
+```{julia}
+T = total_steps(counterfactual_flux)
+X_path = reduce(hcat,path(counterfactual_flux))
+ŷ = target_probs(counterfactual_flux, X_path)
+p1 = CounterfactualExplanations.plot(counterfactual_flux)
+```
+
+```{julia}
+T = total_steps(counterfactual_pytorch)
+X_path = reduce(hcat,path(counterfactual_pytorch))
+ŷ = target_probs(counterfactual_pytorch, X_path)
+p1 = CounterfactualExplanations.plot(counterfactual_pytorch)
+```
+
+```{julia}
+using Plots
+anim = animate_path(counterfactual_pytorch)
+gif(anim, "intro.gif", fps=2)
+gif(anim, "$(pwd())/pytorch_test", fps=2)
 ```
