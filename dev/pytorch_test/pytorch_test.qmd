@@ -2,24 +2,24 @@
 
 ## Set up
 
-### Dependencies
+### Install dependencies
 ```{julia}
+using Pkg
+Pkg.activate("$(pwd())/dev/pytorch_test")
+
 # We decided not to use CONDA
 ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
 
 # Dependencies
 using Revise
-using Pkg
-Pkg.activate("$(pwd())/dev/pytorch_test")
 using PythonCall
 using CounterfactualExplanations
+using Random
 ```
 
 ### Load data
 ```{julia}
-using Random
-
-Random.seed!(1234);
+Random.seed!(42);
 N = 100
 
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
@@ -28,24 +28,26 @@ x_julia = counterfactual_data.X
 y_julia = counterfactual_data.y
 ```
 
-### Separate x and y data
+### Convert data to tensors
 ```{julia}
-torch = pyimport("torch")
-np = pyimport("numpy")
+torch = PythonCall.pyimport("torch")
+np = PythonCall.pyimport("numpy")
 
-x_python = counterfactual_data.X
+x_python = Float32.(counterfactual_data.X)
 x_python = np.array(x_python)
-x_python = torch.Tensor(x_python).T
+x_python = torch.tensor(x_python).T
 
-y_python = counterfactual_data.y
+y_python = Float32.(counterfactual_data.y)
 y_python = np.array(y_python)
-y_python = torch.Tensor(y_python)
+y_python = torch.tensor(y_python)
 ```
 
 ## Implement and train PyTorch model
 
-### PyTorch model interface 
+### PyTorch model declaration 
 ```{julia}
+# TODO: implement a function which allows user to specify all details of the neural network 
+
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
 
@@ -72,9 +74,8 @@ MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
 ])
 ```
 
-### Declare model, optimizer and loss function
+### Instantiate PyTorch model, optimizer and loss function
 ```{julia}
-@info "Training"
 model = MLP()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
 loss_fun = torch.nn.BCEWithLogitsLoss()
@@ -83,15 +84,17 @@ loss_fun = torch.nn.BCEWithLogitsLoss()
 ### Training
 ```{julia}
 for epoch in 1:100
-  # Compute prediction and loss:
-  output = model(x_python).squeeze()
-  loss = loss_fun(output, y_python.t())
-  
-  # Backpropagation:
-  optimizer.zero_grad()
-  loss.backward()
-  optimizer.step()
-  println("Loss at epoch $epoch: $(loss.item())")
+    # Compute prediction and loss:
+    output = model(x_python).squeeze()
+    loss = loss_fun(output, y_python.t())
+    # Backpropagation:
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if (epoch % 5 == 0)
+        @info "Loss at epoch $epoch: $(loss.item())"
+    end
 end
 ```
 
@@ -108,22 +111,21 @@ struct MyPyTorchModel <: AbstractDifferentiableModel
     likelihood::Symbol
 end
 
-# Returns Transpose{Float32, Matrix{Float32}}
 function logits(model::MyPyTorchModel, x::AbstractArray)    
     if !isa(x, Matrix)
       x = reshape(x, length(x), 1)
     end
 
-    ŷ_python = model.nn(torch.Tensor(np.array(x)).T).detach().numpy()
+    ŷ_python = model.nn(torch.tensor(np.array(x)).T).detach().numpy()
     ŷ = pyconvert(Matrix, ŷ_python)
 
     return transpose(ŷ)
 end
 
 function probs(model::MyPyTorchModel, x::AbstractArray)
-    if M.likelihood == :classification_binary
+    if model.likelihood == :classification_binary
         return σ.(logits(model, x))
-    elseif M.likelihood == :classification_multi
+    elseif model.likelihood == :classification_multi
         return softmax(logits(model, x))
     end
 end
@@ -136,7 +138,6 @@ model_pytorch = MyPyTorchModel(model, :classification_multi)
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
-# Countefactual loss:
 function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation)
     x = counterfactual_state.x
     target = Float32.(counterfactual_state.target_encoded)
@@ -202,8 +203,10 @@ for epoch = 1:100
         update!(opt, Flux.params(nn_flux), gs)
     end
 
-    println("Epoch " * string(epoch))
-    @show avg_loss(data)
+    if epoch % 5 == 0
+        @info "Epoch " * string(epoch) 
+        @show avg_loss(data)
+    end
 end
 
 M_flux = FluxModel(nn_flux, :classification_multi)
@@ -223,8 +226,6 @@ y_chosen_factual_idx = rand(findall(predict_label(model_pytorch, counterfactual_
 
 @info "Select factual"
 x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-
-println(target)
 ```
 
 ### Generate counterfactual
@@ -233,9 +234,7 @@ println(target)
 generator = GenericGenerator()
 
 # Generate a recourse:
-println("")
 @info "Generate counterfactual_flux"
-println("")
 counterfactual_flux = generate_counterfactual(
     x_random_factual, 
     target, 
@@ -246,7 +245,6 @@ counterfactual_flux = generate_counterfactual(
 )
 
 @info "Generate counterfactual_pytorch"
-println("")
 counterfactual_pytorch = generate_counterfactual(
     x_random_factual, 
     target, 
@@ -260,27 +258,17 @@ counterfactual_pytorch = generate_counterfactual(
 
 ### Plot model and datapoints only
 ```{julia}
-CounterfactualExplanations.plot(M_flux, counterfactual_data)
+CounterfactualExplanations.plot(M_flux, counterfactual_data; title = "Flux model")
+```
+```{julia}
+CounterfactualExplanations.plot(model_pytorch, counterfactual_data; title = "PyTorch model")
 ```
 
 ### Plot
 ```{julia}
-T = total_steps(counterfactual_flux)
-X_path = reduce(hcat,path(counterfactual_flux))
-ŷ = target_probs(counterfactual_flux, X_path)
-p1 = CounterfactualExplanations.plot(counterfactual_flux)
+CounterfactualExplanations.plot(counterfactual_flux; title = "Flux path")
 ```
 
 ```{julia}
-T = total_steps(counterfactual_pytorch)
-X_path = reduce(hcat,path(counterfactual_pytorch))
-ŷ = target_probs(counterfactual_pytorch, X_path)
-p1 = CounterfactualExplanations.plot(counterfactual_pytorch)
-```
-
-```{julia}
-using Plots
-anim = animate_path(counterfactual_pytorch)
-gif(anim, "intro.gif", fps=2)
-gif(anim, "$(pwd())/pytorch_test", fps=2)
+CounterfactualExplanations.plot(counterfactual_pytorch; title = "PyTorch path")
 ```
