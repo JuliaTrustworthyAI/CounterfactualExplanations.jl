@@ -66,6 +66,17 @@ Though the maturity of this library is also marked to be low, we think that it's
 The package also contains various regressors which are incompatible with all generators, as the package currently only supports generating counterfactual explanations for classifiers.
 
 
+### MLJGLMInterface.jl
+
+| **Model** | **Analysis** |
+| LinearBinaryClassifier | The model is differentiable, but given that linear classifiers are offered by other MLJ-supported libraries with higher maturity and that this is the only model from this library compatible with our package, it is unclear whether we should offer support for this model. |
+
+The package also contains various regressors which are incompatible with all generators, as the package currently only supports generating counterfactual explanations for classifiers.
+
+
+### MLJLIBSVMInterface.jl
+
+
 ### EvoLinear.jl, PartialLeastSquaresRegressor.jl
 
 All models from the package are incompatible with all generators, since the package only offers regression models, which the generators don't currently support.
@@ -76,6 +87,11 @@ All models from the package are incompatible with all generators, since the pack
 Since the models offered by this library are not native to Julia and the task of generating counterfactuals for them is thus expected to be more difficult compared to native Julia models, we will explore the possible compatibility of models from this library once we have finished working on MLJ models natively implemented in Julia.
 
 
-### MLJModels.jl, MLJGLMInterface.jl, MLJLIBSVMInterface.jl, LightGBM.jl, MLJMultivariateStatsInterface.jl, NearestNeighborModels.jl
+### LightGBM.jl, MLJMultivariateStatsInterface.jl, NearestNeighborModels.jl
 
 The compatibility of models from these packages has not been evaluated yet, but will be evaluated soon.
+
+
+### MLJModels.jl
+
+This is the base MLJ package from which all the other MLJ-supported models can be loaded. Support for the models that can be loaded through this library has been documented in the whole document above. The package also offers some models on its own, but the generation of counterfactuals for these models is not supported, as they are mostly helper models such as OneHotEncoder and UnivariateBoxCoxTransformer that don't make class predictions on their own.
