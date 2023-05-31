@@ -57,6 +57,8 @@ function CounterfactualExplanation(
 )
 
     # Assertions:
+    println("data: ", data)
+    println("predict_label: ", predict_label(M, data))
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
     @assert converge_when ∈ [:decision_threshold, :generator_conditions, :max_iter]

@@ -59,7 +59,7 @@ Returns a counterfactual instance of `x` based on the ensemble of classifiers pr
 """
 function feature_tweaking(generator::HeuristicBasedGenerator, M::Models.TreeModel, x::AbstractArray, target::RawTargetType)
     x_out = deepcopy(x)
-    machine = M.mach
+    machine = M.model
     delta = 10^3
     # ensemble_prediction = predict_label(M, x)
     fp = MLJBase.fitted_params(machine)
@@ -83,7 +83,6 @@ function feature_tweaking(generator::HeuristicBasedGenerator, M::Models.TreeMode
     end
     #     end
     # end
-    println("x_out: ", x_out)
     return x_out
 end
 

@@ -40,12 +40,10 @@ DecisionTree.predict(model, float32.([2, 0]))
 ```
 
 ```{julia}
-M = model_catalogue[:DecisionTree](model, :classification_binary)
 x = float32.([2, 0])
 target = 1
 M = Models.TreeModel(mach)
 x = float32.([1, -0.5])
-target = 0
 generator = FeatureTweakGenerator(ϵ=0.1)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
