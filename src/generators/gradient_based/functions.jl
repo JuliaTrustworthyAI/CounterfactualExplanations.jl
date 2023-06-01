@@ -1,5 +1,8 @@
 using Flux
 using Statistics
+using PythonCall
+
+# using LinearAlgebra
 
 """
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, ce::AbstractCounterfactualExplanation)
@@ -13,6 +16,37 @@ function ∂ℓ(
 )
     gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     return gs
+end
+
+function ∂ℓ(
+    generator::AbstractGradientBasedGenerator, 
+    M::Models.PyTorchModel, 
+    ce::AbstractCounterfactualExplanation,
+)
+    x = ce.x
+    target = Float32.(ce.target_encoded)
+
+    x = to_tensor(x)
+    x.requires_grad = true
+
+    target = to_tensor(target)
+    target = target.squeeze()
+
+    output = M.neural_network(x).squeeze()
+
+    obj_loss = loss_fun(output, target)
+    obj_loss.backward()
+
+    grad = PythonCall.pyconvert(Matrix, x.grad.t().detach().numpy())
+
+    return grad
+end
+
+function to_tensor(array::AbstractArray)
+    reshaped_array = reshape(array, 1, length(array))
+    np_array = np.array(reshaped_array)
+    tensor_array = torch.tensor(np_array)
+    return tensor_array
 end
 
 """
