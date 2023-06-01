@@ -5,6 +5,11 @@
 
 The tables below will present an overview of the compatibility of models from the [MLJ general registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) with ``CounterfactualExplanations.jl``, organized by the interface library.
 
+Based on our research into model compatibility, we are not planning to implement a one-size-fits-all interface to all MLJ models. This is mainly for the following reasons:
+- Almost all of the libraries supported by MLJ offer regression models and unsupervised models. Regression models are not supported by any counterfactual generators currently implemented in the package and unsupervised models don't require counterfactuals at all, so the interface would somehow have to filter these models out. However, the only way to filter the models like that seems to be a manual check for every single unsupported model, which seems unreasonable given that MLJ supports more than 100 models.
+- Though `MLJBase.jl` offers a `predict()` method that works for any model from any MLJ-supported library and the `probs()` method required by the `AbstractFittedModel` type can be implemented using this `predict()` method, the package doesn't offer a similar method that could be used to implement the `logits()` method, which is also required by the `AbstractFittedModel` type. Thus, methods from the library providing an interface to the MLJ model currently used have to be called in order to retrieve the model logits. This is, again, unreasonable to do inside a one-size-fits-all interface.
+- Even if it was possible to effectively differentiate between regression, classification and unsupervised models, and also possible to implement a general `logits()` method that fits all MLJ models, it still seems necessary to 
+
 
 ### BetaML.jl
 
