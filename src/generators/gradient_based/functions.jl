@@ -21,7 +21,7 @@ end
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator, 
     M::Models.PyTorchModel, 
-    ce::CounterfactualExplanation,
+    ce::AbstractCounterfactualExplanation,
 )
     x = ce.x
     target = Float32.(ce.target_encoded)
