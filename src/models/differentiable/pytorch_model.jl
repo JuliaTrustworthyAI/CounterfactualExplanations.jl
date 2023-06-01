@@ -1,26 +1,26 @@
-# Plan of implementing this:
-# 1. Translate the following code into PythonCall from PyCall
-# 2. Create a notebook where I can test this
-# 3. Update a notebook where I test this with a PyTorch model
-
 using PythonCall
+torch = PythonCall.pyimport("torch")
 
 struct PyTorchModel <: AbstractDifferentiableModel
-    nn::Any
+  neural_network::Any
+  likelihood::Symbol
 end
 
-function logits(M::PyTorchModel, X::AbstractArray)
-    torch = pyimport("torch")
-    
-    if !isa(X, Matrix)
-      X = reshape(X, length(X), 1)
-    end
+function logits(model::PyTorchModel, x::AbstractArray)    
+  if !isa(x, Matrix)
+    x = reshape(x, length(x), 1)
+  end
 
-    ŷ = M.nn(torch.Tensor(X).T).detach().numpy()
-    
-    ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
+  ŷ_python = model.neural_network(torch.tensor(np.array(x)).T).detach().numpy()
+  ŷ = PythonCall.pyconvert(Matrix, ŷ_python)
 
-    return ŷ'
+  return transpose(ŷ)
 end
 
-probs(M::PyTorchModel, X::AbstractArray)= σ.(logits(M, X))
+function probs(model::PyTorchModel, x::AbstractArray)
+  if model.likelihood == :classification_binary
+      return σ.(logits(model, x))
+  elseif model.likelihood == :classification_multi
+      return softmax(logits(model, x))
+  end
+end
