@@ -40,3 +40,22 @@ function load_fashion_mnist_vae(; strong=true)
     end
     return vae
 end
+
+function load_cifar_10_mlp()
+    M = deserialize(joinpath(vision_dir, "cifar_10_mlp.jls"))
+    return M
+end
+
+function load_cifar_10_ensemble()
+    M = deserialize(joinpath(vision_dir, "cifar_10_ensemble.jls"))
+    return M
+end
+
+function load_cifar_10_vae(; strong=true)
+    if strong
+        vae = deserialize(joinpath(vision_dir, "cifar_10_vae_strong.jls"))
+    else
+        vae = deserialize(joinpath(vision_dir, "cifar_10_vae_weak.jls"))
+    end
+    return vae
+end

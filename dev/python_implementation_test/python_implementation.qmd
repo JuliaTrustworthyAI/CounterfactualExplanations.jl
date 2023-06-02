@@ -1,8 +1,7 @@
 # Testing implementation of PyTorchModel and figuring out how to load PyTorch model
 
 ## Set-up
-
-Loading a local version of the package.
+Loading a local version of the package
 ```{julia}
 using Pkg
 Pkg.activate("$(pwd())/dev/python_implementation_test")
@@ -17,9 +16,8 @@ using CounterfactualExplanations
 using Random
 ```
 
-# Copy-pasted from pytorch_test.qmd
-
 ## Load data
+Loading data and preprocessing it
 ```{julia}
 # Load data
 Random.seed!(42);
@@ -44,6 +42,7 @@ y_python = torch.tensor(y_python)
 ```
 
 ## PyTorch model
+Creating and training a PyTorch model
 ```{julia}
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
@@ -89,13 +88,11 @@ for epoch in 1:100
         @info "Loss at epoch $epoch: $(loss.item())"
     end
 end
-```
 
-## Declare PyTorchModel
-```{julia}
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model, :classification_multi)
 ```
 
+## Manual testing
 ```{julia}
 Random.seed!(42)
 
@@ -103,30 +100,25 @@ target = 0
 factual = 1
 
 @info "Choose factual's index"
-CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data)
-# y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
+
+@info "Select factual"
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ```
 
 ```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
 
+@info "Generate counterfactual_pytorch"
+counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_pytorch, 
+    generator;
+    max_iter=1000
+)
 
-
-
-# @info "Select factual"
-# x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-
-# # Define a generator:
-# generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-# @info "Generate counterfactual_pytorch"
-# counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
-#     x_random_factual, 
-#     target, 
-#     counterfactual_data, 
-#     model_pytorch, 
-#     generator;
-#     max_iter=1000
-# )
-
-# CounterfactualExplanations.plot(counterfactual_pytorch; title = "PyTorch path")
+CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
 ```
