@@ -19,8 +19,8 @@ function ∂ℓ(
 end
 
 function ∂ℓ(
-    generator::AbstractGradientBasedGenerator, 
-    M::Models.PyTorchModel, 
+    generator::AbstractGradientBasedGenerator,
+    M::Models.PyTorchModel,
     ce::AbstractCounterfactualExplanation,
 )
     x = ce.x
