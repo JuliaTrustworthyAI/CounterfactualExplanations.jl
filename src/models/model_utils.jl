@@ -1,5 +1,6 @@
 using Flux
 using MLJBase
+using PythonCall
 
 """
     data_loader(data::CounterfactualData)
@@ -9,6 +10,26 @@ Prepares counterfactual data for training in Flux.
 function data_loader(data::CounterfactualData; batchsize=1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
     return DataLoader((X, y); batchsize=batchsize)
+end
+
+"""
+    pytorch_model_loader(model_path::String, model_file::String, class_name::String, pickle_path::String)
+
+Loads a previously saved PyTorch model.
+"""
+function pytorch_model_loader(
+    model_path::String,
+    model_file::String,
+    class_name::String,
+    pickle_path::String
+    )
+
+    sys = PythonCall.pyimport("sys")
+    torch = PythonCall.pyimport("torch")
+    sys.path.append(model_path)
+    PythonCall.pyimport(model_file => class_name)
+    model = torch.load(pickle_path)
+    return model
 end
 
 """

@@ -2,22 +2,27 @@ using Flux
 using Statistics
 using PythonCall
 
-# using LinearAlgebra
-
 """
-    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, ce::AbstractCounterfactualExplanation)
+    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, ce::AbstractCounterfactualExplanation)
 
-The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
+Method for computing the gradient of the loss function at the current counterfactual state for gradient-based generators operating on native Julia models.
+It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator,
-    M::Models.AbstractDifferentiableModel,
+    M::Models.AbstractDifferentiableJuliaModel,
     ce::AbstractCounterfactualExplanation,
 )
     gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     return gs
 end
 
+"""
+    ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.PyTorchModel, ce::AbstractCounterfactualExplanation)
+
+Method for computing the gradient of the loss function at the current counterfactual state for gradient-based generators operating on PyTorch models.
+The gradients are calculated through PyTorch using PythonCall.jl.
+"""
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator,
     M::Models.PyTorchModel,
@@ -37,8 +42,7 @@ function ∂ℓ(
 
     output = M.neural_network(x).squeeze()
 
-    # TODO: loss_fun not defined
-    obj_loss = loss_fun(output, target)
+    obj_loss = torch.nn.BCEWithLogitsLoss()(output, target)
     obj_loss.backward()
 
     grad = PythonCall.pyconvert(Matrix, x.grad.t().detach().numpy())
@@ -49,7 +53,8 @@ end
 """
     ∂h(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators. It assumes that `Zygote.jl` has gradient access.
+The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators.
+It assumes that `Zygote.jl` has gradient access.
 """
 function ∂h(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
@@ -61,7 +66,9 @@ end
 """
     ∇(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, ce::AbstractCounterfactualExplanation)
 
-The default method to compute the gradient of the counterfactual search objective for gradient-based generators. It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
+The default method to compute the gradient of the counterfactual search objective for gradient-based generators.
+It simply computes the weighted sum over partial derivates.
+It assumes that `Zygote.jl` has gradient access.
 """
 function ∇(
     generator::AbstractGradientBasedGenerator,
@@ -115,7 +122,8 @@ end
 """
     mutability_constraints(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to return mutability constraints that are dependent on the current counterfactual search state. For generic gradient-based generators, no state-dependent constraints are added.
+The default method to return mutability constraints that are dependent on the current counterfactual search state.
+For generic gradient-based generators, no state-dependent constraints are added.
 """
 function mutability_constraints(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
@@ -127,7 +135,8 @@ end
 """
     conditions_satisfied(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators. By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
+The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
+By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
 function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation

@@ -76,6 +76,69 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
+### Interface to Python models
+
+```{julia}
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+
+using PythonCall
+using Random
+```
+
+Load the data and preprocess it.
+```{julia}
+# Load data
+Random.seed!(42);
+N = 100
+
+counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
+x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(counterfactual_data)
+```
+
+Load the saved PyTorch model.
+```{julia}
+model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+    "$(pwd())/dev/python_implementation_test",
+    "nn",
+    "NeuralNetwork",
+    "$(pwd())/dev/pytorch_test/nn_test.pt")
+
+model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
+```
+
+Select a factual and generate counterfactuals for it like with any other model.
+```{julia}
+Random.seed!(42)
+
+target = 0
+factual = 1
+
+@info "Choose factual's index"
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
+
+@info "Select factual"
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+```
+
+```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
+
+@info "Generate counterfactual_pytorch"
+counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_pytorch, 
+    generator;
+    max_iter=1000
+)
+
+CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
+```
+
+Alternatively, it is also possible to define a brand new PyTorch model.
+
 ### <feature_name>
 
 <feature_description>

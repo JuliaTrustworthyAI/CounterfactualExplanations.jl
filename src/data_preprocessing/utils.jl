@@ -1,3 +1,5 @@
+import PythonCall
+
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 
@@ -74,4 +76,28 @@ function subsample(data::CounterfactualData, n::Int)
     )
 
     return new_data
+end
+
+"""
+    preprocess_python_data(data::CounterfactualData)
+
+Converts a `CounterfactualData` object to an input tensor and a label tensor.
+"""
+function preprocess_python_data(data::CounterfactualData)
+    x_julia = data.X
+    y_julia = data.y
+
+    # Convert data to tensors
+    torch = PythonCall.pyimport("torch")
+    np = PythonCall.pyimport("numpy")
+
+    x_python = Float32.(x_julia)
+    x_python = np.array(x_python)
+    x_python = torch.tensor(x_python).T
+
+    y_python = Float32.(y_julia)
+    y_python = np.array(y_python)
+    y_python = torch.tensor(y_python)
+
+    return x_python, y_python
 end
