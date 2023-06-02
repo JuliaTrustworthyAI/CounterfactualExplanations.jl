@@ -1,8 +1,7 @@
 # Testing implementation of PyTorchModel and figuring out how to load PyTorch model
 
 ## Set-up
-
-Loading a local version of the package.
+Loading a local version of the package
 ```{julia}
 using Pkg
 Pkg.activate("$(pwd())/dev/python_implementation_test")
@@ -17,9 +16,8 @@ using CounterfactualExplanations
 using Random
 ```
 
-# Copy-pasted from pytorch_test.qmd
-
 ## Load data
+Loading data and preprocessing it
 ```{julia}
 # Load data
 Random.seed!(42);
@@ -44,6 +42,7 @@ y_python = torch.tensor(y_python)
 ```
 
 ## PyTorch model
+Creating and training a PyTorch model
 ```{julia}
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
@@ -89,61 +88,11 @@ for epoch in 1:100
         @info "Loss at epoch $epoch: $(loss.item())"
     end
 end
-```
 
-## Create a flux mlp model
-
-### Set up the NN_flux
-```{julia}
-using Flux
-
-# Data: x_julia, y_julia
-data = Flux.DataLoader((x_julia, y_julia), batchsize = 1)
-input_dim = size(x_julia, 1)
-n_hidden = 32
-activation = relu
-output_dim = 2
-
-nn_flux = Chain(
-    Dense(input_dim, n_hidden, activation),
-    Dropout(0.1),
-    Dense(n_hidden, output_dim)
-)
-
-loss(yhat, y_julia) = Flux.Losses.logitbinarycrossentropy(nn_flux(yhat), y_julia)
-```
-
-### Train the NN_flux
-```{julia}
-using Flux.Optimise: update!, Adam
-using Statistics
-
-opt = Adam()
-avg_loss(data) = Statistics.mean(map(d -> loss(d[1],d[2]), data))
-
-# Training:
-for epoch = 1:100
-    for d in data
-        gs = gradient(Flux.params(nn_flux)) do
-            l = loss(d...)
-    end
-        update!(opt, Flux.params(nn_flux), gs)
-    end
-
-    if epoch % 5 == 0
-        @info "Epoch " * string(epoch) 
-        @show avg_loss(data)
-    end
-end
-
-M_flux = FluxModel(nn_flux, :classification_multi)
-```
-
-## Declare PyTorchModel
-```{julia}
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model, :classification_multi)
 ```
 
+## Manual testing
 ```{julia}
 Random.seed!(42)
 
@@ -151,27 +100,10 @@ target = 0
 factual = 1
 
 @info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(M_flux, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
 
 @info "Select factual"
 x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-```
-
-```{julia}
-# Define a generator:
-generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-@info "Generate M_flux"
-counterfactual_flux = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual, 
-    target, 
-    counterfactual_data, 
-    M_flux, 
-    generator;
-    max_iter=1000
-)
-
-CounterfactualExplanations.plot(counterfactual_flux; title = "M_flux path")
 ```
 
 ```{julia}
