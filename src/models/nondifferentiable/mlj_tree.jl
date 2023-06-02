@@ -81,11 +81,33 @@ function get_individual_classifiers(M::TreeModel)
 end
 
 function logits(M::TreeModel, X::AbstractArray)
-    df = DataFrame(reshape(X, 1, :), :auto)
-    return MLJBase.predict(M.model, df)
+    p = probs(M, X)
+    if M.likelihood == :classification_binary
+        output = log.(p ./ (1 .- p))
+    else
+        output = log.(p)
+    end
+    return output
 end
 
-function probs(M::TreeModel, X::AbstractArray)
-    df = DataFrame(reshape(X, 1, :), :auto)
-    return pdf(MLJBase.predict(M.model, df), MLJBase.report(M.model).classes_seen)
+function probs(M::TreeModel, X::AbstractArray{<:Number, 2})
+    output = MLJBase.predict(M.model, DataFrame(X', :auto))'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
 end
+
+function probs(M::TreeModel, X::AbstractArray{<:Number, 1})
+    X = reshape(X, 1,length(X))
+    output = MLJBase.predict(M.model, DataFrame(X, :auto))'
+    if M.likelihood == :classification_binary
+        output = reshape(output[2,:],1,size(output,2)) # binary case
+    end
+    return output
+end
+
+# function probs(M::TreeModel, X::AbstractArray{<:Number, 3})
+#     output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+#     return output
+# end
