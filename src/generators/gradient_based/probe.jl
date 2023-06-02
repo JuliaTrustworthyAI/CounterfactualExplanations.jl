@@ -19,10 +19,7 @@ A `Generator` object that can be used to generate counterfactual probes.
 based on https://arxiv.org/abs/2203.06768
 """
 function ProbeGenerator(;
-    λ::AbstractFloat=0.1,
-    loss::Symbol=:logitbinarycrossentropy,
-    penalty=distance_l1,
-    kwargs...,
+    λ::AbstractFloat=0.1, loss::Symbol=:logitcrossentropy, penalty=distance_l1, kwargs...
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = losses_catalogue[loss]
@@ -30,7 +27,7 @@ function ProbeGenerator(;
 end
 
 """
-    invalidation_rate(ce::AbstractCounterfactualExplanation; σ²=0.01, kwargs...)
+    invalidation_rate(ce::AbstractCounterfactualExplanation)
 
 Calculate the invalidation rate of a counterfactual explanation.
 
@@ -41,7 +38,7 @@ Calculate the invalidation rate of a counterfactual explanation.
 # Returns
 The invalidation rate of the counterfactual explanation.
 """
-function invalidation_rate(ce::AbstractCounterfactualExplanation; kwargs...)
+function invalidation_rate(ce::AbstractCounterfactualExplanation)
     f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[ce.target]
     grad = []
     # This has to be done with a for loop because flux does not know how to take a gradient from an array of logits.

@@ -36,6 +36,10 @@ end
 		initialization::Symbol = :add_perturbation,
 		generative_model_params::NamedTuple = (;),
 		min_success_rate::AbstractFloat=0.99,
+        converge_when::Symbol=:decision_threshold,
+        invalidation_rate::AbstractFloat=0.5,
+        learning_rate::AbstractFloat=1.0,
+        variance::AbstractFloat=0.01,
 	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
