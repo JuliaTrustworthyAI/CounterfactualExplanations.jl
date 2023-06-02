@@ -91,6 +91,54 @@ for epoch in 1:100
 end
 ```
 
+## Create a flux mlp model
+
+### Set up the NN_flux
+```{julia}
+using Flux
+
+# Data: x_julia, y_julia
+data = Flux.DataLoader((x_julia, y_julia), batchsize = 1)
+input_dim = size(x_julia, 1)
+n_hidden = 32
+activation = relu
+output_dim = 2
+
+nn_flux = Chain(
+    Dense(input_dim, n_hidden, activation),
+    Dropout(0.1),
+    Dense(n_hidden, output_dim)
+)
+
+loss(yhat, y_julia) = Flux.Losses.logitbinarycrossentropy(nn_flux(yhat), y_julia)
+```
+
+### Train the NN_flux
+```{julia}
+using Flux.Optimise: update!, Adam
+using Statistics
+
+opt = Adam()
+avg_loss(data) = Statistics.mean(map(d -> loss(d[1],d[2]), data))
+
+# Training:
+for epoch = 1:100
+    for d in data
+        gs = gradient(Flux.params(nn_flux)) do
+            l = loss(d...)
+    end
+        update!(opt, Flux.params(nn_flux), gs)
+    end
+
+    if epoch % 5 == 0
+        @info "Epoch " * string(epoch) 
+        @show avg_loss(data)
+    end
+end
+
+M_flux = FluxModel(nn_flux, :classification_multi)
+```
+
 ## Declare PyTorchModel
 ```{julia}
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model, :classification_multi)
@@ -103,30 +151,42 @@ target = 0
 factual = 1
 
 @info "Choose factual's index"
-CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data)
-# y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(M_flux, counterfactual_data) .== factual))
+
+@info "Select factual"
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ```
 
 ```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
 
+@info "Generate M_flux"
+counterfactual_flux = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    M_flux, 
+    generator;
+    max_iter=1000
+)
 
+CounterfactualExplanations.plot(counterfactual_flux; title = "M_flux path")
+```
 
+```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
 
-# @info "Select factual"
-# x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+@info "Generate counterfactual_pytorch"
+counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_pytorch, 
+    generator;
+    max_iter=1000
+)
 
-# # Define a generator:
-# generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-# @info "Generate counterfactual_pytorch"
-# counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
-#     x_random_factual, 
-#     target, 
-#     counterfactual_data, 
-#     model_pytorch, 
-#     generator;
-#     max_iter=1000
-# )
-
-# CounterfactualExplanations.plot(counterfactual_pytorch; title = "PyTorch path")
+CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
 ```
