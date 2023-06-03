@@ -1,6 +1,6 @@
-import DataFrames
-import SliceMap
-import EvoTrees
+using DataFrames: DataFrames
+using SliceMap: SliceMap
+using EvoTrees: EvoTrees
 
 """
 This type provides a basic interface to gradient-boosted tree models from the MLJ library.
@@ -77,10 +77,10 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
     output = EvoTrees.predict(M.model, X')'
     if M.likelihood == :classification_binary
-        output = reshape(output[2,:],1,size(output,2))
+        output = reshape(output[2, :], 1, size(output, 2))
     end
     return output
 end
@@ -90,11 +90,11 @@ end
 
 Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
-    X = reshape(X, 1,length(X))
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
+    X = reshape(X, 1, length(X))
     output = EvoTrees.predict(M.model, X)'
     if M.likelihood == :classification_binary
-        output = reshape(output[2,:],1,size(output,2))
+        output = reshape(output[2, :], 1, size(output, 2))
     end
     return output
 end
@@ -104,7 +104,7 @@ end
 
 Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
-    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,3})
+    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
     return output
 end
