@@ -90,8 +90,8 @@ end
 
 Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
-    X = reshape(X, 1,length(X))
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
+    X = reshape(X, 1, length(X))
     output = EvoTrees.predict(M.model, X)'
     if M.likelihood == :classification_binary
         output = reshape(output[2,:],1,size(output,2))
