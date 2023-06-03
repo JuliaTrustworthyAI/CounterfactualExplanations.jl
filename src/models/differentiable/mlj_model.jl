@@ -3,7 +3,7 @@ import SliceMap
 import EvoTrees
 
 """
-This type provides a basic interface to differentiable models from the MLJ library.
+This type provides a basic interface to gradient-boosted tree models from the MLJ library.
 However, this is not be the final version of the interface: full support for EvoTrees has not been implemented yet and the `logits` and `probs` methods will be changed in the process of doing that if needed.
 """
 
@@ -30,7 +30,7 @@ struct EvoTreeModel <: AbstractDifferentiableModel
 end
 
 """
-Outer constructor method for MLJModel.
+Outer constructor method for EvoTreeModel.
 """
 function EvoTreeModel(model::EvoTrees.GBTree; likelihood::Symbol=:classification_binary)
     return EvoTreeModel(model, likelihood)
