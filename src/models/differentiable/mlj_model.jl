@@ -77,7 +77,7 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
     output = EvoTrees.predict(M.model, X')'
     if M.likelihood == :classification_binary
         output = reshape(output[2,:],1,size(output,2))
