@@ -1,6 +1,6 @@
-import DataFrames
-import SliceMap
-import EvoTrees
+using DataFrames: DataFrames
+using SliceMap: SliceMap
+using EvoTrees: EvoTrees
 
 """
 This type provides a basic interface to differentiable models from the MLJ library.
