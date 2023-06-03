@@ -94,7 +94,7 @@ function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = EvoTrees.predict(M.model, X)'
     if M.likelihood == :classification_binary
-        output = reshape(output[2,:],1,size(output,2))
+        output = reshape(output[2, :], 1, size(output, 2))
     end
     return output
 end
