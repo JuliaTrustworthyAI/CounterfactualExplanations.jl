@@ -104,7 +104,7 @@ end
 
 Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
-    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+function probs(M::EvoTreeModel, X::AbstractArray{<:Number,3})
+    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
     return output
 end
