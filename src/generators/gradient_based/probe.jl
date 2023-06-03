@@ -19,7 +19,10 @@ A `Generator` object that can be used to generate counterfactual probes.
 based on https://arxiv.org/abs/2203.06768
 """
 function ProbeGenerator(;
-    λ::AbstractFloat=0.1, loss::Symbol=:logitcrossentropy, penalty=distance_l1, kwargs...
+    λ::AbstractFloat=0.1,
+    loss::Symbol=:logitbinarycrossentropy,
+    penalty=distance_l1,
+    kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = losses_catalogue[loss]
