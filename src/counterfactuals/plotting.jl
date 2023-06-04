@@ -1,8 +1,3 @@
-using MLJBase
-using Plots
-using Parameters
-using SliceMap
-
 """
     Plots.plot(
         ce::CounterfactualExplanation;
