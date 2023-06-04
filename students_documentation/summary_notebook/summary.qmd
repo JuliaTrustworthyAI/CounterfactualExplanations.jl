@@ -5,6 +5,8 @@ In this notebook, we document the new features that we have added to the Counter
 # Setup
 
 ```{julia}
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+
 using Pkg
 Pkg.activate("students_documentation/summary_notebook")
 
@@ -79,8 +81,6 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 ### Interface to Python models
 
 ```{julia}
-ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
-
 using PythonCall
 using Random
 ```
@@ -98,10 +98,11 @@ x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_pyt
 Load the saved PyTorch model.
 ```{julia}
 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-    "$(pwd())/dev/python_implementation_test",
-    "nn",
+    "$(pwd())/students_documentation/summary_notebook/miscellaneous",
+    "neural_network_class",
     "NeuralNetwork",
-    "$(pwd())/dev/pytorch_test/nn_test.pt")
+    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
+)
 
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
 ```

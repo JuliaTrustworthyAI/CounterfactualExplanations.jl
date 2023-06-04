@@ -1,0 +1,50 @@
+```{julia}
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+
+using Pkg
+Pkg.activate("test/testing_notebook_draft")
+
+using CounterfactualExplanations
+using Random
+using PythonCall
+using Test
+
+include("$(pwd())/test/utils.jl")
+
+# Load synthetic data, models, generators
+synthetic = _load_synthetic()
+# generators = generator_catalogue
+
+Random.seed!(0)
+```
+
+```{julia}
+@testset "PyTorch model test" begin
+    for (key, value) in synthetic
+        name = string(key)
+        @testset "$name" begin
+            x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(value[:data])
+            
+            model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+                "$(pwd())/test/miscellaneous",
+                "neural_network_class",
+                "NeuralNetwork",
+                "$(pwd())/test/miscellaneous/pretrained_model.pt"
+            )
+
+            model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)            
+            
+            @testset "$name" begin
+                @testset "Matrix of inputs" begin
+                    @test size(logits(model_pytorch, x_python))[2] == size(x_python, 2)
+                    @test size(probs(model_pytorch, x_python))[2] == size(x_python, 2)
+                end
+                @testset "Vector of inputs" begin
+                    @test size(logits(model_pytorch, x_python[:, 1]), 2) == 1
+                    @test size(probs(model_pytorch, x_python[:, 1]), 2) == 1
+                end
+            end
+        end
+    end
+end
+```
