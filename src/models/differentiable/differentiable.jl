@@ -9,7 +9,6 @@ Base type for differentiable models written in pure Julia.
 """
 abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel end
 
-
 """
 Base type for differentiable models written in Python.
 """
