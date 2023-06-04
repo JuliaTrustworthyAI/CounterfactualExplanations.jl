@@ -1,8 +1,8 @@
-# `ProbeGenerator`
-
 ``` @meta›
 CurrentModule = CounterfactualExplanations 
 ```
+# `ProbeGenerator`
+
 
 The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in algorithmic recourse. resol \## Description
 
