@@ -22,9 +22,7 @@ function pytorch_model_loader(
 )
     sys = PythonCall.pyimport("sys")
     torch = PythonCall.pyimport("torch")
-    if !in(model_path, sys.path)
-        sys.path.append(model_path)
-    end
+    sys.path.append(model_path)
     PythonCall.pyimport(model_file => class_name)
     model = torch.load(pickle_path)
     return model
