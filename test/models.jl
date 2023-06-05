@@ -6,8 +6,6 @@ using MLUtils
 using PythonCall
 using Random
 
-ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
-
 Random.seed!(0)
 torch = PythonCall.pyimport("torch")
 

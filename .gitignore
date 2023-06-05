@@ -47,3 +47,4 @@ dev/resources/*.html
 dev/artifacts/upload/
 dev/resources/build
 *.pyc
+**/.CondaPkg/

@@ -5,17 +5,17 @@ In this notebook, we document the new features that we have added to the Counter
 # Setup
 
 ```{julia}
-ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
-
 using Pkg
 Pkg.activate("students_documentation/summary_notebook")
-
+    
 # Dependencies
 using Revise
 using CounterfactualExplanations
 using Images
 using MLDatasets
 using Tidier
+using PythonCall
+using Random
 ```
 
 ## Must haves
@@ -80,12 +80,7 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 
 ### Interface to Python models
 
-```{julia}
-using PythonCall
-using Random
-```
-
-Load the data and preprocess it.
+##### Load the data and preprocess it
 ```{julia}
 # Load data
 Random.seed!(42);
@@ -95,7 +90,7 @@ counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(counterfactual_data)
 ```
 
-Load the saved PyTorch model.
+##### Load the saved PyTorch model
 ```{julia}
 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
     "$(pwd())/students_documentation/summary_notebook/miscellaneous",
@@ -107,7 +102,7 @@ model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
 ```
 
-Select a factual and generate counterfactuals for it like with any other model.
+##### Select a factual and generate counterfactuals for it like with any other model
 ```{julia}
 Random.seed!(42)
 
