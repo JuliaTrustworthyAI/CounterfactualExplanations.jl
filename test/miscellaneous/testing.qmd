@@ -23,7 +23,7 @@ Random.seed!(0)
     for (key, value) in synthetic
         name = string(key)
         @testset "$name" begin
-            x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(value[:data])
+            X = value[:data].X
             
             model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
                 "$(pwd())/test/miscellaneous",
@@ -36,12 +36,12 @@ Random.seed!(0)
             
             @testset "$name" begin
                 @testset "Matrix of inputs" begin
-                    @test size(logits(model_pytorch, x_python))[2] == size(x_python, 2)
-                    @test size(probs(model_pytorch, x_python))[2] == size(x_python, 2)
+                    @test size(logits(model_pytorch, X))[2] == size(X, 2)
+                    @test size(probs(model_pytorch, X))[2] == size(X, 2)
                 end
                 @testset "Vector of inputs" begin
-                    @test size(logits(model_pytorch, x_python[:, 1]), 2) == 1
-                    @test size(probs(model_pytorch, x_python[:, 1]), 2) == 1
+                    @test size(logits(model_pytorch, X[:, 1]), 2) == 1
+                    @test size(probs(model_pytorch, X[:, 1]), 2) == 1
                 end
             end
         end
