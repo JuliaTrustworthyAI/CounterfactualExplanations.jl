@@ -16,6 +16,25 @@ end
     pytorch_model_loader(model_path::String, model_file::String, class_name::String, pickle_path::String)
 
 Loads a previously saved PyTorch model.
+
+# Arguments
+- `model_path::String`: Path to the directory containing the model file.
+- `model_file::String`: Name of the model file.
+- `class_name::String`: Name of the model class.
+- `pickle_path::String`: Path to the pickle file containing the model.
+
+# Returns
+- `model`: The loaded PyTorch model.
+
+# Example
+```{julia}
+model = pytorch_model_loader(
+    "src/models/pretrained/pytorch",
+    "pytorch_model.py",
+    "PyTorchModel",
+    "src/models/pretrained/pytorch/pytorch_model.pkl",
+)
+```
 """
 function pytorch_model_loader(
     model_path::String, model_file::String, class_name::String, pickle_path::String

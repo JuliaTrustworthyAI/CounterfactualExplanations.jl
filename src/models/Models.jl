@@ -58,12 +58,12 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
 end
 
 export model_catalogue,
+    data_loader,
     fit_model,
     model_evaluation,
     predict_label,
     predict_proba,
-    reset!,
     pytorch_model_loader,
-    data_loader
+    reset!
 
 end

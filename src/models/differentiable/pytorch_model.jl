@@ -1,5 +1,10 @@
 using PythonCall
 
+"""
+PyTorchModel <: AbstractDifferentiablePythonModel
+
+Constructor for models trained in `PyTorch`. 
+"""
 struct PyTorchModel <: AbstractDifferentiablePythonModel
     neural_network::Any
     likelihood::Symbol
