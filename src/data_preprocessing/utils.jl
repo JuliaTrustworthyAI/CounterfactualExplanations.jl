@@ -1,4 +1,4 @@
-using PythonCall: PythonCall
+import PythonCall
 
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
