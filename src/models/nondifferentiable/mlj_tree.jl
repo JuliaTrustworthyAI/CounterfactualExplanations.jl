@@ -65,7 +65,7 @@ end
 Returns the predicted label for X.
 """
 function predict_label(M::TreeModel, X::AbstractArray)
-    return argmax(probs(M, X))[1]
+    return MLJBase.predict_mode(M.model, DataFrame(X', :auto))
 end
 
 """
@@ -91,23 +91,32 @@ function logits(M::TreeModel, X::AbstractArray)
 end
 
 function probs(M::TreeModel, X::AbstractArray{<:Number, 2})
-    output = MLJBase.predict(M.model, DataFrame(X', :auto))'
+    output = MLJBase.predict(M.model, DataFrame(X', :auto))
+
+    p = pdf(output, classes(output))'
+    
     if M.likelihood == :classification_binary
-        output = reshape(output[2,:],1,size(output,2)) # binary case
+        p = reshape(p[2,:],1,size(p,2)) # binary case
     end
-    return output
+    return p
 end
 
 function probs(M::TreeModel, X::AbstractArray{<:Number, 1})
-    X = reshape(X, 1,length(X))
-    output = MLJBase.predict(M.model, DataFrame(X, :auto))'
+    X = reshape(X, 1, length(X))
+    output = MLJBase.predict(M.model, DataFrame(X, :auto))
+
+    p = pdf(output, classes(output))'
+
     if M.likelihood == :classification_binary
-        output = reshape(output[2,:],1,size(output,2)) # binary case
+        p = reshape(p[2,:],1,size(p,2)) # binary case
     end
-    return output
+    return p
 end
 
-# function probs(M::TreeModel, X::AbstractArray{<:Number, 3})
-#     output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
-#     return output
-# end
+function probs(M::TreeModel, X::AbstractArray{<:Number, 3})
+    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+
+    p = pdf(output, classes(output))
+
+    return p
+end

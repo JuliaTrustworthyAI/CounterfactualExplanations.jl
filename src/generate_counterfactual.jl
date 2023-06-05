@@ -93,6 +93,8 @@ function generate_counterfactual(
             new_x = feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
             ce.x = new_x
             ce.search[:path] = [ce.search[:path]..., new_x]
+            ce.search[:terminated] = false
+            ce.search[:converged] = false
         end
     end
 

@@ -33,6 +33,9 @@ for (key, generator_) in generators
                     ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) in value[:models]
+                        if generator isa HeuristicBasedGenerator && !(model[:model] isa TreeModel)
+                            continue
+                        end
                         name = string(likelihood)
                         @testset "$name" begin
                             M = model[:model]

@@ -57,8 +57,7 @@ function CounterfactualExplanation(
 )
 
     # Assertions:
-    println("data: ", data)
-    println("predict_label: ", predict_label(M, data))
+    # println("predict_label: ", predict_label(M, data))
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
     @assert converge_when ∈ [:decision_threshold, :generator_conditions, :max_iter]
@@ -115,8 +114,8 @@ function CounterfactualExplanation(
             :iteration_count => 0,
             :times_changed_features => zeros(size(decode_state(ce))),
             :path => [ce.s′],
-            :terminated => true,
-            :converged => true,
+            :terminated => false,
+            :converged => false,
         )
         return ce
     end
@@ -624,6 +623,10 @@ end
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
+    if ce.M isa TreeModel && Models.predict_label(ce.M, ce.x) == ce.target
+        return true
+    end
+
     return converged(ce) || steps_exhausted(ce)
 end
 
