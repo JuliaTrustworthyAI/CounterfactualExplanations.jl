@@ -18,12 +18,8 @@ end
 Loads a previously saved PyTorch model.
 """
 function pytorch_model_loader(
-    model_path::String,
-    model_file::String,
-    class_name::String,
-    pickle_path::String
-    )
-
+    model_path::String, model_file::String, class_name::String, pickle_path::String
+)
     sys = PythonCall.pyimport("sys")
     torch = PythonCall.pyimport("torch")
     if !in(model_path, sys.path)
