@@ -29,6 +29,19 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Model Compatibility
 
+- PyTorch models
+  - Core logic:
+    - `src\models\pytorch_model.jl`
+    - `src\generators\gradient_based\functions.jl`
+  - Utility logic:
+    - `src\data_preprocessing\utils.jl`
+    - `src\models\model_utils.jl`
+  - Tests: `test\models.jl`
+  - Test utilities: `test\utils.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
+  - Report: `students_documentation\PyTorch_models_report.md`
+
 #### Exports
 
 ### Should Have Features
