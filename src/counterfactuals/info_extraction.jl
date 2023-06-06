@@ -87,7 +87,7 @@ function target_probs(
             p_target = 1 .- p
         end
     else
-        p_target = selectdim(p, 1, target_idx)
+        p_target = ChainRulesCore.selectdim(p, 1, target_idx)
     end
     return p_target
 end
