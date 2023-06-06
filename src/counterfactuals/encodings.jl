@@ -28,7 +28,7 @@ function encode_state(
     if !ce.params[:latent_space] && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        ignore_derivatives() do
+        ChainRulesCore.ignore_derivatives() do
             s = s′[idx, :]
             StatsBase.transform!(dt, s)
             s′[idx, :] = s
@@ -71,7 +71,7 @@ function decode_state(
 
         # Continuous:
         idx = transformable_features(data)
-        ignore_derivatives() do
+        ChainRulesCore.ignore_derivatives() do
             s = s′[idx, :]
             StatsBase.reconstruct!(dt, s)
             s′[idx, :] = s
