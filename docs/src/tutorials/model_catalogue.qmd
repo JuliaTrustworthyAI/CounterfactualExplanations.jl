@@ -55,7 +55,7 @@ plot(plts...)
 
 ## Importing PyTorch models
 
-To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
+The package supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model. To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
 
 ```{julia}
 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(

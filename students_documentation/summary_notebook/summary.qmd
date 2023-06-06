@@ -80,6 +80,8 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 
 ### Interface to Python models
 
+The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
+
 ##### Load the data
 ```{julia}
 # Load data
