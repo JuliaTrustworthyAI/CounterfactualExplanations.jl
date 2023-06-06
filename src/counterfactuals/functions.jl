@@ -24,7 +24,6 @@
 #     initialization::Symbol
 # end
 
-<<<<<<< HEAD
 """
 	function CounterfactualExplanation(;
 		x::AbstractArray,
@@ -69,44 +68,6 @@ function CounterfactualExplanation(
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
     @assert converge_when ∈
         [:decision_threshold, :generator_conditions, :max_iter, :invalidation_rate]
-=======
-# """
-#     function CounterfactualExplanation(;
-#         x::AbstractArray,
-#         target::RawTargetType,
-#         data::CounterfactualData,
-#         M::Models.AbstractFittedModel,
-#         generator::Generators.AbstractGenerator,
-#         max_iter::Int = 100,
-#         num_counterfactuals::Int = 1,
-#         initialization::Symbol = :add_perturbation,
-#         generative_model_params::NamedTuple = (;),
-#         min_success_rate::AbstractFloat=0.99,
-#     )
-
-# Outer method to construct a `CounterfactualExplanation` structure.
-# """
-# function CounterfactualExplanation(
-#     x::AbstractArray,
-#     target::RawTargetType,
-#     data::CounterfactualData,
-#     M::Models.AbstractFittedModel,
-#     generator::Generators.AbstractGenerator;
-#     num_counterfactuals::Int=1,
-#     initialization::Symbol=:add_perturbation,
-#     generative_model_params::NamedTuple=(;),
-#     max_iter::Int=100,
-#     decision_threshold::AbstractFloat=0.5,
-#     gradient_tol::AbstractFloat=parameters[:τ],
-#     min_success_rate::AbstractFloat=parameters[:min_success_rate],
-#     converge_when::Symbol=:decision_threshold,
-# )
-
-#     # Assertions:
-#     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-#     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
-#     @assert converge_when ∈ [:decision_threshold, :generator_conditions, :max_iter]
->>>>>>> 777e5003 (Broke up functions.jl)
 
 #     # Factual:
 #     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -114,7 +75,6 @@ function CounterfactualExplanation(
 #     # Target:
 #     target_encoded = data.output_encoder(target)
 
-<<<<<<< HEAD
     # Initial Parameters:
     params = Dict{Symbol,Any}(
         :mutability => DataPreprocessing.mutability_constraints(data),
@@ -127,17 +87,6 @@ function CounterfactualExplanation(
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
-=======
-#     # Initial Parameters:
-#     params = Dict{Symbol,Any}(
-#         :mutability => DataPreprocessing.mutability_constraints(data),
-#         :latent_space => generator.latent_space,
-#     )
-#     ids = findall(predict_label(M, data) .== target)
-#     n_candidates = minimum([size(data.y, 2), 1000])
-#     candidates = select_factual(data, rand(ids, n_candidates))
-#     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
->>>>>>> 777e5003 (Broke up functions.jl)
 
 #     # Convergence Parameters:
 #     convergence = Dict(
@@ -187,15 +136,9 @@ function CounterfactualExplanation(
 #     return ce
 # end
 
-<<<<<<< HEAD
 # 1.) Convenience methods:
 """
 	output_dim(ce::CounterfactualExplanation)
-=======
-# # 1.) Convenience methods:
-# """
-#     output_dim(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that returns the output dimension of the predictive model.
 # """
@@ -203,13 +146,8 @@ function CounterfactualExplanation(
 #     return size(Models.probs(ce.M, ce.x))[1]
 # end
 
-<<<<<<< HEAD
 """
 	guess_loss(ce::CounterfactualExplanation)
-=======
-# """
-#     guess_loss(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
 # """
@@ -228,21 +166,12 @@ function CounterfactualExplanation(
 #     return loss_fun
 # end
 
-<<<<<<< HEAD
 # 2.) Initialisation
 """
 	adjust_shape(
 		ce::CounterfactualExplanation, 
 		x::AbstractArray
 	)
-=======
-# # 2.) Initialisation
-# """
-#     adjust_shape(
-#         ce::CounterfactualExplanation, 
-#         x::AbstractArray
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that adjusts the dimensions of `x`.
 # """
@@ -251,13 +180,8 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	adjust_shape!(ce::CounterfactualExplanation)
-=======
-# """
-#     adjust_shape!(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that adjusts the dimensions of the counterfactual state and related fields.
 # """
@@ -276,19 +200,11 @@ function CounterfactualExplanation(
 #     return ce.params = params
 # end
 
-<<<<<<< HEAD
 """
 	function encode_state(
 		ce::CounterfactualExplanation, 
 		x::Union{AbstractArray,Nothing} = nothing,
 	)
-=======
-# """
-#     function encode_state(
-#         ce::CounterfactualExplanation, 
-#         x::Union{AbstractArray,Nothing} = nothing,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Applies all required encodings to `x`:
 
@@ -324,19 +240,11 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	wants_latent_space(
 		ce::CounterfactualExplanation, 
 		x::Union{AbstractArray,Nothing} = nothing,
 	)   
-=======
-# """
-#     wants_latent_space(
-#         ce::CounterfactualExplanation, 
-#         x::Union{AbstractArray,Nothing} = nothing,
-#     )   
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience function that checks if latent space search is applicable.
 # """
@@ -351,19 +259,11 @@ function CounterfactualExplanation(
 #     return latent_space
 # end
 
-<<<<<<< HEAD
 @doc raw"""
    function map_to_latent(
 		ce::CounterfactualExplanation,
 		x::Union{AbstractArray,Nothing}=nothing,
 	) 
-=======
-# @doc raw"""
-#    function map_to_latent(
-#         ce::CounterfactualExplanation,
-#         x::Union{AbstractArray,Nothing}=nothing,
-#     ) 
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Maps `x` from the feature space $\mathcal{X}$ to the latent space learned by the generative model.
 # """
@@ -388,19 +288,11 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	function decode_state(
 		ce::CounterfactualExplanation,
 		x::Union{AbstractArray,Nothing}=nothing,
 	)
-=======
-# """
-#     function decode_state(
-#         ce::CounterfactualExplanation,
-#         x::Union{AbstractArray,Nothing}=nothing,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Applies all the applicable decoding functions:
 
@@ -442,19 +334,11 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	map_from_latent(
 		ce::CounterfactualExplanation,
 		x::Union{AbstractArray,Nothing}=nothing,
 	)
-=======
-# """
-#     map_from_latent(
-#         ce::CounterfactualExplanation,
-#         x::Union{AbstractArray,Nothing}=nothing,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Maps the state variable back from the latent space to the feature space.
 # """
@@ -482,19 +366,11 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	reconstruct_cat_encoding(
 		ce::CounterfactualExplanation,
 		x::Union{AbstractArray,Nothing}=nothing,
 	)
-=======
-# """
-#     reconstruct_cat_encoding(
-#         ce::CounterfactualExplanation,
-#         x::Union{AbstractArray,Nothing}=nothing,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Reconstructs all categorical encodings. See [`DataPreprocessing.reconstruct_cat_encoding`](@ref) for details.
 # """
@@ -510,7 +386,6 @@ function CounterfactualExplanation(
 #     return s′
 # end
 
-<<<<<<< HEAD
 """
 	initialize_state(ce::CounterfactualExplanation)
 
@@ -521,18 +396,6 @@ Initializes the starting point for the factual(s):
 """
 function initialize_state(ce::CounterfactualExplanation)
     @assert ce.initialization ∈ [:identity, :add_perturbation]
-=======
-# """
-#     initialize_state(ce::CounterfactualExplanation)
-
-# Initializes the starting point for the factual(s):
-    
-# 1. If `ce.initialization` is set to `:identity` or counterfactuals are searched in a latent space, then nothing is done.
-# 2. If `ce.initialization` is set to `:add_perturbation`, then a random perturbation is added to the factual following following Slack (2021): https://arxiv.org/abs/2106.02666. The authors show that this improves adversarial robustness.
-# """
-# function initialize_state(ce::CounterfactualExplanation)
-#     @assert ce.initialization ∈ [:identity, :add_perturbation]
->>>>>>> 777e5003 (Broke up functions.jl)
 
 #     s′ = ce.s′
 #     data = ce.data
@@ -557,15 +420,9 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return s′
 # end
 
-<<<<<<< HEAD
 # 3.) Information about CE
 """
 	factual(ce::CounterfactualExplanation)
-=======
-# # 3.) Information about CE
-# """
-#     factual(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method to retrieve the factual `x`.
 # """
@@ -573,13 +430,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return ce.x
 # end
 
-<<<<<<< HEAD
 """
 	factual_probability(ce::CounterfactualExplanation)
-=======
-# """
-#     factual_probability(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method to compute the class probabilities of the factual.
 # """
@@ -587,13 +439,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return Models.probs(ce.M, ce.x)
 # end
 
-<<<<<<< HEAD
 """
 	factual_label(ce::CounterfactualExplanation)  
-=======
-# """
-#     factual_label(ce::CounterfactualExplanation)  
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method to get the predicted label associated with the factual.
 # """
@@ -604,13 +451,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return y
 # end
 
-<<<<<<< HEAD
 """
 	counterfactual(ce::CounterfactualExplanation)
-=======
-# """
-#     counterfactual(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that returns the counterfactual.
 # """
@@ -618,13 +460,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return decode_state(ce)
 # end
 
-<<<<<<< HEAD
 """
 	counterfactual_probability(ce::CounterfactualExplanation)
-=======
-# """
-#     counterfactual_probability(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that computes the class probabilities of the counterfactual.
 # """
@@ -638,13 +475,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return p
 # end
 
-<<<<<<< HEAD
 """
 	counterfactual_label(ce::CounterfactualExplanation) 
-=======
-# """
-#     counterfactual_label(ce::CounterfactualExplanation) 
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that returns the predicted label of the counterfactual.
 # """
@@ -655,19 +487,11 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return y
 # end
 
-<<<<<<< HEAD
 """
 	target_probs(
 		ce::CounterfactualExplanation,
 		x::Union{AbstractArray,Nothing}=nothing,
 	)
-=======
-# """
-#     target_probs(
-#         ce::CounterfactualExplanation,
-#         x::Union{AbstractArray,Nothing}=nothing,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Returns the predicted probability of the target class for `x`. If `x` is `nothing`, the predicted probability corresponding to the counterfactual value is returned.
 # """
@@ -691,15 +515,9 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return p_target
 # end
 
-<<<<<<< HEAD
 # 4.) Search related methods:
 """
 	path(ce::CounterfactualExplanation)
-=======
-# # 4.) Search related methods:
-# """
-#     path(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that returns the entire counterfactual path.
 # """
@@ -711,13 +529,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return path
 # end
 
-<<<<<<< HEAD
 """
 	counterfactual_probability_path(ce::CounterfactualExplanation)
-=======
-# """
-#     counterfactual_probability_path(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Returns the counterfactual probabilities for each step of the search.
 # """
@@ -727,13 +540,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return p
 # end
 
-<<<<<<< HEAD
 """
 	counterfactual_label_path(ce::CounterfactualExplanation)
-=======
-# """
-#     counterfactual_label_path(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Returns the counterfactual labels for each step of the search.
 # """
@@ -744,13 +552,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return ŷ
 # end
 
-<<<<<<< HEAD
 """
 	target_probs_path(ce::CounterfactualExplanation)
-=======
-# """
-#     target_probs_path(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Returns the target probabilities for each step of the search.
 # """
@@ -760,13 +563,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return P
 # end
 
-<<<<<<< HEAD
 """
 	embed_path(ce::CounterfactualExplanation)
-=======
-# """
-#     embed_path(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Helper function that embeds path into two dimensions for plotting.
 # """
@@ -775,19 +573,11 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return DataPreprocessing.embed(data_, path(ce))
 # end
 
-<<<<<<< HEAD
 """
 	apply_mutability(
 		ce::CounterfactualExplanation,
 		Δs′::AbstractArray,
 	)
-=======
-# """
-#     apply_mutability(
-#         ce::CounterfactualExplanation,
-#         Δs′::AbstractArray,
-#     )
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 # """
@@ -813,13 +603,8 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return Δs′
 # end
 
-<<<<<<< HEAD
 """
 	apply_domain_constraints!(ce::CounterfactualExplanation)
-=======
-# """
-#     apply_domain_constraints!(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Wrapper function that applies underlying domain constraints.
 # """
@@ -830,15 +615,9 @@ function initialize_state(ce::CounterfactualExplanation)
 #     end
 # end
 
-<<<<<<< HEAD
 # 5.) Convergence related methods:
 """
 	terminated(ce::CounterfactualExplanation)
-=======
-# # 5.) Convergence related methods:
-# """
-#     terminated(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method to determine if the counterfactual search has terminated.
 # """
@@ -846,7 +625,6 @@ function initialize_state(ce::CounterfactualExplanation)
 #     return converged(ce) || steps_exhausted(ce)
 # end
 
-<<<<<<< HEAD
 """
 	converged(ce::CounterfactualExplanation)
 
@@ -867,32 +645,12 @@ function converged(ce::CounterfactualExplanation)
     else
         @error "Convergence criterion not recognized."
     end
-=======
-# """
-#     converged(ce::CounterfactualExplanation)
-
-# A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
-# """
-# function converged(ce::CounterfactualExplanation)
-#     if ce.convergence[:converge_when] == :decision_threshold
-#         conv = threshold_reached(ce)
-#     elseif ce.convergence[:converge_when] == :generator_conditions
-#         conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
-#     elseif ce.convergence[:converge_when] == :max_iter
-#         conv = false
-#     end
->>>>>>> 777e5003 (Broke up functions.jl)
 
 #     return conv
 # end
 
-<<<<<<< HEAD
 """
 	threshold_reached(ce::CounterfactualExplanation)
-=======
-# """
-#     threshold_reached(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that determines if the predefined threshold for the target class probability has been reached.
 # """
@@ -902,13 +660,8 @@ function converged(ce::CounterfactualExplanation)
 #     return success_rate > ce.convergence[:min_success_rate]
 # end
 
-<<<<<<< HEAD
 """
 	threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
-=======
-# """
-#     threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that determines if the predefined threshold for the target class probability has been reached for a specific sample `x`.
 # """
@@ -918,13 +671,8 @@ function converged(ce::CounterfactualExplanation)
 #     return success_rate > ce.convergence[:min_success_rate]
 # end
 
-<<<<<<< HEAD
 """
 	steps_exhausted(ce::CounterfactualExplanation) 
-=======
-# """
-#     steps_exhausted(ce::CounterfactualExplanation) 
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that checks if the number of maximum iterations has been exhausted.
 # """
@@ -932,13 +680,8 @@ function converged(ce::CounterfactualExplanation)
 #     return ce.search[:iteration_count] == ce.convergence[:max_iter]
 # end
 
-<<<<<<< HEAD
 """
 	total_steps(ce::CounterfactualExplanation)
-=======
-# """
-#     total_steps(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # A convenience method that returns the total number of steps of the counterfactual search.
 # """
@@ -946,7 +689,6 @@ function converged(ce::CounterfactualExplanation)
 #     return ce.search[:iteration_count]
 # end
 
-<<<<<<< HEAD
 # UPDATES
 """
 	update!(ce::CounterfactualExplanation) 
@@ -963,20 +705,6 @@ function update!(ce::CounterfactualExplanation)
     Δs′ = Generators.generate_perturbations(ce.generator, ce)
     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
     s′ = ce.s′ + ce.params[:learning_rate] .* Δs′                         # new proposed state
-=======
-# # UPDATES
-# """
-#     update!(ce::CounterfactualExplanation) 
-
-# An important subroutine that updates the counterfactual explanation. It takes a snapshot of the current counterfactual search state and passes it to the generator. Based on the current state the generator generates perturbations. Various constraints are then applied to the proposed vector of feature perturbations. Finally, the counterfactual search state is updated.
-# """
-# function update!(ce::CounterfactualExplanation)
-
-#     # Generate peturbations:
-#     Δs′ = Generators.generate_perturbations(ce.generator, ce)
-#     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
-#     s′ = ce.s′ + Δs′                        # new proposed state
->>>>>>> 777e5003 (Broke up functions.jl)
 
 #     # Updates:
 #     ce.s′ = s′                                                  # update counterfactual
@@ -991,13 +719,8 @@ function update!(ce::CounterfactualExplanation)
 #     return ce.search[:terminated] = terminated(ce)
 # end
 
-<<<<<<< HEAD
 """
 	get_meta(ce::CounterfactualExplanation)
-=======
-# """
-#     get_meta(ce::CounterfactualExplanation)
->>>>>>> 777e5003 (Broke up functions.jl)
 
 # Returns meta data for a counterfactual explanation.
 # """
