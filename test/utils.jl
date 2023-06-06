@@ -75,16 +75,11 @@ function train_and_save_model(data::CounterfactualData, model_path::String, pick
     for epoch in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
-        println(output)
         loss = loss_fun(output, y_python.t())
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-        if (epoch % 5 == 0)
-            @info "Loss at epoch $epoch: $(loss.item())"
-        end
     end
 
     torch.save(model, pickle_path)
