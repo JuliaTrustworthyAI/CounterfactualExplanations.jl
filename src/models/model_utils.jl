@@ -41,9 +41,29 @@ function pytorch_model_loader(
 )
     sys = PythonCall.pyimport("sys")
     torch = PythonCall.pyimport("torch")
+
+    # Check whether the paths are correct
+    if !endswith(model_file, ".py")
+        throw(
+                ArgumentError(
+                    "model_file must end with '.py'"
+                ),
+            )
+    end
+
+    if !endswith(pickle_path, ".pt")
+        throw(
+                ArgumentError(
+                    "pickle_path must end with '.pt'"
+                ),
+            )
+    end
+
+    # Make sure Python is able to import the module
     if !in(model_path, sys.path)
         sys.path.append(model_path)
     end
+
     PythonCall.pyimport(model_file => class_name)
     model = torch.load(pickle_path)
     return model
