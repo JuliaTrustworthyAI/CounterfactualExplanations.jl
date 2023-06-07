@@ -46,3 +46,5 @@ dev/resources/*.html
 /.quarto/
 dev/artifacts/upload/
 dev/resources/build
+*.pyc
+**/.CondaPkg/

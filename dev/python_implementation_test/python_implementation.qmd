@@ -1,0 +1,162 @@
+# Testing implementation of PyTorchModel and figuring out how to load PyTorch model
+
+## Set-up
+Loading a local version of the package
+```{julia}
+using Pkg
+Pkg.activate("$(pwd())/dev/python_implementation_test")
+
+# We decided not to use CONDA
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+
+# Dependencies
+using Revise
+using PythonCall
+using CounterfactualExplanations
+using Random
+```
+
+## Load data
+Loading data and preprocessing it
+```{julia}
+# Load data
+Random.seed!(42);
+N = 100
+
+counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
+
+x_julia = counterfactual_data.X
+y_julia = counterfactual_data.y
+
+# Convert data to tensors
+torch = PythonCall.pyimport("torch")
+np = PythonCall.pyimport("numpy")
+
+x_python = Float32.(counterfactual_data.X)
+x_python = np.array(x_python)
+x_python = torch.tensor(x_python).T
+
+y_python = Float32.(counterfactual_data.y)
+y_python = np.array(y_python)
+y_python = torch.tensor(y_python)
+```
+
+```{julia}
+sys = PythonCall.pyimport("sys")
+os = PythonCall.pyimport("os")
+sys.path.append("$(pwd())/dev/python_implementation_test")
+model = PythonCall.pyimport("neural_network_class" => "NeuralNetwork")()
+
+optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+loss_fun = torch.nn.BCEWithLogitsLoss()
+
+# Training
+for epoch in 1:100
+    # Compute prediction and loss:
+    output = model(x_python).squeeze()
+    loss = loss_fun(output, y_python.t())
+    # Backpropagation:
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if (epoch % 5 == 0)
+        @info "Loss at epoch $epoch: $(loss.item())"
+    end
+end
+
+torch.save(model, "dev/pytorch_test/nn_test.pt")
+```
+
+## PyTorch model
+Creating and training a PyTorch model
+```{julia}
+# MLP = PythonCall.pytype("NeuralNetwork", (torch.nn.Module,), [
+#     "__module__" => "__main__",
+
+#     pyfunc(
+#         name = "__init__",
+#         function(self)
+#             torch.nn.Module.__init__(self)
+#             self.model = torch.nn.Sequential(
+#                 torch.nn.Flatten(),
+#                 torch.nn.Linear(2, 32),
+#                 torch.nn.Sigmoid(),
+#                 torch.nn.Linear(32, 2)
+#             )
+#             return
+#         end
+#     ),
+
+#     pyfunc(
+#         name = "forward",
+#         function(self, x)
+#             return self.model(x)
+#         end
+#     )
+# ])
+
+# # Instantiate
+# model = MLP()
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+# loss_fun = torch.nn.BCEWithLogitsLoss()
+
+# # Training
+# for epoch in 1:100
+#     # Compute prediction and loss:
+#     output = model(x_python).squeeze()
+#     loss = loss_fun(output, y_python.t())
+#     # Backpropagation:
+#     optimizer.zero_grad()
+#     loss.backward()
+#     optimizer.step()
+
+#     if (epoch % 5 == 0)
+#         @info "Loss at epoch $epoch: $(loss.item())"
+#     end
+# end
+
+# torch.save(model, "dev/pytorch_test/nn_test.pt")
+
+# model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model, :classification_multi)
+
+
+# model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+#     "$(pwd())/dev/python_implementation_test",
+#     "neural_network_class",
+#     "NeuralNetwork",
+#     "$(pwd())/dev/pytorch_test/nn_test.pt")
+
+# model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
+```
+
+## Manual testing
+```{julia}
+Random.seed!(42)
+
+target = 0
+factual = 1
+
+@info "Choose factual's index"
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
+
+@info "Select factual"
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+```
+
+```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
+
+@info "Generate counterfactual_pytorch"
+counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_pytorch, 
+    generator;
+    max_iter=1000
+)
+
+CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
+```

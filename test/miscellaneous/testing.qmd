@@ -1,0 +1,153 @@
+```{julia}
+ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
+
+using Pkg
+Pkg.activate("test/testing_notebook_draft")
+
+using CounterfactualExplanations
+using Random
+using PythonCall
+using Test
+
+include("$(pwd())/test/utils.jl")
+
+# Load synthetic data, models, generators
+synthetic = _load_synthetic()
+# generators = generator_catalogue
+
+Random.seed!(0)
+torch = PythonCall.pyimport("torch")
+```
+
+```{julia}
+@testset "PyTorch model test" begin
+    model_path = "$(pwd())/test/miscellaneous"
+    model_file = "neural_network_class"
+    class_name = "NeuralNetwork"
+    pickle_path = "$(pwd())/test/miscellaneous/pretrained_model.pt"
+
+    for (key, value) in synthetic
+        name = string(key)
+        @testset "$name" begin
+            data = value[:data]
+            X = data.X
+
+            create_new_model(data)
+            train_and_save_model(data, model_path, pickle_path)
+            
+            model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+                model_path,
+                model_file,
+                class_name,
+                pickle_path
+            )
+
+            model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, data.likelihood)            
+            
+            @testset "$name" begin
+                @testset "Matrix of inputs" begin
+                    @test size(logits(model_pytorch, X))[2] == size(X, 2)
+                    @test size(probs(model_pytorch, X))[2] == size(X, 2)
+                end
+                @testset "Vector of inputs" begin
+                    @test size(logits(model_pytorch, X[:, 1]), 2) == 1
+                    @test size(probs(model_pytorch, X[:, 1]), 2) == 1
+                end
+            end
+
+            remove_python_file("$(pwd())/test/miscellaneous/neural_network_class.py")
+            remove_python_file(pickle_path)
+        end
+    end
+end
+```
+
+```{julia}
+using Printf
+
+function create_new_model(data::CounterfactualData)
+    in_size = size(data.X)[1]
+    out_size = size(data.y)[1]
+
+    class_str = """
+    from torch import nn
+
+    class NeuralNetwork(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.model = nn.Sequential(
+                nn.Flatten(),
+                nn.Linear($(in_size), 32),
+                nn.Sigmoid(),
+                nn.Linear(32, $(out_size))
+            )
+
+        def forward(self, x):
+            return self.model(x)
+    """
+
+    open("$(pwd())/test/miscellaneous/neural_network_class.py", "w") do f
+        @printf(f, "%s", class_str)
+    end
+end
+```
+
+```{julia}
+function train_and_save_model(data::CounterfactualData, model_path::String, pickle_path::String)
+    sys = PythonCall.pyimport("sys")
+    if !in(model_path, sys.path)
+        sys.path.append("$(pwd())/test/miscellaneous")
+    end
+
+    importlib = PythonCall.pyimport("importlib")
+    neural_network_class = importlib.import_module("neural_network_class")
+    importlib.reload(neural_network_class)
+    NeuralNetwork = neural_network_class.NeuralNetwork
+    model = NeuralNetwork()
+
+    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    loss_fun = torch.nn.BCEWithLogitsLoss()
+
+    # Training
+    for epoch in 1:100
+        # Compute prediction and loss:
+        output = model(x_python).squeeze()
+        println(output)
+        loss = loss_fun(output, y_python.t())
+        # Backpropagation:
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if (epoch % 5 == 0)
+            @info "Loss at epoch $epoch: $(loss.item())"
+        end
+    end
+
+    torch.save(model, pickle_path)
+end
+```
+
+```{julia}
+function remove_python_file(filename::String)
+    try
+        rm(filename)  # removes the file
+        println("File $filename removed successfully.")
+    catch e
+        println("Error occurred while removing file $filename: $e")
+    end
+end
+```
+
+```{julia}
+function remove_pickle_file(filename::String)
+    try
+        rm(filename)  # removes the file
+        println("File $filename removed successfully.")
+    catch e
+        println("Error occurred while removing file $filename: $e")
+    end
+end
+```

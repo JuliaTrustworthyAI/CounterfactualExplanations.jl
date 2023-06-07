@@ -5,7 +5,7 @@ using ..DataPreprocessing
 using Parameters
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel
 export flux_training_params
 export probs, logits
 
@@ -57,6 +57,13 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
     return M
 end
 
-export model_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
+export model_catalogue,
+    data_loader,
+    fit_model,
+    model_evaluation,
+    predict_label,
+    predict_proba,
+    pytorch_model_loader,
+    reset!
 
 end
