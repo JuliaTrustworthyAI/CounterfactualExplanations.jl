@@ -6,13 +6,14 @@ using PythonCall
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, ce::AbstractCounterfactualExplanation)
 
 Method for computing the gradient of the loss function at the current counterfactual state for gradient-based generators operating on native Julia models.
-It assumes that `Zygote.jl` has gradient access.
-"""
+The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators.
+
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator,
     M::Models.AbstractDifferentiableJuliaModel,
     ce::AbstractCounterfactualExplanation,
 )
+    gs = 0
     gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     return gs
 end
@@ -75,7 +76,11 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce)
+    ℓ = 0
+    if (ce.convergence[:converge_when] == :invalidation_rate)
+        ℓ = hinge_loss(ce)
+    end
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ ℓ
 end
 
 """
