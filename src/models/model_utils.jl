@@ -42,15 +42,7 @@ function pytorch_model_loader(
     sys = PythonCall.pyimport("sys")
     torch = PythonCall.pyimport("torch")
 
-    # Check whether the paths are correct
-    if !endswith(model_file, ".py")
-        throw(
-                ArgumentError(
-                    "model_file must end with '.py'"
-                ),
-            )
-    end
-
+    # Check whether the path is correct
     if !endswith(pickle_path, ".pt")
         throw(
                 ArgumentError(
