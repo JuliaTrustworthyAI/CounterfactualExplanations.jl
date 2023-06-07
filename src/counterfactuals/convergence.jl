@@ -19,6 +19,13 @@ function converged(ce::CounterfactualExplanation)
         conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
     elseif ce.convergence[:converge_when] == :max_iter
         conv = false
+    elseif ce.convergence[:converge_when] == :invalidation_rate
+        ir = Generators.invalidation_rate(ce)
+        # gets the label from an array, not sure why it is an array though.
+        label = predict_label(ce.M, ce.data, decode_state(ce))[1]
+        conv = label == ce.target && ce.params[:invalidation_rate] > ir
+    else
+        @error "Convergence criterion not recognized."
     end
 
     return conv

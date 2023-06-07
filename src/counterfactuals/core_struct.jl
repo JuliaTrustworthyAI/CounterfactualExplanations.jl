@@ -18,18 +18,22 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
 end
 
 """
-    function CounterfactualExplanation(;
-        x::AbstractArray,
-        target::RawTargetType,
-        data::CounterfactualData,
-        M::Models.AbstractFittedModel,
-        generator::Generators.AbstractGenerator,
-        max_iter::Int = 100,
-        num_counterfactuals::Int = 1,
-        initialization::Symbol = :add_perturbation,
-        generative_model_params::NamedTuple = (;),
-        min_success_rate::AbstractFloat=0.99,
-    )
+	function CounterfactualExplanation(;
+		x::AbstractArray,
+		target::RawTargetType,
+		data::CounterfactualData,
+		M::Models.AbstractFittedModel,
+		generator::Generators.AbstractGenerator,
+		max_iter::Int = 100,
+		num_counterfactuals::Int = 1,
+		initialization::Symbol = :add_perturbation,
+		generative_model_params::NamedTuple = (;),
+		min_success_rate::AbstractFloat=0.99,
+        converge_when::Symbol=:decision_threshold,
+        invalidation_rate::AbstractFloat=0.5,
+        learning_rate::AbstractFloat=1.0,
+        variance::AbstractFloat=0.01,
+	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
 """
@@ -47,12 +51,16 @@ function CounterfactualExplanation(
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
+    invalidation_rate::AbstractFloat=0.5,
+    learning_rate::AbstractFloat=1.0,
+    variance::AbstractFloat=0.01,
 )
 
     # Assertions:
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
-    @assert converge_when ∈ [:decision_threshold, :generator_conditions, :max_iter]
+    @assert converge_when ∈
+        [:decision_threshold, :generator_conditions, :max_iter, :invalidation_rate]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -64,6 +72,9 @@ function CounterfactualExplanation(
     params = Dict{Symbol,Any}(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
+        :invalidation_rate => invalidation_rate,
+        :learning_rate => learning_rate,
+        :variance => variance,
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
