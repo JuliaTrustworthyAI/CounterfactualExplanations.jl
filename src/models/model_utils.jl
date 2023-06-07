@@ -32,7 +32,7 @@ model = pytorch_model_loader(
     "src/models/pretrained/pytorch",
     "pytorch_model.py",
     "PyTorchModel",
-    "src/models/pretrained/pytorch/pytorch_model.pkl",
+    "src/models/pretrained/pytorch/pytorch_model.pt",
 )
 ```
 """

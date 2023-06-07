@@ -82,6 +82,15 @@ end
     preprocess_python_data(data::CounterfactualData)
 
 Converts a `CounterfactualData` object to an input tensor and a label tensor.
+
+# Arguments
+- `data::CounterfactualData`: The data to be converted.
+
+# Returns
+- `(x_python::Py, y_python::Py)`: A tuple of tensors resulting from the conversion, `x_python` holding the features and `y_python` holding the labels.
+
+# Example
+x_python, y_python = preprocess_python_data(counterfactual_data) # converts `counterfactual_data` to tensors `x_python` and `y_python
 """
 function preprocess_python_data(data::CounterfactualData)
     x_julia = data.X
