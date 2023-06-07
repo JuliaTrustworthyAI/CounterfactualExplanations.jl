@@ -1,0 +1,4 @@
+[deps]
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
+CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
