@@ -1,0 +1,4 @@
+```{julia}
+import Pkg
+Pkg.activate("$(pwd())/dev/R_call_implementation")
+```
