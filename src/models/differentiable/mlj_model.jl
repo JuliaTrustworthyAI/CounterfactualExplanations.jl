@@ -1,6 +1,7 @@
-using DataFrames: DataFrames
-using SliceMap: SliceMap
-using EvoTrees: EvoTrees
+using DataFrames
+using SliceMap
+using EvoTrees
+using MLJBase
 
 """
 This type provides a basic interface to gradient-boosted tree models from the MLJ library.
@@ -13,15 +14,15 @@ However, this is not be the final version of the interface: full support for Evo
 Constructor for gradient-boosted decision trees from the EvoTrees.jl library. 
 """
 struct EvoTreeModel <: AbstractDifferentiableModel
-    model::EvoTrees.GBTree
+    model::Any
     likelihood::Symbol
-    function MLJModel(model, likelihood)
+    function EvoTreeModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
         else
             throw(
                 ArgumentError(
-                    "`type` should be in `[:classification_binary,:classification_multi].
+                    "`type` should be in `[:classification_binary, :classification_multi]1.
                     Support for regressors has not been implemented yet.`"
                 ),
             )
@@ -32,7 +33,7 @@ end
 """
 Outer constructor method for EvoTreeModel.
 """
-function EvoTreeModel(model::EvoTrees.GBTree; likelihood::Symbol=:classification_binary)
+function EvoTreeModel(model::Any; likelihood::Symbol=:classification_binary)
     return EvoTreeModel(model, likelihood)
 end
 
@@ -78,33 +79,52 @@ Calculates the probability scores for each output class for the two-dimensional 
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
-    output = EvoTrees.predict(M.model, X')'
-    if M.likelihood == :classification_binary
-        output = reshape(output[2, :], 1, size(output, 2))
-    end
-    return output
+    output = MLJBase.predict(M.model, DataFrame(X', :auto))
+    p = pdf(output, classes(output))'
+    return p
 end
 
 """
     probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
 
-Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
+Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
-    output = EvoTrees.predict(M.model, X)'
-    if M.likelihood == :classification_binary
-        output = reshape(output[2, :], 1, size(output, 2))
-    end
-    return output
+    output = MLJBase.predict(M.model, DataFrame(X, :auto))
+    p = pdf(output, classes(output))'
+    return p
 end
 
 """
     probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
 
-Works the same way as the probs(M::MLJModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
+Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,3})
-    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    return output
+    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+    p = pdf(output, classes(output))
+    return p
+end
+
+
+"""
+The two methods below have been implemented only for testing purposes.
+"""
+function EvoTreeModel(data::CounterfactualData; kwargs...)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
+
+    X = Float32.(X)
+    y = Float32.(y)[1, :]
+
+    model = EvoTrees.EvoTreeClassifier()
+    df_x = DataFrame(X', :auto)
+    mach = machine(model, df_x, categorical(y))
+
+    return EvoTreeModel(mach, data.likelihood)
+end
+
+function train(M::EvoTreeModel, data::CounterfactualData; kwargs...)
+    MLJBase.fit!(M.model)
+    return M
 end
