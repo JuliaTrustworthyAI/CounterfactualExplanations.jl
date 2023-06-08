@@ -1,15 +1,36 @@
 module Data
 
-using CounterfactualExplanations
-using ..GenerativeModels
-using ..Models
 using Random
+using LazyArtifacts
+
+using CounterfactualExplanations: CounterfactualData
+using MLJBase: make_blobs, make_circles, make_moons
+using MLJBase: fit!, machine, transform, categorical
+using CSV: read
+using DataFrames: DataFrame, Not
+using MLJModels: ContinuousEncoder, OneHotEncoder, Standardizer
+using CounterfactualExplanations.DataPreprocessing: subsample
+
+using Flux: flatten
+using MLDatasets: MNIST, FashionMNIST, CIFAR10
 
 const data_seed = 42
+data_dir = joinpath(artifact"data-tabular", "data-tabular")
 
-include("synthetic.jl")
-include("tabular.jl")
-include("vision.jl")
+include("synthetic/blobs.jl")
+include("synthetic/circles.jl")
+include("synthetic/linearly_separable.jl")
+include("synthetic/moons.jl")
+include("synthetic/multi_class.jl")
+include("synthetic/overlapping.jl")
+
+include("tabular/california_housing.jl")
+include("tabular/credit_default.jl")
+include("tabular/gmsc.jl")
+
+include("vision/cifar_10.jl")
+include("vision/fashion_mnist.jl")
+include("vision/mnist.jl")
 
 "A dictionary that provides an overview of the various benchmark datasets and the methods to load them."
 const data_catalogue = Dict(
