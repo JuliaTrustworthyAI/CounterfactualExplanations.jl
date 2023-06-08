@@ -29,8 +29,8 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Model Compatibility
 
-- Models from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
-  - Logic: `src\models\differentiable\mlj_model.jl`
+- EvoTreeClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
+  - Logic: `src\models\differentiable\evotree_model.jl`
   - Tests: `test\models.jl`
   - Example: `students_documentation\summary_notebook\summary.qmd`
   - Summary of our efforts to make MLJ models compatible with the generators: `students_documentation\MLJ_models_report.md`

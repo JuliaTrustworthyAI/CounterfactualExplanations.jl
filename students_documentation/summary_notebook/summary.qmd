@@ -79,9 +79,9 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 
 ### Added models
 
-#### Models from the MLJ library
+#### The `EvoTreeClassifier` model
 
-Added a basic interface that allows the user to load and use MLJ models within the package.
+Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
 
 ```{julia}
 n = 500
@@ -89,9 +89,13 @@ counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
 M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
 ```
 
-The five lines of code seen above generalize to any differentiable classifier from the MLJ library. The only change the user has to make is to change the ``classifier = @load EvoTreeClassifier pkg=EvoTrees`` line to load a different model: for example, ``classifier = @load NeuralNetworkClassifier pkg=MLJFlux``.
+The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
 
-It's important to note, though, that not all of the MLJ models that can be loaded this way are compatible with the generators offered by the package yet. However, having a simple interface to all MLJ models means that it will be much easier for future developers of the package to implement the support required to generate counterfactual explanations for all of these models.
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+```
+
+Now, the models can be used as part of the package like any other model. However, creating counterfactuals for this model is not supported yet.
 
 ```{julia}
 x = float32.([1, -0.5])

@@ -75,3 +75,28 @@ function subsample(data::CounterfactualData, n::Int)
 
     return new_data
 end
+
+"""
+    preprocess_data_for_mlj(data::CounterfactualData)
+
+Helper function to preprocess `data::CounterfactualData` for MLJ models.
+
+# Arguments
+- `data::CounterfactualData`: The data to be preprocessed.
+
+# Returns
+- (`df_x`, `y`): A tuple containing the preprocessed data, with `df_x` being a DataFrame object and `y` being a categorical vector.
+
+# Example
+X, y = preprocess_data_for_mlj(data)
+"""
+function preprocess_data_for_mlj(data::CounterfactualData)
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
+
+    X = Float32.(X)
+    y = Float32.(y)[1, :]
+
+    df_x = DataFrame(X', :auto)
+    y = categorical(y)
+    return df_x, y
+end

@@ -23,7 +23,7 @@ model_catalogue
 
 As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
 
-## Fitting Models
+## Fitting Flux Models
 
 First, let's load one of the synthetic datasets:
 
@@ -51,7 +51,7 @@ end
 plot(plts...)
 ```
 
-## Tuning Models
+## Tuning Flux Models
 
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
 
@@ -121,6 +121,29 @@ Finally, let's restore the default training parameters:
 ```{julia}
 CounterfactualExplanations.reset!(flux_training_params)
 ```
+
+## Tuning MLJ models
+
+Among MLJ models, only the EvoTreeClassifier is supported thus far. Tuning the EvoTreeClassifier is very simple. As the first step, let's reload the dataset:
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+```
+
+Using the usual procedure for defining models, we can call the following method:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
+```
+
+However, it's also possible to tune the EvoTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+```
+
+All tunable parameters of the `EvoTreeClassifier` are supported as keyword arguments. The tunable parameters can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/).
 
 ## References
 
