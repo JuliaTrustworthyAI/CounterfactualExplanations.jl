@@ -33,6 +33,10 @@ for (key, generator_) in generators
                     ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) in value[:models]
+                        # Support for generating counterfactuals for EvoTrees has not been implemented yet
+                        if model == :EvoTree
+                            continue
+                        end
                         name = string(likelihood)
                         @testset "$name" begin
                             M = model[:model]
