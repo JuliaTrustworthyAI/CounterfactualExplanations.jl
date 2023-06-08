@@ -17,14 +17,6 @@ struct EvoTreeModel <: AbstractDifferentiableModel
     model::Any
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)
-        if model != EvoTrees.EvoTreeClassifier
-            throw(
-                ArgumentError(
-                    "`model` should be of type `EvoTrees.EvoTreeClassifier`.
-                    Support for other models from `EvoTrees.jl` has not been implemented.`"
-                ),
-            )
-        end
         if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
         else

@@ -1,3 +1,5 @@
+using DataFrames
+
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 
