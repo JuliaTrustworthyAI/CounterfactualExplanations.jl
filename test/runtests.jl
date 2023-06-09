@@ -36,9 +36,12 @@ generators = generator_catalogue
     #     include("counterfactuals.jl")
     # end
 
-    # @testset "Generators" begin
-    #     include("generators.jl")
-    # end
+    @testset "Generators" begin
+        include("generators.jl")
+    end
+    @testset "Probe" begin
+        include("probe.jl")
+    end
 
     @testset "Model" begin
         include("models.jl")
