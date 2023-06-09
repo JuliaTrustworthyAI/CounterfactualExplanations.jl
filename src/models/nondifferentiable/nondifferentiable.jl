@@ -1,4 +1,3 @@
-
 """
 Base type for non-differentiable models.
 """

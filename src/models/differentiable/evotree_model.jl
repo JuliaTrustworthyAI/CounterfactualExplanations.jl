@@ -5,13 +5,20 @@ using MLJBase
 
 """
 This type provides a basic interface to gradient-boosted tree models from the MLJ library.
-However, this is not be the final version of the interface: full support for EvoTrees has not been implemented yet and the `logits` and `probs` methods will be changed in the process of doing that if needed.
+However, this might not be the final version of the interface: full support for generating counterfactual explanations for EvoTrees has not been implemented yet.
 """
 
 """
     EvoTreeModel <: AbstractMLJModel
 
-Constructor for gradient-boosted decision trees from the EvoTrees.jl library. 
+Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
+
+# Arguments
+- `model::Any`: The model selected by the user. Must be a model from the MLJ library.
+- `likelihood::Symbol`: The likelihood of the model. Must be one of `[:classification_binary, :classification_multi]`.
+
+# Returns
+- `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
 struct EvoTreeModel <: AbstractDifferentiableModel
     model::Any
@@ -22,7 +29,7 @@ struct EvoTreeModel <: AbstractDifferentiableModel
         else
             throw(
                 ArgumentError(
-                    "`type` should be in `[:classification_binary, :classification_multi]1.
+                    "`type` should be in `[:classification_binary, :classification_multi].
                     Support for regressors has not been implemented yet.`"
                 ),
             )
@@ -80,7 +87,7 @@ probabilities = Models.probs(M, X) # calculates the probability scores for each 
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
     output = MLJBase.predict(M.model, DataFrame(X', :auto))
-    p = pdf(output, classes(output))'
+    p = MLJBase.pdf(output, MLJBase.classes(output))'
     return p
 end
 
@@ -92,7 +99,7 @@ Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) 
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = MLJBase.predict(M.model, DataFrame(X, :auto))
-    p = pdf(output, classes(output))'
+    p = MLJBase.pdf(output, MLJBase.classes(output))'
     return p
 end
 
@@ -102,8 +109,10 @@ end
 Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,3})
+    # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
+    # and then calls the probs method for 1- and 2-dimensional input data on those slices
     output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = pdf(output, classes(output))
+    p = MLJBase.pdf(output, MLJBase.classes(output))
     return p
 end
 
@@ -131,7 +140,7 @@ end
 """
     train(M::EvoTreeModel, data::CounterfactualData; kwargs...)
 
-Fits the model `M`` to the data in the `CounterfactualData` object.
+Fits the model `M` to the data in the `CounterfactualData` object.
 This method is not called by the user directly.
 
 # Arguments
