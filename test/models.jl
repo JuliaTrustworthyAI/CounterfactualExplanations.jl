@@ -66,7 +66,7 @@ end
                 end
             end
         
-            remove_python_file("$(pwd())/neural_network_class.py")
+            remove_python_file("$(pwd())/test/neural_network_class.py")
             remove_python_file(pickle_path)
         end
     end
