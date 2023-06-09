@@ -28,7 +28,7 @@ function get_target(counterfactual_data::CounterfactualData, factual_label::RawT
     return target
 end
 
-function create_new_model(data::CounterfactualData)
+function create_new_model(data::CounterfactualData, model_path::String)
     in_size = size(data.X)[1]
     out_size = size(data.y)[1]
 
@@ -49,15 +49,16 @@ function create_new_model(data::CounterfactualData)
             return self.model(x)
     """
 
-    open("$(pwd())/neural_network_class.py", "w") do f
+    open(model_path, "w") do f
         @printf(f, "%s", class_str)
     end
 end
 
-function train_and_save_model(data::CounterfactualData, model_path::String, pickle_path::String)
+function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
     sys = PythonCall.pyimport("sys")
-    if !in(model_path, sys.path)
-        sys.path.append(model_path)
+
+    if !in(model_location, sys.path)
+        sys.path.append(model_location)
     end
 
     importlib = PythonCall.pyimport("importlib")
@@ -72,10 +73,11 @@ function train_and_save_model(data::CounterfactualData, model_path::String, pick
     loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
-    for epoch in 1:100
+    for _ in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
         loss = loss_fun(output, y_python.t())
+        print(output)
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
@@ -85,20 +87,11 @@ function train_and_save_model(data::CounterfactualData, model_path::String, pick
     torch.save(model, pickle_path)
 end
 
-function remove_python_file(filename::String)
+function remove_file(file_path::String)
     try
-        rm(filename)  # removes the file
-        println("File $filename removed successfully.")
+        rm(file_path)  # removes the file
+        println("File $file_path removed successfully.")
     catch e
-        println("Error occurred while removing file $filename: $e")
-    end
-end
-
-function remove_pickle_file(filename::String)
-    try
-        rm(filename)  # removes the file
-        println("File $filename removed successfully.")
-    catch e
-        println("Error occurred while removing file $filename: $e")
+        println("Error occurred while removing file $file_path: $e")
     end
 end

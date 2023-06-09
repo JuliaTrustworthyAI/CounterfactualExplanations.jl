@@ -32,9 +32,10 @@ torch = PythonCall.pyimport("torch")
 end
 
 @testset "PyTorch model test" begin
-    model_path = "$(pwd())"
     model_file = "neural_network_class"
     class_name = "NeuralNetwork"
+    model_location = "$(pwd())"
+    model_path = "$(pwd())/neural_network_class.py"
     pickle_path = "$(pwd())/pretrained_model.pt"
 
     for (key, value) in synthetic
@@ -43,11 +44,12 @@ end
             data = value[:data]
             X = data.X
 
-            create_new_model(data)
-            train_and_save_model(data, model_path, pickle_path)
+            # Create and save model in the model_path directory
+            create_new_model(data, model_path)
+            train_and_save_model(data, model_location, pickle_path)
             
             model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-                model_path,
+                model_location,
                 model_file,
                 class_name,
                 pickle_path
@@ -66,8 +68,8 @@ end
                 end
             end
         
-            remove_python_file("$(pwd())/test/neural_network_class.py")
-            remove_python_file(pickle_path)
+            remove_file(model_path)
+            remove_file(pickle_path)
         end
     end
 end

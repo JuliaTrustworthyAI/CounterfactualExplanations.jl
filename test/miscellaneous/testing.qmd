@@ -1,8 +1,6 @@
 ```{julia}
-ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
-
 using Pkg
-Pkg.activate("test/testing_notebook_draft")
+Pkg.activate("$(pwd())/test/miscellaneous")
 
 using CounterfactualExplanations
 using Random
@@ -21,9 +19,10 @@ torch = PythonCall.pyimport("torch")
 
 ```{julia}
 @testset "PyTorch model test" begin
-    model_path = "$(pwd())/test/miscellaneous"
     model_file = "neural_network_class"
     class_name = "NeuralNetwork"
+    model_location = "$(pwd())/test/miscellaneous"
+    model_path = "$(pwd())/test/miscellaneous/neural_network_class.py"
     pickle_path = "$(pwd())/test/miscellaneous/pretrained_model.pt"
 
     for (key, value) in synthetic
@@ -32,11 +31,11 @@ torch = PythonCall.pyimport("torch")
             data = value[:data]
             X = data.X
 
-            create_new_model(data)
-            train_and_save_model(data, model_path, pickle_path)
+            create_new_model(data, model_path)
+            train_and_save_model(data, model_location, pickle_path)
             
             model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-                model_path,
+                model_location,
                 model_file,
                 class_name,
                 pickle_path
@@ -55,8 +54,8 @@ torch = PythonCall.pyimport("torch")
                 end
             end
 
-            remove_python_file("$(pwd())/test/miscellaneous/neural_network_class.py")
-            remove_python_file(pickle_path)
+            remove_file(model_path)
+            remove_file(pickle_path)
         end
     end
 end
@@ -65,7 +64,7 @@ end
 ```{julia}
 using Printf
 
-function create_new_model(data::CounterfactualData)
+function create_new_model(data::CounterfactualData, model_path::String)
     in_size = size(data.X)[1]
     out_size = size(data.y)[1]
 
@@ -86,17 +85,18 @@ function create_new_model(data::CounterfactualData)
             return self.model(x)
     """
 
-    open("$(pwd())/test/miscellaneous/neural_network_class.py", "w") do f
+    open(model_path, "w") do f
         @printf(f, "%s", class_str)
     end
 end
 ```
 
 ```{julia}
-function train_and_save_model(data::CounterfactualData, model_path::String, pickle_path::String)
+function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
     sys = PythonCall.pyimport("sys")
-    if !in(model_path, sys.path)
-        sys.path.append("$(pwd())/test/miscellaneous")
+
+    if !in(model_location, sys.path)
+        sys.path.append(model_location)
     end
 
     importlib = PythonCall.pyimport("importlib")
@@ -111,19 +111,15 @@ function train_and_save_model(data::CounterfactualData, model_path::String, pick
     loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
-    for epoch in 1:100
+    for _ in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
-        println(output)
+        print(output)
         loss = loss_fun(output, y_python.t())
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-        if (epoch % 5 == 0)
-            @info "Loss at epoch $epoch: $(loss.item())"
-        end
     end
 
     torch.save(model, pickle_path)
@@ -131,23 +127,12 @@ end
 ```
 
 ```{julia}
-function remove_python_file(filename::String)
+function remove_file(file_path::String)
     try
-        rm(filename)  # removes the file
-        println("File $filename removed successfully.")
+        rm(file_path)  # removes the file
+        println("File $file_path removed successfully.")
     catch e
-        println("Error occurred while removing file $filename: $e")
-    end
-end
-```
-
-```{julia}
-function remove_pickle_file(filename::String)
-    try
-        rm(filename)  # removes the file
-        println("File $filename removed successfully.")
-    catch e
-        println("Error occurred while removing file $filename: $e")
+        println("Error occurred while removing file $file_path: $e")
     end
 end
 ```
