@@ -27,7 +27,6 @@ for (key, generator_) in generators
         @testset "Models for synthetic data" begin
             for (key, value) in synthetic
                 name = string(key)
-                
                 @testset "$name" begin
                     counterfactual_data = value[:data]
                     X = counterfactual_data.X
