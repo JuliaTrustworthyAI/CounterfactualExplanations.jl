@@ -36,7 +36,7 @@ for (key, generator_) in generators
                     for (likelihood, model) in value[:models]
                         # Support for generating counterfactuals for EvoTreeModel is not yet implemented
                         if typeof(model[:model]) == CounterfactualExplanations.Models.EvoTreeModel
-                            @Test true
+                            @test true
                             continue
                         end
                         name = string(likelihood)
