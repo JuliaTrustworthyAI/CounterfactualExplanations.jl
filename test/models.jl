@@ -28,3 +28,24 @@ using Random
         end
     end
 end
+
+@testset "EvoTree model" begin
+    for (key, value) in synthetic
+        name = string(key)
+        @testset "$name" begin
+            model = CounterfactualExplanations.Models.fit_model(value[:data], :EvoTree)
+            X = value[:data].X
+
+            @testset "$name" begin
+                @testset "Matrix of inputs" begin
+                    @test size(logits(model, X))[2] == size(X, 2)
+                    @test size(probs(model, X))[2] == size(X, 2)
+                end
+                @testset "Vector of inputs" begin
+                    @test size(logits(model, X[:, 1]), 2) == 1
+                    @test size(probs(model, X[:, 1]), 2) == 1
+                end
+            end
+        end
+    end
+end

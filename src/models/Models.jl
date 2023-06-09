@@ -33,12 +33,20 @@ include("pretrained.jl")
 
 A dictionary containing all trainable machine learning models.
 """
-const model_catalogue = Dict(
+const model_catalogue = Dict(:Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble)
+
+"""
+    all_models_catalogue
+
+A dictionary containing both trainable and non-trainable machine learning models.
+"""
+const all_models_catalogue = Dict(
     :Linear => Linear,
     :MLP => FluxModel,
     :DeepEnsemble => FluxEnsemble,
+    :LaplaceRedux => LaplaceReduxModel,
     :EvoTree => EvoTreeModel,
-)
+    )
 
 """
     fit_model(
@@ -49,10 +57,10 @@ const model_catalogue = Dict(
 Fits one of the available default models to the `counterfactual_data`. The `model` argument can be used to specify the desired model. The available values correspond to the keys of the [`model_catalogue`](@ref) dictionary.
 """
 function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; kwrgs...)
-    @assert model in keys(model_catalogue) "Specified model does not match any of the models available in the `model_catalogue`."
+    @assert model in keys(all_models_catalogue) "Specified model does not match any of the models available in the `model_catalogue`."
 
     # Set up:
-    M = model_catalogue[model](counterfactual_data; kwrgs...)
+    M = all_models_catalogue[model](counterfactual_data; kwrgs...)
 
     # Train:
     train(M, counterfactual_data)
