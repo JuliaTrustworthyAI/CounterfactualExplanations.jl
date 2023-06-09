@@ -33,7 +33,9 @@ include("pretrained.jl")
 
 A dictionary containing all trainable machine learning models.
 """
-const model_catalogue = Dict(:Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble)
+const model_catalogue = Dict(
+    :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble
+)
 
 """
     all_models_catalogue
@@ -46,7 +48,7 @@ const all_models_catalogue = Dict(
     :DeepEnsemble => FluxEnsemble,
     :LaplaceRedux => LaplaceReduxModel,
     :EvoTree => EvoTreeModel,
-    )
+)
 
 """
     fit_model(
