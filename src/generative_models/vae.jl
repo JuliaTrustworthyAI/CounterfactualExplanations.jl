@@ -7,22 +7,13 @@
 # Adopted from Flux Model zoo: 
 # https://github.com/FluxML/model-zoo/blob/master/vision/vae_mnist/vae_mnist.jl
 
-using CUDA
-using Flux
-using Flux: @functor, chunk, DataLoader
-using Flux.Losses: logitbinarycrossentropy, mse
-using Parameters: @with_kw
-using ProgressMeter
-using Random
-using Statistics
-
 """
     get_data(X::AbstractArray, y::AbstractArray, batch_size)
 
 Preparing data for mini-batch training .
 """
 function get_data(X::AbstractArray, y::AbstractArray, batch_size)
-    return DataLoader((X, y); batchsize=batch_size, shuffle=true)
+    return Flux.DataLoader((X, y); batchsize=batch_size, shuffle=true)
 end
 
 """
@@ -35,7 +26,7 @@ struct Encoder
     μ::Any
     logσ::Any
 end
-@functor Encoder
+Flux.@functor Encoder
 
 function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
     return Encoder(
@@ -84,7 +75,7 @@ end
 
 The default VAE parameters describing both the encoder/decoder architecture and the training process.
 """
-@with_kw mutable struct VAEParams <: AbstractGMParams
+Parameters.@with_kw mutable struct VAEParams <: AbstractGMParams
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization parameter
     batch_size = 50         # batch size
@@ -95,7 +86,7 @@ The default VAE parameters describing both the encoder/decoder architecture and 
     latent_dim = 2          # latent dimension
     hidden_dim = 32         # hidden dimension
     verbose_freq = 10       # logging for every verbose_freq iterations
-    nll = mse               # negative log likelihood -log(p(x|z)): MSE for Gaussian, logit binary cross-entropy for Bernoulli
+    nll = Flux.Losses.mse               # negative log likelihood -log(p(x|z)): MSE for Gaussian, logit binary cross-entropy for Bernoulli
     opt = Adam(η)           # optimizer
 end
 
