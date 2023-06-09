@@ -31,9 +31,18 @@ mach = machine(M, df, categorical(y)) |> fit!
 ```
 
 ```{julia}
+DecisionTree.predict_proba(model, float32.([1.0,1.0]))
+DecisionTree.predict(model, float32.([-1.0,0.5]))
+```
+
+```{julia}
+DecisionTree.predict(model, float32.([2, 0]))
+```
+
+```{julia}
+target = 0
 M = Models.TreeModel(mach)
 x = float32.([1, -0.5])
-target = 0
 generator = FeatureTweakGenerator(ϵ=0.1)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```

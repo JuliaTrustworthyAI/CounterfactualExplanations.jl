@@ -34,6 +34,9 @@ for (key, generator_) in generators
                     ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) in value[:models]
+                        if generator isa HeuristicBasedGenerator && !(model[:model] isa TreeModel)
+                            continue
+                        end
                         name = string(likelihood)
                         @testset "$name" begin
                             M = model[:model]
@@ -86,12 +89,15 @@ for (key, generator_) in generators
                                         max_iter=max_iter,
                                         decision_threshold=γ,
                                     )
-                                    using CounterfactualExplanations:
-                                        counterfactual_probability
-                                    @test !converged(counterfactual) ||
-                                        target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                    @test !converged(counterfactual) ||
-                                        length(path(counterfactual)) <= max_iter
+                                    # heuristic based generators don't use gradients and therefore dont check for convergence
+                                    if !(generator isa HeuristicBasedGenerator)
+                                        using CounterfactualExplanations:
+                                            counterfactual_probability
+                                        @test !converged(counterfactual) ||
+                                            target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                        @test !converged(counterfactual) ||
+                                            length(path(counterfactual)) <= max_iter
+                                    end
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
@@ -110,7 +116,9 @@ for (key, generator_) in generators
                                         generator;
                                         decision_threshold=γ,
                                     )
-                                    @test length(path(counterfactual)) == 1
+                                    if !(M isa TreeModel)
+                                        @test length(path(counterfactual)) == 1
+                                    end
                                     @test maximum(
                                         abs.(
                                             counterfactual.x .-

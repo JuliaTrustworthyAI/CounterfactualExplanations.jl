@@ -10,10 +10,10 @@ using MLJBase
 Constructor for tree-based models from the MLJ library. 
 """
 struct TreeModel <: AbstractNonDifferentiableJuliaModel
-    mach::Any
+    model::Any
     likelihood::Symbol
-    function TreeModel(mach, likelihood)
-        if !(mach.model isa MLJDecisionTreeInterface.DecisionTreeClassifier || mach.model isa MLJDecisionTreeInterface.RandomForestClassifier)
+    function TreeModel(model, likelihood)
+        if !(model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier || model.model isa MLJDecisionTreeInterface.RandomForestClassifier)
             throw(
                 ArgumentError(
                     "model should be of type DecisionTreeClassifier or RandomForestClassifier",
@@ -21,7 +21,7 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
                 )
         end
         if likelihood == :classification_binary
-            new(mach, likelihood)
+            new(model, likelihood)
         elseif likelihood == :classification_multi
             throw(
                 ArgumentError(
@@ -38,12 +38,24 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
     end
 end
 
-
 """
 Outer constructor method for TreeModel.
 """
-function TreeModel(mach::Any; likelihood::Symbol=:classification_binary)
-    return TreeModel(mach, likelihood)
+function TreeModel(model::Any; likelihood::Symbol=:classification_binary)
+    return TreeModel(model, likelihood)
+end
+
+function TreeModel(data::CounterfactualData; likelihood::Symbol=:classification_binary)
+    M = DecisionTreeClassifier()
+    X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
+
+    X = Float32.(X)
+    y = string.(y[2,:])
+
+    df = DataFrame(X', :auto)
+    model = machine(M, df, categorical(y)) |> MLJBase.fit!
+
+    return TreeModel(model, likelihood)
 end
 
 # Methods
@@ -53,7 +65,7 @@ end
 Returns the predicted label for X.
 """
 function predict_label(M::TreeModel, X::AbstractArray)
-    return argmax(probs(M, X))[1]
+    return MLJBase.predict_mode(M.model, DataFrame(X', :auto))
 end
 
 """
@@ -62,18 +74,49 @@ end
 Returns the individual classifiers in the forest.
 """
 function get_individual_classifiers(M::TreeModel)
-    if M.mach.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
-        return [M.mach.model]
+    if M.model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
+        return [M.model.model]
     end
-    return M.mach.model.trees
+    return M.model.model.trees
 end
 
 function logits(M::TreeModel, X::AbstractArray)
-    df = DataFrame(reshape(X, 1, :), :auto)
-    return MLJBase.predict(M.mach, df)
+    p = probs(M, X)
+    if M.likelihood == :classification_binary
+        output = log.(p ./ (1 .- p))
+    else
+        output = log.(p)
+    end
+    return output
 end
 
-function probs(M::TreeModel, X::AbstractArray)
-    df = DataFrame(reshape(X, 1, :), :auto)
-    return pdf(MLJBase.predict(M.mach, df), MLJBase.report(M.mach).classes_seen)
+function probs(M::TreeModel, X::AbstractArray{<:Number, 2})
+    output = MLJBase.predict(M.model, DataFrame(X', :auto))
+
+    p = pdf(output, classes(output))'
+    
+    if M.likelihood == :classification_binary
+        p = reshape(p[2,:],1,size(p,2)) # binary case
+    end
+    return p
+end
+
+function probs(M::TreeModel, X::AbstractArray{<:Number, 1})
+    X = reshape(X, 1, length(X))
+    output = MLJBase.predict(M.model, DataFrame(X, :auto))
+
+    p = pdf(output, classes(output))'
+
+    if M.likelihood == :classification_binary
+        p = reshape(p[2,:],1,size(p,2)) # binary case
+    end
+    return p
+end
+
+function probs(M::TreeModel, X::AbstractArray{<:Number, 3})
+    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+
+    p = pdf(output, classes(output))
+
+    return p
 end

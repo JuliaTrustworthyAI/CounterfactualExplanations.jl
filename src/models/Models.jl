@@ -5,7 +5,7 @@ using ..DataPreprocessing
 using Parameters
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, MLJModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, TreeModel
 export flux_training_params
 export probs, logits
 
@@ -70,8 +70,9 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
     M = all_models_catalogue[model](counterfactual_data; kwrgs...)
 
     # Train:
-    train(M, counterfactual_data)
-
+    if !isa(M, TreeModel)
+        train(M, counterfactual_data)
+    end
     return M
 end
 
