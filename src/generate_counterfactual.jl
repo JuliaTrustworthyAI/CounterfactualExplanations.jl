@@ -1,9 +1,9 @@
 # -------- Main method:
 """
-    generate_counterfactual(
-        x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-        γ::AbstractFloat=0.75, max_iter=1000
-    )
+	generate_counterfactual(
+		x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
+		γ::AbstractFloat=0.75, max_iter=1000
+	)
 
 The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. 
 Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
@@ -55,6 +55,9 @@ function generate_counterfactual(
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
+    invalidation_rate::AbstractFloat=0.1,
+    learning_rate::AbstractFloat=1.0,
+    variance::AbstractFloat=0.01,
 )
     # Initialize:
     ce = CounterfactualExplanation(
@@ -71,6 +74,9 @@ function generate_counterfactual(
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
         converge_when=converge_when,
+        invalidation_rate=invalidation_rate,
+        learning_rate=learning_rate,
+        variance=variance,
     )
 
     # Search:

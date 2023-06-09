@@ -91,6 +91,53 @@ CSV.write(joinpath(data_path, "credit_default.csv"), df_balanced)
 generate_artifacts(data_path; artifact_name=artifact_name)
 ```
 
+### Statlog German Credit
 
+Fetching the data using Python (run this in the Python REPL):
 
+```{.python}
+import os
+import numpy as np
+import pandas as pd
+import io
+import re
 
+from urllib.request import urlopen
+
+# Fetch dataset from the internet
+url = "http://archive.ics.uci.edu/ml/machine-learning-databases/statlog/german/german.data-numeric#sthash.5uGaT1gR.dpuf"
+raw_data = urlopen(url).read()
+
+# Decode bytes to string
+data_str = raw_data.decode('utf-8')
+
+# Swap multiple spaces between values to one space only
+data_str_fixed = re.sub(' +', ' ', data_str)
+
+# Remove leading and trailing spaces from each line
+data_str_fixed = '\n'.join(line.strip() for line in data_str_fixed.split('\n'))
+
+# Translate the dataset into a dataframe
+input_stream = io.StringIO(data_str_fixed)
+df = pd.read_csv(input_stream, delimiter=' ', header=None)
+
+data_path = "dev/artifacts/upload/data/tabular"
+
+if not os.path.isdir(os.path.join(data_path,"raw")):
+    os.makedirs(os.path.join(data_path,"raw"))
+
+df.to_csv(os.path.join(data_path,"raw/german_credit.csv"), index=False)
+```
+
+Loading the data into Julia session and saving it.
+
+```{julia}
+df = CSV.read(joinpath(data_path, "raw/german_credit.csv"), DataFrame)
+CSV.write(joinpath(data_path, "german_credit.csv"), df)
+```
+
+Create artifacts:
+
+```{julia}
+generate_artifacts(data_path; artifact_name=artifact_name)
+```
