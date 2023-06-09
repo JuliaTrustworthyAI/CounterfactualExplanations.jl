@@ -7,9 +7,6 @@
 using Pkg
 Pkg.activate("$(pwd())/dev/pytorch_test")
 
-# We decided not to use CONDA
-ENV["JULIA_CONDAPKG_BACKEND"] = "Null"
-
 # Dependencies
 using Revise
 using PythonCall
@@ -46,8 +43,6 @@ y_python = torch.tensor(y_python)
 
 ### PyTorch model declaration 
 ```{julia}
-# TODO: implement a function which allows user to specify all details of the neural network 
-
 MLP = PythonCall.pytype("MLP", (torch.nn.Module,), [
     "__module__" => "__main__",
 
@@ -138,7 +133,12 @@ model_pytorch = MyPyTorchModel(model, :classification_multi)
 import CounterfactualExplanations.Generators: ∂ℓ
 using LinearAlgebra
 
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyPyTorchModel, counterfactual_state::CounterfactualExplanation)
+function ∂ℓ(
+        generator::AbstractGradientBasedGenerator, 
+        M::MyPyTorchModel, 
+        counterfactual_state::CounterfactualExplanation
+    )
+
     x = counterfactual_state.x
     target = Float32.(counterfactual_state.target_encoded)
 
@@ -222,7 +222,11 @@ target = 0
 factual = 1
 
 @info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(predict_label(model_pytorch, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(
+    findall(
+        predict_label(model_pytorch, counterfactual_data) .== factual
+    )
+)
 
 @info "Select factual"
 x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)

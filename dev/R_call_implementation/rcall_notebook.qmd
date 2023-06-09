@@ -1,5 +1,8 @@
 # Setup
 
+## Set up
+
+### Install dependencies
 ```{julia}
 import Pkg
 Pkg.activate("$(pwd())/dev/R_call_implementation")
@@ -7,80 +10,38 @@ Pkg.activate("$(pwd())/dev/R_call_implementation")
 using RCall
 using CounterfactualExplanations
 using Revise
+using PythonCall
 ```
 
-# Declare RTorchModel
-```{julia}
-using CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs
-
-struct RTorchModel <: AbstractDifferentiableModel
-    nn::Any
-end
-
-function logits(M::RTorchModel, X::AbstractArray)
-  nn = M.nn
-  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
-  ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ'
-end
-
-probs(M::RTorchModel, X::AbstractArray)= σ.(logits(M, X))
-```
-```{julia}
-import CounterfactualExplanations.Generators: ∂ℓ
-
-# Loss function for RCall model
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::RTorchModel, counterfactual_state::CounterfactualExplanation) 
-    nn = M.nn
-    x = counterfactual_state.x
-    t = counterfactual_state.target_encoded
-
-    R"""
-    x <- torch_tensor($x, requires_grad=TRUE)
-    output <- $nn(x)
-    obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
-    obj_loss$backward()
-    """
-
-    grad = RCall.rcopy(R"as_array(x$grad)")
-
-    return grad
-end
-```
-
-# Legacy notebook
-
-To get started we will first load some two-dimensional toy data:
+### Load data
 
 ```{julia}
+using Random
+
 Random.seed!(42);
 N = 100
 
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 
-x = counterfactual_data.X
-y = counterfactual_data.y
+x = Float32.(counterfactual_data.X)
+y = Float32.(counterfactual_data.y)
 ```
 
-## `torch` model trained in R
+## Implement and train RTorch model
 
-The code below builds a simple MLP in R:
-
-!!!PROBLEM: `ERROR: REvalError: Error in library(torch) : there is no package called 'torch'`
+### RTorch model declaration
 ```{julia}
-using RCall
 R"""
 # Data
 library(torch)
 X <- torch_tensor(t($x))
-ys <- torch_tensor($y)
+ys <- torch_tensor(t($y))
 
 # Model:
 mlp <- nn_module(
   initialize = function() {
     self$layer1 <- nn_linear(2, 32)
-    self$layer2 <- nn_linear(32, 1)
+    self$layer2 <- nn_linear(32, 2)
   },
   forward = function(input) {
     input <- self$layer1(input)
@@ -89,113 +50,169 @@ mlp <- nn_module(
     input
   }
 )
+"""
+```
 
+### Instantiate RTorch model, optimizer and loss functions
+```{julia}
+R"""
 model <- mlp()
 optimizer <- optim_adam(model$parameters, lr = 0.1)
 loss_fun <- nnf_binary_cross_entropy_with_logits
 """
 ```
 
-The following code trains the MLP for the binary prediction task at hand:
+### Training
 
 ```{julia}
 R"""
-for (epoch in 1:100) {
+for (epoch in 1:50) {
   model$train()  
   # Compute prediction and loss:
-  output <- model(X)[,1]
+  output <- model(X)
   loss <- loss_fun(output, ys)
   # Backpropagation:
   optimizer$zero_grad()
   loss$backward()
   optimizer$step()
-  
+
   cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
 }
 """
 ```
 
-```{julia}
-M = RTorchModel(R"model")
-```
+## Declare RTorchModel
 
-### Making the model compatible
-
-As always we need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. As evident from the code below, this is actually quite straight-forward: the logits are returned by the `torch` model and copied form R into the Julia environment. Probabilities are then computed in Julia, by passing the logits through the sigmoid function.
-
+### RTorchModel class
 ```{julia}
 using Flux
-using CounterfactualExplanations, CounterfactualExplanations.Models
-import CounterfactualExplanations.Models: logits, probs # import functions in order to extend
-# Step 1)
-struct MyRTorchModel <: Models.AbstractDifferentiableModel
+using CounterfactualExplanations.Models
+import CounterfactualExplanations.Models: logits, probs
+
+struct RTorchModel <: AbstractDifferentiableModel
     nn::Any
+    likelihood::Symbol
 end
-# Step 2)
-function logits(M::MyRTorchModel, X::AbstractArray)
-  nn = M.nn
-  ŷ = rcopy(R"as_array($nn(torch_tensor(t($X))))")
+
+function logits(model::RTorchModel, x::AbstractArray)
+  if !isa(x, Matrix)
+      x = reshape(x, length(x), 1)
+  end
+
+  model_nn = model.nn
+
+  ŷ = rcopy(R"as_array($model_nn(torch_tensor(t($x))))")
   ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
-  return ŷ'
+
+  return transpose(ŷ)
 end
-probs(M::MyRTorchModel, X::AbstractArray)= σ.(logits(M, X))
-M = MyRTorchModel(R"model")
+
+function probs(model::RTorchModel, x::AbstractArray) 
+  if model.likelihood == :classification_binary
+    return σ.(logits(model, x))
+  elseif model.likelihood == :classification_multi
+    return softmax(logits(model, x)) 
+  end
+end
+
+r_torch_model = RTorchModel(R"model", :classification_multi)
 ```
 
-### Adapting the generator
-
-Next we need to do a tiny bit of work on the `AbstractGenerator` side. By default methods underlying the `GenericGenerator` are desiged to work with models that have gradient access through `Zygote.jl`, one of Julia's main autodifferentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search: `∂ℓ(generator::GenericGenerator, x′, M, t)`. In particular, we will extend the function by a method that is specific to the `MyRTorchModel` type we defined above. The code below implements this: our new method `∂ℓ` calls R in order to use `torch`'s autodifferentiation functionality for computing the gradient. 
-
+### Declare ∂ℓ
 ```{julia}
 import CounterfactualExplanations.Generators: ∂ℓ
-using LinearAlgebra
-# Counterfactual loss:
-function ∂ℓ(generator::AbstractGradientBasedGenerator, M::MyRTorchModel, counterfactual_state::CounterfactualState) 
-  nn = M.nn
-  x′ = counterfactual_state.x′
-  t = counterfactual_state.target_encoded
+
+# Loss function for RCall model
+function ∂ℓ(
+    generator::AbstractGradientBasedGenerator, 
+    model::RTorchModel, 
+    ce::CounterfactualExplanation
+  ) 
+  x = ce.x
+  target = Float32.(ce.target_encoded)
+
+  model_nn = model.nn
+
   R"""
-  x <- torch_tensor($x′, requires_grad=TRUE)
-  output <- $nn(x)
-  obj_loss <- nnf_binary_cross_entropy_with_logits(output,$t)
+  x <- torch_tensor(t($x), requires_grad=TRUE)
+  target <- torch_tensor(t($target))
+  output <- $model_nn(x)
+  obj_loss <- nnf_binary_cross_entropy_with_logits(output, target)
   obj_loss$backward()
   """
-  grad = rcopy(R"as_array(x$grad)")
+
+  grad = RCall.rcopy(R"t(as_array(x$grad))")
+  grad = Float32.(grad)
+
   return grad
 end
 ```
 
-### Generating counterfactuals
+## Testing models
 
-From here on onwards we use the `CounterfactualExplanations.jl` functionality as always. Below we choose a random sample, define our generic generator and finally run the search:
-
+### Select random factual
 ```{julia}
 # Randomly selected factual:
-Random.seed!(123)
-x = select_factual(counterfactual_data, rand(1:length(xs))) 
-y = round(probs(M, x)[1])
-target = ifelse(y==1.0,0.0,1.0) # opposite label as target
+Random.seed!(42)
+
+target = 0
+factual = 1
+
+y_chosen_factual_idx = rand(
+  findall(
+    predict_label(r_torch_model, counterfactual_data) .== factual
+  )
+)
+
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ```
 
+### Generate counterfactual
 ```{julia}
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
-counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator)
+counterfactual = generate_counterfactual(
+  x_random_factual, 
+  target, 
+  counterfactual_data, 
+  r_torch_model, 
+  generator
+)
 ```
 
 ```{julia}
-#| echo: false
-T = total_steps(counterfactual)
-X_path = reduce(hcat,path(counterfactual))
-ŷ = target_probs(counterfactual,X_path)
-p1 = plot_contour(X',ys,M;colorbar=false, title="Posterior predictive")
-anim = @animate for t in 1:T
-    scatter!(p1, [path(counterfactual)[t][1]], [path(counterfactual)[t][2]], ms=5, color=Int(y), label="")
-    p2 = plot(1:t, ŷ[1:t], xlim=(0,T), ylim=(0, 1), label="p(y′=" * string(target) * ")", title="Validity", lc=:black)
-    Plots.abline!(p2,0,counterfactual.params[:γ],label="threshold γ", ls=:dash) # decision boundary
-    plot(p1,p2,size=(800,400))
-end
-gif(anim, joinpath(www_path, "interop_r.gif"), fps=5)
+CounterfactualExplanations.plot(counterfactual; title = "RTorch path")
+```
+
+## Save RTorch model
+
+```{julia}
+m = r_torch_model.nn
+
+R"""
+library(torchvision)
+model = $m
+print(model)
+save(model, file = "dev/R_call_implementation/model.pth")
+"""
+```
+
+## Load RTorch model
+
+```{julia}
+R"""
+loaded_model <- load("dev/R_call_implementation/model.pth")
+print(loaded_model)
+"""
+```
+
+## Interoperatbility
+
+```{julia}
+re = pyimport("re")
+words = re.findall("[a-zA-Z]+", "PythonCall.jl is very useful!")
+
+torch = pyimport("torch")
 ```
 
