@@ -34,6 +34,7 @@ for (key, generator_) in generators
                     ys_cold = vec(counterfactual_data.y)
 
                     for (likelihood, model) in value[:models]
+                        # Support for generating counterfactuals for EvoTreeModel is not yet implemented
                         if typeof(model[:model]) == CounterfactualExplanations.Models.EvoTreeModel
                             @Test true
                             continue
