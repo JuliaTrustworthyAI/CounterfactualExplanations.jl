@@ -1,9 +1,3 @@
-using MLJBase
-using MultivariateStats
-using Plots
-using Random
-using UMAP
-
 _n_neighbors(tfn::UMAP.UMAP_) = size(tfn.knns, 1)
 
 function MultivariateStats.predict(tfn::UMAP.UMAP_, X::AbstractArray)

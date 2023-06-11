@@ -75,3 +75,35 @@ function subsample(data::CounterfactualData, n::Int)
 
     return new_data
 end
+
+"""
+    input_dim(counterfactual_data::CounterfactualData)
+
+Helper function that returns the input dimension (number of features) of the data. 
+
+"""
+input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
+
+"""
+    unpack_data(data::CounterfactualData)
+
+Helper function that unpacks data.
+"""
+function unpack_data(data::CounterfactualData)
+    return data.X, data.y
+end
+
+"""
+    select_factual(counterfactual_data::CounterfactualData, index::Int)
+
+A convenience method that can be used to access the the feature matrix.
+"""
+function select_factual(counterfactual_data::CounterfactualData, index::Int)
+    return reshape(collect(selectdim(counterfactual_data.X, 2, index)), :, 1)
+end
+function select_factual(
+    counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}
+)
+    return zip([select_factual(counterfactual_data, i) for i in index])
+end
+
