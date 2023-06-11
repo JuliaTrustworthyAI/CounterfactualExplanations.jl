@@ -116,7 +116,7 @@ function CounterfactualExplanation(
     )
 
     # Initialization:
-    adjust_shape!(ce)                                           # adjust shape to specified number of counterfactuals
+    adjust_shape!(ce)                   # adjust shape to specified number of counterfactuals
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
 
@@ -634,8 +634,11 @@ end
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    if ce.M isa TreeModel && Models.predict_label(ce.M, ce.x) == ce.target
-        return true
+    if ce.M isa TreeModel
+        if Models.predict_label(ce.M, ce.s′)[1] == ce.target
+            return true
+        end
+        return false
     end
 
     return converged(ce) || steps_exhausted(ce)
@@ -747,7 +750,7 @@ end
 
 function Base.show(io::IO, z::CounterfactualExplanation)
     if z.generator isa Generators.HeuristicBasedGenerator
-        return
+        return nothing
     end
     println(io, "")
     if z.search[:iteration_count] > 0

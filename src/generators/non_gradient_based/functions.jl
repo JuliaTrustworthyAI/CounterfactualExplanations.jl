@@ -8,11 +8,13 @@ using MLJDecisionTreeInterface
 
 Return a path index list with the inequality symbols, thresholds and feature indices.
 """
-function search_path(tree::Union{Leaf, DecisionTree.Node}, target::RawTargetType, path::AbstractArray=[])
+function search_path(
+    tree::Union{Leaf,DecisionTree.Node}, target::RawTargetType, path::AbstractArray=[]
+)
     # Check if the current tree is a leaf
     if DecisionTree.is_leaf(tree)
         # Check if the leaf's majority value matches the target
-        if tree.majority == target + 1
+        if tree.majority == target
             return [path]
         else
             return []
@@ -20,12 +22,36 @@ function search_path(tree::Union{Leaf, DecisionTree.Node}, target::RawTargetType
     else
         # Search the left and right subtrees
         paths = []
-        append!(paths, search_path(tree.left, target, vcat(path, Dict("inequality_symbol" => 0, 
-                                                                      "threshold" => tree.featval,
-                                                                      "feature" => tree.featid))))
-        append!(paths, search_path(tree.right, target, vcat(path, Dict("inequality_symbol" => 1, 
-                                                                       "threshold" => tree.featval,
-                                                                       "feature" => tree.featid))))
+        append!(
+            paths,
+            search_path(
+                tree.left,
+                target,
+                vcat(
+                    path,
+                    Dict(
+                        "inequality_symbol" => 0,
+                        "threshold" => tree.featval,
+                        "feature" => tree.featid,
+                    ),
+                ),
+            ),
+        )
+        append!(
+            paths,
+            search_path(
+                tree.right,
+                target,
+                vcat(
+                    path,
+                    Dict(
+                        "inequality_symbol" => 1,
+                        "threshold" => tree.featval,
+                        "feature" => tree.featid,
+                    ),
+                ),
+            ),
+        )
         return paths
     end
 end
@@ -35,7 +61,9 @@ end
 
 Calls `search_path` on the root node of a decision tree.
 """
-function search_path(model::MLJDecisionTreeInterface.DecisionTreeClassifier, target::RawTargetType)
+function search_path(
+    model::MLJDecisionTreeInterface.DecisionTreeClassifier, target::RawTargetType
+)
     return search_path(model.root.node, target)
 end
 
@@ -44,7 +72,9 @@ end
 
 Calls `search_path` on the root node of a random forest.
 """
-function search_path(model::MLJDecisionTreeInterface.RandomForestClassifier, target::RawTargetType)
+function search_path(
+    model::MLJDecisionTreeInterface.RandomForestClassifier, target::RawTargetType
+)
     paths = []
     for tree in model.trees
         append!(paths, search_path(tree, target))
@@ -57,7 +87,16 @@ end
 
 Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
 """
-function feature_tweaking(generator::HeuristicBasedGenerator, M::Models.TreeModel, x::AbstractArray, target::RawTargetType)
+function feature_tweaking(
+    generator::HeuristicBasedGenerator,
+    M::Models.TreeModel,
+    x::AbstractArray,
+    target::RawTargetType,
+)
+    if predict_label(M, x)[1] == target
+        return x
+    end
+
     x_out = deepcopy(x)
     machine = M.model
     delta = 10^3
@@ -68,13 +107,13 @@ function feature_tweaking(generator::HeuristicBasedGenerator, M::Models.TreeMode
     # for tree in Models.get_individual_classifiers(M)
     #     classifier = Models.TreeModel(tree, :classification_binary)
     #     if ensemble_prediction == predict_label(classifier, x) &&
-    #         predict_label(classifier, x) != classes[target + 1]
-            
+    #         predict_label(classifier, x) != classes[target]
+
     paths = search_path(model, target)
     for key in keys(paths)
         path = paths[key]
         es_instance = esatisfactory_instance(generator, x, path)
-        if predict_label(M, es_instance) == target + 1
+        if target .== predict_label(M, es_instance)[1]
             if LinearAlgebra.norm(x - es_instance) < delta
                 x_out = es_instance
                 delta = LinearAlgebra.norm(x - es_instance)
@@ -91,7 +130,9 @@ end
 
 Returns an epsilon-satisfactory instance of `x` based on the paths provided.
 """
-function esatisfactory_instance(generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray)
+function esatisfactory_instance(
+    generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray
+)
     esatisfactory = deepcopy(x)
     for path in paths
         feature_idx = path["feature"]

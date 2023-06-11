@@ -65,14 +65,12 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
 
     # Set up:
     M = all_models_catalogue[model](counterfactual_data; kwrgs...)
+    train(M, counterfactual_data)
 
-    # Train:
-    if !isa(M, TreeModel)
-        train(M, counterfactual_data)
-    end
     return M
 end
 
-export standard_models_catalogue, all_models_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
+export standard_models_catalogue,
+    all_models_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
 
 end

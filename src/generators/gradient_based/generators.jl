@@ -30,7 +30,9 @@ end
 
 "Constructor for `REVISEGenerator`."
 function REVISEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
-    return GradientBasedGenerator(; penalty=default_distance, λ=λ, latent_space=latent_space, kwargs...)
+    return GradientBasedGenerator(;
+        penalty=default_distance, λ=λ, latent_space=latent_space, kwargs...
+    )
 end
 
 "Constructor for `GreedyGenerator`."

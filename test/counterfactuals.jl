@@ -20,6 +20,7 @@ init_perturbation = 2.0
 for (key, generator_) in generators
     name = uppercasefirst(string(key))
 
+    # Feature Tweak will be tested separately
     if generator_() isa HeuristicBasedGenerator
         continue
     end
@@ -143,35 +144,37 @@ end
 # as it doesn't apply to gradient-based models and thus,
 # many tests above such as testing for convergence do not apply.
 @testset "Feature tweak" begin
-    generator = Generators.FeatureTweakGenerator()
+    generator = CounterfactualExplanations.Generators.FeatureTweakGenerator()
+    # Feature tweak only applies to binary classifiers
+    binary_synthetic = deepcopy(synthetic)
+    delete!(binary_synthetic, :classification_multi)
 
     @testset "Tree-based models for synthetic data" begin
-        for (key, value) in synthetic
+        for (key, value) in binary_synthetic
             name = string(key)
             data = value[:data]
             X = data.X
             @testset "$name" begin
-                model = Models.fit_model(data, :DecisionTree)
+                M = Models.fit_model(data, :DecisionTree)
                 # Randomly selected factual:
                 Random.seed!(123)
                 x = select_factual(data, rand(1:size(X, 2)))
                 # Choose target:
-                y = predict_label(model, data, x)
+                y = predict_label(M, data, x)
                 target = get_target(data, y[1])
                 # Single sample:
                 counterfactual = generate_counterfactual(
-                    x, target, data, model, generator
-                )
-                # Multiple samples:
-                multiple_x = select_factual(data, rand(1:size(X, 2), 5))
-                counterfactuals = generate_counterfactual(
-                    multiple_x, target, data, model, generator
+                    x,
+                    target,
+                    data,
+                    M,
+                    generator
                 )
 
                 @testset "Predetermined outputs" begin
                     @test counterfactual.target == target
-                    @test counterfactual.x == x &&
-                        CounterfactualExplanations.factual(counterfactual) == x
+                    @test counterfactual.x == x
+                    @test CounterfactualExplanations.factual(counterfactual) == x
                     @test CounterfactualExplanations.factual_label(
                         counterfactual
                     ) == y
@@ -180,44 +183,38 @@ end
                     ) == probs(M, x)
                 end
 
-                @testset "Convergence" begin
+                @testset "Counterfactual generation" begin
                     @testset "Non-trivial case" begin
-                        counterfactual_data.generative_model = nothing
-                        # Threshold reached if converged:
-                        γ = 0.9
-                        max_iter = 1000
+                        data.generative_model = nothing
                         counterfactual = generate_counterfactual(
                             x,
                             target,
-                            counterfactual_data,
+                            data,
                             M,
-                            generator;
-                            max_iter=max_iter,
-                            decision_threshold=γ,
+                            generator
                         )
-                        using CounterfactualExplanations:
-                            counterfactual_probability
-                        @test !converged(counterfactual) ||
-                            target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                        @test !converged(counterfactual) ||
-                            length(path(counterfactual)) <= max_iter
+                        @test predict_label(M, data, CounterfactualExplanations.decode_state(
+                                    counterfactual
+                                ))[1] == target
+                        @test CounterfactualExplanations.terminated(
+                            counterfactual
+                        )
                     end
 
                     @testset "Trivial case (already in target class)" begin
-                        counterfactual_data.generative_model = nothing
-                        # Already in target and exceeding threshold probability:
-                        y = predict_label(M, counterfactual_data, x)
+                        data.generative_model = nothing
+                        # Already in target class:
+                        y = predict_label(M, data, x)
                         target = y[1]
                         γ = minimum([
-                            1 / length(counterfactual_data.y_levels), 0.5
+                            1 / length(data.y_levels), 0.5
                         ])
                         counterfactual = generate_counterfactual(
                             x,
                             target,
-                            counterfactual_data,
+                            data,
                             M,
-                            generator;
-                            decision_threshold=γ,
+                            generator
                         )
                         @test maximum(
                             abs.(
@@ -227,7 +224,6 @@ end
                                 )
                             ),
                         ) < init_perturbation
-                        @test converged(counterfactual)
                         @test CounterfactualExplanations.terminated(
                             counterfactual
                         )

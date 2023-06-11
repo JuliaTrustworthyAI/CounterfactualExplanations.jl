@@ -20,12 +20,15 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
     model::Any
     likelihood::Symbol
     function TreeModel(model, likelihood)
-        if !(model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier || model.model isa MLJDecisionTreeInterface.RandomForestClassifier)
+        if !(
+            model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier ||
+            model.model isa MLJDecisionTreeInterface.RandomForestClassifier
+        )
             throw(
                 ArgumentError(
                     "model should be of type DecisionTreeClassifier or RandomForestClassifier",
-                    ),
-                )
+                ),
+            )
         end
         if likelihood == :classification_binary
             new(model, likelihood)
@@ -36,11 +39,7 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
                 ),
             )
         else
-            throw(
-                ArgumentError(
-                    "`type` should be in `[:classification_binary]`"
-                ),
-            )
+            throw(ArgumentError("`type` should be in `[:classification_binary]`"))
         end
     end
 end
@@ -134,11 +133,11 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-function probs(M::TreeModel, X::AbstractArray{<:Number, 2})
+function probs(M::TreeModel, X::AbstractArray{<:Number,2})
     output = MLJBase.predict(M.model, DataFrame(X', :auto))
     p = pdf(output, classes(output))'
     if M.likelihood == :classification_binary
-        p = reshape(p[2,:],1,size(p,2))
+        p = reshape(p[2, :], 1, size(p, 2))
     end
     return p
 end
@@ -148,12 +147,12 @@ end
 
 Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
-function probs(M::TreeModel, X::AbstractArray{<:Number, 1})
+function probs(M::TreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = MLJBase.predict(M.model, DataFrame(X, :auto))
     p = pdf(output, classes(output))'
     if M.likelihood == :classification_binary
-        p = reshape(p[2,:],1,size(p,2))
+        p = reshape(p[2, :], 1, size(p, 2))
     end
     return p
 end
@@ -163,10 +162,10 @@ end
 
 Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
 """
-function probs(M::TreeModel, X::AbstractArray{<:Number, 3})
+function probs(M::TreeModel, X::AbstractArray{<:Number,3})
     # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
     # and then calls the probs method for 1- and 2-dimensional input data on those slices
-    output = SliceMap.slicemap(x -> probs(M,x), X, dims=[1,2])
+    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
     p = pdf(output, classes(output))
     return p
 end
@@ -189,7 +188,7 @@ function TreeModel(data::CounterfactualData; kwargs...)
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
     model = machine(M, X, y)
 
-    return TreeModel(model, likelihood)
+    return TreeModel(model, :classification_binary)
 end
 
 """
@@ -203,7 +202,7 @@ This method is not called by the user directly.
 - `data::CounterfactualData`: The `CounterfactualData` object containing the data to be used for training the model.
 
 # Returns
-- `M::EvoTreeModel`: The fitted TreeModel.
+- `M::TreeModel`: The fitted TreeModel.
 """
 function train(M::TreeModel, data::CounterfactualData; kwargs...)
     MLJBase.fit!(M.model)

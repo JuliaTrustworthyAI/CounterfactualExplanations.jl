@@ -92,15 +92,15 @@ function generate_counterfactual(
                 end
             end
         end
-    # Non-gradient-based generators - REVIEW PLEASE:
-    # Main issue is that this isn't very expandable I think
+        # Non-gradient-based generators - REVIEW PLEASE:
+        # Main issue is that this isn't very expandable I think
     elseif isa(generator, HeuristicBasedGenerator)
         if isa(M, Models.TreeModel)
             new_x = feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
-            ce.x = new_x
+            ce.s′ = new_x
             ce.search[:path] = [ce.search[:path]..., new_x]
-            ce.search[:terminated] = false
-            ce.search[:converged] = false
+            ce.search[:terminated] = true
+            ce.search[:converged] = true
         end
     end
 

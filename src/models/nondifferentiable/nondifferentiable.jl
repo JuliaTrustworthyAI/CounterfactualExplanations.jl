@@ -8,5 +8,4 @@ Base type for non-differentiable models written in pure Julia.
 """
 abstract type AbstractNonDifferentiableJuliaModel <: AbstractNonDifferentiableModel end
 
-
 include("mlj_tree.jl")
