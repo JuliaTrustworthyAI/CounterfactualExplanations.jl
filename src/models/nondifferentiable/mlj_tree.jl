@@ -88,9 +88,13 @@ classifiers = Models.get_individual_classifiers(M) # returns the individual clas
 """
 function get_individual_classifiers(M::TreeModel)
     if M.model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
-        return [M.model.model]
+        return [M]
     end
-    return M.model.model.trees
+    trees = []
+    for tree in M.model.trees
+        push!(trees, TreeModel(tree, :classification_binary))
+    end
+    return trees
 end
 
 """
@@ -171,7 +175,7 @@ function probs(M::TreeModel, X::AbstractArray{<:Number,3})
 end
 
 """
-    TreeModel(data::CounterfactualData; kwargs...)
+    DecisionTreeModel(data::CounterfactualData; kwargs...)
 
 Constructs a new TreeModel object wrapped around a decision tree from the data in a `CounterfactualData` object.
 Not called by the user directly.
@@ -182,7 +186,7 @@ Not called by the user directly.
 # Returns
 - `model::TreeModel`: A TreeModel object.
 """
-function TreeModel(data::CounterfactualData; kwargs...)
+function DecisionTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
@@ -192,7 +196,28 @@ function TreeModel(data::CounterfactualData; kwargs...)
 end
 
 """
-    train(M::EvoTreeModel, data::CounterfactualData; kwargs...)
+    RandomForestModel(data::CounterfactualData; kwargs...)
+
+Constructs a new TreeModel object wrapped around a random forest from the data in a `CounterfactualData` object.
+Not called by the user directly.
+
+# Arguments
+- `data::CounterfactualData`: The `CounterfactualData` object containing the data to be used for training the model.
+
+# Returns
+- `model::TreeModel`: A TreeModel object.
+"""
+function RandomForestModel(data::CounterfactualData; kwargs...)
+    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
+
+    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    model = machine(M, X, y)
+
+    return TreeModel(model, :classification_binary)
+end
+
+"""
+    train(M::TreeModel, data::CounterfactualData; kwargs...)
 
 Fits the model `M` to the data in the `CounterfactualData` object.
 This method is not called by the user directly.

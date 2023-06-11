@@ -155,60 +155,21 @@ end
             data = value[:data]
             X = data.X
             @testset "$name" begin
-                M = Models.fit_model(data, :DecisionTree)
-                # Randomly selected factual:
-                Random.seed!(123)
-                x = select_factual(data, rand(1:size(X, 2)))
-                # Choose target:
-                y = predict_label(M, data, x)
-                target = get_target(data, y[1])
-                # Single sample:
-                counterfactual = generate_counterfactual(
-                    x,
-                    target,
-                    data,
-                    M,
-                    generator
-                )
+                # Test Feature Tweak on both a Decision Tree and a Random Forest
+                models = [:DecisionTree, :RandomForest]
 
-                @testset "Predetermined outputs" begin
-                    @test counterfactual.target == target
-                    @test counterfactual.x == x
-                    @test CounterfactualExplanations.factual(counterfactual) == x
-                    @test CounterfactualExplanations.factual_label(
-                        counterfactual
-                    ) == y
-                    @test CounterfactualExplanations.factual_probability(
-                        counterfactual
-                    ) == probs(M, x)
-                end
+                for model in models
+                    name = string(model)
 
-                @testset "Counterfactual generation" begin
-                    @testset "Non-trivial case" begin
-                        data.generative_model = nothing
-                        counterfactual = generate_counterfactual(
-                            x,
-                            target,
-                            data,
-                            M,
-                            generator
-                        )
-                        @test predict_label(M, data, CounterfactualExplanations.decode_state(
-                                    counterfactual
-                                ))[1] == target
-                        @test CounterfactualExplanations.terminated(
-                            counterfactual
-                        )
-                    end
-
-                    @testset "Trivial case (already in target class)" begin
-                        data.generative_model = nothing
-                        # Already in target class:
+                    @testset "$name" begin
+                        M = Models.fit_model(data, model)
+                        # Randomly selected factual:
+                        Random.seed!(123)
+                        x = select_factual(data, rand(1:size(X, 2)))
+                        # Choose target:
                         y = predict_label(M, data, x)
-                        target = y[1]
-                        γ = minimum([
-                            1 / length(data.y_levels), 0.5
-                        ])
+                        target = get_target(data, y[1])
+                        # Single sample:
                         counterfactual = generate_counterfactual(
                             x,
                             target,
@@ -216,20 +177,68 @@ end
                             M,
                             generator
                         )
-                        @test maximum(
-                            abs.(
-                                counterfactual.x .-
-                                CounterfactualExplanations.decode_state(
+
+                        @testset "Predetermined outputs" begin
+                            @test counterfactual.target == target
+                            @test counterfactual.x == x
+                            @test CounterfactualExplanations.factual(counterfactual) == x
+                            @test CounterfactualExplanations.factual_label(
+                                counterfactual
+                            ) == y
+                            @test CounterfactualExplanations.factual_probability(
+                                counterfactual
+                            ) == probs(M, x)
+                        end
+
+                        @testset "Counterfactual generation" begin
+                            @testset "Non-trivial case" begin
+                                data.generative_model = nothing
+                                counterfactual = generate_counterfactual(
+                                    x,
+                                    target,
+                                    data,
+                                    M,
+                                    generator
+                                )
+                                @test predict_label(M, data, CounterfactualExplanations.decode_state(
+                                            counterfactual
+                                        ))[1] == target
+                                @test CounterfactualExplanations.terminated(
                                     counterfactual
                                 )
-                            ),
-                        ) < init_perturbation
-                        @test CounterfactualExplanations.terminated(
-                            counterfactual
-                        )
-                        @test CounterfactualExplanations.total_steps(
-                            counterfactual
-                        ) == 0
+                            end
+
+                            @testset "Trivial case (already in target class)" begin
+                                data.generative_model = nothing
+                                # Already in target class:
+                                y = predict_label(M, data, x)
+                                target = y[1]
+                                γ = minimum([
+                                    1 / length(data.y_levels), 0.5
+                                ])
+                                counterfactual = generate_counterfactual(
+                                    x,
+                                    target,
+                                    data,
+                                    M,
+                                    generator
+                                )
+                                @test maximum(
+                                    abs.(
+                                        counterfactual.x .-
+                                        CounterfactualExplanations.decode_state(
+                                            counterfactual
+                                        )
+                                    ),
+                                ) < init_perturbation
+                                @test CounterfactualExplanations.terminated(
+                                    counterfactual
+                                )
+                                @test CounterfactualExplanations.total_steps(
+                                    counterfactual
+                                ) == 0
+                            end
+                        end
                     end
                 end
             end

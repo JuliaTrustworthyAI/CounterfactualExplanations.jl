@@ -49,7 +49,8 @@ const all_models_catalogue = Dict(
     :DeepEnsemble => FluxEnsemble,
     :LaplaceRedux => LaplaceReduxModel,
     :EvoTree => EvoTreeModel,
-    :DecisionTree => TreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
 )
 
 """

@@ -143,28 +143,26 @@ function feature_tweaking(
     x_out = deepcopy(x)
     machine = M.model
     delta = 10^3
-    # ensemble_prediction = predict_label(M, x)
+    ensemble_prediction = predict_label(M, x)[1]
     fp = MLJBase.fitted_params(machine)
     model = fp.tree.node
 
-    # for tree in Models.get_individual_classifiers(M)
-    #     classifier = Models.TreeModel(tree, :classification_binary)
-    #     if ensemble_prediction == predict_label(classifier, x) &&
-    #         predict_label(classifier, x) != classes[target]
-
-    paths = search_path(model, target)
-    for key in keys(paths)
-        path = paths[key]
-        es_instance = esatisfactory_instance(generator, x, path)
-        if target .== predict_label(M, es_instance)[1]
-            if LinearAlgebra.norm(x - es_instance) < delta
-                x_out = es_instance
-                delta = LinearAlgebra.norm(x - es_instance)
-            end
+    for classifier in Models.get_individual_classifiers(M)
+        if ensemble_prediction == predict_label(classifier, x)[1] &&
+            predict_label(classifier, x)[1] != target
+                paths = search_path(model, target)
+                for key in keys(paths)
+                    path = paths[key]
+                    es_instance = esatisfactory_instance(generator, x, path)
+                    if target .== predict_label(M, es_instance)[1]
+                        if LinearAlgebra.norm(x - es_instance) < delta
+                            x_out = es_instance
+                            delta = LinearAlgebra.norm(x - es_instance)
+                        end
+                    end
+                end
         end
     end
-    #     end
-    # end
     return x_out
 end
 
