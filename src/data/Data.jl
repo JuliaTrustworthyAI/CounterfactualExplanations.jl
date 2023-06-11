@@ -3,7 +3,7 @@ module Data
 using Random
 using LazyArtifacts
 
-using CounterfactualExplanations: CounterfactualData
+using CounterfactualExplanations
 using MLJBase: make_blobs, make_circles, make_moons
 using MLJBase: fit!, machine, transform, categorical
 using CSV: read

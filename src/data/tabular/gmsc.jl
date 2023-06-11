@@ -17,7 +17,7 @@ function load_gmsc(n::Union{Nothing,Int}=5000)
 
     # Counterfactual data:
     y = df.target
-    counterfactual_data = CounterfactualData(X, y)
+    counterfactual_data = CounterfactualExplanations.CounterfactualData(X, y)
     counterfactual_data.X = Float32.(counterfactual_data.X)
 
     # Undersample:

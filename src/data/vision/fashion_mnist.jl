@@ -8,7 +8,9 @@ function load_fashion_mnist(n::Union{Nothing,Int}=nothing)
     X = flatten(X)
     X = X .* 2.0f0 .- 1.0f0
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0), standardize=false)
+    counterfactual_data = CounterfactualExplanations.CounterfactualData(
+        X, y; domain=(-1.0, 1.0), standardize=false
+    )
     counterfactual_data.X = Float32.(counterfactual_data.X)
     # Undersample:
     if !isnothing(n)
@@ -27,7 +29,9 @@ function load_fashion_mnist_test()
     X = flatten(X)
     X = X .* 2.0f0 .- 1.0f0
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0))
+    counterfactual_data = CounterfactualExplanations.CounterfactualData(
+        X, y; domain=(-1.0, 1.0)
+    )
     counterfactual_data.X = Float32.(counterfactual_data.X)
     return counterfactual_data
 end

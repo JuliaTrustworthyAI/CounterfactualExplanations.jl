@@ -18,7 +18,9 @@ function load_cifar_10(n::Union{Nothing,Int}=nothing)
     X = flatten(X)
     X = X .* 2 .- 1 # normalization between [-1, 1]
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0), standardize=false)
+    counterfactual_data = CounterfactualExplanations.CounterfactualData(
+        X, y; domain=(-1.0, 1.0), standardize=false
+    )
     if !isnothing(n)
         counterfactual_data = subsample(counterfactual_data, n)
     end
@@ -42,6 +44,8 @@ function load_cifar_10_test()
     X = flatten(X)
     X = X .* 2 .- 1 # normalization between [-1, 1]
     y = categorical(y)
-    counterfactual_data = CounterfactualData(X, y; domain=(-1.0, 1.0))
+    counterfactual_data = CounterfactualExplanations.CounterfactualData(
+        X, y; domain=(-1.0, 1.0)
+    )
     return counterfactual_data
 end
