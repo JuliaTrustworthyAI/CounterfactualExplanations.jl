@@ -5,14 +5,12 @@ using LazyArtifacts
 
 using CounterfactualExplanations
 using MLJBase
-using MLJBase: fit!, machine, transform, categorical
-using CSV: read
-using DataFrames: DataFrame, Not
-using MLJModels: ContinuousEncoder, OneHotEncoder, Standardizer
-using CounterfactualExplanations.DataPreprocessing: subsample
-
-using Flux: flatten
-using MLDatasets: MNIST, FashionMNIST, CIFAR10
+using CSV
+using DataFrames
+using MLJModels
+using CounterfactualExplanations.DataPreprocessing
+using Flux
+using MLDatasets
 
 const data_seed = 42
 data_dir = joinpath(artifact"data-tabular", "data-tabular")
