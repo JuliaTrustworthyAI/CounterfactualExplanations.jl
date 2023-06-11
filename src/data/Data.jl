@@ -25,6 +25,7 @@ include("synthetic/overlapping.jl")
 include("tabular/california_housing.jl")
 include("tabular/credit_default.jl")
 include("tabular/gmsc.jl")
+include("tabular/german_credit.jl")
 
 include("vision/cifar_10.jl")
 include("vision/fashion_mnist.jl")
