@@ -3,7 +3,6 @@ using CounterfactualExplanations.Models
 using DataFrames
 using Flux
 using LinearAlgebra
-using MLJ
 using MLUtils
 using Random
 
