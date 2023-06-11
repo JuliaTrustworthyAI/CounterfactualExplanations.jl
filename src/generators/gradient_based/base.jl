@@ -3,7 +3,7 @@ using LinearAlgebra
 using Parameters
 
 """
-    AbstractGradientBasedGenerator
+	AbstractGradientBasedGenerator
 
 An abstract type that serves as the base type for gradient-based counterfactual generators. 
 """
@@ -19,13 +19,13 @@ mutable struct Generator <: AbstractGradientBasedGenerator
 end
 
 """
-    Generator(;
-        loss::Union{Nothing,Function}=nothing,
-        penalty::Union{Nothing,Function,Vector{Function}}=nothing,
-        λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
-        latent_space::Bool::false,
-        opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-    )
+	Generator(;
+		loss::Union{Nothing,Function}=nothing,
+		penalty::Union{Nothing,Function,Vector{Function}}=nothing,
+		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
+		latent_space::Bool::false,
+		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+	)
 
 Default outer constructor for `Generator`.
 """

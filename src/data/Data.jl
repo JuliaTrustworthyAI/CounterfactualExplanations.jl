@@ -44,6 +44,7 @@ const data_catalogue = Dict(
         :california_housing => load_california_housing,
         :credit_default => load_credit_default,
         :gmsc => load_gmsc,
+        :german_credit => load_german_credit,
     ),
     :vision => Dict(
         :mnist => load_mnist,
@@ -92,7 +93,7 @@ export data_catalogue
 export load_linearly_separable, load_overlapping, load_multi_class
 export load_blobs, load_circles, load_moons, load_multi_class
 export load_synthetic_data
-export load_california_housing, load_credit_default, load_gmsc
+export load_california_housing, load_credit_default, load_gmsc, load_german_credit
 export load_tabular_data
 export load_mnist, load_mnist_test
 export load_fashion_mnist, load_fashion_mnist_test

@@ -10,7 +10,6 @@ using LinearAlgebra
 using ..Models
 using ..Objectives
 using Statistics
-
 export AbstractGradientBasedGenerator
 export ClaPROARGenerator
 export GenericGenerator
@@ -33,7 +32,9 @@ include("gradient_based/base.jl")
 include("gradient_based/functions.jl")
 include("gradient_based/generators.jl")
 include("gradient_based/optimisers.jl")
-
+include("gradient_based/probe.jl")
+export ProbeGenerator
+export hinge_loss, invalidation_rate
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
     :claproar => Generators.ClaPROARGenerator,
@@ -43,6 +44,7 @@ generator_catalogue = Dict(
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
+    :probe => ProbeGenerator,
 )
 
 end

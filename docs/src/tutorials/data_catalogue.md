@@ -52,6 +52,8 @@ data_catalogue[:tabular]
       :california_housing => load_california_housing
       :credit_default     => load_credit_default
       :gmsc               => load_gmsc
+      :german_credit      => load_german_credit
+      
 
 ``` julia
 data_catalogue[:vision]
