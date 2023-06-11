@@ -2,7 +2,6 @@ module Data
 
 using Random
 using LazyArtifacts
-
 using CounterfactualExplanations
 using MLJBase
 using CSV
