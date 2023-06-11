@@ -1,0 +1,54 @@
+
+"""
+Encoder
+
+Constructs encoder part of VAE: a simple Flux neural network with one hidden layer and two linear output layers for the first two moments of the latent distribution.
+"""
+struct Encoder
+linear::Any
+μ::Any
+logσ::Any
+end
+Flux.@functor Encoder
+
+function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
+return Encoder(
+    Dense(input_dim, hidden_dim, activation),       # linear
+    Dense(hidden_dim, latent_dim),                  # μ
+    Dense(hidden_dim, latent_dim),                  # logσ
+)
+end
+
+function (encoder::Encoder)(x)
+h = encoder.linear(x)
+return encoder.μ(h), encoder.logσ(h)
+end
+
+"""
+    Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=relu)
+
+The default decoder architecture is just a Flux Chain with one hidden layer and a linear output layer. 
+"""
+function Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=tanh)
+    return Chain(Dense(latent_dim, hidden_dim, activation), Dense(hidden_dim, input_dim))
+end
+
+"""
+reparameterization_trick(μ,logσ,device=cpu)
+
+Helper function that implements the reparameterization trick: `z ∼ 𝒩(μ,σ²) ⇔ z=μ + σ ⊙ ε, ε ∼ 𝒩(0,I).`
+"""
+function reparameterization_trick(μ, logσ, device=cpu)
+return μ + device(randn(Float32, size(logσ))) .* exp.(logσ)
+end
+
+"""
+Random.rand(encoder::Encoder, x, device=cpu)
+
+Draws random samples from the latent distribution.
+"""
+function Random.rand(encoder::Encoder, x, device=cpu)
+μ, logσ = encoder(x)
+z = reparameterization_trick(μ, logσ)
+return z, μ, logσ
+end
