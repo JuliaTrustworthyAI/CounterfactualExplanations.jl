@@ -6,12 +6,12 @@ Loads and pre-processes Give Me Some Credit (GMSC) data.
 function load_gmsc(n::Union{Nothing,Int}=5000)
 
     # Load:
-    df = read(joinpath(data_dir, "gmsc.csv"), DataFrame)
+    df = CSV.read(joinpath(data_dir, "gmsc.csv"), DataFrames.DataFrame)
 
     # Pre-process features:
-    transformer = Standardizer(; count=true)
-    mach = fit!(machine(transformer, df[:, Not(:target)]))
-    X = transform(mach, df[:, Not(:target)])
+    transformer = MLJModels.Standardizer(; count=true)
+    mach = MLJBase.fit!(MLJBase.machine(transformer, df[:, DataFrames.Not(:target)]))
+    X = MLJBase.transform(mach, df[:, DataFrames.Not(:target)])
     X = Matrix(X)
     X = permutedims(X)
 
@@ -22,7 +22,9 @@ function load_gmsc(n::Union{Nothing,Int}=5000)
 
     # Undersample:
     if !isnothing(n)
-        counterfactual_data = subsample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
+            counterfactual_data, n
+        )
     end
 
     return counterfactual_data

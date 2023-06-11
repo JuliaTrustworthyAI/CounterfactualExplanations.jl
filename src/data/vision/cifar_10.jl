@@ -14,15 +14,17 @@ data = load_cifar_10(1000) # loads and preprocesses 1000 samples from the CIFAR-
 
 """
 function load_cifar_10(n::Union{Nothing,Int}=nothing)
-    X, y = CIFAR10()[:] # [:] gives us X, y
-    X = flatten(X)
+    X, y = MLDatasets.CIFAR10()[:] # [:] gives us X, y
+    X = Flux.flatten(X)
     X = X .* 2 .- 1 # normalization between [-1, 1]
-    y = categorical(y)
+    y = MLJBase.categorical(y)
     counterfactual_data = CounterfactualExplanations.CounterfactualData(
         X, y; domain=(-1.0, 1.0), standardize=false
     )
     if !isnothing(n)
-        counterfactual_data = subsample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
+            counterfactual_data, n
+        )
     end
     return counterfactual_data
 end
@@ -40,10 +42,10 @@ test_data = load_cifar_10_test() # loads and preprocesses test data from the CIF
 
 """
 function load_cifar_10_test()
-    X, y = CIFAR10(:test)[:]
-    X = flatten(X)
+    X, y = MLDatasets.CIFAR10(:test)[:]
+    X = Flux.flatten(X)
     X = X .* 2 .- 1 # normalization between [-1, 1]
-    y = categorical(y)
+    y = MLJBase.categorical(y)
     counterfactual_data = CounterfactualExplanations.CounterfactualData(
         X, y; domain=(-1.0, 1.0)
     )

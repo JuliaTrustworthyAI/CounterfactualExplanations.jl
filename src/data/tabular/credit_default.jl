@@ -1,34 +1,4 @@
 """
-    load_gmsc(n::Union{Nothing,Int}=5000)
-
-Loads and pre-processes Give Me Some Credit (GMSC) data.
-"""
-function load_gmsc(n::Union{Nothing,Int}=5000)
-
-    # Load:
-    df = read(joinpath(data_dir, "gmsc.csv"), DataFrame)
-
-    # Pre-process features:
-    transformer = Standardizer(; count=true)
-    mach = fit!(machine(transformer, df[:, Not(:target)]))
-    X = transform(mach, df[:, Not(:target)])
-    X = Matrix(X)
-    X = permutedims(X)
-
-    # Counterfactual data:
-    y = df.target
-    counterfactual_data = CounterfactualExplanations.CounterfactualData(X, y)
-    counterfactual_data.X = Float32.(counterfactual_data.X)
-
-    # Undersample:
-    if !isnothing(n)
-        counterfactual_data = subsample(counterfactual_data, n)
-    end
-
-    return counterfactual_data
-end
-
-"""
     load_credit_default(n::Union{Nothing,Int}=5000)
 
 Loads and pre-processes UCI Credit Default data.
@@ -36,15 +6,15 @@ Loads and pre-processes UCI Credit Default data.
 function load_credit_default(n::Union{Nothing,Int}=5000)
 
     # Load:
-    df = read(joinpath(data_dir, "credit_default.csv"), DataFrame)
+    df = CSV.read(joinpath(data_dir, "credit_default.csv"), DataFrames.DataFrame)
 
     # Pre-process features:
-    df.SEX = categorical(df.SEX)
-    df.EDUCATION = categorical(df.EDUCATION)
-    df.MARRIAGE = categorical(df.MARRIAGE)
-    transformer = Standardizer(; count=true) |> ContinuousEncoder()
-    mach = fit!(machine(transformer, df[:, Not(:target)]))
-    X = transform(mach, df[:, Not(:target)])
+    df.SEX = MLJBase.categorical(df.SEX)
+    df.EDUCATION = MLJBase.categorical(df.EDUCATION)
+    df.MARRIAGE = MLJBase.categorical(df.MARRIAGE)
+    transformer = MLJModels.Standardizer(; count=true) |> MLJModels.ContinuousEncoder()
+    mach = MLJBase.fit!(MLJBase.machine(transformer, df[:, DataFrames.Not(:target)]))
+    X = MLJBase.transform(mach, df[:, DataFrames.Not(:target)])
     X = permutedims(Matrix(X))
     features_categorical = [
         [2, 3],             # SEX
@@ -61,7 +31,9 @@ function load_credit_default(n::Union{Nothing,Int}=5000)
 
     # Undersample:
     if !isnothing(n)
-        counterfactual_data = subsample(counterfactual_data, n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
+            counterfactual_data, n
+        )
     end
 
     return counterfactual_data

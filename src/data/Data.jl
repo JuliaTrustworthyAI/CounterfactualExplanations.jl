@@ -4,7 +4,7 @@ using Random
 using LazyArtifacts
 
 using CounterfactualExplanations
-using MLJBase: make_blobs, make_circles, make_moons
+using MLJBase
 using MLJBase: fit!, machine, transform, categorical
 using CSV: read
 using DataFrames: DataFrame, Not
