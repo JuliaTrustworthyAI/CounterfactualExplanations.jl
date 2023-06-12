@@ -139,7 +139,7 @@ probabilities = Models.probs(M, X) # calculates the probability scores for each 
 """
 function probs(M::TreeModel, X::AbstractArray{<:Number,2})
     output = MLJBase.predict(M.model, DataFrame(X', :auto))
-    p = pdf(output, classes(output))'
+    p = Distributions.pdf(output, classes(output))'
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end
@@ -154,7 +154,7 @@ Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) met
 function probs(M::TreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = MLJBase.predict(M.model, DataFrame(X, :auto))
-    p = pdf(output, classes(output))'
+    p = Distributions.pdf(output, classes(output))'
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end
@@ -170,7 +170,7 @@ function probs(M::TreeModel, X::AbstractArray{<:Number,3})
     # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
     # and then calls the probs method for 1- and 2-dimensional input data on those slices
     output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = pdf(output, classes(output))
+    p = Distributions.pdf(output, classes(output))
     return p
 end
 
@@ -190,7 +190,7 @@ function DecisionTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
-    model = machine(M, X, y)
+    model = MLJBase.machine(M, X, y)
 
     return TreeModel(model, :classification_binary)
 end
@@ -211,7 +211,7 @@ function RandomForestModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
-    model = machine(M, X, y)
+    model = MLJBase.machine(M, X, y)
 
     return TreeModel(model, :classification_binary)
 end
