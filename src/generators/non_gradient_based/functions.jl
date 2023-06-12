@@ -195,7 +195,7 @@ function esatisfactory_instance(
         elseif inequality_symbol == 1
             esatisfactory[feature_idx] = threshold_value + generator.ϵ
         else
-            println("Unable to find a valid e-satisfactory instance.")
+            error("Unable to find a valid e-satisfactory instance.")
         end
     end
     return esatisfactory
