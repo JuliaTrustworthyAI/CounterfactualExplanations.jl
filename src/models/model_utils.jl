@@ -1,6 +1,3 @@
-using Flux
-using MLJBase
-
 """
     data_loader(data::CounterfactualData)
 
@@ -51,7 +48,6 @@ function predict_proba(
     @assert !(isnothing(counterfactual_data) && isnothing(X))
     X = isnothing(X) ? counterfactual_data.X : X
     p = probs(M, X)
-    # println(p)
     binary = M.likelihood == :classification_binary
     p = binary ? binary_to_onehot(p) : p
     return p
