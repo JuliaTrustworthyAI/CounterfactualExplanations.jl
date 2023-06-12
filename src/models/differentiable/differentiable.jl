@@ -11,4 +11,4 @@ abstract type AbstractDifferentiableJuliaModel <: AbstractDifferentiableModel en
 
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
-include("laplace_redux.jl")
+include("other/laplace_redux.jl")
