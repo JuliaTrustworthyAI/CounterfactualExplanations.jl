@@ -1,6 +1,3 @@
-using Flux
-using LaplaceRedux
-
 """
     LaplaceReduxModel <: AbstractDifferentiableJuliaModel
 
