@@ -161,7 +161,6 @@ function feature_tweaking(
                     end
                 end
             end
-            end
         end
     end
     return x_out
