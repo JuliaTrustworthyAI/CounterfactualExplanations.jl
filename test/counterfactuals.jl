@@ -206,6 +206,12 @@ end
                                 @test CounterfactualExplanations.terminated(
                                     counterfactual
                                 )
+                                @test predict_label(
+                                    M,
+                                    data,
+                                    CounterfactualExplanations.decode_state(counterfactual),
+                                )[1] == target
+                                @test CounterfactualExplanations.terminated(counterfactual)
                             end
 
                             @testset "Trivial case (already in target class)" begin
