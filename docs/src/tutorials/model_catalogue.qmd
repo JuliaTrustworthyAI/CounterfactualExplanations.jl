@@ -134,7 +134,7 @@ CounterfactualExplanations.reset!(flux_training_params)
 
 ## Fitting and tuning MLJ models
 
-Among models from the MLJ library, only importing the `EvoTreeClassifier` is supported thus far. Generating counterfactuals is not supported for any MLJ model yet, but integration with the Feature Tweak generator will be provided soon. For that reason, a short overview of setting up MLJ models will be provided.
+Among models from the MLJ library, only importing the `EvoTreeClassifier` is supported thus far. Generating counterfactuals is not supported for any MLJ model yet, but integration with gradient-based generators will be provided soon. For that reason, a short overview of setting up MLJ models will be provided.
 
 Tuning the EvoTreeClassifier is very simple. As the first step, let's reload the dataset:
 
