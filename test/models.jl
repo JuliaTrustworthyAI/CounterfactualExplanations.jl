@@ -31,7 +31,7 @@ torch = PythonCall.pyimport("torch")
     end
 end
 
-@static if VERSION > v"1.7"
+@static if VERSION >= v"1.8"
     @testset "PyTorch model test" begin
         model_file = "neural_network_class"
         class_name = "NeuralNetwork"
