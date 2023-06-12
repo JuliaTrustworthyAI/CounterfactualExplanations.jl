@@ -150,17 +150,17 @@ function feature_tweaking(
     for classifier in Models.get_individual_classifiers(M)
         if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
             Models.predict_label(classifier, x)[1] != target
-                paths = search_path(model, target)
-                for key in keys(paths)
-                    path = paths[key]
-                    es_instance = esatisfactory_instance(generator, x, path)
-                    if target .== Models.predict_label(M, es_instance)[1]
-                        if LinearAlgebra.norm(x - es_instance) < delta
-                            x_out = es_instance
-                            delta = LinearAlgebra.norm(x - es_instance)
-                        end
+            paths = search_path(model, target)
+            for key in keys(paths)
+                path = paths[key]
+                es_instance = esatisfactory_instance(generator, x, path)
+                if target .== Models.predict_label(M, es_instance)[1]
+                    if LinearAlgebra.norm(x - es_instance) < delta
+                        x_out = es_instance
+                        delta = LinearAlgebra.norm(x - es_instance)
                     end
                 end
+            end
         end
     end
     return x_out
