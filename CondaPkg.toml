@@ -1,5 +1,2 @@
 [deps]
 numpy = ""
-
-[pip.deps]
-torch = ""
