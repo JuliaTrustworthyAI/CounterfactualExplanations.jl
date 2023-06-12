@@ -171,11 +171,7 @@ end
                         target = get_target(data, y[1])
                         # Single sample:
                         counterfactual = generate_counterfactual(
-                            x,
-                            target,
-                            data,
-                            M,
-                            generator
+                            x, target, data, M, generator
                         )
 
                         @testset "Predetermined outputs" begin
@@ -194,18 +190,14 @@ end
                             @testset "Non-trivial case" begin
                                 data.generative_model = nothing
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    data,
+                                    x, target, data, M, generator
+                                )
+                                @test predict_label(
                                     M,
-                                    generator
-                                )
-                                @test predict_label(M, data, CounterfactualExplanations.decode_state(
-                                            counterfactual
-                                        ))[1] == target
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
-                                )
+                                    data,
+                                    CounterfactualExplanations.decode_state(counterfactual),
+                                )[1] == target
+                                @test CounterfactualExplanations.terminated(counterfactual)
                             end
 
                             @testset "Trivial case (already in target class)" begin
@@ -213,15 +205,9 @@ end
                                 # Already in target class:
                                 y = predict_label(M, data, x)
                                 target = y[1]
-                                γ = minimum([
-                                    1 / length(data.y_levels), 0.5
-                                ])
+                                γ = minimum([1 / length(data.y_levels), 0.5])
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    data,
-                                    M,
-                                    generator
+                                    x, target, data, M, generator
                                 )
                                 @test maximum(
                                     abs.(
@@ -231,9 +217,7 @@ end
                                         )
                                     ),
                                 ) < init_perturbation
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
-                                )
+                                @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
                                 ) == 0
