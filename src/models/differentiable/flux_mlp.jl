@@ -4,11 +4,11 @@ using ProgressMeter
 using Statistics
 
 """
-    FluxModel <: AbstractDifferentiableJuliaModel
+    FluxModel <: AbstractFluxModel
 
 Constructor for models trained in `Flux.jl`. 
 """
-struct FluxModel <: AbstractDifferentiableJuliaModel
+struct FluxModel <: AbstractFluxModel
     model::Any
     likelihood::Symbol
     function FluxModel(model, likelihood)
