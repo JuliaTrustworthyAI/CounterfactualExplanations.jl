@@ -54,6 +54,15 @@ const all_models_catalogue = Dict(
 )
 
 """
+    mlj_models_catalogue
+
+A dictionary containing all machine learning models from the MLJ model registry that the package supports.
+"""
+const mlj_models_catalogue = Dict(
+    :EvoTree => EvoTreeModel, :DecisionTree => DecisionTreeModel, :RandomForest => RandomForestModel
+)
+
+"""
     fit_model(
         counterfactual_data::CounterfactualData, model::Symbol=:MLP;
         kwrgs...

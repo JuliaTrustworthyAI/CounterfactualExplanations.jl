@@ -134,9 +134,15 @@ CounterfactualExplanations.reset!(flux_training_params)
 
 ## Fitting and tuning MLJ models
 
-Among models from the MLJ library, only importing the `EvoTreeClassifier` is supported thus far. Generating counterfactuals is not supported for any MLJ model yet, but integration with the Feature Tweak generator will be provided soon. For that reason, a short overview of setting up MLJ models will be provided.
+Among models from the MLJ library, three models are supported as of now:
 
-Tuning the EvoTreeClassifier is very simple. As the first step, let's reload the dataset:
+```{julia}
+mlj_models_catalogue
+```
+
+From these models, the `DecisionTreeModel` and the `RandomForestModel` are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them. Support for generating counterfactuals for the `EvoTreeModel` has not been implemented yet.
+
+Tuning MLJ models is very simple. As the first step, let's reload the dataset:
 
 ```{julia}
 n = 500
@@ -146,18 +152,18 @@ counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
 Using the usual procedure for fitting models, we can call the following method:
 
 ```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
 ```
 
-However, it's also possible to tune the EvoTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
 
 ```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
 ```
 
-All tunable parameters of the `EvoTreeClassifier` are supported as keyword arguments. The tunable parameters can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/).
+For all MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
 
-Please note again that generating counterfactuals for the `EvoTreeClassifier` is not supported yet.
+Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
 
 ## References
 
