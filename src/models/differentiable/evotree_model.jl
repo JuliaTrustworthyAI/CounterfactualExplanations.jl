@@ -20,7 +20,7 @@ Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
 # Returns
 - `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
-struct EvoTreeModel <: AbstractDifferentiableModel
+struct EvoTreeModel <: AbstractMLJModel
     model::Any
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)
@@ -46,12 +46,12 @@ end
 
 # Methods
 """
-    logits(M::MLJModel, X::AbstractArray)
+    logits(M::EvoTreeModel, X::AbstractArray)
 
 Calculates the logit scores output by the model M for the input data X.
 
 # Arguments
-- `M::MLJModel`: The model selected by the user. Must be a model from the MLJ library.
+- `M::EvoTreeModel`: The model selected by the user. Must be a model from the MLJ library.
 - `X::AbstractArray`: The feature vector for which the logit scores are calculated.
 
 # Returns
@@ -126,7 +126,7 @@ Not called by the user directly.
 - `data::CounterfactualData`: The `CounterfactualData` object containing the data to be used for training the model.
 
 # Returns
-- `model::EvoTreeModel`: The trained EvoTree model.
+- `model::EvoTreeModel`: The EvoTree model.
 """
 function EvoTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
