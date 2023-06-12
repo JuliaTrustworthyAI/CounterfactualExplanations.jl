@@ -7,7 +7,7 @@ using PythonCall
 using Random
 
 Random.seed!(0)
-torch = PythonCall.pyimport("torch")
+# torch = PythonCall.pyimport("torch")
 
 @testset "Models for synthetic data" begin
     for (key, value) in synthetic
