@@ -51,4 +51,6 @@ generators = generator_catalogue
     # @testset "Evaluation" begin
     #     include("evaluation.jl")
     # end
+
+    println("VERSION: ", VERSION)
 end
