@@ -1,7 +1,8 @@
 using Flux
 using Statistics
-using PythonCall
-
+@static if VERSION >= v"1.8"
+    using PythonCall
+end
 """
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, ce::AbstractCounterfactualExplanation)
 
@@ -34,31 +35,33 @@ The gradients are calculated through PyTorch using PythonCall.jl.
 # Example
 grad = ∂ℓ(generator, M, ce) # calculates the gradient of the loss function at the current counterfactual state.
 """
-function ∂ℓ(
-    generator::AbstractGradientBasedGenerator,
-    M::Models.PyTorchModel,
-    ce::AbstractCounterfactualExplanation,
-)
-    torch = PythonCall.pyimport("torch")
-    np = PythonCall.pyimport("numpy")
+@static if VERSION >= v"1.8"
+    function ∂ℓ(
+        generator::AbstractGradientBasedGenerator,
+        M::Models.PyTorchModel,
+        ce::AbstractCounterfactualExplanation,
+    )
+        torch = PythonCall.pyimport("torch")
+        np = PythonCall.pyimport("numpy")
 
-    x = ce.x
-    target = Float32.(ce.target_encoded)
+        x = ce.x
+        target = Float32.(ce.target_encoded)
 
-    x = torch.tensor(np.array(reshape(x, 1, length(x))))
-    x.requires_grad = true
+        x = torch.tensor(np.array(reshape(x, 1, length(x))))
+        x.requires_grad = true
 
-    target = torch.tensor(np.array(reshape(target, 1, length(target))))
-    target = target.squeeze()
+        target = torch.tensor(np.array(reshape(target, 1, length(target))))
+        target = target.squeeze()
 
-    output = M.neural_network(x).squeeze()
+        output = M.neural_network(x).squeeze()
 
-    obj_loss = torch.nn.BCEWithLogitsLoss()(output, target)
-    obj_loss.backward()
+        obj_loss = torch.nn.BCEWithLogitsLoss()(output, target)
+        obj_loss.backward()
 
-    grad = PythonCall.pyconvert(Matrix, x.grad.t().detach().numpy())
+        grad = PythonCall.pyconvert(Matrix, x.grad.t().detach().numpy())
 
-    return grad
+        return grad
+    end
 end
 
 """
