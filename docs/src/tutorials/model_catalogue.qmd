@@ -152,16 +152,16 @@ counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
 Using the usual procedure for fitting models, we can call the following method:
 
 ```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
+tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
 ```
 
 However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
 
 ```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
 ```
 
-For all MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
 
 Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
 
