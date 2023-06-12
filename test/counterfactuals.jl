@@ -213,9 +213,7 @@ end
                                 # Already in target class:
                                 y = predict_label(M, data, x)
                                 target = y[1]
-                                γ = minimum([
-                                    1 / length(data.y_levels), 0.5
-                                ])
+                                γ = minimum([1 / length(data.y_levels), 0.5])
                                 counterfactual = generate_counterfactual(
                                     x, target, data, M, generator
                                 )
