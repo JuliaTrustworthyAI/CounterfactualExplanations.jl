@@ -194,17 +194,7 @@ end
                             @testset "Non-trivial case" begin
                                 data.generative_model = nothing
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    data,
-                                    M,
-                                    generator
-                                )
-                                @test predict_label(M, data, CounterfactualExplanations.decode_state(
-                                            counterfactual
-                                        ))[1] == target
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
+                                    x, target, data, M, generator
                                 )
                                 @test predict_label(
                                     M,
