@@ -30,7 +30,7 @@ Random.seed!(0)
     end
 end
 
-if VERSION > v"1.7"
+if VERSION >= v"1.8"
     torch = PythonCall.pyimport("torch")
     @testset "PyTorch model test" begin
         model_file = "neural_network_class"
