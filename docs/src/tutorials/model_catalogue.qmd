@@ -14,16 +14,26 @@ While in general it is assumed that users will use this package to explain their
 
 ## Available Models
 
-The `model_catalogue` can be used to inspect the available default models: 
+The `standard_models_catalogue` can be used to inspect the available default models: 
 
 ```{julia}
 #| output: true
-model_catalogue
+standard_models_catalogue
 ```
 
 As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
 
-## Fitting Models
+Models from the standard model catalogue are a core part of the package and thus compatible with all offered counterfactual generators and functionalities.
+
+The `all_models_catalogue` can be used to inspect all models offered by the package:
+
+```{julia}
+all_models_catalogue
+```
+
+However, when using models not included in the `standard_models_catalogue`, additional caution is advised: they might not be supported by all counterfactual generators or they might not be models native to Julia. Thus, a more thorough reading of their documentation may be necessary to make sure that they are used correctly.
+
+## Fitting Flux Models
 
 First, let's load one of the synthetic datasets:
 
@@ -51,7 +61,7 @@ end
 plot(plts...)
 ```
 
-## Tuning Models
+## Tuning Flux Models
 
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
 
@@ -121,6 +131,33 @@ Finally, let's restore the default training parameters:
 ```{julia}
 CounterfactualExplanations.reset!(flux_training_params)
 ```
+
+## Fitting and tuning MLJ models
+
+Among models from the MLJ library, only importing the `EvoTreeClassifier` is supported thus far. Generating counterfactuals is not supported for any MLJ model yet, but integration with gradient-based generators will be provided soon. For that reason, a short overview of setting up MLJ models will be provided.
+
+Tuning the EvoTreeClassifier is very simple. As the first step, let's reload the dataset:
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+```
+
+Using the usual procedure for fitting models, we can call the following method:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
+```
+
+However, it's also possible to tune the EvoTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+```
+
+All tunable parameters of the `EvoTreeClassifier` are supported as keyword arguments. The tunable parameters can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/).
+
+Please note again that generating counterfactuals for the `EvoTreeClassifier` is not supported yet.
 
 ## References
 

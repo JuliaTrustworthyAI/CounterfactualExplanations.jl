@@ -1,9 +1,9 @@
 """
-    FluxEnsemble <: AbstractDifferentiableJuliaModel
+    FluxEnsemble <: AbstractFluxModel
 
 Constructor for deep ensembles trained in `Flux.jl`. 
 """
-struct FluxEnsemble <: AbstractDifferentiableJuliaModel
+struct FluxEnsemble <: AbstractFluxModel
     model::Any
     likelihood::Symbol
     function FluxEnsemble(model, likelihood)

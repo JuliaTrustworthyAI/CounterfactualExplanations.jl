@@ -76,6 +76,33 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
+
+### Added models
+
+#### The `EvoTreeClassifier` model
+
+Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
+```
+
+The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+```
+
+Now, the models can be used as part of the package like any other model. However, creating counterfactuals for this model is not supported yet.
+
+```{julia}
+x = float32.([1, -0.5])
+CounterfactualExplanations.Models.probs(M, x)
+```
+
+
 ### <feature_name>
 
 <feature_description>
