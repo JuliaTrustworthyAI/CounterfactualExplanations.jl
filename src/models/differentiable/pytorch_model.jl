@@ -1,6 +1,5 @@
-@static if VERSION >= v"1.8"
-    using PythonCall
-end
+using PythonCall
+
 """
 PyTorchModel <: AbstractDifferentiablePythonModel
 
@@ -26,21 +25,20 @@ Calculates the logit scores output by the model `model` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data points in `X`
 """
-@static if VERSION >= v"1.8"
-    function logits(model::PyTorchModel, x::AbstractArray)
-        torch = PythonCall.pyimport("torch")
-        np = PythonCall.pyimport("numpy")
+function logits(model::PyTorchModel, x::AbstractArray)
+    torch = PythonCall.pyimport("torch")
+    np = PythonCall.pyimport("numpy")
 
-        if !isa(x, Matrix)
-            x = reshape(x, length(x), 1)
-        end
-
-        ŷ_python = model.neural_network(torch.tensor(np.array(x)).T).detach().numpy()
-        ŷ = PythonCall.pyconvert(Matrix, ŷ_python)
-
-        return transpose(ŷ)
+    if !isa(x, Matrix)
+        x = reshape(x, length(x), 1)
     end
+
+    ŷ_python = model.neural_network(torch.tensor(np.array(x)).T).detach().numpy()
+    ŷ = PythonCall.pyconvert(Matrix, ŷ_python)
+
+    return transpose(ŷ)
 end
+
 """
     function probs(model::PyTorchModel, x::AbstractArray)
 

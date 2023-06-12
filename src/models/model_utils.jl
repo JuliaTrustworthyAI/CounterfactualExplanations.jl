@@ -1,8 +1,6 @@
 using Flux
 using MLJBase
-@static if VERSION >= v"1.8"
-    using PythonCall
-end
+using PythonCall
 
 """
     data_loader(data::CounterfactualData)
@@ -38,31 +36,29 @@ model = pytorch_model_loader(
 )
 ```
 """
-@static if VERSION >= v"1.8"
-    function pytorch_model_loader(
-        model_path::String, model_file::String, class_name::String, pickle_path::String
-    )
-        sys = PythonCall.pyimport("sys")
-        torch = PythonCall.pyimport("torch")
+function pytorch_model_loader(
+    model_path::String, model_file::String, class_name::String, pickle_path::String
+)
+    sys = PythonCall.pyimport("sys")
+    torch = PythonCall.pyimport("torch")
 
-        # Check whether the path is correct
-        if !endswith(pickle_path, ".pt")
-            throw(
-                    ArgumentError(
-                        "pickle_path must end with '.pt'"
-                    ),
-                )
-        end
-
-        # Make sure Python is able to import the module
-        if !in(model_path, sys.path)
-            sys.path.append(model_path)
-        end
-
-        PythonCall.pyimport(model_file => class_name)
-        model = torch.load(pickle_path)
-        return model
+    # Check whether the path is correct
+    if !endswith(pickle_path, ".pt")
+        throw(
+                ArgumentError(
+                    "pickle_path must end with '.pt'"
+                ),
+            )
     end
+
+    # Make sure Python is able to import the module
+    if !in(model_path, sys.path)
+        sys.path.append(model_path)
+    end
+
+    PythonCall.pyimport(model_file => class_name)
+    model = torch.load(pickle_path)
+    return model
 end
 
 """

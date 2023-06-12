@@ -54,39 +54,37 @@ function create_new_model(data::CounterfactualData, model_path::String)
     end
 end
 
-@static if VERSION >= v"1.8"
-    function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
-        sys = PythonCall.pyimport("sys")
+function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
+    sys = PythonCall.pyimport("sys")
 
-        if !in(model_location, sys.path)
-            sys.path.append(model_location)
-        end
-
-        importlib = PythonCall.pyimport("importlib")
-        neural_network_class = importlib.import_module("neural_network_class")
-        importlib.reload(neural_network_class)
-        NeuralNetwork = neural_network_class.NeuralNetwork
-        model = NeuralNetwork()
-
-        x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
-
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-        loss_fun = torch.nn.BCEWithLogitsLoss()
-
-        # Training
-        for _ in 1:100
-            # Compute prediction and loss:
-            output = model(x_python).squeeze()
-            loss = loss_fun(output, y_python.t())
-            print(output)
-            # Backpropagation:
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-        end
-
-        torch.save(model, pickle_path)
+    if !in(model_location, sys.path)
+        sys.path.append(model_location)
     end
+
+    importlib = PythonCall.pyimport("importlib")
+    neural_network_class = importlib.import_module("neural_network_class")
+    importlib.reload(neural_network_class)
+    NeuralNetwork = neural_network_class.NeuralNetwork
+    model = NeuralNetwork()
+
+    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    loss_fun = torch.nn.BCEWithLogitsLoss()
+
+    # Training
+    for _ in 1:100
+        # Compute prediction and loss:
+        output = model(x_python).squeeze()
+        loss = loss_fun(output, y_python.t())
+        print(output)
+        # Backpropagation:
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+    end
+
+    torch.save(model, pickle_path)
 end
 
 function remove_file(file_path::String)
