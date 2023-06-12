@@ -171,11 +171,7 @@ end
                         target = get_target(data, y[1])
                         # Single sample:
                         counterfactual = generate_counterfactual(
-                            x,
-                            target,
-                            data,
-                            M,
-                            generator
+                            x, target, data, M, generator
                         )
 
                         @testset "Predetermined outputs" begin
