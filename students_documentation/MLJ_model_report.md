@@ -34,7 +34,7 @@ The library also contains various regressors and unsupervised models which are i
 
 | **Model** | **Analysis** |
 | -------- | ------- |
-| DecisionTreeClassifier, RandomForestClassifier | Currently incompatible with gradient-based generators. However, counterfactual explanations can be generated for this model using the Feature Tweak generator we implemented. The models could also be made compatible with gradient-based generators in the future, possibly through the use of [probability calibration](https://scikit-learn.org/stable/modules/calibration.html). |
+| DecisionTreeClassifier, RandomForestClassifier | Currently incompatible with gradient-based generators. However, the models have been integrated into the package and counterfactual explanations can be generated for this model using the Feature Tweak generator we implemented. The models could also be made compatible with gradient-based generators in the future, possibly through the use of [probability calibration](https://scikit-learn.org/stable/modules/calibration.html). |
 | DecisionTreeRegressor, RandomForestRegressor | Incompatible with all generators, as the package currently only supports generating counterfactual explanations for classifiers. |
 | AdaBoostClassifier | Currently not supported, but the compatibility of the model with both gradient-based generators as well as with Feature Tweak is worth exploring. |
 
@@ -43,7 +43,7 @@ The library also contains various regressors and unsupervised models which are i
 
 | **Model** | **Analysis** |
 | -------- | ------- |
-| EvoTreeClassifier | We are currently in the process of implementing support for this model. |
+| EvoTreeClassifier | We will attempt to make this model compatible with gradient-based generators and have already implemented an interface to the EvoTreeClassifier to provide that. Though it's a tree-based model, generating counterfactuals for it using the Feature Tweak generator is infeasible: the package doesn't allow for external access to individual nodes used inside the classification trees, nor to the properties of these individual nodes, which is necessary for generating counterfactuals using Feature Tweak. It seems more likely that counterfactual generators will apply to the model, though there might still be roadblocks: for example, we will need to find a workaround to the problem of the gradients being ill-defined due to the counterfactual loss function not being smooth. |
 | EvoTreeRegressor, EvoTreeCount, EvoTreeGaussian, EvoTreeMLE | Incompatible with all generators, as the package currently only supports generating counterfactual explanations for classifiers. |
 
 

@@ -81,6 +81,6 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
 end
 
 export standard_models_catalogue,
-    all_models_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
+    all_models_catalogue, mlj_models_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
 
 end

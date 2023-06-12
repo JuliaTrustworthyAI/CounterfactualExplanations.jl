@@ -2,11 +2,11 @@ using Flux
 using LaplaceRedux
 
 """
-    LaplaceReduxModel <: AbstractDifferentiableJuliaModel
+    LaplaceReduxModel <: AbstractCustomDifferentiableModel
 
 Constructor for `LaplaceRedux.jl` model.
 """
-struct LaplaceReduxModel <: AbstractDifferentiableJuliaModel
+struct LaplaceReduxModel <: AbstractCustomDifferentiableModel
     model::Laplace
     likelihood::Symbol
     function LaplaceReduxModel(model, likelihood)
