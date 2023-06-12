@@ -217,11 +217,7 @@ end
                                     1 / length(data.y_levels), 0.5
                                 ])
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    data,
-                                    M,
-                                    generator
+                                    x, target, data, M, generator
                                 )
                                 @test maximum(
                                     abs.(
