@@ -55,7 +55,7 @@ include("gradient_based/probe.jl")
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
 
-include("non_gradient_based/feature_tweak/featuretweak.jl")
+include("non_gradient_based/feature_tweak/feature_tweak.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
