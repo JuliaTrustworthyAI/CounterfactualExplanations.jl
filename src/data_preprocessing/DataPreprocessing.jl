@@ -12,13 +12,13 @@ using Plots
 using Random
 using ..GenerativeModels
 
-export CounterfactualData
-export select_factual, apply_domain_constraints, OutputEncoder, transformable_features
-
-include("plotting.jl")
+include("counterfactual_data.jl")
 include("utils.jl")
 include("generative_model_management.jl")
 include("data_contraints.jl")
-include("counterfactual_data.jl")
+include("plotting.jl")
+
+export CounterfactualData
+export select_factual, apply_domain_constraints, OutputEncoder, transformable_features
 
 end
