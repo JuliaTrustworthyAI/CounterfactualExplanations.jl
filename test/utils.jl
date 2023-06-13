@@ -61,11 +61,11 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
         sys.path.append(model_location)
     end
 
-    # importlib = PythonCall.pyimport("importlib")
-    # neural_network_class = importlib.import_module("neural_network_class")
-    # importlib.reload(neural_network_class)
-    # NeuralNetwork = neural_network_class.NeuralNetwork
-    # model = NeuralNetwork()
+    importlib = PythonCall.pyimport("importlib")
+    neural_network_class = importlib.import_module("neural_network_class")
+    importlib.reload(neural_network_class)
+    NeuralNetwork = neural_network_class.NeuralNetwork
+    model = NeuralNetwork()
 
     # x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
 
