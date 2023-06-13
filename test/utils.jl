@@ -81,7 +81,7 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
-        # optimizer.step()
+        optimizer.step()
     end
 
     torch.save(model, pickle_path)

@@ -30,7 +30,7 @@ Random.seed!(0)
     end
 end
 
-if VERSION >= v"1.8"
+if VERSION >= v"1.8" && !Sys.isapple()
     torch = PythonCall.pyimport("torch")
     @testset "PyTorch model test" begin
         model_file = "neural_network_class"
@@ -49,25 +49,25 @@ if VERSION >= v"1.8"
                 create_new_model(data, model_path)
                 train_and_save_model(data, model_location, pickle_path)
                 
-                # model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-                #     model_location,
-                #     model_file,
-                #     class_name,
-                #     pickle_path
-                # )
+                model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+                    model_location,
+                    model_file,
+                    class_name,
+                    pickle_path
+                )
 
-                # model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, data.likelihood)            
+                model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, data.likelihood)            
 
-                # @testset "$name" begin
-                #     @testset "Matrix of inputs" begin
-                #         @test size(logits(model_pytorch, X))[2] == size(X, 2)
-                #         @test size(probs(model_pytorch, X))[2] == size(X, 2)
-                #     end
-                #     @testset "Vector of inputs" begin
-                #         @test size(logits(model_pytorch, X[:, 1]), 2) == 1
-                #         @test size(probs(model_pytorch, X[:, 1]), 2) == 1
-                #     end
-                # end
+                @testset "$name" begin
+                    @testset "Matrix of inputs" begin
+                        @test size(logits(model_pytorch, X))[2] == size(X, 2)
+                        @test size(probs(model_pytorch, X))[2] == size(X, 2)
+                    end
+                    @testset "Vector of inputs" begin
+                        @test size(logits(model_pytorch, X[:, 1]), 2) == 1
+                        @test size(probs(model_pytorch, X[:, 1]), 2) == 1
+                    end
+                end
             
                 remove_file(model_path)
                 remove_file(pickle_path)
