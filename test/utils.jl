@@ -61,16 +61,16 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
         sys.path.append(model_location)
     end
 
-    importlib = PythonCall.pyimport("importlib")
-    neural_network_class = importlib.import_module("neural_network_class")
-    importlib.reload(neural_network_class)
-    NeuralNetwork = neural_network_class.NeuralNetwork
-    model = NeuralNetwork()
+    # importlib = PythonCall.pyimport("importlib")
+    # neural_network_class = importlib.import_module("neural_network_class")
+    # importlib.reload(neural_network_class)
+    # NeuralNetwork = neural_network_class.NeuralNetwork
+    # model = NeuralNetwork()
 
-    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
+    # x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    loss_fun = torch.nn.BCEWithLogitsLoss()
+    # optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    # loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
     # for _ in 1:100
@@ -84,7 +84,7 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     #     optimizer.step()
     # end
 
-    torch.save(model, pickle_path)
+    # torch.save(model, pickle_path)
 end
 
 function remove_file(file_path::String)
