@@ -10,7 +10,6 @@ Pkg.activate("$(pwd())/dev/R_call_implementation")
 using RCall
 using CounterfactualExplanations
 using Revise
-using PythonCall
 ```
 
 ### Load data
