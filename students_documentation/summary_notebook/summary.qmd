@@ -79,7 +79,46 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 
 ### Added models
 
-#### The `EvoTreeClassifier` model
+#### MLJ models
+
+We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
+
+```{julia}
+mlj_models_catalogue
+```
+
+##### The `DecisionTreeClassifier` and `RandomForestClassifier` models
+
+Added a basic interface that allows the user to load and use the `DecisionTreeClassifier` and the `RandomForestClassifier` from the MLJ package.
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+```
+
+The decision tree can be fitted as follows:
+
+```{julia}
+decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
+```
+
+The random forest model can be fitted as follows:
+
+```{julia}
+forest = CounterfactualExplanations.Models.fit_model(counterfactual_data, :RandomForest)
+```
+
+However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+
+```{julia}
+decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+```
+
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
+
+Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
+
+##### The `EvoTreeClassifier` model
 
 Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
 
@@ -95,12 +134,79 @@ The model parameters can be defined using keyword arguments. For example, we can
 evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
 ```
 
-Now, the models can be used as part of the package like any other model. However, creating counterfactuals for this model is not supported yet.
+The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+
+Now, the EvoTree can be used as part of the package like any other model:
 
 ```{julia}
 x = float32.([1, -0.5])
 CounterfactualExplanations.Models.probs(M, x)
 ```
+
+However, please note that creating counterfactuals for this model is not supported yet.
+
+
+### Added generators
+
+#### Feature Tweak
+
+This section describes the Feature Tweak generator, introduced in the paper ["Interpretable Predictions of Tree-based Ensembles via Actionable Feature Tweaking"](https://arxiv.org/pdf/1706.06691.pdf) by Tolomei et al. This is an important addition to the package, as all previously implemented generators were only applicable to differentiable models. In contrast, this generator is specifically tailored for generating counterfactuals for non-differentiable tree-based models such as decision trees and random forests and thus expands the scope of models for which counterfactual explanations can be generated using the package.
+
+This specialization to tree-based models comes at a cost: the Feature Tweak generator is incompatible with any model that does not have a tree structure, thus being incompatible with many models in the package. However, we believe that it's worth having such specialized generators in the package when that allows us to expand the scope of supported models, as Feature Tweak does.
+
+The first step when generating counterfactuals using Feature Tweak is importing a dataset and fitting a tree-based model to that dataset:
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
+```
+
+An important thing to note is that the Feature Tweak generator can only generate counterfactuals for models trained on binary classification datasets. This limitation was also noted in the paper by Tolomei et al. and follow-up research might make it feasible to expand the method to multi-class classification problems.
+
+The next step is to initialize the Feature Tweak generator:
+
+```{julia}
+generator = FeatureTweakGenerator(ϵ=0.1)
+```
+
+Now, let's take a point that the model believes is in class 1:
+
+```{julia}
+x = float32.([1, -0.5])
+Models.predict_label(decision_tree, x)
+```
+
+Let's choose 2 as the target class. We can now generate the counterfactual as usual:
+
+```{julia}
+target = 2
+ce = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
+```
+
+Let's verify that the counterfactual is indeed in the target class:
+
+```{julia}
+Models.predict_label(decision_tree, ce.s′)
+```
+
+Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree:
+
+```{julia}
+X = counterfactual_data.X
+y = counterfactual_data.y
+plt = plot()
+scatter!(counterfactual_data)
+
+scatter!(plt, [x[1]], [x[2]], color="red", markersize=10, label="x_old")
+scatter!(plt, [ce.x[1]], [ce.x[2]], color="dark blue", markersize=10, label="x_new")
+
+hline!(plt, [-0.007127], linestyle=:dash, linecolor=:black, label=nothing)
+vline!(plt, [-0.5219], linestyle=:dash, linecolor=:black, label=nothing)
+vline!(plt, [1.475], linestyle=:dash, linecolor=:black, label=nothing)
+```
+
+The visualization will be improved as part of a separate pull request.
 
 
 ### <feature_name>

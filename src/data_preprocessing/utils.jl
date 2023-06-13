@@ -96,9 +96,42 @@ function preprocess_data_for_mlj(data::CounterfactualData)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
 
     X = Float32.(X)
-    y = Float32.(y)[1, :]
+    y = convert_to_1d(y, data.y_levels)
 
     df_x = DataFrame(X', :auto)
     y = categorical(y)
     return df_x, y
+end
+
+"""
+    convert_to_1d(y::Matrix, y_levels::AbstractArray)
+
+Helper function to convert a one-hot encoded matrix to a vector of labels.
+This is necessary because MLJ models require the labels to be represented as a vector,
+but the synthetic datasets in this package hold the labels in one-hot encoded form.
+
+# Arguments
+- `y::Matrix`: The one-hot encoded matrix.
+- `y_levels::AbstractArray`: The levels of the categorical variable.
+
+# Returns
+- `labels`: A vector of labels.
+"""
+function convert_to_1d(y::Matrix, y_levels::AbstractArray)
+    # Number of rows in the onehot_encoded matrix corresponds to the number of data points
+    num_data_points = size(y, 2)
+
+    # Initialize an empty vector to hold the labels
+    labels = Vector{Int}(undef, num_data_points)
+
+    # For each data point
+    for i in 1:num_data_points
+        # Find the index of the column with a 1
+        index = findfirst(y[:, i] .== 1)
+
+        # Use this index to get the corresponding label from levels
+        labels[i] = y_levels[index]
+    end
+
+    return labels
 end

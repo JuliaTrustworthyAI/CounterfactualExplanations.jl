@@ -20,6 +20,7 @@ using DataFrames
 include("utils.jl")
 
 include("differentiable/differentiable.jl")
+include("nondifferentiable/nondifferentiable.jl")
 
 include("plotting/default.jl")
 include("plotting/voronoi.jl")
@@ -27,7 +28,7 @@ include("plotting/voronoi.jl")
 include("pretrained/pretrained.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, MLJModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, TreeModel
 export flux_training_params
 export probs, logits
 
@@ -65,6 +66,19 @@ const all_models_catalogue = Dict(
     :DeepEnsemble => FluxEnsemble,
     :LaplaceRedux => LaplaceReduxModel,
     :EvoTree => EvoTreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
+)
+
+"""
+    mlj_models_catalogue
+
+A dictionary containing all machine learning models from the MLJ model registry that the package supports.
+"""
+const mlj_models_catalogue = Dict(
+    :EvoTree => EvoTreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
 )
 
 """
@@ -80,14 +94,18 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
 
     # Set up:
     M = all_models_catalogue[model](counterfactual_data; kwrgs...)
-
-    # Train:
     train(M, counterfactual_data)
 
     return M
 end
 
-export standard_models_catalogue,
-    all_models_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
+export standard_models_catalogue
+export all_models_catalogue
+export mlj_models_catalogue
+export fit_model
+export model_evaluation
+export predict_label
+export predict_proba
+export reset!
 
 end

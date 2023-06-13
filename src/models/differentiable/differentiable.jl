@@ -5,7 +5,7 @@ Base type for differentiable models.
 abstract type AbstractDifferentiableModel <: AbstractFittedModel end
 
 """
-Base type for differentiable models written in pure Julia.
+Base type for differentiable models written in pure Flux.
 """
 abstract type AbstractFluxModel <: AbstractDifferentiableModel end
 
