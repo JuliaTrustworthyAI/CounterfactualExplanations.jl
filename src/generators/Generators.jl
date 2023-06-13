@@ -39,14 +39,17 @@ export hinge_loss, invalidation_rate
 export ProbeGenerator
 
 include("macros.jl")
+include("utils.jl")
 
 # Optimizers
 include("optimizers/JSMADescent.jl")
 
 # Gradient-Based Generators:
 include("gradient_based/base.jl")
-include("gradient_based/generators.jl")
 include("gradient_based/utils.jl")
+include("gradient_based/loss.jl")
+
+include("gradient_based/generators.jl")
 include("gradient_based/probe.jl")
 
 # Non-Gradient-Based Generators:
