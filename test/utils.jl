@@ -79,7 +79,7 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
         loss = loss_fun(output, y_python.t())
         print(output)
         # Backpropagation:
-        # optimizer.zero_grad()
+        optimizer.zero_grad()
         # loss.backward()
         # optimizer.step()
     end
