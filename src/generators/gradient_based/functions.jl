@@ -14,11 +14,7 @@ function ∂ℓ(
     ce::AbstractCounterfactualExplanation,
 )
     gs = 0
-    if (ce.convergence[:converge_when] == :invalidation_rate)
-        gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′] .+ hinge_loss(ce)
-    else
-        gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
-    end
+    gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
     return gs
 end
 
@@ -91,7 +87,11 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce)
+    ℓ = 0
+    if (ce.convergence[:converge_when] == :invalidation_rate)
+        ℓ = hinge_loss(ce)
+    end
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ ℓ
 end
 
 """
