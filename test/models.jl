@@ -47,7 +47,7 @@ if VERSION >= v"1.8"
 
                 # Create and save model in the model_path directory
                 create_new_model(data, model_path)
-                # train_and_save_model(data, model_location, pickle_path)
+                train_and_save_model(data, model_location, pickle_path)
                 
                 # model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
                 #     model_location,
@@ -70,7 +70,7 @@ if VERSION >= v"1.8"
                 # end
             
                 remove_file(model_path)
-                # remove_file(pickle_path)
+                remove_file(pickle_path)
             end
         end
     end
