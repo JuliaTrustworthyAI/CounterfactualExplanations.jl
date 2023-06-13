@@ -39,6 +39,7 @@ generators = generator_catalogue
     @testset "Generators" begin
         include("generators.jl")
     end
+
     @testset "Probe" begin
         include("probe.jl")
     end

@@ -54,7 +54,9 @@ using .Objectives
 include("generators/Generators.jl")
 using .Generators
 export AbstractGradientBasedGenerator
+export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
