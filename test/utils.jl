@@ -67,10 +67,10 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     NeuralNetwork = neural_network_class.NeuralNetwork
     model = NeuralNetwork()
 
-    # x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
+    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
 
-    # optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
-    # loss_fun = torch.nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
     # for _ in 1:100
