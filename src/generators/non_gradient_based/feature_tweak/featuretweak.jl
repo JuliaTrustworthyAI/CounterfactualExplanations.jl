@@ -1,7 +1,108 @@
-using DecisionTree
-using DataFrames
-using MLJBase
-using MLJDecisionTreeInterface
+"""
+    FeatureTweakGenerator(; ϵ::AbstractFloat, kwargs...)
+
+Constructs a new Feature Tweak Generator object.
+
+Uses the L2-norm as the penalty to measure the distance between the counterfactual and the factual.
+According to the paper by Tolomei er al., an alternative choice here would be using the L0-norm to simply minimize the number of features that are changed through the tweak.
+
+# Arguments
+- `ϵ::AbstractFloat`: The tolerance value for the feature tweaks. Described at length in Tolomei et al. (https://arxiv.org/pdf/1706.06691.pdf).
+
+# Returns
+- `generator::HeuristicBasedGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
+"""
+function FeatureTweakGenerator(; ϵ::AbstractFloat=0.1, kwargs...)
+    return HeuristicBasedGenerator(; penalty=Objectives.distance_l2, ϵ=ϵ, kwargs...)
+end
+
+"""
+    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
+
+Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
+
+# Arguments
+- `generator::FeatureTweakGenerator`: The feature tweak generator.
+- `M::Models.TreeModel`: The model for which the counterfactual is generated. Must be a tree-based model.
+- `x::AbstractArray`: The factual instance.
+- `target::RawTargetType`: The target class.
+
+# Returns
+- `x_out::AbstractArray`: The counterfactual instance.
+
+# Example
+x = feature_tweaking(generator, M, x, target) # returns a counterfactual instance of `x` based on the ensemble of classifiers provided
+"""
+function feature_tweaking(
+    generator::HeuristicBasedGenerator,
+    M::Models.TreeModel,
+    x::AbstractArray,
+    target::RawTargetType,
+)
+    if Models.predict_label(M, x)[1] == target
+        return x
+    end
+
+    x_out = deepcopy(x)
+    machine = M.model
+    delta = 10^3
+    ensemble_prediction = Models.predict_label(M, x)[1]
+    fp = MLJBase.fitted_params(machine)
+    model = fp.tree.node
+
+    for classifier in Models.get_individual_classifiers(M)
+        if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
+            Models.predict_label(classifier, x)[1] != target
+            paths = search_path(model, target)
+            for key in keys(paths)
+                path = paths[key]
+                es_instance = esatisfactory_instance(generator, x, path)
+                if target .== Models.predict_label(M, es_instance)[1]
+                    if LinearAlgebra.norm(x - es_instance) < delta
+                        x_out = es_instance
+                        delta = LinearAlgebra.norm(x - es_instance)
+                    end
+                end
+            end
+        end
+    end
+    return x_out
+end
+
+"""
+    esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
+
+Returns an epsilon-satisfactory counterfactual for `x` based on the paths provided.
+
+# Arguments
+- `generator::FeatureTweakGenerator`: The feature tweak generator.
+- `x::AbstractArray`: The factual instance.
+- `paths::Dict{String, Dict{String, Any}}`: A list of paths to the leaves of the tree to be used for tweaking the feature.
+
+# Returns
+- `esatisfactory::AbstractArray`: The epsilon-satisfactory instance.
+
+# Example
+esatisfactory = esatisfactory_instance(generator, x, paths) # returns an epsilon-satisfactory counterfactual for `x` based on the paths provided
+"""
+function esatisfactory_instance(
+    generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray
+)
+    esatisfactory = deepcopy(x)
+    for path in paths
+        feature_idx = path["feature"]
+        threshold_value = path["threshold"]
+        inequality_symbol = path["inequality_symbol"]
+        if inequality_symbol == 0
+            esatisfactory[feature_idx] = threshold_value - generator.ϵ
+        elseif inequality_symbol == 1
+            esatisfactory[feature_idx] = threshold_value + generator.ϵ
+        else
+            error("Unable to find a valid e-satisfactory instance.")
+        end
+    end
+    return esatisfactory
+end
 
 """
     search_path(tree::Union{Leaf, Node}, target::RawTargetType, path::AbstractArray)
@@ -111,59 +212,6 @@ function search_path(
         append!(paths, search_path(tree, target))
     end
     return paths
-end
-
-"""
-    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
-
-Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
-
-# Arguments
-- `generator::FeatureTweakGenerator`: The feature tweak generator.
-- `M::Models.TreeModel`: The model for which the counterfactual is generated. Must be a tree-based model.
-- `x::AbstractArray`: The factual instance.
-- `target::RawTargetType`: The target class.
-
-# Returns
-- `x_out::AbstractArray`: The counterfactual instance.
-
-# Example
-x = feature_tweaking(generator, M, x, target) # returns a counterfactual instance of `x` based on the ensemble of classifiers provided
-"""
-function feature_tweaking(
-    generator::HeuristicBasedGenerator,
-    M::Models.TreeModel,
-    x::AbstractArray,
-    target::RawTargetType,
-)
-    if Models.predict_label(M, x)[1] == target
-        return x
-    end
-
-    x_out = deepcopy(x)
-    machine = M.model
-    delta = 10^3
-    ensemble_prediction = Models.predict_label(M, x)[1]
-    fp = MLJBase.fitted_params(machine)
-    model = fp.tree.node
-
-    for classifier in Models.get_individual_classifiers(M)
-        if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
-            Models.predict_label(classifier, x)[1] != target
-            paths = search_path(model, target)
-            for key in keys(paths)
-                path = paths[key]
-                es_instance = esatisfactory_instance(generator, x, path)
-                if target .== Models.predict_label(M, es_instance)[1]
-                    if LinearAlgebra.norm(x - es_instance) < delta
-                        x_out = es_instance
-                        delta = LinearAlgebra.norm(x - es_instance)
-                    end
-                end
-            end
-        end
-    end
-    return x_out
 end
 
 """

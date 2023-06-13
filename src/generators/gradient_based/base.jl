@@ -1,7 +1,3 @@
-using Flux
-using LinearAlgebra
-using Parameters
-
 """
 	AbstractGradientBasedGenerator
 

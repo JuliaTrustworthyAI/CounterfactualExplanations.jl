@@ -10,6 +10,14 @@ using LinearAlgebra
 using ..Models
 using ..Objectives
 using Statistics
+using Parameters
+using DecisionTree
+using DataFrames
+using MLJBase
+using MLJDecisionTreeInterface
+using Distributions
+using SliceMap
+
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
@@ -27,23 +35,24 @@ export GradientBasedGenerator
 export HeuristicBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
+export hinge_loss, invalidation_rate
+export ProbeGenerator
 
-include("functions.jl")
 include("macros.jl")
+
+# Optimizers
+include("optimizers/JSMADescent.jl")
 
 # Gradient-Based Generators:
 include("gradient_based/base.jl")
-include("gradient_based/functions.jl")
 include("gradient_based/generators.jl")
-include("gradient_based/optimisers.jl")
+include("gradient_based/utils.jl")
 include("gradient_based/probe.jl")
-export ProbeGenerator
-export hinge_loss, invalidation_rate
 
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
-include("non_gradient_based/functions.jl")
-include("non_gradient_based/generators.jl")
+
+include("non_gradient_based/feature_tweak/featuretweak.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
