@@ -22,4 +22,4 @@ abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel e
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
 include("other/laplace_redux.jl")
-include("other/evotree_model.jl")
+include("other/evotree.jl")

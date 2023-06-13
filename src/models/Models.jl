@@ -16,6 +16,7 @@ using Statistics
 using EvoTrees
 using SliceMap
 using DataFrames
+using MLJDecisionTreeInterface
 
 include("utils.jl")
 

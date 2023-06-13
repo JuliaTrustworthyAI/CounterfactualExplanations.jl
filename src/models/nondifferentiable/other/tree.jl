@@ -1,7 +1,3 @@
-using MLJDecisionTreeInterface
-using DataFrames
-using MLJBase
-
 # The implementation of MLJ: DecisionTree: https://github.com/JuliaAI/DecisionTree.jl/blob/dev/src/classification/main.jl
 
 """
@@ -68,7 +64,7 @@ Returns the predicted label for `X`.
 label = Models.predict_label(M, x) # returns the predicted label for each data point in `x`
 """
 function predict_label(M::TreeModel, X::AbstractArray)
-    return MLJBase.predict_mode(M.model, DataFrame(X', :auto))
+    return MLJBase.predict_mode(M.model, DataFrames.DataFrame(X', :auto))
 end
 
 """
@@ -138,8 +134,8 @@ Calculates the probability scores for each output class for the two-dimensional 
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
 function probs(M::TreeModel, X::AbstractArray{<:Number,2})
-    output = MLJBase.predict(M.model, DataFrame(X', :auto))
-    p = MLJBase.pdf(output, classes(output))'
+    output = MLJBase.predict(M.model, DataFrames.DataFrame(X', :auto))
+    p = MLJBase.pdf(output, MLJBase.classes(output))'
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end
@@ -153,8 +149,8 @@ Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) met
 """
 function probs(M::TreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
-    output = MLJBase.predict(M.model, DataFrame(X, :auto))
-    p = MLJBase.pdf(output, classes(output))'
+    output = MLJBase.predict(M.model, DataFrames.DataFrame(X, :auto))
+    p = MLJBase.pdf(output, MLJBase.classes(output))'
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end
@@ -170,7 +166,7 @@ function probs(M::TreeModel, X::AbstractArray{<:Number,3})
     # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
     # and then calls the probs method for 1- and 2-dimensional input data on those slices
     output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = MLJBase.pdf(output, classes(output))
+    p = MLJBase.pdf(output, MLJBase.classes(output))
     return p
 end
 
