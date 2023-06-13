@@ -72,7 +72,7 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
     loss_fun = torch.nn.BCEWithLogitsLoss()
 
-    Training
+    # Training
     for _ in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
