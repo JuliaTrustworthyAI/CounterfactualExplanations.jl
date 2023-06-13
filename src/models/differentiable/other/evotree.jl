@@ -1,8 +1,3 @@
-using DataFrames
-using SliceMap
-using EvoTrees
-using MLJBase
-
 """
 This type provides a basic interface to gradient-boosted tree models from the MLJ library.
 However, this might not be the final version of the interface: full support for generating counterfactual explanations for EvoTrees has not been implemented yet.
@@ -86,7 +81,7 @@ Calculates the probability scores for each output class for the two-dimensional 
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
-    output = MLJBase.predict(M.model, DataFrame(X', :auto))
+    output = MLJBase.predict(M.model, DataFrames.DataFrame(X', :auto))
     p = MLJBase.pdf(output, MLJBase.classes(output))'
     return p
 end
@@ -98,7 +93,7 @@ Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) 
 """
 function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
-    output = MLJBase.predict(M.model, DataFrame(X, :auto))
+    output = MLJBase.predict(M.model, DataFrames.DataFrame(X, :auto))
     p = MLJBase.pdf(output, MLJBase.classes(output))'
     return p
 end
@@ -132,7 +127,7 @@ function EvoTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     model = EvoTrees.EvoTreeClassifier(kwargs...)
-    mach = machine(model, X, y)
+    mach = MLJBase.machine(model, X, y)
 
     return EvoTreeModel(mach, data.likelihood)
 end

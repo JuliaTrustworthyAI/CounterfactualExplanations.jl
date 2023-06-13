@@ -3,6 +3,30 @@ module Models
 using ..CounterfactualExplanations
 using ..DataPreprocessing
 using Parameters
+using Flux
+using MLJBase
+using NearestNeighborModels
+using Plots
+using LazyArtifacts
+using Serialization
+using LaplaceRedux
+using MLUtils
+using ProgressMeter
+using Statistics
+using EvoTrees
+using SliceMap
+using DataFrames
+using MLJDecisionTreeInterface
+
+include("utils.jl")
+
+include("differentiable/differentiable.jl")
+include("nondifferentiable/nondifferentiable.jl")
+
+include("plotting/default.jl")
+include("plotting/voronoi.jl")
+
+include("pretrained/pretrained.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel
 export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, TreeModel
@@ -22,12 +46,6 @@ function logits(M::AbstractFittedModel, X::AbstractArray) end
 Generic method that is compulsory for all models. It returns the normalized model predictions, so the predicted probabilities in the case of classification. In regression (not currently implemented) this method is redundant. 
 """
 function probs(M::AbstractFittedModel, X::AbstractArray) end
-
-include("model_utils.jl")
-include("differentiable/differentiable.jl")
-include("nondifferentiable/nondifferentiable.jl")
-include("plotting.jl")
-include("pretrained.jl")
 
 """
     standard_models_catalogue

@@ -1,8 +1,3 @@
-using Flux
-using MLUtils
-using ProgressMeter
-using Statistics
-
 """
     FluxModel <: AbstractFluxModel
 
@@ -26,7 +21,7 @@ end
 
 # Outer constructor method:
 function FluxModel(model; likelihood::Symbol=:classification_binary)
-    testmode!(model)
+    Flux.testmode!(model)
     return FluxModel(model, likelihood)
 end
 
@@ -37,9 +32,9 @@ end
 
 function probs(M::FluxModel, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = σ.(logits(M, X))
+        output = Flux.σ.(logits(M, X))
     elseif M.likelihood == :classification_multi
-        output = softmax(logits(M, X))
+        output = Flux.softmax(logits(M, X))
     end
     return output
 end
@@ -82,12 +77,12 @@ function forward!(
     # Training:  
     if flux_training_params.verbose
         @info "Begin training $(model_name)"
-        p_epoch = Progress(
+        p_epoch = ProgressMeter.Progress(
             n_epochs; desc="Progress on epochs:", showspeed=true, color=:green
         )
     end
 
-    trainmode!(model)
+    Flux.trainmode!(model)
     for epoch in 1:n_epochs
         for d in data
             gs = Flux.gradient(Flux.params(model)) do
@@ -96,10 +91,10 @@ function forward!(
             Flux.Optimise.update!(opt_, Flux.params(model), gs)
         end
         if flux_training_params.verbose
-            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])
+            ProgressMeter.next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])
         end
     end
-    return testmode!(model)
+    return Flux.testmode!(model)
 end
 
 """
@@ -127,32 +122,36 @@ function build_mlp(;
     @assert n_layers >= 1 "Need at least one layer."
 
     if n_layers == 1
-        model = Chain(Dense(input_dim, output_dim))
+        model = Flux.Chain(Flux.Dense(input_dim, output_dim))
     elseif dropout
         hidden_ = repeat(
-            [Dense(n_hidden, n_hidden, activation), Dropout(p_dropout)], n_layers - 2
+            [Flux.Dense(n_hidden, n_hidden, activation), Flux.Dropout(p_dropout)],
+            n_layers - 2,
         )
-        model = Chain(
-            Dense(input_dim, n_hidden, activation),
-            Dropout(p_dropout),
+        model = Flux.Chain(
+            Flux.Dense(input_dim, n_hidden, activation),
+            Flux.Dropout(p_dropout),
             hidden_...,
-            Dense(n_hidden, output_dim),
+            Flux.Dense(n_hidden, output_dim),
         )
     elseif batch_norm
         hidden_ = repeat(
-            [Dense(n_hidden, n_hidden), BatchNorm(n_hidden, activation)], n_layers - 2
+            [Flux.Dense(n_hidden, n_hidden), Flux.BatchNorm(n_hidden, activation)],
+            n_layers - 2,
         )
         model = Chain(
-            Dense(input_dim, n_hidden),
-            BatchNorm(n_hidden, activation),
+            Flux.Dense(input_dim, n_hidden),
+            Flux.BatchNorm(n_hidden, activation),
             hidden_...,
-            Dense(n_hidden, output_dim),
-            BatchNorm(output_dim),
+            Flux.Dense(n_hidden, output_dim),
+            Flux.BatchNorm(output_dim),
         )
     else
-        hidden_ = repeat([Dense(n_hidden, n_hidden, activation)], n_layers - 2)
-        model = Chain(
-            Dense(input_dim, n_hidden, activation), hidden_..., Dense(n_hidden, output_dim)
+        hidden_ = repeat([Flux.Dense(n_hidden, n_hidden, activation)], n_layers - 2)
+        model = Flux.Chain(
+            Flux.Dense(input_dim, n_hidden, activation),
+            hidden_...,
+            Flux.Dense(n_hidden, output_dim),
         )
     end
 
