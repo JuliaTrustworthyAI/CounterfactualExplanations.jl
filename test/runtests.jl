@@ -20,37 +20,35 @@ synthetic = _load_synthetic()
 generators = generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-    # @testset "Data" begin
-    #     include("data.jl")
-    # end
+    @testset "Data" begin
+        include("data.jl")
+    end
 
-    # @testset "Data preprocessing" begin
-    #     include("data_preprocessing.jl")
-    # end
+    @testset "Data preprocessing" begin
+        include("data_preprocessing.jl")
+    end
 
-    # @testset "Generative Models" begin
-    #     include("generative_models.jl")
-    # end
+    @testset "Generative Models" begin
+        include("generative_models.jl")
+    end
 
-    # @testset "Counterfactuals" begin
-    #     include("counterfactuals.jl")
-    # end
+    @testset "Counterfactuals" begin
+        include("counterfactuals.jl")
+    end
 
-    # @testset "Generators" begin
-    #     include("generators.jl")
-    # end
+    @testset "Generators" begin
+        include("generators.jl")
+    end
 
     @testset "Model" begin
         include("models.jl")
     end
 
-    # @testset "Plotting" begin
-    #     include("plotting.jl")
-    # end
+    @testset "Plotting" begin
+        include("plotting.jl")
+    end
 
-    # @testset "Evaluation" begin
-    #     include("evaluation.jl")
-    # end
-
-    println("VERSION: ", VERSION)
+    @testset "Evaluation" begin
+        include("evaluation.jl")
+    end
 end
