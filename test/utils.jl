@@ -73,7 +73,7 @@ function train_and_save_model(
         data
     )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    optimizer = torch.optim.Adam(model.parameters(); lr=0.1)
     loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
