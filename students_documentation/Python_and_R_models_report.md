@@ -20,7 +20,7 @@ For all these reasons, we decided to use alternative options for solving this is
 
 ### The tests for the Python conversion fail on the Ubuntu Julia 1.7 and OSX pipelines
 
-Once we had finished the implementation of the Python models, we noticed that though the pipeline was passing on our machines as well as on most of the GitHub virtual machines we ran it on, two pipelines on the remote were failing: 
+Once we had finished the implementation of the Python models, we noticed that though the pipeline was passing on our machines as well as on most of the GitHub virtual machines we ran it on, some pipelines on the remote were failing: the pipeline testing our code on Ubuntu using Julia 1.7, and the pipeline testing it on OSX machines. The reasons behind the failures were different: 
 
 ### `PythonCall.jl` and `RCall.jl` cannot be used together in the same session
 

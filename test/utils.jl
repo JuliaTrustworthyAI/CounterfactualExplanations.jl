@@ -85,6 +85,7 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     end
 
     torch.save(model, pickle_path)
+    return
 end
 
 function remove_file(file_path::String)
