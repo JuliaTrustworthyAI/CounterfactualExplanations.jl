@@ -48,7 +48,6 @@ if VERSION >= v"1.8" && !Sys.isapple()
                 # Create and save model in the model_path directory
                 create_new_model(data, model_path)
                 train_and_save_model(data, model_location, pickle_path)
-                
                 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
                     model_location,
                     model_file,
