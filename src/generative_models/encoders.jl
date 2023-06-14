@@ -29,7 +29,9 @@ end
 The default decoder architecture is just a Flux Chain with one hidden layer and a linear output layer. 
 """
 function Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=tanh)
-    return Flux.Chain(Flux.Dense(latent_dim, hidden_dim, activation), Flux.Dense(hidden_dim, input_dim))
+    return Flux.Chain(
+        Flux.Dense(latent_dim, hidden_dim, activation), Flux.Dense(hidden_dim, input_dim)
+    )
 end
 
 """

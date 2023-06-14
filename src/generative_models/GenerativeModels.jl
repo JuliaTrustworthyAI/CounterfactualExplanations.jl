@@ -8,7 +8,6 @@ using ProgressMeter
 using Random
 using Statistics
 
-
 """
 Base type for generative model.
 """
