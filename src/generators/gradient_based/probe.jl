@@ -26,7 +26,7 @@ function ProbeGenerator(;
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = losses_catalogue[loss]
-    return Generator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
+    return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end
 
 """

@@ -1,13 +1,9 @@
-using Flux
-using MLUtils
-using Statistics
-
 """
-    FluxEnsemble <: AbstractDifferentiableJuliaModel
+    FluxEnsemble <: AbstractFluxModel
 
 Constructor for deep ensembles trained in `Flux.jl`. 
 """
-struct FluxEnsemble <: AbstractDifferentiableJuliaModel
+struct FluxEnsemble <: AbstractFluxModel
     model::Any
     likelihood::Symbol
     function FluxEnsemble(model, likelihood)
@@ -25,7 +21,7 @@ end
 
 # Outer constructor method:
 function FluxEnsemble(model; likelihood::Symbol=:classification_binary)
-    @.(testmode!(model))
+    @.(Flux.testmode!(model))
     return FluxEnsemble(model, likelihood)
 end
 
@@ -35,9 +31,9 @@ end
 
 function probs(M::FluxEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = sum(map(nn -> σ.(nn(X)), M.model)) / length(M.model)
+        output = sum(map(nn -> Flux.σ.(nn(X)), M.model)) / length(M.model)
     elseif M.likelihood == :classification_multi
-        output = sum(map(nn -> softmax(nn(X)), M.model)) / length(M.model)
+        output = sum(map(nn -> Flux.softmax(nn(X)), M.model)) / length(M.model)
     end
     return output
 end

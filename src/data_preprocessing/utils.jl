@@ -1,3 +1,5 @@
+using DataFrames
+
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 
@@ -164,3 +166,4 @@ function select_factual(
 )
     return zip([select_factual(counterfactual_data, i) for i in index])
 end
+
