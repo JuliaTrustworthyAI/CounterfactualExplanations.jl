@@ -15,7 +15,7 @@ using ..GenerativeModels
 
 include("counterfactual_data.jl")
 include("utils.jl")
-include("generative_model_management.jl")
+include("generative_model_utils.jl")
 include("data_contraints.jl")
 include("plotting.jl")
 
