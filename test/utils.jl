@@ -54,7 +54,9 @@ function create_new_model(data::CounterfactualData, model_path::String)
     end
 end
 
-function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
+function train_and_save_model(
+    data::CounterfactualData, model_location::String, pickle_path::String
+)
     sys = PythonCall.pyimport("sys")
 
     if !in(model_location, sys.path)
