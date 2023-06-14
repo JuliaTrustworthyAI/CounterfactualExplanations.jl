@@ -8,6 +8,24 @@ Constructor for models trained in `PyTorch`.
 struct PyTorchModel <: AbstractDifferentiablePythonModel
     neural_network::Any
     likelihood::Symbol
+    function PyTorchModel(model, likelihood)
+        if likelihood ∈ [:classification_binary, :classification_multi]
+            new(model, likelihood)
+        else
+            throw(
+                ArgumentError(
+                    "`type` should be in `[:classification_binary,:classification_multi]`"
+                ),
+            )
+        end
+    end
+end
+
+"""
+Outer constructor for `PyTorchModel`.
+"""
+function PyTorchModel(model; likelihood::Symbol=:classification_binary)
+    return PyTorchModel(model, likelihood)
 end
 
 """
