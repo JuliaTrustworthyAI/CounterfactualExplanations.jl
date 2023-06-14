@@ -1,7 +1,3 @@
-using Flux
-using LinearAlgebra
-using Parameters
-
 abstract type AbstractNonGradientBasedGenerator <: AbstractGenerator end
 
 "Base class for heuristic-based counterfactual generators."

@@ -1,7 +1,3 @@
-import ..Objectives: losses_catalogue, distance_l1
-import LinearAlgebra: transpose, Matrix
-import Flux.Losses
-import Distributions: cdf, Normal
 """
     ProbeGenerator(; λ::AbstractFloat=0.1, loss::Symbol=:mse, penalty=distance_l1, kwargs...)
 
@@ -21,11 +17,11 @@ based on https://arxiv.org/abs/2203.06768
 function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
-    penalty=distance_l1,
+    penalty=Objectives.distance_l1,
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
-    user_loss = losses_catalogue[loss]
+    user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end
 
@@ -48,19 +44,19 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     for i in 1:length(ce.s′)
         push!(
             grad,
-            gradient(
+            Flux.gradient(
                 () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
                 Flux.params(ce.s′),
             )[ce.s′],
         )
     end
-    gradᵀ = transpose(grad)
+    gradᵀ = LinearAlgebra.transpose(grad)
 
-    identity_matrix = Matrix{Float32}(I, length(grad), length(grad))
+    identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
     denominator = sqrt(gradᵀ * ce.params[:variance] * identity_matrix * grad)[1]
 
     normalized_gradient = f_loss / denominator
-    ϕ = cdf(Normal(0, 1), normalized_gradient)
+    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
 end
 
