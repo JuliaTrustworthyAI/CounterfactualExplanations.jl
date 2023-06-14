@@ -66,7 +66,6 @@ if VERSION >= v"1.8" && !Sys.isapple()
                         @test size(probs(model_pytorch, X[:, 1]), 2) == 1
                     end
                 end
-            
                 remove_file(model_path)
                 remove_file(pickle_path)
             end
