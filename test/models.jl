@@ -52,7 +52,9 @@ if VERSION >= v"1.8" && !Sys.isapple()
                     model_location, model_file, class_name, pickle_path
                 )
 
-                model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, data.likelihood)            
+                model_pytorch = CounterfactualExplanations.Models.PyTorchModel(
+                    model_loaded, data.likelihood
+                )
 
                 @testset "$name" begin
                     @testset "Matrix of inputs" begin
