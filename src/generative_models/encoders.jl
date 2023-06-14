@@ -1,4 +1,3 @@
-
 """
 Encoder
 
@@ -13,9 +12,9 @@ Flux.@functor Encoder
 
 function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
     return Encoder(
-        Dense(input_dim, hidden_dim, activation),       # linear
-        Dense(hidden_dim, latent_dim),                  # μ
-        Dense(hidden_dim, latent_dim),                  # logσ
+        Flux.Dense(input_dim, hidden_dim, activation),       # linear
+        Flux.Dense(hidden_dim, latent_dim),                  # μ
+        Flux.Dense(hidden_dim, latent_dim),                  # logσ
     )
 end
 
@@ -30,7 +29,7 @@ end
 The default decoder architecture is just a Flux Chain with one hidden layer and a linear output layer. 
 """
 function Decoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=tanh)
-    return Chain(Dense(latent_dim, hidden_dim, activation), Dense(hidden_dim, input_dim))
+    return Flux.Chain(Flux.Dense(latent_dim, hidden_dim, activation), Flux.Dense(hidden_dim, input_dim))
 end
 
 """
