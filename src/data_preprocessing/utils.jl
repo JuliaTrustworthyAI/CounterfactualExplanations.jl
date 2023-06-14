@@ -1,5 +1,3 @@
-using DataFrames
-
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 
@@ -98,8 +96,8 @@ function preprocess_data_for_mlj(data::CounterfactualData)
     X = Float32.(X)
     y = convert_to_1d(y, data.y_levels)
 
-    df_x = DataFrame(X', :auto)
-    y = categorical(y)
+    df_x = DataFrames.DataFrame(X', :auto)
+    y = CategoricalArrays.categorical(y)
     return df_x, y
 end
 

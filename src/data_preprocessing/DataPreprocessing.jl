@@ -2,6 +2,7 @@ module DataPreprocessing
 
 using CategoricalArrays
 using CounterfactualExplanations
+using DataFrames
 using Flux
 using MultivariateStats
 using StatsBase
