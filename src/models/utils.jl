@@ -40,11 +40,7 @@ function pytorch_model_loader(
 
     # Check whether the path is correct
     if !endswith(pickle_path, ".pt")
-        throw(
-                ArgumentError(
-                    "pickle_path must end with '.pt'"
-                ),
-            )
+        throw(ArgumentError("pickle_path must end with '.pt'"))
     end
 
     # Make sure Python is able to import the module
