@@ -1,6 +1,7 @@
 using RCall
 
-struct RTorchModel <: AbstractDifferentiableModel
+# TODO: add comments
+struct RTorchModel <: AbssractDifferentiableRModel
     nn::Any
     likelihood::Symbol
 end
