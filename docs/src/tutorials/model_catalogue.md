@@ -9,10 +9,10 @@ While in general it is assumed that users will use this package to explain their
 
 ## Available Models
 
-The `model_catalogue` can be used to inspect the available default models:
+The `standard_model_catalogue` can be used to inspect the available default models:
 
 ``` julia
-model_catalogue
+standard_model_catalogue
 ```
 
     Dict{Symbol, Any} with 3 entries:

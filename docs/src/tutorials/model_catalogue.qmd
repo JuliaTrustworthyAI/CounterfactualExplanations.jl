@@ -14,18 +14,28 @@ While in general it is assumed that users will use this package to explain their
 
 ## Available Models
 
-The `model_catalogue` can be used to inspect the available default models: 
+The `standard_models_catalogue` can be used to inspect the available default models: 
 
 ```{julia}
 #| output: true
-model_catalogue
+standard_models_catalogue
 ```
 
 As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
 
-In addition to the default models, the package also supports generating counterfactual explanations for models defined using PyTorch. The process of generating counterfactuals for a PyTorch model will be explained at length below.
-
 ## Fitting Models
+
+Models from the standard model catalogue are a core part of the package and thus compatible with all offered counterfactual generators and functionalities.
+
+The `all_models_catalogue` can be used to inspect all models offered by the package:
+
+```{julia}
+all_models_catalogue
+```
+
+However, when using models not included in the `standard_models_catalogue`, additional caution is advised: they might not be supported by all counterfactual generators or they might not be models native to Julia. Thus, a more thorough reading of their documentation may be necessary to make sure that they are used correctly.
+
+## Fitting Flux Models
 
 First, let's load one of the synthetic datasets:
 
@@ -91,6 +101,7 @@ model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, cou
 This model can now be passed into the generators like any other.
 
 ## Tuning Models
+## Tuning Flux Models
 
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
 
@@ -161,8 +172,37 @@ Finally, let's restore the default training parameters:
 CounterfactualExplanations.reset!(flux_training_params)
 ```
 
+## Fitting and tuning MLJ models
+
+Among models from the MLJ library, three models are supported as of now:
+
+```{julia}
+mlj_models_catalogue
+```
+
+From these models, the `DecisionTreeModel` and the `RandomForestModel` are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them. Support for generating counterfactuals for the `EvoTreeModel` has not been implemented yet.
+
+Tuning MLJ models is very simple. As the first step, let's reload the dataset:
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+```
+
+Using the usual procedure for fitting models, we can call the following method:
+
+```{julia}
+tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
+```
+
+However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+
+```{julia}
+tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+```
+
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+
+Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
+
 ## References
-
-
-
-

@@ -1,8 +1,3 @@
-using MLJBase
-using Plots
-using Parameters
-using SliceMap
-
 """
     Plots.plot(
         ce::CounterfactualExplanation;
@@ -47,9 +42,9 @@ function Plots.plot(
     end
 
     plt = if plot_proba
-        plot(ingredients.p1, ingredients.p2; kwargs...)
+        Plots.plot(ingredients.p1, ingredients.p2; kwargs...)
     else
-        plot(ingredients.p1; kwargs...)
+        Plots.plot(ingredients.p1; kwargs...)
     end
 
     return plt
