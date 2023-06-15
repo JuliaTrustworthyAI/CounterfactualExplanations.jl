@@ -116,6 +116,16 @@ end
 mosaic(images..., ncol=10) |> display
 ```
 
+#### UCI Adult dataset
+
+Added the UCI adult dataset as a benchmark dataset.
+
+```{julia}
+adult_data = CounterfactualExplanations.Data.load_uci_adult()
+adult_data_x = adult_data.X
+adult_data_y = adult_data.output_encoder.y
+```
+
 ### <feature_name>
 
 <feature_description>

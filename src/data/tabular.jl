@@ -162,3 +162,40 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
 
     return counterfactual_data
 end
+
+function load_uci_adult(n::Union{Nothing, Int}=nothing)
+    # Throw an exception if n > 1000:
+    if !isnothing(n) && n > 1000
+        throw(ArgumentError("n must be <= 1000"))
+    end
+    
+    # Throw an exception if n < 1:
+    if !isnothing(n) && n < 1
+        throw(ArgumentError("n must be >= 1"))
+    end
+
+    # Load data
+    df = CSV.read(joinpath(data_dir, "adult.csv"), DataFrame)
+    println(df[1:5, :])
+
+    # Preprocessing
+    transformer = Standardizer(; count=true)
+    mach = MLJBase.fit!(machine(transformer, df[:, Not(:target)]))
+    X = MLJBase.transform(mach, df[:, Not(:target)])
+    X = Matrix(X)
+    X = permutedims(X)
+    println(typeof(X))
+    X = Float32.(X)
+
+    y = df.target
+    counterfactual_data = CounterfactualData(X, y)
+
+    # Undersample:
+    if !isnothing(n)
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
+            counterfactual_data, n
+        )
+    end
+
+    return counterfactual_data
+end

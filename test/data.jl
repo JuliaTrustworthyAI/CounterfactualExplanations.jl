@@ -61,3 +61,8 @@ end
     @test_throws ArgumentError load_german_credit(0)
     @test_throws ArgumentError load_german_credit(-100)
 end
+
+@testset "UCI Adult dataset" begin
+    counterfactual_data = load_uci_adult()
+    @test size(counterfactual_data.X)[2] = 1000
+end
