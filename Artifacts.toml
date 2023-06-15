@@ -31,7 +31,7 @@ lazy = true
     url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/cats_dogs_model.tar.gz"
 
 [data-tabular]
-git-tree-sha1 = "70f702029d4261e581d218db4415cdeab83b12cd"
+git-tree-sha1 = "f5360248d391f60f29b14328c4d04e17d2ebefe0"
 lazy = true
 
     [[data-tabular.download]]
