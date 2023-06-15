@@ -163,7 +163,7 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
     return counterfactual_data
 end
 
-function load_uci_adult(n::Union{Nothing, Int}=nothing)
+function load_uci_adult(n::Union{Nothing, Int}=1000)
     # Throw an exception if n > 1000:
     if !isnothing(n) && n > 1000
         throw(ArgumentError("n must be <= 1000"))
@@ -176,7 +176,9 @@ function load_uci_adult(n::Union{Nothing, Int}=nothing)
 
     # Load data
     df = CSV.read(joinpath(data_dir, "adult.csv"), DataFrame)
-    println(df[1:5, :])
+    rename!(df, [:age, :workclass, :fnlwgt, :education, :education_num, 
+        :marital_status, :occupation, :relationship, :race, :sex,
+        :capital_gain, :capital_loss, :hours_per_week, :native_country, :target])
 
     # Preprocessing
     transformer = Standardizer(; count=true)
