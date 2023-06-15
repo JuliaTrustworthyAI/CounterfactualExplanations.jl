@@ -1,6 +1,3 @@
-using PythonCall
-using DataFrames
-
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 
@@ -132,8 +129,8 @@ function preprocess_data_for_mlj(data::CounterfactualData)
     X = Float32.(X)
     y = convert_to_1d(y, data.y_levels)
 
-    df_x = DataFrame(X', :auto)
-    y = categorical(y)
+    df_x = DataFrames.DataFrame(X', :auto)
+    y = CategoricalArrays.categorical(y)
     return df_x, y
 end
 
@@ -168,4 +165,41 @@ function convert_to_1d(y::Matrix, y_levels::AbstractArray)
     end
 
     return labels
+end
+
+"""
+    input_dim(counterfactual_data::CounterfactualData)
+
+Helper function that returns the input dimension (number of features) of the data. 
+
+"""
+input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
+
+"""
+    unpack_data(data::CounterfactualData)
+
+Helper function that unpacks data.
+"""
+function unpack_data(data::CounterfactualData)
+    return data.X, data.y
+end
+
+"""
+    select_factual(counterfactual_data::CounterfactualData, index::Int)
+
+A convenience method that can be used to access the the feature matrix.
+"""
+function select_factual(counterfactual_data::CounterfactualData, index::Int)
+    return reshape(collect(selectdim(counterfactual_data.X, 2, index)), :, 1)
+end
+
+"""
+    select_factual(counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}})
+
+A convenience method that can be used to access the the feature matrix.
+"""
+function select_factual(
+    counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}
+)
+    return zip([select_factual(counterfactual_data, i) for i in index])
 end
