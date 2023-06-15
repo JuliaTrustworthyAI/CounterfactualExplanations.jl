@@ -89,13 +89,16 @@ function train_and_save_model(
     end
 
     torch.save(model, pickle_path)
+    return nothing
 end
 
 function remove_file(file_path::String)
     try
         rm(file_path)  # removes the file
         println("File $file_path removed successfully.")
+        return nothing
     catch e
         println("Error occurred while removing file $file_path: $e")
+        
     end
 end
