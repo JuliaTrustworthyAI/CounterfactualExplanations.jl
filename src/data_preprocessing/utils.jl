@@ -110,7 +110,6 @@ function preprocess_python_data(data::CounterfactualData)
     y_python = torch.tensor(y_python)
 
     return x_python, y_python
-    return preprocess_data_for_mlj(data::CounterfactualData)
 end
 
 """
