@@ -126,6 +126,34 @@ adult_data_x = adult_data.X
 adult_data_y = adult_data.output_encoder.y
 ```
 
+```{julia}
+# Train a model
+M = fit_model(adult_data, :Linear)
+
+# Factual and target labels:
+target = 1
+factual = 0
+```
+
+```{julia}
+n_individuals = 5
+
+# Choose random factual individuals
+ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
+xs = select_factual(german_credit_data, ids)
+
+generator = GenericGenerator()
+
+generated_counterfactuals_german_credit_data = generate_counterfactual(
+    xs,
+    target,
+    german_credit_data,
+    M, 
+    generator; 
+    num_counterfactuals=1
+)
+```
+
 ### <feature_name>
 
 <feature_description>

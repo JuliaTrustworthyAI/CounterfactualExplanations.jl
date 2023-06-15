@@ -163,6 +163,20 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
     return counterfactual_data
 end
 
+"""
+    load_uci_adult(n::Union{Nothing, Int}=1000)
+
+Load and preprocesses data from the UCI 'Adult' dataset
+
+# Arguments
+- `n::Union{Nothing, Int}=nothing`: The number of samples to subsample from the dataset.
+
+# Returns
+- `counterfactual_data::CounterfactualData`: A `CounterfactualData` object containing the preprocessed data.
+
+# Example
+data = load_german_credit(20) # loads and preprocesses 20 samples from the Adult dataset
+"""
 function load_uci_adult(n::Union{Nothing, Int}=1000)
     # Throw an exception if n > 1000:
     if !isnothing(n) && n > 1000
