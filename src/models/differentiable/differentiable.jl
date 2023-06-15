@@ -26,6 +26,6 @@ abstract type AbstractDifferentiablePythonModel <: AbstractDifferentiableModel e
 
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
-include("mlj/evo_tree.jl")
+include("other/evotree.jl")
 include("python/pytorch_model.jl")
 include("other/laplace_redux.jl")
