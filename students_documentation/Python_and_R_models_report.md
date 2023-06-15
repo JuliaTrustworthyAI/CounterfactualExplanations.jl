@@ -18,21 +18,23 @@ Unfortunately, we found out during a closer inspection that `ONNX.jl` does not s
 
 For all these reasons, we decided to use alternative options for solving this issue: `PythonCall.jl` and `RCall.jl`. These choices will be discussed below.
 
-### The tests for the Python conversion fail on the Ubuntu Julia 1.7 and OSX pipelines
+### The tests for the Python conversion fail when using Julia 1.7
 
-Once we had finished the implementation of the Python models, we noticed that though the pipeline was passing on our machines as well as on most of the GitHub virtual machines we ran it on, some pipelines on the remote were failing: the pipeline testing our code on Ubuntu using Julia 1.7, and the pipeline testing it on OSX machines. The reasons behind the failures were different: 
+Once we had finished the implementation of the Python models, we noticed that the pipeline on the remote testing our code on Ubuntu using Julia 1.7 was failing. Though all of the tests were passing, there seemed to be a permission error during clean-up after the tests. We investigated the problem with a testing expert from the client's team, [Antony Bartlett](https://www.tudelft.nl/ewi/over-de-faculteit/afdelingen/intelligent-systems/multimedia-computing/people/antony-bartlett), The reasons behind the failures were different: 
 
 ### `PythonCall.jl` and `RCall.jl` cannot be used together in the same session
 
+The third important problem we ran into while implementing this functionality was that it turned out to be impossible to use PyTorch and Torch for R during a single session: trying to do this just made the session crash. The reason for that appeared to be that the Torch for R implementation is [based on PyTorch](https://torch.mlverse.org/) and this effectively meant that we were trying to initialize two conflicting Torch sessions within the same Julia session. This issue would have been avoided had we been able to use `ONNX.jl`, but for the reasons explained above, that was not an option.
+
+We discussed the problem with the client and decided based on both our own exploration of the problem and [the client's previous experience trying to get `PyCall.jl` and `RCall.jl` to work together](https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/pull/32) that resolving this issue would take too much time and is thus outside of the scope of the software project. However, we also decided to nevertheless implement both the functionality for Python models and the functionality for R models, as the client did not expect users to try to use those models together in the same session. This reasoning made sense to us.
+
+Due to the
+
 ## Design choices
 
-### Using `PythonCall.jl`
+### Using `PythonCall.jl` and `RCall.jl`
 
-When we started looking into possible ways of generating counterfactuals for Python models using Julia, we found three libraries that offered functionalities for conversion between Python and Julia:
-- `ONNX.jl`
-    - This is a library for transfering external models into Julia by reading the computational graphs of pretrained models from ONNX format to `Flux.jl`. This would have given `Flux.jl`, a package already heavily integrated into our package, gradient access to any model defined using PyTorch, which would have enabled generating counterfactual explanations for PyTorch models in a very similar way to how the package already generates explanations for models from `Flux.jl`.
-    - Unfortunately, as of 06/06/2023, the `ONNX.jl` library is [in the process of total reconstruction](https://github.com/FluxML/ONNX.jl). As noted in [JuliaHub](https://juliahub.com/ui/Packages/ONNX/QUmGg/0.2.4), no conversion to `Flux.jl` is implemented yet. As implementing this conversion would be a project worthy of a whole software project, we quickly realized that `ONNX.jl` is not a feasible option for implementing support for Python models.
-    - Since `ONNX.jl` has not been maintained particularly actively in recent times, we decided that it's best to look for an alternative solution.
+When looking into alternatives to `ONNX.jl`, we found that a natural solution for R models would be translating the R code into Julia code using `RCall.jl` and then generating counterfactuals as we usually do. For Python models, however, we found two libraries that both offered functionalities for conversion between Python and Julia:
 - `PyCall.jl`
     - This is a library for translating Python code into Julia code and vice versa.
     - The client had already tried implementing support for Python models using this library, but ran into various problems: using both PyTorch through `PyCall.jl` and torch for R through `RCall.jl` in the same Julia session caused Julia to crash. We looked into the problems a bit and decided that there's a better alternative to `PyCall.jl` that works in a different way and avoids this problem.
