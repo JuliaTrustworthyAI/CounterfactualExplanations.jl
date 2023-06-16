@@ -43,14 +43,14 @@ function feature_tweaking(
         throw(
             ArgumentError(
                 "The feature tweak generator is only available for tree-based models."
-            )
+            ),
         )
     end
     if M.likelihood == :classification_multi
         throw(
             ArgumentError(
-                "The feature tweak generator is only available for binary classification problems."
-            )
+                "The feature tweak generator is only available for binary classification problems.",
+            ),
         )
     end
 

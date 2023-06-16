@@ -29,7 +29,13 @@ include("plotting/voronoi.jl")
 include("pretrained/pretrained.jl")
 
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, EvoTreeModel, DecisionTreeModel, RandomForestModel
+export Linear,
+    FluxModel,
+    FluxEnsemble,
+    LaplaceReduxModel,
+    EvoTreeModel,
+    DecisionTreeModel,
+    RandomForestModel
 export flux_training_params
 export probs, logits
 
