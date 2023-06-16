@@ -25,6 +25,7 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
@@ -56,6 +57,7 @@ include("gradient_based/probe.jl")
 include("non_gradient_based/base.jl")
 
 include("non_gradient_based/feature_tweak/feature_tweak.jl")
+include("non_gradient_based/growing_spheres/growing_spheres.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
@@ -64,6 +66,7 @@ generator_catalogue = Dict(
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
+    :growing_spheres => Generators.GrowingSpheresGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
