@@ -7,15 +7,13 @@ In this notebook, we document the new features that we have added to the Counter
 ```{julia}
 using Pkg
 Pkg.activate("students_documentation/summary_notebook")
-    
+
 # Dependencies
 using Revise
 using CounterfactualExplanations
 using Images
 using MLDatasets
 using Tidier
-using PythonCall
-using Random
 ```
 
 ## Must haves
@@ -78,76 +76,8 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
+
 ### Added models
-
-#### Interface to Python models
-
-The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
-
-##### Load the data
-
-```{julia}
-# Load data
-Random.seed!(42);
-N = 100
-
-counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
-```
-
-##### Load the saved PyTorch model
-
-Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the model definition and a path to the model weights as input. This can be done through the following method:
-
-```{julia}
-model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous",
-    "neural_network_class",
-    "NeuralNetwork",
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
-)
-
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
-```
-
-The four arguments of `pytorch_model_loader()` are the following:
-1. `model_path`: the path to the folder with a `.py` file where the PyTorch model is defined
-2. `model_file`: the name of the `.py` file where the PyTorch model is defined
-3. `class_name`: The name of the class of the PyTorch model
-4. `pickle_path`: The path to the Pickle file that holds the model weights
-
-After importing the model in this way, counterfactuals can be created for a PyTorch model the same way as for any other model.
-
-##### Select a factual and generate counterfactuals for it like with any other model
-
-```{julia}
-Random.seed!(42)
-
-target = 0
-factual = 1
-
-@info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
-
-@info "Select factual"
-x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-```
-
-```{julia}
-# Define a generator:
-generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-@info "Generate counterfactual_pytorch"
-counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual, 
-    target, 
-    counterfactual_data, 
-    model_pytorch, 
-    generator;
-    max_iter=1000
-)
-
-CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
-```
 
 #### MLJ models
 

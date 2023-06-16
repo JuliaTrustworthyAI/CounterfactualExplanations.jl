@@ -19,13 +19,7 @@ Base type for custom differentiable models.
 """
 abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel end
 
-"""
-Base type for differentiable models written in Python.
-"""
-abstract type AbstractDifferentiablePythonModel <: AbstractDifferentiableModel end
-
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
-include("mlj/evo_tree.jl")
-include("python/pytorch_model.jl")
 include("other/laplace_redux.jl")
+include("other/evotree.jl")
