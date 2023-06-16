@@ -1,0 +1,14 @@
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+```{julia}
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Models
+generator = CLUEGenerator()
+M = fit_model(counterfactual_data, :DeepEnsemble)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator, learning_rate = 0.7)
+plot(ce)
+```

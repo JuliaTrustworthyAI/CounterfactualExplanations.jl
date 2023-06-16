@@ -29,6 +29,7 @@ export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
 export feature_tweaking
+export CLUEGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator
@@ -36,6 +37,7 @@ export HeuristicBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
 export hinge_loss, invalidation_rate
+export predictive_entropy
 export ProbeGenerator
 
 include("macros.jl")
@@ -50,7 +52,9 @@ include("gradient_based/utils.jl")
 include("gradient_based/loss.jl")
 
 include("gradient_based/generators.jl")
+include("gradient_based/clue.jl")
 include("gradient_based/probe.jl")
+
 
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
@@ -68,6 +72,7 @@ generator_catalogue = Dict(
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
     :probe => ProbeGenerator,
+    :clue => CLUEGenerator,
 )
 
 end
