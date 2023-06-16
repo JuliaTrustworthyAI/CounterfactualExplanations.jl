@@ -1,0 +1,5 @@
+ignore:
+  - "src/counterfactuals/plotting.jl"
+  - "src/data_preprocessing/plotting.jl"
+  - "src/models/plotting"
+  
