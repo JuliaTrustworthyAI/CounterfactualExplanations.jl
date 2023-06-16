@@ -1,5 +1,7 @@
 ignore:
-  - "src/**/visualization/**/*"
+  - "src/counterfactuals/visualization"
+  - "src/data_preprocessing/visualization"
+  - "src/models/visualization"
 coverage:
   status:
     project:
