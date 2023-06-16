@@ -1,4 +1,3 @@
-
 """
 Base type for differentiable models.
 """
@@ -18,6 +17,7 @@ abstract type AbstractMLJModel <: AbstractDifferentiableModel end
 Base type for custom differentiable models.
 """
 abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel end
+
 """
 Base type for differentiable models written in Python.
 """

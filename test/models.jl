@@ -5,7 +5,6 @@ using Flux
 using LinearAlgebra
 using MLJ
 using MLUtils
-using PythonCall
 using Random
 
 @testset "Standard models for synthetic data" begin
@@ -30,7 +29,7 @@ using Random
     end
 end
 
-if VERSION >= v"1.8" && !Sys.isapple()
+if VERSION >= v"1.8"
     torch = PythonCall.pyimport("torch")
     @testset "PyTorch model test" begin
         model_file = "neural_network_class"
