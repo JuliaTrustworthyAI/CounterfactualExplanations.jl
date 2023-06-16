@@ -1,5 +1,6 @@
 [deps]
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
