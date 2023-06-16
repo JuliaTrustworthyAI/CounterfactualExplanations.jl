@@ -17,6 +17,9 @@ function load_uci_adult(n::Union{Nothing,Int}=1000)
     if !isnothing(n) && n < 1
         throw(ArgumentError("n must be >= 1"))
     end
+    if !isnothing(n) && n > 32000
+        throw(ArgumentError("n must not exceed size of dataset (<=32000)"))
+    end
 
     # Load data
     df = CSV.read(joinpath(data_dir, "adult.csv"), DataFrames.DataFrame)
@@ -47,7 +50,6 @@ function load_uci_adult(n::Union{Nothing,Int}=1000)
     X = MLJBase.transform(mach, df[:, DataFrames.Not(:target)])
     X = Matrix(X)
     X = permutedims(X)
-    println(typeof(X))
     X = Float32.(X)
 
     y = df.target

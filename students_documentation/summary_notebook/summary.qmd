@@ -271,7 +271,7 @@ factual = 0
 ```{julia}
 n = 10
 
-# Choose random factual individuals
+# Choose random factual datapoints
 ids = rand(findall(predict_label(M, adult_data) .== factual), n)
 xs = select_factual(adult_data, ids)
 
