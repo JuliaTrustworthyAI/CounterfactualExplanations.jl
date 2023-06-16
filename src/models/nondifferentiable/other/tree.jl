@@ -26,16 +26,15 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
                 ),
             )
         end
-        if likelihood == :classification_binary
+        if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
-        elseif likelihood == :classification_multi
+        else
             throw(
                 ArgumentError(
-                    "`type` should be `:classification_binary`. Support for multi-class classification with tree-based models is not yet implemented.",
+                    "`type` should be in `[:classification_binary, :classification_multi].
+                    Support for regressors has not been implemented yet.`"
                 ),
             )
-        else
-            throw(ArgumentError("`type` should be in `[:classification_binary]`"))
         end
     end
 end
@@ -88,7 +87,7 @@ function get_individual_classifiers(M::TreeModel)
     end
     trees = []
     for tree in M.model.trees
-        push!(trees, TreeModel(tree, :classification_binary))
+        push!(trees, TreeModel(tree, M.likelihood))
     end
     return trees
 end
@@ -188,7 +187,7 @@ function DecisionTreeModel(data::CounterfactualData; kwargs...)
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
     model = MLJBase.machine(M, X, y)
 
-    return TreeModel(model, :classification_binary)
+    return TreeModel(model, data.likelihood)
 end
 
 """
@@ -209,7 +208,7 @@ function RandomForestModel(data::CounterfactualData; kwargs...)
     M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
     model = MLJBase.machine(M, X, y)
 
-    return TreeModel(model, :classification_binary)
+    return TreeModel(model, data.likelihood)
 end
 
 """
