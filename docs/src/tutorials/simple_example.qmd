@@ -15,6 +15,7 @@ In this tutorial, we will go through a simple example involving synthetic data a
 ## Data and Classifier
 
 Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it. 
+The fit_model function takes an object of type CounterfactualData and a symbol representing a model in the model_catalogue
 
 ```{julia}
 # Counteractual data and model:
@@ -35,6 +36,12 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
 Finally, we generate and visualize the generated counterfactual:
+The generate_counterfactual function takes the following arguments: 
+    x::AbstractArray,
+    target::RawTargetType,
+    data::CounterfactualData,
+    M::Models.AbstractFittedModel,
+    generator::AbstractGenerator
 
 ```{julia}
 #| output: true
