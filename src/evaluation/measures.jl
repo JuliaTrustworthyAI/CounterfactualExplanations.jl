@@ -1,15 +1,11 @@
-using LinearAlgebra
-using SliceMap
-using Statistics: mean
-
 """
     validity(ce::CounterfactualExplanation; γ=0.5)
 
 Checks of the counterfactual search has been successful with respect to the probability threshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
-function validity(ce::CounterfactualExplanation; agg=mean, γ=0.5)
+function validity(ce::CounterfactualExplanation; agg=Statistics.mean, γ=0.5)
     val = agg(CounterfactualExplanations.target_probs(ce) .>= γ)
-    val = val isa AbstractMatrix ? vec(val) : val
+    val = val isa LinearAlgebra.AbstractMatrix ? vec(val) : val
     return val
 end
 
@@ -27,7 +23,7 @@ end
 
 Computes the feature redundancy: that is, the number of features that remain unchanged from their original, factual values.
 """
-function redundancy(ce::CounterfactualExplanation; agg=mean, tol=1e-5)
+function redundancy(ce::CounterfactualExplanation; agg=Statistics.mean, tol=1e-5)
     x′ = CounterfactualExplanations.counterfactual(ce)
     redundant_x = [
         agg(sum(abs.(x .- ce.x) .< tol) / size(x, 1)) for x in eachslice(x′; dims=ndims(x′))
