@@ -1,6 +1,3 @@
-using Flux
-using SliceMap
-
 "An optimisation rule that can be used to implement a Jacobian-based Saliency Map Attack."
 struct JSMADescent <: Flux.Optimise.AbstractOptimiser
     eta::AbstractFloat
