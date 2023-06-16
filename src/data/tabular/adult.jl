@@ -24,9 +24,26 @@ function load_uci_adult(n::Union{Nothing,Int}=1000)
 
     # Load data
     df = CSV.read(joinpath(data_dir, "adult.csv"), DataFrame)
-    rename!(df, [:age, :workclass, :fnlwgt, :education, :education_num, 
-        :marital_status, :occupation, :relationship, :race, :sex,
-        :capital_gain, :capital_loss, :hours_per_week, :native_country, :target])
+    rename!(
+        df,
+        [
+            :age,
+            :workclass,
+            :fnlwgt,
+            :education,
+            :education_num,
+            :marital_status,
+            :occupation,
+            :relationship,
+            :race,
+            :sex,
+            :capital_gain,
+            :capital_loss,
+            :hours_per_week,
+            :native_country,
+            :target,
+        ],
+    )
 
     # Preprocessing
     transformer = Standardizer(; count=true)
