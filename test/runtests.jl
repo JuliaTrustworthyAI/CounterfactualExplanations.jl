@@ -40,6 +40,10 @@ generators = generator_catalogue
         include("generators.jl")
     end
 
+    @testset "Probe" begin
+        include("probe.jl")
+    end
+
     @testset "Model" begin
         include("models.jl")
     end

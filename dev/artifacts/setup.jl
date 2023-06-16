@@ -12,5 +12,5 @@ setup = quote
     using MLDatasets
 
     # Utils
-    include("dev/artifacts/utils.jl")
+    include("$(pwd())/dev/artifacts/utils.jl")
 end
