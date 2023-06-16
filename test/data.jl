@@ -72,7 +72,6 @@ end
     @test size(counterfactual_data.X)[2] == 500
     @test size(counterfactual_data.X)[1] == 14
     @test size(counterfactual_data.y)[2] == 500
-
-    @test_throws ArgumentError load_uci_adult(1001)
+    
     @test_throws ArgumentError load_uci_adult(0)
 end

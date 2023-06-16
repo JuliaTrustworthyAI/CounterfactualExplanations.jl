@@ -269,18 +269,18 @@ factual = 0
 ```
 
 ```{julia}
-n_individuals = 5
+n = 10
 
 # Choose random factual individuals
-ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
-xs = select_factual(german_credit_data, ids)
+ids = rand(findall(predict_label(M, adult_data) .== factual), n)
+xs = select_factual(adult_data, ids)
 
 generator = GenericGenerator()
 
-generated_counterfactuals_german_credit_data = generate_counterfactual(
+adult_counterfactual_data = generate_counterfactual(
     xs,
     target,
-    german_credit_data,
+    adult_data,
     M, 
     generator; 
     num_counterfactuals=1
