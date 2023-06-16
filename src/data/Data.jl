@@ -21,6 +21,7 @@ include("synthetic/moons.jl")
 include("synthetic/multi_class.jl")
 include("synthetic/overlapping.jl")
 
+include("tabular/adult.jl")
 include("tabular/california_housing.jl")
 include("tabular/credit_default.jl")
 include("tabular/gmsc.jl")
