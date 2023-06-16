@@ -182,7 +182,6 @@ function load_uci_adult(n::Union{Nothing,Int}=1000)
     if !isnothing(n) && n > 1000
         throw(ArgumentError("n must be <= 1000"))
     end
-    
     # Throw an exception if n < 1:
     if !isnothing(n) && n < 1
         throw(ArgumentError("n must be >= 1"))
