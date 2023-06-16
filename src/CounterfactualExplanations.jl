@@ -57,6 +57,7 @@ export ClaPROARGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
