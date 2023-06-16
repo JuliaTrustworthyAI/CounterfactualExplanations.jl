@@ -1,6 +1,5 @@
 ignore:
-  - "src/**/plotting.jl"
-  - "src/**/plotting"
+  - "src/**/visualization/**/*"
 coverage:
   status:
     project:
