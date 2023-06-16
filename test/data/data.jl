@@ -1,6 +1,6 @@
-include("vision.jl")
-
 ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
+
+include("vision.jl")
 @testset "Construction" begin
     for (name, loader) in merge(values(data_catalogue)...)
         @testset "$name" begin
