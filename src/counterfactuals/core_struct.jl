@@ -111,7 +111,6 @@ function CounterfactualExplanation(
     adjust_shape!(ce)                                           # adjust shape to specified number of counterfactuals
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
-  
     if generator isa Generators.HeuristicBasedGenerator
         ce.search = Dict(
             :iteration_count => 0,
