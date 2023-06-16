@@ -1,10 +1,14 @@
-using CategoricalArrays
-using CounterfactualExplanations
-using Flux
-using MultivariateStats
-using StatsBase
-using Tables
-using UMAP
+"""
+    CounterfactualData(
+        X::AbstractMatrix, y::AbstractMatrix;
+        mutability::Union{Vector{Symbol},Nothing}=nothing,
+        domain::Union{Any,Nothing}=nothing,
+        features_categorical::Union{Vector{Int},Nothing}=nothing,
+        features_continuous::Union{Vector{Int},Nothing}=nothing,
+        standardize::Bool=false
+    )
+Stores data and metadata for counterfactual explanations.
+"""
 
 mutable struct CounterfactualData
     X::AbstractMatrix
@@ -153,7 +157,9 @@ function CounterfactualData(
         @warn "Some of the underlying features are constant."
     end
     counterfactual_data.dt = StatsBase.fit(
-        ZScoreTransform, X[transformable_features(counterfactual_data), :]; dims=ndims(X)
+        StatsBase.ZScoreTransform,
+        X[transformable_features(counterfactual_data), :];
+        dims=ndims(X),
     )        # standardization
 
     return counterfactual_data
@@ -180,20 +186,6 @@ function CounterfactualData(X::Tables.MatrixTable, y::RawOutputArrayType; kwrgs.
     counterfactual_data = CounterfactualData(X, y; kwrgs...)
 
     return counterfactual_data
-end
-
-"""
-    select_factual(counterfactual_data::CounterfactualData, index::Int)
-
-A convenience method that can be used to access the the feature matrix.
-"""
-function select_factual(counterfactual_data::CounterfactualData, index::Int)
-    return reshape(collect(selectdim(counterfactual_data.X, 2, index)), :, 1)
-end
-function select_factual(
-    counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}
-)
-    return zip([select_factual(counterfactual_data, i) for i in index])
 end
 
 """
@@ -240,86 +232,4 @@ function transformable_features(counterfactual_data::CounterfactualData)
     ]
     # Returns indices of columns that have varying values:
     return counterfactual_data.features_continuous[idx_not_all_equal]
-end
-
-"""
-    mutability_constraints(counterfactual_data::CounterfactualData)
-
-A convenience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
-"""
-function mutability_constraints(counterfactual_data::CounterfactualData)
-    return if isnothing(counterfactual_data.mutability)
-        [:both for i in 1:size(counterfactual_data.X)[1]]
-    else
-        counterfactual_data.mutability
-    end
-end
-
-"""
-    apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 
-
-A subroutine that is used to apply the predetermined domain constraints.
-"""
-function apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray)
-
-    # Continuous variables:
-    if !isnothing(counterfactual_data.domain)
-        for i in counterfactual_data.features_continuous
-            x[i] = clamp(
-                x[i], counterfactual_data.domain[i][1], counterfactual_data.domain[i][2]
-            )
-        end
-    end
-
-    return x
-end
-
-"""
-    input_dim(counterfactual_data::CounterfactualData)
-
-Helper function that returns the input dimension (number of features) of the data. 
-
-"""
-input_dim(counterfactual_data::CounterfactualData) = size(counterfactual_data.X)[1]
-
-"""
-    unpack_data(data::CounterfactualData)
-
-Helper function that unpacks data.
-"""
-function unpack_data(data::CounterfactualData)
-    return data.X, data.y
-end
-
-"""
-    has_pretrained_generative_model(counterfactual_data::CounterfactualData)
-
-Checks if generative model is present and trained.
-"""
-function has_pretrained_generative_model(counterfactual_data::CounterfactualData)
-    return !isnothing(counterfactual_data.generative_model) &&
-           counterfactual_data.generative_model.trained
-end
-
-"""
-    get_generative_model(counterfactual_data::CounterfactualData)
-
-Returns the underlying generative model. If there is no existing model available, the default generative model (VAE) is used. Otherwise it is expected that existing generative model has been pre-trained or else a warning is triggered.
-"""
-function get_generative_model(counterfactual_data::CounterfactualData; kwargs...)
-    if !has_pretrained_generative_model(counterfactual_data)
-        @info "No pre-trained generative model found. Using default generative model. Begin training."
-        counterfactual_data.generative_model = GenerativeModels.VAE(
-            input_dim(counterfactual_data); kwargs...
-        )
-        X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
-        # NOTE: y is not actually used, may refactor in the future to make that clearer.
-        GenerativeModels.train!(counterfactual_data.generative_model, X, y)
-        @info "Training of generative model completed."
-    else
-        if !counterfactual_data.generative_model.trained
-            @warn "The provided generative model has not been trained. Latent space search is likely to perform poorly."
-        end
-    end
-    return counterfactual_data.generative_model
 end

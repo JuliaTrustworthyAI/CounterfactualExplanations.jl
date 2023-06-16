@@ -147,7 +147,7 @@ end
 """
     benchmark(
         data::CounterfactualData;
-        models::Dict{Symbol,Any}=model_catalogue,
+        models::Dict{Symbol,Any}=standard_models_catalogue,
         generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures,
         n_individuals::Int=5,
@@ -157,7 +157,7 @@ end
 Runs the benchmarking exercise as follows:
 
 1. Randomly choose a `factual` and `target` label unless specified. 
-2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `model_catalogue`). 
+2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `standard_models_catalogue`). 
 3. Each of these models is then trained on the data. 
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(x::Union{AbstractArray,Base.Iterators.Zip},...)`](@ref).
 5. Finally, concatenate the results.
@@ -165,7 +165,7 @@ Runs the benchmarking exercise as follows:
 """
 function benchmark(
     data::CounterfactualData;
-    models::Dict{<:Any,<:Any}=model_catalogue,
+    models::Dict{<:Any,<:Any}=standard_models_catalogue,
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,

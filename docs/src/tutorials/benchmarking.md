@@ -234,7 +234,7 @@ It involves calling `benchmark` directly on counterfactual data (the only positi
 bmk = benchmark(counterfactual_data)
 ```
 
-This will use the default models from [`model_catalogue`](@ref) and train them on the data. All available generators from [`generator_catalogue`](@ref) will also be used:
+This will use the default models from [`standard_model_catalogue`](@ref) and train them on the data. All available generators from [`generator_catalogue`](@ref) will also be used:
 
 ``` julia
 @chain bmk() begin

@@ -1,17 +1,3 @@
-using Flux
-using MLJBase
-using NearestNeighborModels
-using Plots
-
-function voronoi(X::AbstractMatrix, y::AbstractVector)
-    knnc = KNNClassifier(; K=1) # KNNClassifier instantiation
-    X = MLJBase.table(X)
-    y = categorical(y)
-    knnc_mach = machine(knnc, X, y)
-    MLJBase.fit!(knnc_mach)
-    return knnc_mach, y
-end
-
 function Plots.plot(
     M::AbstractFittedModel,
     data::DataPreprocessing.CounterfactualData;
@@ -29,7 +15,7 @@ function Plots.plot(
     kwargs...,
 )
     X, _ = DataPreprocessing.unpack_data(data)
-    ŷ = Models.probs(M, X) # true predictions
+    ŷ = probs(M, X) # true predictions
     if size(ŷ, 1) > 1
         ŷ = vec(Flux.onecold(ŷ, 1:size(ŷ, 1)))
     else
@@ -57,9 +43,9 @@ function Plots.plot(
         knn1, y_train = voronoi(X, ŷ)
         predict_ =
             (X::AbstractVector) -> vec(
-                pdf(
+                Distributions.pdf(
                     MLJBase.predict(knn1, MLJBase.table(reshape(X, 1, 2))),
-                    levels(y_train),
+                    DataAPI.levels(y_train),
                 ),
             )
         Z = [predict_([x, y]) for x in x_range, y in y_range]
@@ -83,7 +69,7 @@ function Plots.plot(
     target_idx = get_target_index(data.y_levels, target)
 
     # Contour:
-    contourf(
+    Plots.contourf(
         x_range,
         y_range,
         Z[Int(target_idx), :];
@@ -97,5 +83,5 @@ function Plots.plot(
     )
 
     # Samples:
-    return scatter!(data; dim_red=dim_red, alpha=alpha, kwargs...)
+    return Plots.scatter!(data; dim_red=dim_red, alpha=alpha, kwargs...)
 end

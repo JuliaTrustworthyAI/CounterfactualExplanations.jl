@@ -1,6 +1,3 @@
-using Flux
-using MLJBase
-
 """
     data_loader(data::CounterfactualData)
 
@@ -8,7 +5,7 @@ Prepares counterfactual data for training in Flux.
 """
 function data_loader(data::CounterfactualData; batchsize=1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
-    return DataLoader((X, y); batchsize=batchsize)
+    return MLUtils.DataLoader((X, y); batchsize=batchsize)
 end
 
 """
@@ -51,7 +48,6 @@ function predict_proba(
     @assert !(isnothing(counterfactual_data) && isnothing(X))
     X = isnothing(X) ? counterfactual_data.X : X
     p = probs(M, X)
-    # println(p)
     binary = M.likelihood == :classification_binary
     p = binary ? binary_to_onehot(p) : p
     return p
