@@ -42,7 +42,7 @@ end
 """
 Outer constructor method for TreeModel.
 """
-function TreeModel(model::Any; likelihood::Symbol=:classification_binary)
+function TreeModel(model; likelihood::Symbol=:classification_binary)
     return TreeModel(model, likelihood)
 end
 
@@ -153,19 +153,6 @@ function probs(M::TreeModel, X::AbstractArray{<:Number,1})
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end
-    return p
-end
-
-"""
-    probs(M::TreeModel, X::AbstractArray{<:Number, 3})
-
-Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
-"""
-function probs(M::TreeModel, X::AbstractArray{<:Number,3})
-    # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
-    # and then calls the probs method for 1- and 2-dimensional input data on those slices
-    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = MLJBase.pdf(output, MLJBase.classes(output))
     return p
 end
 

@@ -42,15 +42,14 @@ end
             name = "EvoTree"
 
             @testset "$name" begin
+                @test model.likelihood == value[:data].likelihood
                 @testset "Matrix of inputs" begin
                     @test size(logits(model, X))[2] == size(X, 2)
                     @test size(probs(model, X))[2] == size(X, 2)
-                    @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Vector of inputs" begin
                     @test size(logits(model, X[:, 1]), 2) == 1
                     @test size(probs(model, X[:, 1]), 2) == 1
-                    @test model.likelihood == value[:data].likelihood
                 end
             end
 
@@ -58,15 +57,14 @@ end
             model = CounterfactualExplanations.Models.fit_model(value[:data], :DecisionTree)
             name = "DecisionTree"
             @testset "$name" begin
+                @test model.likelihood == value[:data].likelihood
                 @testset "Matrix of inputs" begin
                     @test size(logits(model, X))[2] == size(X, 2)
                     @test size(probs(model, X))[2] == size(X, 2)
-                    @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Vector of inputs" begin
                     @test size(logits(model, X[:, 1]), 2) == 1
                     @test size(probs(model, X[:, 1]), 2) == 1
-                    @test model.likelihood == value[:data].likelihood
                 end
             end
 
@@ -74,45 +72,41 @@ end
             model = CounterfactualExplanations.Models.fit_model(value[:data], :RandomForest)
             name = "RandomForest"
             @testset "$name" begin
+                @test model.likelihood == value[:data].likelihood
                 @testset "Matrix of inputs" begin
                     @test size(logits(model, X))[2] == size(X, 2)
                     @test size(probs(model, X))[2] == size(X, 2)
-                    @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Vector of inputs" begin
                     @test size(logits(model, X[:, 1]), 2) == 1
                     @test size(probs(model, X[:, 1]), 2) == 1
-                    @test model.likelihood == value[:data].likelihood
                 end
             end
         end
     end
 end
 
-mutable struct Dummy end
-
 @testset "Test for errors" begin
-    dummy = Dummy()
-
-    @test_throws ArgumentError FluxModel(dummy; likelihood=:regression)
-    @test_throws ArgumentError FluxEnsemble(dummy; likelihood=:regression)
-    @test_throws ArgumentError Linear(dummy; likelihood=:regression)
-    @test_throws ArgumentError LaplaceReduxModel(dummy; likelihood=:regression)
-    @test_throws ArgumentError EvoTreeModel(dummy; likelihood=:regression)
+    @test_throws ArgumentError Models.FluxModel("dummy"; likelihood=:regression)
+    @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
+    @test_throws ArgumentError Models.LaplaceReduxModel("dummy"; likelihood=:regression)
+    @test_throws ArgumentError Models.EvoTreeModel("dummy"; likelihood=:regression)
 
     data = CounterfactualExplanations.Data.load_linearly_separable()
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     M = MLJDecisionTreeInterface.DecisionTreeClassifier()
     tree_model = MLJBase.machine(M, X, y)
 
-    @test_throws ArgumentError DecisionTreeModel(tree_model; likelihood=:regression)
-    @test_throws ArgumentError DecisionTreeModel(dummy; likelihood=:classification_binary)
-    @test_throws ArgumentError DecisionTreeModel(dummy; likelihood=:classification_multi)
+    @test_throws ArgumentError Models.TreeModel(tree_model; likelihood=:regression)
 
     M = MLJDecisionTreeInterface.RandomForestClassifier()
     forest_model = MLJBase.machine(M, X, y)
 
-    @test_throws ArgumentError RandomForestModel(forest_model; likelihood=:regression)
-    @test_throws ArgumentError RandomForestModel(dummy; likelihood=:classification_binary)
-    @test_throws ArgumentError RandomForestModel(dummy; likelihood=:classification_multi)
+    @test_throws ArgumentError Models.TreeModel(forest_model; likelihood=:regression)
+
+    M = MLJDecisionTreeInterface.DecisionTreeRegressor()
+    regression_model = MLJBase.machine(M, X, y)
+
+    @test_throws ArgumentError Models.TreeModel(regression_model; likelihood=:classification_binary)
+    @test_throws ArgumentError Models.TreeModel(regression_model; likelihood=:classification_multi)
 end

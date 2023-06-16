@@ -4,7 +4,7 @@
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    if ce.M isa TreeModel
+    if ce.M isa Models.TreeModel
         return Models.predict_label(ce.M, ce.s′)[1] == ce.target
     end
     return converged(ce) || steps_exhausted(ce)
