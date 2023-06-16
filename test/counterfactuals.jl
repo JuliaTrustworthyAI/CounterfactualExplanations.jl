@@ -21,7 +21,7 @@ for (key, generator_) in generators
     name = uppercasefirst(string(key))
 
     # Feature Tweak will be tested separately
-    if generator_() isa HeuristicBasedGenerator
+    if generator_() isa FeatureTweakGenerator
         continue
     end
 

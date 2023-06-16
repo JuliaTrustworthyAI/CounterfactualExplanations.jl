@@ -29,11 +29,11 @@ export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
+export FeatureTweakGenerator
 export feature_tweaking
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator
-export HeuristicBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
 export hinge_loss, invalidation_rate
@@ -66,7 +66,7 @@ generator_catalogue = Dict(
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
-    :growing_spheres => Generators.GrowingSpheresGenerator,
+    # :growing_spheres => Generators.GrowingSpheresGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,

@@ -93,7 +93,7 @@ function generate_counterfactual(
             end
         end
 
-    elseif isa(generator, HeuristicBasedGenerator)
+    elseif isa(generator, FeatureTweakGenerator)
         if isa(M, Models.TreeModel)
             new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
             ce.s′ = new_x

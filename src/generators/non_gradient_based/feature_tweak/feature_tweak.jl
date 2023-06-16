@@ -1,3 +1,10 @@
+"Feature Tweak counterfactual generator class."
+mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
+    penalty::Union{Nothing,Function,Vector{Function}}
+    ϵ::Union{Nothing,AbstractFloat}
+    latent_space::Bool
+end
+
 """
     FeatureTweakGenerator(; ϵ::AbstractFloat, kwargs...)
 
@@ -10,10 +17,10 @@ According to the paper by Tolomei er al., an alternative choice here would be us
 - `ϵ::AbstractFloat`: The tolerance value for the feature tweaks. Described at length in Tolomei et al. (https://arxiv.org/pdf/1706.06691.pdf).
 
 # Returns
-- `generator::HeuristicBasedGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
+- `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
 function FeatureTweakGenerator(; ϵ::AbstractFloat=0.1, kwargs...)
-    return HeuristicBasedGenerator(; penalty=Objectives.distance_l2, ϵ=ϵ, kwargs...)
+    return FeatureTweakGenerator(; penalty=Objectives.distance_l2, ϵ=ϵ, kwargs...)
 end
 
 """
@@ -34,7 +41,7 @@ Returns a counterfactual instance of `x` based on the ensemble of classifiers pr
 x = feature_tweaking(generator, M, x, target) # returns a counterfactual instance of `x` based on the ensemble of classifiers provided
 """
 function feature_tweaking(
-    generator::HeuristicBasedGenerator,
+    generator::FeatureTweakGenerator,
     M::Models.TreeModel,
     x::AbstractArray,
     target::RawTargetType,
@@ -86,7 +93,7 @@ Returns an epsilon-satisfactory counterfactual for `x` based on the paths provid
 esatisfactory = esatisfactory_instance(generator, x, paths) # returns an epsilon-satisfactory counterfactual for `x` based on the paths provided
 """
 function esatisfactory_instance(
-    generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray
+    generator::FeatureTweakGenerator, x::AbstractArray, paths::AbstractArray
 )
     esatisfactory = deepcopy(x)
     for path in paths
@@ -231,7 +238,7 @@ Returns an epsilon-satisfactory counterfactual for `x` based on the paths provid
 esatisfactory = esatisfactory_instance(generator, x, paths) # returns an epsilon-satisfactory counterfactual for `x` based on the paths provided
 """
 function esatisfactory_instance(
-    generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray
+    generator::FeatureTweakGenerator, x::AbstractArray, paths::AbstractArray
 )
     esatisfactory = deepcopy(x)
     for path in paths

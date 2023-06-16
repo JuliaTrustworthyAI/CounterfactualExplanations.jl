@@ -112,7 +112,7 @@ function CounterfactualExplanation(
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
 
-    if generator isa Generators.HeuristicBasedGenerator
+    if generator isa Generators.FeatureTweakGenerator
         ce.search = Dict(
             :iteration_count => 0,
             :times_changed_features => zeros(size(decode_state(ce))),
