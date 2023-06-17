@@ -2,6 +2,11 @@ using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using Printf
 
+"""
+    _load_synthetic()
+
+Loads synthetic data, models, and generators.
+"""
 function _load_synthetic()
     # Data:
     data_sets = Dict(
@@ -28,6 +33,11 @@ function get_target(counterfactual_data::CounterfactualData, factual_label::RawT
     return target
 end
 
+"""
+    create_new_pytorch_model(data::CounterfactualData, model_path::String)
+
+Creates a new PyTorch model and saves it to a Python file.
+"""
 function create_new_pytorch_model(data::CounterfactualData, model_path::String)
     in_size = size(data.X)[1]
     out_size = size(data.y)[1]
@@ -56,6 +66,11 @@ function create_new_pytorch_model(data::CounterfactualData, model_path::String)
     return nothing
 end
 
+"""
+    train_and_save_pytorch_model(data::CounterfactualData, model_location::String, pickle_path::String)
+
+Trains a PyTorch model and saves it to a pickle file.
+"""
 function train_and_save_pytorch_model(
     data::CounterfactualData, model_location::String, pickle_path::String
 )
@@ -83,7 +98,7 @@ function train_and_save_pytorch_model(
         # Compute prediction and loss:
         output = model(x_python).squeeze()
         loss = loss_fun(output, y_python.t())
-        print(output)
+        println("training...")
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
