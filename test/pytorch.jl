@@ -109,8 +109,7 @@ if VERSION >= v"1.8"
                             end
                             @test counterfactual.target == target
                             @test counterfactual.x == x &&
-                                CounterfactualExplanations.factual(counterfactual) ==
-                                    x
+                                CounterfactualExplanations.factual(counterfactual) == x
                             @test CounterfactualExplanations.factual_label(
                                 counterfactual
                             ) == y
