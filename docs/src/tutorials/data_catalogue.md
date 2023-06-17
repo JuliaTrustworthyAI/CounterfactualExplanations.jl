@@ -48,11 +48,12 @@ As for real-world data, the same dictionary can be used to inspect the available
 data_catalogue[:tabular]
 ```
 
-    Dict{Symbol, Function} with 3 entries:
+    Dict{Symbol, Function} with 5 entries:
       :california_housing => load_california_housing
       :credit_default     => load_credit_default
       :gmsc               => load_gmsc
       :german_credit      => load_german_credit
+      :adult              => load_uci_adult
       
 
 ``` julia
