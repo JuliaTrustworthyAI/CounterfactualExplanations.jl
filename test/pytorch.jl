@@ -133,8 +133,7 @@ if VERSION >= v"1.8"
                                     max_iter=max_iter,
                                     decision_threshold=γ,
                                 )
-                                using CounterfactualExplanations:
-                                    counterfactual_probability
+                                using CounterfactualExplanations: counterfactual_probability
                                 @test !converged(counterfactual) ||
                                     target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                 @test !converged(counterfactual) ||
