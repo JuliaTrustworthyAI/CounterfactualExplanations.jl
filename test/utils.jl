@@ -52,6 +52,8 @@ function create_new_pytorch_model(data::CounterfactualData, model_path::String)
     open(model_path, "w") do f
         @printf(f, "%s", class_str)
     end
+
+    return
 end
 
 function train_and_save_pytorch_model(
@@ -89,13 +91,14 @@ function train_and_save_pytorch_model(
     end
 
     torch.save(model, pickle_path)
+    return
 end
 
 function remove_file(file_path::String)
     try
         rm(file_path)  # removes the file
         println("File $file_path removed successfully.")
-        return nothing
+        return
     catch e
         throw(ArgumentError("Error occurred while removing file $file_path: $e"))
     end

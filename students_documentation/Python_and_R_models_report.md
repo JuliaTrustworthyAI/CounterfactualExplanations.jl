@@ -20,7 +20,7 @@ For all these reasons, we decided to use alternative options for solving this is
 
 ### The tests for the Python conversion fail when using Julia 1.7
 
-Once we had finished the implementation of the Python models, we noticed that the pipeline on the remote testing our code on Ubuntu using Julia 1.7 was failing. Though all of the tests were passing, there seemed to be a permission error during clean-up after the tests. We investigated the problem with a testing expert from the client's team, [Antony Bartlett](https://www.tudelft.nl/ewi/over-de-faculteit/afdelingen/intelligent-systems/multimedia-computing/people/antony-bartlett), The reasons behind the failures were different: 
+Once we had finished the implementation of the Python models, we noticed that the pipeline on the remote testing our code on Ubuntu using Julia 1.7 was failing. Though all of the tests were passing, there seemed to be a permission error during clean-up after the tests. We investigated the problem with a testing expert from the client's team, [Antony Bartlett](https://www.tudelft.nl/ewi/over-de-faculteit/afdelingen/intelligent-systems/multimedia-computing/people/antony-bartlett), but could still not find a good solution for multiple days. Eventually, we concluded in a discussion with the client, Antony Bartlett and ourselves that our time would be better spent focusing on other issues and that we can just note in the documentation of our package that the functionality of creating counterfactuals for PyTorch models is only available for Julia versions 1.8 and above.
 
 ### `PythonCall.jl` and `RCall.jl` cannot be used together in the same session
 
