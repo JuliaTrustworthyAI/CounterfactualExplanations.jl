@@ -88,7 +88,9 @@ end
             flux_model =
                 CounterfactualExplanations.Models.fit_model(value[:data], :Linear).model
             laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
-            model = Models.LaplaceReduxModel(laplace_model; likelihood=:classification_binary)
+            model = Models.LaplaceReduxModel(
+                laplace_model; likelihood=:classification_binary
+            )
 
             name = "LaplaceRedux"
             @testset "$name" begin
