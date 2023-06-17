@@ -1,5 +1,9 @@
 # Using PyTorch models is supported only for Julia versions >= 1.8
+# The pipeline is also not working for MacOS virtual machines, although we have verified that it works on MacOS machines locally
+# The tests will be skipped for OSX for the time being and the client will further investigate the issue
 if VERSION >= v"1.8"
+    ENV["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
     torch = PythonCall.pyimport("torch")
     @testset "PyTorch model test" begin
         model_file = "neural_network_class"
