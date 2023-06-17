@@ -127,7 +127,5 @@ end
     @test_throws ArgumentError Models.LaplaceReduxModel(
         laplace_model; :classification_multi
     )
-    @test_throws ArgumentError Models.LaplaceReduxModel(
-        laplace_model; :regression
-    )
+    @test_throws ArgumentError Models.LaplaceReduxModel(laplace_model; :regression)
 end
