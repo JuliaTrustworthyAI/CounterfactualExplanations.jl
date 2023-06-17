@@ -163,9 +163,7 @@ if VERSION >= v"1.8"
                                     ),
                                 ) < init_perturbation
                                 @test converged(counterfactual)
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
-                                )
+                                @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
                                 ) == 0
