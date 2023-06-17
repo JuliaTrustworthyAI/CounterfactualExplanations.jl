@@ -7,6 +7,7 @@ using MLJBase
 using MLJDecisionTreeInterface
 using MLUtils
 using Random
+using LaplaceRedux
 
 @testset "Standard models for synthetic data" begin
     for (key, value) in synthetic
@@ -83,20 +84,11 @@ end
                 end
             end
 
-            # Test the LaplaceRedux model
-            model = CounterfactualExplanations.Models.fit_model(value[:data], :LaplaceRedux)
-            name = "LaplaceRedux"
-            @testset "$name" begin
-                @test model.likelihood == value[:data].likelihood
-                @testset "Matrix of inputs" begin
-                    @test size(logits(model, X))[2] == size(X, 2)
-                    @test size(probs(model, X))[2] == size(X, 2)
-                end
-                @testset "Vector of inputs" begin
-                    @test size(logits(model, X[:, 1]), 2) == 1
-                    @test size(probs(model, X[:, 1]), 2) == 1
-                end
-            end
+            # Test the LaplaceReduxModel
+            flux_model = CounterfactualExplanations.Models.fit_model(value[:data], :Linear).model
+            laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
+            model = Models.LaplaceReduxModel(laplace_model; likelihood=:classification_binary)
+            @test model.likelihood == :classification_binary
         end
     end
 end
@@ -127,5 +119,15 @@ end
     )
     @test_throws ArgumentError Models.TreeModel(
         regression_model; likelihood=:classification_multi
+    )
+
+    flux_model = CounterfactualExplanations.Models.fit_model(value[:data], :Linear).model
+    laplace_model = LaplaceRedux.Laplace(flux_model; :classification)
+
+    @test_throws ArgumentError Models.LaplaceReduxModel(
+        laplace_model; :classification_multi
+    )
+    @test_throws ArgumentError Models.LaplaceReduxModel(
+        laplace_model; :regression
     )
 end
