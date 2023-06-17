@@ -62,12 +62,10 @@ if VERSION >= v"1.8"
     @testset "Counterfactuals for Python models" begin
         for (key, generator_) in generators
             name = uppercasefirst(string(key))
-        
             # Feature Tweak does not apply to Python models
             if generator_() isa Generators.HeuristicBasedGenerator
                 continue
             end
-        
             @testset "$name" begin
 
                 # Generator:
@@ -81,7 +79,9 @@ if VERSION >= v"1.8"
 
                         # Create the model
                         create_new_pytorch_model(counterfactual_data, model_path)
-                        train_and_save_pytorch_model(counterfactual_data, model_location, pickle_path)
+                        train_and_save_pytorch_model(
+                            counterfactual_data, model_location, pickle_path
+                        )
                         model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
                             model_location, model_file, class_name, pickle_path
                         )
@@ -109,8 +109,7 @@ if VERSION >= v"1.8"
                             end
                             @test counterfactual.target == target
                             @test counterfactual.x == x &&
-                                CounterfactualExplanations.factual(counterfactual) ==
-                                    x
+                                CounterfactualExplanations.factual(counterfactual) == x
                             @test CounterfactualExplanations.factual_label(
                                 counterfactual
                             ) == y
@@ -134,8 +133,7 @@ if VERSION >= v"1.8"
                                     max_iter=max_iter,
                                     decision_threshold=γ,
                                 )
-                                using CounterfactualExplanations:
-                                    counterfactual_probability
+                                using CounterfactualExplanations: counterfactual_probability
                                 @test !converged(counterfactual) ||
                                     target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
                                 @test !converged(counterfactual) ||
@@ -147,9 +145,7 @@ if VERSION >= v"1.8"
                                 # Already in target and exceeding threshold probability:
                                 y = predict_label(M, counterfactual_data, x)
                                 target = y[1]
-                                γ = minimum([
-                                    1 / length(counterfactual_data.y_levels), 0.5
-                                ])
+                                γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                                 counterfactual = generate_counterfactual(
                                     x,
                                     target,
@@ -167,9 +163,7 @@ if VERSION >= v"1.8"
                                     ),
                                 ) < init_perturbation
                                 @test converged(counterfactual)
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
-                                )
+                                @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
                                 ) == 0
