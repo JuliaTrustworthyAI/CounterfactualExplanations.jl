@@ -62,7 +62,6 @@ if VERSION >= v"1.8"
     @testset "Counterfactuals for Python models" begin
         for (key, generator_) in generators
             name = uppercasefirst(string(key))
-        
             # Feature Tweak does not apply to Python models
             if generator_() isa Generators.HeuristicBasedGenerator
                 continue
