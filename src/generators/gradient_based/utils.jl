@@ -5,12 +5,12 @@ using PythonCall
 """
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Models.AbstractDifferentiableModel, ce::AbstractCounterfactualExplanation)
 
-Method for computing the gradient of the loss function at the current counterfactual state for gradient-based generators operating on native Julia models.
+Method for computing the gradient of the loss function at the current counterfactual state for gradient-based generators operating on Flux models.
 It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator,
-    M::Models.AbstractDifferentiableJuliaModel,
+    M::Models.AbstractFluxModel,
     ce::AbstractCounterfactualExplanation,
 )
     gs = gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
