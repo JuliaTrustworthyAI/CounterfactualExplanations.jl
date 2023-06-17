@@ -1,0 +1,15 @@
+```{julia}
+import Pkg
+Pkg.activate("$(pwd())/dev/growing_spheres_testing")
+
+using Revise
+using CounterfactualExplanations
+```
+
+```{julia}
+counterfactual_data = CounterfactualExplanations.Data.load_blobs()
+```
+
+```{julia}
+
+```
