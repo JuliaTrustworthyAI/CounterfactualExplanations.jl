@@ -5,7 +5,7 @@ PyTorchModel <: AbstractDifferentiablePythonModel
 
 Constructor for models trained in `PyTorch`. 
 """
-struct PyTorchModel <: AbstractDifferentiablePythonModel
+struct PyTorchModel <: AbstractPythonModel
     neural_network::Any
     likelihood::Symbol
     function PyTorchModel(model, likelihood)

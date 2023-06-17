@@ -21,7 +21,7 @@ abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel e
 """
 Base type for differentiable models written in Python.
 """
-abstract type AbstractDifferentiablePythonModel <: AbstractDifferentiableModel end
+abstract type AbstractPythonModel <: AbstractDifferentiableModel end
 
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
