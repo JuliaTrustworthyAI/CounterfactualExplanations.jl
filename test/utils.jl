@@ -1,5 +1,6 @@
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
+using Printf
 
 function _load_synthetic()
     # Data:

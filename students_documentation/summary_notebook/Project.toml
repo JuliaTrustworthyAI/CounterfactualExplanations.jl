@@ -1,7 +1,8 @@
 [deps]
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
 Tidier = "f0413319-3358-4bb0-8e7c-0c83523a93bd"
-UMAP = "c4f8c510-2410-5be4-91d7-4fbaeb39457e"

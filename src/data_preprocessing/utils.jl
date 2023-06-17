@@ -78,7 +78,7 @@ end
 
 """
     preprocess_data_for_mlj(data::CounterfactualData)
-
+    
 Helper function to preprocess `data::CounterfactualData` for MLJ models.
 
 # Arguments
