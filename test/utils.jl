@@ -97,6 +97,10 @@ function remove_file(file_path::String)
         println("File $file_path removed successfully.")
         return nothing
     catch e
-        throw(ArgumentError("Error occurred while removing file $file_path: $e"))
+        throw(
+            ArgumentError(
+                "Error occurred while removing file $file_path: $e"
+            )
+        )
     end
 end
