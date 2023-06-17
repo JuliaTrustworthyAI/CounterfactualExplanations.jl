@@ -91,7 +91,7 @@ function train_and_save_pytorch_model(
     end
 
     torch.save(model, pickle_path)
-    return
+    return nothing
 end
 
 function remove_file(file_path::String)
