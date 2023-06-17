@@ -32,7 +32,7 @@ using Random
     end
 end
 
-@testset "Tree-based models for synthetic data" begin
+@testset "Non-standard models for synthetic data" begin
     for (key, value) in synthetic
         name = string(key)
         @testset "$name" begin
@@ -71,6 +71,21 @@ end
             # Test the RandomForest model
             model = CounterfactualExplanations.Models.fit_model(value[:data], :RandomForest)
             name = "RandomForest"
+            @testset "$name" begin
+                @test model.likelihood == value[:data].likelihood
+                @testset "Matrix of inputs" begin
+                    @test size(logits(model, X))[2] == size(X, 2)
+                    @test size(probs(model, X))[2] == size(X, 2)
+                end
+                @testset "Vector of inputs" begin
+                    @test size(logits(model, X[:, 1]), 2) == 1
+                    @test size(probs(model, X[:, 1]), 2) == 1
+                end
+            end
+
+            # Test the LaplaceRedux model
+            model = CounterfactualExplanations.Models.fit_model(value[:data], :LaplaceRedux)
+            name = "LaplaceRedux"
             @testset "$name" begin
                 @test model.likelihood == value[:data].likelihood
                 @testset "Matrix of inputs" begin
