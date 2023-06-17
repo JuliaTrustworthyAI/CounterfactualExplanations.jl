@@ -66,7 +66,6 @@ if VERSION >= v"1.8"
             if generator_() isa Generators.HeuristicBasedGenerator
                 continue
             end
-        
             @testset "$name" begin
 
                 # Generator:
