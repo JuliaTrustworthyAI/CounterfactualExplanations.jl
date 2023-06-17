@@ -53,7 +53,7 @@ function create_new_pytorch_model(data::CounterfactualData, model_path::String)
         @printf(f, "%s", class_str)
     end
 
-    return
+    return nothing
 end
 
 function train_and_save_pytorch_model(
