@@ -28,7 +28,7 @@ function get_target(counterfactual_data::CounterfactualData, factual_label::RawT
     return target
 end
 
-function create_new_model(data::CounterfactualData, model_path::String)
+function create_new_pytorch_model(data::CounterfactualData, model_path::String)
     in_size = size(data.X)[1]
     out_size = size(data.y)[1]
 
@@ -54,7 +54,7 @@ function create_new_model(data::CounterfactualData, model_path::String)
     end
 end
 
-function train_and_save_model(
+function train_and_save_pytorch_model(
     data::CounterfactualData, model_location::String, pickle_path::String
 )
     sys = PythonCall.pyimport("sys")
@@ -89,7 +89,6 @@ function train_and_save_model(
     end
 
     torch.save(model, pickle_path)
-    return nothing
 end
 
 function remove_file(file_path::String)

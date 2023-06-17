@@ -15,8 +15,8 @@ if VERSION >= v"1.8"
                 X = data.X
 
                 # Create and save model in the model_path directory
-                create_new_model(data, model_path)
-                train_and_save_model(data, model_location, pickle_path)
+                create_new_pytorch_model(data, model_path)
+                train_and_save_pytorch_model(data, model_location, pickle_path)
                 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
                     model_location, model_file, class_name, pickle_path
                 )
@@ -26,6 +26,7 @@ if VERSION >= v"1.8"
                 )
 
                 @testset "$name" begin
+                    @test model_pytorch.likelihood == data.likelihood
                     @testset "Matrix of inputs" begin
                         @test size(logits(model_pytorch, X))[2] == size(X, 2)
                         @test size(probs(model_pytorch, X))[2] == size(X, 2)
