@@ -22,9 +22,9 @@ jobs:
           - os: windows-latest
             version: '1'
             arch: x64
-          - os: macOS-13
-            version: '1'
-            arch: x64
+          # - os: macOS-13
+          #   version: '1'
+          #   arch: x64
     steps:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
