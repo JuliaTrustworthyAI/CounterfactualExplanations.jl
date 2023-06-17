@@ -122,6 +122,10 @@ end
     M = MLJDecisionTreeInterface.DecisionTreeRegressor()
     regression_model = MLJBase.machine(M, X, y)
 
-    @test_throws ArgumentError Models.TreeModel(regression_model; likelihood=:classification_binary)
-    @test_throws ArgumentError Models.TreeModel(regression_model; likelihood=:classification_multi)
+    @test_throws ArgumentError Models.TreeModel(
+        regression_model; likelihood=:classification_binary
+    )
+    @test_throws ArgumentError Models.TreeModel(
+        regression_model; likelihood=:classification_multi
+    )
 end
