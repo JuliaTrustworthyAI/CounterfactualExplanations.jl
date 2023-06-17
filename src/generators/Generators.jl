@@ -38,6 +38,7 @@ export @objective, @threshold, @with_optimiser, @search_feature_space, @search_l
 export JSMADescent
 export hinge_loss, invalidation_rate
 export ProbeGenerator
+export growing_spheres_generation
 
 include("macros.jl")
 include("utils.jl")
@@ -66,7 +67,7 @@ generator_catalogue = Dict(
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
-    # :growing_spheres => Generators.GrowingSpheresGenerator,
+    :growing_spheres => Generators.GrowingSpheresGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
