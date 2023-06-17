@@ -100,6 +100,8 @@ model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, cou
 
 This model can now be passed into the generators like any other.
 
+Please note that the functionality for generating counterfactuals for Python models is only available if your Julia version is 1.8 or above. For Julia 1.7 users, we recommend upgrading the version to 1.8 or 1.9 before loading a PyTorch model into the package.
+
 ## Tuning Flux Models
 
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
