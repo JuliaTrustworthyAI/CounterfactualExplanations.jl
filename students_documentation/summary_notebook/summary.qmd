@@ -84,6 +84,8 @@ df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_da
 
 The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
 
+An important detail to note is that generating counterfactuals for Python models is only supported for Julia versions 1.8 and above. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
+
 ##### Load the data
 
 ```{julia}

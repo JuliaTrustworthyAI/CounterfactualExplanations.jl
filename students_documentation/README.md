@@ -46,10 +46,10 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
     - `src\data_preprocessing\utils.jl`
     - `src\models\model_utils.jl`
   - Tests: `test\models.jl`
-  - Test utilities: `test\utils.jl`
+  - Test utilities: `test\pytorch.jl`
   - Example: `students_documentation\summary_notebook\summary.qmd`
   - Documentation: `docs\src\tutorials\model_catalogue.qmd`
-  - Report: `students_documentation\PyTorch_models_report.md`
+  - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
 
 - DecisionTreeClassifier and RandomForestClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
   - Core logic:
