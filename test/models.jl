@@ -8,8 +8,6 @@ using MLUtils
 using PythonCall
 using Random
 
-include("pytorch.jl")
-
 @testset "Standard models for synthetic data" begin
     for (key, value) in synthetic
         name = string(key)
