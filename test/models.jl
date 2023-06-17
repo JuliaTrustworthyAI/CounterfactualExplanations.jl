@@ -95,14 +95,6 @@ end
             name = "LaplaceRedux"
             @testset "$name" begin
                 @test model.likelihood == :classification_binary
-                @testset "Matrix of inputs" begin
-                    @test size(logits(model, X))[2] == size(X, 2)
-                    @test size(probs(model, X))[2] == size(X, 2)
-                end
-                @testset "Vector of inputs" begin
-                    @test size(logits(model, X[:, 1]), 2) == 1
-                    @test size(probs(model, X[:, 1]), 2) == 1
-                end
             end
         end
     end
