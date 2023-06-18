@@ -167,6 +167,3 @@ Please note again that generating counterfactuals for the `EvoTreeModel` is not 
 
 ## References
 
-
-
-
