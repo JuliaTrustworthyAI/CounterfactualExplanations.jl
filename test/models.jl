@@ -15,18 +15,16 @@ using EvoTrees
         name = string(key)
         @testset "$name" begin
             X = value[:data].X
-                    @testset "Verify the likelihood" begin
-                        @test model[:model].likelihood == value[:data].likelihood
-                    end
-                    @testset "Matrix of inputs" begin
-                        @test size(logits(model[:model], X))[2] == size(X, 2)
-                        @test size(probs(model[:model], X))[2] == size(X, 2)
-                    end
-                    @testset "Vector of inputs" begin
-                        @test size(logits(model[:model], X[:, 1]), 2) == 1
-                        @test size(probs(model[:model], X[:, 1]), 2) == 1
-                    end
-                end
+            @testset "Verify the model's likelihood" begin
+                @test model[:model].likelihood == value[:data].likelihood
+            end
+            @testset "Matrix of inputs" begin
+                @test size(logits(model[:model], X))[2] == size(X, 2)
+                @test size(probs(model[:model], X))[2] == size(X, 2)
+            end
+            @testset "Vector of inputs" begin
+                @test size(logits(model[:model], X[:, 1]), 2) == 1
+                @test size(probs(model[:model], X[:, 1]), 2) == 1
             end
         end
     end
@@ -42,7 +40,7 @@ end
             name = "EvoTree"
 
             @testset "$name" begin
-                @testset "Verify the likelihood" begin
+                @testset "Verify the model's likelihood" begin
                     @test model[:model].likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
@@ -59,7 +57,7 @@ end
             model = CounterfactualExplanations.Models.fit_model(value[:data], :DecisionTree)
             name = "DecisionTree"
             @testset "$name" begin
-                @testset "Verify the likelihood" begin
+                @testset "Verify the model's likelihood" begin
                     @test model[:model].likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
@@ -76,7 +74,7 @@ end
             model = CounterfactualExplanations.Models.fit_model(value[:data], :RandomForest)
             name = "RandomForest"
             @testset "$name" begin
-                @testset "Verify the likelihood" begin
+                @testset "Verify the model's likelihood" begin
                     @test model[:model].likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
