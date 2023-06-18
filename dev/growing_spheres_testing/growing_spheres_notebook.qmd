@@ -67,7 +67,7 @@ x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ### Generate counterfactual
 ```{julia}
 # Define a generator:
-generator = CounterfactualExplanations.Models.GrowingSpheresGenerator(3, 1)
+generator = CounterfactualExplanations.Models.GrowingSpheresGenerator(100, 0.01)
 
 counterfactual = CounterfactualExplanations.growing_spheres_generation(
     generator,
@@ -75,6 +75,8 @@ counterfactual = CounterfactualExplanations.growing_spheres_generation(
     x_random_factual,
     counterfactual_data
 )
+
+counterfactual = reshape(Float32.(counterfactual), (length(counterfactual), 1))
 
 result = CounterfactualExplanations.feature_selection(
     M_flux,

@@ -40,7 +40,13 @@ Constructs a new Growing Spheres Generator object.
     - candidate_counterfactuals: An array of candidate counterfactuals.
     - dist: An array of distances corresponding to each candidate counterfactual.
 """
-function hyper_sphere_coordinates(n_search_samples::Integer, instance::AbstractArray, low::AbstractFloat, high::AbstractFloat; p_norm::Integer=2)
+function hyper_sphere_coordinates(
+    n_search_samples::Integer,
+    instance::AbstractArray,
+    low::AbstractFloat,
+    high::AbstractFloat;
+    p_norm::Integer=2,
+)
     delta_instance = randn(n_search_samples, length(instance))
     dist = rand(n_search_samples) .* (high - low) .+ low  # length range [l, h)
     norm_p = LinearAlgebra.norm(delta_instance, p_norm)
@@ -51,7 +57,6 @@ function hyper_sphere_coordinates(n_search_samples::Integer, instance::AbstractA
 
     return transpose(candidate_counterfactuals)
 end
-
 
 """
     growing_spheres_generation(generator, model, factual, counterfactual_data)
@@ -78,8 +83,8 @@ function growing_spheres_generation(
     generator::GrowingSpheresGenerator,
     model::AbstractFittedModel,
     factual::AbstractArray,
-    counterfactual_data::CounterfactualData
-)   
+    counterfactual_data::CounterfactualData,
+)
     # Copy hyperparameters
     n = generator.n
     η = generator.η
@@ -87,38 +92,46 @@ function growing_spheres_generation(
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
     # factual_class = CounterfactualExplanations.factual_label(ce)
-    factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
+    factual_class = CounterfactualExplanations.Models.predict_label(
+        model, counterfactual_data, factual
+    )
 
     # Predict labels for each candidate counterfactual
-    counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
+    counterfactual = find_counterfactual(
+        model, factual_class, counterfactual_data, counterfactual_candidates
+    )
     max_iteration = 1000
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while(!isnothing(counterfactual))
+    while (!isnothing(counterfactual))
         η /= 2
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-        counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
+        counterfactual = find_counterfactual(
+            model, factual_class, counterfactual_data, counterfactual_candidates
+        )
 
         max_iteration -= 1
         if (max_iteration == 0)
             @warn("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
-    
+
     # Initialize boundaries of the sphere's radius
     a₀, a₁ = η, 2η
 
     max_iteration = 1000
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while(isnothing(counterfactual))
+    while (isnothing(counterfactual))
         a₀ = a₁
         a₁ += η
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
-        counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
-    
+        counterfactual = find_counterfactual(
+            model, factual_class, counterfactual_data, counterfactual_candidates
+        )
+
         max_iteration -= 1
         if (max_iteration == 0)
             @warn("Warning: Maximum iteration reached. No counterfactual found.")
@@ -142,25 +155,52 @@ end
     # Returns
     - `counterfactual`: The index of the first counterfactual found.
 """
-function find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
-    predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
+function find_counterfactual(
+    model, factual_class, counterfactual_data, counterfactual_candidates
+)
+    predicted_labels = map(
+        e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e),
+        eachcol(counterfactual_candidates),
+    )
     counterfactual = findfirst(predicted_labels .≠ factual_class)
-    
+
     return counterfactual
 end
 
+"""
+    feature_selection(model::AbstractFittedModel, counterfactual_data::CounterfactualData, factual::AbstractArray, counterfactual::AbstractArray)
+
+    Perform feature selection to find the dimension with the closest (but not equal) values between the `factual` and `counterfactual` arrays.
+
+    # Arguments
+    - `model::AbstractFittedModel`: The fitted model used for prediction.
+    - `counterfactual_data::CounterfactualData`: Data required for counterfactual explanation generation.
+    - `factual::AbstractArray`: The factual array.
+    - `counterfactual::AbstractArray`: The counterfactual array.
+
+    # Returns
+    - `counterfactual′`: The modified counterfactual array.
+
+    The function iteratively modifies the `counterfactual` array by updating its elements to match the corresponding elements in the `factual` array, one dimension at a time, until the predicted label of the modified `counterfactual` matches the predicted label of the `factual` array.
+"""
 function feature_selection(
     model::AbstractFittedModel,
     counterfactual_data::CounterfactualData,
     factual::AbstractArray,
-    counterfactual::AbstractArray
+    counterfactual::AbstractArray,
 )
     counterfactual′ = counterfactual
     counterfactual″ = counterfactual′
 
-    factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
+    factual_class = CounterfactualExplanations.Models.predict_label(
+        model, counterfactual_data, factual
+    )
 
-    while (factual_class != CounterfactualExplanations.Models.predict_label(model, counterfactual_data, counterfactual′))
+    while (
+        factual_class != CounterfactualExplanations.Models.predict_label(
+            model, counterfactual_data, counterfactual′
+        )
+    )
         counterfactual″ = counterfactual′
         i = find_closest_dimension(factual, counterfactual′)
         counterfactual′[i] = factual[i]
@@ -169,6 +209,20 @@ function feature_selection(
     return counterfactual″
 end
 
+"""
+    find_closest_dimension(factual, counterfactual)
+
+    Find the dimension with the closest (but not equal) values between the `factual` and `counterfactual` arrays.
+
+    # Arguments
+    - `factual`: The factual array.
+    - `counterfactual`: The counterfactual array.
+
+    # Returns
+    - `closest_dimension`: The index of the dimension with the closest values.
+
+    The function iterates over the indices of the `factual` array and calculates the absolute difference between the corresponding elements in the `factual` and `counterfactual` arrays. It returns the index of the dimension with the smallest difference, excluding dimensions where the values in `factual` and `counterfactual` are equal.
+"""
 function find_closest_dimension(factual, counterfactual)
     min_diff = typemax(eltype(factual))
     closest_dimension = -1
