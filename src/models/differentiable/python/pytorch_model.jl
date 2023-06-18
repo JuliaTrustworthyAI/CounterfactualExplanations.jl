@@ -1,12 +1,12 @@
 using PythonCall
 
 """
-PyTorchModel <: AbstractDifferentiablePythonModel
+PyTorchModel <: AbstractPythonModel
 
 Constructor for models trained in `PyTorch`. 
 """
 struct PyTorchModel <: AbstractPythonModel
-    neural_network::Any
+    model::Any
     likelihood::Symbol
     function PyTorchModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
@@ -29,12 +29,12 @@ function PyTorchModel(model; likelihood::Symbol=:classification_binary)
 end
 
 """
-    function logits(model::PyTorchModel, x::AbstractArray)
+    function logits(M::PyTorchModel, x::AbstractArray)
 
-Calculates the logit scores output by the model `model` for the input data `X`.
+Calculates the logit scores output by the model `M` for the input data `X`.
 
 # Arguments
-- `model::PyTorchModel`: The model selected by the user. Must be a model defined using PyTorch.
+- `M::PyTorchModel`: The model selected by the user. Must be a model defined using PyTorch.
 - `X::AbstractArray`: The feature vector for which the logit scores are calculated.
 
 # Returns
@@ -43,7 +43,7 @@ Calculates the logit scores output by the model `model` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data points in `X`
 """
-function logits(model::PyTorchModel, x::AbstractArray)
+function logits(M::PyTorchModel, x::AbstractArray)
     torch = PythonCall.pyimport("torch")
     np = PythonCall.pyimport("numpy")
 
@@ -51,19 +51,19 @@ function logits(model::PyTorchModel, x::AbstractArray)
         x = reshape(x, length(x), 1)
     end
 
-    ŷ_python = model.neural_network(torch.tensor(np.array(x)).T).detach().numpy()
+    ŷ_python = M.model(torch.tensor(np.array(x)).T).detach().numpy()
     ŷ = PythonCall.pyconvert(Matrix, ŷ_python)
 
     return transpose(ŷ)
 end
 
 """
-    function probs(model::PyTorchModel, x::AbstractArray)
+    function probs(M::PyTorchModel, x::AbstractArray)
 
-Calculates the output probabilities of the model `model` for the input data `X`.
+Calculates the output probabilities of the model `M` for the input data `X`.
 
 # Arguments
-- `model::PyTorchModel`: The model selected by the user. Must be a model defined using PyTorch.
+- `M::PyTorchModel`: The model selected by the user. Must be a model defined using PyTorch.
 - `X::AbstractArray`: The feature vector for which the logit scores are calculated.
 
 # Returns
@@ -72,10 +72,10 @@ Calculates the output probabilities of the model `model` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the probabilities for each output class for the data points in `X`
 """
-function probs(model::PyTorchModel, x::AbstractArray)
-    if model.likelihood == :classification_binary
-        return σ.(logits(model, x))
-    elseif model.likelihood == :classification_multi
-        return softmax(logits(model, x))
+function probs(M::PyTorchModel, x::AbstractArray)
+    if M.likelihood == :classification_binary
+        return σ.(logits(M, x))
+    elseif M.likelihood == :classification_multi
+        return softmax(logits(M, x))
     end
 end

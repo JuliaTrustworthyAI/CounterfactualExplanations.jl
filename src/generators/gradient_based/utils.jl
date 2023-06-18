@@ -51,7 +51,7 @@ function ∂ℓ(
     target = torch.tensor(np.array(reshape(target, 1, length(target))))
     target = target.squeeze()
 
-    output = M.neural_network(x).squeeze()
+    output = M.model(x).squeeze()
 
     obj_loss = torch.nn.BCEWithLogitsLoss()(output, target)
     obj_loss.backward()

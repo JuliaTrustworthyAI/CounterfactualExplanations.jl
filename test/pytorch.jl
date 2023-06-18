@@ -66,8 +66,8 @@ if VERSION >= v"1.8"
             if generator_() isa Generators.HeuristicBasedGenerator
                 continue
             end
-            @testset "$name" begin
 
+            @testset "$name" begin
                 # Generator:
                 generator = deepcopy(generator_())
 
@@ -77,7 +77,7 @@ if VERSION >= v"1.8"
                         counterfactual_data = value[:data]
                         X = counterfactual_data.X
 
-                        # Create the model
+                        # Create and save model in the model_path directory
                         create_new_pytorch_model(counterfactual_data, model_path)
                         train_and_save_pytorch_model(
                             counterfactual_data, model_location, pickle_path
