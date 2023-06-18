@@ -32,7 +32,9 @@ for (key, generator_) in generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = DataPreprocessing.select_factual(counterfactual_data, rand(1:size(X, 2)))
+                            x = DataPreprocessing.select_factual(
+                                counterfactual_data, rand(1:size(X, 2))
+                            )
                             multiple_x = DataPreprocessing.select_factual(
                                 counterfactual_data, rand(1:size(X, 2), 5)
                             )
@@ -81,10 +83,15 @@ for (key, generator_) in generators
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
-                                    @test !CounterfactualExplanations.converged(counterfactual) ||
-                                        CounterfactualExplanations.target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                    @test !CounterfactualExplanations.converged(counterfactual) ||
-                                        length(path(counterfactual)) <= max_iter
+                                    @test !CounterfactualExplanations.converged(
+                                        counterfactual
+                                    ) ||
+                                        CounterfactualExplanations.target_probs(
+                                        counterfactual
+                                    )[1] >= γ # either not converged or threshold reached
+                                    @test !CounterfactualExplanations.converged(
+                                        counterfactual
+                                    ) || length(path(counterfactual)) <= max_iter
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
@@ -111,7 +118,9 @@ for (key, generator_) in generators
                                             )
                                         ),
                                     ) < init_perturbation
-                                    @test CounterfactualExplanations.converged(counterfactual)
+                                    @test CounterfactualExplanations.converged(
+                                        counterfactual
+                                    )
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )

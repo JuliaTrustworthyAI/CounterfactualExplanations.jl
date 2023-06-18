@@ -12,7 +12,9 @@ generator = generator_catalogue[:generic]()
     x = DataPreprocessing.select_factual(counterfactual_data, rand(1:size(X, 2)))
     y = Models.predict_label(M, counterfactual_data, x)
     target = get_target(counterfactual_data, y[1])
-    ce = CounterfactualExplanations.generate_counterfactual(x, target, counterfactual_data, M, generator)
+    ce = CounterfactualExplanations.generate_counterfactual(
+        x, target, counterfactual_data, M, generator
+    )
     plt = CounterfactualExplanations.plot(ce)
     anim = CounterfactualExplanations.animate_path(ce)
 end
