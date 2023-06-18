@@ -9,9 +9,7 @@
         counterfactual_data.X[:, idx][:, :]
 
     # Mutability:
-    𝑪 = DataPreprocessing.mutability_constraints(
-        counterfactual_data
-    )
+    𝑪 = DataPreprocessing.mutability_constraints(counterfactual_data)
     @test length(𝑪) == size(counterfactual_data.X)[1]
     @test unique(𝑪)[1] == :both
 
