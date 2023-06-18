@@ -1,8 +1,0 @@
-coverage:
-  status:
-    project:
-      default:
-        target: 80%    # the required coverage value
-        threshold: 0.01%  # the leniency in hitting the target
-  ignore:
-  - "src/**/visualization/**/*"
