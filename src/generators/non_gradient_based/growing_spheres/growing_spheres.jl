@@ -76,7 +76,7 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
 
         max_iteration -= 1
         if (max_iteration == 0)
-            @warn("Warning: Maximum iteration reached. No counterfactual found.")
+            @error("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
 
@@ -97,11 +97,12 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
 
         max_iteration -= 1
         if (max_iteration == 0)
-            @warn("Warning: Maximum iteration reached. No counterfactual found.")
+            @error("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
 
-    return counterfactual_candidates[:, counterfactual]
+    ce.s′ = counterfactual_candidates[:, counterfactual]
+    return nothing
 end
 
 """
@@ -120,12 +121,12 @@ end
 
     The function iteratively modifies the `counterfactual` array by updating its elements to match the corresponding elements in the `factual` array, one dimension at a time, until the predicted label of the modified `counterfactual` matches the predicted label of the `factual` array.
 """
-function feature_selection(ce::AbstractCounterfactualExplanation, counterfactual::AbstractArray)
+function feature_selection(ce::AbstractCounterfactualExplanation)
     model = ce.M
     counterfactual_data = ce.data
     factual = ce.x
 
-    counterfactual′ = counterfactual
+    counterfactual′ = ce.s′
     counterfactual″ = counterfactual′
 
     factual_class = CounterfactualExplanations.Models.predict_label(
@@ -142,7 +143,11 @@ function feature_selection(ce::AbstractCounterfactualExplanation, counterfactual
         counterfactual′[i] = factual[i]
     end
 
-    return counterfactual″
+    ce.s′ = counterfactual″
+    ce.search[:terminated] = true
+    ce.search[:converged] = true
+    
+    return nothing
 end
 
 """
