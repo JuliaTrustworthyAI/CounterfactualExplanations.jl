@@ -66,6 +66,10 @@ if VERSION >= v"1.8"
             if generator_() isa Generators.HeuristicBasedGenerator
                 continue
             end
+            # ClapROAR does not support PyTorch models
+            if name == "Claproar"
+                continue
+            end
 
             @testset "$name" begin
                 # Generator:

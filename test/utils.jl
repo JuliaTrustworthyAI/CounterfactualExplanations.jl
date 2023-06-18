@@ -98,7 +98,7 @@ function train_and_save_pytorch_model(
         # Compute prediction and loss:
         output = model(x_python).squeeze()
         loss = loss_fun(output, y_python.t())
-        println("training...")
+        println(output)
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
