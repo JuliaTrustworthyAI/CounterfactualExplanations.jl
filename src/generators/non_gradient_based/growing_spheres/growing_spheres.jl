@@ -52,6 +52,27 @@ function hyper_sphere_coordinates(n_search_samples::Integer, instance::AbstractA
     return transpose(candidate_counterfactuals)
 end
 
+
+"""
+    growing_spheres_generation(generator, model, factual, counterfactual_data)
+
+Generate counterfactual candidates using the growing spheres generation algorithm.
+
+# Arguments
+- `generator::GrowingSpheresGenerator`: An instance of the `GrowingSpheresGenerator` type representing the generator.
+- `model::AbstractFittedModel`: The fitted model used for prediction.
+- `factual::AbstractArray`: The factual observation to be interpreted.
+- `counterfactual_data::CounterfactualData`: Data required for counterfactual generation.
+
+# Returns
+- `counterfactual_candidates`: An array of counterfactual candidates.
+
+This function applies the growing spheres generation algorithm to generate counterfactual candidates. It starts by generating random points uniformly on a sphere, gradually reducing the search space until no counterfactuals are found. Then it expands the search space until at least one counterfactual is found or the maximum number of iterations is reached.
+
+The algorithm iteratively generates counterfactual candidates and predicts their labels using the `model`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
+
+If no counterfactual is found within the maximum number of iterations, a warning message is displayed.
+"""
 function growing_spheres_generation(
     generator::GrowingSpheresGenerator,
     model::AbstractFittedModel,
@@ -66,38 +87,48 @@ function growing_spheres_generation(
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
     factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
 
-    counterfactual = findfirst(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates))
-    stop = 100
+    # Predict labels for each candidate counterfactual
+    predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
+    counterfactual = findfirst(predicted_labels .≠ factual_class)
+    max_iteration = 1000
 
-    # Repeat until there's at least one counterfactual (process of removing them by reducing the search space)
-    while(!isnothing(counterfactual) && stop > 0)
+    # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
+    while(!isnothing(counterfactual) && max_iteration > 0)
         η = η / 2
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-        counterfactual = findfirst(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates))
-        stop -= 1
-    end
+        predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
+        counterfactual = findfirst(predicted_labels .≠ factual_class)
 
-    # We expect there're only factual labels:
-    @info("Predicted labels: ", map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates)))
+        max_iteration -= 1
+        if (max_iteration == 0)
+            println("Warning: Maximum iteration reached. No counterfactual found.")
+        end
+    end
     
     # Initialize boundaries of the spehere's radius
     a₀ = η
     a₁ = 2η
 
-    counterfactual = findfirst(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates))
+    # Predict labels for each candidate counterfactual
+    predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
+    counterfactual = findfirst(predicted_labels .≠ factual_class)
+    max_iteration = 1000
 
-    # Repeat until there's the first (the closest) counterfactual (process of expanding the search space)
-    while(isnothing(counterfactual) && stop > 0)
+    # Repeat until there's at least one counterfactual (process of expanding the search space)
+    while(isnothing(counterfactual) && max_iteration > 0)
         a₀ = a₁
         a₁ = a₁ + η
 
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-        counterfactual = findfirst(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates))
-        stop -= 1
-    end
+        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
+        predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
+        counterfactual = findfirst(predicted_labels .≠ factual_class)
     
-    @info("Predicted labels: ", map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e) ≠ factual_class, eachcol(counterfactual_candidates)))
+        max_iteration -= 1
+        if (max_iteration == 0)
+            println("Warning: Maximum iteration reached. No counterfactual found.")
+        end
+    end
 
     return counterfactual_candidates[:, counterfactual]
 end
