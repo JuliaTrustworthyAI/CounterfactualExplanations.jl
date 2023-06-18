@@ -44,16 +44,16 @@ function feature_tweaking(
     end
 
     x_out = deepcopy(x)
-    machine = M.model
     delta = 10^3
     ensemble_prediction = Models.predict_label(M, x)[1]
-    fp = MLJBase.fitted_params(machine)
-    model = fp.tree.node
 
     for classifier in Models.get_individual_classifiers(M)
         if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
             Models.predict_label(classifier, x)[1] != target
-            paths = search_path(model, target)
+            machine = classifier.model
+            fitted_params = MLJBase.fitted_params(machine)
+            root = fitted_params.tree.node
+            paths = search_path(root, target)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
@@ -166,50 +166,4 @@ function search_path(
         )
         return paths
     end
-end
-
-"""
-    search_path(model::DecisionTreeClassifier, target::RawTargetType)
-
-Calls `search_path` on the root node of a decision tree.
-
-# Arguments
-- `model::DecisionTreeClassifier`: The decision tree model.
-- `target::RawTargetType`: The target class.
-
-# Returns
-- `paths::AbstractArray`: A list of paths to the leaves of the tree to be used for tweaking the feature.
-
-# Example
-paths = search_path(model, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
-"""
-function search_path(
-    model::MLJDecisionTreeInterface.DecisionTreeClassifier, target::RawTargetType
-)
-    return search_path(model.root.node, target)
-end
-
-"""
-    search_path(model::RandomForestClassifier, target::RawTargetType)
-
-Calls `search_path` on the root node of a random forest.
-
-# Arguments
-- `model::RandomForestClassifier`: The random forest model.
-- `target::RawTargetType`: The target class.
-
-# Returns
-- `paths::AbstractArray`: A list of paths to the leaves of the tree to be used for tweaking the feature.
-
-# Example
-paths = search_path(model, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
-"""
-function search_path(
-    model::MLJDecisionTreeInterface.RandomForestClassifier, target::RawTargetType
-)
-    paths = []
-    for tree in model.trees
-        append!(paths, search_path(tree, target))
-    end
-    return paths
 end

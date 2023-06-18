@@ -1,8 +1,3 @@
-using CounterfactualExplanations
-using CounterfactualExplanations.Data
-using CounterfactualExplanations.Generators
-using Random
-
 @testset "Construction" begin
     @testset "Generic" begin
         generator = GenericGenerator()

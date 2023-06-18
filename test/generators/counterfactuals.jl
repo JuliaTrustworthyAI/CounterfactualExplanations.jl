@@ -1,3 +1,7 @@
+include("feature_tweak.jl")
+include("generators.jl")
+include("probe.jl")
+
 # NOTE:
 # This is probably the most important/useful test script, because it runs through the whole process of: 
 # - loading artifacts

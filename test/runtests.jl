@@ -23,9 +23,9 @@ init_perturbation = 2.0
 Random.seed!(0)
 
 using Logging
-Logging.is_logging(io) = isa(io, Base.TTY) == false || (get(ENV, "CI", nothing) == "true")
-if Logging.is_logging(stderr)
-    Logging.global_logger(Logging.NullLogger())
+is_logging(io) = isa(io, Base.TTY) == false || (get(ENV, "CI", nothing) == "true")
+if is_logging(stderr)
+    global_logger(NullLogger())
 end
 
 include("utils.jl")
@@ -39,35 +39,19 @@ generators = generator_catalogue
         include("data/data.jl")
     end
 
-    @testset "Data preprocessing" begin
-        include("data_preprocessing.jl")
-    end
-
-    @testset "Generative Models" begin
-        include("generative_models.jl")
-    end
-
-    @testset "Counterfactuals" begin
-        include("counterfactuals.jl")
-    end
-
     @testset "Generators" begin
-        include("generators.jl")
+        include("generators/counterfactuals.jl")
     end
 
-    @testset "Probe" begin
-        include("probe.jl")
-    end
-
-    @testset "Model" begin
-        include("models.jl")
-    end
-
-    @testset "Plotting" begin
-        include("plotting.jl")
+    @testset "Models" begin
+        include("models/models.jl")
     end
 
     @testset "Evaluation" begin
-        include("evaluation.jl")
+        include("other/evaluation.jl")
+    end
+
+    @testset "Plotting" begin
+        include("other/plotting.jl")
     end
 end
