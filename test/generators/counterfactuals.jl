@@ -32,7 +32,9 @@ for (key, generator_) in generators
                             M = model[:model]
                             # Randomly selected factual:
                             Random.seed!(123)
-                            x = DataPreprocessing.select_factual(counterfactual_data, rand(1:size(X, 2)))
+                            x = DataPreprocessing.select_factual(
+                                counterfactual_data, rand(1:size(X, 2))
+                            )
                             multiple_x = DataPreprocessing.select_factual(
                                 counterfactual_data, rand(1:size(X, 2), 5)
                             )
