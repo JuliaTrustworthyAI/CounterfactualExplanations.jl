@@ -126,7 +126,9 @@ for (key, generator_) in generators
                                         counterfactual
                                     )
                                     @test CounterfactualExplanations.terminated(
+                                    @test CounterfactualExplanations.converged(
                                         counterfactual
+                                    )
                                     )
                                     @test CounterfactualExplanations.total_steps(
                                         counterfactual
