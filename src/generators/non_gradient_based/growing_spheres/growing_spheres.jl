@@ -93,7 +93,7 @@ function growing_spheres_generation(
     max_iteration = 1000
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while(!isnothing(counterfactual) && max_iteration > 0)
+    while(!isnothing(counterfactual))
         η = η / 2
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
@@ -102,13 +102,12 @@ function growing_spheres_generation(
 
         max_iteration -= 1
         if (max_iteration == 0)
-            println("Warning: Maximum iteration reached. No counterfactual found.")
+            @warn("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
     
     # Initialize boundaries of the spehere's radius
-    a₀ = η
-    a₁ = 2η
+    a₀, a₁ = η, 2η
 
     # Predict labels for each candidate counterfactual
     predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
@@ -116,7 +115,7 @@ function growing_spheres_generation(
     max_iteration = 1000
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while(isnothing(counterfactual) && max_iteration > 0)
+    while(isnothing(counterfactual))
         a₀ = a₁
         a₁ = a₁ + η
 
@@ -126,7 +125,7 @@ function growing_spheres_generation(
     
         max_iteration -= 1
         if (max_iteration == 0)
-            println("Warning: Maximum iteration reached. No counterfactual found.")
+            @warn("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
 
