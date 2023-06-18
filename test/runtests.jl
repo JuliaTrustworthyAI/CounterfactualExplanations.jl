@@ -4,6 +4,7 @@ CHL.@check()
 using CounterfactualExplanations
 using Random
 using Test
+using DataFrames
 
 Random.seed!(0)
 
@@ -21,7 +22,7 @@ generators = generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
     @testset "Data" begin
-        include("data.jl")
+        include("data/data.jl")
     end
 
     @testset "Data preprocessing" begin
