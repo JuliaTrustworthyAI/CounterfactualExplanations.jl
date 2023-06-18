@@ -118,7 +118,9 @@ for (key, generator_) in generators
                                             )
                                         ),
                                     ) < init_perturbation
-                                    @test CounterfactualExplanations.converged(counterfactual)
+                                    @test CounterfactualExplanations.converged(
+                                        counterfactual
+                                    )
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )
