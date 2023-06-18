@@ -1,6 +1,3 @@
-using CounterfactualExplanations.Data
-using CounterfactualExplanations.Models
-
 function _load_synthetic()
     # Data:
     data_sets = Dict(

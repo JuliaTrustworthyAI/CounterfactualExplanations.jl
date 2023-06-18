@@ -2,16 +2,30 @@ using Chain: @chain
 import CompatHelperLocal as CHL
 CHL.@check()
 using CounterfactualExplanations
-using Random
 using Test
 using DataFrames
+using Flux
+using LinearAlgebra
+using MLUtils
+using Random
+using Plots
+using LaplaceRedux
+using EvoTrees
+using MLJBase
+using MLJDecisionTreeInterface
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Models
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.DataPreprocessing
 
+init_perturbation = 2.0
 Random.seed!(0)
 
 using Logging
-is_logging(io) = isa(io, Base.TTY) == false || (get(ENV, "CI", nothing) == "true")
-if is_logging(stderr)
-    global_logger(NullLogger())
+Logging.is_logging(io) = isa(io, Base.TTY) == false || (get(ENV, "CI", nothing) == "true")
+if Logging.is_logging(stderr)
+    Logging.global_logger(Logging.NullLogger())
 end
 
 include("utils.jl")

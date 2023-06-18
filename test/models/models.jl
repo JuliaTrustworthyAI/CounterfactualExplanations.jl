@@ -1,15 +1,3 @@
-using CounterfactualExplanations
-using CounterfactualExplanations.Models
-using DataFrames
-using Flux
-using LinearAlgebra
-using MLJBase
-using MLJDecisionTreeInterface
-using MLUtils
-using Random
-using LaplaceRedux
-using EvoTrees
-
 @testset "Standard models for synthetic data" begin
     for (key, value) in synthetic
         name = string(key)
@@ -22,12 +10,12 @@ using EvoTrees
                         @test model[:model].likelihood == value[:data].likelihood
                     end
                     @testset "Matrix of inputs" begin
-                        @test size(logits(model[:model], X))[2] == size(X, 2)
-                        @test size(probs(model[:model], X))[2] == size(X, 2)
+                        @test size(Models.logits(model[:model], X))[2] == size(X, 2)
+                        @test size(Models.probs(model[:model], X))[2] == size(X, 2)
                     end
                     @testset "Vector of inputs" begin
-                        @test size(logits(model[:model], X[:, 1]), 2) == 1
-                        @test size(probs(model[:model], X[:, 1]), 2) == 1
+                        @test size(Models.logits(model[:model], X[:, 1]), 2) == 1
+                        @test size(Models.probs(model[:model], X[:, 1]), 2) == 1
                     end
                 end
             end
@@ -42,59 +30,58 @@ end
             X = value[:data].X
 
             # Test the EvoTree model
-            model = CounterfactualExplanations.Models.fit_model(value[:data], :EvoTree)
+            model = Models.fit_model(value[:data], :EvoTree)
             name = "EvoTree"
             @testset "$name" begin
                 @testset "Verify correctness of likelihood field" begin
                     @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
-                    @test size(logits(model, X))[2] == size(X, 2)
-                    @test size(probs(model, X))[2] == size(X, 2)
+                    @test size(Models.logits(model, X))[2] == size(X, 2)
+                    @test size(Models.probs(model, X))[2] == size(X, 2)
                 end
                 @testset "Vector of inputs" begin
-                    @test size(logits(model, X[:, 1]), 2) == 1
-                    @test size(probs(model, X[:, 1]), 2) == 1
+                    @test size(Models.logits(model, X[:, 1]), 2) == 1
+                    @test size(Models.probs(model, X[:, 1]), 2) == 1
                 end
             end
 
             # Test the DecisionTree model
-            model = CounterfactualExplanations.Models.fit_model(value[:data], :DecisionTree)
+            model = Models.fit_model(value[:data], :DecisionTree)
             name = "DecisionTree"
             @testset "$name" begin
                 @testset "Verify correctness of likelihood field" begin
                     @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
-                    @test size(logits(model, X))[2] == size(X, 2)
-                    @test size(probs(model, X))[2] == size(X, 2)
+                    @test size(Models.logits(model, X))[2] == size(X, 2)
+                    @test size(Models.probs(model, X))[2] == size(X, 2)
                 end
                 @testset "Vector of inputs" begin
-                    @test size(logits(model, X[:, 1]), 2) == 1
-                    @test size(probs(model, X[:, 1]), 2) == 1
+                    @test size(Models.logits(model, X[:, 1]), 2) == 1
+                    @test size(Models.probs(model, X[:, 1]), 2) == 1
                 end
             end
 
             # Test the RandomForest model
-            model = CounterfactualExplanations.Models.fit_model(value[:data], :RandomForest)
+            model = Models.fit_model(value[:data], :RandomForest)
             name = "RandomForest"
             @testset "$name" begin
                 @testset "Verify correctness of likelihood field" begin
                     @test model.likelihood == value[:data].likelihood
                 end
                 @testset "Matrix of inputs" begin
-                    @test size(logits(model, X))[2] == size(X, 2)
-                    @test size(probs(model, X))[2] == size(X, 2)
+                    @test size(Models.logits(model, X))[2] == size(X, 2)
+                    @test size(Models.probs(model, X))[2] == size(X, 2)
                 end
                 @testset "Vector of inputs" begin
-                    @test size(logits(model, X[:, 1]), 2) == 1
-                    @test size(probs(model, X[:, 1]), 2) == 1
+                    @test size(Models.logits(model, X[:, 1]), 2) == 1
+                    @test size(Models.probs(model, X[:, 1]), 2) == 1
                 end
             end
 
             # Test the LaplaceReduxModel
-            flux_model =
-                CounterfactualExplanations.Models.fit_model(value[:data], :Linear).model
+            flux_model = Models.fit_model(value[:data], :Linear).model
             laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
             model = Models.LaplaceReduxModel(
                 laplace_model; likelihood=:classification_binary
@@ -112,8 +99,8 @@ end
     @test_throws ArgumentError Models.FluxModel("dummy"; likelihood=:regression)
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
 
-    data = CounterfactualExplanations.Data.load_linearly_separable()
-    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
+    data = Data.load_linearly_separable()
+    X, y = DataPreprocessing.preprocess_data_for_mlj(data)
 
     # test the EvoTree model
     M = EvoTrees.EvoTreeClassifier()
@@ -140,7 +127,7 @@ end
     )
 
     # test the LaplaceRedux model
-    flux_model = CounterfactualExplanations.Models.fit_model(data, :Linear).model
+    flux_model = Models.fit_model(data, :Linear).model
     laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
     @test_throws ArgumentError Models.LaplaceReduxModel(
         laplace_model; likelihood=:classification_multi

@@ -6,7 +6,7 @@ using Random
 @testset "Construction" begin
     @testset "Generic" begin
         generator = GenericGenerator()
-        @test typeof(generator) <: AbstractGradientBasedGenerator
+        @test typeof(generator) <: Generators.AbstractGradientBasedGenerator
     end
 
     @testset "Macros" begin

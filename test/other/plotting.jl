@@ -1,6 +1,3 @@
-using MLUtils
-using Plots
-
 generator = generator_catalogue[:generic]()
 
 @testset "Two-dimensional" begin
@@ -8,16 +5,16 @@ generator = generator_catalogue[:generic]()
     counterfactual_data = synthetic[:classification_binary][:data]
 
     # Model:
-    plt = plot(M, counterfactual_data)
+    plt = Models.plot(M, counterfactual_data)
 
     # Counterfactual:
     X = counterfactual_data.X
-    x = select_factual(counterfactual_data, rand(1:size(X, 2)))
-    y = predict_label(M, counterfactual_data, x)
+    x = DataPreprocessing.select_factual(counterfactual_data, rand(1:size(X, 2)))
+    y = Models.predict_label(M, counterfactual_data, x)
     target = get_target(counterfactual_data, y[1])
-    ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-    plt = plot(ce)
-    anim = animate_path(ce)
+    ce = CounterfactualExplanations.generate_counterfactual(x, target, counterfactual_data, M, generator)
+    plt = CounterfactualExplanations.plot(ce)
+    anim = CounterfactualExplanations.animate_path(ce)
 end
 
 @testset "Multi-dimensional" begin
