@@ -101,8 +101,11 @@ function generate_counterfactual(
             ce.search[:terminated] = true
             ce.search[:converged] = true
         end
+    elseif isa(generator, GrowingSpheresGenerator)
+        ce = growing_spheres_generation(ce, ce.generator, ce.M, ce.x, ce.data)
+    else
+        @error "Generator not recognized."
     end
-
     return ce
 end
 

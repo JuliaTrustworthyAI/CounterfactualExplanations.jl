@@ -74,18 +74,19 @@ The algorithm iteratively generates counterfactual candidates and predicts their
 If no counterfactual is found within the maximum number of iterations, a warning message is displayed.
 """
 function growing_spheres_generation(
+    ce::CounterfactualExplanation,
     generator::GrowingSpheresGenerator,
     model::AbstractFittedModel,
     factual::AbstractArray,
     counterfactual_data::CounterfactualData
-)
+)   
     # Copy hyperparameters
     n = generator.n
     η = generator.η
 
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-    factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
+    factual_class = CounterfactualExplanations.factual_label(ce)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
@@ -104,11 +105,9 @@ function growing_spheres_generation(
         end
     end
     
-    # Initialize boundaries of the spehere's radius
+    # Initialize boundaries of the sphere's radius
     a₀, a₁ = η, 2η
 
-    # Predict labels for each candidate counterfactual
-    counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
     max_iteration = 1000
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
