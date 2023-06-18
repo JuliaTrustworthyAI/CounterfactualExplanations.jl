@@ -2,14 +2,17 @@
 #| echo: false
 include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
+using Revise
 ```
 
 ```{julia}
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 generator = CLUEGenerator()
+# generator = GenericGenerator()
 M = fit_model(counterfactual_data, :DeepEnsemble)
 target = 2
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator,converge_when =:early_stopping)
+# ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```

@@ -129,9 +129,11 @@ function CounterfactualExplanation(
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [ce.s′],
         :terminated => threshold_reached(ce, ce.x),
-        :converged => converged(ce),
     )
 
+    # Compute convergence and add to dictionary
+    ce.search[:converged] = converged(ce)
+    
     # Check for redundancy:
     if terminated(ce)
         @info "Factual already in target class and probability exceeds threshold γ."
