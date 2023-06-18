@@ -9,7 +9,9 @@ generator = generator_catalogue[:revise]()
 x = DataPreprocessing.select_factual(counterfactual_data, Random.rand(1:size(X, 2)))
 y = Models.predict_label(M, counterfactual_data, x)
 target = get_target(counterfactual_data, y[1])
-ce = CounterfactualExplanations.generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = CounterfactualExplanations.generate_counterfactual(
+    x, target, counterfactual_data, M, generator
+)
 
 using CounterfactualExplanations.GenerativeModels: retrain!
 CounterfactualExplanations.GenerativeModels.retrain!(
