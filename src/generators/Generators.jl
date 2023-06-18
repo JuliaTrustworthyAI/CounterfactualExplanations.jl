@@ -17,6 +17,7 @@ using MLJBase
 using MLJDecisionTreeInterface
 using Distributions
 using SliceMap
+using Random
 
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator

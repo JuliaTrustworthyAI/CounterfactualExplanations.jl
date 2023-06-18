@@ -1,5 +1,3 @@
-using LinearAlgebra, Random
-
 "Growing Spheres counterfactual generator class."
 mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     n::Union{Nothing,Integer}
@@ -7,55 +5,20 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
 end
 
 """
+TODO: update ce accordingly (update path, convergence yada yada...)
+TODO: update comments
+"""
+
+"""
     GrowingSpheresGenerator(; n::Int=100, η::Float64=0.1, kwargs...)
 
 Constructs a new Growing Spheres Generator object.
 """
-# function GrowingSpheresGenerator(; n::Integer=100, η::AbstractFloat=0.1, kwargs...)
-#     return GrowingSpheresGenerator(; n=n, η=η, kwargs...)
-# end
-
-"""
-    hyper_sphere_coordinates(n_search_samples::Int, instance::Vector{Float64}, low::Int, high::Int; p_norm::Int=2)
-
-    Generates candidate counterfactuals using the growing spheres method based on hyper-sphere coordinates.
-
-    The implementation follows the Random Point Picking over a sphere algorithm described in the paper:
-    "Learning Counterfactual Explanations for Tabular Data" by Pawelczyk, Broelemann & Kascneci (2020),
-    presented at The Web Conference 2020 (WWW). It ensures that points are sampled uniformly at random
-    using insights from: http://mathworld.wolfram.com/HyperspherePointPicking.html
-
-    The growing spheres method is originally proposed in the paper:
-    "Comparison-based Inverse Classification for Interpretability in Machine Learning" by Thibaut Laugel et al (2018),
-    presented at the International Conference on Information Processing and Management of Uncertainty in Knowledge-Based Systems (2018).
-
-    # Arguments
-    - n_search_samples::Int64: The number of search samples (int > 0).
-    - instance::Array: The Julia input point array.
-    - low::Float64: The lower bound (float >= 0, l < h).
-    - high::Float64: The upper bound (float >= 0, h > l).
-    - p_norm::Float64: The norm parameter (float >= 1).
-
-    # Returns
-    - candidate_counterfactuals: An array of candidate counterfactuals.
-    - dist: An array of distances corresponding to each candidate counterfactual.
-"""
-function hyper_sphere_coordinates(
-    n_search_samples::Integer,
-    instance::AbstractArray,
-    low::AbstractFloat,
-    high::AbstractFloat;
-    p_norm::Integer=2,
+function GrowingSpheresGenerator(; 
+    n::Union{Nothing,Integer}=100,
+    η::Union{Nothing,AbstractFloat}=0.1,
 )
-    delta_instance = randn(n_search_samples, length(instance))
-    dist = rand(n_search_samples) .* (high - low) .+ low  # length range [l, h)
-    norm_p = LinearAlgebra.norm(delta_instance, p_norm)
-    d_norm = dist ./ norm_p  # rescale/normalize factor
-    delta_instance .= delta_instance .* d_norm
-    instance_matrix = repeat(reshape(instance, 1, length(instance)), n_search_samples)
-    candidate_counterfactuals = instance_matrix + delta_instance
-
-    return transpose(candidate_counterfactuals)
+    return GrowingSpheresGenerator(n, η)
 end
 
 """
@@ -78,13 +41,13 @@ end
 
     If no counterfactual is found within the maximum number of iterations, a warning message is displayed.
 """
-function growing_spheres_generation(
-    # ce::CounterfactualExplanation,
-    generator::GrowingSpheresGenerator,
-    model::AbstractFittedModel,
-    factual::AbstractArray,
-    counterfactual_data::CounterfactualData,
-)
+function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
+    # Rewrite bluh bluh, easier to read
+    generator = ce.generator
+    model = ce.M
+    factual = ce.x
+    counterfactual_data = ce.data
+
     # Copy hyperparameters
     n = generator.n
     η = generator.η
@@ -142,6 +105,90 @@ function growing_spheres_generation(
 end
 
 """
+    feature_selection(model::AbstractFittedModel, counterfactual_data::CounterfactualData, factual::AbstractArray, counterfactual::AbstractArray)
+
+    Perform feature selection to find the dimension with the closest (but not equal) values between the `factual` and `counterfactual` arrays.
+
+    # Arguments
+    - `model::AbstractFittedModel`: The fitted model used for prediction.
+    - `counterfactual_data::CounterfactualData`: Data required for counterfactual explanation generation.
+    - `factual::AbstractArray`: The factual array.
+    - `counterfactual::AbstractArray`: The counterfactual array.
+
+    # Returns
+    - `counterfactual′`: The modified counterfactual array.
+
+    The function iteratively modifies the `counterfactual` array by updating its elements to match the corresponding elements in the `factual` array, one dimension at a time, until the predicted label of the modified `counterfactual` matches the predicted label of the `factual` array.
+"""
+function feature_selection(ce::AbstractCounterfactualExplanation, counterfactual::AbstractArray)
+    model = ce.M
+    counterfactual_data = ce.data
+    factual = ce.x
+
+    counterfactual′ = counterfactual
+    counterfactual″ = counterfactual′
+
+    factual_class = CounterfactualExplanations.Models.predict_label(
+        model, counterfactual_data, factual
+    )
+
+    while (
+        factual_class != CounterfactualExplanations.Models.predict_label(
+            model, counterfactual_data, counterfactual′
+        )
+    )
+        counterfactual″ = counterfactual′
+        i = find_closest_dimension(factual, counterfactual′)
+        counterfactual′[i] = factual[i]
+    end
+
+    return counterfactual″
+end
+
+"""
+    hyper_sphere_coordinates(n_search_samples::Int, instance::Vector{Float64}, low::Int, high::Int; p_norm::Int=2)
+
+    Generates candidate counterfactuals using the growing spheres method based on hyper-sphere coordinates.
+
+    The implementation follows the Random Point Picking over a sphere algorithm described in the paper:
+    "Learning Counterfactual Explanations for Tabular Data" by Pawelczyk, Broelemann & Kascneci (2020),
+    presented at The Web Conference 2020 (WWW). It ensures that points are sampled uniformly at random
+    using insights from: http://mathworld.wolfram.com/HyperspherePointPicking.html
+
+    The growing spheres method is originally proposed in the paper:
+    "Comparison-based Inverse Classification for Interpretability in Machine Learning" by Thibaut Laugel et al (2018),
+    presented at the International Conference on Information Processing and Management of Uncertainty in Knowledge-Based Systems (2018).
+
+    # Arguments
+    - n_search_samples::Int64: The number of search samples (int > 0).
+    - instance::Array: The Julia input point array.
+    - low::Float64: The lower bound (float >= 0, l < h).
+    - high::Float64: The upper bound (float >= 0, h > l).
+    - p_norm::Float64: The norm parameter (float >= 1).
+
+    # Returns
+    - candidate_counterfactuals: An array of candidate counterfactuals.
+    - dist: An array of distances corresponding to each candidate counterfactual.
+"""
+function hyper_sphere_coordinates(
+    n_search_samples::Integer,
+    instance::AbstractArray,
+    low::AbstractFloat,
+    high::AbstractFloat;
+    p_norm::Integer=2,
+)
+    delta_instance = Random.randn(n_search_samples, length(instance))
+    dist = Random.rand(n_search_samples) .* (high - low) .+ low  # length range [l, h)
+    norm_p = LinearAlgebra.norm(delta_instance, p_norm)
+    d_norm = dist ./ norm_p  # rescale/normalize factor
+    delta_instance .= delta_instance .* d_norm
+    instance_matrix = repeat(reshape(instance, 1, length(instance)), n_search_samples)
+    candidate_counterfactuals = instance_matrix + delta_instance
+
+    return transpose(candidate_counterfactuals)
+end
+
+"""
     find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
 
     Find the first counterfactual index by predicting labels.
@@ -165,48 +212,6 @@ function find_counterfactual(
     counterfactual = findfirst(predicted_labels .≠ factual_class)
 
     return counterfactual
-end
-
-"""
-    feature_selection(model::AbstractFittedModel, counterfactual_data::CounterfactualData, factual::AbstractArray, counterfactual::AbstractArray)
-
-    Perform feature selection to find the dimension with the closest (but not equal) values between the `factual` and `counterfactual` arrays.
-
-    # Arguments
-    - `model::AbstractFittedModel`: The fitted model used for prediction.
-    - `counterfactual_data::CounterfactualData`: Data required for counterfactual explanation generation.
-    - `factual::AbstractArray`: The factual array.
-    - `counterfactual::AbstractArray`: The counterfactual array.
-
-    # Returns
-    - `counterfactual′`: The modified counterfactual array.
-
-    The function iteratively modifies the `counterfactual` array by updating its elements to match the corresponding elements in the `factual` array, one dimension at a time, until the predicted label of the modified `counterfactual` matches the predicted label of the `factual` array.
-"""
-function feature_selection(
-    model::AbstractFittedModel,
-    counterfactual_data::CounterfactualData,
-    factual::AbstractArray,
-    counterfactual::AbstractArray,
-)
-    counterfactual′ = counterfactual
-    counterfactual″ = counterfactual′
-
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )
-
-    while (
-        factual_class != CounterfactualExplanations.Models.predict_label(
-            model, counterfactual_data, counterfactual′
-        )
-    )
-        counterfactual″ = counterfactual′
-        i = find_closest_dimension(factual, counterfactual′)
-        counterfactual′[i] = factual[i]
-    end
-
-    return counterfactual″
 end
 
 """
