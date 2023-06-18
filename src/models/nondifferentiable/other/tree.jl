@@ -13,7 +13,7 @@ Constructor for tree-based models from the MLJ library.
 - `TreeModel`: A tree-based model from the MLJ library wrapped inside the TreeModel class.
 """
 struct TreeModel <: AbstractNonDifferentiableJuliaModel
-    model::Any
+    model::MLJBase.Machine
     likelihood::Symbol
     function TreeModel(model, likelihood)
         if !(

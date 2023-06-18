@@ -16,13 +16,12 @@ Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
 - `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
 struct EvoTreeModel <: AbstractMLJModel
-    model::Any
+    model::MLJBase.Machine
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
         else
-            println("HEREERERE")
             throw(
                 ArgumentError(
                     "`type` should be in `[:classification_binary, :classification_multi].

@@ -39,21 +39,6 @@ function feature_tweaking(
     x::AbstractArray,
     target::RawTargetType,
 )
-    if !(M isa Models.TreeModel)
-        throw(
-            ArgumentError(
-                "The feature tweak generator is only available for tree-based models."
-            ),
-        )
-    end
-    if M.likelihood == :classification_multi
-        throw(
-            ArgumentError(
-                "The feature tweak generator is only available for binary classification problems.",
-            ),
-        )
-    end
-
     if Models.predict_label(M, x)[1] == target
         return x
     end
