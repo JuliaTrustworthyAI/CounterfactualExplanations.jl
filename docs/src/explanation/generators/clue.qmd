@@ -9,6 +9,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 generator = CLUEGenerator()
 M = fit_model(counterfactual_data, :DeepEnsemble)
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator, learning_rate = 0.7)
+target = 2
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator,converge_when =:early_stopping)
 plot(ce)
 ```

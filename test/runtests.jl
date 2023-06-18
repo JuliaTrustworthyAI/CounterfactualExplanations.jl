@@ -44,6 +44,10 @@ generators = generator_catalogue
         include("probe.jl")
     end
 
+    @testset "CLUE" begin
+        include("clue.jl")
+    end
+
     @testset "Model" begin
         include("models.jl")
     end
