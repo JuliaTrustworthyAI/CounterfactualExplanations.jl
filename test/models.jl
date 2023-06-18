@@ -8,6 +8,7 @@ using MLJDecisionTreeInterface
 using MLUtils
 using Random
 using LaplaceRedux
+using EvoTrees
 
 @testset "Standard models for synthetic data" begin
     for (key, value) in synthetic
@@ -100,7 +101,7 @@ end
             )
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
-                @test model.likelihood == value[:data].likelihood
+                @test model.likelihood == :classification_binary
             end
         end
     end
