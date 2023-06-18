@@ -5,7 +5,8 @@
 
     # Select factual:
     idx = Random.rand(1:size(X, 2))
-    @test DataPreprocessing.select_factual(counterfactual_data, idx) == counterfactual_data.X[:, idx][:, :]
+    @test DataPreprocessing.select_factual(counterfactual_data, idx) ==
+        counterfactual_data.X[:, idx][:, :]
 
     # Mutability:
     𝑪 = DataPreprocessing.mutability_constraints(
