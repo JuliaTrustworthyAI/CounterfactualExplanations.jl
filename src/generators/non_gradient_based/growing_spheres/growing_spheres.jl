@@ -56,25 +56,25 @@ end
 """
     growing_spheres_generation(generator, model, factual, counterfactual_data)
 
-Generate counterfactual candidates using the growing spheres generation algorithm.
+    Generate counterfactual candidates using the growing spheres generation algorithm.
 
-# Arguments
-- `generator::GrowingSpheresGenerator`: An instance of the `GrowingSpheresGenerator` type representing the generator.
-- `model::AbstractFittedModel`: The fitted model used for prediction.
-- `factual::AbstractArray`: The factual observation to be interpreted.
-- `counterfactual_data::CounterfactualData`: Data required for counterfactual generation.
+    # Arguments
+    - `generator::GrowingSpheresGenerator`: An instance of the `GrowingSpheresGenerator` type representing the generator.
+    - `model::AbstractFittedModel`: The fitted model used for prediction.
+    - `factual::AbstractArray`: The factual observation to be interpreted.
+    - `counterfactual_data::CounterfactualData`: Data required for counterfactual generation.
 
-# Returns
-- `counterfactual_candidates`: An array of counterfactual candidates.
+    # Returns
+    - `counterfactual_candidates`: An array of counterfactual candidates.
 
-This function applies the growing spheres generation algorithm to generate counterfactual candidates. It starts by generating random points uniformly on a sphere, gradually reducing the search space until no counterfactuals are found. Then it expands the search space until at least one counterfactual is found or the maximum number of iterations is reached.
+    This function applies the growing spheres generation algorithm to generate counterfactual candidates. It starts by generating random points uniformly on a sphere, gradually reducing the search space until no counterfactuals are found. Then it expands the search space until at least one counterfactual is found or the maximum number of iterations is reached.
 
-The algorithm iteratively generates counterfactual candidates and predicts their labels using the `model`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
+    The algorithm iteratively generates counterfactual candidates and predicts their labels using the `model`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
 
-If no counterfactual is found within the maximum number of iterations, a warning message is displayed.
+    If no counterfactual is found within the maximum number of iterations, a warning message is displayed.
 """
 function growing_spheres_generation(
-    ce::CounterfactualExplanation,
+    # ce::CounterfactualExplanation,
     generator::GrowingSpheresGenerator,
     model::AbstractFittedModel,
     factual::AbstractArray,
@@ -86,7 +86,8 @@ function growing_spheres_generation(
 
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-    factual_class = CounterfactualExplanations.factual_label(ce)
+    # factual_class = CounterfactualExplanations.factual_label(ce)
+    factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
@@ -130,20 +131,55 @@ end
 """
     find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
 
-Find the first counterfactual index by predicting labels.
+    Find the first counterfactual index by predicting labels.
 
-# Arguments
-- `model`: The fitted model used for prediction.
-- `factual_class`: The class label of the factual observation.
-- `counterfactual_data`: Data required for counterfactual generation.
-- `counterfactual_candidates`: The array of counterfactual candidates.
+    # Arguments
+    - `model`: The fitted model used for prediction.
+    - `factual_class`: The class label of the factual observation.
+    - `counterfactual_data`: Data required for counterfactual generation.
+    - `counterfactual_candidates`: The array of counterfactual candidates.
 
-# Returns
-- `counterfactual`: The index of the first counterfactual found.
+    # Returns
+    - `counterfactual`: The index of the first counterfactual found.
 """
 function find_counterfactual(model, factual_class, counterfactual_data, counterfactual_candidates)
     predicted_labels = map(e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e), eachcol(counterfactual_candidates))
     counterfactual = findfirst(predicted_labels .≠ factual_class)
     
     return counterfactual
+end
+
+function feature_selection(
+    model::AbstractFittedModel,
+    counterfactual_data::CounterfactualData,
+    factual::AbstractArray,
+    counterfactual::AbstractArray
+)
+    counterfactual′ = counterfactual
+    counterfactual″ = counterfactual′
+
+    factual_class = CounterfactualExplanations.Models.predict_label(model, counterfactual_data, factual)
+
+    while (factual_class != CounterfactualExplanations.Models.predict_label(model, counterfactual_data, counterfactual′))
+        counterfactual″ = counterfactual′
+        i = find_closest_dimension(factual, counterfactual′)
+        counterfactual′[i] = factual[i]
+    end
+
+    return counterfactual″
+end
+
+function find_closest_dimension(factual, counterfactual)
+    min_diff = typemax(eltype(factual))
+    closest_dimension = -1
+
+    for i in eachindex(factual)
+        diff = abs(factual[i] - counterfactual[i])
+        if diff < min_diff && factual[i] != counterfactual[i]
+            min_diff = diff
+            closest_dimension = i
+        end
+    end
+
+    return closest_dimension
 end

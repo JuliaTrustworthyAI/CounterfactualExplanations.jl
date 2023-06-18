@@ -31,6 +31,7 @@ export DiCEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
 export feature_tweaking
+export feature_selection
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator

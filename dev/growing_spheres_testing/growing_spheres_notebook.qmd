@@ -69,10 +69,17 @@ x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 # Define a generator:
 generator = CounterfactualExplanations.Models.GrowingSpheresGenerator(3, 1)
 
-CounterfactualExplanations.growing_spheres_generation(
+counterfactual = CounterfactualExplanations.growing_spheres_generation(
     generator,
     M_flux,
     x_random_factual,
     counterfactual_data
+)
+
+result = CounterfactualExplanations.feature_selection(
+    M_flux,
+    counterfactual_data,
+    x_random_factual,
+    counterfactual
 )
 ```
