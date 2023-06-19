@@ -37,9 +37,7 @@ if VERSION >= v"1.8"
                     model_location, model_file, class_name, pickle_path
                 )
 
-                model_pytorch = Models.PyTorchModel(
-                    model_loaded, data.likelihood
-                )
+                model_pytorch = Models.PyTorchModel(model_loaded, data.likelihood)
 
                 @testset "$name" begin
                     @testset "Verify the correctness of the likelihood field" begin
@@ -79,13 +77,13 @@ if VERSION >= v"1.8"
                 model_loaded = Models.pytorch_model_loader(
                     model_location, model_file, class_name, pickle_path
                 )
-                M = Models.PyTorchModel(
-                    model_loaded, counterfactual_data.likelihood
-                )
+                M = Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
 
                 # Randomly selected factual:
                 Random.seed!(123)
-                x = DataPreprocessing.select_factual(counterfactual_data, Random.rand(1:size(X, 2)))
+                x = DataPreprocessing.select_factual(
+                    counterfactual_data, Random.rand(1:size(X, 2))
+                )
                 # Choose target:
                 y = Models.predict_label(M, counterfactual_data, x)
                 target = get_target(counterfactual_data, y[1])
@@ -101,12 +99,9 @@ if VERSION >= v"1.8"
                     @test counterfactual.target == target
                     @test counterfactual.x == x &&
                         CounterfactualExplanations.factual(counterfactual) == x
-                    @test CounterfactualExplanations.factual_label(
-                        counterfactual
-                    ) == y
-                    @test CounterfactualExplanations.factual_probability(
-                        counterfactual
-                    ) == probs(M, x)
+                    @test CounterfactualExplanations.factual_label(counterfactual) == y
+                    @test CounterfactualExplanations.factual_probability(counterfactual) ==
+                        probs(M, x)
                 end
 
                 @testset "Convergence" begin
@@ -126,7 +121,8 @@ if VERSION >= v"1.8"
                         )
                         using CounterfactualExplanations: counterfactual_probability
                         @test !CounterfactualExplanations.converged(counterfactual) ||
-                            CounterfactualExplanations.target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                            CounterfactualExplanations.target_probs(counterfactual)[1] >=
+                              γ # either not converged or threshold reached
                         @test !CounterfactualExplanations.converged(counterfactual) ||
                             length(path(counterfactual)) <= max_iter
                     end
@@ -148,16 +144,12 @@ if VERSION >= v"1.8"
                         @test maximum(
                             abs.(
                                 counterfactual.x .-
-                                CounterfactualExplanations.decode_state(
-                                    counterfactual
-                                )
+                                CounterfactualExplanations.decode_state(counterfactual)
                             ),
                         ) < init_perturbation
                         @test CounterfactualExplanations.converged(counterfactual)
                         @test CounterfactualExplanations.terminated(counterfactual)
-                        @test CounterfactualExplanations.total_steps(
-                            counterfactual
-                        ) == 0
+                        @test CounterfactualExplanations.total_steps(counterfactual) == 0
                     end
                 end
 
