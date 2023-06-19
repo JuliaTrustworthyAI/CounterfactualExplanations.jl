@@ -127,7 +127,8 @@ if VERSION >= v"1.8"
                         )
                         using CounterfactualExplanations: counterfactual_probability
                         @test !CounterfactualExplanations.converged(counterfactual) ||
-                            CounterfactualExplanations.target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                            CounterfactualExplanations.target_probs(counterfactual)[1] >=
+                              γ # either not converged or threshold reached
                         @test !CounterfactualExplanations.converged(counterfactual) ||
                             length(path(counterfactual)) <= max_iter
                     end
