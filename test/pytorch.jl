@@ -37,9 +37,7 @@ if VERSION >= v"1.8"
                     model_location, model_file, class_name, pickle_path
                 )
 
-                model_pytorch = Models.PyTorchModel(
-                    model_loaded, data.likelihood
-                )
+                model_pytorch = Models.PyTorchModel(model_loaded, data.likelihood)
 
                 @testset "$name" begin
                     @testset "Verify the correctness of the likelihood field" begin
