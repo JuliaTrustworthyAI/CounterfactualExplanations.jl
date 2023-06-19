@@ -77,7 +77,6 @@ if VERSION >= v"1.8"
             if name == "Claproar"
                 continue
             end
-        
             @testset "$name" begin
                 # Generator:
                 generator = deepcopy(generator_())
