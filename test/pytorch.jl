@@ -147,10 +147,11 @@ if VERSION >= v"1.8"
                                     counterfactual
                                 ) ||
                                     CounterfactualExplanations.target_probs(
-                                        counterfactual
-                                    )[1] >=γ # either not converged or threshold reached
-                                @test !CounterfactualExplanations.converged(counterfactual) ||
-                                    length(path(counterfactual)) <= max_iter
+                                    counterfactual
+                                )[1] >= γ # either not converged or threshold reached
+                                @test !CounterfactualExplanations.converged(
+                                    counterfactual
+                                ) || length(path(counterfactual)) <= max_iter
                             end
 
                             @testset "Trivial case (already in target class)" begin
