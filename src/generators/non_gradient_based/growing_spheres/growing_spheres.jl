@@ -2,6 +2,7 @@
 mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     n::Union{Nothing,Integer}
     η::Union{Nothing,AbstractFloat}
+    latent_space::Bool
 end
 
 """
@@ -18,7 +19,7 @@ function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100,
     η::Union{Nothing,AbstractFloat}=0.1,
 )
-    return GrowingSpheresGenerator(n, η)
+    return GrowingSpheresGenerator(n, η, false)
 end
 
 """
@@ -74,6 +75,9 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
             model, factual_class, counterfactual_data, counterfactual_candidates
         )
 
+        ce.search[:iteration_count] += 1
+        append!(ce.search[:path], counterfactual_candidates)
+
         max_iteration -= 1
         if (max_iteration == 0)
             @error("Warning: Maximum iteration reached. No counterfactual found.")
@@ -90,6 +94,13 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
         a₀ = a₁
         a₁ += η
 
+        ce.search[:iteration_count] += 1
+        foreach(
+            # candidate -> ce.search[:path] = push!(ce.search[:path], candidate),
+            candidate -> ce.search[:path] = vcat(ce.search[:path], candidate),
+            eachcol(counterfactual_candidates)
+        )
+        
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
         counterfactual = find_counterfactual(
             model, factual_class, counterfactual_data, counterfactual_candidates
@@ -131,7 +142,7 @@ function feature_selection(ce::AbstractCounterfactualExplanation)
 
     factual_class = CounterfactualExplanations.Models.predict_label(
         model, counterfactual_data, factual
-    )
+    )[1]
 
     while (
         factual_class != CounterfactualExplanations.Models.predict_label(
