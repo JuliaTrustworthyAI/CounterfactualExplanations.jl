@@ -102,12 +102,9 @@ if VERSION >= v"1.8"
                     @test counterfactual.target == target
                     @test counterfactual.x == x &&
                         CounterfactualExplanations.factual(counterfactual) == x
-                    @test CounterfactualExplanations.factual_label(
-                        counterfactual
-                    ) == y
-                    @test CounterfactualExplanations.factual_probability(
-                        counterfactual
-                    ) == probs(M, x)
+                    @test CounterfactualExplanations.factual_label(counterfactual) == y
+                    @test CounterfactualExplanations.factual_probability(counterfactual) ==
+                        probs(M, x)
                 end
 
                 @testset "Convergence" begin
