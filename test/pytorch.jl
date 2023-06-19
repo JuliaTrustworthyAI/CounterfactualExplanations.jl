@@ -61,7 +61,6 @@ if VERSION >= v"1.8"
     end
 
     @testset "Counterfactuals for Python models" begin
-        
         generator = Generators.GravitationalGenerator()
         for (key, value) in synthetic
             name = string(key)
