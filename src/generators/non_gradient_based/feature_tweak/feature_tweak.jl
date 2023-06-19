@@ -213,38 +213,3 @@ function search_path(
     end
     return paths
 end
-
-"""
-    esatisfactory_instance(generator::FeatureTweakGenerator, x::AbstractArray, paths::Dict{String, Dict{String, Any}})
-
-Returns an epsilon-satisfactory counterfactual for `x` based on the paths provided.
-
-# Arguments
-- `generator::FeatureTweakGenerator`: The feature tweak generator.
-- `x::AbstractArray`: The factual instance.
-- `paths::Dict{String, Dict{String, Any}}`: A list of paths to the leaves of the tree to be used for tweaking the feature.
-
-# Returns
-- `esatisfactory::AbstractArray`: The epsilon-satisfactory instance.
-
-# Example
-esatisfactory = esatisfactory_instance(generator, x, paths) # returns an epsilon-satisfactory counterfactual for `x` based on the paths provided
-"""
-function esatisfactory_instance(
-    generator::HeuristicBasedGenerator, x::AbstractArray, paths::AbstractArray
-)
-    esatisfactory = deepcopy(x)
-    for path in paths
-        feature_idx = path["feature"]
-        threshold_value = path["threshold"]
-        inequality_symbol = path["inequality_symbol"]
-        if inequality_symbol == 0
-            esatisfactory[feature_idx] = threshold_value - generator.ϵ
-        elseif inequality_symbol == 1
-            esatisfactory[feature_idx] = threshold_value + generator.ϵ
-        else
-            error("Unable to find a valid e-satisfactory instance.")
-        end
-    end
-    return esatisfactory
-end

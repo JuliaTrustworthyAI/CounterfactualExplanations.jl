@@ -24,13 +24,21 @@ include("utils.jl")
 include("differentiable/differentiable.jl")
 include("nondifferentiable/nondifferentiable.jl")
 
-include("plotting/default.jl")
-include("plotting/voronoi.jl")
+include("visualization/plotting/default.jl")
+include("visualization/plotting/voronoi.jl")
 
 include("pretrained/pretrained.jl")
 
-export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, TreeModel, PyTorchModel
+export AbstractFittedModel
+export AbstractDifferentiableModel
+export Linear
+export FluxModel
+export FluxEnsemble
+export LaplaceReduxModel
+export EvoTreeModel
+export DecisionTreeModel
+export RandomForestModel
+export PyTorchModel
 export flux_training_params
 export probs, logits
 
