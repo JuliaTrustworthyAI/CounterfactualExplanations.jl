@@ -97,8 +97,8 @@ function train_and_save_pytorch_model(
     for _ in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
+        sleep(1)
         loss = loss_fun(output, y_python.t())
-        println(output)
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
@@ -109,6 +109,11 @@ function train_and_save_pytorch_model(
     return nothing
 end
 
+"""
+    remove_file(file_path::String)
+
+Removes a file from the specified path.
+"""
 function remove_file(file_path::String)
     try
         rm(file_path)  # removes the file
