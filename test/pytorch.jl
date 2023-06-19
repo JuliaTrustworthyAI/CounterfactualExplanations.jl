@@ -86,7 +86,9 @@ if VERSION >= v"1.8"
 
                 # Randomly selected factual:
                 Random.seed!(123)
-                x = DataPreprocessing.select_factual(counterfactual_data, Random.rand(1:size(X, 2)))
+                x = DataPreprocessing.select_factual(
+                    counterfactual_data, Random.rand(1:size(X, 2))
+                )
                 # Choose target:
                 y = Models.predict_label(M, counterfactual_data, x)
                 target = get_target(counterfactual_data, y[1])
