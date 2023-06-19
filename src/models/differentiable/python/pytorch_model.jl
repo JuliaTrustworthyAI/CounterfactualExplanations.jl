@@ -1,5 +1,3 @@
-using PythonCall
-
 """
 PyTorchModel <: AbstractPythonModel
 
@@ -19,13 +17,6 @@ struct PyTorchModel <: AbstractPythonModel
             )
         end
     end
-end
-
-"""
-Outer constructor for `PyTorchModel`.
-"""
-function PyTorchModel(model; likelihood::Symbol=:classification_binary)
-    return PyTorchModel(model, likelihood)
 end
 
 """

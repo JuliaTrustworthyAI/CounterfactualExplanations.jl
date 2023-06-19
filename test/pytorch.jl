@@ -39,6 +39,10 @@ if VERSION >= v"1.8"
 
                 model_pytorch = Models.PyTorchModel(model_loaded, data.likelihood)
 
+                @testset "Test for errors" begin
+                    @assert_throws ArgumentError Models.PyTorchModel(model_loaded, :regression)
+                end
+
                 @testset "$name" begin
                     @testset "Verify the correctness of the likelihood field" begin
                         @test model_pytorch.likelihood == data.likelihood
