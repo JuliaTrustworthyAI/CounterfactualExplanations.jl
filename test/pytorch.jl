@@ -80,9 +80,7 @@ if VERSION >= v"1.8"
                 model_loaded = Models.pytorch_model_loader(
                     model_location, model_file, class_name, pickle_path
                 )
-                M = Models.PyTorchModel(
-                    model_loaded, counterfactual_data.likelihood
-                )
+                M = Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
 
                 # Randomly selected factual:
                 Random.seed!(123)
