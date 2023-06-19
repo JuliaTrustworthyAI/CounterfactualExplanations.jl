@@ -67,9 +67,6 @@ It assumes that `Zygote.jl` has gradient access.
 function ∂h(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    println("Generator: ", generator)
-    println("s′: ", ce.s′)
-    println("type: ", typeof(ce.s′))
     return Flux.gradient(() -> h(generator, ce), Flux.params(ce.s′))[ce.s′]
 end
 
