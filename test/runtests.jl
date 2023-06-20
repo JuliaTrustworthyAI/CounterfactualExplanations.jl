@@ -13,6 +13,8 @@ using LaplaceRedux
 using EvoTrees
 using MLJBase
 using MLJDecisionTreeInterface
+using PythonCall
+using Printf
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
