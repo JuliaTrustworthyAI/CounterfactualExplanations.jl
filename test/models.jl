@@ -6,6 +6,7 @@ using LinearAlgebra
 using MLJBase
 using MLJDecisionTreeInterface
 using MLUtils
+using PythonCall
 using Random
 using LaplaceRedux
 using EvoTrees

@@ -49,6 +49,10 @@ generators = generator_catalogue
         include("models.jl")
     end
 
+    @testset "PyTorch" begin
+        include("pytorch.jl")
+    end
+
     @testset "Plotting" begin
         include("plotting.jl")
     end
