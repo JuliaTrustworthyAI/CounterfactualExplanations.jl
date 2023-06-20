@@ -3,7 +3,7 @@ M = synthetic[:classification_binary][:models][:MLP][:model]
 counterfactual_data = synthetic[:classification_binary][:data]
 X = counterfactual_data.X
 ys = counterfactual_data.y
-generator = generator_catalogue[:revise]()
+generator = Generators.generator_catalogue[:revise]()
 
 # Counterfactual search
 x = DataPreprocessing.select_factual(counterfactual_data, Random.rand(1:size(X, 2)))

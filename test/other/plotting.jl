@@ -1,4 +1,4 @@
-generator = generator_catalogue[:generic]()
+generator = Generators.generator_catalogue[:generic]()
 
 @testset "Two-dimensional" begin
     M = synthetic[:classification_binary][:models][:MLP][:model]
