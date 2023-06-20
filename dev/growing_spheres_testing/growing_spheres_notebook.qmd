@@ -77,3 +77,7 @@ ce = CounterfactualExplanations.generate_counterfactual(
     generator
 )
 ```
+
+```{julia}
+CounterfactualExplanations.plot(ce; title = "Flux path")
+```
