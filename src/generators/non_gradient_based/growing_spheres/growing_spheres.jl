@@ -74,15 +74,15 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
         counterfactual = find_counterfactual(
             model, factual_class, counterfactual_data, counterfactual_candidates
         )
-
-        ce.search[:iteration_count] += 1
-        append!(ce.search[:path], counterfactual_candidates)
-
+        
         max_iteration -= 1
         if (max_iteration == 0)
             @error("Warning: Maximum iteration reached. No counterfactual found.")
         end
     end
+
+    # Add smalles circle of candidates to path
+    append!(ce.search[:path], counterfactual_candidates)
 
     # Initialize boundaries of the sphere's radius
     a₀, a₁ = η, 2η
@@ -94,7 +94,6 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
         a₀ = a₁
         a₁ += η
 
-        ce.search[:iteration_count] += 1
         foreach(
             # candidate -> ce.search[:path] = push!(ce.search[:path], candidate),
             candidate -> ce.search[:path] = vcat(ce.search[:path], candidate),
@@ -138,7 +137,7 @@ function feature_selection(ce::AbstractCounterfactualExplanation)
     factual = ce.x
 
     counterfactual′ = ce.s′
-    counterfactual″ = counterfactual′
+    counterfactual″ = ce.s′
 
     factual_class = CounterfactualExplanations.Models.predict_label(
         model, counterfactual_data, factual
@@ -194,9 +193,11 @@ function hyper_sphere_coordinates(
     p_norm::Integer=2,
 )
     delta_instance = Random.randn(n_search_samples, length(instance))
-    dist = Random.rand(n_search_samples) .* (high - low) .+ low  # length range [l, h)
+    # length range [l, h)
+    dist = Random.rand(n_search_samples) .* (high - low) .+ low
     norm_p = LinearAlgebra.norm(delta_instance, p_norm)
-    d_norm = dist ./ norm_p  # rescale/normalize factor
+    # rescale/normalize factor
+    d_norm = dist ./ norm_p
     delta_instance .= delta_instance .* d_norm
     instance_matrix = repeat(reshape(instance, 1, length(instance)), n_search_samples)
     candidate_counterfactuals = instance_matrix + delta_instance
