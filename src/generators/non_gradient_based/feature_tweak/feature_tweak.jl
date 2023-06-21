@@ -55,7 +55,9 @@ function feature_tweaking(
             Models.predict_label(classifier, x)[1] != target
             machine = classifier.model
             fitted_params = MLJBase.fitted_params(machine)
-            y_levels = MLJBase.classes(MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto)))
+            y_levels = MLJBase.classes(
+                MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto))
+            )
             root = fitted_params.tree.node
             paths = search_path(root, y_levels, target)
             for key in keys(paths)
