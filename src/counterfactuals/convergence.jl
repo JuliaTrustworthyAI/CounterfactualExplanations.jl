@@ -17,7 +17,7 @@ A convenience method to determine if the counterfactual search has converged. Th
 """
 function converged(ce::CounterfactualExplanation)
     if ce.generator isa GrowingSpheresGenerator
-        conv =  ce.search[:converged]
+        conv = ce.search[:converged]
     elseif ce.convergence[:converge_when] == :decision_threshold
         conv = threshold_reached(ce)
     elseif ce.convergence[:converge_when] == :generator_conditions
