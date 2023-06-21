@@ -153,7 +153,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[sharp corners, frame hidden, boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, interior hidden, enhanced, breakable]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[boxrule=0pt, borderline west={3pt}{0pt}{shadecolor}, interior hidden, enhanced, frame hidden, sharp corners, breakable]}{\end{tcolorbox}}\fi
 
 Machine Learning models like Deep Neural Networks have become so complex
 and opaque over recent years that they are generally considered Black
@@ -477,24 +477,6 @@ methodology outlined in Section~\ref{sec-method}, the former instance
 corresponds to the model \(M\), while the latter defines the rules for
 the counterfactual search (Equation~\ref{eq-solution}).
 
-\hypertarget{generators}{%
-\subsection{Generators}\label{generators}}
-
-At the time of writing the following counterfactual generators have been
-implemented in the package:
-
-\begin{itemize}
-\item ClaPROAR \cite{altmeyer2023endogenous}
-\item CLUE \cite{antoran2020getting}
-\item DiCE \cite{mothilal2020explaining}
-\item FeatureTweak \cite{tolomei2017interpretable}
-\item Gravitational \cite{altmeyer2023endogenous}
-\item Greedy \cite{schut2021generating}
-\item PROBE \cite{pawelczyk2022probabilistically}
-\item REVISE \cite{joshi2019realistic}
-\item Wachter \cite{wachter2017counterfactual}
-\end{itemize}
-
 \hypertarget{models}{%
 \subsection{Models}\label{models}}
 
@@ -516,6 +498,42 @@ API call to train the following simple default models:
 As we demonstrate below, it is straightforward to extend the package
 through custom models. Support for \texttt{torch} models trained in
 Python is also available.
+
+\hypertarget{generators}{%
+\subsection{Generators}\label{generators}}
+
+A large and growing number of counterfactual generators have already
+been implemented in our package. In Table \ref{tab:gen}, we broadly
+distinguish the implemented methods by their compatible model type and
+default search space. All ``gradient-based'' generators are compatible
+with differentiable models, e.g.~\texttt{Flux} and \texttt{torch}, while
+``tree-based'' generators are only applicable to models that involve
+decions trees. While all gradient-based generators can search
+counterfactuals in a latent space, only CLUE and REVISE involve
+generative models by default. We also indicate whether the generators
+are composable, i.e.~whether they can be blended with other generators.
+
+\begin{table}
+\caption{Overview of implemented counterfactual generators. \label{tab:gen} \newline}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{llll}
+\toprule
+Generator & Model Type & Search Space & Composable\\
+\midrule
+ClaPROAR \cite{altmeyer2023endogenous} & gradient based & feature & yes\\
+CLUE \cite{antoran2020getting} & gradient based & latent & yes\\
+DiCE \cite{mothilal2020explaining} & gradient based & feature & yes\\
+FeatureTweak \cite{tolomei2017interpretable} & tree based & feature & no\\
+Gravitational \cite{altmeyer2023endogenous} & gradient based & feature & yes\\
+Greedy \cite{schut2021generating} & gradient based & feature & yes\\
+GrowingSpheres \cite{laugel2017inversea} & agnostic & feature & no\\
+PROBE \cite{pawelczyk2022probabilistically} & gradient based & feature & no\\
+REVISE \cite{joshi2019realistic} & gradient based & latent & yes\\
+Wachter \cite{wachter2017counterfactual} & gradient based & feature & yes\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \hypertarget{data-and-benchmarking}{%
 \subsection{Data and Benchmarking}\label{data-and-benchmarking}}

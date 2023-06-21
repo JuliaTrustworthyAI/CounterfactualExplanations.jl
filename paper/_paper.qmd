@@ -13,7 +13,10 @@ using Pkg; Pkg.activate("paper")
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.DataPreprocessing: unpack_data
+using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
+using CounterfactualExplanations.Objectives
+using Chain: @chain
 using Flux
 using GraphRecipes
 using Images
@@ -82,29 +85,13 @@ Numerous extensions to this simple approach have been developed since Counterfac
 
 ## Existing software
 
-To the best of our knowledge, the package introduced here provides the first implementation of Counterfactual Explanations in Julia and therefore represents a novel contribution to the community. As for other programming languages, we are only aware of one other unifying framework: the recently introduced Python library [CARLA](https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest) \cite{pawelczyk2021carla}.^[While we were writing this paper, the `R` package `counterfactuals` was released \cite{dandle2023counterfactuals}. The developers seem to also envision a unifying framework, but the project appears to still be in its early stages.] In addition to that, there exists open-source code for some specific approaches to Counterfactual Explanations that have been proposed in recent years. The approach-specific implementations that we have been able to find are generally well-documented, but exclusively in Python. For example, a PyTorch implementation of a greedy generator for Bayesian models proposed in \cite{schut2021generating} has been released. As another example, the popular [InterpretML](https://github.com/interpretml) library includes an implementation of a diverse counterfactual generator proposed by \cite{mothilal2020explaining}. 
+To the best of our knowledge, the package introduced here provides the first implementation of Counterfactual Explanations in Julia and therefore represents a novel contribution to the community. As for other programming languages, we are only aware of one other unifying framework: the recently introduced Python library [CARLA](https://carla-counterfactual-and-recourse-library.readthedocs.io/en/latest/?badge=latest) \cite{pawelczyk2021carla}.^[While we were writing this paper, the `R` package `counterfactuals` was released \cite{dandl2023counterfactuals}. The developers seem to also envision a unifying framework, but the project appears to still be in its early stages.] In addition to that, there exists open-source code for some specific approaches to Counterfactual Explanations that have been proposed in recent years. The approach-specific implementations that we have been able to find are generally well-documented, but exclusively in Python. For example, a PyTorch implementation of a greedy generator for Bayesian models proposed in \cite{schut2021generating} has been released. As another example, the popular [InterpretML](https://github.com/interpretml) library includes an implementation of a diverse counterfactual generator proposed by \cite{mothilal2020explaining}. 
 
 Generally speaking, software development in the space of XAI has largely focused on various global methods and surrogate explainers: implementations of PDP, LIME and SHAP are available for both Python (e.g. [`lime`](https://github.com/marcotcr/lime), [`shap`](https://github.com/slundberg/shap)) and R (e.g. [`lime`](https://cran.r-project.org/web/packages/lime/index.html), [`iml`](https://cran.r-project.org/web/packages/lime/index.html), [`shapper`](https://modeloriented.github.io/shapper/), [`fastshap`](https://github.com/bgreenwell/fastshap)). In the Julia space we have only been able to identify one package that falls into the broader scope of XAI, namely `ShapML.jl` which provides a fast implementation of SHAP.^[See here: [https://github.com/nredell/ShapML.jl](https://github.com/nredell/ShapML.jl)] We also should not fail to mention the comprehensive [Interpretable AI](https://docs.interpretable.ai/stable/IAIBase/data/) infrastructure, which focuses exclusively on interpretable models. Arguably the current availability of tools for explaining black-box models in Julia is limited, but it appears that the community is invested in changing that. The team behind `MLJ.jl`, for example, recruited contributors for a project about both Interpretable and Explainable AI in 2022.^[For details, see the Google Summer of Code 2022 project proposal: [https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia](https://julialang.org/jsoc/gsoc/MLJ/#interpretable_machine_learning_in_julia).] With our work on Counterfactual Explanations we hope to contribute to these efforts. We think that because of its unique transparency the Julia language naturally lends itself towards building a greater degree of trust in Machine Learning and Artificial Intelligence.
 
 # Introducing: `CounterfactualExplanations.jl` {#sec-arch}
 
 @fig-arch provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms. The core function of the package `generate_counterfactual` uses an instance of type `<:AbstractFittedModel` produced by the `Models` module and an instance of type `<:AbstractGenerator` produced by the `Generators` module. Relating this to the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution). 
-
-## Generators
-
-At the time of writing the following counterfactual generators have been implemented in the package:
-
-\begin{itemize}
-\item ClaPROAR \cite{altmeyer2023endogenous}
-\item CLUE \cite{antoran2020getting}
-\item DiCE \cite{mothilal2020explaining}
-\item FeatureTweak \cite{tolomei2017interpretable}
-\item Gravitational \cite{altmeyer2023endogenous}
-\item Greedy \cite{schut2021generating}
-\item PROBE \cite{pawelczyk2022probabilistically}
-\item REVISE \cite{joshi2019realistic}
-\item Wachter \cite{wachter2017counterfactual}
-\end{itemize}
 
 ## Models
 
@@ -117,7 +104,35 @@ The package currently offers native support for models built and trained in [Flu
 \item Decision Tree, Random Forest, Gradient Boosted Trees
 \end{itemize}
 
-As we demonstrate below, it is straightforward to extend the package through custom models. Support for `torch` models trained in Python is also available.
+As we demonstrate below, it is straightforward to extend the package through custom models. Support for `torch` models trained in Python or R is also available.
+
+## Generators
+
+A large and growing number of counterfactual generators have already been implemented in our package (Table \ref{tab:gen}). At a high level, we distinguish generators in terms of their compatible model types, their default search space, and their composability. All "gradient-based" generators are compatible with differentiable models, e.g. `Flux` and `torch`, while "tree-based" generators are only applicable to models that involve decision trees. Concerning the search space, some have proposed to search counterfactuals in a lower-dimensional latent embedding of the feature space that implicitly encodes the data-generating process (DGP). To learn the latent embedding, existing work has typically relied on generative models or existing causal knowledge (\cite{joshi2019realistic}, \cite{karimi2021algorithmic}). While this notion is compatible with all of our gradient-based generators, only some generators search a latent space by default. Composability implies that the given generator can be blended with any other composable generator, which we discuss further below.
+
+Beyond these broad technical distinctions, generators largely differ in terms of how they address the various desiderata mentioned above: *ClapROAR* aims to preserve the classifier, i.e. to generate counterfactuals that are robust to endogenous model shifts \cite{altmeyer2023endogenous}; *CLUE* searches plausible counterfactuals in the latent embedding of a generative model by explicitly minimising predictive entropy \cite{antoran2020getting}; *DiCE* is designed to generate multiple, maximally diverse counterfactuals \cite{mothilal2020explaining}; *FeatureTweak* is explicitly designed for tree-based models; *Gravitational* aims to generate plausible and robust counterfactuals by minimising the distance to observed samples in the target class \cite{tolomei2017interpretable}; *Greedy* aims to generate plausible counterfactuals by implicitly minimising predictive uncertainty of Bayesian classifiers \cite{schut2021generating}; *GrowingSpheres* is model agnostic, relying solely on identifying nearest neighbours of counterfactuals in the target class \cite{laugel2017inversea}; *PROBE* generates probabilistically robust counterfactuals \cite{pawelczyk2022probabilistically}; *REVISE* addresses the need for plausibility by searching counterfactuals in the latent embedding of a Variational Autoencoder (VAE) \cite{joshi2019realistic}; *Wachter* is the baseline approach that only penalises the distance to the original sample \cite{wachter2017counterfactual}.
+
+\begin{table}
+\caption{Overview of implemented counterfactual generators. \label{tab:gen} \newline}
+\centering
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{llll}
+\toprule
+Generator & Model Type & Search Space & Composable\\
+\midrule
+ClaPROAR \cite{altmeyer2023endogenous} & gradient based & feature & yes\\
+CLUE \cite{antoran2020getting} & gradient based & latent & yes\\
+DiCE \cite{mothilal2020explaining} & gradient based & feature & yes\\
+FeatureTweak \cite{tolomei2017interpretable} & tree based & feature & no\\
+Gravitational \cite{altmeyer2023endogenous} & gradient based & feature & yes\\
+Greedy \cite{schut2021generating} & gradient based & feature & yes\\
+GrowingSpheres \cite{laugel2017inversea} & agnostic & feature & no\\
+PROBE \cite{pawelczyk2022probabilistically} & gradient based & feature & no\\
+REVISE \cite{joshi2019realistic} & gradient based & latent & yes\\
+Wachter \cite{wachter2017counterfactual} & gradient based & feature & yes\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 ## Data and Benchmarking
 
@@ -202,11 +217,12 @@ _overfit = 10
 Flux.params(M.model)[1] .*= _overfit # overfit
 η = 0.01 / _overfit
 
-# Ambiguous:
+# Implausible:
 x = select_factual(counterfactual_data, chosen)
-generator = GravitationalGenerator(opt = Descent(η))
+generator = GravitationalGenerator(opt = Descent(η), λ=[0.1, 10.0])
 ce = generate_counterfactual(
-    x, target, counterfactual_data, M, generator)
+    x, target, counterfactual_data, M, generator;
+    converge_when=:generator_conditions)
 plt = plot(ce, legend=:topright)
 x1 = CounterfactualExplanations.counterfactual(ce)[1,:,1]
 x2 = CounterfactualExplanations.counterfactual(ce)[2,:,1]
@@ -214,12 +230,12 @@ scatter!(plt, x1, x2, color="purple", ms=10, label="Implausible CE")
 
 # Implausible:
 generator = GenericGenerator(
-    decision_threshold=0.5,
     opt = Descent(η)
 )
 x = select_factual(counterfactual_data, chosen)
 ce = generate_counterfactual(
-    x, target, counterfactual_data, M, generator)
+    x, target, counterfactual_data, M, generator;
+    decision_threshold=0.5)
 _path = path(ce)
 for i in eachindex(_path)
     x1 = _path[i][1,:,1]
@@ -235,45 +251,46 @@ display(plt)
 savefig(plt, "paper/www/binary_wrong.png")
 ```
 
-![Implausible and ambiguous counterfactuals that may be produced by generic counterfactual search for an overfitted conventional binary classifier.](www/binary_wrong.png){#fig-binary-wrong width=20pc height=15pc}
+![Implausible and ambiguous counterfactuals for an overfitted conventional binary classifier.](www/binary_wrong.png){#fig-binary-wrong width=20pc height=15pc}
 
-## More Advanced Generators
+## Composing Generators
 
-The more advanced generators currently implemented in `CounterfactualExplanations.jl` are designed to address the desiderata mentioned above, in particular plausibility. In this context, 'plausibility' is defined in the sense that counterfactuals ought to be generated by the same data-generating process (DGP) that generates the actual data points. To this end, **Latent Space** generators like REVISE \cite{joshi2019realistic} use a separate generative model to learn the DGP. We refer to them as Latent Space generators, because they search counterfactuals in the latent embedding learned by the generative model.^[Currently our implementation relies on a Variational Autoencoder (VAE)]. The **Greedy** approach \cite{schut2021generating} instead relies on minimizing predictive uncertainty in order to generate plausible counterfactuals. **CLUE** \cite{antoran2020getting} can be thought of as a combination of these two ideas. The other generator currently implemented, **DiCE** \cite{mothilal2020explaining}, generates multiple counterfactuals at once that are as diverse as possible. This strategy is based on the intuition that a wide variety of diverse explanations may be suitable depending on the practical context. 
+To address the issues outlined above, we can make leverage the ideas underlying some of the more advanced counterfactual generators introduced above. In particular, we will now show how easy it is to compose custom generators that blend different ideas through user-friendly macros.
 
-Code \ref{lst:binary-advanced} below shows a more advanced usage example involving the DiCE generator. Once again it is worth dwelling on this for a moment. The `DiCEGenerator` is instantiated in line \ref{line:binary-advanced-dice} with a custom Flux optimizer and decision threshold specified in lines \ref{line:binary-advanced-opt} and \ref{line:binary-advanced-thresh}, respectively^[Note that all differentiable generators except the `GreedyGenerator` work with Flux optimizers and accept them as an optional key argument.]. The main API call to generate counterfactuals is the same as before, but note that in line \ref{line:binary-advanced-num} we have specified an optional key argument that determines how many counterfactuals are generated. For the DiCE generator it naturally makes sense to generate multiple counterfactuals, but note that this is in principle also possible for all other generators.^[By default counterfactuals are initialized by adding a small, random perturbation, as this improves adversarial robustness \cite{slack2021counterfactual}. Therefore, generating multiple counterfactuals will yield multiple distinct outcomes even without an explicit diversity constraint.] @fig-binary-advanced shows the resulting output. It was generated by calling the generic `plot` method directly on the object returned by `generate_counterfactual`.
+Code \ref{lst:composed} demonstrates this. We begin by instantiating a `GradientBasedGenerator` in line \ref{line:composed-init}. Next, we use chained macros for composition: firstly, we define the counterfactual search objective corresponding to DiCE in line \ref{line:composed-dice}; secondly, we define the latent space search strategy corresponding to REVISE in line \ref{line:composed-latent}; and, finally, we specify our prefered `Flux` optimiser in line \ref{line:composed-adam}.
+
 
 ```{julia}
-M = fit_model(counterfactual_data, :Linear)
-# Generator:
-generator = DiCEGenerator(
-    opt = Flux.Optimise.Descent(0.01),
-    decision_threshold = 0.7,
-    λ = [0.1,5]
-)
+# Composition:
+generator = GradientBasedGenerator()
+@chain generator begin
+    @objective logitcrossentropy + 0.1ddp_diversity     # DiCE (Mothilal et al. 2020)                  
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+    @with_optimiser Adam(0.01)
+end
+
 # Counterfactual search:
 counterfactuals = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
-    num_counterfactuals=5
+    num_counterfactuals=5, 
+    converge_when=:generator_conditions,
 )
 # Plotting
 plt = plot(counterfactuals)
+display(plt)
 savefig(plt, "paper/www/binary_advanced.png")
 ```
 
-\begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:binary-advanced}, caption={Using the DiCE generator.}]
-# Generator:
-generator = DiCEGenerator( @\label{line:binary-advanced-dice}@
-    opt = Flux.Optimise.Descent(0.01), @\label{line:binary-advanced-opt}@
-    decision_threshold = 0.7, @\label{line:binary-advanced-thresh}@
-    λ = [0.1,5]
-)
-# Counterfactual search:
-counterfactuals = generate_counterfactual(
-    x, target, counterfactual_data, M, generator;
-    num_counterfactuals=5 @\label{line:binary-advanced-num}@
-)
+\begin{lstlisting}[language=Julia, escapechar=&, numbers=left, label={lst:composed}, caption={Composing a custom generator.}]
+generator = GradientBasedGenerator() &\label{line:composed-init}&
+@chain generator begin
+    @objective logitcrossentropy + 0.1ddp_diversity &\label{line:composed-dice}&
+    @search_latent_space &\label{line:composed-latent}&
+    @with_optimiser Adam(0.01) &\label{line:composed-adam}& 
+end
 \end{lstlisting}
+
+@fig-binary-advanced shows the resulting output. It was generated by calling the generic `plot` method directly on the object returned by `generate_counterfactual`. We observe that the resulting counterfactuals are diverse and some of them are plausible, despite working with the same overfitted model as before. This is a good illustration of how easy it is to compose custom generators in `CounterfactualExplanations.jl`. 
 
 ![Counterfactual path using the DiCE generator.](www/binary_advanced.png){#fig-binary-advanced width=20pc height=15pc}
 
@@ -296,6 +313,8 @@ counterfactual_data.mutability = [:both, :none]
 The resulting counterfactual path is shown in @fig-mutability below. Since only the first feature can be perturbed, the sample can only move along the horizontal axis.
 
 ```{julia}
+# # Model:
+M = fit_model(counterfactual_data, :Linear)
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
@@ -311,6 +330,10 @@ savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 ```
 
 ![Counterfactual path with immutable feature.](www/constraint_mutability.png){#fig-mutability width=20pc height=15pc}
+
+## Evaluation and Benchmarking
+
+
 
 # Customization and Extensibility {#sec-custom}
 
@@ -336,7 +359,8 @@ X = counterfactual_data.X
 
 # Flux model setup: 
 using Flux
-data = Flux.DataLoader((X,y), batchsize=1)
+using MLUtils
+data = DataLoader((X,y), batchsize=1)
 n_hidden = 32
 output_dim = size(y,1)
 input_dim = 2
@@ -417,7 +441,7 @@ factual = predict_label(
 target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual]) 
 
 # Counterfactual search:
-generator = GenericGenerator()
+generator = GenericGenerator(opt=Flux.Descent(0.25))
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
@@ -449,25 +473,20 @@ abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
-    loss::Union{Nothing,Function} # loss function
-    complexity::Function # complexity function
+    loss::Function # loss function
+    penalty::Function
     λ::AbstractFloat # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} 
     opt::Any # optimizer
-    τ::AbstractFloat # tolerance for convergence
     p_dropout::AbstractFloat # dropout rate
 end
 
 # Instantiate:
-using LinearAlgebra
 generator = DropoutGenerator(
-    :logitbinarycrossentropy,
-    norm,
+    logitbinarycrossentropy,
+    distance_l1,
     0.1,
-    0.5,
     Flux.Optimise.Descent(0.025),
-    0.1,
-    0.5
+    0.5,
 )
 ```
 
@@ -805,10 +824,6 @@ The package supports various models and generators either natively or through mi
 ## Additional datasets
 
 For benchmarking and testing purposes it will be crucial to add more datasets to our library. We have so far prioritized tabular datasets that have typically been used in the literature on counterfactual explanations including Adult, Give Me Some Credit and German Credit \cite{karimi2020survey}. There is scope for adding data sources that have so far not been explored much in this context including additional image datasets as well as audio, natural language and time-series data.
-
-## Adding Foreign Language Support {#sec-dis-foreign}
-
-The Julia language offers unique support for programming language interoperability. For example, calling R or Python is made remarkably easy through auxiliary packages like `RCall.jl`, `PythonCall.jl` and `PyCall.jl`, respectively. Early experimentation has shown that this functionality can be leveraged to make `CounterfactualExplanations.jl` compatible with models that were developed in foreign programming languages. At the time of writing, we have added native support for explaining [torch](https://pytorch.org/) models trained in R and Python. 
 
 # Concluding remarks {#sec-conclude}
 
