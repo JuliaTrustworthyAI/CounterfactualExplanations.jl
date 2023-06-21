@@ -131,7 +131,8 @@ function CounterfactualExplanation(
         :terminated => threshold_reached(ce, ce.x),
     )
 
-    # Compute convergence and add to dictionary
+    # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
+    # the above fields, which are not yet initialized.
     ce.search[:converged] = converged(ce)
     
     # Check for redundancy:

@@ -29,23 +29,6 @@ function converged(ce::CounterfactualExplanation)
         conv = label == ce.target && ce.params[:invalidation_rate] > ir
     elseif (ce.convergence[:converge_when] == :early_stopping)
         conv = steps_exhausted(ce)
-    # elseif ce.convergence[:converge_when] == :early_stopping
-    #     # stop when loss is smaller than than L(z0)/100 for three consecutive iterations, we apply early stopping
-    #     if total_steps(ce) > 2
-    #         conv = false
-    #         for i in 0:2
-    #             # println(Generators.ℓ((ce.search[:path][end-i])
-    #             Lz0 = ce.generator.penalty(ce)
-    #             if ce.search[:path][end-i] < ce.search[:path][1]/100
-    #                 conv = true
-    #             else
-    #                 conv = false
-    #                 break
-    #             end
-    #         end
-    #     else
-    #         conv = false
-    #     end
     else
         @error "Convergence criterion not recognized."
     end
