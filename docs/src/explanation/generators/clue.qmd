@@ -17,6 +17,12 @@ The CLUEGenerator leverages differentiable probabilistic models, such as Bayesia
 
 The CLUE algorithm minimizes a loss function that combines uncertainty estimates and the distance between the generated counterfactual and the original input. By optimizing this loss function iteratively, the CLUEGenerator generates counterfactuals that are similar to the original observation but assigned low uncertainty.
 
+The formula for predictive entropy is as follow:
+
+\begin{aligned}
+H(y^*|x^*, D) &= - \sum_{k=1}^{K} p(y^*=c_k|x^*, D) \log p(y^*=c_k|x^*, D)
+\end{aligned}
+
 ## Usage
 
 While using one must keep in mind that the CLUE algorithim is meant to find a more robust datapoint of the same class, using CLUE generator without any additional penalties/losses will mean that it is not a counterfactual generator. The generated result will be of the same class as the original input, but a more robust datapoint. 
@@ -26,6 +32,7 @@ CLUE works best for BNN's. The CLUEGenerator can be used with any differentiable
 The CLUEGenerator can be used in the following manner:
 
 ```{julia}
+#| output: true
 generator = CLUEGenerator()
 M = fit_model(counterfactual_data, :DeepEnsemble)
 ce = generate_counterfactual(x, target,counterfactual_data, M, generator, converge_when=:early_stopping)
