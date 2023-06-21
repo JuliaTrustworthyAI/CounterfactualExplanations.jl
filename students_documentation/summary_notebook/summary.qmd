@@ -208,15 +208,6 @@ vline!(plt, [1.475], linestyle=:dash, linecolor=:black, label=nothing)
 
 The visualization will be improved as part of a separate pull request.
 
-
-### <feature_name>
-
-<feature_description>
-
-```{julia}
-print("Hello world!")
-```
-
 ## Should haves
 
 ### Added Datasets
@@ -249,12 +240,44 @@ end
 mosaic(images..., ncol=10) |> display
 ```
 
-### <feature_name>
-
-<feature_description>
+### Added generators
 
 ```{julia}
-print("Hello world!")
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+mlp_model = CounterfactualExplanations.Models.fit_model(counterfactual_data, :MLP)
+```
+
+```{julia}
+generator = GrowingSpheresGenerator(n = 5, η = 0.1)
+```
+
+```{julia}
+target = 0
+factual = 1
+
+# Choose factual's index
+y_chosen_factual_idx = rand(findall(predict_label(mlp_model, counterfactual_data) .== factual))
+
+# Select factual
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+```
+
+```{julia}
+ce = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual,
+    target,
+    counterfactual_data,
+    mlp_model,
+    generator
+)
+
+CounterfactualExplanations.plot(ce; title = "Flux path")
+```
+
+#### Growing Spheres
+
+```{julia}
 ```
 
 ## Could haves
