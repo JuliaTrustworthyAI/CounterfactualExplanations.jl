@@ -15,7 +15,12 @@ generator = CLUEGenerator()
 """
 function CLUEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
     return GradientBasedGenerator(;
-        loss = predictive_entropy,penalty=default_distance, λ=λ,latent_space=latent_space, kwargs...)
+        loss=predictive_entropy,
+        penalty=default_distance,
+        λ=λ,
+        latent_space=latent_space,
+        kwargs...,
+    )
 end
 
 function predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
@@ -23,6 +28,6 @@ function predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistic
     counterfactual_data = ce.data
     X = CounterfactualExplanations.decode_state(ce)
     p = CounterfactualExplanations.Models.predict_proba(model, counterfactual_data, X)
-    output = agg(sum(@.(p * log(p)),dims=2))
+    output = agg(sum(@.(p * log(p)); dims=2))
     return output
 end
