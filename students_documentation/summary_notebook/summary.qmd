@@ -16,9 +16,231 @@ using MLDatasets
 using Tidier
 using PythonCall
 using Random
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Models
 ```
 
 ## Must haves
+
+### Added models and generators
+
+#### Interface to Python models
+
+The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
+
+An important detail to note is that generating counterfactuals for Python models is only supported for Julia versions 1.8 and above. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
+
+##### Load the data
+
+```{julia}
+# Load data
+Random.seed!(42);
+N = 100
+
+counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
+```
+
+##### Load the saved PyTorch model
+
+Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the model definition and a path to the model weights as input. This can be done through the following method:
+
+```{julia}
+model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+    "$(pwd())/students_documentation/summary_notebook/miscellaneous",
+    "neural_network_class",
+    "NeuralNetwork",
+    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
+)
+
+model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_binary)
+```
+
+The four arguments of `pytorch_model_loader()` are the following:
+1. `model_path`: the path to the folder with a `.py` file where the PyTorch model is defined
+2. `model_file`: the name of the `.py` file where the PyTorch model is defined
+3. `class_name`: The name of the class of the PyTorch model
+4. `pickle_path`: The path to the Pickle file that holds the model weights
+
+#### PROBE
+
+Now that we have loaded the Python model, it is time to generate counterfactuals with it. A good choice for that is the PROBE generator that we added, introduced by Pawelczyk et al. (2022).
+
+```{julia}
+blobs_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE counterfactuals on a PyTorch model")
+```
+
+Let's now try a wildly different invalidation rate for the same model and same generator:
+
+```{julia}
+blobs_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.99,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual)
+```
+
+We can also use PROBE for multi-class classification problems. Let's try this out with a Julia native MLP model:
+
+```{julia}
+n_dim = 2
+n_classes = 4
+n_samples = 400
+counterfactual_data = Data.load_blobs(n_samples; k=n_dim, centers=n_classes)
+counterfactual_data.standardize = true
+M = fit_model(counterfactual_data, :MLP)
+```
+
+```{julia}
+target = 2
+factual = 4
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator()
+```
+
+```{julia}
+blobs_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual)
+```
+
+#### MLJ models
+
+We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
+
+```{julia}
+Models.mlj_models_catalogue
+```
+
+#### The `DecisionTreeClassifier` and `RandomForestClassifier` models
+
+First, we added a basic interface that allows the user to load and use the `DecisionTreeClassifier` and the `RandomForestClassifier` from the MLJ package.
+
+```{julia}
+n = 500
+counterfactual_data = Data.load_moons(n)
+```
+
+The decision tree can be fitted as follows:
+
+```{julia}
+decision_tree = Models.fit_model(counterfactual_data, :DecisionTree)
+```
+
+The random forest model can be fitted as follows:
+
+```{julia}
+forest = Models.fit_model(counterfactual_data, :RandomForest)
+```
+
+However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
+
+```{julia}
+decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+```
+
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
+
+Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
+
+#### Feature Tweak
+
+Since decision trees and random forests have non-differentiable decision boundaries, they were incompatible with all of the generators implemented previously by our client, as those generators perform gradient descent in the feature space to find the optimal feature values for the counterfactual. Such gradient descent cannot be performed with respect to non-differentiable decision boundaries.
+
+This section describes the Feature Tweak generator, introduced in the paper ["Interpretable Predictions of Tree-based Ensembles via Actionable Feature Tweaking"](https://arxiv.org/pdf/1706.06691.pdf) by Tolomei et al. This generator is specifically tailored for generating counterfactuals for non-differentiable tree-based models such as decision trees and random forests and thus expands the scope of models for which counterfactual explanations can be generated using the package.
+
+This specialization to tree-based models comes at a cost: the Feature Tweak generator is incompatible with any model that does not have a tree structure, thus being incompatible with many models in the package. However, we believe that it's worth having such specialized generators in the package when that allows us to expand the scope of supported models, as Feature Tweak does.
+
+Another important limitation is that the Feature Tweak generator can only generate counterfactuals for models trained on binary classification datasets. This limitation was also noted in the paper by Tolomei et al. and follow-up research might make it feasible to expand the method to multi-class classification problems.
+
+##### Generating counterfactuals using Feature Tweak
+
+We have already set up the decision tree and forest models in the previous section. The next step is to initialize the Feature Tweak generator:
+
+```{julia}
+generator = FeatureTweakGenerator(ϵ=0.1)
+```
+
+Now, let's take a point that the model believes is in class 1:
+
+```{julia}
+x = float32.([1, -0.5])
+Models.predict_label(decision_tree, x)
+```
+
+This leaves us with 0 as the target class. We can now generate the counterfactual as usual:
+
+```{julia}
+target = 0
+moons_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
+```
+
+Let's verify that the counterfactual is indeed in the target class:
+
+```{julia}
+Models.predict_label(decision_tree, ce.s′)
+```
+
+Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree:
+
+```{julia}
+CounterfactualExplanations.plot(moons_counterfactual)
+```
+
+##### The `EvoTreeClassifier` model
+
+Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
+
+```{julia}
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
+```
+
+The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
+
+```{julia}
+evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+```
+
+The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+
+Now, the EvoTree can be used as part of the package like any other model:
+
+```{julia}
+x = float32.([1, -0.5])
+CounterfactualExplanations.Models.probs(M, x)
+```
+
+However, please note that creating counterfactuals for this model is not supported yet.
 
 ### Added Datasets
 
@@ -77,145 +299,6 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
-
-### Added models
-
-#### Interface to Python models
-
-The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
-
-An important detail to note is that generating counterfactuals for Python models is only supported for Julia versions 1.8 and above. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
-
-##### Load the data
-
-```{julia}
-# Load data
-Random.seed!(42);
-N = 100
-
-counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
-```
-
-##### Load the saved PyTorch model
-
-Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the model definition and a path to the model weights as input. This can be done through the following method:
-
-```{julia}
-model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous",
-    "neural_network_class",
-    "NeuralNetwork",
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
-)
-
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
-```
-
-The four arguments of `pytorch_model_loader()` are the following:
-1. `model_path`: the path to the folder with a `.py` file where the PyTorch model is defined
-2. `model_file`: the name of the `.py` file where the PyTorch model is defined
-3. `class_name`: The name of the class of the PyTorch model
-4. `pickle_path`: The path to the Pickle file that holds the model weights
-
-After importing the model in this way, counterfactuals can be created for a PyTorch model the same way as for any other model.
-
-##### Select a factual and generate counterfactuals for it like with any other model
-
-```{julia}
-Random.seed!(42)
-
-target = 0
-factual = 1
-
-@info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
-
-@info "Select factual"
-x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-```
-
-```{julia}
-# Define a generator:
-generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-@info "Generate counterfactual_pytorch"
-counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual, 
-    target, 
-    counterfactual_data, 
-    model_pytorch, 
-    generator;
-    max_iter=1000
-)
-
-CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
-```
-
-#### MLJ models
-
-We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
-
-```{julia}
-mlj_models_catalogue
-```
-
-##### The `DecisionTreeClassifier` and `RandomForestClassifier` models
-
-Added a basic interface that allows the user to load and use the `DecisionTreeClassifier` and the `RandomForestClassifier` from the MLJ package.
-
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-```
-
-The decision tree can be fitted as follows:
-
-```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-The random forest model can be fitted as follows:
-
-```{julia}
-forest = CounterfactualExplanations.Models.fit_model(counterfactual_data, :RandomForest)
-```
-
-However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
-
-```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
-```
-
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
-
-Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
-
-##### The `EvoTreeClassifier` model
-
-Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
-
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
-```
-
-The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
-
-```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
-```
-
-The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
-
-Now, the EvoTree can be used as part of the package like any other model:
-
-```{julia}
-x = float32.([1, -0.5])
-CounterfactualExplanations.Models.probs(M, x)
-```
-
-However, please note that creating counterfactuals for this model is not supported yet.
 
 
 ### Added generators
