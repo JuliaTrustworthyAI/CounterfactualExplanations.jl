@@ -476,6 +476,7 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     loss::Function # loss function
     penalty::Function
     λ::AbstractFloat # strength of penalty
+    latent_space::Bool
     opt::Any # optimizer
     p_dropout::AbstractFloat # dropout rate
 end
@@ -485,7 +486,8 @@ generator = DropoutGenerator(
     logitbinarycrossentropy,
     distance_l1,
     0.1,
-    Flux.Optimise.Descent(0.025),
+    false,
+    Flux.Optimise.Descent(0.05),
     0.5,
 )
 ```
@@ -555,7 +557,7 @@ Finally, we proceed to generate counterfactuals in the same way we always do. Th
 ```{julia}
 # Data and Classifier:
 counterfactual_data = load_linearly_separable()
-M = fit_model(counterfactual_data, :Linear)
+M = fit_model(counterfactual_data, :DeepEnsemble)
 
 # Factual and Target:
 yhat = predict_label(M, counterfactual_data)
@@ -608,9 +610,10 @@ For the classification task we use a Multi-Layer Perceptron with dropout regular
 
 ```{julia}
 #| output: true
+
 using Markdown
 Markdown.parse("""
-"The F1-score of our pre-trained classifier on test data is: $(round(model_evaluation(M, test_data), digits=2))"
+"The F1-score of our pre-trained classifier on test data is: $(round(model_evaluation(M, test_data)[1], digits=2))"
 """)
 ```
 
@@ -638,12 +641,11 @@ x2 = :age
 
 ```{julia}
 generator = GravitationalGenerator(
-    decision_threshold = 0.9,
     opt = Descent(0.1)
 )
 counterfactuals = generate_counterfactual(
   x, target_class, counterfactual_data, M, generator;
-  initialization = :identity
+  initialization = :identity, decision_threshold = 0.9,
 )
 ```
 
@@ -703,7 +705,8 @@ map(enumerate(counterfactuals)) do (idx, x)
  
 end
 
-plt = plot(plt, size=(500, 200), legend=:bottomright)
+using Plots.PlotMeasures
+plt = plot(plt, size=(500, 200), legend=:topright, xlabel="Income", ylabel="Age", margin=5mm, ylims=(-2.5,2.0))
 display(plt)
 savefig(plt, joinpath(www_path, "credit.png"))
 ```
@@ -736,7 +739,7 @@ On the model side, we will use a simple multi-layer perceptron (MLP). Code \ref{
 using Markdown
 test_data = load_mnist_test()
 Markdown.parse("""
-"The F1-score of our pre-trained image classifier on test data is: $(round(model_evaluation(M, test_data), digits=2))"
+"The F1-score of our pre-trained image classifier on test data is: $(round(model_evaluation(M, test_data)[1], digits=2))"
 """)
 ```
 
@@ -763,14 +766,13 @@ factual = predict_label(M, counterfactual_data, x)[1]
 # Define generator:
 generator = REVISEGenerator(
   opt = Descent(0.1),
-  decision_threshold = γ,
   λ=0.01
 )
 # Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; decision_threshold = γ)
 counterfactual_data = deepcopy(counterfactual_data)
 counterfactual_data.generative_model = vae_weak
-ce_weak = generate_counterfactual(x, target, counterfactual_data, M, generator)
+ce_weak = generate_counterfactual(x, target, counterfactual_data, M, generator; decision_threshold = γ)
 ```
 
 ```{julia}
