@@ -1,5 +1,0 @@
-[deps]
-CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
-CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
