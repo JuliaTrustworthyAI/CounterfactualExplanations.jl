@@ -20,6 +20,15 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Generators
 
+- Feature Tweak
+  - Logic:
+    - `src\generators\non_gradient_based\base.jl`
+    - `src\generators\non_gradient_based\functions.jl`
+    - `src\generators\non_gradient_based\generators.jl`
+  - Tests: `test\counterfactuals.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\explanation\generators\feature_tweak.qmd`
+
 #### Added Datasets
 
 - Statlog German credit dataset 
@@ -37,10 +46,28 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
     - `src\data_preprocessing\utils.jl`
     - `src\models\model_utils.jl`
   - Tests: `test\models.jl`
-  - Test utilities: `test\utils.jl`
+  - Test utilities: `test\pytorch.jl`
   - Example: `students_documentation\summary_notebook\summary.qmd`
   - Documentation: `docs\src\tutorials\model_catalogue.qmd`
-  - Report: `students_documentation\PyTorch_models_report.md`
+  - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
+
+- DecisionTreeClassifier and RandomForestClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
+  - Core logic:
+    - `src\models\nondifferentiable\mlj_tree.jl`
+    - `src\models\nondifferentiable\nondifferentiable.jl`
+  - Utility logic: `src\data_preprocessing\utils.jl`
+  - Tests: `test\models.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
+  - Summary of our efforts to make MLJ models compatible with the generators: `students_documentation\MLJ_models_report.md`
+
+- EvoTreeClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
+  - Core logic: `src\models\differentiable\evotree_model.jl`
+  - Utility logic: `src\data_preprocessing\utils.jl`
+  - Tests: `test\models.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
+  - Summary of our efforts to make MLJ models compatible with the generators: `students_documentation\MLJ_models_report.md`
 
 #### Exports
 

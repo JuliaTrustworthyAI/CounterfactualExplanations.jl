@@ -39,7 +39,8 @@ export AbstractFittedModel, AbstractDifferentiableModel
 export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel, RTorchModel
 export flux_training_params
 export probs, logits
-export model_catalogue, fit_model, model_evaluation, predict_label
+export standard_models_catalogue,
+    all_models_catalogue, fit_model, model_evaluation, predict_label
 
 ### Objectives
 # ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
@@ -53,7 +54,9 @@ using .Objectives
 include("generators/Generators.jl")
 using .Generators
 export AbstractGradientBasedGenerator
+export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator

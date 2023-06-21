@@ -2,6 +2,11 @@ using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using Printf
 
+"""
+    _load_synthetic()
+
+Loads synthetic data, models, and generators.
+"""
 function _load_synthetic()
     # Data:
     data_sets = Dict(
@@ -12,7 +17,7 @@ function _load_synthetic()
     synthetic = Dict()
     for (likelihood, data) in data_sets
         models = Dict()
-        for (model_name, model) in model_catalogue
+        for (model_name, model) in standard_models_catalogue
             M = fit_model(data, model_name)
             models[model_name] = Dict(:raw_model => M.model, :model => M)
         end
@@ -28,7 +33,12 @@ function get_target(counterfactual_data::CounterfactualData, factual_label::RawT
     return target
 end
 
-function create_new_model(data::CounterfactualData, model_path::String)
+"""
+    create_new_pytorch_model(data::CounterfactualData, model_path::String)
+
+Creates a new PyTorch model and saves it to a Python file.
+"""
+function create_new_pytorch_model(data::CounterfactualData, model_path::String)
     in_size = size(data.X)[1]
     out_size = size(data.y)[1]
 
@@ -52,9 +62,18 @@ function create_new_model(data::CounterfactualData, model_path::String)
     open(model_path, "w") do f
         @printf(f, "%s", class_str)
     end
+
+    return nothing
 end
 
-function train_and_save_model(data::CounterfactualData, model_location::String, pickle_path::String)
+"""
+    train_and_save_pytorch_model(data::CounterfactualData, model_location::String, pickle_path::String)
+
+Trains a PyTorch model and saves it to a pickle file.
+"""
+function train_and_save_pytorch_model(
+    data::CounterfactualData, model_location::String, pickle_path::String
+)
     sys = PythonCall.pyimport("sys")
 
     if !in(model_location, sys.path)
@@ -67,17 +86,19 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     NeuralNetwork = neural_network_class.NeuralNetwork
     model = NeuralNetwork()
 
-    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(data)
+    x_python, y_python = CounterfactualExplanations.DataPreprocessing.preprocess_python_data(
+        data
+    )
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.1)
+    optimizer = torch.optim.Adam(model.parameters(); lr=0.1)
     loss_fun = torch.nn.BCEWithLogitsLoss()
 
     # Training
     for _ in 1:100
         # Compute prediction and loss:
         output = model(x_python).squeeze()
+        sleep(1)
         loss = loss_fun(output, y_python.t())
-        print(output)
         # Backpropagation:
         optimizer.zero_grad()
         loss.backward()
@@ -85,13 +106,20 @@ function train_and_save_model(data::CounterfactualData, model_location::String, 
     end
 
     torch.save(model, pickle_path)
+    return nothing
 end
 
+"""
+    remove_file(file_path::String)
+
+Removes a file from the specified path.
+"""
 function remove_file(file_path::String)
     try
         rm(file_path)  # removes the file
         println("File $file_path removed successfully.")
+        return nothing
     catch e
-        println("Error occurred while removing file $file_path: $e")
+        throw(ArgumentError("Error occurred while removing file $file_path: $e"))
     end
 end
