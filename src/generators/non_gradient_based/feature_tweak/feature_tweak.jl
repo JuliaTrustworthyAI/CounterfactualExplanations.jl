@@ -44,16 +44,20 @@ function feature_tweaking(
     end
 
     x_out = deepcopy(x)
+    machine = M.model
     delta = 10^3
     ensemble_prediction = Models.predict_label(M, x)[1]
+    fp = MLJBase.fitted_params(machine)
+    model = fp.tree.node
 
     for classifier in Models.get_individual_classifiers(M)
         if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
             Models.predict_label(classifier, x)[1] != target
             machine = classifier.model
             fitted_params = MLJBase.fitted_params(machine)
+            y_levels = MLJBase.classes(MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto)))
             root = fitted_params.tree.node
-            paths = search_path(root, target)
+            paths = search_path(root, y_levels, target)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
@@ -121,12 +125,12 @@ Return a path index list with the inequality symbols, thresholds and feature ind
 paths = search_path(tree, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
 """
 function search_path(
-    tree::Union{Leaf,DecisionTree.Node}, target::RawTargetType, path::AbstractArray=[]
+    tree::Union{Leaf,DecisionTree.Node}, y_levels::AbstractArray, target::RawTargetType, path::AbstractArray=[]
 )
     # Check if the current tree is a leaf
     if DecisionTree.is_leaf(tree)
         # Check if the leaf's majority value matches the target
-        if tree.majority == target
+        if y_levels[tree.majority] == target
             return [path]
         else
             return []
@@ -138,6 +142,7 @@ function search_path(
             paths,
             search_path(
                 tree.left,
+                y_levels,
                 target,
                 vcat(
                     path,
@@ -153,6 +158,7 @@ function search_path(
             paths,
             search_path(
                 tree.right,
+                y_levels,
                 target,
                 vcat(
                     path,
