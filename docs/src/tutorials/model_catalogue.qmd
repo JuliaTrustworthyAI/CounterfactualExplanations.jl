@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
@@ -22,6 +22,8 @@ standard_models_catalogue
 ```
 
 As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
+
+## Fitting Models
 
 Models from the standard model catalogue are a core part of the package and thus compatible with all offered counterfactual generators and functionalities.
 
@@ -60,6 +62,45 @@ for target in counterfactual_data.y_levels
 end
 plot(plts...)
 ```
+
+## Importing PyTorch models
+
+The package supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model. To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
+
+```{julia}
+model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+    "$(pwd())/docs/src/tutorials/miscellaneous",
+    "neural_network_class",
+    "NeuralNetwork",
+    "$(pwd())/docs/src/tutorials/miscellaneous/pretrained_model.pt"
+)
+```
+
+The method `pytorch_model_loader` requires four arguments:
+1. The path to the folder with a `.py` file where the PyTorch model is defined
+2. The name of the file where the PyTorch model is defined
+3. The name of the class of the PyTorch model
+4. The path to the Pickle file that holds the model weights
+
+In the above case:
+1. The file defining the model is inside `$(pwd())/docs/src/tutorials/miscellaneous`
+2. The name of the `.py` file holding the model definition is `neural_network_class`
+3. The name of the model class is NeuralNetwork
+4. The Pickle file is located at `$(pwd())/docs/src/tutorials/miscellaneous/pretrained_model.pt`
+
+Though the model file and Pickle file are inside the same directory in this tutorial, this does not necessarily have to be the case.
+
+The reason why the model file and Pickle file have to be provided separately is that the package expects an already trained PyTorch model as input. It is also possible to define new PyTorch models within the package, but since this is not the expected use of our package, special support is not offered for that. A guide for defining Python and PyTorch classes in Julia through `PythonCall.jl` can be found [here](https://cjdoris.github.io/PythonCall.jl/stable/pythoncall-reference/#Create-classes).
+
+Once the PyTorch model has been loaded into the package, wrap it inside the PyTorchModel class:
+
+```{julia}
+model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
+```
+
+This model can now be passed into the generators like any other.
+
+Please note that the functionality for generating counterfactuals for Python models is only available if your Julia version is 1.8 or above. For Julia 1.7 users, we recommend upgrading the version to 1.8 or 1.9 before loading a PyTorch model into the package.
 
 ## Tuning Flux Models
 
@@ -166,4 +207,3 @@ For all supported MLJ models, every tunable parameter they have is supported as 
 Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
 
 ## References
-

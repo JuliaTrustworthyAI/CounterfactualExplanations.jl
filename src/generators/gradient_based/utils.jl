@@ -42,7 +42,8 @@ end
 """
     mutability_constraints(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to return mutability constraints that are dependent on the current counterfactual search state. For generic gradient-based generators, no state-dependent constraints are added.
+The default method to return mutability constraints that are dependent on the current counterfactual search state.
+For generic gradient-based generators, no state-dependent constraints are added.
 """
 function mutability_constraints(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
@@ -54,7 +55,8 @@ end
 """
     conditions_satisfied(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators. By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
+The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
+By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
 function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
