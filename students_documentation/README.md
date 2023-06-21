@@ -66,7 +66,7 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
   - Core logic: `src/generators/non_gradient_based/growing_spheres/growing_spheres.jl`
   - Tests: TODO
   - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Documentation: TODO
+  - Documentation: `docs\src\explanation\generators\growing_spheres.qmd`
 
 #### Added Datasets
 
