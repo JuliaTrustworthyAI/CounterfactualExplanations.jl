@@ -1,6 +1,3 @@
-using Flux
-using Flux.Losses
-
 """
 	Flux.Losses.logitbinarycrossentropy(ce::AbstractCounterfactualExplanation)
 

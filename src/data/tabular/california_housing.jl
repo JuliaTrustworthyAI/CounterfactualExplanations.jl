@@ -5,9 +5,13 @@ Loads and pre-processes California Housing data.
 """
 function load_california_housing(n::Union{Nothing,Int}=5000)
 
+    # check that n is > 0
+    if !isnothing(n) && n <= 0
+        throw(ArgumentError("n must be > 0"))
+    end
+
     # Load:
     df = CSV.read(joinpath(data_dir, "cal_housing.csv"), DataFrames.DataFrame)
-
     # Pre-process features:
     transformer = MLJModels.Standardizer(; count=true)
     mach = MLJBase.fit!(MLJBase.machine(transformer, df[:, DataFrames.Not(:target)]))
@@ -26,6 +30,5 @@ function load_california_housing(n::Union{Nothing,Int}=5000)
             counterfactual_data, n
         )
     end
-
     return counterfactual_data
 end

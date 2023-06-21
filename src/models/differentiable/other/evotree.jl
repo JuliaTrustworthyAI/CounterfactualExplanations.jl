@@ -16,7 +16,7 @@ Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
 - `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
 struct EvoTreeModel <: AbstractMLJModel
-    model::Any
+    model::MLJBase.Machine
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
@@ -35,7 +35,7 @@ end
 """
 Outer constructor method for EvoTreeModel.
 """
-function EvoTreeModel(model::Any; likelihood::Symbol=:classification_binary)
+function EvoTreeModel(model; likelihood::Symbol=:classification_binary)
     return EvoTreeModel(model, likelihood)
 end
 
@@ -95,19 +95,6 @@ function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = MLJBase.predict(M.model, DataFrames.DataFrame(X, :auto))
     p = MLJBase.pdf(output, MLJBase.classes(output))'
-    return p
-end
-
-"""
-    probs(M::EvoTreeModel, X::AbstractArray{<:Number, 3})
-
-Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
-"""
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number,3})
-    # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
-    # and then calls the probs method for 1- and 2-dimensional input data on those slices
-    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = MLJBase.pdf(output, MLJBase.classes(output))
     return p
 end
 
