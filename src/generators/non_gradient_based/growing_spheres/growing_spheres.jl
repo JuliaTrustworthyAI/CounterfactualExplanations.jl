@@ -6,11 +6,6 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
 end
 
 """
-TODO: update ce accordingly (update path, convergence yada yada...)
-TODO: update comments
-"""
-
-"""
     GrowingSpheresGenerator(; n::Int=100, η::Float64=0.1, kwargs...)
 
 Constructs a new Growing Spheres Generator object.
@@ -64,7 +59,6 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
     counterfactual = find_counterfactual(
         model, factual_class, counterfactual_data, counterfactual_candidates
     )
-    max_iteration = 1000
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
     while (!isnothing(counterfactual))
@@ -74,41 +68,33 @@ function growing_spheres_generation(ce::AbstractCounterfactualExplanation)
         counterfactual = find_counterfactual(
             model, factual_class, counterfactual_data, counterfactual_candidates
         )
-        
-        max_iteration -= 1
-        if (max_iteration == 0)
-            @error("Warning: Maximum iteration reached. No counterfactual found.")
-        end
     end
-
-    # Add smalles circle of candidates to path
-    append!(ce.search[:path], counterfactual_candidates)
+    
+    # Update path
+    ce.search[:iteration_count] += n    
+    for i in eachindex(counterfactual_candidates[1, :])
+        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))    
+    end
 
     # Initialize boundaries of the sphere's radius
     a₀, a₁ = η, 2η
-
-    max_iteration = 1000
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
     while (isnothing(counterfactual))
         a₀ = a₁
         a₁ += η
-
-        foreach(
-            # candidate -> ce.search[:path] = push!(ce.search[:path], candidate),
-            candidate -> ce.search[:path] = vcat(ce.search[:path], candidate),
-            eachcol(counterfactual_candidates)
-        )
         
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
         counterfactual = find_counterfactual(
             model, factual_class, counterfactual_data, counterfactual_candidates
         )
 
-        max_iteration -= 1
-        if (max_iteration == 0)
-            @error("Warning: Maximum iteration reached. No counterfactual found.")
-        end
+    end
+
+    # Update path
+    ce.search[:iteration_count] += n    
+    for i in eachindex(counterfactual_candidates[1, :])
+        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))    
     end
 
     ce.s′ = counterfactual_candidates[:, counterfactual]
@@ -151,6 +137,9 @@ function feature_selection(ce::AbstractCounterfactualExplanation)
         counterfactual″ = counterfactual′
         i = find_closest_dimension(factual, counterfactual′)
         counterfactual′[i] = factual[i]
+
+        ce.search[:iteration_count] += 1
+        push!(ce.search[:path], reshape(counterfactual″, :, 1))    
     end
 
     ce.s′ = counterfactual″
