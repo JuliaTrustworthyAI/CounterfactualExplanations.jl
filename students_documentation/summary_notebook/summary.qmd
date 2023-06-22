@@ -169,9 +169,9 @@ N = 100
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 ```
 
-##### Load the saved PyTorch model
+##### Load the saved R model
 
-Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the pickle file with the trained model. This can be done through the following method:
+Since the package provides support for R models predefined by the user rather than for training R models inside the package as was requested by the client, the user has to provide a path to the pickle file with the trained model. This can be done through the following method:
 
 ```{julia}
 model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/students_documentation/summary_notebook/miscellaneous/r_model.pt")
