@@ -26,9 +26,7 @@ using Random
                     # Randomly selected factual:
                     Random.seed!(123)
                     x = select_factual(counterfactual_data, rand(1:size(X, 2)))
-                    multiple_x = select_factual(
-                        counterfactual_data, rand(1:size(X, 2), 5)
-                    )
+                    multiple_x = select_factual(counterfactual_data, rand(1:size(X, 2), 5))
                     # Choose target:
                     y = predict_label(M, counterfactual_data, x)
                     target = get_target(counterfactual_data, y[1])
