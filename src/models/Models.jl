@@ -17,8 +17,8 @@ using EvoTrees
 using SliceMap
 using DataFrames
 using MLJDecisionTreeInterface
-using PythonCall
 using RCall
+using PythonCall
 
 include("utils.jl")
 
@@ -121,6 +121,7 @@ export model_evaluation
 export predict_label
 export predict_proba
 export pytorch_model_loader
+export rtorch_model_loader
 export reset!
 
 end

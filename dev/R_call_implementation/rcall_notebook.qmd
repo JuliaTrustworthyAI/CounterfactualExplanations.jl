@@ -4,12 +4,13 @@
 
 ### Install dependencies
 ```{julia}
+using RCall
+
 import Pkg
 Pkg.activate("$(pwd())/dev/R_call_implementation")
 
-using Revise
 using CounterfactualExplanations
-using RCall
+using Revise
 ```
 
 ### Load data
@@ -81,16 +82,34 @@ for (epoch in 1:50) {
 """
 ```
 
+## Save RTorch model
+
+```{julia}
+R"""
+print(model)
+torch_save(model, "dev/R_call_implementation/model.pt")
+"""
+```
+
+## Load RTorch model
+
+```{julia}
+R"""
+loaded_model <- torch_load("dev/R_call_implementation/model.pt")
+print(loaded_model)
+"""
+```
+
 ## Declare RTorchModel
 
 ```{julia}
-r_torch_model = CounterfactualExplanations.Models.RTorchModel(R"model", :classification_multi)
+r_torch_model = CounterfactualExplanations.Models.RTorchModel(R"loaded_model", :classification_multi)
 ```
-
-## Testing models
 
 ### Select random factual
 ```{julia}
+using Random
+
 # Randomly selected factual:
 Random.seed!(42)
 
@@ -106,7 +125,6 @@ y_chosen_factual_idx = rand(
 x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ```
 
-### Generate counterfactual
 ```{julia}
 # Define generator:
 generator = GenericGenerator()
@@ -123,35 +141,3 @@ counterfactual = generate_counterfactual(
 ```{julia}
 CounterfactualExplanations.plot(counterfactual; title = "RTorch path")
 ```
-
-## Save RTorch model
-
-```{julia}
-m = r_torch_model.nn
-
-R"""
-library(torchvision)
-model = $m
-print(model)
-save(model, file = "dev/R_call_implementation/model.pth")
-"""
-```
-
-## Load RTorch model
-
-```{julia}
-R"""
-loaded_model <- load("dev/R_call_implementation/model.pth")
-print(loaded_model)
-"""
-```
-
-## Interoperatbility
-
-```{julia}
-re = pyimport("re")
-words = re.findall("[a-zA-Z]+", "PythonCall.jl is very useful!")
-
-torch = pyimport("torch")
-```
-

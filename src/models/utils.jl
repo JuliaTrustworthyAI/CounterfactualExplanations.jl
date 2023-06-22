@@ -120,3 +120,7 @@ function predict_label(M::AbstractFittedModel, counterfactual_data::Counterfactu
     X = counterfactual_data.X
     return predict_label(M, counterfactual_data, X)
 end
+
+function rtorch_model_loader()
+    return error("TODO: Implement rtorch_model_loader")
+end
