@@ -3,6 +3,9 @@
 ```{julia}
 #| echo: false
 include("$(pwd())/dev/artifacts/setup.jl")
+
+using Revise
+
 eval(setup)
 www_path = www_dir("vision")
 data_path = data_dir("vision")
@@ -307,7 +310,6 @@ flux_training_params.verbose = true
 train!(vae, X, y)
 Serialization.serialize(joinpath(model_path,"cifar_10_vae_weak.jls"),vae)
 ```
-
 ```{julia}
 using CounterfactualExplanations.GenerativeModels: reconstruct
 rec_images = []
@@ -326,3 +328,9 @@ p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
 plt = plot(p1, p2, axis=false, size=(800,375))
 savefig(plt, joinpath(www_path, "cifar_10_vae_weak.png"))
 ```
+
+## Generate Artifacts
+
+```{julia}
+artifact_name = "$(model_name)-$(Int(VERSION.major)).$(Int(VERSION.minor))"
+generate_artifacts(model_path; artifact_name=artifact_name)
