@@ -19,7 +19,7 @@ using Revise
 using Random
 
 Random.seed!(42);
-N = 100
+N = 500
 
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 
@@ -67,7 +67,7 @@ loss_fun <- nnf_binary_cross_entropy_with_logits
 
 ```{julia}
 R"""
-for (epoch in 1:50) {
+for (epoch in 1:200) {
   model$train()  
   # Compute prediction and loss:
   output <- model(X)
