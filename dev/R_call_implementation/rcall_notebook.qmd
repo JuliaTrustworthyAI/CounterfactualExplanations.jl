@@ -4,7 +4,12 @@
 
 ### Install dependencies
 ```{julia}
+import Pkg
+Pkg.activate("$(pwd())/dev/R_call_implementation")
+
+using Revise
 using CounterfactualExplanations
+using RCall
 ```
 
 ### Load data
@@ -27,6 +32,7 @@ y = Float32.(counterfactual_data.y)
 ```{julia}
 R"""
 # Data
+# library(stats)
 library(torch)
 X <- torch_tensor(t($x))
 ys <- torch_tensor(t($y))
