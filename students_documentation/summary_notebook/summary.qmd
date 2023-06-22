@@ -151,6 +151,70 @@ counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
 CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
 ```
 
+#### Interface to R models
+
+The interface supports generating counterfactuals for any neural network that has been previously defined and trained using torch library in R, regardless of the specific architectural details of the model.
+
+An important detail to note is that generating counterfactuals for R torch models is the only untested feature of the package. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
+
+Please note that executing the code provided below requires the presence of both the R language and the torch library on the machine where it is being run.
+
+##### Load the data
+
+```{julia}
+# Load data
+Random.seed!(42);
+N = 100
+
+counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
+```
+
+##### Load the saved PyTorch model
+
+Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the pickle file with the trained model. This can be done through the following method:
+
+```{julia}
+model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/students_documentation/summary_notebook/miscellaneous/r_model.pt")
+
+model_R = CounterfactualExplanations.Models.RTorchModel(model_loaded, :classification_multi)
+```
+
+The only argument of `rtorch_model_loader()` is the following:
+1. `pickle_path`: The path to the Pickle file that holds the trained model
+
+After importing the model in this way, counterfactuals can be created for an RTorch model the same way as for any other model.
+
+##### Select a factual and generate counterfactuals for it like with any other model
+
+```{julia}
+Random.seed!(42)
+
+target = 0
+factual = 1
+
+@info "Choose factual's index"
+y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_R, counterfactual_data) .== factual))
+
+@info "Select factual"
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+```
+
+```{julia}
+# Define a generator:
+generator = CounterfactualExplanations.Generators.GenericGenerator()
+
+@info "Generate counterfactual_R"
+counterfactual_R = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual, 
+    target, 
+    counterfactual_data, 
+    model_R, 
+    generator;
+    max_iter=1000
+)
+
+CounterfactualExplanations.plot(counterfactual_R; title = "model_R path")
+```
 #### MLJ models
 
 We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
