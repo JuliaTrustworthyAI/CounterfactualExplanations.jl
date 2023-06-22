@@ -215,6 +215,7 @@ counterfactual_R = CounterfactualExplanations.generate_counterfactual(
 
 CounterfactualExplanations.plot(counterfactual_R; title = "model_R path")
 ```
+
 #### MLJ models
 
 We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
