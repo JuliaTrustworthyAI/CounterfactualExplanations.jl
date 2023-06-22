@@ -115,6 +115,7 @@ function plot_state(ce::CounterfactualExplanation, t::Int, final_sate::Bool; kwa
     if !final_sate
         scatter!(args.p1, x1, x2; group=y, colour=_c, ms=5, label="")
     else
+        println(x2)
         scatter!(args.p1, x1, x2; group=y, colour=_c, ms=10, label="")
         if n_ > 1
             label_1 = vec([text(lab, 5) for lab in label_])

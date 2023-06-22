@@ -98,6 +98,7 @@ function generate_counterfactual(
             new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
             ce.s′ = new_x
             ce.search[:path] = [ce.search[:path]..., new_x]
+            ce.search[:iteration_count] = 1
             ce.search[:terminated] = true
             ce.search[:converged] = true
         end

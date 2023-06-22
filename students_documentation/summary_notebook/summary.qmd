@@ -18,6 +18,7 @@ using PythonCall
 using Random
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
+using CounterfactualExplanations.Generators
 ```
 
 ## Must haves
@@ -114,7 +115,7 @@ factual = 4
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
-generator = ProbeGenerator()
+generator = Generators.ProbeGenerator()
 ```
 
 ```{julia}
@@ -206,7 +207,7 @@ moons_counterfactual = generate_counterfactual(x, target, counterfactual_data, d
 Let's verify that the counterfactual is indeed in the target class:
 
 ```{julia}
-Models.predict_label(decision_tree, ce.s′)
+Models.predict_label(decision_tree, moons_counterfactual.s′)
 ```
 
 Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree:
