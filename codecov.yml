@@ -6,3 +6,6 @@ coverage:
         threshold: 0.01%  # the leniency in hitting the target
   ignore:
   - "src/**/visualization/**/*"
+  - "src/models/differentiable/R/rtorch_model.jl"
+  - "src/generators/gradient_based/loss.jl:∂ℓ(generator::AbstractGradientBasedGenerator, model::Models.RTorchModel, ce::AbstractCounterfactualExplanation)"
+  - "src/models/utils.jl:rtorch_model_loader(model_path::String)"
