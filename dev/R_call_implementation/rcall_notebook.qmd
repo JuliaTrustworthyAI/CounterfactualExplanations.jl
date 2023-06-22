@@ -96,7 +96,6 @@ torch_save(model, "dev/R_call_implementation/model.pt")
 ```{julia}
 R"""
 loaded_model <- torch_load("dev/R_call_implementation/model.pt")
-print(loaded_model)
 """
 ```
 
