@@ -51,6 +51,14 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
   - Documentation: `docs\src\tutorials\model_catalogue.qmd`
   - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
 
+- R torch models
+  - Core logic:
+    - `src\models\differentiable\R\rtorch_model.jl`
+    - `src\generators\gradient_based\loss.jl`
+  - Utility logic (model loader function): `src/models/utils.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
+
 - DecisionTreeClassifier and RandomForestClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
   - Core logic:
     - `src\models\nondifferentiable\mlj_tree.jl`
