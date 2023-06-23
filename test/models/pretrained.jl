@@ -86,9 +86,7 @@ models = _load_pretrained_models()
                             @test maximum(
                                 abs.(
                                     counterfactual.x .-
-                                    CounterfactualExplanations.decode_state(
-                                        counterfactual
-                                    )
+                                    CounterfactualExplanations.decode_state(counterfactual)
                                 ),
                             ) < init_perturbation
                             @test converged(counterfactual)
