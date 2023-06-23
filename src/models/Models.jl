@@ -17,19 +17,30 @@ using EvoTrees
 using SliceMap
 using DataFrames
 using MLJDecisionTreeInterface
+using RCall
+using PythonCall
 
 include("utils.jl")
 
 include("differentiable/differentiable.jl")
 include("nondifferentiable/nondifferentiable.jl")
 
-include("plotting/default.jl")
-include("plotting/voronoi.jl")
+include("visualization/plotting/default.jl")
+include("visualization/plotting/voronoi.jl")
 
 include("pretrained/pretrained.jl")
 
-export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, TreeModel
+export AbstractFittedModel
+export AbstractDifferentiableModel
+export Linear
+export FluxModel
+export FluxEnsemble
+export LaplaceReduxModel
+export EvoTreeModel
+export DecisionTreeModel
+export RandomForestModel
+export PyTorchModel
+export RTorchModel
 export flux_training_params
 export probs, logits
 
@@ -69,6 +80,8 @@ const all_models_catalogue = Dict(
     :EvoTree => EvoTreeModel,
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
+    :PyTorchModel => PyTorchModel,
+    :RTorchModel => RTorchModel,
 )
 
 """
@@ -107,6 +120,8 @@ export fit_model
 export model_evaluation
 export predict_label
 export predict_proba
+export pytorch_model_loader
+export rtorch_model_loader
 export reset!
 
 end

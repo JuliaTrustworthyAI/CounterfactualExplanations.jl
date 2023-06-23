@@ -31,5 +31,6 @@ function LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
 end
 
 # Methods
-logits(M::LaplaceReduxModel, X::AbstractArray) = M.model.model(X)
-probs(M::LaplaceReduxModel, X::AbstractArray) = LaplaceRedux.predict(M.model, X)
+# The methods are commented out for the time being, as they are not called from anywhere in the package
+# logits(M::LaplaceReduxModel, X::AbstractArray) = M.model.model(X)
+# probs(M::LaplaceReduxModel, X::AbstractArray) = LaplaceRedux.predict(M.model, X)

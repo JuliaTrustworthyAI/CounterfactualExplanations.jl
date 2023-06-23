@@ -9,6 +9,51 @@ function data_loader(data::CounterfactualData; batchsize=1)
 end
 
 """
+    pytorch_model_loader(model_path::String, model_file::String, class_name::String, pickle_path::String)
+
+Loads a previously saved PyTorch model.
+
+# Arguments
+- `model_path::String`: Path to the directory containing the model file.
+- `model_file::String`: Name of the model file.
+- `class_name::String`: Name of the model class.
+- `pickle_path::String`: Path to the pickle file containing the model.
+
+# Returns
+- `model`: The loaded PyTorch model.
+
+# Example
+```{julia}
+model = pytorch_model_loader(
+    "src/models/pretrained/pytorch",
+    "pytorch_model.py",
+    "PyTorchModel",
+    "src/models/pretrained/pytorch/pytorch_model.pt",
+)
+```
+"""
+function pytorch_model_loader(
+    model_path::String, model_file::String, class_name::String, pickle_path::String
+)
+    sys = PythonCall.pyimport("sys")
+    torch = PythonCall.pyimport("torch")
+
+    # Check whether the path is correct
+    if !endswith(pickle_path, ".pt")
+        throw(ArgumentError("pickle_path must end with '.pt'"))
+    end
+
+    # Make sure Python is able to import the module
+    if !in(model_path, sys.path)
+        sys.path.append(model_path)
+    end
+
+    PythonCall.pyimport(model_file => class_name)
+    model = torch.load(pickle_path)
+    return model
+end
+
+"""
     model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
 
 Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set.
@@ -61,9 +106,8 @@ Returns the predicted output label for a given model `M`, data set `counterfactu
 function predict_label(
     M::AbstractFittedModel, counterfactual_data::CounterfactualData, X::AbstractArray
 )
-    y_levels = counterfactual_data.y_levels
     p = predict_proba(M, counterfactual_data, X)
-    y = Flux.onecold(p, y_levels)
+    y = Flux.onecold(p, counterfactual_data.y_levels)
     return y
 end
 
@@ -75,4 +119,29 @@ Returns the predicted output labels for all data points of data set `counterfact
 function predict_label(M::AbstractFittedModel, counterfactual_data::CounterfactualData)
     X = counterfactual_data.X
     return predict_label(M, counterfactual_data, X)
+end
+
+"""
+    rtorch_model_loader(model_path::String)
+
+Loads a previously saved R torch model.
+
+# Arguments
+- `model_path::String`: Path to the directory containing the model file.
+
+# Returns
+- `loaded_model`: Path to the pickle file containing the model.
+
+# Example
+```{julia}
+model = rtorch_model_loader("dev/R_call_implementation/model.pt")
+```
+"""
+function rtorch_model_loader(model_path::String)
+    R"""
+    library(torch)
+    loaded_model <- torch_load($model_path)
+    """
+
+    return R"loaded_model"
 end
