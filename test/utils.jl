@@ -34,7 +34,7 @@ Loads pretrained Flux models.
 """
 function _load_pretrained_models()
     pretrained = Dict(
-        :cifar => Dict(
+        :cifar_10 => Dict(
             :models => Dict(            
                 :mlp => Models.load_cifar_10_mlp(),
                 :ensemble => Models.load_cifar_10_ensemble(),
