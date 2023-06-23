@@ -17,13 +17,13 @@ function DiCEGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.1], kwargs...)
 end
 
 "Constructor for `ClaPGenerator`."
-function ClaPROARGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.1], kwargs...)
+function ClaPROARGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.5], kwargs...)
     _penalties = [default_distance, Objectives.model_loss_penalty]
     return GradientBasedGenerator(; penalty=_penalties, λ=λ, kwargs...)
 end
 
 "Constructor for `GravitationalGenerator`."
-function GravitationalGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.1], kwargs...)
+function GravitationalGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.5], kwargs...)
     _penalties = [default_distance, Objectives.distance_from_target]
     return GradientBasedGenerator(; penalty=_penalties, λ=λ, kwargs...)
 end

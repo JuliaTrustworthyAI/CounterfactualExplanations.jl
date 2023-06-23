@@ -92,12 +92,12 @@ function benchmark(
     xids::Union{Nothing,AbstractArray}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
     verbose::Bool=true,
+    store_ce::Bool=false,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
 
     # Progress Bar:
-    println(length(generators))
     if verbose
         p_models = ProgressMeter.Progress(
             length(models); desc="Progress on models:", showspeed=true, color=:green
@@ -140,7 +140,7 @@ function benchmark(
     end
 
     # Performance Evaluation:
-    bmk = benchmark(ces; meta_data=meta_data, measure=measure)
+    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce)
     return bmk
 end
 
@@ -172,6 +172,7 @@ function benchmark(
     suppress_training::Bool=false,
     factual::Union{Nothing,RawTargetType}=nothing,
     target::Union{Nothing,RawTargetType}=nothing,
+    store_ce::Bool=false,
     kwrgs...,
 )
     # Setup
@@ -211,6 +212,7 @@ function benchmark(
             generators=generators,
             measure=measure,
             xids=xids,
+            store_ce=store_ce,
             kwrgs...,
         )
         push!(bmk, _bmk)

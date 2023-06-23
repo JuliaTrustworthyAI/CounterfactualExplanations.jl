@@ -10,7 +10,7 @@ CurrentModule = CounterfactualExplanations
 ```{julia}
 #| echo: false
 #| output: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 

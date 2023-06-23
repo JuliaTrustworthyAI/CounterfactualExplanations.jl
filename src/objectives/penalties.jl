@@ -77,3 +77,27 @@ function ddp_diversity(
     cost = -agg(K)
     return cost
 end
+
+
+function distance_from_targets(
+    ce::AbstractCounterfactualExplanation;
+    n::Int=1000,
+    agg=mean,
+    n_nearest_neighbors::Union{Int,Nothing}=nothing,
+)
+    target_idx = ce.data.output_encoder.labels .== ce.target
+    target_samples = ce.data.X[:, target_idx] |> X -> X[:, rand(1:end, n)]
+    x′ = CounterfactualExplanations.counterfactual(ce)
+    loss = map(eachslice(x′; dims=ndims(x′))) do x
+        Δ = map(eachcol(target_samples)) do xsample
+            norm(x - xsample, 1)
+        end
+        if n_nearest_neighbors != nothing
+            Δ = sort(Δ)[1:n_nearest_neighbors]
+        end
+        return mean(Δ)
+    end
+    loss = agg(loss)[1]
+
+    return loss
+end

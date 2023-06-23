@@ -54,7 +54,7 @@ tab <- data.table(generators,models,search_space,composable)
 
 ```{r}
 col_names <- c("Generator", "Model Type", "Search Space", "Composable")
-caption <- "Overview of implemented counterfactual generators. \\label{tab:gen} \\newline"
+caption <- "Overview of implemented counterfactual generators. \\label{tab-gen} \\newline"
 kbl(
   tab, caption = caption, col.names=col_names, booktabs = T, escape=F, 
   format="latex", linesep = ""
