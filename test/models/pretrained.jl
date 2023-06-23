@@ -90,12 +90,9 @@ models = _load_pretrained_models()
                                 ),
                             ) < init_perturbation
                             @test converged(counterfactual)
-                            @test CounterfactualExplanations.terminated(
-                                counterfactual
-                            )
-                            @test CounterfactualExplanations.total_steps(
-                                counterfactual
-                            ) == 0
+                            @test CounterfactualExplanations.terminated(counterfactual)
+                            @test CounterfactualExplanations.total_steps(counterfactual) ==
+                                0
                         end
 
                         @testset "Non-trivial case, latent space enabled" begin
