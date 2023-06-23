@@ -40,11 +40,8 @@ models = _load_pretrained_models()
                         end
                         @test counterfactual.target == target
                         @test counterfactual.x == x &&
-                            CounterfactualExplanations.factual(counterfactual) ==
-                                x
-                        @test CounterfactualExplanations.factual_label(
-                            counterfactual
-                        ) == y
+                            CounterfactualExplanations.factual(counterfactual) == x
+                        @test CounterfactualExplanations.factual_label(counterfactual) == y
                         @test CounterfactualExplanations.factual_probability(
                             counterfactual
                         ) == probs(M, x)
