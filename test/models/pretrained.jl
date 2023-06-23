@@ -28,6 +28,7 @@ models = _load_pretrained_models()
                     # Choose target:
                     y = predict_label(M, counterfactual_data, x)
                     target = get_target(counterfactual_data, y[1])
+                    # Using gravitational generator as a good representative of a generator that doesn't require latent space
                     generator = GravitationalGenerator()
                     # Single sample:
                     counterfactual = generate_counterfactual(
@@ -107,6 +108,7 @@ models = _load_pretrained_models()
                         end
 
                         @testset "Non-trivial case, latent space enabled" begin
+                            # Using REVISE generator as a good representative of a generator that requires latent space
                             generator = REVISEGenerator()
                             for (name, vae) in value[:latent]
                                 name = string(name)
