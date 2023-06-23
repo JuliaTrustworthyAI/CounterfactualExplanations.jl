@@ -6,7 +6,7 @@ mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
 end
 
 """
-    FeatureTweakGenerator(; ϵ::AbstractFloat, kwargs...)
+    FeatureTweakGenerator(ϵ::AbstractFloat=0.1)
 
 Constructs a new Feature Tweak Generator object.
 
@@ -19,8 +19,8 @@ According to the paper by Tolomei er al., an alternative choice here would be us
 # Returns
 - `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
-function FeatureTweakGenerator(; ϵ::AbstractFloat=0.1, kwargs...)
-    return FeatureTweakGenerator(; penalty=Objectives.distance_l2, ϵ=ϵ, kwargs...)
+function FeatureTweakGenerator(ϵ::AbstractFloat=0.1)
+    return FeatureTweakGenerator(Objectives.distance_l2, ϵ, false)
 end
 
 """
