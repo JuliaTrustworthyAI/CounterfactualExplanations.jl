@@ -74,9 +74,7 @@ models = _load_pretrained_models()
                             # Already in target and exceeding threshold probability:
                             y = predict_label(M, counterfactual_data, x)
                             target = y[1]
-                            γ = minimum([
-                                1 / length(counterfactual_data.y_levels), 0.5
-                            ])
+                            γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                             counterfactual = generate_counterfactual(
                                 x,
                                 target,
