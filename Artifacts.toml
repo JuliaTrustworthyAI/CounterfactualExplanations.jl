@@ -78,14 +78,6 @@ lazy = true
     sha256 = "b2d0bf8e7e43a9b35dc9813f378ef4336d887510022afd21c0640c327d8e1bed"
     url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_vae.tar.gz"
 
-[model-vision]
-git-tree-sha1 = "91678afa5710d95a3b595362d7740d52b75d3fa8"
-lazy = true
-
-    [[model-vision.download]]
-    sha256 = "38561886c19cde9d8de35cf4532e194f36207c99291828ac6b2eaa99e7f36c49"
-    url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.8/model-vision.tar.gz"
-
 ["model-vision-1.8"]
 git-tree-sha1 = "c2ed8c0e5e67da4a9bd889c9c66548a13802c3a4"
 lazy = true
@@ -93,14 +85,6 @@ lazy = true
     [["model-vision-1.8".download]]
     sha256 = "3170871f38fa8a35af82e940e6cecafc15c2faeec92b40b57bdd4f89eecbe002"
     url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.8/model-vision-1.8.tar.gz"
-
-["model-vision-1.9"]
-git-tree-sha1 = "ad21195c8b6548783f746ac6acb2d831a46989dc"
-lazy = true
-
-    [["model-vision-1.9".download]]
-    sha256 = "9560817f26f316da09ca6cc2b8fc188e45e0b076e8629e4e51bee673d03cfea4"
-    url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.9/model-vision-1.9.tar.gz"
 
 [paper-images]
 git-tree-sha1 = "b1e4ade1fe7c847262189886be2d79d578c351f8"
