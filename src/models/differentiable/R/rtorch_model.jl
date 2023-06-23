@@ -30,7 +30,7 @@ function logits(model::RTorchModel, x::AbstractArray)
 
     model_nn = model.nn
 
-    ŷ = rcopy(R"as_array($model_nn(torch_tensor(t($x))))")
+    ŷ = RCall.rcopy(R"as_array($model_nn(torch_tensor(t($x))))")
     ŷ = isa(ŷ, AbstractArray) ? ŷ : [ŷ]
 
     return transpose(ŷ)
@@ -53,8 +53,8 @@ logits = Models.logits(M, x) # calculates the probabilities for each output clas
 """
 function probs(model::RTorchModel, x::AbstractArray)
     if model.likelihood == :classification_binary
-        return σ.(logits(model, x))
+        return Flux.σ.(logits(model, x))
     elseif model.likelihood == :classification_multi
-        return softmax(logits(model, x))
+        return Flux.softmax(logits(model, x))
     end
 end
