@@ -171,7 +171,7 @@ Not called by the user directly.
 function DecisionTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    M = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
     model = MLJBase.machine(M, X, y)
 
     return TreeModel(model, data.likelihood)
@@ -192,7 +192,7 @@ Not called by the user directly.
 function RandomForestModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    M = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
     model = MLJBase.machine(M, X, y)
 
     return TreeModel(model, data.likelihood)
