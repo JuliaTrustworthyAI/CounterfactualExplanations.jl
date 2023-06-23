@@ -13,7 +13,7 @@ for (key, generator_) in generators
     name = uppercasefirst(string(key))
 
     # Feature Tweak will be tested separately
-    if generator_() isa Generators.HeuristicBasedGenerator
+    if generator_() isa Generators.FeatureTweakGenerator
         continue
     end
 
