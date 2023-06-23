@@ -21,7 +21,7 @@ models = _load_pretrained_models()
                 name = string(name)
                 @testset "$name" begin
                     counterfactual_data = Data.data_catalogue[:vision][key]()
-                    X = counterfactual_data.X 
+                    X = counterfactual_data.X
                     # Randomly selected factual:
                     Random.seed!(123)
                     x = select_factual(counterfactual_data, rand(1:size(X, 2)))
