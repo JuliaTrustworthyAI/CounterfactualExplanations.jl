@@ -65,7 +65,7 @@ Counterfactual Explanations fall into the category of local methods: they explai
 
 ## A framework for Counterfactual Explanations {#sec-method}
 
-Counterfactual search happens in the feature space^[Or, in the case of Latent Space generators, some latent representation of the feature space.]: we are interested in understanding how we need to change individual attributes in order to change the model output to a desired value or label \cite{molnar2020interpretable}. Typically the underlying methodology is presented in the context of binary classification: $M: \mathcal{X} \mapsto \mathcal{Y}$ where $\mathcal{X}\subset\mathbb{R}^D$ and $\mathcal{Y}=\{0,1\}$. Further, let $t=1$ be the target class and let $x$ denote the factual feature vector of some individual sample outside of the target class, so $y=M(x)=0$. We follow this convention here, though it should be noted that the ideas presented here also carry over to multi-class problems and regression \cite{molnar2020interpretable}. 
+Counterfactual search happens in the feature space: we are interested in understanding how we need to change individual attributes in order to change the model output to a desired value or label \cite{molnar2020interpretable}. Typically the underlying methodology is presented in the context of binary classification: $M: \mathcal{X} \mapsto \mathcal{Y}$ where $\mathcal{X}\subset\mathbb{R}^D$ and $\mathcal{Y}=\{0,1\}$. Further, let $t=1$ be the target class and let $x$ denote the factual feature vector of some individual sample outside of the target class, so $y=M(x)=0$. We follow this convention here, though it should be noted that the ideas presented here also carry over to multi-class problems and regression \cite{molnar2020interpretable}. 
 
 The counterfactual search objective originally proposed by Wachter et al. (2017) \cite{wachter2017counterfactual} is as follows
 
@@ -81,7 +81,9 @@ $$ {#eq-solution}
 
 Here $\ell$ denotes some loss function targeting the deviation between the target label and the predicted label and $\lambda$ governs the strength of the complexity penalty. Provided we have gradient access for the black-box model $M$ the solution to this problem (@eq-solution) can be found through gradient descent. This generic framework lays the foundation for most state-of-the-art approaches to counterfactual search and is also used as the baseline approach in our package. The hyperparameter $\lambda$ is typically tuned through grid search or in some sense pre-determined by the nature of the problem. Conventional choices for $\ell$ include margin-based losses like cross-entropy loss and hinge loss. It is worth pointing out that the loss function is typically computed with respect to logits rather than predicted probabilities, a convention that we have chosen to follow.^[While the rationale for this convention is not entirely obvious, implementations of loss functions with respect to logits are often numerically more stable. For example, the `logitbinarycrossentropy(ŷ, y)` implementation in `Flux.Losses` (used here) is more stable than the mathematically equivalent `binarycrossentropy(ŷ, y)`.] 
 
-Numerous extensions to this simple approach have been developed since Counterfactual Explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in how they define the complexity penalty. In the baseline paper \cite{wachter2017counterfactual}, for example, $h(\cdot)$ is defined in terms of the Manhattan distance between factual and counterfactual feature values. While this is an intuitive choice, it is too simple to address many of the desirable properties of effective Counterfactual Explanations that have been set out. These desiderata include: **closeness** --- the average distance between factual and counterfactual features should be small \cite{wachter2017counterfactual}; **actionability** --- the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** --- the counterfactual explanation should be plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** --- a human should have no trouble assigning a label to the counterfactual \cite{schut2021generating}; **sparsity** --- the counterfactual explanation should involve as few individual feature changes as possible \cite{schut2021generating}; **robustness** --- the counterfactual explanation should be robust to domain and model shifts \cite{upadhyay2021robust}; **diversity** --- ideally multiple diverse Counterfactual Explanations should be provided \cite{mothilal2020explaining}; and **causality** --- Counterfactual Explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+Numerous extensions to this simple approach have been developed since Counterfactual Explanations were first proposed in 2017 (see \cite{verma2020counterfactual} and \cite{karimi2020survey} for surveys). The various approaches largely differ in that they use different flavours of search objective defined in Equation~\ref{eq-solution}. Different penalties are often used to address many of the desirable properties of effective CE that have been set out. These desiderata include: **closeness** --- the average distance between factual and counterfactual features should be small \cite{wachter2017counterfactual}; **actionability** --- the proposed feature perturbation should actually be actionable (\cite{ustun2019actionable}, \cite{poyiadzi2020face}); **plausibility** --- the counterfactual explanation should be plausible to a human (\cite{joshi2019realistic}, \cite{schut2021generating}); **unambiguity** --- a human should have no trouble assigning a label to the counterfactual \cite{schut2021generating}; **sparsity** --- the counterfactual explanation should involve as few individual feature changes as possible \cite{schut2021generating}; **robustness** --- the counterfactual explanation should be robust to domain and model shifts \cite{upadhyay2021robust}; **diversity** --- ideally multiple diverse Counterfactual Explanations should be provided \cite{mothilal2020explaining}; and **causality** --- Counterfactual Explanations should respect the structural causal model underlying the data generating process (\cite{karimi2020algorithmic},\cite{karimi2021algorithmic}).
+
+Beyond gradient-based counterfactual search, which has been the main focus in our development so far, various methodologies have been proposed that can handle non-differentiable models like decision trees. We have implemented some of these approaches and will discuss them further in Section~\ref{sec-gen}.
 
 ## Existing software
 
@@ -93,9 +95,11 @@ Generally speaking, software development in the space of XAI has largely focused
 
 @fig-arch provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms. The core function of the package `generate_counterfactual` uses an instance of type `<:AbstractFittedModel` produced by the `Models` module and an instance of type `<:AbstractGenerator` produced by the `Generators` module. Relating this to the methodology outlined in @sec-method, the former instance corresponds to the model $M$, while the latter defines the rules for the counterfactual search (@eq-solution). 
 
+![High-level schematic overview of package architecture. Modules are shown in red, structs in green and functions in purple.](www/pkg_architecture.png){#fig-arch width=3.33333in height=2.38095in}
+
 ## Models
 
-The package currently offers native support for models built and trained in [Flux](https://fluxml.ai/) as well as a small subset of models made available through [MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/) \cite{blaom2020mlj}. While in general it is assumed that users will use this package to explain their pre-trained models, we provide a simple API call to train the following simple default models:
+The package currently offers native support for models built and trained in [Flux](https://fluxml.ai/) as well as a small subset of models made available through [MLJ](https://alan-turing-institute.github.io/MLJ.jl/dev/) \cite{blaom2020mlj}. While in general it is assumed that users will use this package to explain their pre-trained models, we provide a simple API call to train the following simple [default models](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/model_catalogue/):
 
 \begin{itemize}
 \item Linear Classifier (Logistic Regression)
@@ -106,11 +110,11 @@ The package currently offers native support for models built and trained in [Flu
 
 As we demonstrate below, it is straightforward to extend the package through custom models. Support for `torch` models trained in Python or R is also available.
 
-## Generators
+## Generators {#sec-gen}
 
-A large and growing number of counterfactual generators have already been implemented in our package (Table \ref{tab:gen}). At a high level, we distinguish generators in terms of their compatible model types, their default search space, and their composability. All "gradient-based" generators are compatible with differentiable models, e.g. `Flux` and `torch`, while "tree-based" generators are only applicable to models that involve decision trees. Concerning the search space, some have proposed to search counterfactuals in a lower-dimensional latent embedding of the feature space that implicitly encodes the data-generating process (DGP). To learn the latent embedding, existing work has typically relied on generative models or existing causal knowledge (\cite{joshi2019realistic}, \cite{karimi2021algorithmic}). While this notion is compatible with all of our gradient-based generators, only some generators search a latent space by default. Composability implies that the given generator can be blended with any other composable generator, which we discuss further below.
+A large and growing number of counterfactual [generators](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/explanation/generators/overview/) have already been implemented in our package (Table \ref{tab:gen}). At a high level, we distinguish generators in terms of their compatible model types, their default search space, and their composability. All "gradient-based" generators are compatible with differentiable models, e.g. `Flux` and `torch`, while "tree-based" generators are only applicable to models that involve decision trees. Concerning the search space, some have proposed to search counterfactuals in a lower-dimensional latent embedding of the feature space that implicitly encodes the data-generating process (DGP). To learn the latent embedding, existing work has typically relied on generative models or existing causal knowledge (\cite{joshi2019realistic}, \cite{karimi2021algorithmic}). While this notion is compatible with all of our gradient-based generators, only some generators search a latent space by default. Composability implies that the given generator can be blended with any other composable generator, which we discuss further below.
 
-Beyond these broad technical distinctions, generators largely differ in terms of how they address the various desiderata mentioned above: *ClapROAR* aims to preserve the classifier, i.e. to generate counterfactuals that are robust to endogenous model shifts \cite{altmeyer2023endogenous}; *CLUE* searches plausible counterfactuals in the latent embedding of a generative model by explicitly minimising predictive entropy \cite{antoran2020getting}; *DiCE* is designed to generate multiple, maximally diverse counterfactuals \cite{mothilal2020explaining}; *FeatureTweak* is explicitly designed for tree-based models; *Gravitational* aims to generate plausible and robust counterfactuals by minimising the distance to observed samples in the target class \cite{tolomei2017interpretable}; *Greedy* aims to generate plausible counterfactuals by implicitly minimising predictive uncertainty of Bayesian classifiers \cite{schut2021generating}; *GrowingSpheres* is model agnostic, relying solely on identifying nearest neighbours of counterfactuals in the target class \cite{laugel2017inversea}; *PROBE* generates probabilistically robust counterfactuals \cite{pawelczyk2022probabilistically}; *REVISE* addresses the need for plausibility by searching counterfactuals in the latent embedding of a Variational Autoencoder (VAE) \cite{joshi2019realistic}; *Wachter* is the baseline approach that only penalises the distance to the original sample \cite{wachter2017counterfactual}.
+Beyond these broad technical distinctions, generators largely differ in terms of how they address the various desiderata mentioned above: *ClapROAR* aims to preserve the classifier, i.e. to generate counterfactuals that are robust to endogenous model shifts \cite{altmeyer2023endogenous}; *CLUE* searches plausible counterfactuals in the latent embedding of a generative model by explicitly minimising predictive entropy \cite{antoran2020getting}; *DiCE* is designed to generate multiple, maximally diverse counterfactuals \cite{mothilal2020explaining}; *FeatureTweak* leverages the internals of decision trees to search counterfactuals on a feature-by-feature basis \cite{tolomei2017interpretable}; *Gravitational* aims to generate plausible and robust counterfactuals by minimising the distance to observed samples in the target class \cite{altmeyer2023endogenous}; *Greedy* aims to generate plausible counterfactuals by implicitly minimising predictive uncertainty of Bayesian classifiers \cite{schut2021generating}; *GrowingSpheres* is model agnostic, relying solely on identifying nearest neighbours of counterfactuals in the target class \cite{laugel2017inversea}; *PROBE* generates probabilistically robust counterfactuals \cite{pawelczyk2022probabilistically}; *REVISE* addresses the need for plausibility by searching counterfactuals in the latent embedding of a Variational Autoencoder (VAE) \cite{joshi2019realistic}; *Wachter* is the baseline approach that only penalises the distance to the original sample \cite{wachter2017counterfactual}.
 
 \begin{table}
 \caption{Overview of implemented counterfactual generators. \label{tab:gen} \newline}
@@ -134,9 +138,9 @@ Wachter \cite{wachter2017counterfactual} & gradient based & feature & yes\\
 \end{tabular}
 \end{table}
 
-## Data and Benchmarking
+## Data Catalogue
 
-To allow researchers and practitioners to test and compare counterfactual generators, the package ships with pre-processed synthetic and real-world benchmark datasets from different domains. Real-world datasets include:
+To allow researchers and practitioners to test and compare counterfactual generators, the package ships with [catalogues](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/data_catalogue/) of pre-processed synthetic and real-world benchmark datasets from different domains. Real-world datasets include:
 
 \begin{itemize}
 \item Adult Census \cite{becker1996adult}
@@ -148,11 +152,11 @@ To allow researchers and practitioners to test and compare counterfactual genera
 \item UCI defaultCredit \cite{yeh2009comparisons}
 \end{itemize}
 
+Custom datasets can also be easily preprocessed as explained in the [documentation](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/data_preprocessing/).
+
 ## Plotting
 
 The package also extends common `Plots.jl` methods to facilitate the visualization of results. Calling the generic `plot()` method on an instance of type `<:CounterfactualExplanation`, for example, generates a plot visualizing the entire counterfactual path in the feature space^[For multi-dimensional input data, standard dimensionality reduction techniques are used to compress the data. In this case, the classifier's decision boundary is approximated through a Nearest Neighbour model. This is still somewhat experimental and will be improved in the future.]. We will see several examples of this below.
-
-![High-level schematic overview of package architecture. Modules are shown in red, structs in green and functions in purple.](www/pkg_architecture.png){#fig-arch width=3.33333in height=2.38095in}
 
 # Basic Usage {#sec-use}
 
@@ -201,6 +205,10 @@ ce = generate_counterfactual(
 \end{lstlisting}
 
 ```{julia}
+binary_data = deepcopy(counterfactual_data)     # store to reuse
+```
+
+```{julia}
 plt = plot(ce, legend=:topright)
 display(plt)
 savefig(plt, "paper/www/ce_binary.png")
@@ -214,7 +222,8 @@ In this simple example, the generic generator produces an effective counterfactu
 #| output: true
 
 _overfit = 10
-Flux.params(M.model)[1] .*= _overfit # overfit
+Flux.params(M.model)[1] .*= _overfit
+Flux.params(M.model)[2] .*= _overfit
 η = 0.01 / _overfit
 
 # Implausible:
@@ -255,7 +264,7 @@ savefig(plt, "paper/www/binary_wrong.png")
 
 ## Composing Generators
 
-To address the issues outlined above, we can make leverage the ideas underlying some of the more advanced counterfactual generators introduced above. In particular, we will now show how easy it is to compose custom generators that blend different ideas through user-friendly macros.
+To address the issues outlined above, we can make leverage the ideas underlying some of the more advanced counterfactual generators introduced above. In particular, we will now show how easy it is to [compose custom generators](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/generators/) that blend different ideas through user-friendly macros.
 
 Code \ref{lst:composed} demonstrates this. We begin by instantiating a `GradientBasedGenerator` in line \ref{line:composed-init}. Next, we use chained macros for composition: firstly, we define the counterfactual search objective corresponding to DiCE in line \ref{line:composed-dice}; secondly, we define the latent space search strategy corresponding to REVISE in line \ref{line:composed-latent}; and, finally, we specify our prefered `Flux` optimiser in line \ref{line:composed-adam}.
 
@@ -333,7 +342,7 @@ savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 
 ## Evaluation and Benchmarking
 
-
+The package also makes it easy to [evaluate](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/evaluation/) counterfactuals with respect to many of the desiderata mentioned above. For example, users may want to infer how costly the provided recourse is to individuals. To this end, we can measure the distance of the counterfactual from its original value. The API call to compute the distance metric defined in Wachter et al. (2017) \cite{wachter2017counterfactual}, for instance, is as simple as `evaluate(ce; measure=distance_mad)`, where `ce` can also be a vector of `CounterfactualExplanation`s. Additionally, the package provides a [benchmarking](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/benchmarking/) framework that allows users to compare the performance of different generators on a given dataset.
 
 # Customization and Extensibility {#sec-custom}
 
@@ -352,8 +361,7 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 
 ```{julia}
 # Data:
-N = 200
-counterfactual_data = load_blobs(N; centers=4, cluster_std=0.5)
+counterfactual_data = load_multi_class()
 y = counterfactual_data.y
 X = counterfactual_data.X
 
@@ -432,7 +440,6 @@ M = MyFluxModel(model)
 \end{lstlisting}
 
 ```{julia}
-Random.seed!(42)
 # Randomly selected factual:
 x = select_factual(
     counterfactual_data, rand(1:size(X,2))) 
@@ -441,7 +448,7 @@ factual = predict_label(
 target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual]) 
 
 # Counterfactual search:
-generator = GenericGenerator(opt=Flux.Descent(0.25))
+generator = GenericGenerator(opt=Flux.Descent(0.5))
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
@@ -556,7 +563,7 @@ Finally, we proceed to generate counterfactuals in the same way we always do. Th
 
 ```{julia}
 # Data and Classifier:
-counterfactual_data = load_linearly_separable()
+counterfactual_data = binary_data
 M = fit_model(counterfactual_data, :DeepEnsemble)
 
 # Factual and Target:
@@ -591,7 +598,6 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 The **Give Me Some Credit** dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income` $X$. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
 
 ```{julia}
-Random.seed!(42)
 counterfactual_data = load_gmsc(10000)
 train_data, test_data = CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
 flux_training_params.batchsize = 50
@@ -706,7 +712,7 @@ map(enumerate(counterfactuals)) do (idx, x)
 end
 
 using Plots.PlotMeasures
-plt = plot(plt, size=(500, 200), legend=:topright, xlabel="Income", ylabel="Age", margin=5mm, ylims=(-2.5,2.0))
+plt = plot(plt, size=(500, 200), legend=:topleft, xlabel="Income", ylabel="Age", margin=5mm, ylims=(-2.5,2.0))
 display(plt)
 savefig(plt, joinpath(www_path, "credit.png"))
 ```

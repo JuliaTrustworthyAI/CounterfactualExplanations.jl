@@ -20,7 +20,7 @@ Feature Tweak is a powerful recourse algorithm for ensembles of tree-based class
 
 Though Feature Tweak is a powerful way of avoiding brute-force search in an exponential search space, it does not come without disadvantages. The primary limitations of the approach are that it's currently only applicable to tree-based classifiers and works only in the setting of binary classification. Another problem is that though the algorithm avoids exponential-time search, it is often still computationally expensive. The algorithm may be improved in the future to tackle all of these shortcomings.
 
-The following equation displays how a true negative instance x can be transformed to a positively predicted instance **x'**. To be more precise, **x'** is the best possible transformation among all transformations **x\***, computed with a cost function δ.
+The following equation displays how a true negative instance x can be transformed into a positively predicted instance **x'**. To be more precise, **x'** is the best possible transformation among all transformations **x\***, computed with a cost function δ.
 
 ```math
 \begin{aligned}
