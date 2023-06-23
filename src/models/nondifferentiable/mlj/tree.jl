@@ -13,7 +13,7 @@ Constructor for tree-based models from the MLJ library.
 - `TreeModel`: A tree-based model from the MLJ library wrapped inside the TreeModel class.
 """
 struct TreeModel <: AbstractNonDifferentiableJuliaModel
-    model::Any
+    model::MLJBase.Machine
     likelihood::Symbol
     function TreeModel(model, likelihood)
         if !(
@@ -26,16 +26,15 @@ struct TreeModel <: AbstractNonDifferentiableJuliaModel
                 ),
             )
         end
-        if likelihood == :classification_binary
+        if likelihood ∈ [:classification_binary, :classification_multi]
             new(model, likelihood)
-        elseif likelihood == :classification_multi
+        else
             throw(
                 ArgumentError(
-                    "`type` should be `:classification_binary`. Support for multi-class classification with tree-based models is not yet implemented.",
+                    "`type` should be in `[:classification_binary, :classification_multi].
+                    Support for regressors has not been implemented yet.`"
                 ),
             )
-        else
-            throw(ArgumentError("`type` should be in `[:classification_binary]`"))
         end
     end
 end
@@ -43,7 +42,7 @@ end
 """
 Outer constructor method for TreeModel.
 """
-function TreeModel(model::Any; likelihood::Symbol=:classification_binary)
+function TreeModel(model; likelihood::Symbol=:classification_binary)
     return TreeModel(model, likelihood)
 end
 
@@ -88,7 +87,7 @@ function get_individual_classifiers(M::TreeModel)
     end
     trees = []
     for tree in M.model.trees
-        push!(trees, TreeModel(tree, :classification_binary))
+        push!(trees, TreeModel(tree, M.likelihood))
     end
     return trees
 end
@@ -158,19 +157,6 @@ function probs(M::TreeModel, X::AbstractArray{<:Number,1})
 end
 
 """
-    probs(M::TreeModel, X::AbstractArray{<:Number, 3})
-
-Works the same way as the probs(M::TreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 3-dimensional rather than 2-dimensional input data.
-"""
-function probs(M::TreeModel, X::AbstractArray{<:Number,3})
-    # Slices the 3-dimensional input data into 1- and 2-dimensional arrays
-    # and then calls the probs method for 1- and 2-dimensional input data on those slices
-    output = SliceMap.slicemap(x -> probs(M, x), X; dims=[1, 2])
-    p = MLJBase.pdf(output, MLJBase.classes(output))
-    return p
-end
-
-"""
     DecisionTreeModel(data::CounterfactualData; kwargs...)
 
 Constructs a new TreeModel object wrapped around a decision tree from the data in a `CounterfactualData` object.
@@ -185,10 +171,10 @@ Not called by the user directly.
 function DecisionTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    M = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
     model = MLJBase.machine(M, X, y)
 
-    return TreeModel(model, :classification_binary)
+    return TreeModel(model, data.likelihood)
 end
 
 """
@@ -206,10 +192,10 @@ Not called by the user directly.
 function RandomForestModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    M = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
     model = MLJBase.machine(M, X, y)
 
-    return TreeModel(model, :classification_binary)
+    return TreeModel(model, data.likelihood)
 end
 
 """
