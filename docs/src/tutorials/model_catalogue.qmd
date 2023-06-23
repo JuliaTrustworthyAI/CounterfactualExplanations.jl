@@ -102,6 +102,48 @@ This model can now be passed into the generators like any other.
 
 Please note that the functionality for generating counterfactuals for Python models is only available if your Julia version is 1.8 or above. For Julia 1.7 users, we recommend upgrading the version to 1.8 or 1.9 before loading a PyTorch model into the package.
 
+## Importing R torch models
+
+| !!! warning \"Not fully tested\"
+|     Please note that due to the incompatibility between RCall and PythonCall, it is not feasible to test both PyTorch and RTorch implementations within the same pipeline. While the RTorch implementation has been manually tested, we cannot ensure its consistent functionality as it is inherently susceptible to bugs.
+
+The CounterfactualExplanations package supports generating counterfactuals for neural networks that have been defined and trained using R torch. Regardless of the specific architectural details of the model, you can easily generate counterfactual explanations by following these steps.
+
+### Saving the R torch model
+
+First, save your trained R torch model as a `.pt` file using the `torch_save()` function provided by the R torch library. This function allows you to serialize the model and save it to a file. For example:
+
+```R
+torch_save(model, file = "$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
+```
+
+Make sure to specify the correct file path where you want to save the model.
+
+### Loading the R torch model
+
+To import the R torch model into the CounterfactualExplanations package, use the `rtorch_model_loader()` function. This function loads the model from the previously saved `.pt` file. Here is an example of how to load the R torch model:
+
+```julia
+model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
+```
+
+The `rtorch_model_loader()` function requires only one argument:
+1. `model_path`: The path to the `.pt` file that contains the trained R torch model.
+
+### Wrapping the R torch model
+
+Once the R torch model has been loaded into the package, wrap it inside the `RTorchModel` class. This step prepares the model to be used by the counterfactual generators. Here is an example:
+
+```julia
+model_R = CounterfactualExplanations.Models.RTorchModel(model_loaded, counterfactual_data.likelihood)
+```
+
+### Generating counterfactuals with the R torch model
+
+Now that the R torch model has been wrapped inside the `RTorchModel` class, you can pass it into the counterfactual generators as you would with any other model.
+
+Please note that RCall is not fully compatible with PythonCall. Therefore, it is advisable not to import both R torch and PyTorch models within the same Julia session. Additionally, it's worth mentioning that the R torch integration is still untested in the CounterfactualExplanations package.
+
 ## Tuning Flux Models
 
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 

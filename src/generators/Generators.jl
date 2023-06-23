@@ -17,6 +17,8 @@ using MLJBase
 using MLJDecisionTreeInterface
 using Distributions
 using SliceMap
+using Statistics
+using RCall
 using PythonCall
 
 export AbstractGradientBasedGenerator
