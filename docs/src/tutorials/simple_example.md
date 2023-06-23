@@ -13,7 +13,8 @@ Below we generate some linearly separable data and fit a simple MLP classifier w
 ``` julia
 # Counteractual data and model:
 flux_training_params.batchsize = 10
-counterfactual_data = load_overlapping()
+counterfactual_data = load_linearly_separable()
+counterfactual_data.standardize = true
 M = fit_model(counterfactual_data, :MLP, batch_norm=true)
 ```
 
@@ -32,7 +33,7 @@ Finally, we generate and visualize the generated counterfactual:
 
 ``` julia
 # Search:
-generator = WachterGenerator()
+generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
