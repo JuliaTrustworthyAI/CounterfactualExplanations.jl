@@ -57,8 +57,8 @@ function _load_pretrained_models()
                 :ensemble => Models.load_mnist_ensemble(),
             ),
             :latent => Dict(
-                :vae_strong => Models.load_mnist_vae(strong=true),
-                :vae_weak => Models.load_mnist_vae(strong=false),
+                :vae_strong => Models.load_mnist_vae(; strong=true),
+                :vae_weak => Models.load_mnist_vae(; strong=false),
             ),
         ),
         :fashion_mnist => Dict(
