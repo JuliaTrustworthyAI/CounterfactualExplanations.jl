@@ -79,7 +79,7 @@ lazy = true
     url = "https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/download/data/mnist_vae.tar.gz"
 
 [model-vision]
-git-tree-sha1 = "27f6ca3e34dab610a16e2a59fc1e816d8f3580c2"
+git-tree-sha1 = "17c621ce1b25462dacabcdb409468401aa01d243"
 lazy = true
 
     [[model-vision.download]]
