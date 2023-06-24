@@ -42,7 +42,7 @@ Finally, we generate and visualize the generated counterfactual:
 #| output: true
 
 # Search:
-generator = GenericGenerator()
+generator = WachterGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```
