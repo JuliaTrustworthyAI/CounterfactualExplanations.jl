@@ -83,7 +83,7 @@ git-tree-sha1 = "27f6ca3e34dab610a16e2a59fc1e816d8f3580c2"
 lazy = true
 
     [[model-vision.download]]
-    sha256 = "443c31153bb2b7654aa533d177e547c38065d97f0aaba27564eb3cd4719b4140"
+    sha256 = "6bd20da85da3800feca2da01c78604c3f0e5448f563742ce1d0bea4e6cf52543"
     url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.8/model-vision.tar.gz"
 
 ["model-vision-1.8"]
