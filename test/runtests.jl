@@ -37,12 +37,20 @@ synthetic = _load_synthetic()
 generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-    # @testset "Data" begin
-    #     include("data/data.jl")
-    # end
+    @testset "Data" begin
+        include("data/data.jl")
+    end
 
     @testset "Generators" begin
         include("generators/generators.jl")
+    end
+
+    @testset "Probe" begin
+        include("generators/probe.jl")
+    end
+
+    @testset "CLUE" begin
+        include("generators/clue.jl")
     end
 
     @testset "Models" begin
