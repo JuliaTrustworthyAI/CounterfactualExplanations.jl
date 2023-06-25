@@ -97,3 +97,11 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
   - Logic: [adult.jl](..\src\data\tabular\adult.jl)
   - Tests: [tabular.jl](..\test\data\tabular.jl)
   - Example: [summary.qmd](summary_notebook\summary.qmd)
+
+### Could Have Features
+
+- Investigate using UMAP for visualizing high-dimensional data
+  - Report: [visualization_report.md](visualization_report.md)
+
+- Investigate informed choices for default penalty strength 
+  - Report: [notebook.qmd](penaltystrength\notebook.qmd)

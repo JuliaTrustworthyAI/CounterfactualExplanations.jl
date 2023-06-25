@@ -7,7 +7,9 @@ In this notebook, we document the new features that we have added to the Counter
 ```{julia}
 using Pkg
 Pkg.activate("students_documentation/summary_notebook")
-    
+```
+
+```{julia}
 # Dependencies
 using Revise
 using CounterfactualExplanations
@@ -48,10 +50,12 @@ model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
     "$(pwd())/students_documentation/summary_notebook/miscellaneous",
     "neural_network_class",
     "NeuralNetwork",
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
+    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt",
 )
 
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
+model_pytorch = CounterfactualExplanations.Models.PyTorchModel(
+    model_loaded, :classification_multi
+)
 ```
 
 The four arguments of `pytorch_model_loader()` are the following:
@@ -76,14 +80,11 @@ generator = GravitationalGenerator()
 
 ```{julia}
 blobs_counterfactual = generate_counterfactual(
-    x,
-    target,
-    counterfactual_data,
-    model_pytorch,
-    generator;
-    max_iter=10000,
+    x, target, counterfactual_data, model_pytorch, generator; max_iter=10000
 )
-CounterfactualExplanations.plot(blobs_counterfactual; title = "Counterfactuals on a PyTorch model")
+CounterfactualExplanations.plot(
+    blobs_counterfactual; title="Counterfactuals on a PyTorch model"
+)
 ```
 
 ### R models
@@ -122,7 +123,9 @@ forest = Models.fit_model(counterfactual_data, :RandomForest)
 However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
 
 ```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+decision_tree = CounterfactualExplanations.Models.fit_model(
+    counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3
+)
 ```
 
 For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
@@ -148,7 +151,7 @@ Another important limitation is that the Feature Tweak generator can only genera
 We have already set up the decision tree and forest models in the previous section. The next step is to initialize the Feature Tweak generator:
 
 ```{julia}
-generator = FeatureTweakGenerator(ϵ=0.1)
+generator = FeatureTweakGenerator(; ϵ=0.1)
 ```
 
 Now, let's take a point that the model believes is in class 1:
@@ -162,18 +165,28 @@ This leaves us with 0 as the target class. We can now generate the counterfactua
 
 ```{julia}
 target = 0
-tree_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
-forest_counterfactual = generate_counterfactual(x, target, counterfactual_data, forest, generator)
+tree_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, decision_tree, generator
+)
+forest_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, forest, generator
+)
 ```
 
 Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree and the forest:
 
 ```{julia}
-CounterfactualExplanations.plot(tree_counterfactual; colorbar=false, title = "Feature Tweak counterfactuals on a Decision Tree")
+CounterfactualExplanations.plot(
+    tree_counterfactual;
+    colorbar=false,
+    title="Feature Tweak counterfactuals on a Decision Tree",
+)
 ```
 
 ```{julia}
-CounterfactualExplanations.plot(forest_counterfactual; title = "Feature Tweak counterfactuals on a Random Forest")
+CounterfactualExplanations.plot(
+    forest_counterfactual; title="Feature Tweak counterfactuals on a Random Forest"
+)
 ```
 
 ### PROBE
@@ -207,7 +220,7 @@ probe_counterfactual = generate_counterfactual(
     invalidation_rate=0.01,
     learning_rate=0.1,
 )
-CounterfactualExplanations.plot(probe_counterfactual; title = "PROBE, IR=0.01")
+CounterfactualExplanations.plot(probe_counterfactual; title="PROBE, IR=0.01")
 ```
 
 ```{julia}
@@ -222,7 +235,7 @@ probe_counterfactual = generate_counterfactual(
     invalidation_rate=0.99,
     learning_rate=0.1,
 )
-CounterfactualExplanations.plot(probe_counterfactual; title = "PROBE, IR=0.99")
+CounterfactualExplanations.plot(probe_counterfactual; title="PROBE, IR=0.99")
 ```
 
 As seen here, the counterfactual is much more robust to small perturbations in the values of its features when the invalidation rate is low - the model is much less likely to stop classifying it in the target class in the face of those perturbations.
@@ -251,7 +264,7 @@ combined_counterfactual = generate_counterfactual(
     invalidation_rate=0.99,
     learning_rate=0.1,
 )
-CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE combined with REVISE")
+CounterfactualExplanations.plot(blobs_counterfactual; title="PROBE combined with REVISE")
 ```
 
 ### CLUE
@@ -271,7 +284,9 @@ M = Models.fit_model(counterfactual_data, :DeepEnsemble)
 x = counterfactual_data.X[:, 1]
 target = 1
 generator = CLUEGenerator()
-clue_counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when=:early_stopping)
+clue_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, M, generator; converge_when=:early_stopping
+)
 CounterfactualExplanations.plot(clue_counterfactual)
 ```
 
@@ -381,19 +396,16 @@ xs = select_factual(german_credit_data, ids)
 generator = GenericGenerator()
 
 generated_counterfactuals_german_credit_data = generate_counterfactual(
-    xs,
-    target,
-    german_credit_data,
-    M,
-    generator; 
-    num_counterfactuals=1
+    xs, target, german_credit_data, M, generator; num_counterfactuals=1
 )
 ```
 
 We can now evaluate the created counterfactuals. Let's evaluate them on the distance metric: the closer the counterfactuals are to their original location in the feature space, i.e. the smaller the distance, the better the generator.
 
 ```{julia}
-benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
+benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(
+    generated_counterfactuals_german_credit_data
+)
 
 @chain benchmark_german_credit_data() begin
     @filter(variable == "distance")
@@ -405,7 +417,7 @@ end
 factual_datapoint = first(xs)[1]
 counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 
-df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
+df = DataFrame(; Vector1=vec(factual_datapoint), Vector2=vec(counterfactual_datapoint))
 ```
 
 ### UCI Adult dataset
@@ -437,12 +449,7 @@ xs = select_factual(adult_data, ids)
 generator = GenericGenerator()
 
 adult_counterfactual_data = generate_counterfactual(
-    xs,
-    target,
-    adult_data,
-    M, 
-    generator; 
-    num_counterfactuals=1
+    xs, target, adult_data, M, generator; num_counterfactuals=1
 )
 ```
 
@@ -462,16 +469,16 @@ images = []
 for i in 0:9
     ys = findall(cifar_10_y .== i)
     for j in 0:9
-        x = cifar_10_x[:,rand(ys)]
+        x = cifar_10_x[:, rand(ys)]
 
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x -> reshape(x, 32, 32, 3) |>
-            x -> convert2image(CIFAR10, x)
+        x =
+            clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
+            x -> reshape(x, 32, 32, 3) |> x -> convert2image(CIFAR10, x)
         push!(images, x)
     end
 end
 
-mosaic(images..., ncol=10) |> display
+mosaic(images...; ncol=10) |> display
 ```
 
 #### References
