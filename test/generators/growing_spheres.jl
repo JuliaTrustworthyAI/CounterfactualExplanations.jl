@@ -50,7 +50,9 @@ using Random
                             @testset "Trivial case (already in target class)" begin
                                 counterfactual_data.generative_model = nothing
                                 # Already in target class:
-                                y = CounterfactualExplanations.Models.predict_label(M, counterfactual_data, x)
+                                y = CounterfactualExplanations.Models.predict_label(
+                                    M, counterfactual_data, x
+                                )
                                 target = y[1]
                                 γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
