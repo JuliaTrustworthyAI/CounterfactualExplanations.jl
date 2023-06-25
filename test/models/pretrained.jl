@@ -44,7 +44,9 @@ if VERSION >= v"1.8"
                             @test counterfactual.target == target
                             @test counterfactual.x == x &&
                                 CounterfactualExplanations.factual(counterfactual) == x
-                            @test CounterfactualExplanations.factual_label(counterfactual) == y
+                            @test CounterfactualExplanations.factual_label(
+                                counterfactual
+                            ) == y
                             @test CounterfactualExplanations.factual_probability(
                                 counterfactual
                             ) == probs(M, x)
@@ -89,13 +91,16 @@ if VERSION >= v"1.8"
                                 @test maximum(
                                     abs.(
                                         counterfactual.x .-
-                                        CounterfactualExplanations.decode_state(counterfactual)
+                                        CounterfactualExplanations.decode_state(
+                                            counterfactual
+                                        )
                                     ),
                                 ) < init_perturbation
                                 @test converged(counterfactual)
                                 @test CounterfactualExplanations.terminated(counterfactual)
-                                @test CounterfactualExplanations.total_steps(counterfactual) ==
-                                    0
+                                @test CounterfactualExplanations.total_steps(
+                                    counterfactual
+                                ) == 0
                             end
 
                             @testset "Non-trivial case, latent space enabled" begin
