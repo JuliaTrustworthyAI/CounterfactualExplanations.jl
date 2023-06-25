@@ -56,12 +56,8 @@ using Random
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
                                     x, target, counterfactual_data, M, generator
                                 )
-                                @test maximum(
-                                    abs.(
-                                        counterfactual.x .-
-                                        counterfactual.s′
-                                    ),
-                                ) < init_perturbation
+                                @test maximum(abs.(counterfactual.x .- counterfactual.s′)) <
+                                    init_perturbation
                                 @test CounterfactualExplanations.terminated(counterfactual)
                             end
                         end
