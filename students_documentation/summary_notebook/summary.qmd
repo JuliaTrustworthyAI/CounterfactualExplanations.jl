@@ -169,11 +169,11 @@ forest_counterfactual = generate_counterfactual(x, target, counterfactual_data, 
 Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree and the forest:
 
 ```{julia}
-CounterfactualExplanations.plot(tree_counterfactual; colorbar=false)
+CounterfactualExplanations.plot(tree_counterfactual; colorbar=false, title = "Feature Tweak counterfactuals on a Decision Tree")
 ```
 
 ```{julia}
-CounterfactualExplanations.plot(forest_counterfactual)
+CounterfactualExplanations.plot(forest_counterfactual; title = "Feature Tweak counterfactuals on a Random Forest")
 ```
 
 ### PROBE
@@ -323,6 +323,8 @@ generated_counterfactuals_german_credit_data = generate_counterfactual(
 )
 ```
 
+We can now evaluate the created counterfactuals. Let's evaluate them on the distance metric: the closer the counterfactuals are to their original location in the feature space, i.e. the smaller the distance, the better the generator.
+
 ```{julia}
 benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
 
@@ -339,37 +341,9 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
-### CIFAR10 dataset
-
-Added CIFAR10 from MLDatasets.jl as a benchmark dataset.
-
-```{julia}
-cifar_10_data = CounterfactualExplanations.Data.load_cifar_10()
-cifar_10_x = cifar_10_data.X
-cifar_10_y = cifar_10_data.output_encoder.y
-```
-
-```{julia}
-images = []
-
-for i in 0:9
-    ys = findall(cifar_10_y .== i)
-    for j in 0:9
-        x = cifar_10_x[:,rand(ys)]
-
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x -> reshape(x, 32, 32, 3) |>
-            x -> convert2image(CIFAR10, x)
-        push!(images, x)
-    end
-end
-
-mosaic(images..., ncol=10) |> display
-```
-
 #### UCI Adult dataset
 
-Added the UCI adult dataset as a benchmark dataset.
+Added the UCI adult dataset as another benchmark dataset.
 
 ```{julia}
 adult_data = CounterfactualExplanations.Data.load_uci_adult()
@@ -405,20 +379,32 @@ adult_counterfactual_data = generate_counterfactual(
 )
 ```
 
-```{julia}
-benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
+### CIFAR10 dataset
 
-@chain benchmark_german_credit_data() begin
-    @filter(variable == "distance")
-    @select(sample, variable, value)
-end
+Added CIFAR10 from MLDatasets.jl as a benchmark dataset. This, in contrast to the previous ones, is an image dataset, so let's display the images here:
+
+```{julia}
+cifar_10_data = CounterfactualExplanations.Data.load_cifar_10()
+cifar_10_x = cifar_10_data.X
+cifar_10_y = cifar_10_data.output_encoder.y
 ```
 
 ```{julia}
-factual_datapoint = first(xs)[1]
-counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
+images = []
 
-df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
+for i in 0:9
+    ys = findall(cifar_10_y .== i)
+    for j in 0:9
+        x = cifar_10_x[:,rand(ys)]
+
+        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
+            x -> reshape(x, 32, 32, 3) |>
+            x -> convert2image(CIFAR10, x)
+        push!(images, x)
+    end
+end
+
+mosaic(images..., ncol=10) |> display
 ```
 
 #### References
