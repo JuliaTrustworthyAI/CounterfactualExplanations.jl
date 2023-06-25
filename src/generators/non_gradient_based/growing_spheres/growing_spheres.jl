@@ -54,7 +54,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
         ce.s′ = factual
         return nothing
     end
-    
+
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
         model, target, counterfactual_data, counterfactual_candidates
@@ -140,7 +140,8 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     while (
         factual_class != CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
-        ) && target == CounterfactualExplanations.Models.predict_label(
+        ) &&
+        target == CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
         )
     )
