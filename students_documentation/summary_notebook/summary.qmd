@@ -2,7 +2,7 @@
 
 In this notebook, we document the new features that we have added to the CounterfactualExplanations.jl package. These features include adding new counterfactual generators into the package, increasing the scope of predictive models that are compatible with the package, adding unit testing and documentation, and improving the package infrastructure. We hope that this notebook will serve as a useful reference for both ourselves and the course staff.
 
-# Setup
+## Setup
 
 ```{julia}
 using Pkg
@@ -21,17 +21,15 @@ using CounterfactualExplanations.Models
 using CounterfactualExplanations.Generators
 ```
 
-## Must haves
+## Added models and generators
 
-### Added models and generators
-
-#### Interface to Python models
+### Interface to Python models
 
 The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
 
 An important detail to note is that generating counterfactuals for Python models is only supported for Julia versions 1.8 and above. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
 
-##### Load the data
+#### Load the data
 
 ```{julia}
 # Load data
@@ -41,7 +39,7 @@ N = 100
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 ```
 
-##### Load the saved PyTorch model
+#### Load the saved PyTorch model
 
 Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the model definition and a path to the model weights as input. This can be done through the following method:
 
@@ -62,11 +60,11 @@ The four arguments of `pytorch_model_loader()` are the following:
 3. `class_name`: The name of the class of the PyTorch model
 4. `pickle_path`: The path to the Pickle file that holds the model weights
 
-#### PROBE
+### PROBE
 
 Now that we have loaded the Python model, it is time to generate counterfactuals with it. A good choice for that is the PROBE generator that we added, introduced by Pawelczyk et al. (2022).
 
-##### Load the generator
+#### Load the generator
 
 ```{julia}
 target = 2
@@ -112,14 +110,31 @@ CounterfactualExplanations.plot(blobs_counterfactual)
 Finally, let's combine ideas from the PROBE, Greedy and REVISE generators, using the builder design pattern:
 
 ```{julia}
-@chain
-    @objective logitcrossentropy + 5.0ddp_diversity
-    @with_optimiser JSMADescent(η=0.5)                  # Greedy
-    @search_latent_space                                # REVISE
+generator = Generators.Generator()
+
+@chain generator begin
+    @objective logitbinarycrossentropy + 0.1distance_l1     # PROBE
+    @with_optimiser JSMADescent(η=0.5)
+    @search_latent_space                                    # REVISE
 end
 ```
 
-#### MLJ models
+```{julia}
+blobs_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.9,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE + REVISE counterfactuals on a PyTorch model, IR=0.9")
+```
+
+### MLJ models
 
 We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
 
@@ -158,17 +173,17 @@ For all supported MLJ models, every tunable parameter they have is supported as 
 
 Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
 
-#### Feature Tweak
+### Feature Tweak
 
 Since decision trees and random forests have non-differentiable decision boundaries, they were incompatible with all of the generators implemented previously by our client, as those generators perform gradient descent in the feature space to find the optimal feature values for the counterfactual. Such gradient descent cannot be performed with respect to non-differentiable decision boundaries.
 
-This section describes the Feature Tweak generator, introduced in the paper ["Interpretable Predictions of Tree-based Ensembles via Actionable Feature Tweaking"](https://arxiv.org/pdf/1706.06691.pdf) by Tolomei et al. This generator is specifically tailored for generating counterfactuals for non-differentiable tree-based models such as decision trees and random forests and thus expands the scope of models for which counterfactual explanations can be generated using the package.
+This section describes the Feature Tweak generator, introduced by Tolomei et al (2017). This generator is specifically tailored for generating counterfactuals for non-differentiable tree-based models such as decision trees and random forests and thus expands the scope of models for which counterfactual explanations can be generated using the package.
 
 This specialization to tree-based models comes at a cost: the Feature Tweak generator is incompatible with any model that does not have a tree structure, thus being incompatible with many models in the package. However, we believe that it's worth having such specialized generators in the package when that allows us to expand the scope of supported models, as Feature Tweak does.
 
 Another important limitation is that the Feature Tweak generator can only generate counterfactuals for models trained on binary classification datasets. This limitation was also noted in the paper by Tolomei et al. and follow-up research might make it feasible to expand the method to multi-class classification problems.
 
-##### Generating counterfactuals using Feature Tweak
+#### Generating counterfactuals using Feature Tweak
 
 We have already set up the decision tree and forest models in the previous section. The next step is to initialize the Feature Tweak generator:
 
@@ -188,10 +203,6 @@ This leaves us with 0 as the target class. We can now generate the counterfactua
 ```{julia}
 target = 0
 tree_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
-```
-
-```{julia}
-target = 0
 forest_counterfactual = generate_counterfactual(x, target, counterfactual_data, forest, generator)
 ```
 
@@ -205,34 +216,32 @@ CounterfactualExplanations.plot(tree_counterfactual; colorbar=false)
 CounterfactualExplanations.plot(forest_counterfactual)
 ```
 
-##### The `EvoTreeClassifier` model
+### CLUE
 
-Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
+Added the CLUE generator, proposed by Antorán et al. (2023).
 
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
-```
+The CLUE Generator leverages differentiable probabilistic models, such as Bayesian Neural Networks (BNNs), to estimate uncertainty in predictions. In contrast to other generators in this package, CLUE is not meant for moving the input in the feature space to change the model's prediction of it: rather, it is meant to find a more robust datapoint of the same class. The generated result will be of the same class as the original input, but the model's uncertainty when classifying it will be lower.
 
-The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
+CLUE works best for BNNs, as these models provide reliable uncertainty quantification. The CLUEGenerator can also be used with any other differentiable probabilistic model, but the results may not be as good as with BNNs. Thus, let's first train a Deep Ensemble, a neural network ensemble designed to approximate a Bayesian model:
 
 ```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
+counterfactual_data = Data.load_moons(N)
+M = Models.fit_model(counterfactual_data, :DeepEnsemble)
 ```
-
-The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
-
-Now, the EvoTree can be used as part of the package like any other model:
 
 ```{julia}
-x = float32.([1, -0.5])
-CounterfactualExplanations.Models.probs(M, x)
+generator = CLUEGenerator()
+clue_counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when=:early_stopping)
+CounterfactualExplanations.plot(clue_counterfactual)
 ```
 
-However, please note that creating counterfactuals for this model is not supported yet.
+As seen here, the generator does not move the input to another class, but rather to a less uncertain spot in the feature space.
 
-#### Statlog German credit dataset
+The CLUE generator can also be used upon already having achieved a counterfactual with a different generator. In this case you can use CLUE and make the counterfactual more robust.
+
+## Added datasets
+
+### Statlog German credit dataset
 
 Added Statlog German credit as a benchmark dataset.
 
@@ -242,7 +251,7 @@ german_credit_data_x = german_credit_data.X
 german_credit_data_y = german_credit_data.output_encoder.y
 ```
 
-##### Post Hoc benchmarking with Statlog German credit dataset
+#### Post Hoc benchmarking with Statlog German credit dataset
 
 ```{julia}
 # Train a model
@@ -266,7 +275,7 @@ generated_counterfactuals_german_credit_data = generate_counterfactual(
     xs,
     target,
     german_credit_data,
-    M, 
+    M,
     generator; 
     num_counterfactuals=1
 )
@@ -288,348 +297,7 @@ counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
 df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
-### Added Datasets
-
-#### Statlog German credit dataset
-
-Added Statlog German credit as a benchmark dataset.
-
-```{julia}
-german_credit_data = CounterfactualExplanations.Data.load_german_credit()
-german_credit_data_x = german_credit_data.X
-german_credit_data_y = german_credit_data.output_encoder.y
-```
-
-##### Post Hoc benchmarking with Statlog German credit dataset
-
-```{julia}
-# Train a model
-M = fit_model(german_credit_data, :Linear)
-
-# Factual and target labels:
-target = 1
-factual = 0
-```
-
-```{julia}
-n_individuals = 5
-
-# Choose random factual individuals
-ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
-xs = select_factual(german_credit_data, ids)
-
-generator = GenericGenerator()
-
-generated_counterfactuals_german_credit_data = generate_counterfactual(
-    xs,
-    target,
-    german_credit_data,
-    M, 
-    generator; 
-    num_counterfactuals=1
-)
-```
-
-```{julia}
-benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
-
-@chain benchmark_german_credit_data() begin
-    @filter(variable == "distance")
-    @select(sample, variable, value)
-end
-```
-
-```{julia}
-factual_datapoint = first(xs)[1]
-counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
-
-df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
-```
-
-<<<<<<< HEAD
-=======
-### Added models
-
-#### Interface to Python models
-
-The interface supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model.
-
-An important detail to note is that generating counterfactuals for Python models is only supported for Julia versions 1.8 and above. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
-
-##### Load the data
-
-```{julia}
-# Load data
-Random.seed!(42);
-N = 100
-
-counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
-```
-
-##### Load the saved PyTorch model
-
-Since the package provides support for PyTorch models predefined by the user rather than for training PyTorch models inside the package as was requested by the client, the user has to provide a path to the model definition and a path to the model weights as input. This can be done through the following method:
-
-```{julia}
-model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous",
-    "neural_network_class",
-    "NeuralNetwork",
-    "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
-)
-
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
-```
-
-The four arguments of `pytorch_model_loader()` are the following:
-1. `model_path`: the path to the folder with a `.py` file where the PyTorch model is defined
-2. `model_file`: the name of the `.py` file where the PyTorch model is defined
-3. `class_name`: The name of the class of the PyTorch model
-4. `pickle_path`: The path to the Pickle file that holds the model weights
-
-After importing the model in this way, counterfactuals can be created for a PyTorch model the same way as for any other model.
-
-##### Select a factual and generate counterfactuals for it like with any other model
-
-```{julia}
-Random.seed!(42)
-
-target = 0
-factual = 1
-
-@info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_pytorch, counterfactual_data) .== factual))
-
-@info "Select factual"
-x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-```
-
-```{julia}
-# Define a generator:
-generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-@info "Generate counterfactual_pytorch"
-counterfactual_pytorch = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual, 
-    target, 
-    counterfactual_data, 
-    model_pytorch, 
-    generator;
-    max_iter=1000
-)
-
-CounterfactualExplanations.plot(counterfactual_pytorch; title = "model_pytorch path")
-```
-
-#### Interface to R models
-
-The interface supports generating counterfactuals for any neural network that has been previously defined and trained using torch library in R, regardless of the specific architectural details of the model.
-
-An important detail to note is that generating counterfactuals for R torch models is the only untested feature of the package. For an in-depth discussion of why this is the case, refer to `students_documentation\PyTorch_and_R_models_report.md`.
-
-Please note that executing the code provided below requires the presence of both the R language and the torch library on the machine where it is being run.
-
-##### Load the data
-
-```{julia}
-# Load data
-Random.seed!(42);
-N = 100
-
-counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
-```
-
-##### Load the saved R model
-
-Since the package provides support for R models predefined by the user rather than for training R models inside the package as was requested by the client, the user has to provide a path to the pickle file with the trained model. This can be done through the following method:
-
-```{julia}
-model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/students_documentation/summary_notebook/miscellaneous/r_model.pt")
-
-model_R = CounterfactualExplanations.Models.RTorchModel(model_loaded, :classification_multi)
-```
-
-The only argument of `rtorch_model_loader()` is the following:
-1. `pickle_path`: The path to the Pickle file that holds the trained model
-
-After importing the model in this way, counterfactuals can be created for an RTorch model the same way as for any other model.
-
-##### Select a factual and generate counterfactuals for it like with any other model
-
-```{julia}
-Random.seed!(42)
-
-target = 0
-factual = 1
-
-@info "Choose factual's index"
-y_chosen_factual_idx = rand(findall(CounterfactualExplanations.Models.predict_label(model_R, counterfactual_data) .== factual))
-
-@info "Select factual"
-x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
-```
-
-```{julia}
-# Define a generator:
-generator = CounterfactualExplanations.Generators.GenericGenerator()
-
-@info "Generate counterfactual_R"
-counterfactual_R = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual, 
-    target, 
-    counterfactual_data, 
-    model_R, 
-    generator;
-    max_iter=1000
-)
-
-CounterfactualExplanations.plot(counterfactual_R; title = "model_R path")
-```
-
-#### MLJ models
-
-We have integrated three models from the [MLJ model registry](https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) into our package. The list of supported MLJ models can be accessed as follows:
-
-```{julia}
-mlj_models_catalogue
-```
-
-##### The `DecisionTreeClassifier` and `RandomForestClassifier` models
-
-Added a basic interface that allows the user to load and use the `DecisionTreeClassifier` and the `RandomForestClassifier` from the MLJ package.
-
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-```
-
-The decision tree can be fitted as follows:
-
-```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-The random forest model can be fitted as follows:
-
-```{julia}
-forest = CounterfactualExplanations.Models.fit_model(counterfactual_data, :RandomForest)
-```
-
-However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
-
-```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
-```
-
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
-
-Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
-
-##### The `EvoTreeClassifier` model
-
-Added a basic interface that allows the user to load and use the `EvoTreeClassifier` from the MLJ package.
-
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-M = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree)
-```
-
-The model parameters can be defined using keyword arguments. For example, we can define another EvoTreeClassifier in the following way:
-
-```{julia}
-evotree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :EvoTree; lambda=0.1, max_depth=3)
-```
-
-The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
-
-Now, the EvoTree can be used as part of the package like any other model:
-
-```{julia}
-x = float32.([1, -0.5])
-CounterfactualExplanations.Models.probs(M, x)
-```
-
-However, please note that creating counterfactuals for this model is not supported yet.
-
->>>>>>> development
-
-### Added generators
-
-#### Feature Tweak
-
-This section describes the Feature Tweak generator, introduced in the paper ["Interpretable Predictions of Tree-based Ensembles via Actionable Feature Tweaking"](https://arxiv.org/pdf/1706.06691.pdf) by Tolomei et al. This is an important addition to the package, as all previously implemented generators were only applicable to differentiable models. In contrast, this generator is specifically tailored for generating counterfactuals for non-differentiable tree-based models such as decision trees and random forests and thus expands the scope of models for which counterfactual explanations can be generated using the package.
-
-This specialization to tree-based models comes at a cost: the Feature Tweak generator is incompatible with any model that does not have a tree structure, thus being incompatible with many models in the package. However, we believe that it's worth having such specialized generators in the package when that allows us to expand the scope of supported models, as Feature Tweak does.
-
-The first step when generating counterfactuals using Feature Tweak is importing a dataset and fitting a tree-based model to that dataset:
-
-```{julia}
-n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-An important thing to note is that the Feature Tweak generator can only generate counterfactuals for models trained on binary classification datasets. This limitation was also noted in the paper by Tolomei et al. and follow-up research might make it feasible to expand the method to multi-class classification problems.
-
-The next step is to initialize the Feature Tweak generator:
-
-```{julia}
-generator = FeatureTweakGenerator(ϵ=0.1)
-```
-
-Now, let's take a point that the model believes is in class 1:
-
-```{julia}
-x = float32.([1, -0.5])
-Models.predict_label(decision_tree, x)
-```
-
-Let's choose 2 as the target class. We can now generate the counterfactual as usual:
-
-```{julia}
-target = 2
-ce = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
-```
-
-Let's verify that the counterfactual is indeed in the target class:
-
-```{julia}
-Models.predict_label(decision_tree, ce.s′)
-```
-
-Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree:
-
-```{julia}
-X = counterfactual_data.X
-y = counterfactual_data.y
-plt = plot()
-scatter!(counterfactual_data)
-
-scatter!(plt, [x[1]], [x[2]], color="red", markersize=10, label="x_old")
-scatter!(plt, [ce.x[1]], [ce.x[2]], color="dark blue", markersize=10, label="x_new")
-
-hline!(plt, [-0.007127], linestyle=:dash, linecolor=:black, label=nothing)
-vline!(plt, [-0.5219], linestyle=:dash, linecolor=:black, label=nothing)
-vline!(plt, [1.475], linestyle=:dash, linecolor=:black, label=nothing)
-```
-
-The visualization will be improved as part of a separate pull request.
-
-
-### <feature_name>
-
-<feature_description>
-
-```{julia}
-print("Hello world!")
-```
-
-## Should haves
-
-### Added Datasets
-
-#### CIFAR10 dataset
+### CIFAR10 dataset
 
 Added CIFAR10 from MLDatasets.jl as a benchmark dataset.
 
@@ -695,62 +363,10 @@ adult_counterfactual_data = generate_counterfactual(
 )
 ```
 
-### <feature_name>
-
-<feature_description>
-
-```{julia}
-print("Hello world!")
-```
-
-## Could haves
-
-### <feature_name>
-
-<feature_description>
-
-```{julia}
-print("Hello world!")
-```
-
-### Added Generators
-
-#### CLUE Generator
-
-We introduce the CLUEGenerator, a counterfactual generator based on the Counterfactual Latent Uncertainty Explanations (CLUE) method proposed by Antorán et al. (2023).
-Description
-
-The CLUEGenerator leverages differentiable probabilistic models, such as Bayesian Neural Networks (BNNs), to estimate uncertainty in predictions. It aims to provide interpretable counterfactual explanations by identifying input patterns that lead to predictive uncertainty. The generator utilizes a latent variable framework and employs a decoder from a variational autoencoder (VAE) to generate counterfactual samples in latent space.
-
-The CLUE algorithm minimizes a loss function that combines uncertainty estimates and the distance between the generated counterfactual and the original input. By optimizing this loss function iteratively, the CLUEGenerator generates counterfactuals that are similar to the original observation but assigned low uncertainty.
-
-The formula for predictive entropy is as follow:
-
-\begin{aligned}
-H(y^|x^, D) &= - \sum_{k=1}^{K} p(y^=c_k|x^, D) \log p(y^=c_k|x^, D)
-\end{aligned}
-
-#### Usage
-
-While using one must keep in mind that the CLUE algorithim is meant to find a more robust datapoint of the same class, using CLUE generator without any additional penalties/losses will mean that it is not a counterfactual generator. The generated result will be of the same class as the original input, but a more robust datapoint.
-
-CLUE works best for BNN's. The CLUEGenerator can be used with any differentiable probabilistic model, but the results may not be as good as with BNNs.
-
-The CLUEGenerator can be used in the following manner:
-
-```{julia}
-
-#| output: true
-generator = CLUEGenerator()
-M = fit_model(counterfactual_data, :DeepEnsemble)
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator, converge_when=:early_stopping)
-plot(ce)
-```
-Extra: The CLUE generator can also be used upon already having achieved a counterfactual with a different generator. In this case you can use CLUE and make the counterfactual more robust.
-
-
 #### References
 
-Antorán, Javier, Adrian Weller, Umang Bhatt, and Tameem Adel. 2023. "Counterfactual Latent Uncertainty Explanations (CLUE): Interpreting Uncertainty Estimates from Bayesian Neural Networks." In International Conference on Learning Representations (ICLR).
+M. Pawelczyk, T. Datta, J. van den Heuvel, G. Kasneci, and H. Lakkaraju, *Probabilistically robust recourse: Navigating the trade-offs between costs and robustness in algorithmic recourse*, 2022. [Online]. Available: https://arxiv.org/abs/2203.06768.
 
-Note: The above documentation is based on the information provided in the CLUE paper. Please refer to the original paper for more detailed explanations and implementation specifics.
+G. Tolomei, F. Silvestri, A. Haines, and M. Lalmas, “Interpretable predictions of tree-based ensembles via actionable feature tweaking,” in Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, ACM, Aug. 2017. [Online]. Available: https://doi.org/10.1145%5C%2F3097983.3098039.
+
+J. Antoran, U. Bhatt, T. Adel, A. Weller, and J. M. Hernandez-Lobato, “Getting a CLUE: A method for explaining uncertainty estimates,” in International Conference on Learning Representations, Published as a conference paper at ICLR 2021, 2021.
