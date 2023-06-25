@@ -65,8 +65,8 @@ logits = Models.logits(M, x) # calculates the probabilities for each output clas
 """
 function probs(M::PyTorchModel, x::AbstractArray)
     if M.likelihood == :classification_binary
-        return σ.(logits(M, x))
+        return Flux.σ.(logits(M, x))
     elseif M.likelihood == :classification_multi
-        return softmax(logits(M, x))
+        return Flux.softmax(logits(M, x))
     end
 end

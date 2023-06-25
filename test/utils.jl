@@ -1,7 +1,3 @@
-using CounterfactualExplanations.Data
-using CounterfactualExplanations.Models
-using Printf
-
 """
     _load_synthetic()
 
@@ -17,7 +13,7 @@ function _load_synthetic()
     synthetic = Dict()
     for (likelihood, data) in data_sets
         models = Dict()
-        for (model_name, model) in standard_models_catalogue
+        for (model_name, model) in Models.standard_models_catalogue
             M = fit_model(data, model_name)
             models[model_name] = Dict(:raw_model => M.model, :model => M)
         end
@@ -26,6 +22,11 @@ function _load_synthetic()
     return synthetic
 end
 
+"""
+    get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
+
+Returns a target label that is different from the factual label.
+"""
 function get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
     target = rand(
         counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual_label]

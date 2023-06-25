@@ -118,7 +118,14 @@ Return a path index list with the inequality symbols, thresholds and feature ind
 paths = search_path(tree, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
 """
 function search_path(
+<<<<<<< HEAD
     tree::Union{Leaf,DecisionTree.Node}, y_levels::AbstractArray, target::RawTargetType, path::AbstractArray=[]
+=======
+    tree::Union{Leaf,DecisionTree.Node},
+    y_levels::AbstractArray,
+    target::RawTargetType,
+    path::AbstractArray=[],
+>>>>>>> development
 )
     # Check if the current tree is a leaf
     if DecisionTree.is_leaf(tree)

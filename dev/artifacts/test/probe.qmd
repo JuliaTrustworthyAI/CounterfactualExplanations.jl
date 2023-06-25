@@ -1,0 +1,97 @@
+```{julia}
+using Pkg
+Pkg.activate("dev/artifacts/test")
+using Revise
+```
+
+```{julia}
+using CounterfactualExplanations
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Generators
+```
+
+```{julia}
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :Linear)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator()
+```
+```{julia}
+linear_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=1000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(linear_counterfactual)
+```
+
+```{julia}
+n_dim = 2
+n_classes = 4
+n_samples = 400
+model_name = :MLP
+counterfactual_data = load_blobs(n_samples; k=n_dim, centers=n_classes)
+counterfactual_data.standardize = true
+M = fit_model(counterfactual_data, :MLP)
+target = 2
+factual = 4
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator()
+
+```
+```{julia}
+blobs_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.1,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual)
+```
+```{julia}
+counterfactual_data = load_moons(10)
+M = fit_model(counterfactual_data, :MLP)
+```
+
+```{julia}
+
+target = 1
+factual = 0
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator(; loss=:logitbinarycrossentropy)
+```
+
+```{julia}
+moons = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    invalidation_rate=0.9,
+    learning_rate=0.1,
+)
+println(linear_counterfactual.search[:iteration_count])
+CounterfactualExplanations.plot(moons)
+# legend!("r = 0.1")
+```
