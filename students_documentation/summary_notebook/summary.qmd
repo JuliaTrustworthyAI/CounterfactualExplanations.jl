@@ -151,7 +151,7 @@ Another important limitation is that the Feature Tweak generator can only genera
 We have already set up the decision tree and forest models in the previous section. The next step is to initialize the Feature Tweak generator:
 
 ```{julia}
-generator = FeatureTweakGenerator(; ϵ=0.1)
+generator = FeatureTweakGenerator(0.1)
 ```
 
 Now, let's take a point that the model believes is in class 1:
@@ -264,7 +264,7 @@ combined_counterfactual = generate_counterfactual(
     invalidation_rate=0.99,
     learning_rate=0.1,
 )
-CounterfactualExplanations.plot(blobs_counterfactual; title="PROBE combined with REVISE")
+CounterfactualExplanations.plot(combined_counterfactual; title="PROBE combined with REVISE")
 ```
 
 ### CLUE
@@ -276,18 +276,18 @@ The CLUE Generator leverages differentiable probabilistic models, such as Bayesi
 CLUE works best for BNNs, as these models provide reliable uncertainty quantification. The CLUEGenerator can also be used with any other differentiable probabilistic model, but the results may not be as good as with BNNs. Thus, let's first train a Deep Ensemble, a neural network ensemble designed to approximate a Bayesian model:
 
 ```{julia}
-counterfactual_data = Data.load_moons(N)
+counterfactual_data = Data.load_blobs(100)
 M = Models.fit_model(counterfactual_data, :DeepEnsemble)
 ```
 
 ```{julia}
-x = counterfactual_data.X[:, 1]
-target = 1
+x = counterfactual_data.X[:, 2]
+target = 2
 generator = CLUEGenerator()
 clue_counterfactual = generate_counterfactual(
     x, target, counterfactual_data, M, generator; converge_when=:early_stopping
 )
-CounterfactualExplanations.plot(clue_counterfactual)
+CounterfactualExplanations.plot(clue_counterfactual; title="CLUE")
 ```
 
 As seen here, the generator does not move the input to another class, but rather to a less uncertain spot in the feature space.
@@ -311,7 +311,7 @@ Here, we load a dataset consisting of blobs and fit an MLP model to the data.
 Next, we need to initialize the Growing Spheres generator:
 
 ```{julia}
-generator = GrowingSpheresGenerator(n = 5, η = 0.1)
+generator = GrowingSpheresGenerator(; n=5, η=0.1)
 ```
 
 The generator is configured with parameters n and η, where n specifies the number of spheres to be grown, and η determines the initial radius size of the sphere.
@@ -328,7 +328,9 @@ Here, we set target to the desired target class and factual to the current factu
 To select a factual instance randomly, we first choose an index from the instances belonging to the factual class:
 
 ```{julia}
-y_chosen_factual_idx = rand(findall(predict_label(mlp_model, counterfactual_data) .== factual))
+y_chosen_factual_idx = rand(
+    findall(predict_label(mlp_model, counterfactual_data) .== factual)
+)
 ```
 
 The predict_label function is used to obtain the predicted labels for the instances in the dataset. We then randomly select an index from the instances that have the factual class label.
@@ -345,11 +347,7 @@ Now, we can generate the counterfactual using the Growing Spheres generator:
 
 ```{julia}
 ce = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual,
-    target,
-    counterfactual_data,
-    mlp_model,
-    generator
+    x_random_factual, target, counterfactual_data, mlp_model, generator
 )
 ```
 
@@ -358,7 +356,7 @@ The generate_counterfactual function generates a counterfactual for the specifie
 Finally, we can visualize the generated counterfactual and the search path:
 
 ```{julia}
-CounterfactualExplanations.plot(ce; title = "Growing Spheres Generator")
+CounterfactualExplanations.plot(ce; title="Growing Spheres Generator")
 ```
 
 ## Added datasets
