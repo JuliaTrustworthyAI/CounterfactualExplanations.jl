@@ -66,6 +66,17 @@ The four arguments of `pytorch_model_loader()` are the following:
 
 Now that we have loaded the Python model, it is time to generate counterfactuals with it. A good choice for that is the PROBE generator that we added, introduced by Pawelczyk et al. (2022).
 
+##### Load the generator
+
+```{julia}
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator()
+```
+
 ```{julia}
 blobs_counterfactual = generate_counterfactual(
     x,
@@ -98,39 +109,14 @@ blobs_counterfactual = generate_counterfactual(
 CounterfactualExplanations.plot(blobs_counterfactual)
 ```
 
-We can also use PROBE for multi-class classification problems. Let's try this out with a Julia native MLP model:
+Finally, let's combine ideas from the PROBE, Greedy and REVISE generators, using the builder design pattern:
 
 ```{julia}
-n_dim = 2
-n_classes = 4
-n_samples = 400
-counterfactual_data = Data.load_blobs(n_samples; k=n_dim, centers=n_classes)
-counterfactual_data.standardize = true
-M = fit_model(counterfactual_data, :MLP)
-```
-
-```{julia}
-target = 2
-factual = 4
-chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
-x = select_factual(counterfactual_data, chosen)
-# Search:
-generator = Generators.ProbeGenerator()
-```
-
-```{julia}
-blobs_counterfactual = generate_counterfactual(
-    x,
-    target,
-    counterfactual_data,
-    M,
-    generator;
-    converge_when=:invalidation_rate,
-    max_iter=10000,
-    invalidation_rate=0.1,
-    learning_rate=0.1,
-)
-CounterfactualExplanations.plot(blobs_counterfactual)
+@chain
+    @objective logitcrossentropy + 5.0ddp_diversity
+    @with_optimiser JSMADescent(η=0.5)                  # Greedy
+    @search_latent_space                                # REVISE
+end
 ```
 
 #### MLJ models
