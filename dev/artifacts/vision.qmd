@@ -329,5 +329,5 @@ savefig(plt, joinpath(www_path, "cifar_10_vae_weak.png"))
 ## Generate Artifacts
 
 ```{julia}
-artifact_name = "$(model_name)"
+artifact_name = "$(model_name)-$(Int(VERSION.major)).$(Int(VERSION.minor))"
 generate_artifacts(model_path; artifact_name=artifact_name)

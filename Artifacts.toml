@@ -86,6 +86,22 @@ lazy = true
     sha256 = "1706cf3dcc8b94f0a50ea710ccf7040ca3b29e8aad558ef1ead2620597b5a39f"
     url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.8/model-vision.tar.gz"
 
+["model-vision-1.7"]
+git-tree-sha1 = "73975994fb259539b3e31aa1c591ee49f6a63745"
+lazy = true
+
+    [["model-vision-1.7".download]]
+    sha256 = "aceb885210d1bd616e4daaa445f322e5c282d73bf470f1b4970b50afa2c9a2e4"
+    url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.7/model-vision-1.7.tar.gz"
+
+["model-vision-1.8"]
+git-tree-sha1 = "c9108bc5519e15903a6f02e6e59c8a888c4980dc"
+lazy = true
+
+    [["model-vision-1.8".download]]
+    sha256 = "95796478318635a8bd52b9a3868d499821e88e72101471067f261f1e3dd1f715"
+    url = "https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/releases/download/artifacts-1.8/model-vision-1.8.tar.gz"
+
 [paper-images]
 git-tree-sha1 = "b1e4ade1fe7c847262189886be2d79d578c351f8"
 lazy = true
