@@ -11,6 +11,7 @@ using Random
 init_perturbation = 2.0
 
 # Using pretrained models is currently supported only for Julia versions >= 1.8
+# This issue will be resolved soon
 if VERSION >= v"1.8"
     models = _load_pretrained_models()
     @testset "Pretrained models" begin
