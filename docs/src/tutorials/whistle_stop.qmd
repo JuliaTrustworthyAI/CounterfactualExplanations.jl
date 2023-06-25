@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
@@ -15,7 +15,9 @@ In this tutorial, we will go through a slightly more complex example involving s
 ## Data and Classifier
 
 ```{julia}
-#| echo: false
+#| echo: true
+
+# Choose some values for data and a model:
 n_dim = 2
 n_classes = 4
 n_samples = 400
@@ -24,6 +26,8 @@ model_name = :MLP
 
 ```{julia}
 #| echo: false
+#| output: true
+
 Markdown.parse(
     """
     The code chunk below generates synthetic data and uses it to fit a classifier. The outcome variable `counterfactual_data.y` consists of $(n_classes) classes. The input data `counterfactual_data.X` consists of $(n_dim) features. We generate a total of $(n_samples) samples. On the model side, we have specified `model_name = :$(model_name)`. The `fit_model` can be used to fit a number of default models.
@@ -60,6 +64,8 @@ x = select_factual(counterfactual_data,chosen)
 
 ```{julia}
 #| echo: false
+#| output: true
+
 Markdown.parse(
     """
     This sets the baseline for our counterfactual search: we plan to perturb the factual `x` to change the predicted label from `y`=$(factual) to our target label `target`=$(target).
@@ -109,9 +115,3 @@ plot(
     plot_title="Factual: $(factual) → Target: $(target)"
 )
 ```
-
-
-
-
-
-
