@@ -1,5 +1,5 @@
 ```{julia}
-import Pkg
+using Pkg: Pkg
 Pkg.activate("$(pwd())/dev/growing_spheres_testing")
 
 using Revise
@@ -15,16 +15,14 @@ N = 100
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
 x_julia, y_julia = counterfactual_data.X, counterfactual_data.y
 # Data: x_julia, y_julia
-data = Flux.DataLoader((x_julia, y_julia), batchsize = 1)
+data = Flux.DataLoader((x_julia, y_julia); batchsize=1)
 input_dim = size(x_julia, 1)
 n_hidden = 32
 activation = relu
 output_dim = 2
 
 nn_flux = Chain(
-    Dense(input_dim, n_hidden, activation),
-    Dropout(0.1),
-    Dense(n_hidden, output_dim)
+    Dense(input_dim, n_hidden, activation), Dropout(0.1), Dense(n_hidden, output_dim)
 )
 
 loss(yhat, y_julia) = Flux.Losses.logitbinarycrossentropy(nn_flux(yhat), y_julia)
@@ -33,19 +31,19 @@ using Flux.Optimise: update!, Adam
 using Statistics
 
 opt = Adam()
-avg_loss(data) = Statistics.mean(map(d -> loss(d[1],d[2]), data))
+avg_loss(data) = Statistics.mean(map(d -> loss(d[1], d[2]), data))
 
 # Training:
-for epoch = 1:100
+for epoch in 1:100
     for d in data
         gs = gradient(Flux.params(nn_flux)) do
             l = loss(d...)
-    end
+        end
         update!(opt, Flux.params(nn_flux), gs)
     end
 
     if epoch % 5 == 0
-        @info "Epoch " * string(epoch) 
+        @info "Epoch " * string(epoch)
         @show avg_loss(data)
     end
 end
@@ -67,17 +65,33 @@ x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
 ### Generate counterfactual
 ```{julia}
 # Define a generator:
-generator = CounterfactualExplanations.Models.GrowingSpheresGenerator(n = 5, η = 0.1)
+generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
 
 ce = CounterfactualExplanations.generate_counterfactual(
-    x_random_factual,
-    target,
-    counterfactual_data,
-    M_flux,
-    generator
+    x_random_factual, target, counterfactual_data, M_flux, generator
 )
 ```
 
 ```{julia}
-CounterfactualExplanations.plot(ce; title = "Flux path")
+CounterfactualExplanations.plot(ce; title="Flux path")
+```
+```{julia}
+# For each ce.search[:path] also print the predict label()
+predicted_labels = map(
+        e -> CounterfactualExplanations.Models.predict_label(M_flux, counterfactual_data, e),
+        ce.search[:path],
+    )
+println(predicted_labels)
+```
+
+```{julia}
+println(ce.search[:path])
+# println(CounterfactualExplanations.decode_state(ce))
+println(ce.s′)
+println(target)
+println(CounterfactualExplanations.Models.predict_label(
+                                    M_flux,
+                                    counterfactual_data,
+                                    CounterfactualExplanations.decode_state(ce),
+                                )[1])
 ```

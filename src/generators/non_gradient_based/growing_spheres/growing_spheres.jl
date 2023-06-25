@@ -41,6 +41,11 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     n = generator.n
     η = generator.η
 
+    # Early stopping condition
+    # if (converged(ce))
+    #     return nothing
+    # end
+
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
 
@@ -114,6 +119,11 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     counterfactual′ = ce.s′
     counterfactual″ = ce.s′
 
+    # Early stopping condition
+    # if (converged(ce))
+    #     return nothing
+    # end
+
     factual_class = CounterfactualExplanations.Models.predict_label(
         model, counterfactual_data, factual
     )[1]
@@ -131,7 +141,14 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
     end
 
-    ce.s′ = counterfactual″
+    ce.s′ = filter(
+        x ->
+            CounterfactualExplanations.Models.predict_label(
+                model, counterfactual_data, x
+            )[1] == ce.target,
+        ce.search[:path],
+    )
+    # ce.s′ = counterfactual″
     ce.search[:terminated] = true
     ce.search[:converged] = true
 
@@ -235,4 +252,35 @@ function find_closest_dimension(factual, counterfactual)
     end
 
     return closest_dimension
+end
+
+"""
+    converged(ce::AbstractCounterfactualExplanation)
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+# Returns
+- `converged::Bool`:
+
+Finds if we have converged.
+"""
+function converged(ce::AbstractCounterfactualExplanation)
+    model = ce.M
+    counterfactual_data = ce.data
+    factual = ce.x
+    counterfactual = ce.s′
+
+    factual_class = CounterfactualExplanations.Models.predict_label(
+        model, counterfactual_data, factual
+    )[1]
+    counterfactual_class = CounterfactualExplanations.Models.predict_label(
+        model, counterfactual_data, counterfactual
+    )[1]
+
+    if factual_class == counterfactual_class
+        ce.search[:terminated] = true
+        ce.search[:converged] = true
+    end
+
+    return ce.search[:converged]
 end

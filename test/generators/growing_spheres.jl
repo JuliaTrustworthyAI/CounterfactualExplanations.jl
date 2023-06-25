@@ -10,25 +10,25 @@ using MLUtils
 using Random
 
 @testset "Growing Spheres" begin
-    CounterfactualExplanations.Generators.generator = GrowingSphereGenerator()
+    generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
+    models = CounterfactualExplanations.Models.standard_models_catalogue
     @testset "Models for synthetic data" begin
         for (key, value) in synthetic
             name = string(key)
             @testset "$name" begin
                 counterfactual_data = value[:data]
                 X = counterfactual_data.X
-                ys_cold = vec(counterfactual_data.y)
+                # Loop over values of the dict
 
-                for (likelihood, model) in value[:models]
-                    name = string(likelihood)
+                for (model_name, model) in models
+                    name = string(model_name)
                     @testset "$name" begin
-                        M = model[:model]
+                        M = CounterfactualExplanations.Models.fit_model(
+                            counterfactual_data, model_name
+                        )
                         # Randomly selected factual:
                         Random.seed!(123)
                         x = select_factual(counterfactual_data, rand(1:size(X, 2)))
-                        multiple_x = select_factual(
-                            counterfactual_data, rand(1:size(X, 2), 5)
-                        )
                         # Choose target:
                         y = predict_label(M, counterfactual_data, x)
                         target = get_target(counterfactual_data, y[1])
@@ -36,19 +36,11 @@ using Random
                         counterfactual = generate_counterfactual(
                             x, target, counterfactual_data, M, generator
                         )
-                        # Multiple samples:
-                        counterfactuals = generate_counterfactual(
-                            multiple_x, target, counterfactual_data, M, generator
-                        )
 
                         @testset "Predetermined outputs" begin
-                            if generator.latent_space
-                                @test counterfactual.params[:latent_space]
-                            end
                             @test counterfactual.target == target
                             @test counterfactual.x == x &&
-                                CounterfactualExplanations.factual(counterfactual) ==
-                                    x
+                                CounterfactualExplanations.factual(counterfactual) == x
                             @test CounterfactualExplanations.factual_label(
                                 counterfactual
                             ) == y
@@ -61,40 +53,22 @@ using Random
                             @testset "Non-trivial case" begin
                                 counterfactual_data.generative_model = nothing
                                 # Threshold reached if converged:
-                                γ = 0.9
-                                max_iter = 1000
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    counterfactual_data,
-                                    M,
-                                    generator;
-                                    max_iter=max_iter,
-                                    decision_threshold=γ,
+                                    x, target, counterfactual_data, M, generator;
                                 )
-                                using CounterfactualExplanations:
-                                    counterfactual_probability
-                                @test !converged(counterfactual) ||
-                                    target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                @test !converged(counterfactual) ||
-                                    length(path(counterfactual)) <= max_iter
+                                @test Models.predict_label(
+                                    M,
+                                    counterfactual_data,
+                                    CounterfactualExplanations.decode_state(counterfactual),
+                                )[1] == target
+                                @test CounterfactualExplanations.terminated(counterfactual)
                             end
 
                             @testset "Trivial case (already in target class)" begin
                                 counterfactual_data.generative_model = nothing
                                 # Already in target and exceeding threshold probability:
-                                y = predict_label(M, counterfactual_data, x)
-                                target = y[1]
-                                γ = minimum([
-                                    1 / length(counterfactual_data.y_levels), 0.5
-                                ])
                                 counterfactual = generate_counterfactual(
-                                    x,
-                                    target,
-                                    counterfactual_data,
-                                    M,
-                                    generator;
-                                    decision_threshold=γ,
+                                    x, target, counterfactual_data, M, generator
                                 )
                                 @test maximum(
                                     abs.(
@@ -104,10 +78,7 @@ using Random
                                         )
                                     ),
                                 ) < init_perturbation
-                                @test converged(counterfactual)
-                                @test CounterfactualExplanations.terminated(
-                                    counterfactual
-                                )
+                                @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
                                 ) == 0

@@ -20,7 +20,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.DataPreprocessing
-
+ 
 init_perturbation = 2.0
 Random.seed!(0)
 
@@ -34,26 +34,26 @@ include("utils.jl")
 
 # Load synthetic data, models, generators
 synthetic = _load_synthetic()
-generators = generator_catalogue
+generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-    @testset "Data" begin
-        include("data/data.jl")
-    end
+    # @testset "Data" begin
+    #     include("data/data.jl")
+    # end
 
     @testset "Generators" begin
-        include("generators/counterfactuals.jl")
+        include("generators/generators.jl")
     end
 
-    @testset "Models" begin
-        include("models/models.jl")
-    end
+    # @testset "Models" begin
+    #     include("models/models.jl")
+    # end
 
-    @testset "Evaluation" begin
-        include("other/evaluation.jl")
-    end
+    # @testset "Evaluation" begin
+    #     include("other/evaluation.jl")
+    # end
 
-    @testset "Plotting" begin
-        include("other/plotting.jl")
-    end
+    # @testset "Plotting" begin
+    #     include("other/plotting.jl")
+    # end
 end

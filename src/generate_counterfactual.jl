@@ -104,7 +104,6 @@ function generate_counterfactual(
     elseif isa(generator, GrowingSpheresGenerator)
         Generators.growing_spheres_generation!(ce)
         Generators.feature_selection!(ce)
-        # @info "Counterfactual search terminated"
     else
         @error "Generator not recognized."
     end
