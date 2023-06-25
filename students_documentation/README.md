@@ -83,6 +83,12 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Generators
 
+- Growing Spheres
+  - Core logic: `src/generators/non_gradient_based/growing_spheres/growing_spheres.jl`
+  - Tests: `test\generators\growing_spheres.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\explanation\generators\growing_spheres.qmd`
+
 #### Added Datasets
 
 - CIFAR10 

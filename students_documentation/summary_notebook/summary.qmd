@@ -345,15 +345,6 @@ vline!(plt, [1.475], linestyle=:dash, linecolor=:black, label=nothing)
 
 The visualization will be improved as part of a separate pull request.
 
-
-### <feature_name>
-
-<feature_description>
-
-```{julia}
-print("Hello world!")
-```
-
 ## Should haves
 
 ### Added Datasets
@@ -424,12 +415,73 @@ adult_counterfactual_data = generate_counterfactual(
 )
 ```
 
-### <feature_name>
+### Added generators
 
-<feature_description>
+#### Growing Spheres
+
+This section introduces the growing spheres approach described in the ["Growing Spheres: A Heuristic for Generating Counterfactual Explanations"](https://arxiv.org/pdf/1712.08443.pdf) paper. The proposed approach aims to provide interpretability to machine learning models by answering the question of how minimal changes can be made to an observation in order to change its prediction. Unlike other interpretability methods, this approach focuses on local insights rather than global behavior and does not claim to provide causal knowledge. It uses a two-step heuristic called Growing Spheres, which involves generating observations in the feature space and selecting the closest "ennemy" observation that belongs to a different class. The paper also explains the feature selection process to simplify the difference vector of the closest ennemy. The growing spheres approach provides a way to interpret predictions regardless of the accuracy of the classifier or the realism of the generated observations.
+
+Let's start by importing a dataset and fitting an MLP model to the data:
 
 ```{julia}
-print("Hello world!")
+n = 500
+counterfactual_data = CounterfactualExplanations.Data.load_blobs(n)
+mlp_model = CounterfactualExplanations.Models.fit_model(counterfactual_data, :MLP)
+```
+
+Here, we load a dataset consisting of blobs and fit an MLP model to the data.
+
+Next, we need to initialize the Growing Spheres generator:
+
+```{julia}
+generator = GrowingSpheresGenerator(n = 5, η = 0.1)
+```
+
+The generator is configured with parameters n and η, where n specifies the number of spheres to be grown, and η determines the initial radius size of the sphere.
+
+To generate a counterfactual, we need to specify the target class and the factual class:
+
+```{julia}
+target = 1
+factual = 2
+```
+
+Here, we set target to the desired target class and factual to the current factual class.
+
+To select a factual instance randomly, we first choose an index from the instances belonging to the factual class:
+
+```{julia}
+y_chosen_factual_idx = rand(findall(predict_label(mlp_model, counterfactual_data) .== factual))
+```
+
+The predict_label function is used to obtain the predicted labels for the instances in the dataset. We then randomly select an index from the instances that have the factual class label.
+
+Next, we select the factual instance based on the chosen index:
+
+```{julia}
+x_random_factual = select_factual(counterfactual_data, y_chosen_factual_idx)
+```
+
+The select_factual function returns the factual instance based on the chosen index.
+
+Now, we can generate the counterfactual using the Growing Spheres generator:
+
+```{julia}
+ce = CounterfactualExplanations.generate_counterfactual(
+    x_random_factual,
+    target,
+    counterfactual_data,
+    mlp_model,
+    generator
+)
+```
+
+The generate_counterfactual function generates a counterfactual for the specified factual instance, target class, dataset, model, and generator. The resulting counterfactual is stored in the ce variable.
+
+Finally, we can visualize the generated counterfactual and the search path:
+
+```{julia}
+CounterfactualExplanations.plot(ce; title = "Growing Spheres Generator")
 ```
 
 ## Could haves
