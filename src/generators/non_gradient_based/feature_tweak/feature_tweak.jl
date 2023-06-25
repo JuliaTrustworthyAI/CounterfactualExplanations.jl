@@ -51,22 +51,15 @@ function feature_tweaking(
     end
 
     x_out = deepcopy(x)
-    machine = M.model
     delta = 10^3
     ensemble_prediction = Models.predict_label(M, x)[1]
-    fp = MLJBase.fitted_params(machine)
-    model = fp.tree.node
 
     for classifier in Models.get_individual_classifiers(M)
-        if ensemble_prediction == Models.predict_label(classifier, x)[1] &&
-            Models.predict_label(classifier, x)[1] != target
-            machine = classifier.model
-            fitted_params = MLJBase.fitted_params(machine)
+        if ensemble_prediction != target
             y_levels = MLJBase.classes(
                 MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto))
             )
-            root = fitted_params.tree.node
-            paths = search_path(root, y_levels, target)
+            paths = search_path(classifier, y_levels, target)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(generator, x, path)
