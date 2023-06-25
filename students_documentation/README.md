@@ -82,7 +82,12 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Added Datasets
 
-- CIFAR10 
+- CIFAR10
   - Logic: [cifar_10.jl](..\src\data\vision\cifar_10.jl)
   - Tests: [vision.jl](..\test\data\vision.jl)
   - Example: [vision.qmd](..\dev\artifacts\vision.qmd)
+
+- UCI Adult Dataset
+  - Logic: [adult.jl](..\src\data\tabular\adult.jl)
+  - Tests: [tabular.jl](..\test\data\tabular.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
