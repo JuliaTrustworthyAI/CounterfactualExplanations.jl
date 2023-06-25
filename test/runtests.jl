@@ -45,14 +45,6 @@ generators = Generators.generator_catalogue
         include("generators/generators.jl")
     end
 
-    @testset "Probe" begin
-        include("generators/probe.jl")
-    end
-
-    @testset "CLUE" begin
-        include("generators/clue.jl")
-    end
-
     @testset "Models" begin
         include("models/models.jl")
     end
