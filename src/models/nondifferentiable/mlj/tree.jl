@@ -82,12 +82,14 @@ If the input is a decision tree, the method returns the decision tree itself ins
 classifiers = Models.get_individual_classifiers(M) # returns the individual classifiers in the forest
 """
 function get_individual_classifiers(M::TreeModel)
+    machine = M.model
+    fitted_params = MLJBase.fitted_params(machine)
     if M.model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
-        return [M]
+        return [fitted_params.tree.node]
     end
     trees = []
-    for tree in M.model.trees
-        push!(trees, TreeModel(tree, M.likelihood))
+    for tree in fitted_params.forest.trees
+        push!(trees, tree)
     end
     return trees
 end
@@ -192,7 +194,7 @@ Not called by the user directly.
 function RandomForestModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier(kwargs...)
+    M = MLJDecisionTreeInterface.RandomForestClassifier(; kwargs...)
     model = MLJBase.machine(M, X, y)
 
     return TreeModel(model, data.likelihood)

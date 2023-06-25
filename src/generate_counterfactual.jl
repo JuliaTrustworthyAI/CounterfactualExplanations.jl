@@ -97,7 +97,9 @@ function generate_counterfactual(
         if isa(M, Models.TreeModel)
             new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
             ce.s′ = new_x
+            new_x = reshape(new_x, :, 1)
             ce.search[:path] = [ce.search[:path]..., new_x]
+            println(ce.search[:path])
             ce.search[:iteration_count] = 1
             ce.search[:terminated] = true
             ce.search[:converged] = true

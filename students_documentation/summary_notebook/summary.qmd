@@ -194,26 +194,29 @@ Now, let's take a point that the model believes is in class 1:
 
 ```{julia}
 x = float32.([1, -0.5])
-Models.predict_label(decision_tree, x)
+Models.predict_label(forest, x)
 ```
 
-This leaves us with 0 as the target class. We can now generate the counterfactual as usual:
+This leaves us with 0 as the target class. We can now generate the counterfactual as usual. Let's create a counterfactual for both the decision tree and the forest:
 
 ```{julia}
 target = 0
-moons_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
+tree_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
 ```
 
-Let's verify that the counterfactual is indeed in the target class:
-
 ```{julia}
-Models.predict_label(decision_tree, moons_counterfactual.s′)
+target = 0
+forest_counterfactual = generate_counterfactual(x, target, counterfactual_data, forest, generator)
 ```
 
-Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree:
+Finally, we can visualize the generated counterfactual and the decision boundaries of the decision tree and the forest:
 
 ```{julia}
-CounterfactualExplanations.plot(moons_counterfactual)
+CounterfactualExplanations.plot(tree_counterfactual; colorbar=false)
+```
+
+```{julia}
+CounterfactualExplanations.plot(forest_counterfactual)
 ```
 
 ##### The `EvoTreeClassifier` model
@@ -242,6 +245,62 @@ CounterfactualExplanations.Models.probs(M, x)
 ```
 
 However, please note that creating counterfactuals for this model is not supported yet.
+
+#### Statlog German credit dataset
+
+Added Statlog German credit as a benchmark dataset.
+
+```{julia}
+german_credit_data = CounterfactualExplanations.Data.load_german_credit()
+german_credit_data_x = german_credit_data.X
+german_credit_data_y = german_credit_data.output_encoder.y
+```
+
+##### Post Hoc benchmarking with Statlog German credit dataset
+
+```{julia}
+# Train a model
+M = fit_model(german_credit_data, :Linear)
+
+# Factual and target labels:
+target = 1
+factual = 0
+```
+
+```{julia}
+n_individuals = 5
+
+# Choose random factual individuals
+ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
+xs = select_factual(german_credit_data, ids)
+
+generator = GenericGenerator()
+
+generated_counterfactuals_german_credit_data = generate_counterfactual(
+    xs,
+    target,
+    german_credit_data,
+    M, 
+    generator; 
+    num_counterfactuals=1
+)
+```
+
+```{julia}
+benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
+
+@chain benchmark_german_credit_data() begin
+    @filter(variable == "distance")
+    @select(sample, variable, value)
+end
+```
+
+```{julia}
+factual_datapoint = first(xs)[1]
+counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
+
+df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
+```
 
 ### Added Datasets
 
