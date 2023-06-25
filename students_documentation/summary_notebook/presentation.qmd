@@ -40,6 +40,23 @@ model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_binary)
 ```
 
+## Load the Generator
+
+```{julia}
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+```
+
+```{julia}
+@chain generator begin
+    @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
+    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+end
+```
+
 ## Generate the Counterfactual
 
 ```{julia}
