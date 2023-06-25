@@ -11,7 +11,7 @@ using Random
 init_perturbation = 2.0
 
 # Using pretrained models is currently supported only for Julia versions >= 1.8
-# This issue will be resolved soon
+# This issue will be resolved as soon as possible
 if VERSION >= v"1.8"
     models = _load_pretrained_models()
     @testset "Pretrained models" begin
@@ -28,10 +28,10 @@ if VERSION >= v"1.8"
                         Random.seed!(123)
                         x = select_factual(counterfactual_data, rand(1:size(X, 2)))
                         # Choose target:
-                        y = predict_label(M, counterfactual_data, x)
+                        y = Models.predict_label(M, counterfactual_data, x)
                         target = get_target(counterfactual_data, y[1])
                         # Using gravitational generator as a good representative of a generator that doesn't require latent space
-                        generator = GravitationalGenerator()
+                        generator = Generators.GravitationalGenerator()
                         # Single sample:
                         counterfactual = generate_counterfactual(
                             x, target, counterfactual_data, M, generator
@@ -77,7 +77,7 @@ if VERSION >= v"1.8"
                             @testset "Trivial case (already in target class)" begin
                                 counterfactual_data.generative_model = nothing
                                 # Already in target and exceeding threshold probability:
-                                y = predict_label(M, counterfactual_data, x)
+                                y = Models.predict_label(M, counterfactual_data, x)
                                 target = y[1]
                                 γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                                 counterfactual = generate_counterfactual(
@@ -105,7 +105,7 @@ if VERSION >= v"1.8"
 
                             @testset "Non-trivial case, latent space enabled" begin
                                 # Using REVISE generator as a good representative of a generator that requires latent space
-                                generator = REVISEGenerator()
+                                generator = Generators.REVISEGenerator()
                                 for (name, vae) in value[:latent]
                                     name = string(name)
                                     @testset "$name" begin
