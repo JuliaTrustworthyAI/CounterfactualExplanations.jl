@@ -95,3 +95,115 @@ println(CounterfactualExplanations.Models.predict_label(
                                     CounterfactualExplanations.decode_state(ce),
                                 )[1])
 ```
+
+# Tests
+
+```{julia}
+function _load_synthetic()
+    # Data:
+    data_sets = Dict(
+        :classification_binary => CounterfactualExplanations.Data.load_linearly_separable(),
+        :classification_multi => CounterfactualExplanations.Data.load_multi_class(),
+    )
+    # Models
+    synthetic = Dict()
+    for (likelihood, data) in data_sets
+        models = Dict()
+        for (model_name, model) in CounterfactualExplanations.Models.standard_models_catalogue
+            M = fit_model(data, model_name)
+            models[model_name] = Dict(:raw_model => M.model, :model => M)
+        end
+        synthetic[likelihood] = Dict(:models => models, :data => data)
+    end
+    return synthetic
+end
+
+synthetic = _load_synthetic()
+```
+
+```{julia}
+"""
+    get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
+
+Returns a target label that is different from the factual label.
+"""
+function get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
+    target = rand(
+        counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual_label]
+    )
+    return target
+end
+```
+
+```{julia}
+using Test
+init_perturbation = 2.0
+
+@testset "Growing Spheres" begin
+    generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
+    models = CounterfactualExplanations.Models.standard_models_catalogue
+
+    @testset "Models for synthetic data" begin
+        for (key, value) in synthetic
+            name = string(key)
+            @testset "$name" begin
+                counterfactual_data = value[:data]
+                X = counterfactual_data.X
+                # Loop over values of the dict
+
+                for (model_name, model) in models
+                    name = string(model_name)
+                    @testset "$name" begin
+                        M = CounterfactualExplanations.Models.fit_model(
+                            counterfactual_data, model_name
+                        )
+                        # Randomly selected factual:
+                        Random.seed!(123)
+                        x = select_factual(counterfactual_data, rand(1:size(X, 2)))
+                        # Choose target:
+                        y = predict_label(M, counterfactual_data, x)
+                        # Return randomly anything that is not factual
+                        target = get_target(counterfactual_data, y[1])
+
+                        @testset "Convergence" begin
+
+                            @testset "Non-trivial case" begin
+                                counterfactual_data.generative_model = nothing
+                                # Threshold reached if converged:
+                                counterfactual = generate_counterfactual(
+                                    x, target, counterfactual_data, M, generator;
+                                )
+                                @test CounterfactualExplanations.Models.predict_label(
+                                    M,
+                                    counterfactual_data,
+                                    counterfactual.s′,
+                                )[1] == target
+
+                                @test CounterfactualExplanations.terminated(counterfactual)
+                            end
+
+                            @testset "Trivial case (already in target class)" begin
+                                counterfactual_data.generative_model = nothing
+                                # Already in target class:
+                                y = CounterfactualExplanations.Models.predict_label(M, counterfactual_data, x)
+                                target = y[1]
+                                γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
+                                counterfactual = CounterfactualExplanations.generate_counterfactual(
+                                    x, target, counterfactual_data, M, generator
+                                )
+                                @test maximum(
+                                    abs.(
+                                        counterfactual.x .-
+                                        counterfactual.s′
+                                    ),
+                                ) < init_perturbation
+                                @test CounterfactualExplanations.terminated(counterfactual)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+```

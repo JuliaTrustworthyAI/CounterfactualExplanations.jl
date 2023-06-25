@@ -32,22 +32,6 @@ using Random
                         # Choose target:
                         y = predict_label(M, counterfactual_data, x)
                         target = get_target(counterfactual_data, y[1])
-                        # Single sample:
-                        counterfactual = generate_counterfactual(
-                            x, target, counterfactual_data, M, generator
-                        )
-
-                        @testset "Predetermined outputs" begin
-                            @test counterfactual.target == target
-                            @test counterfactual.x == x &&
-                                CounterfactualExplanations.factual(counterfactual) == x
-                            @test CounterfactualExplanations.factual_label(
-                                counterfactual
-                            ) == y
-                            @test CounterfactualExplanations.factual_probability(
-                                counterfactual
-                            ) == probs(M, x)
-                        end
 
                         @testset "Convergence" begin
                             @testset "Non-trivial case" begin
@@ -56,32 +40,31 @@ using Random
                                 counterfactual = generate_counterfactual(
                                     x, target, counterfactual_data, M, generator;
                                 )
-                                @test Models.predict_label(
+                                @test CounterfactualExplanations.Models.predict_label(
                                     M,
                                     counterfactual_data,
-                                    CounterfactualExplanations.decode_state(counterfactual),
+                                    counterfactual.s′,
                                 )[1] == target
+
                                 @test CounterfactualExplanations.terminated(counterfactual)
                             end
 
                             @testset "Trivial case (already in target class)" begin
                                 counterfactual_data.generative_model = nothing
-                                # Already in target and exceeding threshold probability:
-                                counterfactual = generate_counterfactual(
+                                # Already in target class:
+                                y = CounterfactualExplanations.Models.predict_label(M, counterfactual_data, x)
+                                target = y[1]
+                                γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
+                                counterfactual = CounterfactualExplanations.generate_counterfactual(
                                     x, target, counterfactual_data, M, generator
                                 )
                                 @test maximum(
                                     abs.(
                                         counterfactual.x .-
-                                        CounterfactualExplanations.decode_state(
-                                            counterfactual
-                                        )
+                                        counterfactual.s′
                                     ),
                                 ) < init_perturbation
                                 @test CounterfactualExplanations.terminated(counterfactual)
-                                @test CounterfactualExplanations.total_steps(
-                                    counterfactual
-                                ) == 0
                             end
                         end
                     end

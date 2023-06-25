@@ -36,15 +36,12 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     model = ce.M
     factual = ce.x
     counterfactual_data = ce.data
+    target = [ce.target]
+    max_iter = 1000
 
     # Copy hyperparameters
     n = generator.n
     η = generator.η
-
-    # Early stopping condition
-    # if (converged(ce))
-    #     return nothing
-    # end
 
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
@@ -53,9 +50,14 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
         model, counterfactual_data, factual
     )
 
+    if (factual == target)
+        ce.s′ = factual
+        return nothing
+    end
+    
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
-        model, factual_class, counterfactual_data, counterfactual_candidates
+        model, target, counterfactual_data, counterfactual_candidates
     )
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
@@ -64,8 +66,13 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
         counterfactual = find_counterfactual(
-            model, factual_class, counterfactual_data, counterfactual_candidates
+            model, target, counterfactual_data, counterfactual_candidates
         )
+
+        max_iter -= 1
+        if max_iter == 0
+            break
+        end
     end
 
     # Update path
@@ -84,8 +91,13 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
         counterfactual = find_counterfactual(
-            model, factual_class, counterfactual_data, counterfactual_candidates
+            model, target, counterfactual_data, counterfactual_candidates
         )
+
+        max_iter -= 1
+        if max_iter == 0
+            break
+        end
     end
 
     # Update path
@@ -115,14 +127,11 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     model = ce.M
     counterfactual_data = ce.data
     factual = ce.x
+    target = [ce.target]
 
+    # Assign the initial counterfactual to both counterfactual′ and counterfactual″
     counterfactual′ = ce.s′
     counterfactual″ = ce.s′
-
-    # Early stopping condition
-    # if (converged(ce))
-    #     return nothing
-    # end
 
     factual_class = CounterfactualExplanations.Models.predict_label(
         model, counterfactual_data, factual
@@ -130,6 +139,8 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
 
     while (
         factual_class != CounterfactualExplanations.Models.predict_label(
+            model, counterfactual_data, counterfactual′
+        ) && target == CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
         )
     )
@@ -141,14 +152,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
     end
 
-    ce.s′ = filter(
-        x ->
-            CounterfactualExplanations.Models.predict_label(
-                model, counterfactual_data, x
-            )[1] == ce.target,
-        ce.search[:path],
-    )
-    # ce.s′ = counterfactual″
+    ce.s′ = counterfactual″
     ce.search[:terminated] = true
     ce.search[:converged] = true
 
@@ -206,7 +210,7 @@ Find the first counterfactual index by predicting labels.
 
 # Arguments
 - `model`: The fitted model used for prediction.
-- `factual_class`: The class label of the factual observation.
+- `target_class`: Expected target class.
 - `counterfactual_data`: Data required for counterfactual generation.
 - `counterfactual_candidates`: The array of counterfactual candidates.
 
@@ -214,13 +218,13 @@ Find the first counterfactual index by predicting labels.
 - `counterfactual`: The index of the first counterfactual found.
 """
 function find_counterfactual(
-    model, factual_class, counterfactual_data, counterfactual_candidates
+    model, target_class, counterfactual_data, counterfactual_candidates
 )
     predicted_labels = map(
         e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e),
         eachcol(counterfactual_candidates),
     )
-    counterfactual = findfirst(predicted_labels .≠ factual_class)
+    counterfactual = findfirst(predicted_labels .== target_class)
 
     return counterfactual
 end
