@@ -1,3 +1,9 @@
+# Experimenting with and determining penalty strengths
+
+The idea of this notebook is to explore custom penalty strengths. The default values for penalty strengths used in generators are based on literature and other software implementations. This notebook gives those working on or with the package some freedom to discover how different values influence the counterfactual explanations. 
+
+Additionally, this notebook serves benchmarking purposes to help explore optimal values for counterfactuals. For this purpose, we have selected one real-world dataset (Statlog German Credit dataset) and one synthetic dataset (circles). Benchmarking experiments are performed on these datasets in order to determine which penalty strengths work best.
+
 ```{julia}
 using Pkg
 Pkg.activate("dev/penaltystrength/")
@@ -12,6 +18,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Evaluation
 ```
 
+We load the standard models for each dataset:
 ```{julia}
 data_sets = Dict(
         :synthetic => load_circles(),
@@ -29,14 +36,7 @@ for (dataset_type, data) in data_sets
 end
 ```
 
-```{julia}
-test = [1, 2, 3]
-for i in test
-    println(i)
-end
-```
-
-# generate counterfactuals for each model
+Next, we generate counterfactuals for each model:
 ```{julia}
 counterfactuals = Dict()
 penalty_strengths = [0.1, 0.3, 0.5]
@@ -77,6 +77,7 @@ end
 
 ```
 
+Finally, perform benchmarking experiments:
 ```{julia}
 benchmark([counterfactuals[(:real_world, :MLP, :probe, 0.5)]])
 ```
