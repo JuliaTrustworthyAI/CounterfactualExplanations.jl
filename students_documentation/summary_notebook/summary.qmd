@@ -6,8 +6,10 @@ In this notebook, we document the new features that we have added to the Counter
 
 ```{julia}
 using Pkg
-Pkg.activate("students_documentation/summary_notebook")
-    
+Pkg.activate("students_documentation/summary_notebook")`
+```
+
+```{julia}
 # Dependencies
 using Revise
 using CounterfactualExplanations
