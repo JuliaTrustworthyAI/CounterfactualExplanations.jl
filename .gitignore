@@ -50,3 +50,4 @@ dev/resources/*.html
 /.quarto/
 dev/artifacts/upload/
 dev/resources/build
+**/python_final_tests/
