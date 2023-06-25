@@ -56,7 +56,9 @@ function feature_tweaking(
 
     for classifier in Models.get_individual_classifiers(M)
         if ensemble_prediction != target
-            y_levels = MLJBase.classes(MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto)))
+            y_levels = MLJBase.classes(
+                MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto))
+            )
             paths = search_path(classifier, y_levels, target)
             for key in keys(paths)
                 path = paths[key]
