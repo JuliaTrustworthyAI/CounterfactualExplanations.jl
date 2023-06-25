@@ -11,6 +11,7 @@ end
     HeuristicBasedGenerator(;
         penalty::Union{Nothing,Function,Vector{Function}}=nothing,
         ϵ::Union{Nothing,AbstractFloat}=nothing,
+        latent_space::Bool=false,
     )
 
 Default outer constructor for `HeuristicBasedGenerator`.

@@ -8,7 +8,7 @@ In this tutorial, we will go through a simple example involving synthetic data a
 
 ## Data and Classifier
 
-Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it.
+Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it. For more information on generating data and models, refer to the `Handling Data` and `Handling Models` tutorials respectively.
 
 ``` julia
 # Counteractual data and model:
