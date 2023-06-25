@@ -21,7 +21,7 @@ using CounterfactualExplanations.Models
 using CounterfactualExplanations.Generators
 ```
 
-## Added models and generators
+## Added models
 
 ### Interface to Python models
 
@@ -60,11 +60,9 @@ The four arguments of `pytorch_model_loader()` are the following:
 3. `class_name`: The name of the class of the PyTorch model
 4. `pickle_path`: The path to the Pickle file that holds the model weights
 
-### PROBE
-
-Now that we have loaded the Python model, it is time to generate counterfactuals with it. A good choice for that is the PROBE generator that we added, introduced by Pawelczyk et al. (2022).
-
 #### Load the generator
+
+Now that we have loaded the model, let's create counterfactuals for it.
 
 ```{julia}
 target = 0
@@ -85,52 +83,12 @@ blobs_counterfactual = generate_counterfactual(
     generator;
     max_iter=10000,
 )
-CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE counterfactuals on a PyTorch model")
+CounterfactualExplanations.plot(blobs_counterfactual; title = "Counterfactuals on a PyTorch model")
 ```
 
-Let's now try a wildly different invalidation rate for the same model and same generator:
+### R models
 
-```{julia}
-blobs_counterfactual = generate_counterfactual(
-    x,
-    target,
-    counterfactual_data,
-    M,
-    generator;
-    converge_when=:invalidation_rate,
-    max_iter=10000,
-    invalidation_rate=0.99,
-    learning_rate=0.1,
-)
-CounterfactualExplanations.plot(blobs_counterfactual)
-```
-
-Finally, let's combine ideas from the PROBE, Greedy and REVISE generators, using the builder design pattern:
-
-```{julia}
-generator = Generators.Generator()
-
-@chain generator begin
-    @objective logitbinarycrossentropy + 0.1distance_l1     # PROBE
-    @with_optimiser JSMADescent(η=0.5)
-    @search_latent_space                                    # REVISE
-end
-```
-
-```{julia}
-blobs_counterfactual = generate_counterfactual(
-    x,
-    target,
-    counterfactual_data,
-    M,
-    generator;
-    converge_when=:invalidation_rate,
-    max_iter=10000,
-    invalidation_rate=0.9,
-    learning_rate=0.1,
-)
-CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE + REVISE counterfactuals on a PyTorch model, IR=0.9")
-```
+In a very similar way to the Python models, we have added support for models defined in R. Unfortunately, Python and R models cannot be used together in a single Julia session, as they both leverage PyTorch for automatic differentiation. Thus, we will not showcase R models in this document, but an introduction to them has been provided in the documentation for the package.
 
 ### MLJ models
 
@@ -170,6 +128,10 @@ decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data,
 For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
 
 Counterfactuals can be generated for this model using the Feature Tweak generator. Note that other generators are not applicable to these two models: both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
+
+## Added generators
+
+Now that we have loaded two tree-based models, it is time to generate counterfactuals for them. A generator specifically tailored for this task is Feature Tweak.
 
 ### Feature Tweak
 
@@ -214,6 +176,84 @@ CounterfactualExplanations.plot(tree_counterfactual; colorbar=false)
 CounterfactualExplanations.plot(forest_counterfactual)
 ```
 
+### PROBE
+
+Another generator we have implemented is PROBE, introduced by Pawelczyk et al. (2022). This generator is designed to navigate the trade-offs between costs and robustness in algorithmic recourse.
+
+PROBE is a gradient-based generator and thus doesn't work on tree-based models. For showcasing its functionality, let's define a simple MLP model:
+
+```{julia}
+counterfactual_data = load_linearly_separable()
+M = fit_model(counterfactual_data, :Linear)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+# Search:
+generator = ProbeGenerator()
+```
+
+Let's use wildly different invalidation rates to illustrate the workings of PROBE:
+
+```{julia}
+probe_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.01,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(probe_counterfactual; title = "PROBE, IR=0.01")
+```
+
+```{julia}
+probe_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.99,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(probe_counterfactual; title = "PROBE, IR=0.99")
+```
+
+As seen here, the counterfactual is much more robust to small perturbations in the values of its features when the invalidation rate is low - the model is much less likely to stop classifying it in the target class in the face of those perturbations.
+
+Finally, let's combine ideas from the PROBE, Greedy and REVISE generators, using the builder design pattern:
+
+```{julia}
+generator = Generators.Generator()
+
+@chain generator begin
+    @objective logitbinarycrossentropy + 0.1distance_l1     # PROBE
+    @with_optimiser JSMADescent(η=0.5)
+    @search_latent_space                                    # REVISE
+end
+```
+
+```{julia}
+combined_counterfactual = generate_counterfactual(
+    x,
+    target,
+    counterfactual_data,
+    M,
+    generator;
+    converge_when=:invalidation_rate,
+    max_iter=10000,
+    invalidation_rate=0.99,
+    learning_rate=0.1,
+)
+CounterfactualExplanations.plot(blobs_counterfactual; title = "PROBE combined with REVISE")
+```
+
 ### CLUE
 
 Added the CLUE generator, proposed by Antorán et al. (2023).
@@ -252,6 +292,8 @@ german_credit_data_y = german_credit_data.output_encoder.y
 ```
 
 #### Post Hoc benchmarking with Statlog German credit dataset
+
+To benchmark the dataset, let's first generate the counterfactuals:
 
 ```{julia}
 # Train a model
@@ -361,6 +403,22 @@ adult_counterfactual_data = generate_counterfactual(
     generator; 
     num_counterfactuals=1
 )
+```
+
+```{julia}
+benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
+
+@chain benchmark_german_credit_data() begin
+    @filter(variable == "distance")
+    @select(sample, variable, value)
+end
+```
+
+```{julia}
+factual_datapoint = first(xs)[1]
+counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
+
+df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
 ```
 
 #### References
