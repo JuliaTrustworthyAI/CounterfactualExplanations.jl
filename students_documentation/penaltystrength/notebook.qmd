@@ -6,12 +6,12 @@ Additionally, this notebook serves benchmarking purposes to help explore optimal
 
 ```{julia}
 using Pkg
-Pkg.activate("dev/penaltystrength/")
-using Revise
+Pkg.activate("students_documentation/penaltystrength/")
 # don't forget to `dev .`
 ```
 
 ```{julia}
+using Revise
 using CounterfactualExplanations
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Generators
@@ -20,10 +20,7 @@ using CounterfactualExplanations.Evaluation
 
 We load the standard models for each dataset:
 ```{julia}
-data_sets = Dict(
-        :synthetic => load_circles(),
-        :real_world => load_german_credit(),
-    )
+data_sets = Dict(:synthetic => load_circles(), :real_world => load_german_credit())
 # Models
 catalogue = Dict()
 for (dataset_type, data) in data_sets
@@ -40,7 +37,6 @@ Next, we generate counterfactuals for each model:
 ```{julia}
 counterfactuals = Dict()
 penalty_strengths = [0.1, 0.3, 0.5]
-
 
 function get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
     target = rand(
@@ -60,16 +56,23 @@ for (dataset_type, models_and_data) in catalogue
         target = get_target(data, y[1])
         for penalty_strength in penalty_strengths
             generators = Dict(
-                :claproar => Generators.ClaPROARGenerator(; λ=vec([penalty_strength, penalty_strength])),
+                :claproar => Generators.ClaPROARGenerator(;
+                    λ=vec([penalty_strength, penalty_strength])
+                ),
                 :generic => Generators.GenericGenerator(; λ=penalty_strength),
-                :gravitational => Generators.GravitationalGenerator(; λ=vec([penalty_strength, penalty_strength])),
+                :gravitational => Generators.GravitationalGenerator(;
+                    λ=vec([penalty_strength, penalty_strength])
+                ),
                 :revise => Generators.REVISEGenerator(; λ=penalty_strength),
-                :dice => Generators.DiCEGenerator(; λ=vec([penalty_strength, penalty_strength])),
+                :dice =>
+                    Generators.DiCEGenerator(; λ=vec([penalty_strength, penalty_strength])),
                 :wachter => Generators.WachterGenerator(; λ=penalty_strength),
                 :probe => ProbeGenerator(; λ=penalty_strength),
             )
             for (generator_name, generator) in generators
-                counterfactuals[(dataset_type, model_name, generator_name, penalty_strength)] = CounterfactualExplanations.generate_counterfactual(x, target, data, M, generator)
+                counterfactuals[(dataset_type, model_name, generator_name, penalty_strength)] = CounterfactualExplanations.generate_counterfactual(
+                    x, target, data, M, generator
+                )
             end
         end
     end
