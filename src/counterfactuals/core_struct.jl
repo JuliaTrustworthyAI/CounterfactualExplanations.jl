@@ -59,8 +59,13 @@ function CounterfactualExplanation(
     # Assertions:
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
-    @assert converge_when ∈
-        [:decision_threshold, :generator_conditions, :max_iter, :invalidation_rate]
+    @assert converge_when ∈ [
+        :decision_threshold,
+        :generator_conditions,
+        :max_iter,
+        :invalidation_rate,
+        :early_stopping,
+    ]
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
@@ -130,8 +135,11 @@ function CounterfactualExplanation(
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [ce.s′],
         :terminated => threshold_reached(ce, ce.x),
-        :converged => converged(ce),
     )
+
+    # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
+    # the above fields, which are not yet initialized.
+    ce.search[:converged] = converged(ce)
 
     # Check for redundancy:
     if terminated(ce)

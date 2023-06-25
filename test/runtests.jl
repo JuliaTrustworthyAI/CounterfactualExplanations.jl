@@ -20,7 +20,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.DataPreprocessing
- 
+
 init_perturbation = 2.0
 Random.seed!(0)
 
@@ -45,15 +45,15 @@ generators = Generators.generator_catalogue
         include("generators/generators.jl")
     end
 
-    # @testset "Models" begin
-    #     include("models/models.jl")
-    # end
+    @testset "Models" begin
+        include("models/models.jl")
+    end
 
-    # @testset "Evaluation" begin
-    #     include("other/evaluation.jl")
-    # end
+    @testset "Evaluation" begin
+        include("other/evaluation.jl")
+    end
 
-    # @testset "Plotting" begin
-    #     include("other/plotting.jl")
-    # end
+    @testset "Plotting" begin
+        include("other/plotting.jl")
+    end
 end

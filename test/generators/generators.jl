@@ -1,3 +1,4 @@
+include("clue.jl")
 include("feature_tweak.jl")
 include("counterfactuals.jl")
 include("probe.jl")
