@@ -230,6 +230,8 @@ M = Models.fit_model(counterfactual_data, :DeepEnsemble)
 ```
 
 ```{julia}
+x = counterfactual_data.X[:, 1]
+target = 1
 generator = CLUEGenerator()
 clue_counterfactual = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when=:early_stopping)
 CounterfactualExplanations.plot(clue_counterfactual)
