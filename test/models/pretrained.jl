@@ -10,10 +10,10 @@ using MLUtils
 using Random
 init_perturbation = 2.0
 
-models = _load_pretrained_models()
-
-# Using pretrained models is supported only for Julia versions >= 1.8
+# Using pretrained models is currently supported only for Julia versions >= 1.8
 if VERSION >= v"1.8"
+    models = _load_pretrained_models()
+
     @testset "Pretrained models" begin
         for (key, value) in models
             # The name of the dataset the model was trained on
