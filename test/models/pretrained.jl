@@ -89,7 +89,9 @@ if VERSION >= v"1.8"
                                 @test maximum(
                                     abs.(
                                         counterfactual.x .-
-                                        CounterfactualExplanations.decode_state(counterfactual)
+                                        CounterfactualExplanations.decode_state(
+                                            counterfactual
+                                        )
                                     ),
                                 ) < init_perturbation
                                 @test converged(counterfactual)
