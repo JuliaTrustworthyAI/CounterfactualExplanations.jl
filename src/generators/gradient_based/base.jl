@@ -15,7 +15,7 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
 end
 
 """
-	Generator(;
+	GradientBasedGenerator(;
 		loss::Union{Nothing,Function}=nothing,
 		penalty::Union{Nothing,Function,Vector{Function}}=nothing,
 		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
@@ -23,7 +23,7 @@ end
 		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 	)
 
-Default outer constructor for `Generator`.
+Default outer constructor for `GradientBasedGenerator`.
 
 # Arguments
 - `loss::Union{Nothing,Function}=nothing`: The loss function used by the model.
@@ -36,6 +36,27 @@ Default outer constructor for `Generator`.
 - `generator::GradientBasedGenerator`: A gradient-based counterfactual generator.
 """
 function GradientBasedGenerator(;
+    loss::Union{Nothing,Function}=nothing,
+    penalty::Union{Nothing,Function,Vector{Function}}=nothing,
+    λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
+    latent_space::Bool=false,
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+)
+    return GradientBasedGenerator(loss, penalty, λ, latent_space, opt)
+end
+
+"""
+	Generator(;
+		loss::Union{Nothing,Function}=nothing,
+		penalty::Union{Nothing,Function,Vector{Function}}=nothing,
+		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
+		latent_space::Bool::false,
+		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+	)
+
+An outer constructor that allows for more convenient creation of the `GradientBasedGenerator` type.
+"""
+function Generator(;
     loss::Union{Nothing,Function}=nothing,
     penalty::Union{Nothing,Function,Vector{Function}}=nothing,
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,

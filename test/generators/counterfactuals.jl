@@ -1,7 +1,3 @@
-include("feature_tweak.jl")
-include("generators.jl")
-include("probe.jl")
-
 # NOTE:
 # This is probably the most important/useful test script, because it runs through the whole process of: 
 # - loading artifacts
@@ -12,8 +8,9 @@ include("probe.jl")
 for (key, generator_) in generators
     name = uppercasefirst(string(key))
 
-    # Feature Tweak will be tested separately
-    if generator_() isa Generators.HeuristicBasedGenerator
+    # Feature Tweak and Growing Spheres will be tested separately
+    if generator_() isa Generators.FeatureTweakGenerator ||
+        generator_() isa Generators.GrowingSpheresGenerator
         continue
     end
 

@@ -22,60 +22,57 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 - Feature Tweak
   - Logic:
-    - `src\generators\non_gradient_based\base.jl`
-    - `src\generators\non_gradient_based\functions.jl`
-    - `src\generators\non_gradient_based\generators.jl`
-  - Tests: `test\counterfactuals.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Documentation: `docs\src\explanation\generators\feature_tweak.qmd`
+    - [feature_tweak.jl](..\src\generators\non_gradient_based\feature_tweak\feature_tweak.jl)
+    <!-- - `src\generators\non_gradient_based\functions.jl` -->
+    <!-- - `src\generators\non_gradient_based\generators.jl` -->
+  - Tests: [counterfactuals.jl](..\test\generators\feature_tweak.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+  - Documentation: [feature_tweak.qmd](..\docs\src\explanation\generators\feature_tweak.qmd)
 
 #### Added Datasets
 
 - Statlog German credit dataset 
-  - Logic: `src\data\tabular.jl`
-  - Tests: `test\data.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Logic: [german_credit.jl](..\src\data\tabular\german_credit.jl)
+  - Tests: [tabular.jl](..\test\data\tabular.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
 
 #### Model Compatibility
 
 - PyTorch models
   - Core logic:
-    - `src\models\pytorch_model.jl`
-    - `src\generators\gradient_based\functions.jl`
+    - [pytorch_model](..\src\models\differentiable\python\pytorch_model.jl)
   - Utility logic:
-    - `src\data_preprocessing\utils.jl`
-    - `src\models\model_utils.jl`
-  - Tests: `test\models.jl`
-  - Test utilities: `test\pytorch.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
-  - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
+    - [utils.jl](..\src\data_preprocessing\utils.jl)
+    - [model_utils.jl](..\src\models\utils.jl)
+  - Tests: [pytorch.jl](..\test\models\pytorch.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+  - Documentation: [model_catalogue.qmd](..\docs\src\tutorials\model_catalogue.qmd)
+  - Summary of our efforts to make Python and R models compatible with the generators: [PyTorch_and_R_models_report.md](Python_and_R_models_report.md)
 
 - R torch models
   - Core logic:
-    - `src\models\differentiable\R\rtorch_model.jl`
-    - `src\generators\gradient_based\loss.jl`
-  - Utility logic (model loader function): `src/models/utils.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Summary of our efforts to make Python and R models compatible with the generators: `students_documentation\PyTorch_and_R_models_report.md`
+    - [rtorch_model.jl](..\src\models\differentiable\R\rtorch_model.jl)
+    - [loss.jl](..\src\generators\gradient_based\loss.jl)
+  - Utility logic (model loader function): [utils.jl](../src/models/utils.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+  - Summary of our efforts to make Python and R models compatible with the generators: [PyTorch_and_R_models_report.md](Python_and_R_models_report.md)
 
 - DecisionTreeClassifier and RandomForestClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
   - Core logic:
-    - `src\models\nondifferentiable\mlj_tree.jl`
-    - `src\models\nondifferentiable\nondifferentiable.jl`
-  - Utility logic: `src\data_preprocessing\utils.jl`
-  - Tests: `test\models.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
-  - Summary of our efforts to make MLJ models compatible with the generators: `students_documentation\MLJ_models_report.md`
+    - [tree.jl](..\src\models\nondifferentiable\mlj\tree.jl)
+  - Utility logic: [utils.jl](..\src\data_preprocessing\utils.jl)
+  - Tests: [models.jl](..\test\models\models.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+  - Documentation: [model_catalogue.qmd](..\docs\src\tutorials\model_catalogue.qmd)
+  - Summary of our efforts to make MLJ models compatible with the generators: [MLJ_models_report.md](MLJ_model_report.md)
 
 - EvoTreeClassifier from the MLJ library (https://alan-turing-institute.github.io/MLJ.jl/dev/list_of_supported_models/) 
-  - Core logic: `src\models\differentiable\evotree_model.jl`
-  - Utility logic: `src\data_preprocessing\utils.jl`
-  - Tests: `test\models.jl`
-  - Example: `students_documentation\summary_notebook\summary.qmd`
-  - Documentation: `docs\src\tutorials\model_catalogue.qmd`
-  - Summary of our efforts to make MLJ models compatible with the generators: `students_documentation\MLJ_models_report.md`
+  - Core logic: [evotree.jl](..\src\models\differentiable\other\evotree.jl)
+  - Utility logic: [utils.jl](..\src\data_preprocessing\utils.jl)
+  - Tests: [models.jl](..\test\models\models.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+  - Documentation: [model_catalogue.qmd](..\docs\src\tutorials\model_catalogue.qmd)
+  - Summary of our efforts to make MLJ models compatible with the generators: [MLJ_models_report.md](MLJ_model_report.md)
 
 #### Exports
 
@@ -83,9 +80,28 @@ In this project, we focus on contributing to CounterfactualExplanations.jl, a tr
 
 #### Generators
 
+- Growing Spheres
+  - Core logic: `src/generators/non_gradient_based/growing_spheres/growing_spheres.jl`
+  - Tests: `test\generators\growing_spheres.jl`
+  - Example: `students_documentation\summary_notebook\summary.qmd`
+  - Documentation: `docs\src\explanation\generators\growing_spheres.qmd`
+
 #### Added Datasets
 
-- CIFAR10 
-  - Logic: `src\data\vision.jl`
-  - Tests: `test\data.jl`
-  - Example: `dev\artifacts\vision.qmd`
+- CIFAR10
+  - Logic: [cifar_10.jl](..\src\data\vision\cifar_10.jl)
+  - Tests: [vision.jl](..\test\data\vision.jl)
+  - Example: [vision.qmd](..\dev\artifacts\vision.qmd)
+
+- UCI Adult Dataset
+  - Logic: [adult.jl](..\src\data\tabular\adult.jl)
+  - Tests: [tabular.jl](..\test\data\tabular.jl)
+  - Example: [summary.qmd](summary_notebook\summary.qmd)
+
+### Could Have Features
+
+- Investigate using UMAP for visualizing high-dimensional data
+  - Report: [visualization_report.md](visualization_report.md)
+
+- Investigate informed choices for default penalty strength 
+  - Report: [notebook.qmd](penaltystrength\notebook.qmd)

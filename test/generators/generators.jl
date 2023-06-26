@@ -1,3 +1,10 @@
+include("clue.jl")
+include("feature_tweak.jl")
+include("counterfactuals.jl")
+include("probe.jl")
+include("growing_spheres.jl")
+
+# generic tests
 @testset "Construction" begin
     @testset "Generic" begin
         generator = Generators.GenericGenerator()

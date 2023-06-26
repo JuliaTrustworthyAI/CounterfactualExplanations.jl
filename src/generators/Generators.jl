@@ -17,6 +17,7 @@ using MLJBase
 using MLJDecisionTreeInterface
 using Distributions
 using SliceMap
+using Random
 using Statistics
 using RCall
 using PythonCall
@@ -28,20 +29,23 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
+export FeatureTweakGenerator
 export feature_tweaking
+export feature_selection
 export CLUEGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator
-export HeuristicBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
 export hinge_loss, invalidation_rate
 export predictive_entropy
 export ProbeGenerator
+export growing_spheres_generation
 
 include("macros.jl")
 include("utils.jl")
@@ -62,6 +66,7 @@ include("gradient_based/probe.jl")
 include("non_gradient_based/base.jl")
 
 include("non_gradient_based/feature_tweak/feature_tweak.jl")
+include("non_gradient_based/growing_spheres/growing_spheres.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
@@ -70,6 +75,7 @@ generator_catalogue = Dict(
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
+    :growing_spheres => Generators.GrowingSpheresGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
