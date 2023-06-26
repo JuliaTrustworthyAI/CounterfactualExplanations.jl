@@ -1,9 +1,9 @@
 ```{julia}
 using Pkg
 Pkg.activate("students_documentation/summary_notebook")
- 
+ENV["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 # Dependencies
-using Revise
 using CounterfactualExplanations
 using Images
 using MLDatasets
@@ -17,7 +17,7 @@ using CounterfactualExplanations.Generators
  
 # PyTorch Models
  
-## Load the Data
+## Load the Data and the Model
  
 ```{julia}
 # Load data
@@ -25,11 +25,7 @@ Random.seed!(42);
 N = 100
  
 counterfactual_data = CounterfactualExplanations.Data.load_moons(N)
-```
- 
-## Load the Model
- 
-```{julia}
+
 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
     "$(pwd())/students_documentation/summary_notebook/miscellaneous",
     "neural_network_class",
@@ -37,31 +33,23 @@ model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
     "$(pwd())/students_documentation/summary_notebook/miscellaneous/pretrained_model.pt"
 )
  
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_binary)
+model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, :classification_multi)
 ```
  
 ## Load the Generator
  
 ```{julia}
-target = 2
-factual = 1
-chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
-x = select_factual(counterfactual_data, chosen)
-generator = Generators.ProbeGenerator()
-```
- 
-## Generate the Counterfactual
- 
-```{julia}
 target = 0
 factual = 1
- 
+
 chosen = rand(findall(predict_label(model_pytorch, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen)
 # Search:
 generator = GravitationalGenerator()
 ```
  
+## Plot the Results
+
 ```{julia}
 blobs_counterfactual = generate_counterfactual(
     x, target, counterfactual_data, model_pytorch, generator; max_iter=10000
@@ -73,17 +61,15 @@ CounterfactualExplanations.plot(
  
 # Feature Tweak and Tree Models
  
-## Load the Data
+## Load the Data an Models
  
 ```{julia}
 n = 500
 counterfactual_data = Data.load_moons(n)
-```
- 
-## Load the Models
- 
-```{julia}
-decision_tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
+
+decision_tree = CounterfactualExplanations.Models.fit_model(
+    counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3
+)
 forest = Models.fit_model(counterfactual_data, :RandomForest)
 ```
  
@@ -95,10 +81,14 @@ Models.predict_label(forest, x)
 ## Define the Generator
  
 ```{julia}
-generator = FeatureTweakGenerator(ϵ=0.1)
+generator = FeatureTweakGenerator(0.1)
 target = 0
-tree_counterfactual = generate_counterfactual(x, target, counterfactual_data, decision_tree, generator)
-forest_counterfactual = generate_counterfactual(x, target, counterfactual_data, forest, generator)
+tree_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, decision_tree, generator
+)
+forest_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, forest, generator
+)
 ```
  
 ## Plot the Results
@@ -116,9 +106,7 @@ CounterfactualExplanations.plot(
     forest_counterfactual; title="Feature Tweak counterfactuals on a Random Forest"
 )
 ```
- 
-# Generators
- 
+
 ## PROBE
  
 ### Define the Generator
@@ -190,78 +178,5 @@ combined_counterfactual = generate_counterfactual(
     invalidation_rate=0.99,
     learning_rate=0.1,
 )
-CounterfactualExplanations.plot(blobs_counterfactual; title="PROBE combined with REVISE")
-```
- 
-## CLUE
- 
-```{julia}
-counterfactual_data = Data.load_moons(N)
-M = Models.fit_model(counterfactual_data, :DeepEnsemble)
-```
- 
-```{julia}
-x = counterfactual_data.X[:, 1]
-target = 1
-generator = CLUEGenerator()
-clue_counterfactual = generate_counterfactual(
-    x, target, counterfactual_data, M, generator; converge_when=:early_stopping
-)
-CounterfactualExplanations.plot(clue_counterfactual)
-```
- 
-# Added datasets
- 
-## Statlog German credit dataset
- 
-```{julia}
-german_credit_data = CounterfactualExplanations.Data.load_german_credit()
-german_credit_data_x = german_credit_data.X
-german_credit_data_y = german_credit_data.output_encoder.y
-```
- 
-### Benchmarking
- 
-```{julia}
-# Train a model
-M = fit_model(german_credit_data, :Linear)
- 
-# Factual and target labels:
-target = 1
-factual = 0
-```
- 
-```{julia}
-n_individuals = 5
- 
-# Choose random factual individuals
-ids = rand(findall(predict_label(M, german_credit_data) .== factual), n_individuals)
-xs = select_factual(german_credit_data, ids)
- 
-generator = GenericGenerator()
- 
-generated_counterfactuals_german_credit_data = generate_counterfactual(
-    xs,
-    target,
-    german_credit_data,
-    M,
-    generator; 
-    num_counterfactuals=1
-)
-```
- 
-```{julia}
-benchmark_german_credit_data = CounterfactualExplanations.Evaluation.benchmark(generated_counterfactuals_german_credit_data)
- 
-@chain benchmark_german_credit_data() begin
-    @filter(variable == "distance")
-    @select(sample, variable, value)
-end
-```
- 
-```{julia}
-factual_datapoint = first(xs)[1]
-counterfactual_datapoint = generated_counterfactuals_german_credit_data[1].s′
- 
-df = DataFrame(Vector1 = vec(factual_datapoint), Vector2 = vec(counterfactual_datapoint))
+CounterfactualExplanations.plot(combined_counterfactual; title="PROBE combined with REVISE")
 ```
