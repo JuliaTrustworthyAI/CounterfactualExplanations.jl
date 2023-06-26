@@ -16,7 +16,9 @@ end
 A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
 """
 function converged(ce::CounterfactualExplanation)
-    if ce.convergence[:converge_when] == :decision_threshold
+    if ce.generator isa GrowingSpheresGenerator
+        conv = ce.search[:converged]
+    elseif ce.convergence[:converge_when] == :decision_threshold
         conv = threshold_reached(ce)
     elseif ce.convergence[:converge_when] == :generator_conditions
         conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
@@ -27,6 +29,8 @@ function converged(ce::CounterfactualExplanation)
         # gets the label from an array, not sure why it is an array though.
         label = predict_label(ce.M, ce.data, decode_state(ce))[1]
         conv = label == ce.target && ce.params[:invalidation_rate] > ir
+    elseif (ce.convergence[:converge_when] == :early_stopping)
+        conv = steps_exhausted(ce)
     else
         @error "Convergence criterion not recognized."
     end

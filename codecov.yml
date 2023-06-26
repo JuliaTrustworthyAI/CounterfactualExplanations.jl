@@ -6,3 +6,4 @@ coverage:
         threshold: 0.01%  # the leniency in hitting the target
   ignore:
   - "src/**/visualization/**/*"
+  - "src/models/differentiable/R/rtorch_model.jl"

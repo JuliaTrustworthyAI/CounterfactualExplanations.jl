@@ -113,7 +113,7 @@ Not called by the user directly.
 function EvoTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
-    model = EvoTrees.EvoTreeClassifier(kwargs...)
+    model = EvoTrees.EvoTreeClassifier(; kwargs...)
     mach = MLJBase.machine(model, X, y)
 
     return EvoTreeModel(mach, data.likelihood)

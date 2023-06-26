@@ -36,7 +36,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel, RTorchModel
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,
@@ -60,6 +60,7 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator

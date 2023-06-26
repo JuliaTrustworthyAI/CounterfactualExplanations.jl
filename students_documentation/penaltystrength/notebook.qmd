@@ -1,0 +1,86 @@
+# Experimenting with and determining penalty strengths
+
+The idea of this notebook is to explore custom penalty strengths. The default values for penalty strengths used in generators are based on literature and other software implementations. This notebook gives those working on or with the package some freedom to discover how different values influence the counterfactual explanations. 
+
+Additionally, this notebook serves benchmarking purposes to help explore optimal values for counterfactuals. For this purpose, we have selected one real-world dataset (Statlog German Credit dataset) and one synthetic dataset (circles). Benchmarking experiments are performed on these datasets in order to determine which penalty strengths work best.
+
+```{julia}
+using Pkg
+Pkg.activate("students_documentation/penaltystrength/")
+# don't forget to `dev .`
+```
+
+```{julia}
+using Revise
+using CounterfactualExplanations
+using CounterfactualExplanations.Data
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Evaluation
+```
+
+We load the standard models for each dataset:
+```{julia}
+data_sets = Dict(:synthetic => load_circles(), :real_world => load_german_credit())
+# Models
+catalogue = Dict()
+for (dataset_type, data) in data_sets
+    models = Dict()
+    for (model_name, model) in standard_models_catalogue
+        M = fit_model(data, model_name)
+        models[model_name] = Dict(:raw_model => M.model, :model => M)
+    end
+    catalogue[dataset_type] = Dict(:models => models, :data => data)
+end
+```
+
+Next, we generate counterfactuals for each model:
+```{julia}
+counterfactuals = Dict()
+penalty_strengths = [0.1, 0.3, 0.5]
+
+function get_target(counterfactual_data::CounterfactualData, factual_label::RawTargetType)
+    target = rand(
+        counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual_label]
+    )
+    return target
+end
+
+for (dataset_type, models_and_data) in catalogue
+    models = models_and_data[:models]
+    data = models_and_data[:data]
+    X = data.X
+    x = select_factual(data, rand(1:size(X, 2)))
+    for (model_name, model) in models
+        M = models[model_name][:model]
+        y = predict_label(M, data, x)
+        target = get_target(data, y[1])
+        for penalty_strength in penalty_strengths
+            generators = Dict(
+                :claproar => Generators.ClaPROARGenerator(;
+                    λ=vec([penalty_strength, penalty_strength])
+                ),
+                :generic => Generators.GenericGenerator(; λ=penalty_strength),
+                :gravitational => Generators.GravitationalGenerator(;
+                    λ=vec([penalty_strength, penalty_strength])
+                ),
+                :revise => Generators.REVISEGenerator(; λ=penalty_strength),
+                :dice =>
+                    Generators.DiCEGenerator(; λ=vec([penalty_strength, penalty_strength])),
+                :wachter => Generators.WachterGenerator(; λ=penalty_strength),
+                :probe => ProbeGenerator(; λ=penalty_strength),
+            )
+            for (generator_name, generator) in generators
+                counterfactuals[(dataset_type, model_name, generator_name, penalty_strength)] = CounterfactualExplanations.generate_counterfactual(
+                    x, target, data, M, generator
+                )
+            end
+        end
+    end
+end
+
+```
+
+Finally, perform benchmarking experiments:
+```{julia}
+benchmark([counterfactuals[(:real_world, :MLP, :probe, 0.5)]])
+```

@@ -93,16 +93,22 @@ function generate_counterfactual(
             end
         end
 
-    elseif isa(generator, HeuristicBasedGenerator)
+    elseif isa(generator, FeatureTweakGenerator)
         if isa(M, Models.TreeModel)
             new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
             ce.s′ = new_x
+            new_x = reshape(new_x, :, 1)
             ce.search[:path] = [ce.search[:path]..., new_x]
+            ce.search[:iteration_count] = 1
             ce.search[:terminated] = true
             ce.search[:converged] = true
         end
+    elseif isa(generator, GrowingSpheresGenerator)
+        Generators.growing_spheres_generation!(ce)
+        Generators.feature_selection!(ce)
+    else
+        @error "Generator not recognized."
     end
-
     return ce
 end
 

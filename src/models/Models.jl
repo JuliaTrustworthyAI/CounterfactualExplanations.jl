@@ -17,6 +17,7 @@ using EvoTrees
 using SliceMap
 using DataFrames
 using MLJDecisionTreeInterface
+using RCall
 using PythonCall
 
 include("utils.jl")
@@ -39,6 +40,7 @@ export EvoTreeModel
 export DecisionTreeModel
 export RandomForestModel
 export PyTorchModel
+export RTorchModel
 export flux_training_params
 export probs, logits
 
@@ -79,6 +81,7 @@ const all_models_catalogue = Dict(
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
     :PyTorchModel => PyTorchModel,
+    :RTorchModel => RTorchModel,
 )
 
 """
@@ -118,6 +121,7 @@ export model_evaluation
 export predict_label
 export predict_proba
 export pytorch_model_loader
+export rtorch_model_loader
 export reset!
 
 end
