@@ -46,6 +46,10 @@ function feature_tweaking(
     x::AbstractArray,
     target::RawTargetType,
 )
+    if Models.predict_label(M, x) == target
+        return ce
+    end
+
     x_out = deepcopy(x)
     delta = 10^3
     ensemble_prediction = Models.predict_label(M, x)[1]
