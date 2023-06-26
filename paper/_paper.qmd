@@ -277,6 +277,10 @@ Mutability can be defined in terms of four different options: 1) the feature is 
 We can impose that the first feature is immutable as follows: `counterfactual_data.mutability = [:none, :both]`. The resulting counterfactual path is shown in @fig-mutability below. Since only the second feature can be perturbed, the sample can only move along the vertical axis.
 
 ```{julia}
+counterfactual_data.mutability = [:none, :both]
+```
+
+```{julia}
 # Define generator:
 generator = GenericGenerator()
 # Generate recourse:
@@ -528,7 +532,7 @@ struct DropoutGenerator <: AbstractDropoutGenerator
 end
 \end{lstlisting}
 
-Next, in Code \ref{lst:generate} we define how feature perturbations are generated for our custom dropout generator: in particular, we extend the relevant function through a method that implements the dropout logic. Finally, we proceed to generate counterfactuals in the same way we always do. The resulting counterfactual path is shown in @fig-dropout.
+Next, in Code \ref{lst:generate} we define how feature perturbations are generated for our custom dropout generator: in particular, we extend the relevant function through a method that implements the dropout logic.
 
 ```{julia}
 using CounterfactualExplanations.Generators
@@ -572,6 +576,8 @@ function Generators.generate_perturbations(
     return @$\Delta s^\prime$@
 end
 \end{lstlisting}
+
+Finally, we proceed to generate counterfactuals in the same way we always do. The resulting counterfactual path is shown in @fig-dropout.
 
 ```{julia}
 # Data and Classifier:

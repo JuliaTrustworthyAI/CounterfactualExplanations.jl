@@ -806,8 +806,7 @@ Dropout}\label{a-generator-with-dropout}}
 
 Code \ref{lst:dropout} below implements two important steps: 1) create
 an abstract subtype of the \texttt{AbstractGradientBasedGenerator} and
-2) create a constructor similar to the \texttt{GenericConstructor}, but
-with one additional field for the probability of dropout.
+2) create a constructor with a custom field for the probability of dropout.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={Building a custom generator with dropout.}]
 # Abstract suptype:
@@ -827,9 +826,6 @@ end
 Next, in Code \ref{lst:generate} we define how feature perturbations are
 generated for our custom dropout generator: in particular, we extend the
 relevant function through a method that implements the dropout logic.
-Finally, we proceed to generate counterfactuals in the same way we
-always do. The resulting counterfactual path is shown in
-Figure~\ref{fig-dropout}.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:generate}, caption={Generating feature perturbations with dropout.}]
 using CounterfactualExplanations.Generators
@@ -851,6 +847,10 @@ function Generators.generate_perturbations(
     return @$\Delta s^\prime$@
 end
 \end{lstlisting}
+
+Finally, we proceed to generate counterfactuals in the same way we
+always do. The resulting counterfactual path is shown in
+Figure~\ref{fig-dropout}.
 
 \begin{figure}
 
