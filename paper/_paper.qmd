@@ -686,8 +686,8 @@ map(enumerate(counterfactuals)) do (idx, x)
     _x = vcat(_x[findall(input_names.==x1)], _x[findall(input_names.==x2)])
 
     if idx == 1
-        non_target_label = "loan denied"
-        target_label = "loan provided"
+        non_target_label = "Loan denied"
+        target_label = "Loan provided"
     else
         non_target_label = ""
         target_label = ""
