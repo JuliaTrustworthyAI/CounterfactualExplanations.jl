@@ -1,8 +1,8 @@
+# `ProbeGenerator`
+
 ``` @meta›
 CurrentModule = CounterfactualExplanations 
 ```
-# `ProbeGenerator`
-
 
 The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in algorithmic recourse. resol \## Description
 
@@ -41,7 +41,7 @@ Generating a counterfactual with the data loaded and generator chosen works as f
 Note: It is important to set the convergence to “:invalidation_rate” here.
 
 ``` julia
-generator = ProbeGenerator()
+generator = CounterfactualExplanations.Generators.ProbeGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when =:invalidation_rate, invalidation_rate = 0.5, learning_rate = 0.5)
 plot(ce)
 ```

@@ -7,6 +7,7 @@ CurrentModule = CounterfactualExplanations
 include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
+
 # `ProbeGenerator`
 
 The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in algorithmic recourse.

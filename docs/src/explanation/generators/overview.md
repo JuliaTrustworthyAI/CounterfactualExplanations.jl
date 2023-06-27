@@ -1,9 +1,8 @@
+# Counterfactual Generators (**id?** generators_explanation)
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Counterfactual Generators (**id?** generators_explanation)
 
 Counterfactual generators form the very core of this package. The [`generator_catalogue`](@ref) can be used to inspect the available generators:
 
@@ -11,13 +10,18 @@ Counterfactual generators form the very core of this package. The [`generator_ca
 generator_catalogue
 ```
 
-    Dict{Symbol, DataType} with 6 entries:
-      :gravitational => GravitationalGenerator
-      :revise        => REVISEGenerator
-      :dice          => DiCEGenerator
-      :generic       => GenericGenerator
-      :greedy        => GreedyGenerator
-      :claproar      => ClaPROARGenerator
+    Dict{Symbol, Any} with 11 entries:
+      :gravitational   => GravitationalGenerator
+      :growing_spheres => GrowingSpheresGenerator
+      :revise          => REVISEGenerator
+      :clue            => CLUEGenerator
+      :probe           => ProbeGenerator
+      :dice            => DiCEGenerator
+      :feature_tweak   => FeatureTweakGenerator
+      :claproar        => ClaPROARGenerator
+      :wachter         => WachterGenerator
+      :generic         => GenericGenerator
+      :greedy          => GreedyGenerator
 
 The following sections provide brief descriptions of all of them.
 

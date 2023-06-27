@@ -1,9 +1,8 @@
+# `GravitationalGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `GravitationalGenerator`
 
 The `GravitationalGenerator` was introduced in Altmeyer et al. (2023). It is named so because it generates counterfactuals that gravitate towards some sensible point in the target domain.
 
@@ -47,7 +46,7 @@ plot(ce)
 
 ### Comparison to `GenericGenerator`
 
-The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `GravitationalGenerator`.
+The figure below compares the outcome for the `GenericGenerator` and the `GravitationalGenerator`.
 
 ![](gravitational_files/figure-commonmark/cell-6-output-1.svg)
 

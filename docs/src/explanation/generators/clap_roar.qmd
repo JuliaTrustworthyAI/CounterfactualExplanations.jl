@@ -38,7 +38,7 @@ plot(ce)
 
 ### Comparison to `GenericGenerator`
 
-The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `ClaPROARGenerator`. 
+The figure below compares the outcome for the `GenericGenerator` and the `ClaPROARGenerator`. 
 
 ```{julia}
 #| echo: false
@@ -56,8 +56,7 @@ opt = Flux.Descent(0.01)
 #| echo: false
 # Generators:
 generators = Dict(
-    "Generic (γ=0.5)" => GenericGenerator(opt = opt, decision_threshold=0.5),
-    "Generic (γ=0.9)" => GenericGenerator(opt = opt, decision_threshold=0.9),
+    "Generic" => GenericGenerator(opt = opt),
     "ClaPROAR" => ClaPROARGenerator(opt = opt)
 )
 
@@ -69,7 +68,7 @@ for (name,ce) ∈ counterfactuals
     plt = plot(ce; title=name, colorbar=false, ticks = false, legend=false, zoom=0)
     plts = vcat(plts..., plt)
 end
-plot(plts..., size=(550,200), layout=(1,3))
+plot(plts..., size=(400,200), layout=(1,2))
 ```
 
 ## References

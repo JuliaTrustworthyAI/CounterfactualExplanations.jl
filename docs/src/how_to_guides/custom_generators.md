@@ -1,9 +1,8 @@
+# How to add Custom Generators
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# How to add Custom Generators
 
 As we will see in this short tutorial, building custom counterfactual generators is straightforward. We hope that this will facilitate contributions through the community.
 
@@ -19,25 +18,22 @@ abstract type AbstractDropoutGenerator <: AbstractGradientBasedGenerator end
 
 # Constructor:
 struct DropoutGenerator <: AbstractDropoutGenerator
-    loss::Union{Nothing,Function} # loss function
-    complexity::Function # complexity function
+    loss::Function # loss function
+    penalty::Function
     λ::AbstractFloat # strength of penalty
-    decision_threshold::Union{Nothing,AbstractFloat} 
+    latent_space::Bool
     opt::Any # optimizer
-    τ::AbstractFloat # tolerance for convergence
     p_dropout::AbstractFloat # dropout rate
 end
 
 # Instantiate:
-using LinearAlgebra
 generator = DropoutGenerator(
-    :logitbinarycrossentropy,
-    norm,
+    Flux.logitbinarycrossentropy,
+    CounterfactualExplanations.Objectives.distance_l1,
     0.1,
+    false,
+    Flux.Optimise.Descent(0.1),
     0.5,
-    Flux.Optimise.Descent(0.025),
-    0.1,
-    0.5
 )
 ```
 
@@ -68,7 +64,21 @@ end
 Finally, we proceed to generate counterfactuals in the same way we always do:
 
 ``` julia
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+# Data and Classifier:
+M = fit_model(counterfactual_data, :DeepEnsemble)
+
+# Factual and Target:
+yhat = predict_label(M, counterfactual_data)
+target = 2    # target label
+candidates = findall(vec(yhat) .!= target)
+chosen = rand(candidates)
+x = select_factual(counterfactual_data, chosen)
+
+# Counterfactual search:
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator;
+    num_counterfactuals=5)
+
 plot(ce)
 ```
 

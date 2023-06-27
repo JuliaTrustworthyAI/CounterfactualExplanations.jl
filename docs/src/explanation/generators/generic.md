@@ -1,9 +1,8 @@
+# `GenericGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `GenericGenerator`
 
 We use the term **generic** to relate to the counterfactual generator proposed by Wachter, Mittelstadt, and Russell (2017).
 

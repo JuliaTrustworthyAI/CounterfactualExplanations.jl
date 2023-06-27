@@ -34,7 +34,7 @@ evaluate(ce; measure=validity)
 For a single counterfactual explanation, this evaluation measure can only take two values: it is either equal to `1`, if the explanation is valid or `0` otherwise. Another important measure is [`distance`](@ref), which relates to the distance between the factual $x$ and the counterfactual $x^{\prime}$. In the context of Algorithmic Recourse, higher distances are typically associated with higher costs to individuals seeking recourse. 
 
 ```{julia}
-using CounterfactualExplanations.Evaluation: distance
+using CounterfactualExplanations.Objectives: distance
 evaluate(ce; measure=distance)
 ```
 
