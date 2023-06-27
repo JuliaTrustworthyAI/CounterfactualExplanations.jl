@@ -51,7 +51,7 @@ bend.'' \cite{oneil2016weapons}
 
 In light of all this, a quickly growing body of literature on
 Explainable Artificial Intelligence (XAI) has emerged. Counterfactual
-Explanations fall into this broader category. They can help human
+Explanations fall into this broad category. They can help human
 stakeholders make sense of the systems they develop, use or endure: they
 explain how inputs into a system need to change for it to produce
 different decisions. Explainability benefits internal as well as
@@ -66,12 +66,12 @@ here, we aim to close that gap and thereby contribute to broader
 community efforts towards XAI. We envision this package to one day be
 the go-to place for Counterfactual Explanations in Julia. Thanks to
 Julia's unique support for interoperability with foreign programming
-languages we believe that this library may ultimately also benefit the
-broader machine learning and data science community.
+languages we believe that this library may also benefit the broader
+machine learning and data science community.
 
 Our package provides a simple and intuitive interface to generate CE for
-many standard classification models trained in Julia, as well as Python
-and R. It comes with detailed documentation involving various
+many standard classification models trained in Julia, as well as in
+Python and R. It comes with detailed documentation involving various
 illustrative example datasets, models and counterfactual generators for
 binary and multi-class prediction tasks. A carefully designed package
 architecture allows for a seamless extension of the package
@@ -83,12 +83,11 @@ brief overview of the methodological framework underlying CE.
 Section~\ref{sec-arch} introduces the Julia package and its high-level
 architecture. Section~\ref{sec-use} presents several basic and advanced
 usage examples. In Section~\ref{sec-custom} we demonstrate how the
-package functionality can be customized and extended. To provide a
-flavour of its practical use, we use the package to explain models
-trained on real-world data in Section~\ref{sec-emp}. Finally, we also
-discuss the current limitations of our package, as well as its future
-outlook in Section~\ref{sec-outlook}. Section~\ref{sec-conclude}
-concludes.
+package functionality can be customized and extended. To illustrate its
+practical usability, we explore examples involving real-world data in
+Section~\ref{sec-emp}. Finally, we also discuss the current limitations
+of our package, as well as its future outlook in
+Section~\ref{sec-outlook}. Section~\ref{sec-conclude} concludes.
 
 \hypertarget{sec-related}{%
 \section{Background and related work}\label{sec-related}}
@@ -113,9 +112,8 @@ finally, Karimi et al.~(2020) \cite{karimi2020survey} and Verma et
 al.~(2020) \cite{verma2020counterfactual} offer detailed reviews of the
 literature on Counterfactual Explanations and Algorithmic Recourse (see
 also \cite{molnar2020interpretable} and \cite{varshney2022trustworthy}).
-Finally, Miller (2019) explicitly discusses the concept of
-explainability from the perspective of a social scientist
-\cite{miller2019explanation}.
+Miller (2019) explicitly discusses the concept of explainability from
+the perspective of a social scientist \cite{miller2019explanation}.
 
 The first broad distinction we want to make here is between
 \textbf{Interpretable} and \textbf{Explainable} AI. These terms are
@@ -123,69 +121,69 @@ often used interchangeably, but this can lead to confusion. We find the
 distinction made in \cite{rudin2019stop} useful: Interpretable AI
 involves models that are inherently interpretable and transparent such
 as general additive models (GAM), decision trees and rule-based models;
-Explainable AI may involve models that are not inherently interpretable
-but require additional tools to be explainable to humans. Examples of
-the latter include Ensembles, Support Vector Machines and Deep Neural
+Explainable AI involves models that are not inherently interpretable but
+require additional tools to be explainable to humans. Examples of the
+latter include Ensembles, Support Vector Machines and Deep Neural
 Networks. Some would argue that we best avoid the second category of
 models altogether and instead focus solely on interpretable AI
 \cite{rudin2019stop}. While we agree that initial efforts should always
 be geared towards interpretable models, avoiding black boxes altogether
 would entail missed opportunities and anyway is probably not very
-realistic at this point. For that reason, we expect the need for
-explainable AI to persist in the medium term. Explainable AI can further
-be broadly divided into \textbf{global} and \textbf{local}
-explainability: the former is concerned with explaining the average
-behaviour of a model, while the latter involves explanations for
-individual predictions \cite{molnar2020interpretable}. Tools for global
-explainability include partial dependence plots (PDP), which involve the
-computation of marginal effects through Monte Carlo, and global
-surrogates. A surrogate model is an interpretable model that is trained
-to explain the predictions of a black-box model.
+realistic at this point. For that reason, we expect the need for XAI to
+persist in the medium term. Explainable AI can further be broadly
+divided into \textbf{global} and \textbf{local} explainability: the
+former is concerned with explaining the average behaviour of a model,
+while the latter involves explanations for individual predictions
+\cite{molnar2020interpretable}. Tools for global explainability include
+partial dependence plots (PDP), which involve the computation of
+marginal effects through Monte Carlo, and global surrogates. A surrogate
+model is an interpretable model that is trained to explain the
+predictions of a black-box model.
 
 Counterfactual Explanations fall into the category of local methods:
 they explain how individual predictions change in response to individual
 feature perturbations. Among the most popular alternatives to
 Counterfactual Explanations are local surrogate explainers including
-local interpretable model-agnostic explanations (LIME) and Shapley
+Local Interpretable Model-agnostic Explanations (LIME) and Shapley
 additive explanations (SHAP). Since explanations produced by LIME and
 SHAP typically involve simple feature importance plots, they arguably
 rely on reasonably interpretable features at the very least. Contrary to
 Counterfactual Explanations, for example, it is not obvious how to apply
-LIME and SHAP to visual or audio data. Nonetheless, local surrogate
-explainers are among the most widely used XAI tools today, potentially
-because they are easy to interpret and implemented in popular
-programming languages. Proponents of surrogate explainers also commonly
-mention that there is a straightforward way to assess their reliability:
-a surrogate model that generates predictions in line with those produced
-by the black-box model is said to have high \textbf{fidelity} and
-therefore considered reliable. As intuitive as this notion may be, it
-also points to an obvious shortfall of surrogate explainers: even a
-high-fidelity surrogate model that produces the same predictions as the
-black-box model 99 per cent of the time is useless and potentially
-misleading for every 1 out of 100 individual predictions.
+LIME and SHAP to high-dimensional image data. Nonetheless, local
+surrogate explainers are among the most widely used XAI tools today,
+potentially because they are easy to interpret and implemented in
+popular programming languages. Proponents of surrogate explainers also
+commonly mention that there is a straightforward way to assess their
+reliability: a surrogate model that generates predictions in line with
+those produced by the black-box model is said to have high
+\textbf{fidelity} and therefore considered reliable. As intuitive as
+this notion may be, it also points to an obvious shortfall of surrogate
+explainers: even a high-fidelity surrogate model that produces the same
+predictions as the black-box model 99 per cent of the time is useless
+and potentially misleading for every 1 out of 100 individual
+predictions.
 
 A recent study has shown that even experienced data scientists tend to
 put too much trust in explanations produced by LIME and SHAP
 \cite{kaur2020interpreting}. Another recent work has shown that both
-methods can be easily fooled: both methods depend on random input
-perturbations, a property that can be abused by adverse agents to
-essentially whitewash strongly biased black-box models
-\cite{slack2020fooling}. In related work, the same authors find that
-while gradient-based Counterfactual Explanations can also be
-manipulated, there is a straightforward way to protect against this in
-practice \cite{slack2021counterfactual}. In the context of quality
-assessment, it is also worth noting that---contrary to surrogate
-explainers---CE always achieve full fidelity by construction:
-counterfactuals are searched with respect to the black-box classifier,
-not some proxy for it. That being said, CE should also be used with care
-and research around them is still in its early stages.
+methods can be easily fooled: they depend on random input perturbations,
+a property that can be abused by adverse agents to essentially whitewash
+strongly biased black-box models \cite{slack2020fooling}. In related
+work, the same authors find that while gradient-based Counterfactual
+Explanations can also be manipulated, there is a straightforward way to
+protect against this in practice \cite{slack2021counterfactual}. In the
+context of quality assessment, it is also worth noting that---contrary
+to surrogate explainers---CE always achieve full fidelity by
+construction: counterfactuals are searched with respect to the black-box
+classifier, not some proxy for it. That being said, CE should also be
+used with care and research around them is still in its early stages.
 
 \hypertarget{sec-method}{%
 \subsection{A framework for Counterfactual
 Explanations}\label{sec-method}}
 
-Counterfactual search happens in the feature space: we are interested in
-understanding how we need to change individual attributes in order to
+Counterfactual search involves feature perturbations: we are interested
+in understanding how we need to change individual attributes in order to
 change the model output to a desired value or label
 \cite{molnar2020interpretable}. Typically the underlying methodology is
 presented in the context of binary classification:
@@ -216,21 +214,20 @@ x^\prime = \arg \min_{x^\prime}  \ell(M(x^\prime),t) + \lambda h(x^\prime)
 Here \(\ell\) denotes some loss function targeting the deviation between
 the target label and the predicted label and \(\lambda\) governs the
 strength of the complexity penalty. Provided we have gradient access for
-the black-box model \(M\) the solution to this problem
-(Equation~\ref{eq-solution}) can be found through gradient descent. This
-generic framework lays the foundation for most state-of-the-art
-approaches to counterfactual search and is also used as the baseline
-approach in our package. The hyperparameter \(\lambda\) is typically
-tuned through grid search or in some sense pre-determined by the nature
-of the problem. Conventional choices for \(\ell\) include margin-based
-losses like cross-entropy loss and hinge loss. It is worth pointing out
-that the loss function is typically computed with respect to logits
-rather than predicted probabilities, a convention that we have chosen to
-follow.\footnote{Implementations of loss functions with respect to
-  logits are often numerically more stable. For example, the
-  \texttt{logitbinarycrossentropy(ŷ,\ y)} implementation in
-  \texttt{Flux.Losses} (used here) is more stable than the
-  mathematically equivalent \texttt{binarycrossentropy(ŷ,\ y)}.}
+the black-box model \(M\) the solution to this problem can be found
+through gradient descent. This generic framework lays the foundation for
+most state-of-the-art approaches to counterfactual search and is also
+used as the baseline approach in our package. The hyperparameter
+\(\lambda\) is typically tuned through grid search or in some sense
+pre-determined by the nature of the problem. Conventional choices for
+\(\ell\) include margin-based losses like cross-entropy loss and hinge
+loss. It is worth pointing out that the loss function is typically
+computed with respect to logits rather than predicted probabilities, a
+convention that we have chosen to follow.\footnote{Implementations of
+  loss functions with respect to logits are often numerically more
+  stable. For example, the \texttt{logitbinarycrossentropy(ŷ,\ y)}
+  implementation in \texttt{Flux.Losses} (used here) is more stable than
+  the mathematically equivalent \texttt{binarycrossentropy(ŷ,\ y)}.}
 
 Numerous extensions to this simple approach have been developed since CE
 were first proposed in 2017 (see \cite{verma2020counterfactual} and
@@ -244,9 +241,7 @@ between factual and counterfactual features should be small
 proposed recourse should be actionable (\cite{ustun2019actionable},
 \cite{poyiadzi2020face}); \textbf{plausibility} --- the counterfactual
 explanation should be plausible to a human (\cite{joshi2019realistic},
-\cite{schut2021generating}); \textbf{unambiguity} --- a human should
-have no trouble assigning a label to the counterfactual
-\cite{schut2021generating}; \textbf{sparsity} --- the counterfactual
+\cite{schut2021generating}); \textbf{sparsity} --- the counterfactual
 explanation should involve as few individual feature changes as possible
 \cite{schut2021generating}; \textbf{robustness} --- the counterfactual
 explanation should be robust to domain and model shifts
@@ -295,7 +290,7 @@ implementations of PDP, LIME and SHAP are available for both Python
 \href{https://cran.r-project.org/web/packages/lime/index.html}{\texttt{iml}},
 \href{https://modeloriented.github.io/shapper/}{\texttt{shapper}},
 \href{https://github.com/bgreenwell/fastshap}{\texttt{fastshap}}). In
-the Julia space there exist two package related to XAI: firstly,
+the Julia space, there exist two packages related to XAI: firstly,
 \href{https://github.com/nredell/ShapML.jl}{\texttt{ShapML.jl}}, which
 provides a fast implementation of SHAP; and, secondly,
 \href{https://github.com/adrhill/ExplainableAI.jl}{\texttt{ExplainableAI.jl}},
@@ -304,6 +299,7 @@ for \texttt{Flux.jl} models. We also should not fail to mention the
 comprehensive
 \href{https://docs.interpretable.ai/stable/IAIBase/data/}{Interpretable
 AI} infrastructure, which focuses exclusively on interpretable models.
+
 Arguably the current availability of tools for explaining black-box
 models in Julia is limited, but it appears that the community is
 invested in changing that. The team behind \texttt{MLJ.jl}, for example,
@@ -313,8 +309,8 @@ Explainable AI in 2022.\footnote{For details, see the Google Summer of
   \url{https://julialang.org/jsoc/gsoc/MLJ/\#interpretable_machine_learning_in_julia}.}
 With our work on Counterfactual Explanations we hope to contribute to
 these efforts. We think that because of its unique transparency the
-Julia language naturally lends itself towards building a greater degree
-of trust in Machine Learning and Artificial Intelligence.
+Julia language naturally lends itself towards building Trustworthy AI
+systems.
 
 \hypertarget{sec-arch}{%
 \section{\texorpdfstring{Introducing:
@@ -324,9 +320,9 @@ Figure~\ref{fig-arch} provides an overview of the package architecture.
 It is built around two core modules that are designed to be as
 extensible as possible through dispatch: 1) \texttt{Models} is concerned
 with making any arbitrary model compatible with the package; 2)
-\texttt{Generators} is used to implement arbitrary counterfactual search
-algorithms. The core function of the package
-\texttt{generate\_counterfactual} uses an instance of type
+\texttt{Generators} is used to implement counterfactual search
+algorithms. The core function of the
+package---\texttt{generate\_counterfactual}---uses an instance of type
 \texttt{\textless{}:AbstractFittedModel} produced by the \texttt{Models}
 module and an instance of type \texttt{\textless{}:AbstractGenerator}
 produced by the \texttt{Generators} module. Relating this to the
@@ -350,10 +346,10 @@ in purple.}
 \subsection{Models}\label{models}}
 
 The package currently offers native support for models built and trained
-in \href{https://fluxml.ai/}{Flux} as well as a small subset of models
-made available through
+in \href{https://fluxml.ai/}{Flux} \cite{innes2018flux} as well as a
+small subset of models made available through
 \href{https://alan-turing-institute.github.io/MLJ.jl/dev/}{MLJ}
-\cite{blaom2020mlj}. While in general it is assumed that users will use
+\cite{blaom2020mlj}. While in general it is assumed that users resort to
 this package to explain their pre-trained models, we provide a simple
 API call to train the following
 \href{https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/model_catalogue/}{models}:
@@ -387,9 +383,9 @@ embedding, existing work has typically relied on generative models or
 existing causal knowledge (\cite{joshi2019realistic},
 \cite{karimi2021algorithmic}). While this notion is compatible with all
 of our gradient-based generators, only some generators search a latent
-space by default. Composability implies that the given generator can be
-blended with any other composable generator, which we discuss in
-Section~\ref{sec-gen-comp}.
+space by default. Finally, composability implies that the given
+generator can be blended with any other composable generator, which we
+discuss in Section~\ref{sec-gen-comp}.
 
 Beyond these broad technical distinctions, generators largely differ in
 terms of how they address the various desiderata mentioned above:
@@ -401,7 +397,8 @@ explicitly minimising predictive entropy \cite{antoran2020getting};
 \emph{DiCE} is designed to generate multiple, maximally diverse
 counterfactuals \cite{mothilal2020explaining}; \emph{FeatureTweak}
 leverages the internals of decision trees to search counterfactuals on a
-feature-by-feature basis \cite{tolomei2017interpretable};
+feature-by-feature basis, finding the counterfactual that tweaks the
+features in the least costly way \cite{tolomei2017interpretable};
 \emph{Gravitational} aims to generate plausible and robust
 counterfactuals by minimising the distance to observed samples in the
 target class \cite{altmeyer2023endogenous}; \emph{Greedy} aims to
@@ -452,7 +449,7 @@ different domains. Real-world datasets include:
 \begin{itemize}
 \item Adult Census \cite{becker1996adult}
 \item California Housing \cite{pace1997sparse}
-\item CIFAIR10 \cite{krizhevsky2009learning}
+\item CIFAR10 \cite{krizhevsky2009learning}
 \item German Credit \cite{hoffman1994german}
 \item Give Me Some Credit \cite{kaggle2011give}
 \item MNIST \cite{lecun1998mnist} and Fashion MNIST \cite{xiao2017fashion}
@@ -466,26 +463,24 @@ Custom datasets can also be easily preprocessed as explained in the
 \subsection{Plotting}\label{plotting}}
 
 The package also extends common \texttt{Plots.jl} methods to facilitate
-the visualization of results. Calling the generic \texttt{Plots.plot()}
-method on an instance of type
-\texttt{\textless{}:CounterfactualExplanation}, for example, generates a
-plot visualizing the entire counterfactual path in the feature
-space\footnote{For multi-dimensional input data, standard dimensionality
-  reduction techniques are used to compress the data. In this case, the
-  classifier's decision boundary is approximated through a Nearest
-  Neighbour model. This is still somewhat experimental and will be
-  improved in the future.}. We will see several examples of this below.
+the visualization of results. Calling the generic \texttt{plot()} method
+on an instance of type \texttt{\textless{}:CounterfactualExplanation},
+for example, generates a plot visualizing the entire counterfactual path
+in the feature space\footnote{For multi-dimensional input data, standard
+  dimensionality reduction techniques are used to compress the data. In
+  this case, the classifier's decision boundary is approximated through
+  a Nearest Neighbour model. This is still somewhat experimental and
+  will be improved in the future.}. We will see several examples of this
+below.
 
 \hypertarget{sec-use}{%
 \section{Basic Usage}\label{sec-use}}
 
 In the following, we begin our exploration of the package functionality
-with a simple example (Section~\ref{sec-simple}). We then demonstrate
-how more advanced generators can be easily composed
-(Section~\ref{sec-gen-comp}) and show how users can impose mutability
-constraints on features (Section~\ref{sec-mut}). Finally, we also
-briefly explore the topics of counterfactual evaluation and benchmarking
-(Section~\ref{sec-eval}).
+with a simple example. We then demonstrate how more advanced generators
+can be easily composed and show how users can impose mutability
+constraints on features. Finally, we also briefly explore the topics of
+counterfactual evaluation and benchmarking.
 
 \hypertarget{sec-simple}{%
 \subsection{A Simple Generic Generator}\label{sec-simple}}
@@ -544,9 +539,9 @@ except for the distance to the factual sample.
 \hypertarget{sec-gen-comp}{%
 \subsection{Composing Generators}\label{sec-gen-comp}}
 
-To address the issues outlined above, we can leverage the ideas
-underlying some of the more advanced counterfactual generators
-introduced above. In particular, we will now show how easy it is to
+To address these issues, we can leverage the ideas underlying some of
+the more advanced counterfactual generators introduced above. In
+particular, we will now show how easy it is to
 \href{https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/v0.1/tutorials/generators/}{compose
 custom generators} that blend different ideas through user-friendly
 macros.
@@ -566,7 +561,7 @@ counterfactuals,
 function that maps the \(L \times K\)-dimensional latent space
 \(\mathcal{Z}\) to the \(L \times D\)-dimensional feature space
 \(\mathcal{X}\) and \(\text{diversity}(\cdot)\) is the penalty proposed
-by Mothilal et al.~(2020) \cite{mothilal2020explaining} that favour
+by Mothilal et al.~(2020) \cite{mothilal2020explaining} that induces
 diverse sets of counterfactuals. As in Equation~\ref{eq-solution},
 \(\ell\) is the loss function, \(M\) is the black-box model, \(t\) is
 the target class, and \(\lambda\) is the strength of the penalty.
@@ -595,13 +590,11 @@ end
 
 In this case, the counterfactual search is performed in the latent space
 of a Variational Autoencoder (VAE) that is automatically trained on the
-factual data. It is important to specify the keyword argument
+observed data. It is important to specify the keyword argument
 \texttt{num\_counterfactuals} of the \texttt{generate\_counterfactual}
 to some value higher than \(1\) (default), to ensure that the diversity
 penalty is effective. The resulting counterfactual path is shown in
-Figure~\ref{fig-binary-advanced} below. It was generated by calling the
-generic \texttt{plot} method directly on the object returned by
-\texttt{generate\_counterfactual}. We observe that the resulting
+Figure~\ref{fig-binary-advanced} below. We observe that the resulting
 counterfactuals are diverse and the majority of them are plausible.
 
 \begin{figure}
@@ -647,7 +640,9 @@ We can impose that the first feature is immutable as follows:
 \texttt{counterfactual\_data.mutability\ =\ {[}:none,\ :both{]}}. The
 resulting counterfactual path is shown in Figure~\ref{fig-mutability}
 below. Since only the second feature can be perturbed, the sample can
-only move along the vertical axis.
+only move along the vertical axis. In this case, the counterfactual
+search does not yield a valid counterfactual, since the target class is
+not reached.
 
 \begin{figure}
 
@@ -703,7 +698,7 @@ One of our priorities has been to make our package customizable and
 extensible. In the long term, we aim to add support for more default
 models and counterfactual generators. In the short term, it is designed
 to allow users to integrate models and generators themselves. These
-efforts will facilitate our long-term goals.
+community efforts will facilitate our long-term goals.
 
 \hypertarget{sec-custom-mod}{%
 \subsection{Adding Custom Models}\label{sec-custom-mod}}
@@ -806,7 +801,8 @@ Dropout}\label{a-generator-with-dropout}}
 
 Code \ref{lst:dropout} below implements two important steps: 1) create
 an abstract subtype of the \texttt{AbstractGradientBasedGenerator} and
-2) create a constructor with a custom field for the probability of dropout.
+2) create a constructor similar to the \texttt{GenericConstructor}, but
+with one additional field for the probability of dropout.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={Building a custom generator with dropout.}]
 # Abstract suptype:
@@ -868,15 +864,15 @@ dropout.}
 
 Now that we have explained the basic functionality of
 \texttt{CounterfactualExplanations.jl} through some synthetic examples,
-it is time to work through examples involving real data.
+it is time to work through examples involving real-world data.
 
 \hypertarget{give-me-some-credit}{%
 \subsection{Give Me Some Credit}\label{give-me-some-credit}}
 
-The \textbf{Give Me Some Credit} dataset is one of the tabular
-real-world datasets that ship with the package \cite{kaggle2011give}. It
-can be used to train a binary classifier to predict whether a borrower
-is likely to experience financial difficulties in the next two years. In
+The \emph{Give Me Some Credit} dataset is one of the tabular real-world
+datasets that ship with the package \cite{kaggle2011give}. It can be
+used to train a binary classifier to predict whether a borrower is
+likely to experience financial difficulties in the next two years. In
 particular, we have an output variable
 \(y \in \{0=\texttt{no stress},1=\texttt{stress}\}\) and a feature
 matrix \(X\) that includes socio-demographic variables like \texttt{age}
@@ -884,13 +880,11 @@ and \texttt{income}. A retail bank might use such a classifier to
 determine if potential borrowers should receive credit or not.
 
 For the classification task, we use a Multi-Layer Perceptron with
-dropout regularization.
-
-Using the Gravitational generator \cite{altmeyer2023endogenous} we will
-generate counterfactuals for ten randomly chosen individuals that would
-be denied credit based on our pre-trained model. Concerning the
-mutability of features, we only impose that the \texttt{age} cannot be
-decreased.
+dropout regularization. Using the Gravitational generator
+\cite{altmeyer2023endogenous} we will generate counterfactuals for ten
+randomly chosen individuals that would be denied credit based on our
+pre-trained model. Concerning the mutability of features, we only impose
+that the \texttt{age} cannot be decreased.
 
 Figure~\ref{fig-credit} shows the resulting counterfactuals proposed by
 Wachter in the two-dimensional feature space spanned by the \texttt{age}
@@ -916,12 +910,11 @@ For our second example, we will look at image data. The MNIST dataset
 contains 60,000 training samples of handwritten digits in the form of
 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is
 associated with a label indicating the digit (0-9) that the image
-represents. The data makes for an interesting case study of
-Counterfactual Explanations because humans have a good idea of what
-plausible counterfactuals of digits look like. For example, if you were
-asked to pick up an eraser and turn the digit in the left panel of
-Figure~\ref{fig-mnist} into a four (4) you would know exactly what to
-do: just erase the top part.
+represents. The data makes for an interesting case study of CE because
+humans have a good idea of what plausible counterfactuals of digits look
+like. For example, if you were asked to pick up an eraser and turn the
+digit in the left panel of Figure~\ref{fig-mnist} into a four (4) you
+would know exactly what to do: just erase the top part.
 
 On the model side, we will use a simple multi-layer perceptron (MLP).
 Code \ref{lst:mnist-setup} loads the data and the pre-trained MLP. It
@@ -991,10 +984,11 @@ including MINT \cite{karimi2021algorithmic}, ROAR
 For benchmarking and testing purposes it will be crucial to add more
 datasets to our library. We have so far prioritized tabular datasets
 that have typically been used in the literature on counterfactual
-explanations including Adult, Give Me Some Credit and German Credit
-\cite{karimi2020survey}. There is scope for adding data sources that
-have so far not been explored much in this context including additional
-image datasets as well as audio, natural language and time-series data.
+explanations including \emph{Adult}, \emph{Give Me Some Credit} and
+\emph{German Credit} \cite{karimi2020survey}. There is scope for adding
+data sources that have so far not been explored much in this context
+including additional image datasets as well as audio, natural language
+and time-series data.
 
 \hypertarget{sec-conclude}{%
 \section{Concluding remarks}\label{sec-conclude}}
@@ -1006,8 +1000,7 @@ basic usage of the package as well as its extensibility. The package has
 already served us in our research to benchmark various methodological
 approaches to Counterfactual Explanations and Algorithmic Recourse. We
 therefore strongly believe that it should help other practitioners and
-researchers in their own efforts towards Trustworthy Artificial
-Intelligence.
+researchers in their own efforts towards Trustworthy AI.
 
 We envision this package to one day constitute the go-to place for
 explaining arbitrary predictive models through an extensive suite of
@@ -1022,7 +1015,7 @@ development.
 \section{Acknowledgements}\label{sec-ack}}
 
 We are immensely grateful to the group of TU Delft students who
-contributed huge improvements to this package as part of a school
+contributed huge improvements to this package as part of a university
 project in 2023: Rauno Arike, Simon Kasdorp, Lauri Kesküll, Mariusz
 Kicior, Vincent Pikand. We also want to thank the broader Julia
 community for being welcoming and open and for supporting research
