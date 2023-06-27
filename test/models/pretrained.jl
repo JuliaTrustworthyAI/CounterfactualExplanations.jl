@@ -8,7 +8,6 @@ using Flux
 using LinearAlgebra
 using MLUtils
 using Random
-init_perturbation = 2.0
 
 # Using pretrained models is currently supported only for Julia versions >= 1.8
 # This issue will be resolved as soon as possible
@@ -87,15 +86,10 @@ if VERSION >= v"1.8"
                                     M,
                                     generator;
                                     decision_threshold=γ,
+                                    initialization=:identity,
                                 )
-                                @test maximum(
-                                    abs.(
-                                        counterfactual.x .-
-                                        CounterfactualExplanations.decode_state(
-                                            counterfactual
-                                        )
-                                    ),
-                                ) < init_perturbation
+                                x′ = CounterfactualExplanations.decode_state(counterfactual)
+                               @test isapprox(counterfactual.x,x′;atol=1e-6)
                                 @test converged(counterfactual)
                                 @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(

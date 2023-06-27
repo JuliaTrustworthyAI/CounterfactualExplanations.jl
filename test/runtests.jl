@@ -21,7 +21,6 @@ using CounterfactualExplanations.Models
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.DataPreprocessing
 
-init_perturbation = 2.0
 Random.seed!(0)
 
 using Logging
