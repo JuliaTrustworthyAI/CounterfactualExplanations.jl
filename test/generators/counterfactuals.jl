@@ -116,14 +116,14 @@ for (key, generator_) in generators
                                         counterfactual
                                     )
                                     if counterfactual.generator.latent_space == false
-                                       @test isapprox(counterfactual.x,x′;atol=1e-6)
+                                        @test isapprox(counterfactual.x,x′;atol=1e-6)
+                                        @test CounterfactualExplanations.converged(
+                                            counterfactual
+                                        )
+                                        @test CounterfactualExplanations.terminated(
+                                            counterfactual
+                                        )
                                     end
-                                    @test CounterfactualExplanations.converged(
-                                        counterfactual
-                                    )
-                                    @test CounterfactualExplanations.terminated(
-                                        counterfactual
-                                    )
                                     @test CounterfactualExplanations.total_steps(
                                         counterfactual
                                     ) == 0
