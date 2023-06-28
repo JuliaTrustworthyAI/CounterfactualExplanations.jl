@@ -1,9 +1,8 @@
+# Performance Evaluation
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Performance Evaluation
 
 Now that we know how to generate counterfactual explanations in Julia, you may have a few follow-up questions: How do I know if the counterfactual search has been successful? How good is my counterfactual explanation? What does ‘good’ even mean in this context? In this tutorial, we will see how counterfactual explanations can be evaluated with respect to their performance.
 
@@ -26,12 +25,12 @@ evaluate(ce; measure=validity)
 For a single counterfactual explanation, this evaluation measure can only take two values: it is either equal to `1`, if the explanation is valid or `0` otherwise. Another important measure is [`distance`](@ref), which relates to the distance between the factual $x$ and the counterfactual $x^{\prime}$. In the context of Algorithmic Recourse, higher distances are typically associated with higher costs to individuals seeking recourse.
 
 ``` julia
-using CounterfactualExplanations.Evaluation: distance
+using CounterfactualExplanations.Objectives: distance
 evaluate(ce; measure=distance)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [0.77465737]
+     [0.3750167]
 
 By default, `distance` computes the L2 (Euclidean) distance.
 
@@ -58,9 +57,9 @@ evaluate(ce; measure=distance_measures)
 
     4-element Vector{Vector{Float32}}:
      [2.0]
-     [1.0941725]
-     [0.77465737]
-     [0.5743559]
+     [0.3750167]
+     [0.3744492]
+     [0.37444878]
 
 If no `measure` is specified, the `evaluate` method will return all default measures,
 
@@ -70,7 +69,7 @@ evaluate(ce)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[0.77465737]
+     Float32[0.3750167]
      [0.0]
 
 which include:
@@ -81,7 +80,7 @@ CounterfactualExplanations.Evaluation.default_measures
 
     3-element Vector{Function}:
      validity (generic function with 1 method)
-     distance (generic function with 2 methods)
+     distance (generic function with 1 method)
      redundancy (generic function with 1 method)
 
 ### Multiple Measures and Counterfactuals
@@ -96,8 +95,8 @@ evaluate(ces)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[1.2271137]
-     [0.0]
+     Float32[0.4935166]
+     [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 By default, each evaluation measure is aggregated across all counterfactual explanations. To return individual measures for each counterfactual explanation you can specify `report_each=true`
 
@@ -105,22 +104,22 @@ By default, each evaluation measure is aggregated across all counterfactual expl
 evaluate(ces; report_each=true)
 ```
 
-    3-element Vector{AbstractVector}:
-     Bool[1, 1, 1, 1, 1]
-     Float32[1.2219326, 1.2272075, 1.2317328, 1.2253546, 1.2293411]
-     [0.0, 0.0, 0.0, 0.0, 0.0]
+    3-element Vector{Vector}:
+     BitVector[[1, 1, 1, 1, 1]]
+     Vector{Float32}[[0.4945979, 0.55787206, 0.46129417, 0.5204363, 0.4333825]]
+     [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 ## Custom Measures
 
-A `measure` is just a method that takes a `CounterfactualExplanation` as its only positional argument. Defining custom measures is therefore straightforward. For example, we could define a measure to compute the inverse target probability as follows:
+A `measure` is just a method that takes a `CounterfactualExplanation` as its only positional argument and `agg::Function` as a key argument specifying how measures should be aggregated across counterfactuals. Defining custom measures is therefore straightforward. For example, we could define a measure to compute the inverse target probability as follows:
 
 ``` julia
-my_measure(ce::CounterfactualExplanation) = 1 .- CounterfactualExplanations.target_probs(ce)
+my_measure(ce::CounterfactualExplanation; agg=mean) = agg(1 .- CounterfactualExplanations.target_probs(ce))
 evaluate(ce; measure=my_measure)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [0.3637939]
+     [0.49499345]
 
 ## Tidy Output
 
@@ -130,10 +129,10 @@ By default, `evaluate` returns vectors of evaluation measures. The optional key 
 evaluate(ces; output_format=:Dict, report_each=true)
 ```
 
-    Dict{Symbol, AbstractVector} with 3 entries:
-      :validity   => Bool[1, 1, 1, 1, 1]
-      :redundancy => [0.0, 0.0, 0.0, 0.0, 0.0]
-      :distance   => Float32[1.22193, 1.22721, 1.23173, 1.22535, 1.22934]
+    Dict{Symbol, Vector} with 3 entries:
+      :validity   => BitVector[[1, 1, 1, 1, 1]]
+      :redundancy => [[0.0, 0.0, 0.0, 0.0, 0.0]]
+      :distance   => Vector{Float32}[[0.494598, 0.557872, 0.461294, 0.520436, 0.433…
 
 Secondly, to return the output as a data frame, specify `output_format=:DataFrame`.
 
@@ -158,23 +157,23 @@ evaluation = evaluate(ces)
 ```
 
     15×4 DataFrame
-     Row │ sample  num_counterfactual  variable    value   
-         │ Int64   Int64               String      Float64 
-    ─────┼─────────────────────────────────────────────────
-       1 │      1                   1  distance    1.17712
-       2 │      1                   1  redundancy  0.0
+     Row │ sample  num_counterfactual  variable    value                     
+         │ Int64   Int64               String      Any                       
+    ─────┼───────────────────────────────────────────────────────────────────
+       1 │      1                   1  distance    1.2287
+       2 │      1                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
        3 │      1                   1  validity    1.0
-       4 │      2                   1  distance    1.13625
-       5 │      2                   1  redundancy  0.0
-       6 │      2                   1  validity    1.0
-       7 │      3                   1  distance    1.13287
-       8 │      3                   1  redundancy  0.0
+       4 │      2                   1  distance    1.02974
+       5 │      2                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
+       6 │      2                   1  validity    0.8
+       7 │      3                   1  distance    0.864913
+       8 │      3                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
        9 │      3                   1  validity    1.0
-      10 │      4                   1  distance    1.09652
-      11 │      4                   1  redundancy  0.0
+      10 │      4                   1  distance    1.13339
+      11 │      4                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
       12 │      4                   1  validity    1.0
-      13 │      5                   1  distance    1.1731
-      14 │      5                   1  redundancy  0.0
+      13 │      5                   1  distance    0.999825
+      14 │      5                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
       15 │      5                   1  validity    1.0
 
 This leads us to our next topic: Performance Benchmarks.
