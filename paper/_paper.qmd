@@ -113,7 +113,7 @@ The package currently offers native support for models built and trained in [Flu
 \item Decision Tree, Random Forest, Gradient Boosted Trees
 \end{itemize}
 
-As we demonstrate below, it is straightforward to extend the package through custom models. Support for `torch` models trained in Python or R is also available.
+As we demonstrate below, it is straightforward to extend the package through custom models. Support for `torch` models trained in Python or R is also available.^[We are currently relying on `PythonCall.jl` and `RCall.jl` and this functionality is still somewhat brittle. Since this is more of an edge case, we may move this feature into its own package in the future.]
 
 ## Generators {#sec-gen}
 
@@ -274,7 +274,7 @@ In this case, the counterfactual search is performed in the latent space of a Va
 
 In practice, features usually cannot be perturbed arbitrarily. Suppose, for example, that one of the features used by a bank to predict the creditworthiness of its clients is *age*. If a counterfactual explanation for the prediction model indicates that older clients should "grow younger" to improve their creditworthiness, then this is an interesting insight (it reveals age bias), but the provided recourse is not actionable. In such cases, we may want to constrain the mutability of features. To illustrate how this can be implemented in our package, we will continue with the example from above.
 
-Mutability can be defined in terms of four different options: 1) the feature is mutable in both directions, 2) the feature can only increase (e.g. *age*), 3) the feature can only decrease (e.g. *time left* until your next deadline) and 4) the feature is not mutable (e.g. *skin colour*, *ethnicity*, ...). To specify which category a feature belongs to, users can pass a vector of symbols containing the mutability constraints at the pre-processing stage. For each feature one can choose from these four options: `:both` (mutable in both directions), `:increase` (only up), `:decrease` (only down) and `:none` (immutable). By default, `nothing` is passed to that keyword argument and it is assumed that all features are mutable in both directions.^[Mutability constraints are currently not yet implemented for Latent Space generators.]
+Mutability can be defined in terms of four different options: 1) the feature is mutable in both directions, 2) the feature can only increase (e.g. *age*), 3) the feature can only decrease (e.g. *time left* until your next deadline) and 4) the feature is not mutable (e.g. *skin colour*, *ethnicity*, ...). To specify which category a feature belongs to, users can pass a vector of symbols containing the mutability constraints at the pre-processing stage. For each feature one can choose from these four options: `:both` (mutable in both directions), `:increase` (only up), `:decrease` (only down) and `:none` (immutable). By default, `nothing` is passed to that keyword argument and it is assumed that all features are mutable in both directions.^[Mutability constraints are not yet implemented for Latent Space search.]
 
 We can impose that the first feature is immutable as follows: `counterfactual_data.mutability = [:none, :both]`. The resulting counterfactual path is shown in @fig-mutability below. Since only the second feature can be perturbed, the sample can only move along the vertical axis. In this case, the counterfactual search does not yield a valid counterfactual, since the target class is not reached.
 
@@ -492,7 +492,7 @@ In some cases, composability may not be sufficient to implement specific logics 
 
 ### A Generator with Dropout
 
-Code \ref{lst:dropout} below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor similar to the `GenericConstructor`, but with one additional field for the probability of dropout.
+Code \ref{lst:dropout} below implements two important steps: 1) create an abstract subtype of the `AbstractGradientBasedGenerator` and 2) create a constructor with an additional field for the dropout probability.
 
 ```{julia}
 # Abstract suptype:

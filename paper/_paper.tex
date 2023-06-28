@@ -153,7 +153,7 @@
 
 \begin{document}
 \maketitle
-\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[interior hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, boxrule=0pt, sharp corners, enhanced, frame hidden]}{\end{tcolorbox}}\fi
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, boxrule=0pt, interior hidden, breakable, borderline west={3pt}{0pt}{shadecolor}, enhanced, sharp corners]}{\end{tcolorbox}}\fi
 
 Machine Learning models like Deep Neural Networks have become so complex
 and opaque over recent years that they are generally considered
@@ -494,7 +494,10 @@ API call to train the following
 
 As we demonstrate below, it is straightforward to extend the package
 through custom models. Support for \texttt{torch} models trained in
-Python or R is also available.
+Python or R is also available.\footnote{We are currently relying on
+  \texttt{PythonCall.jl} and \texttt{RCall.jl} and this functionality is
+  still somewhat brittle. Since this is more of an edge case, we may
+  move this feature into its own package in the future.}
 
 \hypertarget{sec-gen}{%
 \subsection{Generators}\label{sec-gen}}
@@ -764,8 +767,7 @@ each feature one can choose from these four options: \texttt{:both}
 \texttt{:decrease} (only down) and \texttt{:none} (immutable). By
 default, \texttt{nothing} is passed to that keyword argument and it is
 assumed that all features are mutable in both directions.\footnote{Mutability
-  constraints are currently not yet implemented for Latent Space
-  generators.}
+  constraints are not yet implemented for Latent Space search.}
 
 We can impose that the first feature is immutable as follows:
 \texttt{counterfactual\_data.mutability\ =\ {[}:none,\ :both{]}}. The
@@ -932,8 +934,8 @@ Dropout}\label{a-generator-with-dropout}}
 
 Code \ref{lst:dropout} below implements two important steps: 1) create
 an abstract subtype of the \texttt{AbstractGradientBasedGenerator} and
-2) create a constructor similar to the \texttt{GenericConstructor}, but
-with one additional field for the probability of dropout.
+2) create a constructor with an additional field for the dropout
+probability.
 
 \begin{lstlisting}[language=Julia, escapechar=@, numbers=left, label={lst:dropout}, caption={Building a custom generator with dropout.}]
 # Abstract suptype:
