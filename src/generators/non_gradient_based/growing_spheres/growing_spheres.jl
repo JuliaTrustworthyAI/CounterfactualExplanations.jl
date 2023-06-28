@@ -41,7 +41,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
 
     # Copy hyperparameters
     n = generator.n
-    η = convert(eltype(factual),generator.η)
+    η = convert(eltype(factual), generator.η)
 
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
