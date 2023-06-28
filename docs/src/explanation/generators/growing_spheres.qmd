@@ -5,7 +5,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
@@ -38,5 +38,16 @@ c(x, e) = ||x - e||_2 + \gamma ||x - e||_0
 where `||.||_2` is the Euclidean norm and `||.||_0` is the sparsity measure. The weight `gamma` balances the importance of sparsity in the cost function.
 
 To approximate the solution, the Growing Spheres algorithm uses a two-step heuristic approach. The first step is the Generation phase, where observations are generated in spherical layers around the input observation. The second step is the Feature Selection phase, where the generated observation with the smallest change in each feature is selected.
+
+## Example
+
+```{julia}
+#| output: true
+generator = GrowingSpheresGenerator()
+M = fit_model(counterfactual_data, :DeepEnsemble)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
+plot(ce)
+```
 
 ## References

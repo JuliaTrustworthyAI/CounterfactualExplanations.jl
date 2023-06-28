@@ -31,7 +31,9 @@ The CLUEGenerator can be used in the following manner:
 ``` julia
 generator = CLUEGenerator()
 M = fit_model(counterfactual_data, :DeepEnsemble)
-ce = generate_counterfactual(x, target,counterfactual_data, M, generator, converge_when=:early_stopping)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator;
+    converge_when=:max_iter, max_iter=1000)
 plot(ce)
 ```
 

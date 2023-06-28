@@ -26,4 +26,56 @@ The following equation displays how a true negative instance x can be transforme
 \end{aligned}
 ```
 
+## Example
+
+In this example we apply the Feature Tweak algorithm to a decision tree and a random forest trained on the moons dataset. We first load the data and fit the models:
+ 
+```{julia}
+n = 500
+counterfactual_data = Data.load_moons(n)
+
+# Classifiers
+decision_tree = CounterfactualExplanations.Models.fit_model(
+    counterfactual_data, :DecisionTree; max_depth=5, min_samples_leaf=3
+)
+forest = Models.fit_model(counterfactual_data, :RandomForest)
+```
+
+Next, we select a point to explain and a target class to transform the point to. We then search for counterfactuals using the `FeatureTweakGenerator`:
+ 
+```{julia}
+# Select a point to explain:
+x = float32.([1, -0.5])
+factual = Models.predict_label(forest, x)
+target = counterfactual_data.y_levels[findall(counterfactual_data.y_levels != factual)][1]
+
+# Search for counterfactuals:
+generator = FeatureTweakGenerator(0.1)
+tree_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, decision_tree, generator
+)
+forest_counterfactual = generate_counterfactual(
+    x, target, counterfactual_data, forest, generator
+)
+```
+
+The resulting counterfactuals are shown below:
+ 
+```{julia}
+# output: true
+
+p1 = CounterfactualExplanations.plot(
+    tree_counterfactual;
+    colorbar=false,
+    title="Decision Tree",
+)
+
+p2 = CounterfactualExplanations.plot(
+    forest_counterfactual; title="Random Forest",
+    colorbar=false,
+)
+
+plot(p1, p2; size=(800, 400))
+```
+
 ## References

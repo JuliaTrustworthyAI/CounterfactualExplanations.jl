@@ -1,15 +1,9 @@
+# `GrowingSpheres`
 
 ``` markdown
 @meta
 CurrentModule = CounterfactualExplanations
-
-```julia
-#| echo: false
-include("docs/setup_docs.jl")
-eval(setup_docs)
 ```
-
-# `GrowingSpheres`
 
 **Growing Spheres** refers to the generator introduced by Laugel et al. (2017). Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
 
@@ -38,6 +32,18 @@ c(x, e) = ||x - e||_2 + \gamma ||x - e||_0
 where `||.||_2` is the Euclidean norm and `||.||_0` is the sparsity measure. The weight `gamma` balances the importance of sparsity in the cost function.
 
 To approximate the solution, the Growing Spheres algorithm uses a two-step heuristic approach. The first step is the Generation phase, where observations are generated in spherical layers around the input observation. The second step is the Feature Selection phase, where the generated observation with the smallest change in each feature is selected.
+
+## Example
+
+``` julia
+generator = GrowingSpheresGenerator()
+M = fit_model(counterfactual_data, :DeepEnsemble)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+![](growing_spheres_files/figure-commonmark/cell-3-output-1.svg)
 
 ## References
 
