@@ -63,7 +63,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
     while (!isnothing(counterfactual))
         η /= 2
-        a₀ = convert(0.0, eltype(factual))
+        a₀ = convert(eltype(factual), 0.0)
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
         counterfactual = find_counterfactual(
