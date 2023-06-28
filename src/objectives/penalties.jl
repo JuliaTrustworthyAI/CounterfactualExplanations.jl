@@ -78,7 +78,6 @@ function ddp_diversity(
     return cost
 end
 
-
 function distance_from_targets(
     ce::AbstractCounterfactualExplanation;
     n::Int=1000,

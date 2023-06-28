@@ -65,11 +65,11 @@
                                 target = y[1]
                                 γ = minimum([1 / length(data.y_levels), 0.5])
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
-                                    x, target, data, M, generator; initialization=:identity,
+                                    x, target, data, M, generator; initialization=:identity
                                 )
                                 x′ = CounterfactualExplanations.decode_state(counterfactual)
                                 if counterfactual.generator.latent_space == false
-                                    @test isapprox(counterfactual.x,x′;atol=1e-6)
+                                    @test isapprox(counterfactual.x, x′; atol=1e-6)
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )

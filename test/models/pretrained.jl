@@ -89,7 +89,7 @@ if VERSION >= v"1.8"
                                     initialization=:identity,
                                 )
                                 x′ = CounterfactualExplanations.decode_state(counterfactual)
-                               @test isapprox(counterfactual.x,x′;atol=1e-6)
+                                @test isapprox(counterfactual.x, x′; atol=1e-6)
                                 @test converged(counterfactual)
                                 @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(

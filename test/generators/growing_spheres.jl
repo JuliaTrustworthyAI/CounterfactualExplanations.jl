@@ -65,7 +65,7 @@ using Random
                                 )
                                 x′ = CounterfactualExplanations.decode_state(counterfactual)
                                 if counterfactual.generator.latent_space == false
-                                    @test isapprox(counterfactual.x,x′;atol=1e-6)
+                                    @test isapprox(counterfactual.x, x′; atol=1e-6)
                                 end
                                 @test CounterfactualExplanations.terminated(counterfactual)
                             end

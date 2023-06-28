@@ -67,7 +67,7 @@ plot(plts...)
 
 The package supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model. To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
 
-```{julia}
+```julia
 model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
     "$(pwd())/docs/src/tutorials/miscellaneous",
     "neural_network_class",
@@ -94,7 +94,7 @@ The reason why the model file and Pickle file have to be provided separately is 
 
 Once the PyTorch model has been loaded into the package, wrap it inside the PyTorchModel class:
 
-```{julia}
+```julia
 model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
 ```
 
