@@ -25,18 +25,18 @@ using PythonCall
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export CLUEGenerator
+export DiCEGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
 export GrowingSpheresGenerator
 export REVISEGenerator
-export DiCEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
 export feature_tweaking
 export feature_selection
-export CLUEGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator
@@ -79,8 +79,8 @@ generator_catalogue = Dict(
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,
-    :probe => ProbeGenerator,
-    :clue => CLUEGenerator,
+    :probe => Generators.ProbeGenerator,
+    :clue => Generators.CLUEGenerator,
 )
 
 end

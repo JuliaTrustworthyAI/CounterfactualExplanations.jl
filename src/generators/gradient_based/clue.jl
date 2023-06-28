@@ -7,8 +7,11 @@
         ϵ::AbstractFloat=0.1,
         τ::AbstractFloat=1e-5
     )
-An outer constructor method that instantiates a CLUE generator.
+
+    An outer constructor method that instantiates a CLUE generator.
+
 # Examples
+
 ```julia-repl
 generator = CLUEGenerator()
 ```

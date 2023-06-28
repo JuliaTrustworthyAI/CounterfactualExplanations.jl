@@ -4,9 +4,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-**Feature Tweak** refers to the generator introduced by Tolomei et al. (2017)
-
-Our implementation takes inspiration from the [featureTweakPy library](https://github.com/upura/featureTweakPy).
+**Feature Tweak** refers to the generator introduced by Tolomei et al. (2017). Our implementation takes inspiration from the [featureTweakPy library](https://github.com/upura/featureTweakPy).
 
 ## Description
 
@@ -24,4 +22,4 @@ The following equation displays how a true negative instance x can be transforme
 
 ## References
 
-\[1\] Tolomei, Silvestri, Haines, and Lalmas. 2017. “Interpretable Predictions of Tree-based Ensembles via Actionable Feature Tweaking” https://arxiv.org/abs/1706.06691
+Tolomei, Gabriele, Fabrizio Silvestri, Andrew Haines, and Mounia Lalmas. 2017. “Interpretable Predictions of Tree-Based Ensembles via Actionable Feature Tweaking.” In *Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, 465–74. <https://doi.org/10.1145/3097983.3098039>.

@@ -52,12 +52,12 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_c
 plot(ce)
 ```
 
-Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE [@mothilal2020explaining], REVISE [@joshi2019realistic] and Greedy [@schut2021generating]:
+Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE [@mothilal2020explaining] and REVISE [@joshi2019realistic]:
 
 ```{julia}
 @chain generator begin
     @objective logitcrossentropy + 1.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @with_optimiser JSMADescent(η=1.0)                  # Greedy (Schut et al. 2021)
+    @with_optimiser Flux.Adam(0.1)                      
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
 ```

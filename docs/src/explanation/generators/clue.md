@@ -1,10 +1,10 @@
 # `CLUEGenerator`
 
 ``` @meta
-CurrentModule = CLUEGenerator
+CurrentModule = CounterfactualExplanations 
 ```
 
-We introduce the CLUEGenerator, a counterfactual generator based on the Counterfactual Latent Uncertainty Explanations (CLUE) method proposed by Antorán et al. (2023).
+In this tutorial, we introduce the CLUEGenerator, a counterfactual generator based on the Counterfactual Latent Uncertainty Explanations (CLUE) method proposed by Antorán et al. (2020).
 
 ## Description
 
@@ -13,6 +13,12 @@ The CLUEGenerator leverages differentiable probabilistic models, such as Bayesia
 The CLUE algorithm minimizes a loss function that combines uncertainty estimates and the distance between the generated counterfactual and the original input. By optimizing this loss function iteratively, the CLUEGenerator generates counterfactuals that are similar to the original observation but assigned low uncertainty.
 
 The formula for predictive entropy is as follow:
+
+``` math
+\begin{aligned}
+H(y^*|x^*, D) &= - \sum_{k=1}^{K} p(y^*=c_k|x^*, D) \log p(y^*=c_k|x^*, D)
+\end{aligned}
+```
 
 ## Usage
 
@@ -33,10 +39,8 @@ plot(ce)
 
 Extra: The CLUE generator can also be used upon already having achieved a counterfactual with a different generator. In this case you can use CLUE and make the counterfactual more robust.
 
-![Generated Counterfactual](clue_files/figure-commonmark/cell-3-output-1.svg)
+*Note: The above documentation is based on the information provided in the CLUE paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
 
 ## References
 
-Antorán, Javier, Adrian Weller, Umang Bhatt, and Tameem Adel. 2023. “Counterfactual Latent Uncertainty Explanations (CLUE): Interpreting Uncertainty Estimates from Bayesian Neural Networks.” In *International Conference on Learning Representations (ICLR)*.
-
-*Note: The above documentation is based on the information provided in the CLUE paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
+Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hernández-Lobato. 2020. “Getting a Clue: A Method for Explaining Uncertainty Estimates.” <https://arxiv.org/abs/2006.06848>.

@@ -4,7 +4,9 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in algorithmic recourse. resol \## Description
+The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in Algorithmic Recourse (Pawelczyk et al. 2022).
+
+## Description
 
 The goal of ProbeGenerator is to find a recourse x’ whose prediction at any point y within some set around x’ belongs to the positive class with probability 1 - r, where r is the recourse invalidation rate. It minimizes the gap between the achieved and desired recourse invalidation rates, minimizes recourse costs, and also ensures that the resulting recourse achieves a positive model prediction.
 
@@ -52,4 +54,4 @@ Choosing different invalidation rates makes the counterfactual more or less robu
 
 ## References
 
-Pawelczyk, M., Datta, T., van-den-Heuvel, J., Kasneci, G., & Lakkaraju, H. (2023). Probabilistically Robust Recourse: Navigating the Trade-offs between Costs and Robustness in Algorithmic Recourse. In Proceedings of the 11th International Conference on Learning Representations (ICLR) 2023
+Pawelczyk, Martin, Teresa Datta, Johannes van-den-Heuvel, Gjergji Kasneci, and Himabindu Lakkaraju. 2022. “Probabilistically Robust Recourse: Navigating the Trade-Offs Between Costs and Robustness in Algorithmic Recourse.” *arXiv Preprint arXiv:2203.06768*.

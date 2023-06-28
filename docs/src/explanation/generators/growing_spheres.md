@@ -11,9 +11,7 @@ eval(setup_docs)
 
 # `GrowingSpheres`
 
-**Growing Spheres** refers to the generator introduced by Laugel et al. (2017) \[1\]
-
-Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
+**Growing Spheres** refers to the generator introduced by Laugel et al. (2017). Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
 
 ## Principle of the Proposed Approach
 
@@ -43,4 +41,4 @@ To approximate the solution, the Growing Spheres algorithm uses a two-step heuri
 
 ## References
 
-\[1\] Laugel, Lesot, Marsala, Renard, and Detyniecki. 2017. “Inverse Classification for Comparison-based Interpretability in Machine Learning” https://arxiv.org/pdf/1712.08443.pdf \`\`\`
+Laugel, Thibault, Marie-Jeanne Lesot, Christophe Marsala, Xavier Renard, and Marcin Detyniecki. 2017. “Inverse Classification for Comparison-Based Interpretability in Machine Learning.” arXiv. <https://doi.org/10.48550/arXiv.1712.08443>.
