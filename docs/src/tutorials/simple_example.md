@@ -33,7 +33,7 @@ Finally, we generate and visualize the generated counterfactual:
 
 ``` julia
 # Search:
-generator = GenericGenerator()
+generator = WachterGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
 ```

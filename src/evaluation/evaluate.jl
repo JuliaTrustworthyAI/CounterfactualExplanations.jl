@@ -70,7 +70,7 @@ function generate_meta_data(
     ce::CounterfactualExplanation,
     evaluation::DataFrames.DataFrame,
     report_meta::Bool,
-    meta_data::Union{Nothing,Vector{Dict}},
+    meta_data::Union{Nothing,Vector{<:Dict}},
 )
     if !isnothing(meta_data)
         df_meta = DataFrames.DataFrame(meta_data[i])

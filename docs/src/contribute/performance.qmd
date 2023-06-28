@@ -1,6 +1,6 @@
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 

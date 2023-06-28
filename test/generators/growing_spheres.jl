@@ -56,10 +56,17 @@ using Random
                                 target = y[1]
                                 γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
-                                    x, target, counterfactual_data, M, generator
+                                    x,
+                                    target,
+                                    counterfactual_data,
+                                    M,
+                                    generator;
+                                    initialization=:identity,
                                 )
-                                @test maximum(abs.(counterfactual.x .- counterfactual.s′)) <
-                                    init_perturbation
+                                x′ = CounterfactualExplanations.decode_state(counterfactual)
+                                if counterfactual.generator.latent_space == false
+                                    @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                end
                                 @test CounterfactualExplanations.terminated(counterfactual)
                             end
                         end

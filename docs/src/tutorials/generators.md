@@ -1,16 +1,15 @@
+# Handling Generators
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Handling Generators
-
-Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `Generator`s are used. They are discussed in more detail in the explanatory section of the documentation.
+Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `GradientBasedGenerator`s are used. They are discussed in more detail in the explanatory section of the documentation.
 
 ## Composable Generators
 
 !!! warning "Breaking Changes Expected"  
-    Work on this feature is still in its very early stages and breaking changes should be expected.
+    Work on this feature is still in its very early stages and breaking changes should be expected.
 
 One of the key objectives for this package is **Composability**. It turns out that many of the various counterfactual generators that have been proposed in the literature, essentially do the same thing: they optimize an objective function. Formally we have,
 
@@ -26,10 +25,10 @@ Without going into further detail here, the important thing to mention is that [
 
 > Why not compose generators that combine ideas from different off-the-shelf generators?
 
-The [`Generator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `Generator`s from scratch. It can be instantiated as follows:
+The [`GradientBasedGenerator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `GradientBasedGenerator`s from scratch. It can be instantiated as follows:
 
 ``` julia
-generator = Generator()
+generator = GradientBasedGenerator()
 ```
 
 By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`@objective`](@ref) macro:
@@ -51,8 +50,8 @@ Multiple macros can be chained using `Chains.jl` making it easy to create entire
 
 ``` julia
 @chain generator begin
-    @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @objective logitcrossentropy + 1.0ddp_diversity     # DiCE (Mothilal et al. 2020)
+    @with_optimiser JSMADescent(η=1.0)                  # Greedy (Schut et al. 2021)
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
 ```
@@ -69,13 +68,18 @@ Off-the-shelf generators are just default recipes for counterfactual generators.
 generator_catalogue
 ```
 
-    Dict{Symbol, Function} with 6 entries:
-      :gravitational => GravitationalGenerator
-      :revise        => REVISEGenerator
-      :dice          => DiCEGenerator
-      :generic       => GenericGenerator
-      :greedy        => GreedyGenerator
-      :claproar      => ClaPROARGenerator
+    Dict{Symbol, Any} with 11 entries:
+      :gravitational   => GravitationalGenerator
+      :growing_spheres => GrowingSpheresGenerator
+      :revise          => REVISEGenerator
+      :clue            => CLUEGenerator
+      :probe           => ProbeGenerator
+      :dice            => DiCEGenerator
+      :feature_tweak   => FeatureTweakGenerator
+      :claproar        => ClaPROARGenerator
+      :wachter         => WachterGenerator
+      :generic         => GenericGenerator
+      :greedy          => GreedyGenerator
 
 To specify the type of generator you want to use, you can simply instantiate it:
 

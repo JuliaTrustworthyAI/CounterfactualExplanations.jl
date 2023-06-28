@@ -1,9 +1,8 @@
+# `GreedyGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `GreedyGenerator`
 
 We use the term **greedy** to describe the counterfactual generator introduced by Schut et al. (2021).
 

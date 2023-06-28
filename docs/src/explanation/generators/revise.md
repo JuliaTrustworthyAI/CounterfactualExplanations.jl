@@ -1,9 +1,8 @@
+# `REVISEGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `REVISEGenerator`
 
 REVISE is a Latent Space generator introduced by Joshi et al. (2019).
 
@@ -33,6 +32,51 @@ plot(ce)
 
 ![](revise_files/figure-commonmark/cell-3-output-1.svg)
 
+### Worked 2D Examples
+
+Below we load 2D data and train a VAE on it and plot the original samples against their reconstructions.
+
+``` julia
+# output: true
+
+counterfactual_data = load_overlapping()
+X = counterfactual_data.X
+y = counterfactual_data.y
+input_dim = size(X, 1)
+using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct
+vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.01, latent_dim=2, hidden_dim=32)
+flux_training_params.verbose = true
+train!(vae, X, y)
+X̂ = reconstruct(vae, X)[1]
+p0 = scatter(X[1, :], X[2, :], color=:blue, label="Original", xlab="x₁", ylab="x₂")
+scatter!(X̂[1, :], X̂[2, :], color=:orange, label="Reconstructed", xlab="x₁", ylab="x₂")
+p1 = scatter(X[1, :], X̂[1, :], color=:purple, label="", xlab="x₁", ylab="x̂₁")
+p2 = scatter(X[2, :], X̂[2, :], color=:purple, label="", xlab="x₂", ylab="x̂₂")
+plt2 = plot(p1,p2, layout=(1,2), size=(800, 400))
+plot(p0, plt2, layout=(2,1), size=(800, 600))
+```
+
+Next, we train a simple MLP for the classification task. Then we determine a target and factual class for our counterfactual search and select a random factual instance to explain.
+
+``` julia
+M = fit_model(counterfactual_data, :MLP)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+```
+
+Finally, we generate and visualize the generated counterfactual:
+
+``` julia
+# Search:
+generator = REVISEGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+![](revise_files/figure-commonmark/cell-6-output-1.svg)
+
 ### 3D Example
 
 To illustrate the notion of Latent Space search, let’s look at an example involving 3-dimensional input data, which we can still visualize. The code chunk below loads the data and implements the counterfactual search.
@@ -55,7 +99,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 The figure below demonstrates the idea of searching counterfactuals in a lower-dimensional latent space: on the left, we can see the counterfactual search in the 3-dimensional feature space, while on the right we can see the corresponding search in the latent space.
 
-![](revise_files/figure-commonmark/cell-5-output-1.svg)
+![](revise_files/figure-commonmark/cell-8-output-1.svg)
 
 ## MNIST data
 
@@ -82,6 +126,7 @@ Now let’s define a factual and target label:
 
 ``` julia
 # Randomly selected factual:
+Random.seed!(2023)
 factual_label = 8
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
 target = 3
@@ -102,7 +147,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator; decis
 
 The chart below shows the results:
 
-![](revise_files/figure-commonmark/cell-12-output-1.svg)
+![](revise_files/figure-commonmark/cell-15-output-1.svg)
 
 ## References
 

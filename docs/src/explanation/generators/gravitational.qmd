@@ -4,7 +4,7 @@ CurrentModule = CounterfactualExplanations
 
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
@@ -50,7 +50,7 @@ for λ₂ ∈ Λ₂
     generators = vcat(generators..., generator)
     ces = vcat(
       ces...,
-      generate_counterfactual(x, target, counterfactual_data, M, generator; T=T)
+      generate_counterfactual(x, target, counterfactual_data, M, generator; max_iter=T)
     )
 end
 
@@ -78,7 +78,7 @@ plot(ce)
 
 ### Comparison to `GenericGenerator`
 
-The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `GravitationalGenerator`. 
+The figure below compares the outcome for the `GenericGenerator` and the `GravitationalGenerator`. 
 
 ```{julia}
 #| echo: false
@@ -88,7 +88,7 @@ target = 1
 factual_label = 2
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual_label))
 x = select_factual(counterfactual_data, chosen)
-opt = Flux.Descent(0.01)
+opt = Flux.Descent(0.5)
 ```
 
 ```{julia}
@@ -96,20 +96,19 @@ opt = Flux.Descent(0.01)
 #| echo: false
 # Generators:
 generators = Dict(
-    "Generic (γ=0.5)" => GenericGenerator(opt = opt, decision_threshold=0.5),
-    "Generic (γ=0.9)" => GenericGenerator(opt = opt, decision_threshold=0.9),
-    "Gravitational" => GravitationalGenerator(opt = opt)
+    "Generic" => GenericGenerator(opt = opt),
+    "Gravitational" => GravitationalGenerator(opt = opt, λ=[0.1,0.5])
 )
 
 
-counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen;) for (name, gen) in generators])
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; converge_when=:generator_conditions) for (name, gen) in generators])
 # Plots:
 plts = []
 for (name,ce) ∈ counterfactuals
     plt = plot(ce; title=name, colorbar=false, ticks = false, legend=false, zoom=0)
     plts = vcat(plts..., plt)
 end
-plot(plts..., size=(550,200), layout=(1,3))
+plot(plts..., size=(400,200), layout=(1,2))
 ```
 
 ## References

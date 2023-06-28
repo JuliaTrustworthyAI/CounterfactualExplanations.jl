@@ -1,9 +1,8 @@
+# `ClaPROARGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `ClaPROARGenerator`
 
 The `ClaPROARGenerator` was introduced in Altmeyer et al. (2023).
 
@@ -33,7 +32,7 @@ plot(ce)
 
 ### Comparison to `GenericGenerator`
 
-The figure below compares the outcome for the `GenericGenerator` with different decision thresholds and the `ClaPROARGenerator`.
+The figure below compares the outcome for the `GenericGenerator` and the `ClaPROARGenerator`.
 
 ![](clap_roar_files/figure-commonmark/cell-5-output-1.svg)
 

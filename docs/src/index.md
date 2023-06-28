@@ -1,3 +1,4 @@
+# 🚩 Installation
 
 ``` @meta
 CurrentModule = CounterfactualExplanations
@@ -9,11 +10,9 @@ Documentation for [CounterfactualExplanations.jl](https://github.com/juliatrustw
 
 *Counterfactual Explanations and Algorithmic Recourse in Julia.*
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch:main) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
 
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
-
-## 🚩 Installation
 
 You can install the stable release from [Julia’s General Registry](https://github.com/JuliaRegistries/General) as follows:
 
@@ -64,7 +63,7 @@ Since `v0.1.9` counterfactual generators are fully composable. Here we have comp
 
 ``` julia
 # Compose generator:
-generator = Generator()
+generator = GradientBasedGenerator()
 @chain generator begin
     @objective logitcrossentropy + 0.001distance_l2     
     @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
@@ -104,7 +103,7 @@ generator = DiCEGenerator(
 )
 ```
 
-Here, we have chosen to use the `Generator` to move the individual from its factual label 1 to the target label 2.
+Here, we have chosen to use the `GradientBasedGenerator` to move the individual from its factual label 2 to the target label 1.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 

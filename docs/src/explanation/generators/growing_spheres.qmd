@@ -1,18 +1,17 @@
 ```markdown
 @meta
 CurrentModule = CounterfactualExplanations
+```
 
-```julia
+```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
 # `GrowingSpheres`
 
-**Growing Spheres** refers to the generator introduced by Laugel et al. (2017) [1]
-
-Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
+**Growing Spheres** refers to the generator introduced by @laugel2017inversea. Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
 
 ## Principle of the Proposed Approach
 
@@ -40,7 +39,15 @@ where `||.||_2` is the Euclidean norm and `||.||_0` is the sparsity measure. The
 
 To approximate the solution, the Growing Spheres algorithm uses a two-step heuristic approach. The first step is the Generation phase, where observations are generated in spherical layers around the input observation. The second step is the Feature Selection phase, where the generated observation with the smallest change in each feature is selected.
 
-## References
+## Example
 
-[1] Laugel, Lesot, Marsala, Renard, and Detyniecki. 2017. "Inverse Classification for Comparison-based Interpretability in Machine Learning" https://arxiv.org/pdf/1712.08443.pdf
+```{julia}
+#| output: true
+generator = GrowingSpheresGenerator()
+M = fit_model(counterfactual_data, :DeepEnsemble)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator)
+plot(ce)
 ```
+
+## References

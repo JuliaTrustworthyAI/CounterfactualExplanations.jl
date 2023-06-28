@@ -7,8 +7,11 @@
         ϵ::AbstractFloat=0.1,
         τ::AbstractFloat=1e-5
     )
-An outer constructor method that instantiates a CLUE generator.
+
+    An outer constructor method that instantiates a CLUE generator.
+
 # Examples
+
 ```julia-repl
 generator = CLUEGenerator()
 ```
@@ -28,6 +31,6 @@ function predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistic
     counterfactual_data = ce.data
     X = CounterfactualExplanations.decode_state(ce)
     p = CounterfactualExplanations.Models.predict_proba(model, counterfactual_data, X)
-    output = agg(sum(@.(p * log(p)); dims=2))
+    output = -agg(sum(@.(p * log(p)); dims=2))
     return output
 end

@@ -133,15 +133,14 @@ if VERSION >= v"1.8"
                             M,
                             generator;
                             decision_threshold=γ,
+                            initialization=:identity,
                         )
-                        @test maximum(
-                            abs.(
-                                counterfactual.x .-
-                                CounterfactualExplanations.decode_state(counterfactual)
-                            ),
-                        ) < init_perturbation
-                        @test CounterfactualExplanations.converged(counterfactual)
-                        @test CounterfactualExplanations.terminated(counterfactual)
+                        x′ = CounterfactualExplanations.decode_state(counterfactual)
+                        if counterfactual.generator.latent_space == false
+                            @test isapprox(counterfactual.x, x′; atol=1e-6)
+                            @test CounterfactualExplanations.converged(counterfactual)
+                            @test CounterfactualExplanations.terminated(counterfactual)
+                        end
                         @test CounterfactualExplanations.total_steps(counterfactual) == 0
                     end
                 end

@@ -41,7 +41,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
 
     # Copy hyperparameters
     n = generator.n
-    η = generator.η
+    η = convert(eltype(factual), generator.η)
 
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
@@ -63,8 +63,9 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
     while (!isnothing(counterfactual))
         η /= 2
+        a₀ = convert(eltype(factual), 0.0)
 
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
+        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
         counterfactual = find_counterfactual(
             model, target, counterfactual_data, counterfactual_candidates
         )
@@ -192,6 +193,8 @@ function hyper_sphere_coordinates(
     p_norm::Integer=2,
 )
     delta_instance = Random.randn(n_search_samples, length(instance))
+    delta_instance = convert.(eltype(instance), delta_instance)
+
     # length range [l, h)
     dist = Random.rand(n_search_samples) .* (high - low) .+ low
     norm_p = LinearAlgebra.norm(delta_instance, p_norm)

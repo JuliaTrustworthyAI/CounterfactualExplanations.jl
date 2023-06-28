@@ -1,9 +1,8 @@
+# Handling Models
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Handling Models
 
 The typical use-case for Counterfactual Explanations and Algorithmic Recourse is as follows: users have trained some supervised model that is not inherently interpretable and are looking for a way to explain it. In this tutorial, we will see how pre-trained models can be used with this package.
 
@@ -29,13 +28,13 @@ data = Flux.DataLoader((X,y),batchsize=1)
 input_dim = size(X,1)
 n_hidden = 32
 activation = relu
-output_dim = 1
+output_dim = 2
 nn = Chain(
     Dense(input_dim, n_hidden, activation),
     Dropout(0.1),
     Dense(n_hidden, output_dim)
 )
-loss(yhat, y) = Flux.Losses.logitbinarycrossentropy(nn(yhat), y)
+loss(yhat, y) = Flux.Losses.logitcrossentropy(nn(yhat), y)
 ```
 
 Next, we fit the network to the data:
@@ -62,22 +61,15 @@ end
 ```
 
     Epoch 20
-
-    avg_loss(data) = 0.08082846806183959
+    avg_loss(data) = 0.08936202f0
     Epoch 40
-
-
-    avg_loss(data) = 0.025974960258047564
-
+    avg_loss(data) = 0.024966659f0
     Epoch 60
-    avg_loss(data) = 0.009338310996106358
+    avg_loss(data) = 0.01048687f0
     Epoch 80
-
-
-    avg_loss(data) = 0.006386922069933257
-
+    avg_loss(data) = 0.00838422f0
     Epoch 100
-    avg_loss(data) = 0.004799384258580388
+    avg_loss(data) = 0.0043536075f0
 
 To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2016).
 
@@ -87,7 +79,7 @@ The appropriate API call to wrap our simple network in a container follows below
 M = FluxModel(nn)
 ```
 
-    FluxModel(Chain(Dense(2 => 32, relu), Dropout(0.1), Dense(32 => 1)), :classification_binary)
+    FluxModel(Chain(Dense(2 => 32, relu), Dropout(0.1, active=false), Dense(32 => 2)), :classification_binary)
 
 The likelihood function of the output variable is automatically inferred from the data. The generic `plot()` method can be called on the model and data to visualise the results:
 

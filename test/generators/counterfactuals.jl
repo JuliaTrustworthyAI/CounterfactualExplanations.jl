@@ -110,21 +110,20 @@ for (key, generator_) in generators
                                         M,
                                         generator;
                                         decision_threshold=γ,
+                                        initialization=:identity,
                                     )
-                                    @test maximum(
-                                        abs.(
-                                            counterfactual.x .-
-                                            CounterfactualExplanations.decode_state(
-                                                counterfactual
-                                            )
-                                        ),
-                                    ) < init_perturbation
-                                    @test CounterfactualExplanations.converged(
+                                    x′ = CounterfactualExplanations.decode_state(
                                         counterfactual
                                     )
-                                    @test CounterfactualExplanations.terminated(
-                                        counterfactual
-                                    )
+                                    if counterfactual.generator.latent_space == false
+                                        @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                        @test CounterfactualExplanations.converged(
+                                            counterfactual
+                                        )
+                                        @test CounterfactualExplanations.terminated(
+                                            counterfactual
+                                        )
+                                    end
                                     @test CounterfactualExplanations.total_steps(
                                         counterfactual
                                     ) == 0

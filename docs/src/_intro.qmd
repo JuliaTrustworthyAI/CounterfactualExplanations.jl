@@ -10,7 +10,7 @@
 
 ```{julia}
 #| echo: false
-include("docs/setup_docs.jl")
+include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
@@ -219,7 +219,7 @@ Since `v0.1.9` counterfactual generators are fully composable. Here we have comp
 
 ```{julia}
 # Compose generator:
-generator = Generator()
+generator = GradientBasedGenerator()
 @chain generator begin
     @objective logitcrossentropy + 0.001distance_l2     
     @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)

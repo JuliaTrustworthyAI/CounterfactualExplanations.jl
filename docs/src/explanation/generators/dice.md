@@ -1,9 +1,8 @@
+# `DiCEGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `DiCEGenerator`
 
 The `DiCEGenerator` can be used to generate multiple diverse counterfactuals for a single factual.
 

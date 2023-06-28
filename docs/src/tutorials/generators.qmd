@@ -10,7 +10,7 @@ eval(setup_docs)
 
 # Handling Generators
 
-Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `Generator`s are used. They are discussed in more detail in the explanatory section of the documentation.
+Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `GradientBasedGenerator`s are used. They are discussed in more detail in the explanatory section of the documentation.
 
 ## Composable Generators 
 
@@ -31,10 +31,10 @@ Without going into further detail here, the important thing to mention is that @
 
 > Why not compose generators that combine ideas from different off-the-shelf generators?
 
-The [`Generator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `Generator`s from scratch. It can be instantiated as follows:
+The [`GradientBasedGenerator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `GradientBasedGenerator`s from scratch. It can be instantiated as follows:
 
 ```{julia}
-generator = Generator()
+generator = GradientBasedGenerator()
 ```
 
 By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`@objective`](@ref) macro:
@@ -52,12 +52,12 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_c
 plot(ce)
 ```
 
-Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE [@mothilal2020explaining], REVISE [@joshi2019realistic] and Greedy [@schut2021generating]:
+Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE [@mothilal2020explaining] and REVISE [@joshi2019realistic]:
 
 ```{julia}
 @chain generator begin
-    @objective logitcrossentropy + 5.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
+    @objective logitcrossentropy + 1.0ddp_diversity     # DiCE (Mothilal et al. 2020)
+    @with_optimiser Flux.Adam(0.1)                      
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
 ```
@@ -76,12 +76,15 @@ counterfactual_data.generative_model = vae # assign generative model
 ```{julia}
 #| echo: false
 
-Random.seed!(42)
+Random.seed!(2023)
 factual_label = 0
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
 target = 8
 factual = predict_label(M, counterfactual_data, x)[1]
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator; 
+    num_counterfactuals=5, decision_threshold=0.9
+)
 ```
 
 ```{julia}
@@ -110,17 +113,18 @@ p1 = plot(
 
 plts = []
 for i in 1:ce.num_counterfactuals
-    target_prob = round(target_probs(ce)[:,:,i][1],digits=2)
-    ŷ = CounterfactualExplanations.counterfactual_label(ce)[:,:,i]
+    target_prob = round(target_probs(ce)[i][1],digits=2)
+    ŷ = CounterfactualExplanations.counterfactual_label(ce)[i]
     plt = plot(
-        convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce)[:,:,i],28,28)),
+        convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce)[:,i],28,28)),
         axis=nothing, 
         size=(image_size, image_size),
         title="CE$i"
     )
     push!(plts, plt)
 end
-plot(p1,plts...;size=(image_size * 6,image_size), layout=(1,6))
+plt = plot(p1,plts...;size=(image_size * 6,image_size), layout=(1,6))
+display(plt)
 ```
 
 ## Off-the-Shelf Generators 
