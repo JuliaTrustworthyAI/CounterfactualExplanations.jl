@@ -1,4 +1,4 @@
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
@@ -20,7 +20,7 @@ The CLUE algorithm minimizes a loss function that combines uncertainty estimates
 
 The formula for predictive entropy is as follow:
 
-```math
+``` math
 \begin{aligned}
 H(y^*|x^*, D) &= - \sum_{k=1}^{K} p(y^*=c_k|x^*, D) \log p(y^*=c_k|x^*, D)
 \end{aligned}
@@ -28,7 +28,7 @@ H(y^*|x^*, D) &= - \sum_{k=1}^{K} p(y^*=c_k|x^*, D) \log p(y^*=c_k|x^*, D)
 
 ## Usage
 
-While using one must keep in mind that the CLUE algorithim is meant to find a more robust datapoint of the same class, using CLUE generator without any additional penalties/losses will mean that it is not a counterfactual generator. The generated result will be of the same class as the original input, but a more robust datapoint. 
+While using one must keep in mind that the CLUE algorithim is meant to find a more robust datapoint of the same class, using CLUE generator without any additional penalties/losses will mean that it is not a counterfactual generator. The generated result will be of the same class as the original input, but a more robust datapoint.
 
 CLUE works best for BNN's. The CLUEGenerator can be used with any differentiable probabilistic model, but the results may not be as good as with BNNs.
 
@@ -49,4 +49,3 @@ Extra: The CLUE generator can also be used upon already having achieved a counte
 *Note: The above documentation is based on the information provided in the CLUE paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
 
 ## References
-

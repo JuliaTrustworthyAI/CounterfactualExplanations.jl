@@ -10,7 +10,7 @@ eval(setup_docs)
 
 # `GenericGenerator`
 
-We use the term **generic** to relate to the counterfactual generator proposed by @wachter2017counterfactual. 
+We use the term **generic** to relate to the basic counterfactual generator proposed by @wachter2017counterfactual with $L1$-norm regularization. There is also a variant of this generator that uses the distance metric proposed in @wachter2017counterfactual, which we call `WachterGenerator`.
 
 ## Description
 

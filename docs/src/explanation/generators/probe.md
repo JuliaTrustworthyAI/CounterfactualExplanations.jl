@@ -32,7 +32,7 @@ The above formula is not differentiable. For this reason the generator uses the 
 
 ``` math
 \begin{equation}
-\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) = 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) \label{eq:4}
+\Delta \tilde{}(x^{\hat{E}}, \sigma^2 I) = 1 - \Phi \left(\frac{\sqrt{f(x^{\hat{E}})}}{\sqrt{\nabla f(x^{\hat{E}})^T \sigma^2 I \nabla f(x^{\hat{E}})}}\right) 
 \end{equation}
 ```
 
@@ -43,7 +43,9 @@ Generating a counterfactual with the data loaded and generator chosen works as f
 Note: It is important to set the convergence to “:invalidation_rate” here.
 
 ``` julia
-generator = CounterfactualExplanations.Generators.ProbeGenerator()
+M = fit_model(counterfactual_data, :DeepEnsemble)
+opt = Descent(0.01)
+generator = CounterfactualExplanations.Generators.ProbeGenerator(opt=opt)
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when =:invalidation_rate, invalidation_rate = 0.5, learning_rate = 0.5)
 plot(ce)
 ```

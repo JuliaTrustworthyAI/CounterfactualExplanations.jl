@@ -284,7 +284,7 @@ counterfactual_data.mutability = [:none, :both]
 
 ```{julia}
 # Define generator:
-generator = GenericGenerator(opt=Descent(0.02))
+generator = GenericGenerator(opt=Descent(0.05))
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
@@ -470,7 +470,7 @@ x = select_factual(
     counterfactual_data, chosen) 
 
 # Counterfactual search:
-generator = GenericGenerator(opt=Flux.Descent(0.05))
+generator = GenericGenerator(opt=Flux.Descent(0.1))
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```

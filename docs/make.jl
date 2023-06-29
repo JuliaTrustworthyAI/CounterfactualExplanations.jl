@@ -37,11 +37,15 @@ makedocs(;
             "Generators" => [
                 "Overview" => "explanation/generators/overview.md",
                 "Generic" => "explanation/generators/generic.md",
-                "Gravitational" => "explanation/generators/gravitational.md",
-                "REVISE" => "explanation/generators/revise.md",
-                "DiCE" => "explanation/generators/dice.md",
                 "ClaPROAR" => "explanation/generators/clap_roar.md",
+                "CLUE" => "explanation/generators/clue.md",
+                "DiCE" => "explanation/generators/dice.md",
+                "FeatureTweak" => "explanation/generators/feature_tweak.md",
+                "Gravitational" => "explanation/generators/gravitational.md",
                 "Greedy" => "explanation/generators/greedy.md",
+                "GrowingSpheres" => "explanation/generators/growing_spheres.md",
+                "PROBE" => "explanation/generators/probe.md",
+                "REVISE" => "explanation/generators/revise.md",
             ],
             "Optimisers" => [
                 "Overview" => "explanation/optimisers/overview.md",

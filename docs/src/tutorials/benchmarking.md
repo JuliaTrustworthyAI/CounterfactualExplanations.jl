@@ -38,19 +38,19 @@ bmk()
      Row │ sample  variable    value    generator                          model   ⋯
          │ Int64   String      Float64  Symbol                             Symbol  ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  distance    3.51596  GradientBasedGenerator(nothing, …  FluxMod ⋯
+       1 │      1  distance    3.17243  GradientBasedGenerator(nothing, …  FluxMod ⋯
        2 │      1  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
        3 │      1  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-       4 │      2  distance    3.36053  GradientBasedGenerator(nothing, …  FluxMod
+       4 │      2  distance    3.07148  GradientBasedGenerator(nothing, …  FluxMod
        5 │      2  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
        6 │      2  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-       7 │      3  distance    3.72709  GradientBasedGenerator(nothing, …  FluxMod
+       7 │      3  distance    3.62159  GradientBasedGenerator(nothing, …  FluxMod
        8 │      3  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-       9 │      3  validity    0.8      GradientBasedGenerator(nothing, …  FluxMod ⋯
-      10 │      4  distance    3.04693  GradientBasedGenerator(nothing, …  FluxMod
+       9 │      3  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
+      10 │      4  distance    2.62783  GradientBasedGenerator(nothing, …  FluxMod
       11 │      4  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
       12 │      4  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-      13 │      5  distance    3.16976  GradientBasedGenerator(nothing, …  FluxMod ⋯
+      13 │      5  distance    2.91985  GradientBasedGenerator(nothing, …  FluxMod ⋯
       14 │      5  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
       15 │      5  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
                                                                    3 columns omitted
@@ -65,11 +65,11 @@ bmk(agg=nothing)
      Row │ sample  num_counterfactual  variable    value    generator              ⋯
          │ Int64   Int64               String      Float64  Symbol                 ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    3.54016  GradientBasedGenerator ⋯
-       2 │      1                   2  distance    3.49865  GradientBasedGenerator
-       3 │      1                   3  distance    3.54146  GradientBasedGenerator
-       4 │      1                   4  distance    3.49351  GradientBasedGenerator
-       5 │      1                   5  distance    3.50604  GradientBasedGenerator ⋯
+       1 │      1                   1  distance    3.15903  GradientBasedGenerator ⋯
+       2 │      1                   2  distance    3.16773  GradientBasedGenerator
+       3 │      1                   3  distance    3.17011  GradientBasedGenerator
+       4 │      1                   4  distance    3.20239  GradientBasedGenerator
+       5 │      1                   5  distance    3.16291  GradientBasedGenerator ⋯
        6 │      1                   1  redundancy  0.0      GradientBasedGenerator
        7 │      1                   2  redundancy  0.0      GradientBasedGenerator
        8 │      1                   3  redundancy  0.0      GradientBasedGenerator
@@ -99,17 +99,15 @@ using Tidier
 end
 ```
 
-    [ Info: Precompiling Tidier [f0413319-3358-4bb0-8e7c-0c83523a93bd]
-
     5×3 DataFrame
      Row │ sample  variable  value   
          │ Int64   String    Float64 
     ─────┼───────────────────────────
-       1 │      1  distance  3.51596
-       2 │      2  distance  3.36053
-       3 │      3  distance  3.72709
-       4 │      4  distance  3.04693
-       5 │      5  distance  3.16976
+       1 │      1  distance  3.17243
+       2 │      2  distance  3.07148
+       3 │      3  distance  3.62159
+       4 │      4  distance  2.62783
+       5 │      5  distance  2.91985
 
 ### Metadata for Counterfactual Explanations
 
@@ -218,14 +216,14 @@ end
      Row │ sample  variable  value    model   generator     
          │ Int64   String    Float64  Symbol  Symbol        
     ─────┼──────────────────────────────────────────────────
-       1 │      1  distance  3.87418  Linear  Gravitational
-       2 │      1  distance  3.80327  Linear  ClaPROAR
-       3 │      1  distance  3.3624   Linear  Generic
-       4 │      1  distance  3.39194  Linear  Wachter
-       5 │      1  distance  4.79326  MLP     Gravitational
-       6 │      1  distance  6.40047  MLP     ClaPROAR
-       7 │      1  distance  6.3013   MLP     Generic
-       8 │      1  distance  4.40417  MLP     Wachter
+       1 │      1  distance  3.23559  Linear  Gravitational
+       2 │      1  distance  3.40924  Linear  ClaPROAR
+       3 │      1  distance  3.08311  Linear  Generic
+       4 │      1  distance  3.1338   Linear  Wachter
+       5 │      1  distance  4.44266  MLP     Gravitational
+       6 │      1  distance  4.67161  MLP     ClaPROAR
+       7 │      1  distance  4.98131  MLP     Generic
+       8 │      1  distance  4.32344  MLP     Wachter
 
 ### Everything at once
 
@@ -270,10 +268,10 @@ end
      159 │     14  validity      1.0  MLP     generic
      160 │     15  validity      1.0  MLP     generic
      161 │     11  validity      1.0  MLP     greedy
-     162 │     12  validity      0.0  MLP     greedy
-     163 │     13  validity      0.0  MLP     greedy
-     164 │     14  validity      0.0  MLP     greedy
-     165 │     15  validity      0.0  MLP     greedy
+     162 │     12  validity      1.0  MLP     greedy
+     163 │     13  validity      1.0  MLP     greedy
+     164 │     14  validity      1.0  MLP     greedy
+     165 │     15  validity      1.0  MLP     greedy
                                               144 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
@@ -338,7 +336,7 @@ end
      Row │ dataset  generator  L1_norm  
          │ Symbol   Symbol     Float32  
     ─────┼──────────────────────────────
-       1 │ circles  Generic    2.07007
-       2 │ circles  Greedy     0.481241
-       3 │ moons    Generic    1.04787
-       4 │ moons    Greedy     1.11782
+       1 │ circles  Generic    2.71561
+       2 │ circles  Greedy     0.596901
+       3 │ moons    Generic    1.30436
+       4 │ moons    Greedy     0.742734

@@ -4,7 +4,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-We use the term **generic** to relate to the counterfactual generator proposed by Wachter, Mittelstadt, and Russell (2017).
+We use the term **generic** to relate to the basic counterfactual generator proposed by Wachter, Mittelstadt, and Russell (2017) with $L1$-norm regularization. There is also a variant of this generator that uses the distance metric proposed in Wachter, Mittelstadt, and Russell (2017), which we call `WachterGenerator`.
 
 ## Description
 

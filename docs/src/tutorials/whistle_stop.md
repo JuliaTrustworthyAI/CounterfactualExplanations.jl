@@ -20,7 +20,6 @@ The code chunk below generates synthetic data and uses it to fit a classifier. T
 
 ``` julia
 counterfactual_data = load_multi_class(n_samples)
-counterfactual_data.standardize = true
 M = fit_model(counterfactual_data, model_name)
 ```
 
