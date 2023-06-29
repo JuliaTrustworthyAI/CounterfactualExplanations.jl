@@ -12,6 +12,5 @@ function load_blobs(n=250; seed=data_seed, k=2, centers=2, kwrgs...)
     end
     counterfactual_data = CounterfactualExplanations.CounterfactualData(X, y)
     counterfactual_data.X = Float32.(counterfactual_data.X)
-    counterfactual_data.standardize = true
     return counterfactual_data
 end
