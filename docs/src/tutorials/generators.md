@@ -46,12 +46,12 @@ plot(ce)
 
 ![](generators_files/figure-commonmark/cell-5-output-1.svg)
 
-Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE (Mothilal, Sharma, and Tan 2020), REVISE (Joshi et al. 2019) and Greedy (Schut et al. 2021):
+Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE (Mothilal, Sharma, and Tan 2020) and REVISE (Joshi et al. 2019):
 
 ``` julia
 @chain generator begin
     @objective logitcrossentropy + 1.0ddp_diversity     # DiCE (Mothilal et al. 2020)
-    @with_optimiser JSMADescent(η=1.0)                  # Greedy (Schut et al. 2021)
+    @with_optimiser Flux.Adam(0.1)                      
     @search_latent_space                                # REVISE (Joshi et al. 2019)
 end
 ```
@@ -101,5 +101,3 @@ Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van
 Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
 
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
-
-Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.

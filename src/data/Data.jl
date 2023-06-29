@@ -56,11 +56,11 @@ const data_catalogue = Dict(
 )
 
 """
-    load_synthetic_data(n=100; seed=Random.GLOBAL_RNG)
+    load_synthetic_data(n=250; seed=data_seed)
 
 Loads all synthetic datasets and wraps them in a dictionary.
 """
-function load_synthetic_data(n=100; seed=Random.GLOBAL_RNG, drop=nothing)
+function load_synthetic_data(n=250; seed=data_seed, drop=nothing)
     _dict = data_catalogue[:synthetic]
     if !isnothing(drop)
         drop = drop isa Vector ? drop : [drop]

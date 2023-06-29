@@ -1,3 +1,4 @@
+# 🚩 Installation
 
 ![](docs/src/assets/wide_logo.png)
 
@@ -6,8 +7,6 @@
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
 
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
-
-## 🚩 Installation
 
 You can install the stable release from [Julia’s General Registry](https://github.com/JuliaRegistries/General) as follows:
 
@@ -58,7 +57,7 @@ Since `v0.1.9` counterfactual generators are fully composable. Here we have comp
 
 ``` julia
 # Compose generator:
-generator = Generator()
+generator = GradientBasedGenerator()
 @chain generator begin
     @objective logitcrossentropy + 0.001distance_l2     
     @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
@@ -66,39 +65,32 @@ generator = Generator()
 end
 ```
 
-![](README_files/figure-commonmark/cell-11-output-1.svg)
+![](README_files/figure-commonmark/cell-10-output-1.svg)
 
 ## 🔍 Usage example
 
-Generating counterfactuals will typically look like follows.
-
-We have some pre-trained model that was fitted to data:
+Generating counterfactuals will typically look like follows. Below we first fit a simple model to a synthetic dataset with linearly separable features and then draw a random sample:
 
 ``` julia
 # Data and Classifier:
-counterfactual_data = load_linearly_separable(1000)
+counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
-```
 
-For some individual and target outcome, we want to understand what a valid counterfactual in the target class looks like:
-
-``` julia
-# Randomly selected factual:
-x = select_factual(counterfactual_data,rand(1:size(counterfactual_data.X,2)))
-y = predict_label(M, counterfactual_data, x)[1]
-target = counterfactual_data.y_levels[counterfactual_data.y_levels .!= y][1]
+# Select random sample:
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
 ```
 
 To this end, we specify a counterfactual generator of our choice:
 
 ``` julia
 # Counterfactual search:
-generator = DiCEGenerator(
-  opt = Descent(0.01)
-)
+generator = DiCEGenerator(λ=[0.1,0.3])
 ```
 
-Here, we have chosen to use the `Generator` to move the individual from its factual label 1 to the target label 2.
+Here, we have chosen to use the `GradientBasedGenerator` to move the individual from its factual label 1 to the target label 2.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 
@@ -120,26 +112,26 @@ The animation below shows the resulting counterfactual path:
 
 Currently, the following counterfactual generators are implemented:
 
-- Generic (Wachter, Mittelstadt, and Russell 2017)
-- Greedy (Schut et al. 2021)
-- DiCE (Mothilal, Sharma, and Tan 2020)
-- Latent Space Search as in REVISE (Joshi et al. 2019) and CLUE (Antorán et al. 2020)
 - ClaPROAR (Altmeyer et al. 2023)
+- CLUE (Antorán et al. 2020)
+- DiCE (Mothilal, Sharma, and Tan 2020)
+- FeatureTweak (Tolomei et al. 2017)
+- Generic
 - GravitationalGenerator (Altmeyer et al. 2023)
+- Greedy (Schut et al. 2021)
+- GrowingSpheres (Laugel et al. 2017)
+- PROBE (Pawelczyk et al. 2022)
+- REVISE (Joshi et al. 2019)
+- Wachter (Wachter, Mittelstadt, and Russell 2017)
 
 ## 🎯 Goals and limitations
 
-The goal of this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open-source code. Eventually, this project aims to offer a one-stop-shop of counterfactual explanations. We want to deliver a package that is at least at par with the [CARLA](https://github.com/carla-recourse/CARLA) Python library in terms of its functionality. Currently, the package falls short of this goal in some ways:
+The goal of this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open-source code. Eventually, this project aims to offer a one-stop-shop of counterfactual explanations.
 
-1.  The number of counterfactual generators is still limited.
-2.  Mutability constraints are still not supported for Latent Space generators.
+Our ambition is to enhance the package through the following features:
 
-Additionally, our ambition is to enhance the package through the following features:
-
-4.  Language interoperability with Python and R: currently still only experimental.
-5.  Support for machine learning models trained in [`MLJ.jl`](https://alan-turing-institute.github.io/MLJ.jl/dev/).
-6.  Additional datasets for testing, evaluation and benchmarking.
-7.  Support for regression models.
+1.  Support for all supervised machine learning models trained in [`MLJ.jl`](https://alan-turing-institute.github.io/MLJ.jl/dev/).
+2.  Support for regression models.
 
 ## 🛠 Contribute
 
@@ -176,8 +168,14 @@ Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep 
 
 Kaggle. 2011. “Give Me Some Credit, Improve on the State of the Art in Credit Scoring by Predicting the Probability That Somebody Will Experience Financial Distress in the Next Two Years.” Kaggle. <https://www.kaggle.com/c/GiveMeSomeCredit>.
 
+Laugel, Thibault, Marie-Jeanne Lesot, Christophe Marsala, Xavier Renard, and Marcin Detyniecki. 2017. “Inverse Classification for Comparison-Based Interpretability in Machine Learning.” <https://arxiv.org/abs/1712.08443>.
+
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
 
+Pawelczyk, Martin, Teresa Datta, Johannes van-den-Heuvel, Gjergji Kasneci, and Himabindu Lakkaraju. 2022. “Probabilistically Robust Recourse: Navigating the Trade-Offs Between Costs and Robustness in Algorithmic Recourse.” *arXiv Preprint arXiv:2203.06768*.
+
 Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
+
+Tolomei, Gabriele, Fabrizio Silvestri, Andrew Haines, and Mounia Lalmas. 2017. “Interpretable Predictions of Tree-Based Ensembles via Actionable Feature Tweaking.” In *Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, 465–74. <https://doi.org/10.1145/3097983.3098039>.
 
 Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. “Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.” *Harv. JL & Tech.* 31: 841.

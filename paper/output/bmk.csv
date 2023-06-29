@@ -1,201 +1,81 @@
-sample,variable,value,dataname,generator,model,target,factual
-1,distance_from_targets,0.8347062,Linearly Separable,Gravitational,Linear,2,1
-1,distance_l1,6.536357,Linearly Separable,Gravitational,Linear,2,1
-2,distance_from_targets,1.7322155,Linearly Separable,Gravitational,Linear,2,1
-2,distance_l1,7.797186,Linearly Separable,Gravitational,Linear,2,1
-3,distance_from_targets,0.8002344,Linearly Separable,Gravitational,Linear,2,1
-3,distance_l1,8.209688,Linearly Separable,Gravitational,Linear,2,1
-4,distance_from_targets,0.8095416,Linearly Separable,Gravitational,Linear,2,1
-4,distance_l1,6.8162117,Linearly Separable,Gravitational,Linear,2,1
-5,distance_from_targets,0.9816525,Linearly Separable,Gravitational,Linear,2,1
-5,distance_l1,8.493064,Linearly Separable,Gravitational,Linear,2,1
-6,distance_from_targets,0.7644991,Linearly Separable,Gravitational,Linear,2,1
-6,distance_l1,7.9891686,Linearly Separable,Gravitational,Linear,2,1
-7,distance_from_targets,0.8131517,Linearly Separable,Gravitational,Linear,2,1
-7,distance_l1,7.6820455,Linearly Separable,Gravitational,Linear,2,1
-8,distance_from_targets,0.806346,Linearly Separable,Gravitational,Linear,2,1
-8,distance_l1,7.0713606,Linearly Separable,Gravitational,Linear,2,1
-9,distance_from_targets,0.7945943,Linearly Separable,Gravitational,Linear,2,1
-9,distance_l1,6.7783537,Linearly Separable,Gravitational,Linear,2,1
-10,distance_from_targets,0.921568,Linearly Separable,Gravitational,Linear,2,1
-10,distance_l1,8.646957,Linearly Separable,Gravitational,Linear,2,1
-11,distance_from_targets,0.7982323,Linearly Separable,Gravitational,Linear,2,1
-11,distance_l1,7.563709,Linearly Separable,Gravitational,Linear,2,1
-12,distance_from_targets,1.2137514,Linearly Separable,Gravitational,Linear,2,1
-12,distance_l1,7.5918417,Linearly Separable,Gravitational,Linear,2,1
-13,distance_from_targets,0.9991603,Linearly Separable,Gravitational,Linear,2,1
-13,distance_l1,8.323836,Linearly Separable,Gravitational,Linear,2,1
-14,distance_from_targets,0.8193514,Linearly Separable,Gravitational,Linear,2,1
-14,distance_l1,6.8948755,Linearly Separable,Gravitational,Linear,2,1
-15,distance_from_targets,0.935768,Linearly Separable,Gravitational,Linear,2,1
-15,distance_l1,8.640605,Linearly Separable,Gravitational,Linear,2,1
-16,distance_from_targets,0.7780847,Linearly Separable,Gravitational,Linear,2,1
-16,distance_l1,8.668959,Linearly Separable,Gravitational,Linear,2,1
-17,distance_from_targets,0.7803777,Linearly Separable,Gravitational,Linear,2,1
-17,distance_l1,7.9836636,Linearly Separable,Gravitational,Linear,2,1
-18,distance_from_targets,0.89239675,Linearly Separable,Gravitational,Linear,2,1
-18,distance_l1,8.735525,Linearly Separable,Gravitational,Linear,2,1
-19,distance_from_targets,0.84889424,Linearly Separable,Gravitational,Linear,2,1
-19,distance_l1,6.422541,Linearly Separable,Gravitational,Linear,2,1
-20,distance_from_targets,0.8151005,Linearly Separable,Gravitational,Linear,2,1
-20,distance_l1,7.120845,Linearly Separable,Gravitational,Linear,2,1
-21,distance_from_targets,0.8476648,Linearly Separable,Gravitational,Linear,2,1
-21,distance_l1,8.354116,Linearly Separable,Gravitational,Linear,2,1
-22,distance_from_targets,0.81945807,Linearly Separable,Gravitational,Linear,2,1
-22,distance_l1,6.9715047,Linearly Separable,Gravitational,Linear,2,1
-23,distance_from_targets,0.9274182,Linearly Separable,Gravitational,Linear,2,1
-23,distance_l1,8.639022,Linearly Separable,Gravitational,Linear,2,1
-24,distance_from_targets,0.8277527,Linearly Separable,Gravitational,Linear,2,1
-24,distance_l1,8.052142,Linearly Separable,Gravitational,Linear,2,1
-25,distance_from_targets,0.8567605,Linearly Separable,Gravitational,Linear,2,1
-25,distance_l1,8.169401,Linearly Separable,Gravitational,Linear,2,1
-1,distance_from_targets,1.9382594,Linearly Separable,Greedy,Linear,2,1
-1,distance_l1,5.0000005,Linearly Separable,Greedy,Linear,2,1
-2,distance_from_targets,3.069027,Linearly Separable,Greedy,Linear,2,1
-2,distance_l1,6.6000004,Linearly Separable,Greedy,Linear,2,1
-3,distance_from_targets,1.8426235,Linearly Separable,Greedy,Linear,2,1
-3,distance_l1,6.8999996,Linearly Separable,Greedy,Linear,2,1
-4,distance_from_targets,1.0294324,Linearly Separable,Greedy,Linear,2,1
-4,distance_l1,6.1999993,Linearly Separable,Greedy,Linear,2,1
-5,distance_from_targets,1.2805722,Linearly Separable,Greedy,Linear,2,1
-5,distance_l1,8.099998,Linearly Separable,Greedy,Linear,2,1
-6,distance_from_targets,1.4814466,Linearly Separable,Greedy,Linear,2,1
-6,distance_l1,6.799999,Linearly Separable,Greedy,Linear,2,1
-7,distance_from_targets,1.6109283,Linearly Separable,Greedy,Linear,2,1
-7,distance_l1,6.5999994,Linearly Separable,Greedy,Linear,2,1
-8,distance_from_targets,1.0674179,Linearly Separable,Greedy,Linear,2,1
-8,distance_l1,6.399999,Linearly Separable,Greedy,Linear,2,1
-9,distance_from_targets,1.0387037,Linearly Separable,Greedy,Linear,2,1
-9,distance_l1,6.1999993,Linearly Separable,Greedy,Linear,2,1
-10,distance_from_targets,1.2245976,Linearly Separable,Greedy,Linear,2,1
-10,distance_l1,8.199999,Linearly Separable,Greedy,Linear,2,1
-11,distance_from_targets,1.5178806,Linearly Separable,Greedy,Linear,2,1
-11,distance_l1,6.3999996,Linearly Separable,Greedy,Linear,2,1
-12,distance_from_targets,2.4617891,Linearly Separable,Greedy,Linear,2,1
-12,distance_l1,6.3000007,Linearly Separable,Greedy,Linear,2,1
-13,distance_from_targets,1.433534,Linearly Separable,Greedy,Linear,2,1
-13,distance_l1,7.899999,Linearly Separable,Greedy,Linear,2,1
-14,distance_from_targets,1.1850955,Linearly Separable,Greedy,Linear,2,1
-14,distance_l1,6.2,Linearly Separable,Greedy,Linear,2,1
-15,distance_from_targets,1.1414498,Linearly Separable,Greedy,Linear,2,1
-15,distance_l1,8.299998,Linearly Separable,Greedy,Linear,2,1
-16,distance_from_targets,0.91994715,Linearly Separable,Greedy,Linear,2,1
-16,distance_l1,8.199998,Linearly Separable,Greedy,Linear,2,1
-17,distance_from_targets,1.505463,Linearly Separable,Greedy,Linear,2,1
-17,distance_l1,6.799999,Linearly Separable,Greedy,Linear,2,1
-18,distance_from_targets,1.2157274,Linearly Separable,Greedy,Linear,2,1
-18,distance_l1,8.199999,Linearly Separable,Greedy,Linear,2,1
-19,distance_from_targets,1.9299178,Linearly Separable,Greedy,Linear,2,1
-19,distance_l1,5.0000005,Linearly Separable,Greedy,Linear,2,1
-20,distance_from_targets,1.1174351,Linearly Separable,Greedy,Linear,2,1
-20,distance_l1,6.499999,Linearly Separable,Greedy,Linear,2,1
-21,distance_from_targets,2.0103784,Linearly Separable,Greedy,Linear,2,1
-21,distance_l1,6.9999995,Linearly Separable,Greedy,Linear,2,1
-22,distance_from_targets,1.3727381,Linearly Separable,Greedy,Linear,2,1
-22,distance_l1,6.0999994,Linearly Separable,Greedy,Linear,2,1
-23,distance_from_targets,1.1672152,Linearly Separable,Greedy,Linear,2,1
-23,distance_l1,8.299998,Linearly Separable,Greedy,Linear,2,1
-24,distance_from_targets,0.8266986,Linearly Separable,Greedy,Linear,2,1
-24,distance_l1,8.099998,Linearly Separable,Greedy,Linear,2,1
-25,distance_from_targets,1.9438093,Linearly Separable,Greedy,Linear,2,1
-25,distance_l1,6.7999997,Linearly Separable,Greedy,Linear,2,1
-1,distance_from_targets,2.742122,Linearly Separable,REVISE,Linear,2,1
-1,distance_l1,3.9037719,Linearly Separable,REVISE,Linear,2,1
-2,distance_from_targets,2.5299466,Linearly Separable,REVISE,Linear,2,1
-2,distance_l1,6.6670246,Linearly Separable,REVISE,Linear,2,1
-3,distance_from_targets,3.2365308,Linearly Separable,REVISE,Linear,2,1
-3,distance_l1,5.218524,Linearly Separable,REVISE,Linear,2,1
-4,distance_from_targets,2.8391988,Linearly Separable,REVISE,Linear,2,1
-4,distance_l1,4.112335,Linearly Separable,REVISE,Linear,2,1
-5,distance_from_targets,2.0991664,Linearly Separable,REVISE,Linear,2,1
-5,distance_l1,7.033388,Linearly Separable,REVISE,Linear,2,1
-6,distance_from_targets,3.486349,Linearly Separable,REVISE,Linear,2,1
-6,distance_l1,4.541215,Linearly Separable,REVISE,Linear,2,1
-7,distance_from_targets,3.002505,Linearly Separable,REVISE,Linear,2,1
-7,distance_l1,4.94877,Linearly Separable,REVISE,Linear,2,1
-8,distance_from_targets,1.9442174,Linearly Separable,REVISE,Linear,2,1
-8,distance_l1,5.22898,Linearly Separable,REVISE,Linear,2,1
-9,distance_from_targets,3.0527558,Linearly Separable,REVISE,Linear,2,1
-9,distance_l1,3.9194136,Linearly Separable,REVISE,Linear,2,1
-10,distance_from_targets,2.9337382,Linearly Separable,REVISE,Linear,2,1
-10,distance_l1,6.21747,Linearly Separable,REVISE,Linear,2,1
-11,distance_from_targets,3.1893735,Linearly Separable,REVISE,Linear,2,1
-11,distance_l1,4.497757,Linearly Separable,REVISE,Linear,2,1
-12,distance_from_targets,3.0641356,Linearly Separable,REVISE,Linear,2,1
-12,distance_l1,5.399781,Linearly Separable,REVISE,Linear,2,1
-13,distance_from_targets,3.4107475,Linearly Separable,REVISE,Linear,2,1
-13,distance_l1,5.673538,Linearly Separable,REVISE,Linear,2,1
-14,distance_from_targets,2.999071,Linearly Separable,REVISE,Linear,2,1
-14,distance_l1,4.1028385,Linearly Separable,REVISE,Linear,2,1
-15,distance_from_targets,2.538997,Linearly Separable,REVISE,Linear,2,1
-15,distance_l1,6.6370907,Linearly Separable,REVISE,Linear,2,1
-16,distance_from_targets,2.7994184,Linearly Separable,REVISE,Linear,2,1
-16,distance_l1,5.912633,Linearly Separable,REVISE,Linear,2,1
-17,distance_from_targets,3.7701454,Linearly Separable,REVISE,Linear,2,1
-17,distance_l1,4.282057,Linearly Separable,REVISE,Linear,2,1
-18,distance_from_targets,3.1103554,Linearly Separable,REVISE,Linear,2,1
-18,distance_l1,6.0354095,Linearly Separable,REVISE,Linear,2,1
-19,distance_from_targets,3.3482792,Linearly Separable,REVISE,Linear,2,1
-19,distance_l1,3.36161,Linearly Separable,REVISE,Linear,2,1
-20,distance_from_targets,2.2916126,Linearly Separable,REVISE,Linear,2,1
-20,distance_l1,5.0184355,Linearly Separable,REVISE,Linear,2,1
-21,distance_from_targets,3.0030077,Linearly Separable,REVISE,Linear,2,1
-21,distance_l1,5.743468,Linearly Separable,REVISE,Linear,2,1
-22,distance_from_targets,2.3035176,Linearly Separable,REVISE,Linear,2,1
-22,distance_l1,4.8542686,Linearly Separable,REVISE,Linear,2,1
-23,distance_from_targets,2.5991523,Linearly Separable,REVISE,Linear,2,1
-23,distance_l1,6.556707,Linearly Separable,REVISE,Linear,2,1
-24,distance_from_targets,2.2991834,Linearly Separable,REVISE,Linear,2,1
-24,distance_l1,5.908458,Linearly Separable,REVISE,Linear,2,1
-25,distance_from_targets,2.8630276,Linearly Separable,REVISE,Linear,2,1
-25,distance_l1,5.632492,Linearly Separable,REVISE,Linear,2,1
-1,distance_from_targets,3.994846,Linearly Separable,Wachter,Linear,2,1
-1,distance_l1,2.844898,Linearly Separable,Wachter,Linear,2,1
-2,distance_from_targets,6.04623,Linearly Separable,Wachter,Linear,2,1
-2,distance_l1,3.4573107,Linearly Separable,Wachter,Linear,2,1
-3,distance_from_targets,4.8904333,Linearly Separable,Wachter,Linear,2,1
-3,distance_l1,3.7796881,Linearly Separable,Wachter,Linear,2,1
-4,distance_from_targets,3.9862955,Linearly Separable,Wachter,Linear,2,1
-4,distance_l1,3.1337245,Linearly Separable,Wachter,Linear,2,1
-5,distance_from_targets,5.2383685,Linearly Separable,Wachter,Linear,2,1
-5,distance_l1,4.119322,Linearly Separable,Wachter,Linear,2,1
-6,distance_from_targets,4.534738,Linearly Separable,Wachter,Linear,2,1
-6,distance_l1,3.6987166,Linearly Separable,Wachter,Linear,2,1
-7,distance_from_targets,4.6994925,Linearly Separable,Wachter,Linear,2,1
-7,distance_l1,3.4612522,Linearly Separable,Wachter,Linear,2,1
-8,distance_from_targets,4.030127,Linearly Separable,Wachter,Linear,2,1
-8,distance_l1,3.3097749,Linearly Separable,Wachter,Linear,2,1
-9,distance_from_targets,3.995028,Linearly Separable,Wachter,Linear,2,1
-9,distance_l1,3.1337245,Linearly Separable,Wachter,Linear,2,1
-10,distance_from_targets,5.1812224,Linearly Separable,Wachter,Linear,2,1
-10,distance_l1,4.2117085,Linearly Separable,Wachter,Linear,2,1
-11,distance_from_targets,4.5424914,Linearly Separable,Wachter,Linear,2,1
-11,distance_l1,3.3035388,Linearly Separable,Wachter,Linear,2,1
-12,distance_from_targets,5.526938,Linearly Separable,Wachter,Linear,2,1
-12,distance_l1,3.2450104,Linearly Separable,Wachter,Linear,2,1
-13,distance_from_targets,5.298749,Linearly Separable,Wachter,Linear,2,1
-13,distance_l1,4.0251083,Linearly Separable,Wachter,Linear,2,1
-14,distance_from_targets,4.1881495,Linearly Separable,Wachter,Linear,2,1
-14,distance_l1,3.1031256,Linearly Separable,Wachter,Linear,2,1
-15,distance_from_targets,5.1144557,Linearly Separable,Wachter,Linear,2,1
-15,distance_l1,4.269713,Linearly Separable,Wachter,Linear,2,1
-16,distance_from_targets,4.760707,Linearly Separable,Wachter,Linear,2,1
-16,distance_l1,4.1576366,Linearly Separable,Wachter,Linear,2,1
-17,distance_from_targets,4.5235276,Linearly Separable,Wachter,Linear,2,1
-17,distance_l1,3.6987166,Linearly Separable,Wachter,Linear,2,1
-18,distance_from_targets,5.1898766,Linearly Separable,Wachter,Linear,2,1
-18,distance_l1,4.2117085,Linearly Separable,Wachter,Linear,2,1
-19,distance_from_targets,3.9757142,Linearly Separable,Wachter,Linear,2,1
-19,distance_l1,2.844898,Linearly Separable,Wachter,Linear,2,1
-20,distance_from_targets,4.0835876,Linearly Separable,Wachter,Linear,2,1
-20,distance_l1,3.4220471,Linearly Separable,Wachter,Linear,2,1
-21,distance_from_targets,5.050589,Linearly Separable,Wachter,Linear,2,1
-21,distance_l1,3.9336119,Linearly Separable,Wachter,Linear,2,1
-22,distance_from_targets,4.36826,Linearly Separable,Wachter,Linear,2,1
-22,distance_l1,2.9932418,Linearly Separable,Wachter,Linear,2,1
-23,distance_from_targets,5.144238,Linearly Separable,Wachter,Linear,2,1
-23,distance_l1,4.269713,Linearly Separable,Wachter,Linear,2,1
-24,distance_from_targets,4.367989,Linearly Separable,Wachter,Linear,2,1
-24,distance_l1,4.062059,Linearly Separable,Wachter,Linear,2,1
-25,distance_from_targets,5.000296,Linearly Separable,Wachter,Linear,2,1
-25,distance_l1,3.7330341,Linearly Separable,Wachter,Linear,2,1
+sample,variable,value,ce,dataname,generator,model,target,factual
+1,distance_from_targets,0.742397,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+1,distance_l1,6.6354513,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+2,distance_from_targets,0.77824765,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+2,distance_l1,8.85617,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+3,distance_from_targets,0.7517458,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+3,distance_l1,8.465292,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+4,distance_from_targets,0.7601647,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+4,distance_l1,8.676666,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+5,distance_from_targets,0.7513356,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+5,distance_l1,7.6755943,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+1,distance_from_targets,1.2880158,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+1,distance_l1,5.8585567,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+2,distance_from_targets,0.8360286,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+2,distance_l1,8.393187,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+3,distance_from_targets,1.8657947,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+3,distance_l1,6.9832067,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+4,distance_from_targets,3.5660408,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+4,distance_l1,6.04322,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+5,distance_from_targets,2.4723856,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+5,distance_l1,6.0432196,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+1,distance_from_targets,1.5329194,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+1,distance_l1,5.1993284,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+2,distance_from_targets,1.8172784,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+2,distance_l1,7.0763736,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+3,distance_from_targets,2.0537598,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+3,distance_l1,6.4086423,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+4,distance_from_targets,2.6688526,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+4,distance_l1,5.94563,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+5,distance_from_targets,1.8405291,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+5,distance_l1,6.0187044,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+1,distance_from_targets,3.6489236,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+1,distance_l1,3.3548253,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+2,distance_from_targets,5.1937127,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+2,distance_l1,4.2672586,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+3,distance_from_targets,5.1225314,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+3,distance_l1,3.9107068,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+4,distance_from_targets,5.796065,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+4,distance_l1,3.518484,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+5,distance_from_targets,4.753574,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+5,distance_l1,3.6004577,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1

@@ -28,7 +28,7 @@ setup_docs = quote
 
     # Setup:
     theme(:wong)
-    Random.seed!(2023)
+    Random.seed!(2022)
     www_path = "$(pwd())/docs/src/www"
     include("$(pwd())/docs/src/utils.jl")
     synthetic = CounterfactualExplanations.Data.load_synthetic_data()

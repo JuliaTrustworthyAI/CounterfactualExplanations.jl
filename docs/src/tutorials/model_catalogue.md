@@ -189,7 +189,7 @@ model_evaluation(M, test_data)
 ```
 
     1-element Vector{Float64}:
-     0.9167976657059469
+     0.913582715784314
 
 Finally, let’s restore the default training parameters:
 

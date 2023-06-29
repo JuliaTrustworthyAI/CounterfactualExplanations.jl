@@ -1,4 +1,4 @@
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
@@ -18,9 +18,11 @@ Counterfactual Explanations are not unique and there are therefore many differen
 
 ### Defining Diversity
 
-To ensure that the generated counterfactuals are diverse, @mothilal2020explaining add a diversity constraint to the counterfactual search objective. In particular, diversity is explicitly proxied via Determinantal Point Processes (DDP). 
+To ensure that the generated counterfactuals are diverse, @mothilal2020explaining add a diversity constraint to the counterfactual search objective. In particular, diversity is explicitly proxied via Determinantal Point Processes (DDP).
 
-We can implement DDP in Julia as follows:^[With thanks to the respondents on [Discourse](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2.png)]
+We can implement DDP in Julia as follows:[^1]
+
+[^1]: With thanks to the respondents on [Discourse](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2.png)
 
 ```{julia}
 using LinearAlgebra
@@ -31,7 +33,7 @@ function ddp_diversity(X::AbstractArray{<:Real, 3})
 end
 ```
 
-Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in the animation below, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function. 
+Below we generate some random points in $\mathbb{R}^2$ and apply gradient ascent on this function evaluated at the whole array of points. As we can see in the animation below, the points are sent away from each other. In other words, diversity across the array of points increases as we ascend the `ddp_diversity` function.
 
 ```{julia}
 lims = 5
@@ -62,23 +64,29 @@ The approach can be used in our package as follows:
 ```{julia}
 #| output: true
 generator = DiCEGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator; 
+    num_counterfactuals=5, converge_when=:generator_conditions
+)
 plot(ce)
 ```
 
 ### Effect of Penalty
 
 ```{julia}
-Λ₂ = [0.5, 0.75, 1.0]
+Λ₂ = [0.1, 1.0, 5.0]
 ces = []
 n_cf = 5
 using Flux
 for λ₂ ∈ Λ₂  
-    λ = [0.05, λ₂]
+    λ = [0.00, λ₂]
     generator = DiCEGenerator(λ=λ)
     ces = vcat(
       ces...,
-      generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
+      generate_counterfactual(
+            x, target, counterfactual_data, M, generator; 
+            num_counterfactuals=n_cf, converge_when=:generator_conditions
+      )
     )
 end
 ```
@@ -101,4 +109,3 @@ plot(plts..., size=(1200,300), layout=(1,3))
 ```
 
 ## References
-

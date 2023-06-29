@@ -205,8 +205,8 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
     5×1 Matrix{Float64}:
-      0.2663221695860023
-     -2.3313347408980873
+     -2.943347196681443
+      0.5782962763892812
       0.0
       0.0
       1.0
@@ -223,7 +223,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
     Convergence: ✅
 
-     after 2 steps.
+     after 5 steps.
 
 The search yields the following counterfactual:
 
@@ -232,11 +232,11 @@ x′ = counterfactual(ce)
 ```
 
     5-element Vector{Float64}:
-     -0.5854273231099563
-     -1.1047168988225682
-      1.0
-      0.0
-      0.0
+     0.014063284971383538
+     0.7482142358817984
+     1.0
+     0.0
+     0.0
 
 It belongs to group X.
 

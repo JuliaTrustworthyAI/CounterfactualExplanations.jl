@@ -12,7 +12,7 @@ Altmeyer et al. (2023) extend the general framework as follows,
 
 ``` math
 \begin{aligned}
-\mathbf{s}^\prime &= \arg \min_{\mathbf{s}^\prime \in \mathcal{S}} \{ {\text{yloss}(M(f(\mathbf{s}^\prime)),y^*)} \\ &+ \lambda_1 {\text{cost}(f(\mathbf{s}^\prime))} + \lambda_2 {\text{extcost}(f(\mathbf{s}^\prime))} \}  (\#eq:collective)
+\mathbf{s}^\prime &= \arg \min_{\mathbf{s}^\prime \in \mathcal{S}} \{ {\text{yloss}(M(f(\mathbf{s}^\prime)),y^*)} \\ &+ \lambda_1 {\text{cost}(f(\mathbf{s}^\prime))} + \lambda_2 {\text{extcost}(f(\mathbf{s}^\prime))} \}  
 \end{aligned} 
 ```
 
@@ -22,7 +22,7 @@ For the `GravitationalGenerator` we have,
 
 ``` math
 \begin{aligned}
-\text{extcost}(f(\mathbf{s}^\prime)) = \text{dist}(f(\mathbf{s}^\prime),\bar{x}^*)  (\#eq:grav)
+\text{extcost}(f(\mathbf{s}^\prime)) = \text{dist}(f(\mathbf{s}^\prime),\bar{x}^*)  
 \end{aligned}
 ```
 
@@ -39,7 +39,7 @@ The approach can be used in our package as follows:
 ``` julia
 generator = GravitationalGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-plot(ce)
+display(plot(ce))
 ```
 
 ![](gravitational_files/figure-commonmark/cell-4-output-1.svg)
@@ -48,7 +48,7 @@ plot(ce)
 
 The figure below compares the outcome for the `GenericGenerator` and the `GravitationalGenerator`.
 
-![](gravitational_files/figure-commonmark/cell-6-output-1.svg)
+![](gravitational_files/figure-commonmark/cell-5-output-1.svg)
 
 ## References
 

@@ -284,7 +284,7 @@ counterfactual_data.mutability = [:none, :both]
 
 ```{julia}
 # Define generator:
-generator = GenericGenerator()
+generator = GenericGenerator(opt=Descent(0.05))
 # Generate recourse:
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
@@ -299,6 +299,7 @@ savefig(plt, joinpath(www_path, "constraint_mutability.png"))
 
 ```{julia}
 counterfactual_data.mutability = [:both, :both]
+counterfactual_data.standardize=true
 ```
 
 ![Counterfactual path with immutable feature.](www/constraint_mutability.png){#fig-mutability width=20pc height=15pc}
@@ -336,10 +337,11 @@ bmk = benchmark(
     generators=generator_dict, 
     measure=measures,
     suppress_training=true, dataname="Linearly Separable",
-    n_individuals=25,
+    n_individuals=5,
     target=target,
     initialization=:identity,
     converge_when=:generator_conditions,
+    store_ce=true,
 )
 CSV.write(joinpath(output_path, "bmk.csv"), bmk())
 ```
@@ -461,19 +463,19 @@ M = MyFluxModel(model)
 
 ```{julia}
 # Randomly selected factual:
+target = 2
+factual = 4
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(
-    counterfactual_data, rand(1:size(X,2))) 
-factual = predict_label(
-    M, counterfactual_data, x)
-target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= factual]) 
+    counterfactual_data, chosen) 
 
 # Counterfactual search:
-generator = GenericGenerator(opt=Flux.Descent(0.5))
+generator = GenericGenerator(opt=Flux.Descent(0.1))
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator)
 ```
 
-The API call for generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case, the contour shows the predicted probability that the input is in the target class ($t=1$).
+The API call for generating counterfactuals for our new model is the same as before. @fig-multi shows the resulting counterfactual path for a randomly chosen sample. In this case, the contour shows the predicted probability that the input is in the target class ($t=2$).
 
 ```{julia}
 #| output: true
@@ -619,6 +621,7 @@ Now that we have explained the basic functionality of `CounterfactualExplanation
 The *Give Me Some Credit* dataset is one of the tabular real-world datasets that ship with the package \cite{kaggle2011give}. It can be used to train a binary classifier to predict whether a borrower is likely to experience financial difficulties in the next two years. In particular, we have an output variable $y \in \{0=\texttt{no stress},1=\texttt{stress}\}$ and a feature matrix $X$ that includes socio-demographic variables like `age` and `income`. A retail bank might use such a classifier to determine if potential borrowers should receive credit or not.
 
 ```{julia}
+Random.seed!(2023)
 counterfactual_data = load_gmsc(10000)
 train_data, test_data = CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
 flux_training_params.batchsize = 50
@@ -745,6 +748,7 @@ savefig(plt, joinpath(www_path, "credit.png"))
 For our second example, we will look at image data. The MNIST dataset contains 60,000 training samples of handwritten digits in the form of 28x28 pixel grey-scale images \cite{lecun1998mnist}. Each image is associated with a label indicating the digit (0-9) that the image represents. The data makes for an interesting case study of CE because humans have a good idea of what plausible counterfactuals of digits look like. For example, if you were asked to pick up an eraser and turn the digit in the left panel of @fig-mnist into a four (4) you would know exactly what to do: just erase the top part.
 
 ```{julia}
+Random.seed!(2023)
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
 counterfactual_data = load_mnist()
 X, y = unpack_data(counterfactual_data)
