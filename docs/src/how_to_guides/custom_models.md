@@ -1,9 +1,8 @@
+# How to add Custom Models
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# How to add Custom Models
 
 Adding custom models is possible and relatively straightforward, as we will demonstrate in this guide.
 

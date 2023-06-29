@@ -1,9 +1,8 @@
+# `DiCEGenerator`
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# `DiCEGenerator`
 
 The `DiCEGenerator` can be used to generate multiple diverse counterfactuals for a single factual.
 
@@ -56,7 +55,10 @@ The approach can be used in our package as follows:
 
 ``` julia
 generator = DiCEGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator; 
+    num_counterfactuals=5, converge_when=:generator_conditions
+)
 plot(ce)
 ```
 
@@ -65,16 +67,19 @@ plot(ce)
 ### Effect of Penalty
 
 ``` julia
-Λ₂ = [0.5, 0.75, 1.0]
+Λ₂ = [0.1, 1.0, 5.0]
 ces = []
 n_cf = 5
 using Flux
 for λ₂ ∈ Λ₂  
-    λ = [0.05, λ₂]
+    λ = [0.00, λ₂]
     generator = DiCEGenerator(λ=λ)
     ces = vcat(
       ces...,
-      generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=n_cf)
+      generate_counterfactual(
+            x, target, counterfactual_data, M, generator; 
+            num_counterfactuals=n_cf, converge_when=:generator_conditions
+      )
     )
 end
 ```

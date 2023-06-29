@@ -1,9 +1,8 @@
+# Handling Data
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Handling Data
 
 The package works with custom data containers that contain the input and output data as well as information about the type and mutability of features. In this tutorial, we will see how data can be prepared for use with the package.
 
@@ -206,13 +205,13 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
     5×1 Matrix{Float64}:
-     -4.0775018769582125
-      5.116963124140119
+     -2.943347196681443
+      0.5782962763892812
+      0.0
+      0.0
       1.0
-      0.0
-      0.0
 
-The factual `x` belongs to group X.
+The factual `x` belongs to group Z.
 
 We generate a counterfactual for `x` using the standard API call:
 
@@ -221,9 +220,10 @@ generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
+
     Convergence: ✅
 
-     after 3 steps.
+     after 5 steps.
 
 The search yields the following counterfactual:
 
@@ -231,13 +231,12 @@ The search yields the following counterfactual:
 x′ = counterfactual(ce)
 ```
 
-    5×1×1 Align{Float64, 3} with eltype Float64:
-    [:, :, 1] =
-     -3.0180333412321194
-      0.17907498614730666
-      1.0
-      0.0
-      0.0
+    5-element Vector{Float64}:
+     0.014063284971383538
+     0.7482142358817984
+     1.0
+     0.0
+     0.0
 
 It belongs to group X.
 
@@ -272,3 +271,15 @@ plot(ce)
 ```
 
 ![Figure 1: Counterfactual path with an immutable feature.](data_preprocessing_files/figure-commonmark/fig-mutability-output-1.svg)
+
+<!-- ## Domain constraints
+&#10;In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of $0.5$ for our two features.
+&#10;```{.julia}
+counterfactual_data.mutability = [:both, :both]
+counterfactual_data.domain = [(0,0) for var in counterfactual_data.features_continuous]
+```
+&#10;This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.
+&#10;```{.julia}
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+``` -->

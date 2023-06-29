@@ -1,0 +1,81 @@
+sample,variable,value,ce,dataname,generator,model,target,factual
+1,distance_from_targets,0.742397,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+1,distance_l1,6.6354513,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+2,distance_from_targets,0.77824765,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+2,distance_l1,8.85617,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+3,distance_from_targets,0.7517458,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+3,distance_l1,8.465292,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+4,distance_from_targets,0.7601647,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+4,distance_l1,8.676666,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+5,distance_from_targets,0.7513356,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+5,distance_l1,7.6755943,"
+Convergence: ❌",Linearly Separable,Gravitational,Linear,2,1
+1,distance_from_targets,1.2880158,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+1,distance_l1,5.8585567,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+2,distance_from_targets,0.8360286,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+2,distance_l1,8.393187,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+3,distance_from_targets,1.8657947,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+3,distance_l1,6.9832067,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+4,distance_from_targets,3.5660408,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+4,distance_l1,6.04322,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+5,distance_from_targets,2.4723856,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+5,distance_l1,6.0432196,"
+Convergence: ✅",Linearly Separable,Greedy,Linear,2,1
+1,distance_from_targets,1.5329194,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+1,distance_l1,5.1993284,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+2,distance_from_targets,1.8172784,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+2,distance_l1,7.0763736,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+3,distance_from_targets,2.0537598,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+3,distance_l1,6.4086423,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+4,distance_from_targets,2.6688526,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+4,distance_l1,5.94563,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+5,distance_from_targets,1.8405291,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+5,distance_l1,6.0187044,"
+Convergence: ❌",Linearly Separable,REVISE,Linear,2,1
+1,distance_from_targets,3.6489236,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+1,distance_l1,3.3548253,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+2,distance_from_targets,5.1937127,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+2,distance_l1,4.2672586,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+3,distance_from_targets,5.1225314,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+3,distance_l1,3.9107068,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+4,distance_from_targets,5.796065,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+4,distance_l1,3.518484,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+5,distance_from_targets,4.753574,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1
+5,distance_l1,3.6004577,"
+Convergence: ❌",Linearly Separable,Wachter,Linear,2,1

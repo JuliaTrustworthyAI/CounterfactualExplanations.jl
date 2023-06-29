@@ -1,15 +1,35 @@
 module Data
 
-using CounterfactualExplanations
-using ..GenerativeModels
-using ..Models
 using Random
+using LazyArtifacts
+using CounterfactualExplanations
+using MLJBase
+using CSV
+using DataFrames
+using MLJModels
+using CounterfactualExplanations.DataPreprocessing
+using Flux
+using MLDatasets
 
 const data_seed = 42
+data_dir = joinpath(artifact"data-tabular", "data-tabular")
 
-include("synthetic.jl")
-include("tabular.jl")
-include("vision.jl")
+include("synthetic/blobs.jl")
+include("synthetic/circles.jl")
+include("synthetic/linearly_separable.jl")
+include("synthetic/moons.jl")
+include("synthetic/multi_class.jl")
+include("synthetic/overlapping.jl")
+
+include("tabular/adult.jl")
+include("tabular/california_housing.jl")
+include("tabular/credit_default.jl")
+include("tabular/gmsc.jl")
+include("tabular/german_credit.jl")
+
+include("vision/cifar_10.jl")
+include("vision/fashion_mnist.jl")
+include("vision/mnist.jl")
 
 "A dictionary that provides an overview of the various benchmark datasets and the methods to load them."
 const data_catalogue = Dict(
@@ -25,16 +45,22 @@ const data_catalogue = Dict(
         :california_housing => load_california_housing,
         :credit_default => load_credit_default,
         :gmsc => load_gmsc,
+        :german_credit => load_german_credit,
+        :adult => load_uci_adult,
     ),
-    :vision => Dict(:mnist => load_mnist, :fashion_mnist => load_fashion_mnist),
+    :vision => Dict(
+        :mnist => load_mnist,
+        :fashion_mnist => load_fashion_mnist,
+        :cifar_10 => load_cifar_10,
+    ),
 )
 
 """
-    load_synthetic_data(n=100; seed=data_seed)
+    load_synthetic_data(n=250; seed=data_seed)
 
 Loads all synthetic datasets and wraps them in a dictionary.
 """
-function load_synthetic_data(n=100; seed=data_seed, drop=nothing)
+function load_synthetic_data(n=250; seed=data_seed, drop=nothing)
     _dict = data_catalogue[:synthetic]
     if !isnothing(drop)
         drop = drop isa Vector ? drop : [drop]
@@ -70,8 +96,10 @@ export load_linearly_separable, load_overlapping, load_multi_class
 export load_blobs, load_circles, load_moons, load_multi_class
 export load_synthetic_data
 export load_california_housing, load_credit_default, load_gmsc
+export load_german_credit, load_uci_adult
 export load_tabular_data
 export load_mnist, load_mnist_test
 export load_fashion_mnist, load_fashion_mnist_test
+export load_cifar_10, load_cifar_10_test
 
 end

@@ -3,9 +3,44 @@ module Models
 using ..CounterfactualExplanations
 using ..DataPreprocessing
 using Parameters
+using Flux
+using MLJBase
+using NearestNeighborModels
+using Plots
+using LazyArtifacts
+using Serialization
+using LaplaceRedux
+using MLUtils
+using ProgressMeter
+using Statistics
+using EvoTrees
+using SliceMap
+using DataFrames
+using MLJDecisionTreeInterface
+using RCall
+using PythonCall
 
-export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
+include("utils.jl")
+
+include("differentiable/differentiable.jl")
+include("nondifferentiable/nondifferentiable.jl")
+
+include("visualization/plotting/default.jl")
+include("visualization/plotting/voronoi.jl")
+
+include("pretrained/pretrained.jl")
+
+export AbstractFittedModel
+export AbstractDifferentiableModel
+export Linear
+export FluxModel
+export FluxEnsemble
+export LaplaceReduxModel
+export EvoTreeModel
+export DecisionTreeModel
+export RandomForestModel
+export PyTorchModel
+export RTorchModel
 export flux_training_params
 export probs, logits
 
@@ -23,18 +58,41 @@ Generic method that is compulsory for all models. It returns the normalized mode
 """
 function probs(M::AbstractFittedModel, X::AbstractArray) end
 
-include("model_utils.jl")
-include("differentiable/differentiable.jl")
-include("plotting.jl")
-include("pretrained.jl")
-
 """
-    model_catalogue
+    standard_models_catalogue
 
 A dictionary containing all trainable machine learning models.
 """
-const model_catalogue = Dict(
+const standard_models_catalogue = Dict(
     :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble
+)
+
+"""
+    all_models_catalogue
+
+A dictionary containing both trainable and non-trainable machine learning models.
+"""
+const all_models_catalogue = Dict(
+    :Linear => Linear,
+    :MLP => FluxModel,
+    :DeepEnsemble => FluxEnsemble,
+    :LaplaceRedux => LaplaceReduxModel,
+    :EvoTree => EvoTreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
+    :PyTorchModel => PyTorchModel,
+    :RTorchModel => RTorchModel,
+)
+
+"""
+    mlj_models_catalogue
+
+A dictionary containing all machine learning models from the MLJ model registry that the package supports.
+"""
+const mlj_models_catalogue = Dict(
+    :EvoTree => EvoTreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
 )
 
 """
@@ -43,20 +101,27 @@ const model_catalogue = Dict(
         kwrgs...
     )
 
-Fits one of the available default models to the `counterfactual_data`. The `model` argument can be used to specify the desired model. The available values correspond to the keys of the [`model_catalogue`](@ref) dictionary.
+Fits one of the available default models to the `counterfactual_data`. The `model` argument can be used to specify the desired model. The available values correspond to the keys of the [`all_models_catalogue`](@ref) dictionary.
 """
 function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; kwrgs...)
-    @assert model in keys(model_catalogue) "Specified model does not match any of the models available in the `model_catalogue`."
+    @assert model in keys(all_models_catalogue) "Specified model does not match any of the models available in the `all_models_catalogue`."
 
     # Set up:
-    M = model_catalogue[model](counterfactual_data; kwrgs...)
-
-    # Train:
+    M = all_models_catalogue[model](counterfactual_data; kwrgs...)
     train(M, counterfactual_data)
 
     return M
 end
 
-export model_catalogue, fit_model, model_evaluation, predict_label, predict_proba, reset!
+export standard_models_catalogue
+export all_models_catalogue
+export mlj_models_catalogue
+export fit_model
+export model_evaluation
+export predict_label
+export predict_proba
+export pytorch_model_loader
+export rtorch_model_loader
+export reset!
 
 end

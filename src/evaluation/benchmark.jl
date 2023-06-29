@@ -1,11 +1,6 @@
-using DataFrames
-using ..Models: train
-using ProgressMeter
-using Statistics
-
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark
-    evaluation::DataFrame
+    evaluation::DataFrames.DataFrame
 end
 
 """
@@ -16,10 +11,11 @@ Returns a `DataFrame` containing evaluation measures aggregated by `num_counterf
 function (bmk::Benchmark)(; agg::Union{Nothing,Function}=mean)
     df = bmk.evaluation
     if !isnothing(agg)
-        df = combine(
-            groupby(df, Not([:num_counterfactual, :value])), :value => agg => :value
+        df = DataFrames.combine(
+            DataFrames.groupby(df, DataFrames.Not([:num_counterfactual, :value])),
+            :value => agg => :value,
         )
-        select!(df, :sample, :variable, :value, :)
+        DataFrames.select!(df, :sample, :variable, :value, :)
     end
     return df
 end
@@ -96,17 +92,17 @@ function benchmark(
     xids::Union{Nothing,AbstractArray}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
     verbose::Bool=true,
+    store_ce::Bool=false,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
 
     # Progress Bar:
-    println(length(generators))
     if verbose
-        p_models = Progress(
+        p_models = ProgressMeter.Progress(
             length(models); desc="Progress on models:", showspeed=true, color=:green
         )
-        p_generators = Progress(
+        p_generators = ProgressMeter.Progress(
             length(generators); desc="Progress on generators:", showspeed=true, color=:blue
         )
     end
@@ -135,23 +131,23 @@ function benchmark(
             push!(meta_data, _meta_data...)
             _sample += 1
             if verbose
-                next!(p_generators)
+                ProgressMeter.next!(p_generators)
             end
         end
         if verbose
-            next!(p_models)
+            ProgressMeter.next!(p_models)
         end
     end
 
     # Performance Evaluation:
-    bmk = benchmark(ces; meta_data=meta_data, measure=measure)
+    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce)
     return bmk
 end
 
 """
     benchmark(
         data::CounterfactualData;
-        models::Dict{Symbol,Any}=model_catalogue,
+        models::Dict{Symbol,Any}=standard_models_catalogue,
         generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures,
         n_individuals::Int=5,
@@ -161,7 +157,7 @@ end
 Runs the benchmarking exercise as follows:
 
 1. Randomly choose a `factual` and `target` label unless specified. 
-2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `model_catalogue`). 
+2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `standard_models_catalogue`). 
 3. Each of these models is then trained on the data. 
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(x::Union{AbstractArray,Base.Iterators.Zip},...)`](@ref).
 5. Finally, concatenate the results.
@@ -169,13 +165,14 @@ Runs the benchmarking exercise as follows:
 """
 function benchmark(
     data::CounterfactualData;
-    models::Dict{<:Any,<:Any}=model_catalogue,
+    models::Dict{<:Any,<:Any}=standard_models_catalogue,
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
     suppress_training::Bool=false,
     factual::Union{Nothing,RawTargetType}=nothing,
     target::Union{Nothing,RawTargetType}=nothing,
+    store_ce::Bool=false,
     kwrgs...,
 )
     # Setup
@@ -184,9 +181,9 @@ function benchmark(
     if !suppress_training
         @info "Training models on data."
         if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
-            models = Dict(key => train(model, data) for (key, model) in models)
+            models = Dict(key => Models.train(model, data) for (key, model) in models)
         else
-            models = Dict(key => train(model(data), data) for (key, model) in models)
+            models = Dict(key => Models.train(model(data), data) for (key, model) in models)
         end
     end
     generators = if isnothing(generators)
@@ -200,8 +197,11 @@ function benchmark(
     for (i, kv) in enumerate(models)
         key = kv[1]
         M = kv[2]
-        chosen = rand(findall(predict_label(M, data) .== factual), n_individuals)
-        xs = select_factual(data, chosen)
+        chosen = rand(
+            findall(CounterfactualExplanations.predict_label(M, data) .== factual),
+            n_individuals,
+        )
+        xs = CounterfactualExplanations.select_factual(data, chosen)
         _models = Dict(key => M)
         xids = (i - 1) * n_individuals .+ collect(1:n_individuals) # unique ids for samples
         _bmk = benchmark(
@@ -212,6 +212,7 @@ function benchmark(
             generators=generators,
             measure=measure,
             xids=xids,
+            store_ce=store_ce,
             kwrgs...,
         )
         push!(bmk, _bmk)

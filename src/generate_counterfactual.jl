@@ -1,11 +1,12 @@
 # -------- Main method:
 """
-    generate_counterfactual(
-        x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-        γ::AbstractFloat=0.75, max_iter=1000
-    )
+	generate_counterfactual(
+		x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
+		γ::AbstractFloat=0.75, max_iter=1000
+	)
 
-The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
+The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. 
+Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
 
 # Examples
 
@@ -54,6 +55,9 @@ function generate_counterfactual(
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
+    invalidation_rate::AbstractFloat=0.1,
+    learning_rate::AbstractFloat=1.0,
+    variance::AbstractFloat=0.01,
 )
     # Initialize:
     ce = CounterfactualExplanation(
@@ -70,21 +74,54 @@ function generate_counterfactual(
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
         converge_when=converge_when,
+        invalidation_rate=invalidation_rate,
+        learning_rate=learning_rate,
+        variance=variance,
     )
 
     # Search:
-    timer = isnothing(timeout) ? nothing : Timer(timeout)
-    while !ce.search[:terminated]
-        update!(ce)
-        if !isnothing(timer)
-            yield()
-            if !isopen(timer)
-                @info "Counterfactual search timed out before convergence"
-                break
+    if isa(generator, AbstractGradientBasedGenerator)
+        timer = isnothing(timeout) ? nothing : Timer(timeout)
+        while !ce.search[:terminated]
+            update!(ce)
+            if !isnothing(timer)
+                yield()
+                if !isopen(timer)
+                    @info "Counterfactual search timed out before convergence"
+                    break
+                end
             end
         end
-    end
 
+    elseif isa(generator, FeatureTweakGenerator)
+
+        # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
+        @assert ce.data.standardize == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
+        @assert ce.generator.latent_space == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
+
+        if isa(M, Models.TreeModel)
+            new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
+            ce.s′ = new_x
+            new_x = reshape(new_x, :, 1)
+            ce.search[:path] = [ce.search[:path]..., new_x]
+            ce.search[:iteration_count] = 1
+            ce.search[:terminated] = true
+            ce.search[:converged] = true
+        else
+            @warn "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
+        end
+
+    elseif isa(generator, GrowingSpheresGenerator)
+
+        # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
+        @assert ce.data.standardize == false "The `GrowingSpheres` currently doesn't support feature encodings."
+        @assert ce.generator.latent_space == false "The `GrowingSpheres` currently doesn't support feature encodings."
+
+        Generators.growing_spheres_generation!(ce)
+        Generators.feature_selection!(ce)
+    else
+        @error "Generator not recognized."
+    end
     return ce
 end
 

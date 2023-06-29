@@ -1,7 +1,7 @@
 {
-  "hash": "1ad3a26a2cdcc88108c37ce4d1b75222",
+  "hash": "d83a53c8b588469f1cb64c6e21dc8fdd",
   "result": {
-    "markdown": "```@meta\nCurrentModule = CounterfactualExplanations \n```\n\n\n\n# Optimisation Rules\n\nCounterfactual search is an optimization problem. Consequently, the choice of the optimisation rule affects the generated counterfactuals. In the short term, we aim to enable users to choose any of the available `Flux` optimisers. This has not been sufficiently tested yet, and you may run into issues. \n\n## Custom Optimisation Rules\n\n`Flux` optimisers are specifically designed for deep learning, and in particular, for learning model parameters. In counterfactual search, the features are the free parameters that we are optimising over. To this end, some custom optimisation rules are necessary to incorporate ideas presented in the literature. In the following, we introduce those rules.\n\n",
+    "markdown": "---\ntitle: Optimisation Rules\n---\n\n\n```@meta\nCurrentModule = CounterfactualExplanations \n```\n\n\n\n\nCounterfactual search is an optimization problem. Consequently, the choice of the optimisation rule affects the generated counterfactuals. In the short term, we aim to enable users to choose any of the available `Flux` optimisers. This has not been sufficiently tested yet, and you may run into issues. \n\n## Custom Optimisation Rules\n\n`Flux` optimisers are specifically designed for deep learning, and in particular, for learning model parameters. In counterfactual search, the features are the free parameters that we are optimising over. To this end, some custom optimisation rules are necessary to incorporate ideas presented in the literature. In the following, we introduce those rules.\n\n\n",
     "supporting": [
       "overview_files"
     ],

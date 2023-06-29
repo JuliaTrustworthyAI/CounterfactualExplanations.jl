@@ -1,9 +1,8 @@
+# Data Catalogue
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Data Catalogue
 
 To allow researchers and practitioners to test and compare counterfactual generators, the package ships with pre-processed synthetic and real-world benchmark datasets from different domains.
 
@@ -48,17 +47,21 @@ As for real-world data, the same dictionary can be used to inspect the available
 data_catalogue[:tabular]
 ```
 
-    Dict{Symbol, Function} with 3 entries:
+    Dict{Symbol, Function} with 5 entries:
+      :german_credit      => load_german_credit
       :california_housing => load_california_housing
       :credit_default     => load_credit_default
+      :adult              => load_uci_adult
       :gmsc               => load_gmsc
 
 ``` julia
 data_catalogue[:vision]
 ```
 
-    Dict{Symbol, typeof(load_mnist)} with 1 entry:
-      :mnist => load_mnist
+    Dict{Symbol, Function} with 3 entries:
+      :fashion_mnist => load_fashion_mnist
+      :mnist         => load_mnist
+      :cifar_10      => load_cifar_10
 
 ## Loading Data
 

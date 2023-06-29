@@ -9,8 +9,17 @@ In this tutorial, we will go through a slightly more complex example involving s
 ## Data and Classifier
 
 ``` julia
-counterfactual_data = load_blobs(n_samples; k=n_dim, centers=n_classes)
-counterfactual_data.standardize = true
+# Choose some values for data and a model:
+n_dim = 2
+n_classes = 4
+n_samples = 400
+model_name = :MLP
+```
+
+The code chunk below generates synthetic data and uses it to fit a classifier. The outcome variable `counterfactual_data.y` consists of 4 classes. The input data `counterfactual_data.X` consists of 2 features. We generate a total of 400 samples. On the model side, we have specified `model_name = :MLP`. The `fit_model` can be used to fit a number of default models.
+
+``` julia
+counterfactual_data = load_multi_class(n_samples)
 M = fit_model(counterfactual_data, model_name)
 ```
 
@@ -33,6 +42,8 @@ factual = 4
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data,chosen)
 ```
+
+This sets the baseline for our counterfactual search: we plan to perturb the factual `x` to change the predicted label from `y`=4 to our target label `target`=2.
 
 Counterfactual generators accept several default parameters that can be used to adjust the counterfactual search at a high level: for example, a `Flux.jl` optimizer can be supplied to define how exactly gradient steps are performed. Importantly, one can also define the threshold probability at which the counterfactual search will converge. This relates to the probability predicted by the underlying black-box model, that the counterfactual belongs to the target class. A higher decision threshold typically prolongs the counterfactual search.
 

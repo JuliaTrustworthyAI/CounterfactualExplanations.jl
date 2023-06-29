@@ -1,9 +1,8 @@
+# Performance Benchmarks
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Performance Benchmarks
 
 In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators.
 
@@ -36,24 +35,24 @@ bmk()
 ```
 
     15×7 DataFrame
-     Row │ sample  variable    value     generator                          model  ⋯
-         │ Int64   String      Float64   Symbol                             Symbol ⋯
+     Row │ sample  variable    value    generator                          model   ⋯
+         │ Int64   String      Float64  Symbol                             Symbol  ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  distance    0.956787  Generator(nothing, Counterfactua…  FluxMo ⋯
-       2 │      1  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
-       3 │      1  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
-       4 │      2  distance    1.05868   Generator(nothing, Counterfactua…  FluxMo
-       5 │      2  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo ⋯
-       6 │      2  validity    1.0       Generator(nothing, Counterfactua…  FluxMo
-       7 │      3  distance    1.04356   Generator(nothing, Counterfactua…  FluxMo
-       8 │      3  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
-       9 │      3  validity    0.8       Generator(nothing, Counterfactua…  FluxMo ⋯
-      10 │      4  distance    0.92757   Generator(nothing, Counterfactua…  FluxMo
-      11 │      4  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
-      12 │      4  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
-      13 │      5  distance    1.02967   Generator(nothing, Counterfactua…  FluxMo ⋯
-      14 │      5  redundancy  0.0       Generator(nothing, Counterfactua…  FluxMo
-      15 │      5  validity    0.8       Generator(nothing, Counterfactua…  FluxMo
+       1 │      1  distance    3.17243  GradientBasedGenerator(nothing, …  FluxMod ⋯
+       2 │      1  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+       3 │      1  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+       4 │      2  distance    3.07148  GradientBasedGenerator(nothing, …  FluxMod
+       5 │      2  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
+       6 │      2  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+       7 │      3  distance    3.62159  GradientBasedGenerator(nothing, …  FluxMod
+       8 │      3  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+       9 │      3  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
+      10 │      4  distance    2.62783  GradientBasedGenerator(nothing, …  FluxMod
+      11 │      4  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+      12 │      4  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+      13 │      5  distance    2.91985  GradientBasedGenerator(nothing, …  FluxMod ⋯
+      14 │      5  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+      15 │      5  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
                                                                    3 columns omitted
 
 To retrieve the granular dataset, simply do:
@@ -63,31 +62,31 @@ bmk(agg=nothing)
 ```
 
     75×8 DataFrame
-     Row │ sample  num_counterfactual  variable    value     generator             ⋯
-         │ Int64   Int64               String      Float64   Symbol                ⋯
+     Row │ sample  num_counterfactual  variable    value    generator              ⋯
+         │ Int64   Int64               String      Float64  Symbol                 ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    0.962456  Generator(nothing, Co ⋯
-       2 │      1                   2  distance    0.998482  Generator(nothing, Co
-       3 │      1                   3  distance    0.993182  Generator(nothing, Co
-       4 │      1                   4  distance    1.01803   Generator(nothing, Co
-       5 │      1                   5  distance    0.81178   Generator(nothing, Co ⋯
-       6 │      1                   1  redundancy  0.0       Generator(nothing, Co
-       7 │      1                   2  redundancy  0.0       Generator(nothing, Co
-       8 │      1                   3  redundancy  0.0       Generator(nothing, Co
-       9 │      1                   4  redundancy  0.0       Generator(nothing, Co ⋯
-      10 │      1                   5  redundancy  0.0       Generator(nothing, Co
-      11 │      1                   1  validity    1.0       Generator(nothing, Co
-      ⋮  │   ⋮             ⋮               ⋮          ⋮                      ⋮     ⋱
-      66 │      5                   1  redundancy  0.0       Generator(nothing, Co
-      67 │      5                   2  redundancy  0.0       Generator(nothing, Co ⋯
-      68 │      5                   3  redundancy  0.0       Generator(nothing, Co
-      69 │      5                   4  redundancy  0.0       Generator(nothing, Co
-      70 │      5                   5  redundancy  0.0       Generator(nothing, Co
-      71 │      5                   1  validity    1.0       Generator(nothing, Co ⋯
-      72 │      5                   2  validity    0.0       Generator(nothing, Co
-      73 │      5                   3  validity    1.0       Generator(nothing, Co
-      74 │      5                   4  validity    1.0       Generator(nothing, Co
-      75 │      5                   5  validity    1.0       Generator(nothing, Co ⋯
+       1 │      1                   1  distance    3.15903  GradientBasedGenerator ⋯
+       2 │      1                   2  distance    3.16773  GradientBasedGenerator
+       3 │      1                   3  distance    3.17011  GradientBasedGenerator
+       4 │      1                   4  distance    3.20239  GradientBasedGenerator
+       5 │      1                   5  distance    3.16291  GradientBasedGenerator ⋯
+       6 │      1                   1  redundancy  0.0      GradientBasedGenerator
+       7 │      1                   2  redundancy  0.0      GradientBasedGenerator
+       8 │      1                   3  redundancy  0.0      GradientBasedGenerator
+       9 │      1                   4  redundancy  0.0      GradientBasedGenerator ⋯
+      10 │      1                   5  redundancy  0.0      GradientBasedGenerator
+      11 │      1                   1  validity    1.0      GradientBasedGenerator
+      ⋮  │   ⋮             ⋮               ⋮          ⋮                     ⋮      ⋱
+      66 │      5                   1  redundancy  0.0      GradientBasedGenerator
+      67 │      5                   2  redundancy  0.0      GradientBasedGenerator ⋯
+      68 │      5                   3  redundancy  0.0      GradientBasedGenerator
+      69 │      5                   4  redundancy  0.0      GradientBasedGenerator
+      70 │      5                   5  redundancy  0.0      GradientBasedGenerator
+      71 │      5                   1  validity    1.0      GradientBasedGenerator ⋯
+      72 │      5                   2  validity    1.0      GradientBasedGenerator
+      73 │      5                   3  validity    1.0      GradientBasedGenerator
+      74 │      5                   4  validity    1.0      GradientBasedGenerator
+      75 │      5                   5  validity    1.0      GradientBasedGenerator ⋯
                                                        4 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
@@ -100,17 +99,15 @@ using Tidier
 end
 ```
 
-    [ Info: Precompiling Tidier [f0413319-3358-4bb0-8e7c-0c83523a93bd]
-
     5×3 DataFrame
-     Row │ sample  variable  value    
-         │ Int64   String    Float64  
-    ─────┼────────────────────────────
-       1 │      1  distance  0.956787
-       2 │      2  distance  1.05868
-       3 │      3  distance  1.04356
-       4 │      4  distance  0.92757
-       5 │      5  distance  1.02967
+     Row │ sample  variable  value   
+         │ Int64   String    Float64 
+    ─────┼───────────────────────────
+       1 │      1  distance  3.17243
+       2 │      2  distance  3.07148
+       3 │      3  distance  3.62159
+       4 │      4  distance  2.62783
+       5 │      5  distance  2.91985
 
 ### Metadata for Counterfactual Explanations
 
@@ -129,11 +126,11 @@ end
      Row │ sample  model                              generator                    ⋯
          │ Int64   Symbol                             Symbol                       ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa ⋯
-       2 │      2  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
-       3 │      3  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
-       4 │      4  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa
-       5 │      5  FluxModel(Chain(Dense(2 => 1)), …  Generator(nothing, Counterfa ⋯
+       1 │      1  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi ⋯
+       2 │      2  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
+       3 │      3  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
+       4 │      4  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
+       5 │      5  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi ⋯
                                                                     1 column omitted
 
 Metadata can also be provided as an optional key argument.
@@ -195,6 +192,8 @@ Next, we store the counterfactual generators of interest in a dictionary as well
 generators = Dict(
     :Generic => GenericGenerator(),
     :Gravitational => GravitationalGenerator(),
+    :Wachter => WachterGenerator(),
+    :ClaPROAR => ClaPROARGenerator(),
 )
 ```
 
@@ -213,14 +212,18 @@ In this case, metadata is automatically inferred from the dictionaries:
 end
 ```
 
-    4×5 DataFrame
-     Row │ sample  variable  value     model   generator     
-         │ Int64   String    Float64   Symbol  Symbol        
-    ─────┼───────────────────────────────────────────────────
-       1 │      1  distance  0.978056  Linear  Gravitational
-       2 │      1  distance  0.985401  Linear  Generic
-       3 │      1  distance  1.15321   MLP     Gravitational
-       4 │      1  distance  1.16994   MLP     Generic
+    8×5 DataFrame
+     Row │ sample  variable  value    model   generator     
+         │ Int64   String    Float64  Symbol  Symbol        
+    ─────┼──────────────────────────────────────────────────
+       1 │      1  distance  3.23559  Linear  Gravitational
+       2 │      1  distance  3.40924  Linear  ClaPROAR
+       3 │      1  distance  3.08311  Linear  Generic
+       4 │      1  distance  3.1338   Linear  Wachter
+       5 │      1  distance  4.44266  MLP     Gravitational
+       6 │      1  distance  4.67161  MLP     ClaPROAR
+       7 │      1  distance  4.98131  MLP     Generic
+       8 │      1  distance  4.32344  MLP     Wachter
 
 ### Everything at once
 
@@ -234,7 +237,7 @@ It involves calling `benchmark` directly on counterfactual data (the only positi
 bmk = benchmark(counterfactual_data)
 ```
 
-This will use the default models from [`model_catalogue`](@ref) and train them on the data. All available generators from [`generator_catalogue`](@ref) will also be used:
+This will use the default models from [`standard_models_catalogue`](@ref) and train them on the data. All available generators from [`generator_catalogue`](@ref) will also be used:
 
 ``` julia
 @chain bmk() begin
@@ -243,33 +246,33 @@ This will use the default models from [`model_catalogue`](@ref) and train them o
 end
 ```
 
-    105×5 DataFrame
-     Row │ sample  variable  value    model   generator     
-         │ Int64   String    Float64  Symbol  Symbol        
-    ─────┼──────────────────────────────────────────────────
+    165×5 DataFrame
+     Row │ sample  variable  value    model   generator       
+         │ Int64   String    Float64  Symbol  Symbol          
+    ─────┼────────────────────────────────────────────────────
        1 │      1  validity      1.0  Linear  gravitational
        2 │      2  validity      1.0  Linear  gravitational
        3 │      3  validity      1.0  Linear  gravitational
        4 │      4  validity      1.0  Linear  gravitational
        5 │      5  validity      1.0  Linear  gravitational
-       6 │      1  validity      0.0  Linear  revise
-       7 │      2  validity      1.0  Linear  revise
-       8 │      3  validity      1.0  Linear  revise
-       9 │      4  validity      1.0  Linear  revise
-      10 │      5  validity      1.0  Linear  revise
-      11 │      1  validity      1.0  Linear  dice
-      ⋮  │   ⋮        ⋮         ⋮       ⋮           ⋮
-      96 │     11  validity      1.0  MLP     claproar
-      97 │     12  validity      1.0  MLP     claproar
-      98 │     13  validity      1.0  MLP     claproar
-      99 │     14  validity      1.0  MLP     claproar
-     100 │     15  validity      1.0  MLP     claproar
-     101 │     11  validity      1.0  MLP     wachter
-     102 │     12  validity      1.0  MLP     wachter
-     103 │     13  validity      1.0  MLP     wachter
-     104 │     14  validity      1.0  MLP     wachter
-     105 │     15  validity      1.0  MLP     wachter
-                                             84 rows omitted
+       6 │      1  validity      1.0  Linear  growing_spheres
+       7 │      2  validity      1.0  Linear  growing_spheres
+       8 │      3  validity      1.0  Linear  growing_spheres
+       9 │      4  validity      1.0  Linear  growing_spheres
+      10 │      5  validity      1.0  Linear  growing_spheres
+      11 │      1  validity      1.0  Linear  revise
+      ⋮  │   ⋮        ⋮         ⋮       ⋮            ⋮
+     156 │     11  validity      1.0  MLP     generic
+     157 │     12  validity      1.0  MLP     generic
+     158 │     13  validity      1.0  MLP     generic
+     159 │     14  validity      1.0  MLP     generic
+     160 │     15  validity      1.0  MLP     generic
+     161 │     11  validity      1.0  MLP     greedy
+     162 │     12  validity      1.0  MLP     greedy
+     163 │     13  validity      1.0  MLP     greedy
+     164 │     14  validity      1.0  MLP     greedy
+     165 │     15  validity      1.0  MLP     greedy
+                                              144 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
@@ -311,7 +314,7 @@ Then we can simply loop over the datasets and eventually concatenate the results
 using CounterfactualExplanations.Evaluation: distance_measures
 bmks = []
 for (dataname, dataset) in datasets
-    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures)
+    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures, verbose=true)
     push!(bmks, bmk)
 end
 bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
@@ -333,7 +336,7 @@ end
      Row │ dataset  generator  L1_norm  
          │ Symbol   Symbol     Float32  
     ─────┼──────────────────────────────
-       1 │ circles  Generic    0.581888
-       2 │ circles  Greedy     0.540684
-       3 │ moons    Generic    0.9289
-       4 │ moons    Greedy     0.75273
+       1 │ circles  Generic    2.71561
+       2 │ circles  Greedy     0.596901
+       3 │ moons    Generic    1.30436
+       4 │ moons    Greedy     0.742734

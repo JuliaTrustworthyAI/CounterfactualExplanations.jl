@@ -2834,4 +2834,93 @@
   keywords    = {Computer Science - Machine Learning, Computer Science - Computer Vision and Pattern Recognition, Statistics - Machine Learning},
 }
 
+@InProceedings{krizhevsky2009learning,
+  author     = {Krizhevsky, A.},
+  date       = {2009},
+  title      = {Learning {Multiple} {Layers} of {Features} from {Tiny} {Images}},
+  url        = {https://www.semanticscholar.org/paper/Learning-Multiple-Layers-of-Features-from-Tiny-Krizhevsky/5d90f06bb70a0a3dced62413346235c02b1aa086},
+  urldate    = {2023-06-21},
+  abstract   = {Groups at MIT and NYU have collected a dataset of millions of tiny colour images from the web. It is, in principle, an excellent dataset for unsupervised training of deep generative models, but previous researchers who have tried this have found it dicult to learn a good set of lters from the images. We show how to train a multi-layer generative model that learns to extract meaningful features which resemble those found in the human visual cortex. Using a novel parallelization algorithm to distribute the work among multiple machines connected on a network, we show how training such a model can be done in reasonable time. A second problematic aspect of the tiny images dataset is that there are no reliable class labels which makes it hard to use for object recognition experiments. We created two sets of reliable labels. The CIFAR-10 set has 6000 examples of each of 10 classes and the CIFAR-100 set has 600 examples of each of 100 non-overlapping classes. Using these labels, we show that object recognition is signicantly improved by pre-training a layer of features on a large set of unlabeled tiny images.},
+  annotation = {[TLDR] It is shown how to train a multi-layer generative model that learns to extract meaningful features which resemble those found in the human visual cortex, using a novel parallelization algorithm to distribute the work among multiple machines connected on a network.},
+  file       = {Semantic Scholar Link:https\://www.semanticscholar.org/paper/Learning-Multiple-Layers-of-Features-from-Tiny-Krizhevsky/5d90f06bb70a0a3dced62413346235c02b1aa086:text/html;Full Text PDF:http\://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf:application/pdf},
+}
+
+@Misc{becker1996adult,
+  author    = {Barry Becker, Ronny Kohavi},
+  date      = {1996},
+  title     = {Adult},
+  doi       = {10.24432/C5XW20},
+  note      = {Type: dataset},
+  url       = {https://archive.ics.uci.edu/dataset/2},
+  urldate   = {2023-06-21},
+  publisher = {UCI Machine Learning Repository},
+}
+
+@InProceedings{tolomei2017interpretable,
+  author     = {Tolomei, Gabriele and Silvestri, Fabrizio and Haines, Andrew and Lalmas, Mounia},
+  booktitle  = {Proceedings of the 23rd {ACM} {SIGKDD} {International} {Conference} on {Knowledge} {Discovery} and {Data} {Mining}},
+  date       = {2017-08},
+  title      = {Interpretable {Predictions} of {Tree}-based {Ensembles} via {Actionable} {Feature} {Tweaking}},
+  doi        = {10.1145/3097983.3098039},
+  note       = {arXiv:1706.06691 [stat]},
+  pages      = {465--474},
+  url        = {http://arxiv.org/abs/1706.06691},
+  urldate    = {2023-06-21},
+  abstract   = {Machine-learned models are often described as "black boxes". In many real-world applications however, models may have to sacrifice predictive power in favour of human-interpretability. When this is the case, feature engineering becomes a crucial task, which requires significant and time-consuming human effort. Whilst some features are inherently static, representing properties that cannot be influenced (e.g., the age of an individual), others capture characteristics that could be adjusted (e.g., the daily amount of carbohydrates taken). Nonetheless, once a model is learned from the data, each prediction it makes on new instances is irreversible - assuming every instance to be a static point located in the chosen feature space. There are many circumstances however where it is important to understand (i) why a model outputs a certain prediction on a given instance, (ii) which adjustable features of that instance should be modified, and finally (iii) how to alter such a prediction when the mutated instance is input back to the model. In this paper, we present a technique that exploits the internals of a tree-based ensemble classifier to offer recommendations for transforming true negative instances into positively predicted ones. We demonstrate the validity of our approach using an online advertising application. First, we design a Random Forest classifier that effectively separates between two types of ads: low (negative) and high (positive) quality ads (instances). Then, we introduce an algorithm that provides recommendations that aim to transform a low quality ad (negative instance) into a high quality one (positive instance). Finally, we evaluate our approach on a subset of the active inventory of a large ad network, Yahoo Gemini.},
+  annotation = {Comment: 10 pages, KDD 2017},
+  file       = {arXiv Fulltext PDF:https\://arxiv.org/pdf/1706.06691.pdf:application/pdf},
+  keywords   = {Statistics - Machine Learning, 68T01, I.2.0, I.5.1},
+}
+
+@TechReport{dandl2023counterfactuals,
+  author      = {Dandl, Susanne and Hofheinz, Andreas and Binder, Martin and Bischl, Bernd and Casalicchio, Giuseppe},
+  date        = {2023-04},
+  institution = {arXiv},
+  title       = {counterfactuals: {An} {R} {Package} for {Counterfactual} {Explanation} {Methods}},
+  note        = {arXiv:2304.06569 [cs, stat] type: article},
+  url         = {http://arxiv.org/abs/2304.06569},
+  urldate     = {2023-06-21},
+  abstract    = {Counterfactual explanation methods provide information on how feature values of individual observations must be changed to obtain a desired prediction. Despite the increasing amount of proposed methods in research, only a few implementations exist whose interfaces and requirements vary widely. In this work, we introduce the counterfactuals R package, which provides a modular and unified R6-based interface for counterfactual explanation methods. We implemented three existing counterfactual explanation methods and propose some optional methodological extensions to generalize these methods to different scenarios and to make them more comparable. We explain the structure and workflow of the package using real use cases and show how to integrate additional counterfactual explanation methods into the package. In addition, we compared the implemented methods for a variety of models and datasets with regard to the quality of their counterfactual explanations and their runtime behavior.},
+  file        = {arXiv Fulltext PDF:https\://arxiv.org/pdf/2304.06569.pdf:application/pdf},
+  keywords    = {Statistics - Machine Learning, Computer Science - Machine Learning, Statistics - Computation},
+  shorttitle  = {counterfactuals},
+}
+
+@TechReport{laugel2017inversea,
+  author      = {Laugel, Thibault and Lesot, Marie-Jeanne and Marsala, Christophe and Renard, Xavier and Detyniecki, Marcin},
+  date        = {2017-12},
+  institution = {arXiv},
+  title       = {Inverse {Classification} for {Comparison}-based {Interpretability} in {Machine} {Learning}},
+  doi         = {10.48550/arXiv.1712.08443},
+  note        = {arXiv:1712.08443 [cs, stat] type: article},
+  url         = {http://arxiv.org/abs/1712.08443},
+  urldate     = {2023-06-21},
+  abstract    = {In the context of post-hoc interpretability, this paper addresses the task of explaining the prediction of a classifier, considering the case where no information is available, neither on the classifier itself, nor on the processed data (neither the training nor the test data). It proposes an instance-based approach whose principle consists in determining the minimal changes needed to alter a prediction: given a data point whose classification must be explained, the proposed method consists in identifying a close neighbour classified differently, where the closeness definition integrates a sparsity constraint. This principle is implemented using observation generation in the Growing Spheres algorithm. Experimental results on two datasets illustrate the relevance of the proposed approach that can be used to gain knowledge about the classifier.},
+  annotation  = {Comment: preprint},
+  file        = {arXiv Fulltext PDF:https\://arxiv.org/pdf/1712.08443.pdf:application/pdf},
+  keywords    = {Statistics - Machine Learning, Computer Science - Artificial Intelligence, Computer Science - Machine Learning},
+}
+
+@TechReport{delaney2021uncertainty,
+  author      = {Delaney, Eoin and Greene, Derek and Keane, Mark T.},
+  date        = {2021-07},
+  institution = {arXiv},
+  title       = {Uncertainty {Estimation} and {Out}-of-{Distribution} {Detection} for {Counterfactual} {Explanations}: {Pitfalls} and {Solutions}},
+  note        = {arXiv:2107.09734 [cs] type: article},
+  url         = {http://arxiv.org/abs/2107.09734},
+  urldate     = {2023-06-23},
+  abstract    = {Whilst an abundance of techniques have recently been proposed to generate counterfactual explanations for the predictions of opaque black-box systems, markedly less attention has been paid to exploring the uncertainty of these generated explanations. This becomes a critical issue in high-stakes scenarios, where uncertain and misleading explanations could have dire consequences (e.g., medical diagnosis and treatment planning). Moreover, it is often difficult to determine if the generated explanations are well grounded in the training data and sensitive to distributional shifts. This paper proposes several practical solutions that can be leveraged to solve these problems by establishing novel connections with other research works in explainability (e.g., trust scores) and uncertainty estimation (e.g., Monte Carlo Dropout). Two experiments demonstrate the utility of our proposed solutions.},
+  file        = {arXiv Fulltext PDF:https\://arxiv.org/pdf/2107.09734.pdf:application/pdf},
+  keywords    = {Computer Science - Machine Learning, Computer Science - Artificial Intelligence},
+  shorttitle  = {Uncertainty {Estimation} and {Out}-of-{Distribution} {Detection} for {Counterfactual} {Explanations}},
+}
+
 @Comment{jabref-meta: databaseType:biblatex;}
+
+@article{laugel2017,
+	title = {Inverse classification for comparison-based interpretability in machine learning},
+	author = {Laugel, Thibault and Lesot, Marie-Jeanne and Marsala, Christophe and Renard, Xavier and Detyniecki, Marcin},
+	year = {2017},
+	date = {2017},
+	journal = {arXiv preprint arXiv:1712.08443}
+}
