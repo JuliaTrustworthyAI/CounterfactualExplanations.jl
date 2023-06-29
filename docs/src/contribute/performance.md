@@ -1,5 +1,6 @@
 
 ``` julia
+Random.seed!(42)
 # Counteractual data and model:
 counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)

@@ -95,7 +95,7 @@ Please note that the functionality for generating counterfactuals for Python mod
 ## Importing R torch models
 
 !!! warning "Not fully tested"  
-    Please note that due to the incompatibility between RCall and PythonCall, it is not feasible to test both PyTorch and RTorch implementations within the same pipeline. While the RTorch implementation has been manually tested, we cannot ensure its consistent functionality as it is inherently susceptible to bugs.
+    Please note that due to the incompatibility between RCall and PythonCall, it is not feasible to test both PyTorch and RTorch implementations within the same pipeline. While the RTorch implementation has been manually tested, we cannot ensure its consistent functionality as it is inherently susceptible to bugs.
 
 The CounterfactualExplanations package supports generating counterfactuals for neural networks that have been defined and trained using R torch. Regardless of the specific architectural details of the model, you can easily generate counterfactual explanations by following these steps.
 
@@ -189,7 +189,7 @@ model_evaluation(M, test_data)
 ```
 
     1-element Vector{Float64}:
-     0.9167976657059469
+     0.913582715784314
 
 Finally, let’s restore the default training parameters:
 

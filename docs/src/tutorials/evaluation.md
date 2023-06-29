@@ -30,7 +30,7 @@ evaluate(ce; measure=distance)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [0.3750167]
+     [3.6304846]
 
 By default, `distance` computes the L2 (Euclidean) distance.
 
@@ -57,9 +57,9 @@ evaluate(ce; measure=distance_measures)
 
     4-element Vector{Vector{Float32}}:
      [2.0]
-     [0.3750167]
-     [0.3744492]
-     [0.37444878]
+     [3.6304846]
+     [2.9974036]
+     [2.9093676]
 
 If no `measure` is specified, the `evaluate` method will return all default measures,
 
@@ -69,7 +69,7 @@ evaluate(ce)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[0.3750167]
+     Float32[3.6304846]
      [0.0]
 
 which include:
@@ -95,7 +95,7 @@ evaluate(ces)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[0.4935166]
+     Float32[3.5359674]
      [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 By default, each evaluation measure is aggregated across all counterfactual explanations. To return individual measures for each counterfactual explanation you can specify `report_each=true`
@@ -106,7 +106,7 @@ evaluate(ces; report_each=true)
 
     3-element Vector{Vector}:
      BitVector[[1, 1, 1, 1, 1]]
-     Vector{Float32}[[0.4945979, 0.55787206, 0.46129417, 0.5204363, 0.4333825]]
+     Vector{Float32}[[3.8770418, 3.3639247, 3.653852, 3.310768, 3.4742484]]
      [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 ## Custom Measures
@@ -119,7 +119,7 @@ evaluate(ce; measure=my_measure)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [0.49499345]
+     [0.22146827]
 
 ## Tidy Output
 
@@ -132,7 +132,7 @@ evaluate(ces; output_format=:Dict, report_each=true)
     Dict{Symbol, Vector} with 3 entries:
       :validity   => BitVector[[1, 1, 1, 1, 1]]
       :redundancy => [[0.0, 0.0, 0.0, 0.0, 0.0]]
-      :distance   => Vector{Float32}[[0.494598, 0.557872, 0.461294, 0.520436, 0.433…
+      :distance   => Vector{Float32}[[3.87704, 3.36392, 3.65385, 3.31077, 3.47425]]
 
 Secondly, to return the output as a data frame, specify `output_format=:DataFrame`.
 
@@ -160,20 +160,20 @@ evaluation = evaluate(ces)
      Row │ sample  num_counterfactual  variable    value                     
          │ Int64   Int64               String      Any                       
     ─────┼───────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    1.2287
+       1 │      1                   1  distance    3.51446
        2 │      1                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
        3 │      1                   1  validity    1.0
-       4 │      2                   1  distance    1.02974
+       4 │      2                   1  distance    3.15563
        5 │      2                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-       6 │      2                   1  validity    0.8
-       7 │      3                   1  distance    0.864913
+       6 │      2                   1  validity    1.0
+       7 │      3                   1  distance    3.49398
        8 │      3                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
        9 │      3                   1  validity    1.0
-      10 │      4                   1  distance    1.13339
+      10 │      4                   1  distance    4.58058
       11 │      4                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-      12 │      4                   1  validity    1.0
-      13 │      5                   1  distance    0.999825
+      12 │      4                   1  validity    0.8
+      13 │      5                   1  distance    3.66033
       14 │      5                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-      15 │      5                   1  validity    1.0
+      15 │      5                   1  validity    0.8
 
 This leads us to our next topic: Performance Benchmarks.

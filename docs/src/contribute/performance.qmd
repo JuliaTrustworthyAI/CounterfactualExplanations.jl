@@ -8,7 +8,7 @@ eval(setup_docs)
 ```{julia}
 Random.seed!(42)
 # Counteractual data and model:
-counterfactual_data = load_linearly_separable(;seed=42)
+counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
 target = 2
 factual = 1
@@ -22,7 +22,6 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 
 
 ```{julia}
-Random.seed!(42)
 counterfactual_data_large = load_linearly_separable(100000)
 ```
 

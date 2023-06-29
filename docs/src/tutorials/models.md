@@ -61,15 +61,15 @@ end
 ```
 
     Epoch 20
-    avg_loss(data) = 0.08936202f0
+    avg_loss(data) = 0.14074339f0
     Epoch 40
-    avg_loss(data) = 0.024966659f0
+    avg_loss(data) = 0.113451175f0
     Epoch 60
-    avg_loss(data) = 0.01048687f0
+    avg_loss(data) = 0.046319224f0
     Epoch 80
-    avg_loss(data) = 0.00838422f0
+    avg_loss(data) = 0.011847609f0
     Epoch 100
-    avg_loss(data) = 0.0043536075f0
+    avg_loss(data) = 0.0072429096f0
 
 To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2016).
 

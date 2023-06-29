@@ -35,24 +35,24 @@ bmk()
 ```
 
     15×7 DataFrame
-     Row │ sample  variable    value     generator                          model  ⋯
-         │ Int64   String      Float64   Symbol                             Symbol ⋯
+     Row │ sample  variable    value    generator                          model   ⋯
+         │ Int64   String      Float64  Symbol                             Symbol  ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  distance    0.560887  GradientBasedGenerator(nothing, …  FluxMo ⋯
-       2 │      1  redundancy  0.0       GradientBasedGenerator(nothing, …  FluxMo
-       3 │      1  validity    1.0       GradientBasedGenerator(nothing, …  FluxMo
-       4 │      2  distance    1.03898   GradientBasedGenerator(nothing, …  FluxMo
-       5 │      2  redundancy  0.0       GradientBasedGenerator(nothing, …  FluxMo ⋯
-       6 │      2  validity    0.8       GradientBasedGenerator(nothing, …  FluxMo
-       7 │      3  distance    0.326338  GradientBasedGenerator(nothing, …  FluxMo
-       8 │      3  redundancy  0.0       GradientBasedGenerator(nothing, …  FluxMo
-       9 │      3  validity    1.0       GradientBasedGenerator(nothing, …  FluxMo ⋯
-      10 │      4  distance    1.5446    GradientBasedGenerator(nothing, …  FluxMo
-      11 │      4  redundancy  0.0       GradientBasedGenerator(nothing, …  FluxMo
-      12 │      4  validity    1.0       GradientBasedGenerator(nothing, …  FluxMo
-      13 │      5  distance    0.600052  GradientBasedGenerator(nothing, …  FluxMo ⋯
-      14 │      5  redundancy  0.0       GradientBasedGenerator(nothing, …  FluxMo
-      15 │      5  validity    0.8       GradientBasedGenerator(nothing, …  FluxMo
+       1 │      1  distance    3.51596  GradientBasedGenerator(nothing, …  FluxMod ⋯
+       2 │      1  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+       3 │      1  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+       4 │      2  distance    3.36053  GradientBasedGenerator(nothing, …  FluxMod
+       5 │      2  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
+       6 │      2  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+       7 │      3  distance    3.72709  GradientBasedGenerator(nothing, …  FluxMod
+       8 │      3  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+       9 │      3  validity    0.8      GradientBasedGenerator(nothing, …  FluxMod ⋯
+      10 │      4  distance    3.04693  GradientBasedGenerator(nothing, …  FluxMod
+      11 │      4  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+      12 │      4  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
+      13 │      5  distance    3.16976  GradientBasedGenerator(nothing, …  FluxMod ⋯
+      14 │      5  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
+      15 │      5  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
                                                                    3 columns omitted
 
 To retrieve the granular dataset, simply do:
@@ -62,31 +62,31 @@ bmk(agg=nothing)
 ```
 
     75×8 DataFrame
-     Row │ sample  num_counterfactual  variable    value     generator             ⋯
-         │ Int64   Int64               String      Float64   Symbol                ⋯
+     Row │ sample  num_counterfactual  variable    value    generator              ⋯
+         │ Int64   Int64               String      Float64  Symbol                 ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    0.562579  GradientBasedGenerato ⋯
-       2 │      1                   2  distance    0.576755  GradientBasedGenerato
-       3 │      1                   3  distance    0.530911  GradientBasedGenerato
-       4 │      1                   4  distance    0.505757  GradientBasedGenerato
-       5 │      1                   5  distance    0.628436  GradientBasedGenerato ⋯
-       6 │      1                   1  redundancy  0.0       GradientBasedGenerato
-       7 │      1                   2  redundancy  0.0       GradientBasedGenerato
-       8 │      1                   3  redundancy  0.0       GradientBasedGenerato
-       9 │      1                   4  redundancy  0.0       GradientBasedGenerato ⋯
-      10 │      1                   5  redundancy  0.0       GradientBasedGenerato
-      11 │      1                   1  validity    1.0       GradientBasedGenerato
-      ⋮  │   ⋮             ⋮               ⋮          ⋮                      ⋮     ⋱
-      66 │      5                   1  redundancy  0.0       GradientBasedGenerato
-      67 │      5                   2  redundancy  0.0       GradientBasedGenerato ⋯
-      68 │      5                   3  redundancy  0.0       GradientBasedGenerato
-      69 │      5                   4  redundancy  0.0       GradientBasedGenerato
-      70 │      5                   5  redundancy  0.0       GradientBasedGenerato
-      71 │      5                   1  validity    1.0       GradientBasedGenerato ⋯
-      72 │      5                   2  validity    1.0       GradientBasedGenerato
-      73 │      5                   3  validity    0.0       GradientBasedGenerato
-      74 │      5                   4  validity    1.0       GradientBasedGenerato
-      75 │      5                   5  validity    1.0       GradientBasedGenerato ⋯
+       1 │      1                   1  distance    3.54016  GradientBasedGenerator ⋯
+       2 │      1                   2  distance    3.49865  GradientBasedGenerator
+       3 │      1                   3  distance    3.54146  GradientBasedGenerator
+       4 │      1                   4  distance    3.49351  GradientBasedGenerator
+       5 │      1                   5  distance    3.50604  GradientBasedGenerator ⋯
+       6 │      1                   1  redundancy  0.0      GradientBasedGenerator
+       7 │      1                   2  redundancy  0.0      GradientBasedGenerator
+       8 │      1                   3  redundancy  0.0      GradientBasedGenerator
+       9 │      1                   4  redundancy  0.0      GradientBasedGenerator ⋯
+      10 │      1                   5  redundancy  0.0      GradientBasedGenerator
+      11 │      1                   1  validity    1.0      GradientBasedGenerator
+      ⋮  │   ⋮             ⋮               ⋮          ⋮                     ⋮      ⋱
+      66 │      5                   1  redundancy  0.0      GradientBasedGenerator
+      67 │      5                   2  redundancy  0.0      GradientBasedGenerator ⋯
+      68 │      5                   3  redundancy  0.0      GradientBasedGenerator
+      69 │      5                   4  redundancy  0.0      GradientBasedGenerator
+      70 │      5                   5  redundancy  0.0      GradientBasedGenerator
+      71 │      5                   1  validity    1.0      GradientBasedGenerator ⋯
+      72 │      5                   2  validity    1.0      GradientBasedGenerator
+      73 │      5                   3  validity    1.0      GradientBasedGenerator
+      74 │      5                   4  validity    1.0      GradientBasedGenerator
+      75 │      5                   5  validity    1.0      GradientBasedGenerator ⋯
                                                        4 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
@@ -99,15 +99,17 @@ using Tidier
 end
 ```
 
+    [ Info: Precompiling Tidier [f0413319-3358-4bb0-8e7c-0c83523a93bd]
+
     5×3 DataFrame
-     Row │ sample  variable  value    
-         │ Int64   String    Float64  
-    ─────┼────────────────────────────
-       1 │      1  distance  0.560887
-       2 │      2  distance  1.03898
-       3 │      3  distance  0.326338
-       4 │      4  distance  1.5446
-       5 │      5  distance  0.600052
+     Row │ sample  variable  value   
+         │ Int64   String    Float64 
+    ─────┼───────────────────────────
+       1 │      1  distance  3.51596
+       2 │      2  distance  3.36053
+       3 │      3  distance  3.72709
+       4 │      4  distance  3.04693
+       5 │      5  distance  3.16976
 
 ### Metadata for Counterfactual Explanations
 
@@ -213,17 +215,17 @@ end
 ```
 
     8×5 DataFrame
-     Row │ sample  variable  value     model   generator     
-         │ Int64   String    Float64   Symbol  Symbol        
-    ─────┼───────────────────────────────────────────────────
-       1 │      1  distance  0.346822  Linear  Gravitational
-       2 │      1  distance  0.45062   Linear  ClaPROAR
-       3 │      1  distance  0.42487   Linear  Generic
-       4 │      1  distance  0.486442  Linear  Wachter
-       5 │      1  distance  0.687121  MLP     Gravitational
-       6 │      1  distance  0.728272  MLP     ClaPROAR
-       7 │      1  distance  0.57091   MLP     Generic
-       8 │      1  distance  0.711715  MLP     Wachter
+     Row │ sample  variable  value    model   generator     
+         │ Int64   String    Float64  Symbol  Symbol        
+    ─────┼──────────────────────────────────────────────────
+       1 │      1  distance  3.87418  Linear  Gravitational
+       2 │      1  distance  3.80327  Linear  ClaPROAR
+       3 │      1  distance  3.3624   Linear  Generic
+       4 │      1  distance  3.39194  Linear  Wachter
+       5 │      1  distance  4.79326  MLP     Gravitational
+       6 │      1  distance  6.40047  MLP     ClaPROAR
+       7 │      1  distance  6.3013   MLP     Generic
+       8 │      1  distance  4.40417  MLP     Wachter
 
 ### Everything at once
 
@@ -265,13 +267,13 @@ end
      156 │     11  validity      1.0  MLP     generic
      157 │     12  validity      1.0  MLP     generic
      158 │     13  validity      1.0  MLP     generic
-     159 │     14  validity      0.0  MLP     generic
+     159 │     14  validity      1.0  MLP     generic
      160 │     15  validity      1.0  MLP     generic
-     161 │     11  validity      0.0  MLP     greedy
-     162 │     12  validity      1.0  MLP     greedy
-     163 │     13  validity      1.0  MLP     greedy
+     161 │     11  validity      1.0  MLP     greedy
+     162 │     12  validity      0.0  MLP     greedy
+     163 │     13  validity      0.0  MLP     greedy
      164 │     14  validity      0.0  MLP     greedy
-     165 │     15  validity      1.0  MLP     greedy
+     165 │     15  validity      0.0  MLP     greedy
                                               144 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
@@ -336,7 +338,7 @@ end
      Row │ dataset  generator  L1_norm  
          │ Symbol   Symbol     Float32  
     ─────┼──────────────────────────────
-       1 │ circles  Generic    1.88603
-       2 │ circles  Greedy     0.66296
-       3 │ moons    Generic    0.787587
-       4 │ moons    Greedy     0.612045
+       1 │ circles  Generic    2.07007
+       2 │ circles  Greedy     0.481241
+       3 │ moons    Generic    1.04787
+       4 │ moons    Greedy     1.11782
