@@ -196,8 +196,8 @@ reconstruct_cat_encoding(x)
 ```
 
     10-element Vector{Float64}:
-     1.0
      0.0
+     1.0
      0.0
      0.0
      1.0
