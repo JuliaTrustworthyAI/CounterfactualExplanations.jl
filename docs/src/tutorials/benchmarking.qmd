@@ -3,8 +3,7 @@ execute:
   output: true
 ---
 
-
-```@meta
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
@@ -18,7 +17,7 @@ eval(setup_docs)
 
 # Performance Benchmarks
 
-In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators. 
+In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators.
 
 ## Post Hoc Benchmarking
 
@@ -132,9 +131,9 @@ show(ans)
 
 So far we have assumed the following workflow:
 
-1. Fit some machine learning model.
-2. Generate counterfactual explanations for some individual(s) (`generate_counterfactual`).
-3. Evaluate and benchmark them (`benchmark(ces::Vector{CounterfactualExplanation})`).
+1.  Fit some machine learning model.
+2.  Generate counterfactual explanations for some individual(s) (`generate_counterfactual`).
+3.  Evaluate and benchmark them (`benchmark(ces::Vector{CounterfactualExplanation})`).
 
 In many cases, it may be preferable to combine these steps. To this end, we have added support for two scenarios of Ad Hoc Benchmarking.
 
@@ -142,8 +141,8 @@ In many cases, it may be preferable to combine these steps. To this end, we have
 
 In the first scenario, it is assumed that the machine learning models have been pre-trained and so the workflow can be summarized as follows:
 
-1. Fit some machine learning model(s).
-2. Generate counterfactual explanations and benchmark them. 
+1.  Fit some machine learning model(s).
+2.  Generate counterfactual explanations and benchmark them.
 
 We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let's go through this workflow using a simple example. We first train some models and store them in a dictionary:
 
@@ -196,7 +195,7 @@ show(ans)
 
 Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:
 
-1. Fit some machine learning model(s), generate counterfactual explanations and benchmark them. 
+1.  Fit some machine learning model(s), generate counterfactual explanations and benchmark them.
 
 It involves calling `benchmark` directly on counterfactual data (the only positional argument):
 
@@ -221,18 +220,17 @@ end
 show(ans)
 ```
 
-
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
-a. Either be an object `M` of type [`AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
-b. Or a `DataType` that can be called on [`CounterfactualData`](@ref) to create an object `M` as in (a).
+a.  Either be an object `M` of type [`AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
+b.  Or a `DataType` that can be called on [`CounterfactualData`](@ref) to create an object `M` as in (a).
 
 ## Multiple Datasets
 
 Benchmarks are run on single instances of type [`CounterfactualData`](@ref). This is our design choice for two reasons:
 
-1. We want to avoid the loops inside the `benchmark` method(s) from getting too nested and convoluted. 
-2. While it is straightforward to infer metadata for models and generators, this is not the case for datasets. 
+1.  We want to avoid the loops inside the `benchmark` method(s) from getting too nested and convoluted.
+2.  While it is straightforward to infer metadata for models and generators, this is not the case for datasets.
 
 Fortunately, it is very easy to run benchmarks for multiple datasets anyway, since `Benchmark` instances can be concatenated. To see how, let's consider an example involving multiple datasets, models and generators:
 
