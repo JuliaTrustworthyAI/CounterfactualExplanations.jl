@@ -2,22 +2,16 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Contributing
+# 🛠 Contribute
 
-Our goal is to provide a go-to place for Counterfactual Explanations in Julia. To this end, the following is a non-exhaustive list of enhancements we have planned:
+Contributions of any kind are very much welcome! Take a look at the [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) to see what things we are currently working on.
 
-1. Additional counterfactual generators and predictive models.
-2. Additional datasets for testing, evaluation and benchmarking.
-3. Support for regression models.
+If any of the below applies to you, this might be the right open-source project for you:
 
-For a complete list, have a look at outstanding [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues).
+-   You're an expert in Counterfactual Explanations or Explainable AI more broadly and you are curious about Julia.
+-   You're experienced with Julia and are happy to help someone less experienced to up their game. Ideally, you are also curious about Trustworthy AI.
+-   You're new to Julia and open-source development and would like to start your learning journey by contributing to a recent and active development. Ideally, you are familiar with machine learning.
 
-## How to contribute?
+[\@pat-alt](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions). 
 
-Any sort of contribution is welcome, in particular:
-
-1. Should you spot any errors or something is not working, please just open an [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues).
-2. If you want to contribute your code, please proceed as follows:
-   - Fork this repo and clone your fork: `git clone https://github.com/your_username/CounterfactualExplanations.jl`.
-   - Implement your modifications and submit a pull request.
-3. For any other questions or comments, you can also start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions).
+For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
