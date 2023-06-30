@@ -8,8 +8,8 @@ Generating Counterfactual Explanations can be seen as a generative modelling tas
 
 ## Composable Generators
 
-!!! warning "Breaking Changes Expected"  
-    Work on this feature is still in its very early stages and breaking changes should be expected.
+!!! warning "Breaking Changes Expected"
+    Work on this feature is still in its very early stages and breaking changes should be expected.
 
 One of the key objectives for this package is **Composability**. It turns out that many of the various counterfactual generators that have been proposed in the literature, essentially do the same thing: they optimize an objective function. Formally we have,
 
