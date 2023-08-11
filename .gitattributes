@@ -1,3 +1,10 @@
-# Apply override to all files in the directory
+*.ipynb linguist-vendored
+*.bib linguist-vendored
+*.md linguist-vendored
+*.drawio linguist-vendored
+*.tex linguist-vendored
+*.qmd linguist-vendored
+
 paper/** linguist-vendored
 dev/** linguist-vendored
+docs/** linguist-vendored
