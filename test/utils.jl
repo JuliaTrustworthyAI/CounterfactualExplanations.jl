@@ -44,7 +44,7 @@ function _load_pretrained_models()
         :cifar_10 => Dict(
             :models => Dict(
                 :mlp => Models.load_cifar_10_mlp(),
-                :ensemble => Models.load_cifar_10_ensemble(),
+                # :ensemble => Models.load_cifar_10_ensemble(),
             ),
             :latent => Dict(
                 :vae_strong => Models.load_cifar_10_vae(; strong=true),
