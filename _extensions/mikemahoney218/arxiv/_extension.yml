@@ -1,0 +1,38 @@
+title: ArXiv Template
+author: Mike Mahoney
+version: 0.2.1
+contributes:
+  formats:
+    common:
+      # define below YAML configuration common to all formats
+#      filters:
+        # You can include here Lua filters from your extension format
+      shortcodes:
+        # You can include here Lua filters defining shortcodes from your extension
+        - shortcodes.lua
+      knitr:
+        opts_chunk:
+          echo: false
+      number-sections: true
+    pdf:
+      # define default configuration for the pdf version of your format
+      documentclass: article
+      linenumbers: false
+      doublespacing: false
+      # Content to add in header that your format is using
+      header-includes: |
+        \usepackage{arxiv}
+        \usepackage{orcidlink}
+        \usepackage{amsmath}
+        \usepackage[T1]{fontenc}
+      template-partials: ["partials/_authors.tex", "partials/title.tex", "partials/before-body.tex"]
+      mathfont: "Latin Modern Math"
+      mainfont: "Latin Modern Roman"
+      format-resources:
+        # Add here the resources required for the PDF rendering
+        - arxiv.sty
+        - orcidlink.sty
+    html:
+      toc: true
+      # Use a CSL file to style (https://www.zotero.org/styles/)
+      csl: https://www.zotero.org/styles/chicago-author-date-16th-edition

@@ -1,0 +1,6 @@
+bibliography: ref.bib
+execute:
+    eval: false
+    echo: false
+    output: false
+jupyter: julia-1.9
