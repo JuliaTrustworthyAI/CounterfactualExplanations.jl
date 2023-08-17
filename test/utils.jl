@@ -41,16 +41,6 @@ Loads pretrained Flux models.
 """
 function _load_pretrained_models()
     pretrained = Dict(
-        :cifar_10 => Dict(
-            :models => Dict(
-                :mlp => Models.load_cifar_10_mlp(),
-                # :ensemble => Models.load_cifar_10_ensemble(),
-            ),
-            :latent => Dict(
-                :vae_strong => Models.load_cifar_10_vae(; strong=true),
-                :vae_weak => Models.load_cifar_10_vae(; strong=false),
-            ),
-        ),
         :mnist => Dict(
             :models => Dict(
                 :mlp => Models.load_mnist_mlp(),
@@ -72,6 +62,20 @@ function _load_pretrained_models()
             ),
         ),
     )
+
+    if VERSION >= v"1.7"
+        pretrained[:cifar_10] = Dict(
+            :models => Dict(
+                :mlp => Models.load_cifar_10_mlp(),
+                :ensemble => Models.load_cifar_10_ensemble(),
+            ),
+            :latent => Dict(
+                :vae_strong => Models.load_cifar_10_vae(; strong=true),
+                :vae_weak => Models.load_cifar_10_vae(; strong=false),
+            ),
+        )
+    end
+
     return pretrained
 end
 
