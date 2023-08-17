@@ -63,7 +63,7 @@ function _load_pretrained_models()
         ),
     )
 
-    if VERSION >= v"1.7"
+    if !Sys.iswindows()
         pretrained[:cifar_10] = Dict(
             :models => Dict(
                 :mlp => Models.load_cifar_10_mlp(),
