@@ -81,8 +81,8 @@ function generate_meta_data(
         df_meta.sample .= i
     end
     evaluation = DataFrames.crossjoin(evaluation, df_meta; makeunique=true)
-    evaluation.target .= ce.target
-    evaluation.factual .= CounterfactualExplanations.factual_label(ce)
+    evaluation[!, :target] .= ce.target
+    evaluation[!, :factual] .= CounterfactualExplanations.factual_label(ce)
     return evaluation
 end
 
