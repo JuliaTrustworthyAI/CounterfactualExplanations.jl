@@ -13,6 +13,7 @@ format:
         include-in-header:
         - text: |
             \usepackage{listings}
+        keep-tex: true
 abstract: |
     We present [`CounterfactualExplanations.jl`](https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl): a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box models in Julia. CE explain how inputs into a model need to change to yield specific model predictions. Explanations that involve realistic and actionable changes can be used to provide AR: a set of proposed actions for individuals to change an undesirable outcome for the better. In this article, we discuss the usefulness of CE for Explainable Artificial Intelligence and demonstrate the functionality of our package. The package is straightforward to use and designed with a focus on customization and extensibility. We envision it to one day be the go-to place for explaining arbitrary predictive models in Julia through a diverse suite of counterfactual generators.
 keywords:
@@ -134,7 +135,6 @@ A large and growing number of counterfactual [generators](https://juliatrustwort
 
 Beyond these broad technical distinctions, generators largely differ in terms of how they address the various desiderata mentioned above: *ClapROAR* aims to preserve the classifier, i.e. to generate counterfactuals that are robust to endogenous model shifts [@altmeyer2023endogenous]; *CLUE* searches plausible counterfactuals in the latent embedding of a generative model by explicitly minimising predictive entropy [@antoran2020getting]; *DiCE* is designed to generate multiple, maximally diverse counterfactuals [@mothilal2020explaining]; *FeatureTweak* leverages the internals of decision trees to search counterfactuals on a feature-by-feature basis, finding the counterfactual that tweaks the features in the least costly way [@tolomei2017interpretable]; *Gravitational* aims to generate plausible and robust counterfactuals by minimising the distance to observed samples in the target class [@altmeyer2023endogenous]; *Greedy* aims to generate plausible counterfactuals by implicitly minimising predictive uncertainty of Bayesian classifiers [@schut2021generating]; *GrowingSpheres* is model-agnostic, relying solely on identifying nearest neighbours of counterfactuals in the target class by gradually increasing the search radius and then moving counterfactuals in that direction [@laugel2017inversea]; *PROBE* generates probabilistically robust counterfactuals [@pawelczyk2022probabilistically]; *REVISE* addresses the need for plausibility by searching counterfactuals in the latent embedding of a Variational Autoencoder (VAE) [@joshi2019realistic]; *Wachter* is the baseline approach that only penalises the distance to the original sample [@wachter2017counterfactual].
 
-: Overview of implemented counterfactual generators. {#tab-gen}
 \begin{table}
 \caption{Overview of implemented counterfactual generators. \label{tab-gen} \newline}
 \centering
