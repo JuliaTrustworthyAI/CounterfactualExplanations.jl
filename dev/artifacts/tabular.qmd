@@ -54,7 +54,7 @@ rename!(df, :SeriousDlqin2yrs => :target)
 mapcols!(x -> [ifelse(x_=="NA", missing, x_) for x_ in x], df)
 dropmissing!(df)
 mapcols!(x -> eltype(x) <: AbstractString ? parse.(Int, x) : x, df)
-df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # postive outcome = no delinquency
+df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # positive outcome = no delinquency
 ```
 
 Balancing:
@@ -77,7 +77,7 @@ df.SEX = categorical(df.SEX)
 df.EDUCATION = categorical(df.EDUCATION)
 df.MARRIAGE = categorical(df.MARRIAGE)
 mapcols!(x -> eltype(x) <: AbstractString ? parse.(Int, x) : x, df)
-df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # postive outcome = no default
+df.target .= map(y -> y == 0 ? 1 : 0, df.target)        # positive outcome = no default
 ```
 
 Balancing:
