@@ -13,6 +13,7 @@ using SliceMap
 include("benchmark.jl")
 include("evaluate.jl")
 include("measures.jl")
+include("mpi.jl")
 
 export Benchmark, benchmark, evaluate, default_measures
 export validity, distance, redundancy
