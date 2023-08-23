@@ -113,6 +113,7 @@ function benchmark(
     for (_sample, kv_pair) in enumerate(models)
         model_name = kv_pair[1]
         model = kv_pair[2]
+        @info "Benchmarking model $model_name."
         _sample = _sample * length(generators) - length(generators) + 1
         for (gen_name, generator) in generators
             _ces = generate_counterfactual(x, target, data, model, generator; kwrgs...)
@@ -131,7 +132,9 @@ function benchmark(
             push!(meta_data, _meta_data...)
             _sample += 1
             if verbose
-                ProgressMeter.next!(p_generators)
+                ProgressMeter.next!(
+                    p_generators; showvalues=[(:model, model_name), (:generator, gen_name)]
+                )
             end
         end
         if verbose
