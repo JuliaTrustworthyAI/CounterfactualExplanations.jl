@@ -126,7 +126,7 @@ function generate_counterfactual(
 end
 
 function generate_counterfactual(
-    x::Union{Vector{<:Matrix}, Base.Iterators.Zip},
+    x::Base.Iterators.Zip,
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
@@ -135,6 +135,22 @@ function generate_counterfactual(
 )
     counterfactuals = map(
         x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x
+    )
+
+    return counterfactuals
+end
+
+
+function generate_counterfactual(
+    x::Vector{<:Matrix},
+    target::RawTargetType,
+    data::CounterfactualData,
+    M::Models.AbstractFittedModel,
+    generator::AbstractGenerator;
+    kwargs...,
+)
+    counterfactuals = map(
+        x_ -> generate_counterfactual(x_, target, data, M, generator; kwargs...), x
     )
 
     return counterfactuals

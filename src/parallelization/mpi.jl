@@ -45,8 +45,12 @@ function with_mpi(f::CanBeParallelised, args...; kwargs...)
 
     chunks = split_obs(collection, n_proc)                     # Split ces into groups of approximately equal size
     item = MPI.scatter(chunks, comm)                      # Scatter ces to all processes
-    println(rank, ": ", item)
-    output = f(item, _args...; kwargs...)                           # Evaluate ces on each process
+    println(rank, ": ", typeof(item))
+    if length(args) > 1
+        output = f(item, _args...; kwargs...)                           # Evaluate ces on each process
+    else
+        output = f(item; kwargs...)                           # Evaluate ces on each process
+    end
 
     MPI.Barrier(comm)                                   # Wait for all processes to reach this point
 
