@@ -3,10 +3,15 @@ module CounterfactualExplanations
 # Setup:
 include("artifacts_setup.jl")
 
+# Base types:
 include("base_types.jl")
 export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
+
+# Traits:
+include("traits.jl")
+export parallelizable, parallelize
 
 # Dependencies:
 using Flux

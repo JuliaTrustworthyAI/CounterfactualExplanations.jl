@@ -1,5 +1,7 @@
 using MPI
 
+struct MPIParallelizer <: AbstractParallelizer end
+
 """
     split_count(N::Integer, n::Integer)
 
@@ -24,11 +26,23 @@ function split_obs(obs::AbstractVector, n::Integer)
 end
 
 """
-    with_mpi(f::CanBeParallelised, args...; kwargs...)
+    parallelize(
+        plz::MPIParallelizer,
+        f::Function,
+        args...;
+        kwargs...,
+    )
 
 A function that can be used to multi-process the evaluation of `f`. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-function with_mpi(f::CanBeParallelised, args...; kwargs...)
+function parallelize(
+    plz::MPIParallelizer,
+    f::Function,
+    args...;
+    kwargs...,
+)
+
+    @assert parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
     collection = args[1]

@@ -125,6 +125,18 @@ function generate_counterfactual(
     return ce
 end
 
+"""
+    generate_counterfactual(
+        x::Base.Iterators.Zip,
+        target::RawTargetType,
+        data::CounterfactualData,
+        M::Models.AbstractFittedModel,
+        generator::AbstractGenerator;
+        kwargs...,
+    )
+
+Overloads the `generate_counterfactual` method to accept a zip of factuals `x` and return a vector of counterfactuals.
+"""
 function generate_counterfactual(
     x::Base.Iterators.Zip,
     target::RawTargetType,
@@ -140,7 +152,18 @@ function generate_counterfactual(
     return counterfactuals
 end
 
+"""
+    generate_counterfactual(
+        x::Vector{<:Matrix},
+        target::RawTargetType,
+        data::CounterfactualData,
+        M::Models.AbstractFittedModel,
+        generator::AbstractGenerator;
+        kwargs...,
+    )
 
+Overloads the `generate_counterfactual` method to accept a vector of factuals `x` and return a vector of counterfactuals.
+"""
 function generate_counterfactual(
     x::Vector{<:Matrix},
     target::RawTargetType,
@@ -155,3 +178,6 @@ function generate_counterfactual(
 
     return counterfactuals
 end
+
+"The `generate_counterfactual` method is parallelizable."
+ProcessStyle(::Type{<:typeof(generate_counterfactual)}) = IsParallel()
