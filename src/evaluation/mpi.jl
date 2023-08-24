@@ -1,4 +1,6 @@
+using CounterfactualExplanations.Evaluation: evaluate, benchmark
 using MPI
+
 
 """
     split_count(N::Integer, n::Integer)
@@ -24,11 +26,55 @@ function split_obs(obs::AbstractVector, n::Integer)
 end
 
 """
+    with_mpi(
+        f::typeof(evaluate), args...; 
+        kwargs...
+    )
+
+A function that can be used to multi-process the evaluation of `f`. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
+"""
+function with_mpi(
+    f::typeof(evaluate), args...; 
+    kwargs...
+)
+
+    # Setup:
+    ces = args[1]
+
+    # MPI:
+    MPI.Init()
+
+    comm = MPI.COMM_WORLD                               # Collection of processes that can communicate in our world 🌍
+    rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
+    n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
+
+    chunks = split_obs(ces, n_proc)                     # Split ces into groups of approximately equal size
+    ce = MPI.scatter(chunks, comm)                      # Scatter ces to all processes
+    output = f(ce; kwargs...)                           # Evaluate ces on each process
+
+    MPI.Barrier(comm)                                   # Wait for all processes to reach this point
+
+    # Collect output from all processes:
+    if rank == 0
+        output = MPI.gather(output, comm)
+        output = vcat(output...)
+    end
+
+    return output
+end
+
+"""
     with_mpi(expr)
 
-A simple macro that can be used to specify the optimiser to be used.
+A macro that can be used to multi-process the evaluation of `expr`. The expression `expr` should be a call to `evaluate` with a single argument. The argument should be a vector of counterfactual explanations. The macro will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-macro with_mpi(expr)
+macro with_mpi(expr::Expr)
+
+    # Assertions:
+    msg = "The expression `expr` should be a call to `evaluate` like so: `@with_mpi evaluate(ce; kwrgs...)`."
+    @assert expr.head == :call msg
+    @assert expr.args[1] == :evaluate msg
+    
     idx = (expr.args .!= :evaluate) .&& (typeof.(expr.args) .!= Expr)
     ces = esc(expr.args[idx][1])
     evaluate_with_mpi = quote
@@ -50,7 +96,7 @@ macro with_mpi(expr)
             output = vcat(output...)
         end
 
-        return output
+        output
     end
     return evaluate_with_mpi
 end
