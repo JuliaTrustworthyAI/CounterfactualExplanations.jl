@@ -31,7 +31,10 @@ A function that can be used to multi-process the evaluation of `f`. The function
 function with_mpi(f::CanBeParallelised, args...; kwargs...)
 
     # Setup:
-    collection = collect(args[1])
+    collection = args[1]
+    if length(args) > 1
+        _args = args[2:end]
+    end
 
     # MPI:
     MPI.Init()
@@ -42,7 +45,8 @@ function with_mpi(f::CanBeParallelised, args...; kwargs...)
 
     chunks = split_obs(collection, n_proc)                     # Split ces into groups of approximately equal size
     item = MPI.scatter(chunks, comm)                      # Scatter ces to all processes
-    output = f(item; kwargs...)                           # Evaluate ces on each process
+    println(rank, ": ", item)
+    output = f(item, _args...; kwargs...)                           # Evaluate ces on each process
 
     MPI.Barrier(comm)                                   # Wait for all processes to reach this point
 

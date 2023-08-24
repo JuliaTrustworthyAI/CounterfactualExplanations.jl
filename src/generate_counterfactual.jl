@@ -126,7 +126,7 @@ function generate_counterfactual(
 end
 
 function generate_counterfactual(
-    x::Base.Iterators.Zip,
+    x::Union{Vector{<:Matrix}, Base.Iterators.Zip},
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
