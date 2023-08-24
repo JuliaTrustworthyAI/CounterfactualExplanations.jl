@@ -1,7 +1,8 @@
 module Parallelization
 
-using ..CounterfactualExplanations
+import ..CounterfactualExplanations
 
 include("mpi.jl")
+export MPIParallelizer
 
 end

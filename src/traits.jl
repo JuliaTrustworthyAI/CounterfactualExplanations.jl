@@ -23,4 +23,4 @@ parallelizable(::NotParallel, x) = false
 
 If no `AbstractParallelizer` has been supplied, just call the function. 
 """
-parallelize(plz::nothing, f::Function, args...; kwargs...) = f(args...; kwargs...)
+parallelize(plz::Nothing, f::Function, args...; kwargs...) = f(args...; kwargs...)

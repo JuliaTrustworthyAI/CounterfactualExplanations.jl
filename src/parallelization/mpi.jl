@@ -35,7 +35,7 @@ end
 
 A function that can be used to multi-process the evaluation of `f`. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-function parallelize(
+function CounterfactualExplanations.parallelize(
     plz::MPIParallelizer,
     f::Function,
     args...;
@@ -51,6 +51,7 @@ function parallelize(
     end
 
     # MPI:
+    @info "Using `MPI.jl` for multi-processing."
     MPI.Init()
 
     comm = MPI.COMM_WORLD                               # Collection of processes that can communicate in our world 🌍
@@ -59,7 +60,6 @@ function parallelize(
 
     chunks = split_obs(collection, n_proc)                     # Split ces into groups of approximately equal size
     item = MPI.scatter(chunks, comm)                      # Scatter ces to all processes
-    println(rank, ": ", typeof(item))
     if length(args) > 1
         output = f(item, _args...; kwargs...)                           # Evaluate ces on each process
     else
@@ -78,16 +78,11 @@ function parallelize(
 end
 
 """
-    with_mpi(expr)
+    with_parallelizer(plz::AbstractParallelizer, expr::Expr)
 
 A macro that can be used to multi-process the evaluation of `expr`. The expression `expr` should be a call to `evaluate` with a single argument. The argument should be a vector of counterfactual explanations. The macro will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-macro with_mpi(expr::Expr)
-
-    # Assertions:
-    msg = "The expression `expr` should be a call to `evaluate` like so: `@with_mpi evaluate(ce; kwrgs...)`."
-    @assert expr.head == :call msg
-    @assert expr.args[1] == :evaluate msg
+macro with_parallelizer(plz::AbstractParallelizer, expr::Expr)
 
     idx = (expr.args .!= :evaluate) .&& (typeof.(expr.args) .!= Expr)
     ces = esc(expr.args[idx][1])

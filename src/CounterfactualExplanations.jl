@@ -8,6 +8,7 @@ include("base_types.jl")
 export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
+export AbstractParallelizer
 
 # Traits:
 include("traits.jl")
