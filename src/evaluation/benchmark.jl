@@ -56,10 +56,10 @@ function benchmark(
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     store_ce::Bool=false,
-    plz::Union{Nothing,AbstractParallelizer}=nothing,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
 )
     evaluations = parallelize(
-        plz,
+        parallelizer,
         evaluate,
         counterfactual_explanations;
         measure=measure,
@@ -84,7 +84,7 @@ end
         dataname::Union{Nothing,Symbol,String}=nothing,
         verbose::Bool=true,
         store_ce::Bool=false,
-        plz::Union{Nothing,AbstractParallelizer}=nothing,
+        parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
         kwrgs...,
     )
 
@@ -101,7 +101,7 @@ function benchmark(
     dataname::Union{Nothing,Symbol,String}=nothing,
     verbose::Bool=true,
     store_ce::Bool=false,
-    plz::Union{Nothing,AbstractParallelizer}=nothing,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
@@ -127,7 +127,7 @@ function benchmark(
         for (gen_name, generator) in generators
             # Generate counterfactuals; in parallel if so specified
             _ces = parallelize(
-                plz,
+                parallelizer,
                 generate_counterfactual,
                 x,
                 target,
@@ -162,7 +162,7 @@ function benchmark(
     end
 
     # Performance Evaluation:
-    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce, plz=plz)
+    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce, parallelizer=parallelizer)
     return bmk
 end
 
@@ -177,7 +177,7 @@ end
         factual::Union{Nothing,RawTargetType}=nothing,
         target::Union{Nothing,RawTargetType}=nothing,
         store_ce::Bool=false,
-        plz::Union{Nothing,AbstractParallelizer}=nothing,
+        parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
         kwrgs...,
     )
 
@@ -200,7 +200,7 @@ function benchmark(
     factual::Union{Nothing,RawTargetType}=nothing,
     target::Union{Nothing,RawTargetType}=nothing,
     store_ce::Bool=false,
-    plz::Union{Nothing,AbstractParallelizer}=nothing,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
     # Setup
@@ -241,7 +241,7 @@ function benchmark(
             measure=measure,
             xids=xids,
             store_ce=store_ce,
-            plz=plz,
+            parallelizer=parallelizer,
             kwrgs...,
         )
         push!(bmk, _bmk)

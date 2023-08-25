@@ -97,6 +97,8 @@ using .Evaluation
 include("parallelization/Parallelization.jl")
 using .Parallelization
 
+include("assign_traits.jl")
+
 # Precompile:
 include("precompile.jl")
 

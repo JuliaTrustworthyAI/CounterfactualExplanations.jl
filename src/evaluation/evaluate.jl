@@ -162,6 +162,3 @@ function evaluate(
     DataFrames.select!(evaluations, :sample, :num_counterfactual, :)
     return evaluations
 end
-
-"The `evaluate` function is parallelizable."
-ProcessStyle(::Type{<:typeof(evaluate)}) = IsParallel()

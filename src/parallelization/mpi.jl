@@ -1,6 +1,6 @@
 using MPI
 
-struct MPIParallelizer <: AbstractParallelizer end
+struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer end
 
 """
     split_count(N::Integer, n::Integer)
@@ -27,7 +27,7 @@ end
 
 """
     parallelize(
-        plz::MPIParallelizer,
+        parallelizer::MPIParallelizer,
         f::Function,
         args...;
         kwargs...,
@@ -36,16 +36,16 @@ end
 A function that can be used to multi-process the evaluation of `f`. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
 function CounterfactualExplanations.parallelize(
-    plz::MPIParallelizer,
+    parallelizer::MPIParallelizer,
     f::Function,
     args...;
     kwargs...,
 )
 
-    @assert parallelizable(f) "`f` is not a parallelizable process."
+    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
-    collection = args[1]
+    collection = args[1] |> x -> vectorize_collection(x)
     if length(args) > 1
         _args = args[2:end]
     end

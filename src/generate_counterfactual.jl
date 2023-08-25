@@ -178,6 +178,3 @@ function generate_counterfactual(
 
     return counterfactuals
 end
-
-"The `generate_counterfactual` method is parallelizable."
-ProcessStyle(::Type{<:typeof(generate_counterfactual)}) = IsParallel()

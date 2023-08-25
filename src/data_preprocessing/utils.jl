@@ -154,7 +154,7 @@ end
 """
     select_factual(counterfactual_data::CounterfactualData, index::Int)
 
-A convenience method that can be used to access the the feature matrix.
+A convenience method that can be used to access the feature matrix.
 """
 function select_factual(counterfactual_data::CounterfactualData, index::Int)
     return reshape(collect(selectdim(counterfactual_data.X, 2, index)), :, 1)
@@ -163,7 +163,7 @@ end
 """
     select_factual(counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}})
 
-A convenience method that can be used to access the the feature matrix.
+A convenience method that can be used to access the feature matrix.
 """
 function select_factual(
     counterfactual_data::CounterfactualData, index::Union{Vector{Int},UnitRange{Int}}

@@ -1,0 +1,79 @@
+---
+execute: 
+  output: true
+---
+
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+#| output: false
+
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Parallelization
+
+Version `0.1.15` adds support for parallelization through multi-processing. Currently, the only available backend for parallelization is [MPI.jl](https://juliaparallel.org/MPI.jl/latest/). 
+
+## Available functions
+
+Parallelization is only available for certain functions. To check if a function is parallelizable, you can use  `parallelizable` function:
+
+```{julia}
+using CounterfactualExplanations.Evaluation: evaluate, benchmark
+println(parallelizable(generate_counterfactual))
+println(parallelizable(evaluate))
+println(parallelizable(predict_label))
+```
+
+In the following, we will generate multiple counterfactuals and evaluate them in parallel:
+
+```{julia}
+using CounterfactualExplanations.Parallelization
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 100)
+xs = select_factual(counterfactual_data, chosen)
+```
+
+## MPI
+
+We first instantiate an `MPIParallelizer` object:
+
+```{julia}
+parallelizer = MPIParallelizer()
+```
+
+To generate counterfactuals in parallel, we use the `parallelize` function:
+
+```{julia}
+ces = parallelize(
+    parallelizer,
+    generate_counterfactual,
+    xs,
+    target,
+    counterfactual_data,
+    M,
+    generator
+)
+```
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+```{julia}
+results = parallelize(
+    parallelizer,
+    evaluate,
+    ces;
+    report_meta = true
+)
+```
+
+Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
+
+```{julia}
+# Models:
+bmk = benchmark(counterfactual_data; parallelizer = pllr)
+```
