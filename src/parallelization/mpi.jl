@@ -89,7 +89,12 @@ function CounterfactualExplanations.parallelize(
     return output
 end
 
-macro parallelize(parallelizer, f, args...)
+"""
+    @with_parallelizer(parallelizer, f, args...)
+
+This macro can be used to multi-process the evaluation of `f` using MPI. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
+"""
+macro @with_parallelizer (parallelizer, f, args...)
 
     pllr = esc(parallelizer)
 
@@ -104,12 +109,14 @@ macro parallelize(parallelizer, f, args...)
     end
 
     collection = esc(aargs[1])
+    escaped_args = Expr(:tuple, esc.(aargs)...)
 
     output = quote
         @assert CounterfactualExplanations.parallelizable($f) "`f` is not a parallelizable process."
-        collection = $collection |> x -> vectorize_collection(x)
+        collection = $escaped_args[1]
+        collection = collection |> x -> vectorize_collection(x)
         if length($aargs) > 1
-            _args = $aargs[2:end]
+            _args = $escaped_args[2:end]
         end
         
         chunks = split_obs(collection, $pllr.n_proc)    
@@ -121,15 +128,15 @@ macro parallelize(parallelizer, f, args...)
             output = $f(item; $aakws...)
         end
 
-        # MPI.Barrier($pllr.comm)
+        MPI.Barrier($pllr.comm)
 
-        # println("Rank $($pllr.rank) done.")
+        println("Rank $($pllr.rank) done.")
 
-        # # Collect output from all processes:
-        # if $pllr.rank == 0
-        #     output = MPI.gather(output, $pllr.comm)
-        #     output = vcat(output...)
-        # end
+        # Collect output from all processes:
+        if $pllr.rank == 0
+            output = MPI.gather(output, $pllr.comm)
+            output = vcat(output...)
+        end
     end
     return output
 end
