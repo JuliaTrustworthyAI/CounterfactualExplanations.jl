@@ -74,9 +74,17 @@ model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
 )
 ```
 
-The method `pytorch_model_loader` requires four arguments: 1. The path to the folder with a `.py` file where the PyTorch model is defined 2. The name of the file where the PyTorch model is defined 3. The name of the class of the PyTorch model 4. The path to the Pickle file that holds the model weights
+The method `pytorch_model_loader` requires four arguments:
+1. The path to the folder with a `.py` file where the PyTorch model is defined
+2. The name of the file where the PyTorch model is defined
+3. The name of the class of the PyTorch model
+4. The path to the Pickle file that holds the model weights
 
-In the above case: 1. The file defining the model is inside `$(pwd())/docs/src/tutorials/miscellaneous` 2. The name of the `.py` file holding the model definition is `neural_network_class` 3. The name of the model class is NeuralNetwork 4. The Pickle file is located at `$(pwd())/docs/src/tutorials/miscellaneous/pretrained_model.pt`
+In the above case:
+1. The file defining the model is inside `$(pwd())/docs/src/tutorials/miscellaneous`
+2. The name of the `.py` file holding the model definition is `neural_network_class`
+3. The name of the model class is NeuralNetwork
+4. The Pickle file is located at `$(pwd())/docs/src/tutorials/miscellaneous/pretrained_model.pt`
 
 Though the model file and Pickle file are inside the same directory in this tutorial, this does not necessarily have to be the case.
 
@@ -117,7 +125,8 @@ To import the R torch model into the CounterfactualExplanations package, use the
 model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
 ```
 
-The `rtorch_model_loader()` function requires only one argument: 1. `model_path`: The path to the `.pt` file that contains the trained R torch model.
+The `rtorch_model_loader()` function requires only one argument:
+1. `model_path`: The path to the `.pt` file that contains the trained R torch model.
 
 ### Wrapping the R torch model
 
@@ -189,7 +198,7 @@ model_evaluation(M, test_data)
 ```
 
     1-element Vector{Float64}:
-     0.913582715784314
+     0.9136076495599659
 
 Finally, let’s restore the default training parameters:
 

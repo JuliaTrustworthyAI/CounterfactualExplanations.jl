@@ -1,6 +1,24 @@
 using MPI
 
-struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer end
+struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer 
+    comm::MPI.Comm
+    rank::Int
+    n_proc::Int
+end
+
+function MPIParallelizer()
+    MPI.Init()
+
+    comm = MPI.COMM_WORLD                               # Collection of processes that can communicate in our world 🌍
+    rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
+    n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
+
+    if rank == 0
+        @info "Using `MPI.jl` for multi-processing."
+        println("Running on $n_proc processes.")
+    end
+    return MPIParallelizer(comm, rank, n_proc)
+end
 
 """
     split_count(N::Integer, n::Integer)
@@ -50,29 +68,23 @@ function CounterfactualExplanations.parallelize(
         _args = args[2:end]
     end
 
-    # MPI:
-    @info "Using `MPI.jl` for multi-processing."
-    MPI.Init()
-
-    comm = MPI.COMM_WORLD                               # Collection of processes that can communicate in our world 🌍
-    rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
-    n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
-
-    chunks = split_obs(collection, n_proc)                     # Split ces into groups of approximately equal size
-    item = MPI.scatter(chunks, comm)                      # Scatter ces to all processes
+    chunks = split_obs(collection, parallelizer.n_proc)                    
+    item = MPI.scatter(chunks, parallelizer.comm)                      
     if length(args) > 1
-        output = f(item, _args...; kwargs...)                           # Evaluate ces on each process
+        output = f(item, _args...; kwargs...)                          
     else
-        output = f(item; kwargs...)                           # Evaluate ces on each process
+        output = f(item; kwargs...)                           
     end
 
-    MPI.Barrier(comm)                                   # Wait for all processes to reach this point
+    MPI.Barrier(parallelizer.comm)                        
 
     # Collect output from all processes:
-    if rank == 0
-        output = MPI.gather(output, comm)
+    if parallelizer.rank == 0
+        output = MPI.gather(output, parallelizer.comm)
         output = vcat(output...)
     end
+
+    MPI.Finalize()
 
     return output
 end
