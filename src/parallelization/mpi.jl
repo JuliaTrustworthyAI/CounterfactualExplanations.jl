@@ -104,11 +104,9 @@ macro parallelize(parallelizer, f, args...)
     end
 
     collection = esc(aargs[1])
-    _aargs = [esc(arg) for arg in aargs[2:end]]
 
     output = quote
         @assert CounterfactualExplanations.parallelizable($f) "`f` is not a parallelizable process."
-        println(_aargs[1])
         collection = $collection |> x -> vectorize_collection(x)
         if length($aargs) > 1
             _args = $aargs[2:end]
