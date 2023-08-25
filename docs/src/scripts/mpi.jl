@@ -19,3 +19,7 @@ output = parallelize(
     generate_counterfactual, 
     xs, target, counterfactual_data, M, generator
 )
+
+MPI.Barrier(parallelizer.comm)
+
+MPI.Finalize()

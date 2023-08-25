@@ -76,7 +76,9 @@ function CounterfactualExplanations.parallelize(
         output = f(item; kwargs...)                           
     end
 
-    MPI.Barrier(parallelizer.comm)                        
+    MPI.Barrier(parallelizer.comm)        
+
+    println("Rank $(parallelizer.rank) done.")
 
     # Collect output from all processes:
     if parallelizer.rank == 0
@@ -84,7 +86,52 @@ function CounterfactualExplanations.parallelize(
         output = vcat(output...)
     end
 
-    MPI.Finalize()
+    return output
+end
 
+macro parallelize(parallelizer, f, args...)
+
+    pllr = esc(parallelizer)
+
+    aargs = []
+    aakws = Pair{Symbol,Any}[]
+    for el in args
+        if Meta.isexpr(el, :(=))
+            push!(aakws, Pair(el.args...))
+        else
+            push!(aargs, el)
+        end
+    end
+
+    collection = esc(aargs[1])
+    _aargs = [esc(arg) for arg in aargs[2:end]]
+
+    output = quote
+        @assert CounterfactualExplanations.parallelizable($f) "`f` is not a parallelizable process."
+        println(_aargs[1])
+        collection = $collection |> x -> vectorize_collection(x)
+        if length($aargs) > 1
+            _args = $aargs[2:end]
+        end
+        
+        chunks = split_obs(collection, $pllr.n_proc)    
+        item = MPI.scatter(chunks, $pllr.comm)
+
+        if length($aargs) > 1
+            output = $f(item, _args...; $aakws...)
+        else
+            output = $f(item; $aakws...)
+        end
+
+        # MPI.Barrier($pllr.comm)
+
+        # println("Rank $($pllr.rank) done.")
+
+        # # Collect output from all processes:
+        # if $pllr.rank == 0
+        #     output = MPI.gather(output, $pllr.comm)
+        #     output = vcat(output...)
+        # end
+    end
     return output
 end
