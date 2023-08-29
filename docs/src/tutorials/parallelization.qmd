@@ -99,3 +99,7 @@ Benchmarks can also be run with parallelization by specifying `parallelizer` arg
 # Models:
 bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
 ```
+
+### Example with MPI
+
+
