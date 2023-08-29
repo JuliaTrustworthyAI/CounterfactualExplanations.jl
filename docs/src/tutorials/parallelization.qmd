@@ -68,6 +68,18 @@ ces = @with_parallelizer parallelizer begin
 end
 ```
 
+```{julia}
+_ces = parallelize(
+        parallelizer,
+        generate_counterfactual,
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+)
+```
+
 To evaluate counterfactuals in parallel, we again use the `parallelize` function:
 
 ```{julia}
