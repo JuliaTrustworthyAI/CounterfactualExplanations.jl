@@ -49,7 +49,9 @@ xs = select_factual(counterfactual_data, chosen)
 We first instantiate an `MPIParallelizer` object:
 
 ```{julia}
-parallelizer = MPIParallelizer()
+import MPI
+MPI.Init()
+parallelizer = MPIParallelizer(MPI.COMM_WORLD)
 ```
 
 To generate counterfactuals in parallel, we use the `parallelize` function:
