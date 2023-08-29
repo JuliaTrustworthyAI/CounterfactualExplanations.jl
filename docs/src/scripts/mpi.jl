@@ -4,6 +4,8 @@ using CounterfactualExplanations.Models
 using CounterfactualExplanations.Parallelization
 import MPI
 
+MPI.Init()
+
 counterfactual_data = load_linearly_separable()
 M = fit_model(counterfactual_data, :Linear)
 factual = 1
@@ -12,14 +14,12 @@ chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 100)
 xs = select_factual(counterfactual_data, chosen)
 generator = GenericGenerator()
 
-parallelizer = MPIParallelizer()
+parallelizer = MPIParallelizer(MPI.COMM_WORLD)
 
-output = parallelize(
-    parallelizer, 
-    generate_counterfactual, 
-    xs, target, counterfactual_data, M, generator
-)
+output = @with_parallelizer parallelizer begin
+    generate_counterfactual(xs, target, counterfactual_data, M, generator)
+end
 
-MPI.Barrier(parallelizer.comm)
+
 
 MPI.Finalize()

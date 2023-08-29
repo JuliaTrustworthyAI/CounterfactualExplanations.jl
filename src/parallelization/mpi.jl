@@ -6,10 +6,8 @@ struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     n_proc::Int
 end
 
-function MPIParallelizer()
-    MPI.Init()
+function MPIParallelizer(comm::MPI.Comm)
 
-    comm = MPI.COMM_WORLD                               # Collection of processes that can communicate in our world 🌍
     rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
     n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
 
@@ -143,11 +141,15 @@ macro with_parallelizer(parallelizer, expr)
 
         println("Rank $($pllr.rank) done.")
 
+        output = MPI.gather(output, $pllr.comm)
+
         # Collect output from all processes:
         if $pllr.rank == 0
-            output = MPI.gather(output, $pllr.comm)
             output = vcat(output...)
+            println(output)
         end
+
+        MPI.Barrier($pllr.comm)
     end
     return output
 end
