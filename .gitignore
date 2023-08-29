@@ -52,3 +52,5 @@ dev/artifacts/upload/
 dev/resources/build
 
 /.luarc.json
+
+LocalPreferences.toml

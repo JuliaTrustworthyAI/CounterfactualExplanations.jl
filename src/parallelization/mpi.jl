@@ -78,10 +78,15 @@ function CounterfactualExplanations.parallelize(
 
     output = MPI.gather(output, parallelizer.comm)
 
-    # Collect output from all processes:
+    # Collect output from all processe in rank 0:
     if parallelizer.rank == 0
         output = vcat(output...)
+    else
+        output = nothing
     end
+
+    # Broadcast output to all processes:
+    output = MPI.bcast(output, parallelizer.comm; root=0)
 
     MPI.Barrier(parallelizer.comm)
 

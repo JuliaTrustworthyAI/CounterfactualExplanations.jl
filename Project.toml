@@ -24,6 +24,7 @@ MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 NearestNeighborModels = "636a865e-7cf4-491e-846c-de09b730eb36"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
@@ -74,6 +75,7 @@ UMAP = "0.1"
 julia = "1.6, 1.7, 1.8, 1.9"
 
 [extras]
+MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
