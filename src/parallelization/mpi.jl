@@ -90,25 +90,36 @@ function CounterfactualExplanations.parallelize(
 end
 
 """
-    @with_parallelizer(parallelizer, f, args...)
+    @with_parallelizer(parallelizer, expr)
 
 This macro can be used to multi-process the evaluation of `f` using MPI. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-macro CounterfactualExplanations.@with_parallelizer(parallelizer, f, args...)
+macro with_parallelizer(parallelizer, expr)
 
+    @assert expr.head ∈ (:block, :call) "Expected a block or function call."
+    if expr.head == :block
+        expr = expr.args[end]
+    end
+
+    # Unpack arguments:
     pllr = esc(parallelizer)
+    f = expr.args[1]
+    args = expr.args[2:end]
 
+    # Split args into positional and keyword arguments:
     aargs = []
     aakws = Pair{Symbol,Any}[]
     for el in args
-        if Meta.isexpr(el, :(=))
-            push!(aakws, Pair(el.args...))
+        if Meta.isexpr(el, :parameters)
+            for kw in el.args
+                push!(aakws, Pair(kw.args...))
+            end
         else
             push!(aargs, el)
         end
     end
 
-    collection = esc(aargs[1])
+    # Escape arguments:
     escaped_args = Expr(:tuple, esc.(aargs)...)
 
     output = quote

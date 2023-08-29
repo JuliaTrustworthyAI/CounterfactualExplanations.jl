@@ -55,26 +55,26 @@ parallelizer = MPIParallelizer()
 To generate counterfactuals in parallel, we use the `parallelize` function:
 
 ```{julia}
-ces = parallelize(
-    parallelizer,
-    generate_counterfactual,
-    xs,
-    target,
-    counterfactual_data,
-    M,
-    generator
-)
+ces = @with_parallelizer parallelizer begin
+    generate_counterfactual(
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+    )
+end
 ```
 
 To evaluate counterfactuals in parallel, we again use the `parallelize` function:
 
 ```{julia}
-parallelize(
-    parallelizer,
-    evaluate,
-    ces;
-    report_meta = true
-)
+@with_parallelizer parallelizer evaluate(ces; report_meta = true)
+```
+
+```{=commonmark}
+!!! tip
+    Note that parallelizable processes can be supplied as input to the macro either as a block or directly as an expression.
 ```
 
 Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
