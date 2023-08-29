@@ -37,26 +37,30 @@ xs = select_factual(counterfactual_data, chosen)
 We first instantiate an `MPIParallelizer` object:
 
 ``` julia
-parallelizer = MPIParallelizer()
+import MPI
+MPI.Init()
+parallelizer = MPIParallelizer(MPI.COMM_WORLD)
 ```
 
-    MPIParallelizer()
+    Running on 1 processes.
+
+    [ Info: Using `MPI.jl` for multi-processing.
+
+    MPIParallelizer(MPI.Comm(1140850688), 0, 1)
 
 To generate counterfactuals in parallel, we use the `parallelize` function:
 
 ``` julia
-ces = parallelize(
-    parallelizer,
-    generate_counterfactual,
-    xs,
-    target,
-    counterfactual_data,
-    M,
-    generator
-)
+ces = @with_parallelizer parallelizer begin
+    generate_counterfactual(
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+    )
+end
 ```
-
-    [ Info: Using `MPI.jl` for multi-processing.
 
     10-element Vector{CounterfactualExplanation}:
      CounterfactualExplanation
@@ -80,18 +84,48 @@ ces = parallelize(
      CounterfactualExplanation
     Convergence: ✅ after 7 steps.
 
-To evaluate counterfactuals in parallel, we again use the `parallelize` function:
-
 ``` julia
-parallelize(
-    parallelizer,
-    evaluate,
-    ces;
-    report_meta = true
+_ces = parallelize(
+        parallelizer,
+        generate_counterfactual,
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
 )
 ```
 
-    [ Info: Using `MPI.jl` for multi-processing.
+    10-element Vector{CounterfactualExplanation}:
+     CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 8 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 6 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 9 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 8 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 8 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
+     CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+``` julia
+@with_parallelizer parallelizer evaluate(ces; report_meta = true)
+```
+
+!!! tip
+    Note that parallelizable processes can be supplied as input to the macro either as a block or directly as an expression.
 
 Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
 

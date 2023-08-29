@@ -100,6 +100,4 @@ Benchmarks can also be run with parallelization by specifying `parallelizer` arg
 bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
 ```
 
-### Example with MPI
-
 
