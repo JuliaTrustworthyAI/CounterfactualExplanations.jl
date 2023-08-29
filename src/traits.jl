@@ -13,6 +13,10 @@ parallelizable(x::T) where {T} = parallelizable(ProcessStyle(T), x)
 parallelizable(::IsParallel, x) = true
 parallelizable(::NotParallel, x) = false
 
+macro with_parallelizer(parallelizer::Nothing, f::Function, args...)
+    return esc(f(args...))
+end
+
 """
     parallelize(
         parallelizer::nothing,

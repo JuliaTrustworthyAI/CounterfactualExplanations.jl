@@ -94,7 +94,7 @@ end
 
 This macro can be used to multi-process the evaluation of `f` using MPI. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
-macro @with_parallelizer (parallelizer, f, args...)
+macro CounterfactualExplanations.@with_parallelizer(parallelizer, f, args...)
 
     pllr = esc(parallelizer)
 
