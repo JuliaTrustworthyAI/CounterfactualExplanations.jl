@@ -42,4 +42,3 @@ function preprocess_python_data(args...)
         throw(ArgumentError("Extension $ext_sym not loaded."))
     end
 end
-    
