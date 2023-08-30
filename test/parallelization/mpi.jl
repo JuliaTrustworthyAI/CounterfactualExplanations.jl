@@ -6,7 +6,7 @@ using Logging
 using Test
 
 # Initialize MPI
-import MPI
+using MPI: MPI
 MPI.Init()
 
 counterfactual_data = load_linearly_separable()
@@ -16,4 +16,3 @@ with_logger(NullLogger()) do
 end
 MPI.Finalize()
 @test MPI.Finalized()
-

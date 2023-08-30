@@ -1,13 +1,12 @@
 using MPI
 
-struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer 
+struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     comm::MPI.Comm
     rank::Int
     n_proc::Int
 end
 
 function MPIParallelizer(comm::MPI.Comm)
-
     rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
     n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
 
@@ -52,12 +51,8 @@ end
 A function that can be used to multi-process the evaluation of `f`. The function `f` should be a function that takes a single argument. The argument should be a vector of counterfactual explanations. The function will split the vector of counterfactual explanations into groups of approximately equal size and distribute them to the processes. The results are then collected and returned.
 """
 function CounterfactualExplanations.parallelize(
-    parallelizer::MPIParallelizer,
-    f::Function,
-    args...;
-    kwargs...,
+    parallelizer::MPIParallelizer, f::Function, args...; kwargs...
 )
-
     @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
@@ -66,15 +61,15 @@ function CounterfactualExplanations.parallelize(
         _args = args[2:end]
     end
 
-    chunks = split_obs(collection, parallelizer.n_proc)                    
-    item = MPI.scatter(chunks, parallelizer.comm)                      
+    chunks = split_obs(collection, parallelizer.n_proc)
+    item = MPI.scatter(chunks, parallelizer.comm)
     if length(args) > 1
-        output = f(item, _args...; kwargs...)                          
+        output = f(item, _args...; kwargs...)
     else
-        output = f(item; kwargs...)                           
+        output = f(item; kwargs...)
     end
 
-    MPI.Barrier(parallelizer.comm)        
+    MPI.Barrier(parallelizer.comm)
 
     output = MPI.gather(output, parallelizer.comm)
 
@@ -92,4 +87,3 @@ function CounterfactualExplanations.parallelize(
 
     return output
 end
-

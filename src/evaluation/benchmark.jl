@@ -162,7 +162,13 @@ function benchmark(
     end
 
     # Performance Evaluation:
-    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce, parallelizer=parallelizer)
+    bmk = benchmark(
+        ces;
+        meta_data=meta_data,
+        measure=measure,
+        store_ce=store_ce,
+        parallelizer=parallelizer,
+    )
     return bmk
 end
 
