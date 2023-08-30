@@ -10,7 +10,6 @@ using Tables
 using UMAP
 using MLJBase
 using Plots
-using PythonCall
 using Random
 using ..GenerativeModels
 

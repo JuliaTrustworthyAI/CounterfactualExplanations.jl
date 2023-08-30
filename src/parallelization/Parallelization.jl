@@ -1,6 +1,6 @@
 module Parallelization
 
-export MPIParallelizer, @with_parallelizer
+export @with_parallelizer
 
 import ..CounterfactualExplanations
 using CounterfactualExplanations: generate_counterfactual

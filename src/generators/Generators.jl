@@ -19,7 +19,6 @@ using Distributions
 using SliceMap
 using Random
 using Statistics
-using PythonCall
 
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator

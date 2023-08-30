@@ -1,3 +1,10 @@
+using CounterfactualExplanations.Models
+
+"""
+Base type for differentiable models written in Python.
+"""
+abstract type AbstractPythonModel <: AbstractDifferentiableModel end
+
 """
 PyTorchModel <: AbstractPythonModel
 
@@ -20,7 +27,7 @@ struct PyTorchModel <: AbstractPythonModel
 end
 
 """
-    function logits(M::PyTorchModel, x::AbstractArray)
+    function Models.logits(M::PyTorchModel, x::AbstractArray)
 
 Calculates the logit scores output by the model `M` for the input data `X`.
 
@@ -34,7 +41,7 @@ Calculates the logit scores output by the model `M` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data points in `X`
 """
-function logits(M::PyTorchModel, x::AbstractArray)
+function Models.logits(M::PyTorchModel, x::AbstractArray)
     torch = PythonCall.pyimport("torch")
     np = PythonCall.pyimport("numpy")
 
@@ -49,7 +56,7 @@ function logits(M::PyTorchModel, x::AbstractArray)
 end
 
 """
-    function probs(M::PyTorchModel, x::AbstractArray)
+    function Models.probs(M::PyTorchModel, x::AbstractArray)
 
 Calculates the output probabilities of the model `M` for the input data `X`.
 
@@ -63,7 +70,7 @@ Calculates the output probabilities of the model `M` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the probabilities for each output class for the data points in `X`
 """
-function probs(M::PyTorchModel, x::AbstractArray)
+function Models.probs(M::PyTorchModel, x::AbstractArray)
     if M.likelihood == :classification_binary
         return Flux.σ.(logits(M, x))
     elseif M.likelihood == :classification_multi

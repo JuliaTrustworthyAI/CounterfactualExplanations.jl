@@ -17,7 +17,6 @@ using EvoTrees
 using SliceMap
 using DataFrames
 using MLJDecisionTreeInterface
-using PythonCall
 
 include("utils.jl")
 
@@ -38,7 +37,6 @@ export LaplaceReduxModel
 export EvoTreeModel
 export DecisionTreeModel
 export RandomForestModel
-export PyTorchModel
 export flux_training_params
 export probs, logits
 
@@ -78,7 +76,6 @@ const all_models_catalogue = Dict(
     :EvoTree => EvoTreeModel,
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
-    :PyTorchModel => PyTorchModel,
 )
 
 """

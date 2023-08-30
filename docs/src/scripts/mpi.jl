@@ -3,7 +3,7 @@ using CounterfactualExplanations.Data
 using CounterfactualExplanations.Evaluation: benchmark
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Parallelization
-using MPI: MPI
+import MPI
 
 MPI.Init()
 

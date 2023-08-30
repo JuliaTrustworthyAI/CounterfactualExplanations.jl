@@ -42,7 +42,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,
@@ -98,6 +98,9 @@ include("parallelization/Parallelization.jl")
 using .Parallelization
 
 include("assign_traits.jl")
+
+# Expose necessary functions from extensions:
+include("extensions/extensions.jl")
 
 # Precompile:
 include("precompile.jl")

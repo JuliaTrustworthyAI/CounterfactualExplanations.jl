@@ -1,8 +1,11 @@
 module MPIExt
 
+export MPIParallelizer
+
 using CounterfactualExplanations
 using MPI
 
+"The `MPIParallelizer` type is used to parallelize the evaluation of a function using `MPI.jl`."
 struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     comm::MPI.Comm
     rank::Int
