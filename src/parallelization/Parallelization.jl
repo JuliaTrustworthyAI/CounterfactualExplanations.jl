@@ -51,6 +51,4 @@ macro with_parallelizer(parallelizer, expr)
     return output
 end
 
-include("mpi.jl")
-
 end

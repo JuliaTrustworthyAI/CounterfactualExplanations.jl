@@ -1,3 +1,6 @@
+module MPIExt
+
+using CounterfactualExplanations
 using MPI
 
 struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
@@ -86,4 +89,6 @@ function CounterfactualExplanations.parallelize(
     MPI.Barrier(parallelizer.comm)
 
     return output
+end
+
 end
