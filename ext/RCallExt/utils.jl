@@ -14,7 +14,7 @@ Loads a previously saved R torch model.
 model = rtorch_model_loader("dev/R_call_implementation/model.pt")
 ```
 """
-function rtorch_model_loader(model_path::String)
+function CounterfactualExplanations.rtorch_model_loader(model_path::String)
     R"""
     library(torch)
     loaded_model <- torch_load($model_path)

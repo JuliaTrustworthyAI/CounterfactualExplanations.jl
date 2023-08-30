@@ -1,16 +1,11 @@
 using CounterfactualExplanations.Models
 
 """
-Base type for differentiable models written in Python.
-"""
-abstract type AbstractPythonModel <: AbstractDifferentiableModel end
-
-"""
-PyTorchModel <: AbstractPythonModel
+PyTorchModel <: AbstractDifferentiableModel
 
 Constructor for models trained in `PyTorch`. 
 """
-struct PyTorchModel <: AbstractPythonModel
+struct PyTorchModel <: AbstractDifferentiableModel
     model::Any
     likelihood::Symbol
     function PyTorchModel(model, likelihood)
@@ -25,6 +20,9 @@ struct PyTorchModel <: AbstractPythonModel
         end
     end
 end
+
+"Outer constructor that extends method from parent package."
+CounterfactualExplanations.PyTorchModel(args...) = PyTorchModel(args...)
 
 """
     function Models.logits(M::PyTorchModel, x::AbstractArray)

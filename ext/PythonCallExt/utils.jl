@@ -1,5 +1,5 @@
 """
-    pytorch_model_loader(model_path::String, model_file::String, class_name::String, pickle_path::String)
+    CounterfactualExplanations.pytorch_model_loader(model_path::String, model_file::String, class_name::String, pickle_path::String)
 
 Loads a previously saved PyTorch model.
 
@@ -22,7 +22,7 @@ model = pytorch_model_loader(
 )
 ```
 """
-function pytorch_model_loader(
+function CounterfactualExplanations.pytorch_model_loader(
     model_path::String, model_file::String, class_name::String, pickle_path::String
 )
     sys = PythonCall.pyimport("sys")
@@ -44,7 +44,7 @@ function pytorch_model_loader(
 end
 
 """
-    preprocess_python_data(data::CounterfactualData)
+    CounterfactualExplanations.preprocess_python_data(data::CounterfactualData)
 
 Converts a `CounterfactualData` object to an input tensor and a label tensor.
 
@@ -57,7 +57,7 @@ Converts a `CounterfactualData` object to an input tensor and a label tensor.
 # Example
 x_python, y_python = preprocess_python_data(counterfactual_data) # converts `counterfactual_data` to tensors `x_python` and `y_python
 """
-function preprocess_python_data(data::CounterfactualData)
+function CounterfactualExplanations.preprocess_python_data(data::CounterfactualData)
     x_julia = data.X
     y_julia = data.y
 

@@ -1,5 +1,10 @@
 module CounterfactualExplanations
 
+using PackageExtensionCompat
+function __init__()
+    @require_extensions
+end
+
 # Setup:
 include("artifacts_setup.jl")
 

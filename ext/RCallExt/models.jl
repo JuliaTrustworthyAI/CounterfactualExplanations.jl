@@ -1,19 +1,17 @@
 using CounterfactualExplanations.Models
 
 """
-Base type for differentiable models written in R.
-"""
-abstract type AbstractRModel <: Models.AbstractDifferentiableModel end
-
-"""
-RTorchModel <: AbstractRModel
+RTorchModel <: Models.AbstractDifferentiableModel
 
 Constructor for models trained in `R`. 
 """
-struct RTorchModel <: AbstractRModel
+struct RTorchModel <: Models.AbstractDifferentiableModel
     nn::Any
     likelihood::Symbol
 end
+
+"Outer constructor that extends method from parent package."
+CounterfactualExplanations.RTorchModel(args...) = RTorchModel(args...)
 
 """
     function logits(M::PyTorchModel, x::AbstractArray)

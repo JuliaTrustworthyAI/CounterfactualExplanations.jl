@@ -3,45 +3,21 @@
 
 Exposes the `PyTorchModel` from the `PythonCallExt` extension.
 """
-function PyTorchModel(args...)
-    ext_sym = :PythonCallExt
-    ext = Base.get_extension(@__MODULE__(), ext_sym)
-    if !isnothing(ext)
-        return ext.PyTorchModel(args...)
-    else
-        throw(ArgumentError("Extension $ext_sym not loaded."))
-    end
-end
+function PyTorchModel end
 export PyTorchModel
 
 """
-    pytorch_model_loader(args...)
+    pytorch_model_loader
 
 Exposes the `pytorch_model_loader` function from the `PythonCallExt` extension.
 """
-function pytorch_model_loader(args...)
-    ext_sym = :PythonCallExt
-    ext = Base.get_extension(@__MODULE__(), ext_sym)
-    if !isnothing(ext)
-        return ext.pytorch_model_loader(args...)
-    else
-        throw(ArgumentError("Extension $ext_sym not loaded."))
-    end
-end
+function pytorch_model_loader end
 export pytorch_model_loader
 
 """
-    preprocess_python_data(args...)
+    preprocess_python_data
 
 Exposes the `preprocess_python_data` function from the `PythonCallExt` extension.
 """
-function preprocess_python_data(args...)
-    ext_sym = :PythonCallExt
-    ext = Base.get_extension(@__MODULE__(), ext_sym)
-    if !isnothing(ext)
-        return ext.preprocess_python_data(args...)
-    else
-        throw(ArgumentError("Extension $ext_sym not loaded."))
-    end
-end
+function preprocess_python_data end
 export preprocess_python_data

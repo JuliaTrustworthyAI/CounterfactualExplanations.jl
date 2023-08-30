@@ -14,7 +14,12 @@ struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     n_proc::Int
 end
 
-function MPIParallelizer(comm::MPI.Comm)
+"""
+    MPIParallelizer(comm::MPI.Comm)
+
+Create an `MPIParallelizer` object from an `MPI.Comm` object.
+"""
+function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm)
     rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
     n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
 
