@@ -6,8 +6,6 @@ import ..CounterfactualExplanations
 using CounterfactualExplanations: generate_counterfactual
 using CounterfactualExplanations.Evaluation: evaluate
 
-include("utils.jl")
-
 """
     @with_parallelizer(parallelizer, expr)
 

@@ -12,6 +12,7 @@ function PyTorchModel(args...)
         throw(ArgumentError("Extension $ext_sym not loaded."))
     end
 end
+export PyTorchModel
 
 """
     pytorch_model_loader(args...)
@@ -27,6 +28,7 @@ function pytorch_model_loader(args...)
         throw(ArgumentError("Extension $ext_sym not loaded."))
     end
 end
+export pytorch_model_loader
 
 """
     preprocess_python_data(args...)
@@ -42,3 +44,4 @@ function preprocess_python_data(args...)
         throw(ArgumentError("Extension $ext_sym not loaded."))
     end
 end
+export preprocess_python_data

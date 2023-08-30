@@ -5,6 +5,8 @@ export MPIParallelizer
 using CounterfactualExplanations
 using MPI
 
+include("utils.jl")
+
 "The `MPIParallelizer` type is used to parallelize the evaluation of a function using `MPI.jl`."
 struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     comm::MPI.Comm
