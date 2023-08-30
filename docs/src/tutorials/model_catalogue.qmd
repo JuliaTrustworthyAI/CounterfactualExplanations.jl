@@ -126,7 +126,7 @@ Make sure to specify the correct file path where you want to save the model.
 To import the R torch model into the CounterfactualExplanations package, use the `rtorch_model_loader()` function. This function loads the model from the previously saved `.pt` file. Here is an example of how to load the R torch model:
 
 ```julia
-model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
+model_loaded = CounterfactualExplanations.RCallExt.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
 ```
 
 The `rtorch_model_loader()` function requires only one argument:

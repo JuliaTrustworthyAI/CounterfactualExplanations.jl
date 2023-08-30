@@ -42,7 +42,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel, RTorchModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,

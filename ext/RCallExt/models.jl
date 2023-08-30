@@ -1,3 +1,10 @@
+using CounterfactualExplanations.Models
+
+"""
+Base type for differentiable models written in R.
+"""
+abstract type AbstractRModel <: Models.AbstractDifferentiableModel end
+
 """
 RTorchModel <: AbstractRModel
 
@@ -23,7 +30,7 @@ Calculates the logit scores output by the model `M` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data points in `X`
 """
-function logits(model::RTorchModel, x::AbstractArray)
+function Models.logits(model::RTorchModel, x::AbstractArray)
     if !isa(x, Matrix)
         x = reshape(x, length(x), 1)
     end
@@ -51,7 +58,7 @@ Calculates the output probabilities of the model `M` for the input data `X`.
 # Example
 logits = Models.logits(M, x) # calculates the probabilities for each output class for the data points in `X`
 """
-function probs(model::RTorchModel, x::AbstractArray)
+function Models.probs(model::RTorchModel, x::AbstractArray)
     if model.likelihood == :classification_binary
         return Flux.σ.(logits(model, x))
     elseif model.likelihood == :classification_multi
