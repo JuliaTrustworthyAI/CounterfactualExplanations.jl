@@ -1,6 +1,7 @@
 module PythonCallExt
 
 using CounterfactualExplanations
+using Flux
 using PythonCall
 
 include("utils.jl")
