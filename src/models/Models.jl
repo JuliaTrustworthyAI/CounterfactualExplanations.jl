@@ -14,7 +14,6 @@ using MLUtils
 using ProgressMeter
 using Statistics
 using EvoTrees
-using SliceMap
 using DataFrames
 using MLJDecisionTreeInterface
 
