@@ -56,8 +56,11 @@ function benchmark(
     meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     store_ce::Bool=false,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
 )
-    evaluations = evaluate(
+    evaluations = parallelize(
+        parallelizer,
+        evaluate,
         counterfactual_explanations;
         measure=measure,
         report_each=true,
@@ -74,10 +77,15 @@ end
         x::Union{AbstractArray,Base.Iterators.Zip},
         target::RawTargetType,
         data::CounterfactualData;
-        models::Dict{<:Any, <:AbstractFittedModel},
-        generators::Dict{<:Any, <:AbstractGenerator},
+        models::Dict{<:Any,<:AbstractFittedModel},
+        generators::Dict{<:Any,<:AbstractGenerator},
         measure::Union{Function,Vector{Function}}=default_measures,
-        kwrgs...
+        xids::Union{Nothing,AbstractArray}=nothing,
+        dataname::Union{Nothing,Symbol,String}=nothing,
+        verbose::Bool=true,
+        store_ce::Bool=false,
+        parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+        kwrgs...,
     )
 
 First generates counterfactual explanations for factual `x`, the `target` and `data` using each of the provided `models` and `generators`. Then generates a `Benchmark` for the vector of counterfactual explanations as in [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref).
@@ -93,6 +101,7 @@ function benchmark(
     dataname::Union{Nothing,Symbol,String}=nothing,
     verbose::Bool=true,
     store_ce::Bool=false,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
     @assert isnothing(xids) || length(xids) == length(x)
@@ -116,7 +125,17 @@ function benchmark(
         @info "Benchmarking model $model_name."
         _sample = _sample * length(generators) - length(generators) + 1
         for (gen_name, generator) in generators
-            _ces = generate_counterfactual(x, target, data, model, generator; kwrgs...)
+            # Generate counterfactuals; in parallel if so specified
+            _ces = parallelize(
+                parallelizer,
+                generate_counterfactual,
+                x,
+                target,
+                data,
+                model,
+                generator;
+                kwrgs...,
+            )
             _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
             push!(ces, _ces...)
             _meta_data = map(eachindex(_ces)) do i
@@ -143,18 +162,29 @@ function benchmark(
     end
 
     # Performance Evaluation:
-    bmk = benchmark(ces; meta_data=meta_data, measure=measure, store_ce=store_ce)
+    bmk = benchmark(
+        ces;
+        meta_data=meta_data,
+        measure=measure,
+        store_ce=store_ce,
+        parallelizer=parallelizer,
+    )
     return bmk
 end
 
 """
     benchmark(
         data::CounterfactualData;
-        models::Dict{Symbol,Any}=standard_models_catalogue,
+        models::Dict{<:Any,<:Any}=standard_models_catalogue,
         generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures,
         n_individuals::Int=5,
-        kwrgs...
+        suppress_training::Bool=false,
+        factual::Union{Nothing,RawTargetType}=nothing,
+        target::Union{Nothing,RawTargetType}=nothing,
+        store_ce::Bool=false,
+        parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+        kwrgs...,
     )
 
 Runs the benchmarking exercise as follows:
@@ -176,6 +206,7 @@ function benchmark(
     factual::Union{Nothing,RawTargetType}=nothing,
     target::Union{Nothing,RawTargetType}=nothing,
     store_ce::Bool=false,
+    parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
     # Setup
@@ -216,6 +247,7 @@ function benchmark(
             measure=measure,
             xids=xids,
             store_ce=store_ce,
+            parallelizer=parallelizer,
             kwrgs...,
         )
         push!(bmk, _bmk)

@@ -1,12 +1,23 @@
 module CounterfactualExplanations
 
+using PackageExtensionCompat
+function __init__()
+    @require_extensions
+end
+
 # Setup:
 include("artifacts_setup.jl")
 
+# Base types:
 include("base_types.jl")
 export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
+export AbstractParallelizer
+
+# Traits:
+include("traits.jl")
+export parallelizable, parallelize
 
 # Dependencies:
 using Flux
@@ -36,7 +47,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel, PyTorchModel, RTorchModel
+export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,
@@ -87,6 +98,14 @@ export generate_counterfactual
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
+
+include("parallelization/Parallelization.jl")
+using .Parallelization
+
+include("assign_traits.jl")
+
+# Expose necessary functions from extensions:
+include("extensions/extensions.jl")
 
 # Precompile:
 include("precompile.jl")

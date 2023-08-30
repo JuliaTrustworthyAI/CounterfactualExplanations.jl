@@ -6,7 +6,6 @@ using ChainRulesCore
 using Flux
 using MLUtils
 using Plots
-using SliceMap
 using Statistics
 using StatsBase
 

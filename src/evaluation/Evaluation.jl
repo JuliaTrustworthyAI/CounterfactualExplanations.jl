@@ -8,7 +8,6 @@ using DataFrames
 using ..Models
 using ProgressMeter
 using LinearAlgebra
-using SliceMap
 
 include("benchmark.jl")
 include("evaluate.jl")

@@ -16,11 +16,8 @@ using DataFrames
 using MLJBase
 using MLJDecisionTreeInterface
 using Distributions
-using SliceMap
 using Random
 using Statistics
-using RCall
-using PythonCall
 
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator

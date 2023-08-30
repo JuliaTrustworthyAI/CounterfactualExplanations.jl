@@ -30,6 +30,7 @@ makedocs(;
             "Handling Generators" => "tutorials/generators.md",
             "Evaluating Explanations" => "tutorials/evaluation.md",
             "Benchmarking Explanations" => "tutorials/benchmarking.md",
+            "Parallelization" => "tutorials/parallelization.md",
         ],
         "🤓 Explanation" => [
             "Overview" => "explanation/index.md",
