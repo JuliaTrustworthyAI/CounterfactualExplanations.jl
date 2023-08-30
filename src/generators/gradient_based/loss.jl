@@ -58,8 +58,6 @@ function ∂ℓ(
     return grad
 end
 
-
-
 """
     ∂h(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
