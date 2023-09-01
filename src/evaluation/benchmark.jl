@@ -1,3 +1,4 @@
+using Base.Iterators
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
@@ -230,7 +231,35 @@ function benchmark(
         generators
     end
 
+    # Grid setup:
+    grid = []
+    for M in values(models)
+        # Individuals need to be chosen separately for each model:
+        chosen = rand(
+            findall(CounterfactualExplanations.predict_label(M, data) .== factual),
+            n_individuals,
+        )
+        xs = CounterfactualExplanations.select_factual(data, chosen)
+        # Form the grid:
+        for x in xs
+            for gen in generators
+                comb = (x[1], M, gen)
+                push!(grid, comb)
+            end
+        end
+    end
+
     # Performance Evaluation:
+    xs = [x[1] for x in grid]
+    Ms = [x[2] for x in grid]
+    gens = [x[3] for x in grid]
+
+    ces = parallelize(
+        parallelizer, 
+        generate_counterfactual, 
+        xs, target, data, Ms, gens; kwrgs...
+    )
+
     bmk = Vector{Benchmark}()
     for (i, kv) in enumerate(models)
         key = kv[1]

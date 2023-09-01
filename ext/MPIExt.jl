@@ -18,6 +18,17 @@ function split_count(N::Integer, n::Integer)
 end
 
 """
+    split_by_counts(obs::AbstractVector, counts::AbstractVector)
+
+Return a vector of vectors of `obs` split by `counts`.
+"""
+function split_by_counts(obs::AbstractVector, counts::AbstractVector)
+    _start = cumsum([1; counts[1:(end - 1)]])
+    _stop = cumsum(counts)
+    return [obs[_start[i]:_stop[i]] for i in 1:length(counts)]
+end
+
+"""
     split_obs(obs::AbstractVector, n::Integer)
 
 Return a vector of `n` group indices for `obs`.
@@ -25,10 +36,10 @@ Return a vector of `n` group indices for `obs`.
 function split_obs(obs::AbstractVector, n::Integer)
     N = length(obs)
     N_counts = split_count(N, n)
-    _start = cumsum([1; N_counts[1:(end - 1)]])
-    _stop = cumsum(N_counts)
-    return [obs[_start[i]:_stop[i]] for i in 1:n]
+    return split_by_counts(obs, N_counts)
 end
+
+
 
 vectorize_collection(collection::Vector) = collection
 
@@ -80,17 +91,37 @@ function CounterfactualExplanations.parallelize(
     @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
-    collection = args[1] |> x -> vectorize_collection(x)
+    counterfactuals = args[1] |> x -> vectorize_collection(x)
     if length(args) > 1
-        _args = args[2:end]
+        target = args[2]
+        data = args[3]
+        M = args[4]
+        generator = args[5]
     end
 
-    chunks = split_obs(collection, parallelizer.n_proc)
-    item = MPI.scatter(chunks, parallelizer.comm)
+    # Split counterfactuals into groups of approximately equal size:
+    x = split_obs(counterfactuals, parallelizer.n_proc)
+    x = MPI.scatter(x, parallelizer.comm)
+
+    # Evaluate function:
     if length(args) > 1
-        output = f(item, _args...; kwargs...)
+
+        # Split models into groups of approximately equal size if necessary:
+        if typeof(M) <: AbstractArray
+            M = split_obs(M, parallelizer.n_proc)
+            M = MPI.scatter(M, parallelizer.comm)
+        end
+
+        # Split generators into groups of approximately equal size if necessary:
+        if typeof(generator) <: AbstractArray
+            generator = split_obs(generator, parallelizer.n_proc)
+            generator = MPI.scatter(generator, parallelizer.comm)
+        end
+
+        # Evaluate function:
+        output = f.(x, target, data, M, generator; kwargs...)
     else
-        output = f(item; kwargs...)
+        output = f(x; kwargs...)
     end
 
     MPI.Barrier(parallelizer.comm)
