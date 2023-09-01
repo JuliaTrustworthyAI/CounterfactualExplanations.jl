@@ -120,7 +120,6 @@ function benchmark(
 
     # Counterfactual Search:
     meta_data = Vector{Dict}()
-    
     ces = Vector{CounterfactualExplanation}()
     for (_sample, kv_pair) in enumerate(models)
         model_name = kv_pair[1]
