@@ -1,3 +1,5 @@
+using UUIDs
+
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark
     evaluation::DataFrames.DataFrame
@@ -139,10 +141,12 @@ function benchmark(
             _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
             push!(ces, _ces...)
             _meta_data = map(eachindex(_ces)) do i
-                sample_id = isnothing(xids) ? i : xids[i]
+                sample_id = isnothing(xids) ? uuid1() : xids[i]
+                # Meta Data:
                 _dict = Dict(
                     :model => model_name, :generator => gen_name, :sample => sample_id
                 )
+                # Add dataname if supplied:
                 if !isnothing(dataname)
                     _dict[:dataname] = dataname
                 end
@@ -237,7 +241,8 @@ function benchmark(
         )
         xs = CounterfactualExplanations.select_factual(data, chosen)
         _models = Dict(key => M)
-        xids = (i - 1) * n_individuals .+ collect(1:n_individuals) # unique ids for samples
+
+        xids = [uuid1() for x in 1:n_individuals]
         _bmk = benchmark(
             xs,
             target,

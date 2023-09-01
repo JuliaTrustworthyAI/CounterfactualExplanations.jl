@@ -1,3 +1,5 @@
+using UUIDs
+
 """
     compute_measure(ce::CounterfactualExplanation, measure::Function, agg::Function)
 
@@ -78,7 +80,7 @@ function generate_meta_data(
         df_meta = DataFrames.DataFrame(CounterfactualExplanations.get_meta(ce))
     end
     if !("sample" ∈ names(df_meta))
-        df_meta.sample .= i
+        df_meta.sample .= uuid1()
     end
     evaluation = DataFrames.crossjoin(evaluation, df_meta; makeunique=true)
     evaluation[!, :target] .= ce.target
@@ -154,7 +156,7 @@ function evaluate(
             evaluation = generate_meta_data(i, ce, evaluation, report_meta, meta_data)
         end
         if !("sample" ∈ names(evaluation))
-            evaluation.sample .= i
+            evaluation.sample .= uuid1()
         end
         evaluations = [evaluations..., evaluation]
     end
