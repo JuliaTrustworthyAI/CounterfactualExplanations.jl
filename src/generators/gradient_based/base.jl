@@ -45,11 +45,11 @@ function GradientBasedGenerator(;
     latent_space::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
-
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty weight(s) provided but no penalty function(s) provided."
     if typeof(penalty) <: Vector
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
+        length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
     return GradientBasedGenerator(loss, penalty, λ, latent_space, opt)
 end
