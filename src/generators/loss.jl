@@ -22,11 +22,13 @@ end
 The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
 """
 function h(generator::AbstractGenerator, ce::AbstractCounterfactualExplanation)
-    if isnothing(generator.penalty)
+    if isnothing(generator.penalty)                             # no penalty
         penalty = 0.0
-    elseif typeof(generator.penalty) <: Vector
+    elseif typeof(generator.penalty) <: Vector{Function}        # vector of penalty functions
         cost = [fun(ce) for fun in generator.penalty]
-    else
+    elseif typeof(generator.penalty) <: Vector{<:Tuple}         # vector of penalty functions with arguments
+        cost = [fun(ce; kwargs...) for (fun, kwargs) in generator.penalty]
+    else                                                        # single penalty function
         cost = generator.penalty(ce)
     end
     penalty = sum(generator.λ .* cost)
