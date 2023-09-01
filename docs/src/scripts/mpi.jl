@@ -25,7 +25,19 @@ generator = GenericGenerator()
 
 parallelizer = MPIParallelizer(MPI.COMM_WORLD)
 
-bmk = benchmark(counterfactual_data; parallelizer=parallelizer)
+bmk = with_logger(NullLogger()) do
+    benchmark(counterfactual_data; parallelizer=parallelizer)
+end
+
+@info "Benchmarking without MPI"
+@time with_logger(NullLogger()) do
+    benchmark(counterfactual_data; parallelizer=nothing)
+end
+
+@info "Benchmarking with MPI"
+@time with_logger(NullLogger()) do 
+    benchmark(counterfactual_data; parallelizer=parallelizer)
+end 
 
 Serialization.serialize("docs/src/scripts/mpi_benchmark.jls", bmk)
 
