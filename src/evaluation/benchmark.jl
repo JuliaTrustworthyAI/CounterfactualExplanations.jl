@@ -70,8 +70,9 @@ function benchmark(
         report_meta=true,
         meta_data=meta_data,
         store_ce=store_ce,
+        output_format=:DataFrame,
     )
-    bmk = Benchmark(evaluations)
+    bmk = Benchmark(reduce(vcat, evaluations))
     return bmk
 end
 
@@ -100,14 +101,11 @@ function benchmark(
     models::Dict{<:Any,<:AbstractFittedModel},
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
-    xids::Union{Nothing,AbstractArray}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
-    verbose::Bool=true,
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
-    @assert isnothing(xids) || length(xids) == length(x)
 
     xs = CounterfactualExplanations.vectorize_collection(xs)
 
@@ -154,8 +152,9 @@ function benchmark(
         report_meta=true,
         meta_data=meta_data,
         store_ce=store_ce,
+        output_format=:DataFrame,
     )
-    bmk = Benchmark(evaluations)
+    bmk = Benchmark(reduce(vcat, evaluations))
 
     return bmk
 end
@@ -195,6 +194,7 @@ function benchmark(
     target::Union{Nothing,RawTargetType}=nothing,
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+    dataname::Union{Nothing,Symbol,String}=nothing,
     kwrgs...,
 )
     # Setup
@@ -223,9 +223,10 @@ function benchmark(
             n_individuals,
         )
         xs = CounterfactualExplanations.select_factual(data, chosen)
+        xs = CounterfactualExplanations.vectorize_collection(xs)
         # Form the grid:
         for x in xs
-            for gen in generators
+            for gen in values(generators)
                 comb = (x, M, gen)
                 push!(grid, comb)
             end
@@ -268,8 +269,9 @@ function benchmark(
         report_meta=true,
         meta_data=meta_data,
         store_ce=store_ce,
+        output_format=:DataFrame,
     )
-    bmk = Benchmark(evaluations)
+    bmk = Benchmark(reduce(vcat, evaluations))
 
-    return bmk
+    return bmk, ces
 end

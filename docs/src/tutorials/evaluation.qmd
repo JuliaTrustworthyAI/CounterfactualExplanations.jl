@@ -122,12 +122,14 @@ Markdown.parse(
 )
 ```
 
+This can be done using broadcasting:
+
 ```{julia}
 # Factual and target:
 ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
 xs = select_factual(counterfactual_data, ids)
 ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
-evaluation = evaluate(ces)
+evaluation = evaluate.(ces)
 ```
 
 ```{julia}
