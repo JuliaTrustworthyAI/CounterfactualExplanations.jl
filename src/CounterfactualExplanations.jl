@@ -16,7 +16,7 @@ export AbstractGenerator
 export AbstractParallelizer
 
 # Traits:
-include("traits.jl")
+include("traits/traits.jl")
 export parallelizable, parallelize
 
 # Dependencies:

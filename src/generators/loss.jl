@@ -1,36 +1,26 @@
-# Loss:
 """
     ℓ(generator::AbstractGenerator, ce::AbstractCounterfactualExplanation)
 
-The default method to apply the generator loss function to the current counterfactual state for any generator.
+Dispatches to the appropriate loss function for any generator.
 """
 function ℓ(generator::AbstractGenerator, ce::AbstractCounterfactualExplanation)
-    loss_fun = if !isnothing(generator.loss)
-        generator.loss
-    else
-        CounterfactualExplanations.guess_loss(ce)
-    end
-    @assert !isnothing(loss_fun) "No loss function provided and loss function could not be guessed based on model."
-    loss = loss_fun(ce)
-    return loss
+    return ℓ(generator, generator.loss, ce)
 end
 
-# Complexity:
 """
-    h(generator::AbstractGenerator, ce::AbstractCounterfactualExplanation)
+    ℓ(generator::AbstractGenerator, loss::Nothing, ce::AbstractCounterfactualExplanation)
 
-The default method to apply the generator complexity penalty to the current counterfactual state for any generator.
+Overloads the `ℓ` function for the case where no loss function is provided.
 """
-function h(generator::AbstractGenerator, ce::AbstractCounterfactualExplanation)
-    if isnothing(generator.penalty)                             # no penalty
-        penalty = 0.0
-    elseif typeof(generator.penalty) <: Vector{Function}        # vector of penalty functions
-        cost = [fun(ce) for fun in generator.penalty]
-    elseif typeof(generator.penalty) <: Vector{<:Tuple}         # vector of penalty functions with arguments
-        cost = [fun(ce; kwargs...) for (fun, kwargs) in generator.penalty]
-    else                                                        # single penalty function
-        cost = generator.penalty(ce)
-    end
-    penalty = sum(generator.λ .* cost)
-    return penalty
+function ℓ(generator::AbstractGenerator, loss::Nothing, ce::AbstractCounterfactualExplanation)
+    return CounterfactualExplanations.guess_loss(ce)(ce)
+end
+
+"""
+    ℓ(generator::AbstractGenerator, loss::Function, ce::AbstractCounterfactualExplanation)
+
+Overloads the `ℓ` function for the case where a single loss function is provided.
+"""
+function ℓ(generator::AbstractGenerator, loss::Function, ce::AbstractCounterfactualExplanation)
+    return loss(ce)
 end

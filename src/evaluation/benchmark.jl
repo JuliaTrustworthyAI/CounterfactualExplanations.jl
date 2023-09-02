@@ -94,7 +94,7 @@ end
 First generates counterfactual explanations for factual `x`, the `target` and `data` using each of the provided `models` and `generators`. Then generates a `Benchmark` for the vector of counterfactual explanations as in [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref).
 """
 function benchmark(
-    x::Union{AbstractArray,Base.Iterators.Zip},
+    xs::Union{AbstractArray,Base.Iterators.Zip},
     target::RawTargetType,
     data::CounterfactualData;
     models::Dict{<:Any,<:AbstractFittedModel},
@@ -109,71 +109,54 @@ function benchmark(
 )
     @assert isnothing(xids) || length(xids) == length(x)
 
-    # Progress Bar:
-    if verbose
-        p_models = ProgressMeter.Progress(
-            length(models); desc="Progress on models:", showspeed=true, color=:green
-        )
-        p_generators = ProgressMeter.Progress(
-            length(generators); desc="Progress on generators:", showspeed=true, color=:blue
-        )
-    end
+    xs = CounterfactualExplanations.vectorize_collection(xs)
 
-    # Counterfactual Search:
-    meta_data = Vector{Dict}()
-    ces = Vector{CounterfactualExplanation}()
-    for (_sample, kv_pair) in enumerate(models)
-        model_name = kv_pair[1]
-        model = kv_pair[2]
-        @info "Benchmarking model $model_name."
-        _sample = _sample * length(generators) - length(generators) + 1
-        for (gen_name, generator) in generators
-            # Generate counterfactuals; in parallel if so specified
-            _ces = parallelize(
-                parallelizer,
-                generate_counterfactual,
-                x,
-                target,
-                data,
-                model,
-                generator;
-                kwrgs...,
-            )
-            _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
-            push!(ces, _ces...)
-            _meta_data = map(eachindex(_ces)) do i
-                sample_id = isnothing(xids) ? uuid1() : xids[i]
-                # Meta Data:
-                _dict = Dict(
-                    :model => model_name, :generator => gen_name, :sample => sample_id
-                )
-                # Add dataname if supplied:
-                if !isnothing(dataname)
-                    _dict[:dataname] = dataname
-                end
-                return _dict
+    # Grid setup:
+    grid = []
+    for M in values(models)
+        for x in xs
+            for gen in values(generators)
+                comb = (x, M, gen)
+                push!(grid, comb)
             end
-            push!(meta_data, _meta_data...)
-            _sample += 1
-            if verbose
-                ProgressMeter.next!(
-                    p_generators; showvalues=[(:model, model_name), (:generator, gen_name)]
-                )
-            end
-        end
-        if verbose
-            ProgressMeter.next!(p_models)
         end
     end
 
-    # Performance Evaluation:
-    bmk = benchmark(
-        ces;
-        meta_data=meta_data,
-        measure=measure,
-        store_ce=store_ce,
-        parallelizer=parallelizer,
+    # Vectorize the grid:
+    xs = [x[1] for x in grid]
+    Ms = [x[2] for x in grid]
+    gens = [x[3] for x in grid]
+
+    # Generate counterfactuals; in parallel if so specified
+    ces = parallelize(
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
     )
+
+    # Meta Data:
+    meta_data = map(eachindex(ces)) do i
+        sample_id = uuid1()
+        # Meta Data:
+        _dict = Dict(:model => grid[i][2], :generator => grid[i][3], :sample => sample_id)
+        # Add dataname if supplied:
+        if !isnothing(dataname)
+            _dict[:dataname] = dataname
+        end
+        return _dict
+    end
+
+    # Evaluate counterfactuals; in parallel if so specified
+    evaluations = parallelize(
+        parallelizer,
+        evaluate,
+        ces;
+        measure=measure,
+        report_each=true,
+        report_meta=true,
+        meta_data=meta_data,
+        store_ce=store_ce,
+    )
+    bmk = Benchmark(evaluations)
+
     return bmk
 end
 
@@ -243,50 +226,50 @@ function benchmark(
         # Form the grid:
         for x in xs
             for gen in generators
-                comb = (x[1], M, gen)
+                comb = (x, M, gen)
                 push!(grid, comb)
             end
         end
     end
 
-    # Performance Evaluation:
+    # Vectorize the grid:
     xs = [x[1] for x in grid]
     Ms = [x[2] for x in grid]
     gens = [x[3] for x in grid]
 
+    # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
         parallelizer, 
         generate_counterfactual, 
         xs, target, data, Ms, gens; kwrgs...
     )
 
-    bmk = Vector{Benchmark}()
-    for (i, kv) in enumerate(models)
-        key = kv[1]
-        M = kv[2]
-        chosen = rand(
-            findall(CounterfactualExplanations.predict_label(M, data) .== factual),
-            n_individuals,
+    # Meta Data:
+    meta_data = map(eachindex(ces)) do i
+        sample_id = uuid1()
+        # Meta Data:
+        _dict = Dict(
+            :model => grid[i][2], :generator => grid[i][3], :sample => sample_id
         )
-        xs = CounterfactualExplanations.select_factual(data, chosen)
-        _models = Dict(key => M)
-
-        xids = [uuid1() for x in 1:n_individuals]
-        _bmk = benchmark(
-            xs,
-            target,
-            data;
-            models=_models,
-            generators=generators,
-            measure=measure,
-            xids=xids,
-            store_ce=store_ce,
-            parallelizer=parallelizer,
-            kwrgs...,
-        )
-        push!(bmk, _bmk)
+        # Add dataname if supplied:
+        if !isnothing(dataname)
+            _dict[:dataname] = dataname
+        end
+        return _dict
     end
-    bmk = reduce(vcat, bmk)
+
+    # Evaluate counterfactuals; in parallel if so specified
+    evaluations = parallelize(
+        parallelizer,
+        evaluate,
+        ces;
+        measure=measure,
+        report_each=true,
+        report_meta=true,
+        meta_data=meta_data,
+        store_ce=store_ce,
+    )
+    bmk = Benchmark(evaluations)
 
     return bmk
 end

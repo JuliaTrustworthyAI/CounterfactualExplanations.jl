@@ -108,6 +108,8 @@ function evaluate(
     output_format::Symbol=:Vector,
     pivot_longer::Bool=true,
     store_ce::Bool=false,
+    report_meta::Bool=false,
+    meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
 )
     @assert output_format ∈ [:Vector, :Dict, :DataFrame]
     measure = typeof(measure) <: Function ? [measure] : measure

@@ -13,14 +13,5 @@ parallelizable(x::T) where {T} = parallelizable(ProcessStyle(T), x)
 parallelizable(::IsParallel, x) = true
 parallelizable(::NotParallel, x) = false
 
-"""
-    parallelize(
-        parallelizer::nothing,
-        f::Function,
-        args...;
-        kwargs...,
-    )
-
-If no `AbstractParallelizer` has been supplied, just call the function. 
-"""
-parallelize(parallelizer::Nothing, f::Function, args...; kwargs...) = f(args...; kwargs...)
+# Default behaviour:
+include("parallelize.jl")

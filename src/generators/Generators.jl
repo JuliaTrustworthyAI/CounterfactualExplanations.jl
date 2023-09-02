@@ -46,6 +46,7 @@ export growing_spheres_generation
 
 include("macros.jl")
 include("loss.jl")
+include("complexity.jl")
 
 # Optimizers
 include("optimizers/JSMADescent.jl")
