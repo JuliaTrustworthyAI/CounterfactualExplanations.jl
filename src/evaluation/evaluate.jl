@@ -65,7 +65,7 @@ Generates meta data for a counterfactual explanation. If `report_meta=true`, the
 function generate_meta_data(
     ce::CounterfactualExplanation,
     evaluation::DataFrames.DataFrame,
-    meta_data::Union{Nothing,Vector{<:Dict}},
+    meta_data::Union{Nothing,Dict},
 )
     if !isnothing(meta_data)
         df_meta = DataFrames.DataFrame(meta_data)
@@ -91,7 +91,8 @@ end
 Just computes evaluation `measures` for the counterfactual explanation. By default, no meta data is reported. For `report_meta=true`, meta data is automatically inferred, unless this overwritten by `meta_data`. The optional `meta_data` argument should be a vector of dictionaries of the same length as the vector of counterfactual explanations. 
 """
 function evaluate(
-    ce::CounterfactualExplanation;
+    ce::CounterfactualExplanation,
+    meta_data::Union{Nothing,Dict}=nothing;
     measure::Union{Function,Vector{Function}}=default_measures,
     agg::Function=mean,
     report_each::Bool=false,
@@ -99,7 +100,6 @@ function evaluate(
     pivot_longer::Bool=true,
     store_ce::Bool=false,
     report_meta::Bool=false,
-    meta_data::Union{Nothing,<:Vector{<:Dict}}=nothing,
 )
     @assert output_format ∈ [:Vector, :Dict, :DataFrame]
     measure = typeof(measure) <: Function ? [measure] : measure

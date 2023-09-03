@@ -64,11 +64,11 @@ function benchmark(
     evaluations = parallelize(
         parallelizer,
         evaluate,
-        counterfactual_explanations;
+        counterfactual_explanations,
+        meta_data;
         measure=measure,
         report_each=true,
         report_meta=true,
-        meta_data=meta_data,
         store_ce=store_ce,
         output_format=:DataFrame,
     )
@@ -142,18 +142,21 @@ function benchmark(
         return _dict
     end
 
+
     # Evaluate counterfactuals; in parallel if so specified
     evaluations = parallelize(
         parallelizer,
         evaluate,
-        ces;
+        ces,
+        meta_data;
         measure=measure,
         report_each=true,
         report_meta=true,
-        meta_data=meta_data,
         store_ce=store_ce,
         output_format=:DataFrame,
     )
+
+    
     bmk = Benchmark(reduce(vcat, evaluations))
 
     return bmk
@@ -263,15 +266,15 @@ function benchmark(
     evaluations = parallelize(
         parallelizer,
         evaluate,
-        ces;
+        ces,
+        meta_data;
         measure=measure,
         report_each=true,
         report_meta=true,
-        meta_data=meta_data,
         store_ce=store_ce,
         output_format=:DataFrame,
     )
     bmk = Benchmark(reduce(vcat, evaluations))
 
-    return bmk, ces
+    return bmk
 end

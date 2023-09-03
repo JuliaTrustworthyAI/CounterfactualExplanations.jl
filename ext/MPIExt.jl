@@ -152,8 +152,16 @@ function CounterfactualExplanations.parallelize(
     x = split_obs(counterfactuals, parallelizer.n_proc)
     x = MPI.scatter(x, parallelizer.comm)
 
+    # Split meta data into groups of approximately equal size:
+    meta_data = args[2]
+    if typeof(meta_data) <: AbstractArray
+        meta_data = CounterfactualExplanations.vectorize_collection(meta_data)
+        meta_data = split_obs(meta_data, parallelizer.n_proc)
+        meta_data = MPI.scatter(meta_data, parallelizer.comm)
+    end
+
     # Evaluate function:
-    output = f(x; kwargs...)
+    output = f.(x, meta_data; kwargs...)
 
     MPI.Barrier(parallelizer.comm)
 
