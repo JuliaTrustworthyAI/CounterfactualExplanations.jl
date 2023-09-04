@@ -1,10 +1,12 @@
 module Parallelization
 
-export @with_parallelizer
+export @with_parallelizer, ThreadsParallelizer
 
 import ..CounterfactualExplanations
 using CounterfactualExplanations: generate_counterfactual
 using CounterfactualExplanations.Evaluation: evaluate
+
+include("threads.jl")
 
 """
     @with_parallelizer(parallelizer, expr)
