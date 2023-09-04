@@ -93,7 +93,7 @@ export animate_path
 include("data/Data.jl")
 using .Data
 
-include("generate_counterfactual.jl")
+include("generate_counterfactual/generate_counterfactual.jl")
 export generate_counterfactual
 
 include("evaluation/Evaluation.jl")

@@ -46,6 +46,7 @@ struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     comm::MPI.Comm
     rank::Int
     n_proc::Int
+    threaded::Bool
 end
 
 """
@@ -53,7 +54,7 @@ end
 
 Create an `MPIParallelizer` object from an `MPI.Comm` object.
 """
-function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm)
+function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm, threaded::Bool=false)
     rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
     n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
 
@@ -61,7 +62,7 @@ function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm)
         @info "Using `MPI.jl` for multi-processing."
         println("Running on $n_proc processes.")
     end
-    return MPIParallelizer(comm, rank, n_proc)
+    return MPIParallelizer(comm, rank, n_proc, threaded)
 end
 
 """
@@ -80,7 +81,6 @@ function CounterfactualExplanations.parallelize(
     args...;
     kwargs...,
 )
-    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Extract positional arguments:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
@@ -106,7 +106,14 @@ function CounterfactualExplanations.parallelize(
     end
 
     # Evaluate function:
-    output = f.(x, target, data, M, generator; kwargs...)
+    if !parallelizer.threaded
+        output = f.(x, target, data, M, generator; kwargs...)
+    else
+        second_parallelizer = ThreadsParallelizer()
+        output = CounterfactualExplanations.parallelize(
+            second_parallelizer, f, x, target, data, M, generator; kwargs...
+        )
+    end
 
     MPI.Barrier(parallelizer.comm)
 
@@ -143,7 +150,6 @@ function CounterfactualExplanations.parallelize(
     args...;
     kwargs...,
 )
-    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
