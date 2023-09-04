@@ -264,7 +264,7 @@ Then we can simply loop over the datasets and eventually concatenate the results
 using CounterfactualExplanations.Evaluation: distance_measures
 bmks = []
 for (dataname, dataset) in datasets
-    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures, verbose=true)
+    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures)
     push!(bmks, bmk)
 end
 bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
