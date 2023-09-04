@@ -14,7 +14,9 @@ include("threads.jl")
 This macro can be used to parallelize a function call or block of code. The macro will check that the function is parallelizable and then call `parallelize` with the supplied `parallelizer` and `expr`.
 """
 macro with_parallelizer(parallelizer, expr)
-    @assert expr.head ∈ (:block, :call) "Expected a block or function call."
+    if !(expr.head ∈ (:block, :call)) 
+        throw(AssertionError("Expected a block or function call."))
+    end
     if expr.head == :block
         expr = expr.args[end]
     end
@@ -30,7 +32,10 @@ macro with_parallelizer(parallelizer, expr)
     for el in args
         if Meta.isexpr(el, :parameters)
             for kw in el.args
-                push!(aakws, Pair(kw.args...))
+                k = kw.args[1]      # parameter name
+                v = kw.args[2]      # parameter value
+                v = typeof(v) == QuoteNode ? v.value : v
+                push!(aakws, Pair(k, v))
             end
         else
             push!(aargs, el)
@@ -42,9 +47,10 @@ macro with_parallelizer(parallelizer, expr)
 
     # Parallelize:
     output = quote
-        @assert CounterfactualExplanations.parallelizable($f) "`f` is not a parallelizable process."
-        kws = [Pair(k, typeof(v) == QuoteNode ? eval(v) : v) for (k, v) in $aakws]
-        output = CounterfactualExplanations.parallelize($pllr, $f, $escaped_args...; kws...)
+        if !CounterfactualExplanations.parallelizable($f)
+            throw(AssertionError("$(f) is not a parallelizable process."))
+        end
+        output = CounterfactualExplanations.parallelize($pllr, $f, $escaped_args...; $aakws...)
         output
     end
     return output

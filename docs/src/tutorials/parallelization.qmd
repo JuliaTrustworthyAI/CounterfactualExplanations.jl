@@ -56,8 +56,7 @@ ces = @with_parallelizer parallelizer begin
         target,
         counterfactual_data,
         M,
-        generator;
-        decision_threshold=0.9
+        generator
     )
 end
 ```
