@@ -106,15 +106,14 @@ function benchmark(
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
-
     xs = CounterfactualExplanations.vectorize_collection(xs)
 
     # Grid setup:
     grid = []
-    for M in values(models)
+    for (mod_name, M) in models
         for x in xs
-            for gen in values(generators)
-                comb = (x, M, gen)
+            for (gen_name, gen) in generators
+                comb = (x, (mod_name, M), (gen_name, gen))
                 push!(grid, comb)
             end
         end
@@ -122,8 +121,8 @@ function benchmark(
 
     # Vectorize the grid:
     xs = [x[1] for x in grid]
-    Ms = [x[2] for x in grid]
-    gens = [x[3] for x in grid]
+    Ms = [x[2][2] for x in grid]
+    gens = [x[3][2] for x in grid]
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
@@ -142,7 +141,6 @@ function benchmark(
         return _dict
     end
 
-
     # Evaluate counterfactuals; in parallel if so specified
     evaluations = parallelize(
         parallelizer,
@@ -156,7 +154,6 @@ function benchmark(
         output_format=:DataFrame,
     )
 
-    
     bmk = Benchmark(reduce(vcat, evaluations))
 
     return bmk
@@ -219,7 +216,7 @@ function benchmark(
 
     # Grid setup:
     grid = []
-    for M in values(models)
+    for (mod_name, M) in models
         # Individuals need to be chosen separately for each model:
         chosen = rand(
             findall(CounterfactualExplanations.predict_label(M, data) .== factual),
@@ -229,8 +226,8 @@ function benchmark(
         xs = CounterfactualExplanations.vectorize_collection(xs)
         # Form the grid:
         for x in xs
-            for gen in values(generators)
-                comb = (x, M, gen)
+            for (gen_name, gen) in generators
+                comb = (x, (mod_name, M), (gen_name, gen))
                 push!(grid, comb)
             end
         end
@@ -238,14 +235,12 @@ function benchmark(
 
     # Vectorize the grid:
     xs = [x[1] for x in grid]
-    Ms = [x[2] for x in grid]
-    gens = [x[3] for x in grid]
+    Ms = [x[2][2] for x in grid]
+    gens = [x[3][2] for x in grid]
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
-        parallelizer, 
-        generate_counterfactual, 
-        xs, target, data, Ms, gens; kwrgs...
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
     )
 
     # Meta Data:
@@ -253,7 +248,7 @@ function benchmark(
         sample_id = uuid1()
         # Meta Data:
         _dict = Dict(
-            :model => grid[i][2], :generator => grid[i][3], :sample => sample_id
+            :model => grid[i][2][1], :generator => grid[i][3][1], :sample => sample_id
         )
         # Add dataname if supplied:
         if !isnothing(dataname)

@@ -12,7 +12,9 @@ end
 
 Overloads the `ℓ` function for the case where no loss function is provided.
 """
-function ℓ(generator::AbstractGenerator, loss::Nothing, ce::AbstractCounterfactualExplanation)
+function ℓ(
+    generator::AbstractGenerator, loss::Nothing, ce::AbstractCounterfactualExplanation
+)
     return CounterfactualExplanations.guess_loss(ce)(ce)
 end
 
@@ -21,6 +23,8 @@ end
 
 Overloads the `ℓ` function for the case where a single loss function is provided.
 """
-function ℓ(generator::AbstractGenerator, loss::Function, ce::AbstractCounterfactualExplanation)
+function ℓ(
+    generator::AbstractGenerator, loss::Function, ce::AbstractCounterfactualExplanation
+)
     return loss(ce)
 end
