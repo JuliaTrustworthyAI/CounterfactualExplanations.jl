@@ -43,15 +43,11 @@ macro with_parallelizer(parallelizer, expr)
     # Parallelize:
     output = quote
         @assert CounterfactualExplanations.parallelizable($f) "`f` is not a parallelizable process."
-        kws = [Pair(k,typeof(v) == QuoteNode ? eval(v) : v) for (k,v) in $aakws]
-        output = CounterfactualExplanations.parallelize(
-            $pllr, $f, $escaped_args...; kws...
-        )
+        kws = [Pair(k, typeof(v) == QuoteNode ? eval(v) : v) for (k, v) in $aakws]
+        output = CounterfactualExplanations.parallelize($pllr, $f, $escaped_args...; kws...)
         output
     end
     return output
 end
 
 end
-
-
