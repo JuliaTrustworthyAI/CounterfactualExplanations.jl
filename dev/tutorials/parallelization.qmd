@@ -35,8 +35,36 @@ In the following, we will generate multiple counterfactuals and evaluate them in
 ```{julia}
 #| output: false
 using CounterfactualExplanations.Parallelization
-chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 10)
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 1000)
 xs = select_factual(counterfactual_data, chosen)
+```
+
+## Multi-threading
+
+We first instantiate an `ThreadParallelizer` object:
+
+```{julia}
+parallelizer = ThreadsParallelizer()
+```
+
+To generate counterfactuals in parallel, we use the `parallelize` function:
+
+```{julia}
+ces = @with_parallelizer parallelizer begin
+    generate_counterfactual(
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+    )
+end
+```
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+```{julia}
+@with_parallelizer parallelizer evaluate(ces)
 ```
 
 ## MPI
