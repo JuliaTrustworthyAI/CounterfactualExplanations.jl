@@ -46,7 +46,7 @@ struct MPIParallelizer <: CounterfactualExplanations.AbstractParallelizer
     comm::MPI.Comm
     rank::Int
     n_proc::Int
-    threaded::Bool = false
+    threaded::Bool
 end
 
 """
