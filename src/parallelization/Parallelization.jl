@@ -14,7 +14,7 @@ include("threads.jl")
 This macro can be used to parallelize a function call or block of code. The macro will check that the function is parallelizable and then call `parallelize` with the supplied `parallelizer` and `expr`.
 """
 macro with_parallelizer(parallelizer, expr)
-    if !(expr.head ∈ (:block, :call)) 
+    if !(expr.head ∈ (:block, :call))
         throw(AssertionError("Expected a block or function call."))
     end
     if expr.head == :block
@@ -50,7 +50,9 @@ macro with_parallelizer(parallelizer, expr)
         if !CounterfactualExplanations.parallelizable($f)
             throw(AssertionError("$(f) is not a parallelizable process."))
         end
-        output = CounterfactualExplanations.parallelize($pllr, $f, $escaped_args...; $aakws...)
+        output = CounterfactualExplanations.parallelize(
+            $pllr, $f, $escaped_args...; $aakws...
+        )
         output
     end
     return output
