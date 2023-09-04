@@ -1,13 +1,22 @@
 "The `ThreadsParallelizer` type is used to parallelize the evaluation of a function using `Threads.@threads`."
 struct ThreadsParallelizer <: CounterfactualExplanations.AbstractParallelizer end
 
+"""
+    CounterfactualExplanations.parallelize(
+        parallelizer::ThreadsParallelizer,
+        f::typeof(CounterfactualExplanations.generate_counterfactual),
+        args...;
+        kwargs...,
+    )
+
+Parallelizes the evaluation of `f` using `Threads.@threads`. This function is used to generate counterfactual explanations.
+"""
 function CounterfactualExplanations.parallelize(
     parallelizer::ThreadsParallelizer,
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
     kwargs...,
 )
-    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Extract positional arguments:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
@@ -39,11 +48,48 @@ function CounterfactualExplanations.parallelize(
         end,
     )
 
-    ces = []
+    # Preallocate:
+    ces = [
+        Vector{CounterfactualExplanations.AbstractCounterfactualExplanation}() for
+        _ in 1:Threads.nthreads()
+    ]
 
     Threads.@threads for (x, target, data, M, generator) in collect(args)
-        push!(ces, f(x, target, data, M, generator; kwargs...))
+        push!(ces[Threads.threadid()], f(x, target, data, M, generator; kwargs...))
     end
 
+    ces = reduce(vcat, ces)
+
     return ces
+end
+
+"""
+    CounterfactualExplanations.parallelize(
+        parallelizer::ThreadsParallelizer,
+        f::typeof(CounterfactualExplanations.Evaluation.evaluate),
+        args...;
+        kwargs...,
+    )
+
+Parallelizes the evaluation of `f` using `Threads.@threads`. This function is used to evaluate counterfactual explanations.
+"""
+function CounterfactualExplanations.parallelize(
+    parallelizer::ThreadsParallelizer,
+    f::typeof(CounterfactualExplanations.Evaluation.evaluate),
+    args...;
+    kwargs...,
+)
+
+    # Setup:
+    counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
+
+    # Preallocate:
+    evaluations = [[] for _ in 1:Threads.nthreads()]
+
+    Threads.@threads for x in counterfactuals
+        push!(evaluations[Threads.threadid()], f(x; kwargs...))
+    end
+    evaluations = reduce(vcat, evaluations)
+
+    return evaluations
 end

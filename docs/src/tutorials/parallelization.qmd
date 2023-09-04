@@ -41,9 +41,13 @@ xs = select_factual(counterfactual_data, chosen)
 
 ## Multi-threading
 
+We first instantiate an `ThreadParallelizer` object:
+
 ```{julia}
 parallelizer = ThreadsParallelizer()
 ```
+
+To generate counterfactuals in parallel, we use the `parallelize` function:
 
 ```{julia}
 ces = @with_parallelizer parallelizer begin
@@ -55,6 +59,12 @@ ces = @with_parallelizer parallelizer begin
         generator
     )
 end
+```
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+```{julia}
+@with_parallelizer parallelizer evaluate(ces)
 ```
 
 ## MPI
