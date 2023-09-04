@@ -1,3 +1,4 @@
+using Base.Iterators
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
@@ -63,14 +64,15 @@ function benchmark(
     evaluations = parallelize(
         parallelizer,
         evaluate,
-        counterfactual_explanations;
+        counterfactual_explanations,
+        meta_data;
         measure=measure,
         report_each=true,
         report_meta=true,
-        meta_data=meta_data,
         store_ce=store_ce,
+        output_format=:DataFrame,
     )
-    bmk = Benchmark(evaluations)
+    bmk = Benchmark(reduce(vcat, evaluations))
     return bmk
 end
 
@@ -93,86 +95,67 @@ end
 First generates counterfactual explanations for factual `x`, the `target` and `data` using each of the provided `models` and `generators`. Then generates a `Benchmark` for the vector of counterfactual explanations as in [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref).
 """
 function benchmark(
-    x::Union{AbstractArray,Base.Iterators.Zip},
+    xs::Union{AbstractArray,Base.Iterators.Zip},
     target::RawTargetType,
     data::CounterfactualData;
     models::Dict{<:Any,<:AbstractFittedModel},
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
-    xids::Union{Nothing,AbstractArray}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
-    verbose::Bool=true,
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
-    @assert isnothing(xids) || length(xids) == length(x)
+    xs = CounterfactualExplanations.vectorize_collection(xs)
 
-    # Progress Bar:
-    if verbose
-        p_models = ProgressMeter.Progress(
-            length(models); desc="Progress on models:", showspeed=true, color=:green
-        )
-        p_generators = ProgressMeter.Progress(
-            length(generators); desc="Progress on generators:", showspeed=true, color=:blue
-        )
-    end
-
-    # Counterfactual Search:
-    meta_data = Vector{Dict}()
-    ces = Vector{CounterfactualExplanation}()
-    for (_sample, kv_pair) in enumerate(models)
-        model_name = kv_pair[1]
-        model = kv_pair[2]
-        @info "Benchmarking model $model_name."
-        _sample = _sample * length(generators) - length(generators) + 1
-        for (gen_name, generator) in generators
-            # Generate counterfactuals; in parallel if so specified
-            _ces = parallelize(
-                parallelizer,
-                generate_counterfactual,
-                x,
-                target,
-                data,
-                model,
-                generator;
-                kwrgs...,
-            )
-            _ces = typeof(_ces) <: CounterfactualExplanation ? [_ces] : _ces
-            push!(ces, _ces...)
-            _meta_data = map(eachindex(_ces)) do i
-                sample_id = isnothing(xids) ? uuid1() : xids[i]
-                # Meta Data:
-                _dict = Dict(
-                    :model => model_name, :generator => gen_name, :sample => sample_id
-                )
-                # Add dataname if supplied:
-                if !isnothing(dataname)
-                    _dict[:dataname] = dataname
-                end
-                return _dict
+    # Grid setup:
+    grid = []
+    for (mod_name, M) in models
+        for x in xs
+            for (gen_name, gen) in generators
+                comb = (x, (mod_name, M), (gen_name, gen))
+                push!(grid, comb)
             end
-            push!(meta_data, _meta_data...)
-            _sample += 1
-            if verbose
-                ProgressMeter.next!(
-                    p_generators; showvalues=[(:model, model_name), (:generator, gen_name)]
-                )
-            end
-        end
-        if verbose
-            ProgressMeter.next!(p_models)
         end
     end
 
-    # Performance Evaluation:
-    bmk = benchmark(
-        ces;
-        meta_data=meta_data,
-        measure=measure,
-        store_ce=store_ce,
-        parallelizer=parallelizer,
+    # Vectorize the grid:
+    xs = [x[1] for x in grid]
+    Ms = [x[2][2] for x in grid]
+    gens = [x[3][2] for x in grid]
+
+    # Generate counterfactuals; in parallel if so specified
+    ces = parallelize(
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
     )
+
+    # Meta Data:
+    meta_data = map(eachindex(ces)) do i
+        sample_id = uuid1()
+        # Meta Data:
+        _dict = Dict(:model => grid[i][2], :generator => grid[i][3], :sample => sample_id)
+        # Add dataname if supplied:
+        if !isnothing(dataname)
+            _dict[:dataname] = dataname
+        end
+        return _dict
+    end
+
+    # Evaluate counterfactuals; in parallel if so specified
+    evaluations = parallelize(
+        parallelizer,
+        evaluate,
+        ces,
+        meta_data;
+        measure=measure,
+        report_each=true,
+        report_meta=true,
+        store_ce=store_ce,
+        output_format=:DataFrame,
+    )
+
+    bmk = Benchmark(reduce(vcat, evaluations))
+
     return bmk
 end
 
@@ -211,6 +194,7 @@ function benchmark(
     target::Union{Nothing,RawTargetType}=nothing,
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+    dataname::Union{Nothing,Symbol,String}=nothing,
     kwrgs...,
 )
     # Setup
@@ -230,34 +214,62 @@ function benchmark(
         generators
     end
 
-    # Performance Evaluation:
-    bmk = Vector{Benchmark}()
-    for (i, kv) in enumerate(models)
-        key = kv[1]
-        M = kv[2]
+    # Grid setup:
+    grid = []
+    for (mod_name, M) in models
+        # Individuals need to be chosen separately for each model:
         chosen = rand(
             findall(CounterfactualExplanations.predict_label(M, data) .== factual),
             n_individuals,
         )
         xs = CounterfactualExplanations.select_factual(data, chosen)
-        _models = Dict(key => M)
-
-        xids = [uuid1() for x in 1:n_individuals]
-        _bmk = benchmark(
-            xs,
-            target,
-            data;
-            models=_models,
-            generators=generators,
-            measure=measure,
-            xids=xids,
-            store_ce=store_ce,
-            parallelizer=parallelizer,
-            kwrgs...,
-        )
-        push!(bmk, _bmk)
+        xs = CounterfactualExplanations.vectorize_collection(xs)
+        # Form the grid:
+        for x in xs
+            for (gen_name, gen) in generators
+                comb = (x, (mod_name, M), (gen_name, gen))
+                push!(grid, comb)
+            end
+        end
     end
-    bmk = reduce(vcat, bmk)
+
+    # Vectorize the grid:
+    xs = [x[1] for x in grid]
+    Ms = [x[2][2] for x in grid]
+    gens = [x[3][2] for x in grid]
+
+    # Generate counterfactuals; in parallel if so specified
+    ces = parallelize(
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
+    )
+
+    # Meta Data:
+    meta_data = map(eachindex(ces)) do i
+        sample_id = uuid1()
+        # Meta Data:
+        _dict = Dict(
+            :model => grid[i][2][1], :generator => grid[i][3][1], :sample => sample_id
+        )
+        # Add dataname if supplied:
+        if !isnothing(dataname)
+            _dict[:dataname] = dataname
+        end
+        return _dict
+    end
+
+    # Evaluate counterfactuals; in parallel if so specified
+    evaluations = parallelize(
+        parallelizer,
+        evaluate,
+        ces,
+        meta_data;
+        measure=measure,
+        report_each=true,
+        report_meta=true,
+        store_ce=store_ce,
+        output_format=:DataFrame,
+    )
+    bmk = Benchmark(reduce(vcat, evaluations))
 
     return bmk
 end

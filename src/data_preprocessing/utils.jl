@@ -1,3 +1,6 @@
+"Treat `CounterfactualData` as scalar when broadcasting."
+Base.broadcastable(data::CounterfactualData) = Ref(data)
+
 """
     _subset(data::CounterfactualData, idx::Vector{Int})
 

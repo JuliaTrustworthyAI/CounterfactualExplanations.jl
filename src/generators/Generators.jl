@@ -45,7 +45,8 @@ export ProbeGenerator
 export growing_spheres_generation
 
 include("macros.jl")
-include("utils.jl")
+include("loss.jl")
+include("complexity.jl")
 
 # Optimizers
 include("optimizers/JSMADescent.jl")

@@ -125,6 +125,11 @@ function generate_counterfactual(
     return ce
 end
 
+"Overloads the `generate_counterfactual` method to accept a tuple containing and array. This allows for broadcasting over `Zip` iterators."
+function generate_counterfactual(x::Tuple{<:AbstractArray}, args...; kwargs...)
+    return generate_counterfactual(x[1], args...; kwargs...)
+end
+
 """
     generate_counterfactual(
         x::Base.Iterators.Zip,
@@ -145,10 +150,8 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     kwargs...,
 )
-    counterfactuals = map(
-        x_ -> generate_counterfactual(x_[1], target, data, M, generator; kwargs...), x
-    )
-
+    x = collect(Base.Iterators.flatten(x))
+    counterfactuals = generate_counterfactual(x, target, data, M, generator; kwargs...)
     return counterfactuals
 end
 
