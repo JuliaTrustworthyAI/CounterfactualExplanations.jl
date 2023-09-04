@@ -80,7 +80,6 @@ function CounterfactualExplanations.parallelize(
     args...;
     kwargs...,
 )
-    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Extract positional arguments:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
@@ -143,7 +142,6 @@ function CounterfactualExplanations.parallelize(
     args...;
     kwargs...,
 )
-    @assert CounterfactualExplanations.parallelizable(f) "`f` is not a parallelizable process."
 
     # Setup:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
