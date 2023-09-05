@@ -2,12 +2,9 @@ module Evaluation
 
 using ..CounterfactualExplanations
 using DataFrames
-using ProgressMeter
-using Statistics
-using DataFrames
 using ..Models
-using ProgressMeter
 using LinearAlgebra
+using Statistics
 
 include("benchmark.jl")
 include("evaluate.jl")

@@ -5,6 +5,8 @@ export @with_parallelizer, with_parallelizer, ThreadsParallelizer
 import ..CounterfactualExplanations
 using CounterfactualExplanations: generate_counterfactual
 using CounterfactualExplanations.Evaluation: evaluate
+using Logging
+using ProgressMeter
 
 include("threads.jl")
 
