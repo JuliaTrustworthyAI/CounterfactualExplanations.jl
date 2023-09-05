@@ -15,6 +15,7 @@ function CounterfactualExplanations.parallelize(
     parallelizer::ThreadsParallelizer,
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
+    verbose::Bool=true,
     kwargs...,
 )
 
@@ -54,8 +55,25 @@ function CounterfactualExplanations.parallelize(
         _ in 1:Threads.nthreads()
     ]
 
+    # Verbosity:
+    if verbose
+        prog = ProgressMeter.Progress(
+            length(args);
+            desc="Progress (multi-threaded counterfactual computation):",
+            showspeed=true,
+            color=:blue,
+        )
+    end
+
+    # Training:  
     Threads.@threads for (x, target, data, M, generator) in collect(args)
-        push!(ces[Threads.threadid()], f(x, target, data, M, generator; kwargs...))
+        ce = with_logger(NullLogger()) do
+            f(x, target, data, M, generator; kwargs...)
+        end
+        push!(ces[Threads.threadid()], ce)
+        if verbose
+            ProgressMeter.next!(prog)
+        end
     end
 
     ces = reduce(vcat, ces)
@@ -77,6 +95,7 @@ function CounterfactualExplanations.parallelize(
     parallelizer::ThreadsParallelizer,
     f::typeof(CounterfactualExplanations.Evaluation.evaluate),
     args...;
+    verbose::Bool=true,
     kwargs...,
 )
 
@@ -86,8 +105,21 @@ function CounterfactualExplanations.parallelize(
     # Preallocate:
     evaluations = [[] for _ in 1:Threads.nthreads()]
 
+    # Verbosity:
+    if verbose
+        prog = ProgressMeter.Progress(
+            length(args);
+            desc="Progress (multi-threaded evaluation):",
+            showspeed=true,
+            color=:green,
+        )
+    end
+
     Threads.@threads for x in counterfactuals
         push!(evaluations[Threads.threadid()], f(x; kwargs...))
+        if verbose
+            ProgressMeter.next!(prog)
+        end
     end
     evaluations = reduce(vcat, evaluations)
 

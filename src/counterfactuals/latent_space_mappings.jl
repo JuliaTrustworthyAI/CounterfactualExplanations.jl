@@ -48,7 +48,6 @@ function map_to_latent(
     generator = ce.generator
 
     if ce.params[:latent_space]
-        @info "Searching in latent space using generative model."
         generative_model = DataPreprocessing.get_generative_model(
             data; ce.generative_model_params...
         )
