@@ -67,8 +67,8 @@ function CounterfactualExplanations.parallelize(
 
     # Training:  
     Threads.@threads for (x, target, data, M, generator) in collect(args)
-        with_logger(NullLogger()) do
-            ce = f(x, target, data, M, generator; kwargs...)
+        ce = with_logger(NullLogger()) do
+            f(x, target, data, M, generator; kwargs...)
         end
         push!(ces[Threads.threadid()], ce)
         if verbose
@@ -94,8 +94,8 @@ Parallelizes the evaluation of `f` using `Threads.@threads`. This function is us
 function CounterfactualExplanations.parallelize(
     parallelizer::ThreadsParallelizer,
     f::typeof(CounterfactualExplanations.Evaluation.evaluate),
-    verbose::Bool=true,
     args...;
+    verbose::Bool=true,
     kwargs...,
 )
 
