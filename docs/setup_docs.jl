@@ -25,6 +25,7 @@ setup_docs = quote
     using SliceMap
     using StatsBase
     using Tables
+    using TaijaPlotting
 
     # Setup:
     theme(:wong)

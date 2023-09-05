@@ -22,9 +22,6 @@ include("utils.jl")
 include("differentiable/differentiable.jl")
 include("nondifferentiable/nondifferentiable.jl")
 
-include("visualization/plotting/default.jl")
-include("visualization/plotting/voronoi.jl")
-
 include("pretrained/pretrained.jl")
 
 export AbstractFittedModel

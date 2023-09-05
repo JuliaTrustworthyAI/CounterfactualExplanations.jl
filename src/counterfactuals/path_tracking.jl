@@ -44,13 +44,3 @@ function target_probs_path(ce::CounterfactualExplanation)
     P = map(x -> target_probs(ce, x), X)
     return P
 end
-
-"""
-    embed_path(ce::CounterfactualExplanation)
-
-Helper function that embeds path into two dimensions for plotting.
-"""
-function embed_path(ce::CounterfactualExplanation)
-    data_ = ce.data
-    return DataPreprocessing.embed(data_, path(ce))
-end
