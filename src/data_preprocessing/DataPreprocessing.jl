@@ -11,7 +11,6 @@ using StatsBase
 using Tables
 using Random
 
-
 include("counterfactual_data.jl")
 include("utils.jl")
 include("generative_model_utils.jl")

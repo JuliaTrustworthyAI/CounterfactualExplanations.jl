@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "0.1.15"
+version = "0.2.1"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -62,7 +62,9 @@ MLJDecisionTreeInterface = "0.4.0"
 MLJModels = "0.16"
 MLUtils = "0.2, 0.3, 0.4"
 MPI = "0.20"
+MultivariateStats = "0.10"
 NearestNeighborModels = "0.2"
+PackageExtensionCompat = "1"
 Parameters = "0.12"
 ProgressMeter = "1"
 PythonCall = "0.9.13"
