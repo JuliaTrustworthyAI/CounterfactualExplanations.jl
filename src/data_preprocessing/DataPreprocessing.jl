@@ -4,10 +4,8 @@ using CategoricalArrays
 using CounterfactualExplanations
 using DataFrames
 using Flux
-using MultivariateStats
 using StatsBase
 using Tables
-using UMAP
 using MLJBase
 using Plots
 using Random

@@ -4,7 +4,7 @@ setup_docs = quote
 
     using Chain: @chain
     using CounterfactualExplanations
-    using CounterfactualExplanations: animate_path, counterfactual, counterfactual_label
+    using CounterfactualExplanations: counterfactual, counterfactual_label
     using CounterfactualExplanations.Data
     using CounterfactualExplanations.DataPreprocessing: unpack_data
     using CounterfactualExplanations.Evaluation: benchmark
@@ -25,7 +25,7 @@ setup_docs = quote
     using SliceMap
     using StatsBase
     using Tables
-    using TaijaPlotting
+    using TaijaPlotting: animate_path
 
     # Setup:
     theme(:wong)

@@ -6,7 +6,6 @@ using Parameters
 using Flux
 using MLJBase
 using NearestNeighborModels
-using Plots
 using LazyArtifacts
 using Serialization
 using LaplaceRedux
