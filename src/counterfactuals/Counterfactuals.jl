@@ -5,7 +5,6 @@ using .Models
 using ChainRulesCore
 using Flux
 using MLUtils
-using Plots
 using Statistics
 using StatsBase
 
@@ -16,7 +15,6 @@ include("info_extraction.jl")
 include("initialisation.jl")
 include("latent_space_mappings.jl")
 include("path_tracking.jl")
-include("visualization/plotting.jl")
-include("visualization/printing.jl")
+include("printing.jl")
 include("search.jl")
 include("utils.jl")

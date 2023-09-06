@@ -52,10 +52,6 @@ generators = Generators.generator_catalogue
         include("other/evaluation.jl")
     end
 
-    @testset "Plotting" begin
-        include("other/plotting.jl")
-    end
-
     @testset "Parallelization" begin
         include("parallelization/parallelization.jl")
     end

@@ -108,7 +108,7 @@ function CounterfactualExplanations.parallelize(
     # Verbosity:
     if verbose
         prog = ProgressMeter.Progress(
-            length(args);
+            length(counterfactuals);
             desc="Progress (multi-threaded evaluation):",
             showspeed=true,
             color=:green,

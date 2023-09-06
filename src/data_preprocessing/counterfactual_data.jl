@@ -20,7 +20,7 @@ mutable struct CounterfactualData
     features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
     dt::Union{Nothing,StatsBase.AbstractDataTransform}
-    compressor::Union{Nothing,MultivariateStats.PCA,UMAP.UMAP_}
+    compressor::Union{Nothing,MultivariateStats.PCA}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     y_levels::AbstractVector
     output_encoder::OutputEncoder
