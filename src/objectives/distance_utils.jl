@@ -14,15 +14,19 @@ function distance(
         from = CounterfactualExplanations.factual(ce)
     end
     x′ = CounterfactualExplanations.counterfactual(ce)
-    xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
-    if isnothing(weights)
-        Δ = agg(map(x′ -> LinearAlgebra.norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+    if ce.num_counterfactuals == 1
+        return LinearAlgebra.norm(x′ .- from, p)
     else
-        @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
-        Δ = agg(map(x′ -> (LinearAlgebra.norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
+        xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
+        if isnothing(weights)
+            Δ = agg(map(x′ -> LinearAlgebra.norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+        else
+            @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
+            Δ = agg(map(x′ -> (LinearAlgebra.norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
+        end
+        return Δ
     end
-    return Δ
-end
+end 
 
 """
     distance_from_target(
