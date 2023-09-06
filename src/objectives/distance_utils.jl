@@ -13,7 +13,7 @@ function distance(
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
-    x′ = CounterfactualExplanations.counterfactual(ce)
+    x′ = CounterfactualExplanations.decode_state(ce)
     if ce.num_counterfactuals == 1
         return LinearAlgebra.norm(x′ .- from, p)
     else
