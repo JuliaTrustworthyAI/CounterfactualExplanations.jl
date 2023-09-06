@@ -91,7 +91,7 @@ function distance_from_targets(
         Δ = map(eachcol(target_samples)) do xsample
             norm(x - xsample, 1)
         end
-        if n_nearest_neighbors != nothing
+        if !isnothing(n_nearest_neighbors)
             Δ = sort(Δ)[1:n_nearest_neighbors]
         end
         return mean(Δ)
