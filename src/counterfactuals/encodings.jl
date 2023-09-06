@@ -79,26 +79,6 @@ function decode_state(
     end
 
     # Categorical:
-    s′ = reconstruct_cat_encoding(ce, s′)
-
-    return s′
-end
-
-"""
-reconstruct_cat_encoding(
-    ce::CounterfactualExplanation,
-    x::Union{AbstractArray,Nothing}=nothing,
-)
-
-Reconstructs all categorical encodings. See [`DataPreprocessing.reconstruct_cat_encoding`](@ref) for details.
-"""
-function reconstruct_cat_encoding(
-    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
-)
-    # Unpack:
-    s′ = isnothing(x) ? deepcopy(ce.s′) : x
-    data = ce.data
-
     s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
 
     return s′

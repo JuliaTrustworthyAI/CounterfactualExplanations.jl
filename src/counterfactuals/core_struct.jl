@@ -6,6 +6,7 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     target::RawTargetType
     target_encoded::EncodedTargetType
     s′::AbstractArray
+    x′::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
@@ -101,6 +102,7 @@ function CounterfactualExplanation(
         target,
         target_encoded,
         x,
+        x,
         data,
         M,
         deepcopy(generator),
@@ -116,6 +118,7 @@ function CounterfactualExplanation(
     adjust_shape!(ce)                                           # adjust shape to specified number of counterfactuals
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
+    ce.x′ = decode_state(ce)            # decode the counterfactual state
 
     if generator isa Generators.FeatureTweakGenerator ||
         generator isa Generators.GrowingSpheresGenerator

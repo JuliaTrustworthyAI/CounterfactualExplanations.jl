@@ -13,15 +13,19 @@ function distance(
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
-    x′ = CounterfactualExplanations.counterfactual(ce)
-    xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
-    if isnothing(weights)
-        Δ = agg(map(x′ -> LinearAlgebra.norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+    x′ = CounterfactualExplanations.decode_state(ce)
+    if ce.num_counterfactuals == 1
+        return LinearAlgebra.norm(x′ .- from, p)
     else
-        @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
-        Δ = agg(map(x′ -> (LinearAlgebra.norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
+        xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
+        if isnothing(weights)
+            Δ = agg(map(x′ -> LinearAlgebra.norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+        else
+            @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
+            Δ = agg(map(x′ -> (LinearAlgebra.norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
+        end
+        return Δ
     end
-    return Δ
 end
 
 """
@@ -49,7 +53,7 @@ end
 Additional penalty for ClaPROARGenerator.
 """
 function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
-    x_ = CounterfactualExplanations.decode_state(ce)
+    x_ = CounterfactualExplanations.counterfactual(ce)
     M = ce.M
     model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
     y_ = ce.target_encoded

@@ -34,7 +34,7 @@ end
 A convenience method that returns the counterfactual.
 """
 function counterfactual(ce::CounterfactualExplanation)
-    return decode_state(ce)
+    return ce.x′
 end
 
 """
