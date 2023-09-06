@@ -5,7 +5,6 @@ using .Models
 using ChainRulesCore
 using Flux
 using MLUtils
-using Plots
 using Statistics
 using StatsBase
 

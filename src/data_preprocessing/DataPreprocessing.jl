@@ -2,14 +2,15 @@ module DataPreprocessing
 
 using CategoricalArrays
 using CounterfactualExplanations
+using ..GenerativeModels
 using DataFrames
 using Flux
+using MLJBase
+using MultivariateStats
 using StatsBase
 using Tables
-using MLJBase
-using Plots
 using Random
-using ..GenerativeModels
+
 
 include("counterfactual_data.jl")
 include("utils.jl")
