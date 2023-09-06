@@ -12,6 +12,7 @@ function update!(ce::CounterfactualExplanation)
 
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
+    ce.x′ = decode_state(ce)                                    # decoded counterfactual state
     _times_changed = reshape(
         decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )

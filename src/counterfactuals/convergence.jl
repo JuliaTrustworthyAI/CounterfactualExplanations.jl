@@ -27,7 +27,7 @@ function converged(ce::CounterfactualExplanation)
     elseif ce.convergence[:converge_when] == :invalidation_rate
         ir = Generators.invalidation_rate(ce)
         # gets the label from an array, not sure why it is an array though.
-        label = predict_label(ce.M, ce.data, decode_state(ce))[1]
+        label = predict_label(ce.M, ce.data, ce.x′)[1]
         conv = label == ce.target && ce.params[:invalidation_rate] > ir
     elseif (ce.convergence[:converge_when] == :early_stopping)
         conv = steps_exhausted(ce)
