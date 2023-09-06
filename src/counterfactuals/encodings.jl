@@ -38,7 +38,6 @@ function encode_state(
     return s′
 end
 
-
 """
 function decode_state(
     ce::CounterfactualExplanation,

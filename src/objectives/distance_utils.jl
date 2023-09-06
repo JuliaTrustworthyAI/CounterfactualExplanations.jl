@@ -26,7 +26,7 @@ function distance(
         end
         return Δ
     end
-end 
+end
 
 """
     distance_from_target(
