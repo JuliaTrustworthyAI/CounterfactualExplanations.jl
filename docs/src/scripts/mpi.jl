@@ -23,7 +23,7 @@ chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 100)
 xs = select_factual(counterfactual_data, chosen)
 generator = GenericGenerator()
 
-parallelizer = MPIParallelizer(MPI.COMM_WORLD)
+parallelizer = MPIParallelizer(MPI.COMM_WORLD; threaded=true)
 
 bmk = with_logger(NullLogger()) do
     benchmark(counterfactual_data; parallelizer=parallelizer)

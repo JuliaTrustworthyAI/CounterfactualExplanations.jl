@@ -3,6 +3,7 @@ module MPIExt
 export MPIParallelizer
 
 using CounterfactualExplanations
+using CounterfactualExplanations.Parallelization
 using MPI
 
 ### BEGIN utils.jl
@@ -54,7 +55,7 @@ end
 
 Create an `MPIParallelizer` object from an `MPI.Comm` object.
 """
-function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm, threaded::Bool=false)
+function CounterfactualExplanations.MPIParallelizer(comm::MPI.Comm; threaded::Bool=false)
     rank = MPI.Comm_rank(comm)                          # Rank of this process in the world 🌍
     n_proc = MPI.Comm_size(comm)                        # Number of processes in the world 🌍
 
