@@ -26,6 +26,8 @@ setup_docs = quote
     using StatsBase
     using Tables
     using TaijaPlotting: animate_path
+    using Tidier
+    using TidierData
 
     # Setup:
     theme(:wong)

@@ -9,8 +9,9 @@ using Statistics
 include("benchmark.jl")
 include("evaluate.jl")
 include("measures.jl")
+include("memory_usage.jl")
 
-export Benchmark, benchmark, evaluate, default_measures
+export Benchmark, benchmark, evaluate, default_measures, estimate_memory_usage
 export validity, distance, redundancy
 
 "The default evaluation measures."
