@@ -102,6 +102,7 @@ function benchmark(
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
     dataname::Union{Nothing,Symbol,String}=nothing,
+    verbose::Bool=true,
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
@@ -126,7 +127,7 @@ function benchmark(
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
-        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; verbose=verbose, kwrgs...
     )
 
     # Meta Data:
@@ -152,6 +153,7 @@ function benchmark(
         report_meta=true,
         store_ce=store_ce,
         output_format=:DataFrame,
+        verbose=verbose,
     )
 
     bmk = Benchmark(reduce(vcat, evaluations))
@@ -195,6 +197,7 @@ function benchmark(
     store_ce::Bool=false,
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
+    verbose::Bool=true,
     kwrgs...,
 )
     # Setup
@@ -240,7 +243,7 @@ function benchmark(
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
-        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; kwrgs...
+        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; verbose=verbose, kwrgs...
     )
 
     # Meta Data:
@@ -263,6 +266,7 @@ function benchmark(
         evaluate,
         ces,
         meta_data;
+        verbose=verbose,
         measure=measure,
         report_each=true,
         report_meta=true,

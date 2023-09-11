@@ -16,7 +16,7 @@ end
 
 If no `AbstractParallelizer` has been supplied, just call or broadcast the function. 
 """
-function parallelize(parallelizer::Nothing, f::Function, args...; kwargs...)
+function parallelize(parallelizer::Nothing, f::Function, args...; verbose::Bool=false, kwargs...)
     collection = args[1]
     collection = vectorize_collection(collection)
     return f.(collection, args[2:end]...; kwargs...)

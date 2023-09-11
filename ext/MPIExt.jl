@@ -80,6 +80,7 @@ function CounterfactualExplanations.parallelize(
     parallelizer::MPIParallelizer,
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
+    verbose::Bool=false,
     kwargs...,
 )
 
@@ -149,6 +150,7 @@ function CounterfactualExplanations.parallelize(
     parallelizer::MPIParallelizer,
     f::typeof(CounterfactualExplanations.Evaluation.evaluate),
     args...;
+    verbose::Bool=false,
     kwargs...,
 )
 
