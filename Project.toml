@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "0.1.19"
+version = "0.1.20"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
@@ -49,6 +49,7 @@ RCallExt = "RCall"
 [compat]
 CSV = "0.10"
 CUDA = "3, 4"
+cuDNN = "1"
 CategoricalArrays = "0.10"
 ChainRulesCore = "1.15"
 DataFrames = "1"
@@ -67,6 +68,7 @@ MultivariateStats = "0.10"
 NearestNeighborModels = "0.2"
 PackageExtensionCompat = "1"
 Parameters = "0.12"
+PrecompileTools = "1"
 ProgressMeter = "1"
 PythonCall = "0.9.13"
 RCall = "0.13.15"
