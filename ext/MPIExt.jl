@@ -116,24 +116,22 @@ function CounterfactualExplanations.parallelize(
             second_parallelizer, f, x, target, data, M, generator; kwargs...
         )
     end
-
     MPI.Barrier(parallelizer.comm)
 
-    output = MPI.gather(output, parallelizer.comm)
-
     # Collect output from all processe in rank 0:
+    collected_output = MPI.gather(output, parallelizer.comm)
     if parallelizer.rank == 0
-        output = vcat(output...)
+        output = vcat(collected_output...)
     else
         output = nothing
     end
-
-    # Broadcast output to all processes:
-    output = MPI.bcast(output, parallelizer.comm; root=0)
-
     MPI.Barrier(parallelizer.comm)
 
-    return output
+    # Broadcast output to all processes:
+    final_output = MPI.bcast(output, parallelizer.comm; root=0)
+    MPI.Barrier(parallelizer.comm)
+
+    return final_output
 end
 
 """
@@ -171,23 +169,22 @@ function CounterfactualExplanations.parallelize(
 
     # Evaluate function:
     output = f.(x, meta_data; kwargs...)
-
     MPI.Barrier(parallelizer.comm)
 
     # Collect output from all processe in rank 0:
-    output = MPI.gather(output, parallelizer.comm)
+    collected_output = MPI.gather(output, parallelizer.comm)
     if parallelizer.rank == 0
-        output = vcat(output...)
+        output = vcat(collected_output...)
     else
         output = nothing
     end
-
-    # Broadcast output to all processes:
-    output = MPI.bcast(output, parallelizer.comm; root=0)
-
     MPI.Barrier(parallelizer.comm)
 
-    return output
+    # Broadcast output to all processes:
+    final_output = MPI.bcast(output, parallelizer.comm; root=0)
+    MPI.Barrier(parallelizer.comm)
+
+    return final_output
 end
 
 end
