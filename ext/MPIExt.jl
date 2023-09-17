@@ -4,7 +4,9 @@ export MPIParallelizer
 
 using CounterfactualExplanations
 using CounterfactualExplanations.Parallelization
+using Logging
 using MPI
+using ProgressMeter
 
 ### BEGIN utils.jl
 
@@ -109,11 +111,28 @@ function CounterfactualExplanations.parallelize(
 
     # Evaluate function:
     if !parallelizer.threaded
-        output = f.(x, target, data, M, generator; kwargs...)
+        if MPI.comm_rank(MPI.COMM_WORLD) == 0 && verbose
+            output = @showprogress broadcast(x, M, generator) do x, M, generator
+                with_logger(NullLogger()) do
+                    f(x, target, data, M, generator; kwargs...)
+                end
+            end
+        else
+            output = with_logger(NullLogger()) do
+                f.(x, target, data, M, generator; kwargs...)
+            end
+        end
     else
         second_parallelizer = ThreadsParallelizer()
         output = CounterfactualExplanations.parallelize(
-            second_parallelizer, f, x, target, data, M, generator; kwargs...
+            second_parallelizer,
+            f,
+            x,
+            target,
+            data,
+            M,
+            generator;
+            kwargs...,
         )
     end
     MPI.Barrier(parallelizer.comm)
@@ -168,7 +187,27 @@ function CounterfactualExplanations.parallelize(
     end
 
     # Evaluate function:
-    output = f.(x, meta_data; kwargs...)
+    if !parallelizer.threaded
+        if MPI.comm_rank(MPI.COMM_WORLD) == 0 && verbose
+            output = @showprogress broadcast(x, meta_data) do x, meta_data
+                with_logger(NullLogger()) do
+                    f(x, meta_data; kwargs...)
+                end
+            end
+        else
+            output = with_logger(NullLogger()) do
+                f.(x, meta_data; kwargs...)
+            end
+        end
+    else
+        second_parallelizer = ThreadsParallelizer()
+        output = CounterfactualExplanations.parallelize(
+            second_parallelizer,
+            f,
+            meta_data;
+            kwargs...,
+        )
+    end
     MPI.Barrier(parallelizer.comm)
 
     # Collect output from all processe in rank 0:
