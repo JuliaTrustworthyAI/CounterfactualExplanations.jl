@@ -105,7 +105,7 @@ end
 To evaluate counterfactuals in parallel, we again use the `parallelize` function:
 
 ```{julia}
-@with_parallelizer parallelizer evaluate(ces; report_meta = true)
+@with_parallelizer parallelizer evaluate(ces)
 ```
 
 ```{=commonmark}
