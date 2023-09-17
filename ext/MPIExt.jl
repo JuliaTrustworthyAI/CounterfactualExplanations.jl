@@ -97,6 +97,12 @@ function CounterfactualExplanations.parallelize(
     x = split_obs(counterfactuals, parallelizer.n_proc)
     x = MPI.scatter(x, parallelizer.comm)
 
+    # Split targets into groups of approximately equal size if necessary:
+    if typeof(target) <: AbstractArray
+        target = split_obs(target, parallelizer.n_proc)
+        target = MPI.scatter(target, parallelizer.comm)
+    end
+
     # Split models into groups of approximately equal size if necessary:
     if typeof(M) <: AbstractArray
         M = split_obs(M, parallelizer.n_proc)
@@ -112,7 +118,9 @@ function CounterfactualExplanations.parallelize(
     # Evaluate function:
     if !parallelizer.threaded
         if parallelizer.rank == 0 && verbose
-            output = @showprogress broadcast(x, M, generator) do x, M, generator
+            output = @showprogress desc = "Generating counterfactuals ..." broadcast(
+                x, target, M, generator
+            ) do x, target, M, generator
                 with_logger(NullLogger()) do
                     f(x, target, data, M, generator; kwargs...)
                 end
@@ -125,14 +133,7 @@ function CounterfactualExplanations.parallelize(
     else
         second_parallelizer = ThreadsParallelizer()
         output = CounterfactualExplanations.parallelize(
-            second_parallelizer,
-            f,
-            x,
-            target,
-            data,
-            M,
-            generator;
-            kwargs...,
+            second_parallelizer, f, x, target, data, M, generator; kwargs...
         )
     end
     MPI.Barrier(parallelizer.comm)
@@ -178,18 +179,28 @@ function CounterfactualExplanations.parallelize(
     x = split_obs(counterfactuals, parallelizer.n_proc)
     x = MPI.scatter(x, parallelizer.comm)
 
+    # Get meta data if supplied:
+    if length(args) > 1
+        meta_data = args[2]
+    else
+        meta_data = nothing
+    end
+
     # Split meta data into groups of approximately equal size:
-    meta_data = args[2]
     if typeof(meta_data) <: AbstractArray
         meta_data = CounterfactualExplanations.vectorize_collection(meta_data)
         meta_data = split_obs(meta_data, parallelizer.n_proc)
         meta_data = MPI.scatter(meta_data, parallelizer.comm)
+    else
+        meta_data = fill(meta_data, length(x))
     end
 
     # Evaluate function:
     if !parallelizer.threaded
         if parallelizer.rank == 0 && verbose
-            output = @showprogress broadcast(x, meta_data) do x, meta_data
+            output = @showprogress desc = "Evaluating counterfactuals ..." broadcast(
+                x, meta_data
+            ) do x, meta_data
                 with_logger(NullLogger()) do
                     f(x, meta_data; kwargs...)
                 end
@@ -202,10 +213,7 @@ function CounterfactualExplanations.parallelize(
     else
         second_parallelizer = ThreadsParallelizer()
         output = CounterfactualExplanations.parallelize(
-            second_parallelizer,
-            f,
-            meta_data;
-            kwargs...,
+            second_parallelizer, f, meta_data; kwargs...
         )
     end
     MPI.Barrier(parallelizer.comm)
