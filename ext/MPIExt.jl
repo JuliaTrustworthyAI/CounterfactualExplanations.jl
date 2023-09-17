@@ -111,7 +111,7 @@ function CounterfactualExplanations.parallelize(
 
     # Evaluate function:
     if !parallelizer.threaded
-        if MPI.comm_rank(MPI.COMM_WORLD) == 0 && verbose
+        if parallelizer.rank == 0 && verbose
             output = @showprogress broadcast(x, M, generator) do x, M, generator
                 with_logger(NullLogger()) do
                     f(x, target, data, M, generator; kwargs...)
@@ -188,7 +188,7 @@ function CounterfactualExplanations.parallelize(
 
     # Evaluate function:
     if !parallelizer.threaded
-        if MPI.comm_rank(MPI.COMM_WORLD) == 0 && verbose
+        if parallelizer.rank == 0 && verbose
             output = @showprogress broadcast(x, meta_data) do x, meta_data
                 with_logger(NullLogger()) do
                     f(x, meta_data; kwargs...)
