@@ -35,9 +35,9 @@ function CounterfactualExplanations.parallelize(
     args = zip(
         counterfactuals,
         target |> x -> if typeof(target) <: AbstractArray
-            fill(target, length(counterfactuals))
-        else
             target
+        else
+            fill(target, length(counterfactuals))
         end,
         fill(data, length(counterfactuals)),
         M |> x -> if typeof(M) <: CounterfactualExplanations.AbstractFittedModel
