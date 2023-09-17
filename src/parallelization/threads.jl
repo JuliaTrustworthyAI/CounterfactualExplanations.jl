@@ -31,10 +31,14 @@ function CounterfactualExplanations.parallelize(
     @assert typeof(generator) <: CounterfactualExplanations.AbstractGenerator ||
         length(generator) == length(counterfactuals) "The number of generators must match the number of counterfactuals or be a single generator."
 
-    # Zip arguments:
+    # Zip arguments (THIS CAN PROBABLY BE DONE BETTER):
     args = zip(
         counterfactuals,
-        fill(target, length(counterfactuals)),
+        target |> x -> if typeof(target) <: AbstractArray
+            fill(target, length(counterfactuals))
+        else
+            target
+        end,
         fill(data, length(counterfactuals)),
         M |> x -> if typeof(M) <: CounterfactualExplanations.AbstractFittedModel
             fill(M, length(counterfactuals))

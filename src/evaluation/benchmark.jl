@@ -272,8 +272,6 @@ function benchmark(
     Ms = [x[3][2] for x in grid]
     gens = [x[4][2] for x in grid]
 
-    println(targets)
-
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
         parallelizer,
