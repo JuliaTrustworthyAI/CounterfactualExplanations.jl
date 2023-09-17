@@ -127,7 +127,15 @@ function benchmark(
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
-        parallelizer, generate_counterfactual, xs, target, data, Ms, gens; verbose=verbose, kwrgs...
+        parallelizer,
+        generate_counterfactual,
+        xs,
+        target,
+        data,
+        Ms,
+        gens;
+        verbose=verbose,
+        kwrgs...,
     )
 
     # Meta Data:
@@ -203,10 +211,16 @@ function benchmark(
 
     # Set up search:
     # If no factual is provided, choose randomly from the data for all individuals. Otherwise, use the same factual for all individuals.
-    factual = isnothing(factual) ? rand(data.y_levels, n_individuals) : fill(factual, n_individuals)
+    factual = if isnothing(factual)
+        rand(data.y_levels, n_individuals)
+    else
+        fill(factual, n_individuals)
+    end
     if isnothing(target)
         # If no target is provided, choose randomly from the data for all individuals, each time excluding the factual.
-        target = [rand(data.y_levels[data.y_levels .!= factual[i]]) for i in 1:n_individuals]
+        target = [
+            rand(data.y_levels[data.y_levels .!= factual[i]]) for i in 1:n_individuals
+        ]
     else
         # Otherwise, use the same target for all individuals.
         target = fill(target, n_individuals)
@@ -236,13 +250,15 @@ function benchmark(
         chosen = Vector{Int}()
         for i in 1:n_individuals
             # For each individual and specified factual label, randomly choose index of a factual observation:
-            chosen_ind = rand(findall(CounterfactualExplanations.predict_label(M, data) .== factual[i]))[1]
+            chosen_ind = rand(
+                findall(CounterfactualExplanations.predict_label(M, data) .== factual[i])
+            )[1]
             push!(chosen, chosen_ind)
         end
         xs = CounterfactualExplanations.select_factual(data, chosen)
         xs = CounterfactualExplanations.vectorize_collection(xs)
         # Form the grid:
-        for (i,x) in enumerate(xs)
+        for (i, x) in enumerate(xs)
             for (gen_name, gen) in generators
                 comb = (x, target[i], (mod_name, M), (gen_name, gen))
                 push!(grid, comb)
@@ -260,7 +276,15 @@ function benchmark(
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
-        parallelizer, generate_counterfactual, xs, targets, data, Ms, gens; verbose=verbose, kwrgs...
+        parallelizer,
+        generate_counterfactual,
+        xs,
+        targets,
+        data,
+        Ms,
+        gens;
+        verbose=verbose,
+        kwrgs...,
     )
 
     # Meta Data:

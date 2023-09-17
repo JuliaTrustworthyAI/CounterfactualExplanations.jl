@@ -118,7 +118,9 @@ function CounterfactualExplanations.parallelize(
     # Evaluate function:
     if !parallelizer.threaded
         if parallelizer.rank == 0 && verbose
-            output = @showprogress desc="Generating counterfactuals ..." broadcast(x, target, M, generator) do x, target, M, generator
+            output = @showprogress desc = "Generating counterfactuals ..." broadcast(
+                x, target, M, generator
+            ) do x, target, M, generator
                 with_logger(NullLogger()) do
                     f(x, target, data, M, generator; kwargs...)
                 end
@@ -131,14 +133,7 @@ function CounterfactualExplanations.parallelize(
     else
         second_parallelizer = ThreadsParallelizer()
         output = CounterfactualExplanations.parallelize(
-            second_parallelizer,
-            f,
-            x,
-            target,
-            data,
-            M,
-            generator;
-            kwargs...,
+            second_parallelizer, f, x, target, data, M, generator; kwargs...
         )
     end
     MPI.Barrier(parallelizer.comm)
@@ -203,7 +198,9 @@ function CounterfactualExplanations.parallelize(
     # Evaluate function:
     if !parallelizer.threaded
         if parallelizer.rank == 0 && verbose
-            output = @showprogress desc="Evaluating counterfactuals ..." broadcast(x, meta_data) do x, meta_data
+            output = @showprogress desc = "Evaluating counterfactuals ..." broadcast(
+                x, meta_data
+            ) do x, meta_data
                 with_logger(NullLogger()) do
                     f(x, meta_data; kwargs...)
                 end
@@ -216,10 +213,7 @@ function CounterfactualExplanations.parallelize(
     else
         second_parallelizer = ThreadsParallelizer()
         output = CounterfactualExplanations.parallelize(
-            second_parallelizer,
-            f,
-            meta_data;
-            kwargs...,
+            second_parallelizer, f, meta_data; kwargs...
         )
     end
     MPI.Barrier(parallelizer.comm)
