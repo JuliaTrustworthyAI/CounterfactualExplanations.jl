@@ -135,7 +135,9 @@ function CounterfactualExplanations.parallelize(
     end
 
     Threads.@threads for i in eachindex(counterfactuals)
-        push!(evaluations[Threads.threadid()], f(counterfactuals[i], meta_data[i]; kwargs...))
+        push!(
+            evaluations[Threads.threadid()], f(counterfactuals[i], meta_data[i]; kwargs...)
+        )
         if verbose
             ProgressMeter.next!(prog)
         end
