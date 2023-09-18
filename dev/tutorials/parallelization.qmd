@@ -67,6 +67,15 @@ To evaluate counterfactuals in parallel, we again use the `parallelize` function
 @with_parallelizer parallelizer evaluate(ces)
 ```
 
+Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
+
+```{julia}
+#| eval: false
+
+# Models:
+bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
+```
+
 ## MPI
 
 ```{=commonmark}
