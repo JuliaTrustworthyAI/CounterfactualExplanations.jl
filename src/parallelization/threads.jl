@@ -63,9 +63,9 @@ function CounterfactualExplanations.parallelize(
     if verbose
         prog = ProgressMeter.Progress(
             length(args);
-            desc="Progress (multi-threaded counterfactual computation):",
+            desc="Generating counterfactuals ...",
             showspeed=true,
-            color=:blue,
+            color=:green,
         )
     end
 
@@ -106,6 +106,21 @@ function CounterfactualExplanations.parallelize(
     # Setup:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
 
+    # Get meta data if supplied:
+    if length(args) > 1
+        meta_data = args[2]
+    else
+        meta_data = nothing
+    end
+
+    # Check meta data:
+    if typeof(meta_data) <: AbstractArray
+        meta_data = CounterfactualExplanations.vectorize_collection(meta_data)
+        @assert length(meta_data) == length(counterfactuals) "The number of meta data must match the number of counterfactuals."
+    else
+        meta_data = fill(meta_data, length(counterfactuals))
+    end
+
     # Preallocate:
     evaluations = [[] for _ in 1:Threads.nthreads()]
 
@@ -113,14 +128,14 @@ function CounterfactualExplanations.parallelize(
     if verbose
         prog = ProgressMeter.Progress(
             length(counterfactuals);
-            desc="Progress (multi-threaded evaluation):",
+            desc="Evaluating counterfactuals ...",
             showspeed=true,
             color=:green,
         )
     end
 
-    Threads.@threads for x in counterfactuals
-        push!(evaluations[Threads.threadid()], f(x; kwargs...))
+    Threads.@threads for i in eachindex(counterfactuals)
+        push!(evaluations[Threads.threadid()], f(counterfactuals[i], meta_data[i]; kwargs...))
         if verbose
             ProgressMeter.next!(prog)
         end
