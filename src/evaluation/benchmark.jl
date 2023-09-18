@@ -290,7 +290,7 @@ function benchmark(
         sample_id = uuid1()
         # Meta Data:
         _dict = Dict(
-            :model => grid[i][2][1], :generator => grid[i][3][1], :sample => sample_id
+            :model => grid[i][3][1], :generator => grid[i][4][1], :sample => sample_id
         )
         # Add dataname if supplied:
         if !isnothing(dataname)
