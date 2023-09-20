@@ -134,9 +134,12 @@ function CounterfactualExplanations.parallelize(
         )
     end
 
-    Threads.@threads for i in eachindex(counterfactuals)
+    # Bundle arguments:
+    args = zip(counterfactuals, meta_data)
+
+    Threads.@threads for (ce, meta) in collect(args)
         push!(
-            evaluations[Threads.threadid()], f(counterfactuals[i], meta_data[i]; kwargs...)
+            evaluations[Threads.threadid()], f(ce, meta; kwargs...)
         )
         if verbose
             ProgressMeter.next!(prog)
