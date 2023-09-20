@@ -48,8 +48,7 @@ RCallExt = "RCall"
 
 [compat]
 CSV = "0.10"
-CUDA = "3, 4"
-cuDNN = "1"
+CUDA = "3, 4, 5"
 CategoricalArrays = "0.10"
 ChainRulesCore = "1.15"
 DataFrames = "1"
@@ -74,6 +73,7 @@ PythonCall = "0.9.13"
 RCall = "0.13.15"
 StatsBase = "0.33, 0.34"
 Tables = "1"
+cuDNN = "1"
 julia = "1.6, 1.7, 1.8, 1.9"
 
 [extras]
