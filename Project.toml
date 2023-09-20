@@ -48,7 +48,7 @@ RCallExt = "RCall"
 
 [compat]
 CSV = "0.10"
-CUDA = "3, 4"
+CUDA = "3, 4, 5"
 cuDNN = "1"
 CategoricalArrays = "0.10"
 ChainRulesCore = "1.15"
