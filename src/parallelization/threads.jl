@@ -70,7 +70,7 @@ function CounterfactualExplanations.parallelize(
     end
 
     # Training:  
-    Threads.@threads for (x, target, data, M, generator) in collect(args)
+    Threads.@threads :static for (x, target, data, M, generator) in collect(args)
         ce = with_logger(NullLogger()) do
             f(x, target, data, M, generator; kwargs...)
         end
@@ -137,7 +137,7 @@ function CounterfactualExplanations.parallelize(
     # Bundle arguments:
     args = zip(counterfactuals, meta_data)
 
-    Threads.@threads for (ce, meta) in collect(args)
+    Threads.@threads :static for (ce, meta) in collect(args)
         push!(
             evaluations[Threads.threadid()], f(ce, meta; kwargs...)
         )
