@@ -19,7 +19,11 @@ mutable struct CounterfactualData
     features_categorical::Union{Vector{Vector{Int}},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
-    dt::Union{Nothing,StatsBase.AbstractDataTransform}
+    dt::Union{
+        Nothing,
+        StatsBase.AbstractDataTransform,
+        MultivariateStats.AbstractDimensionalityReduction,
+    }
     compressor::Union{Nothing,MultivariateStats.PCA}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     y_levels::AbstractVector
@@ -222,9 +226,29 @@ end
 """
     transformable_features(counterfactual_data::CounterfactualData)
 
-Returns the indices of all continuous features that can be transformed. For constant features `ZScoreTransform` returns `NaN`.
+Dispatches the `transformable_features` function to the appropriate method based on the type of the `dt` field.
 """
 function transformable_features(counterfactual_data::CounterfactualData)
+    return transformable_features(counterfactual_data, counterfactual_data.dt)
+end
+
+"""
+    transformable_features(counterfactual_data::CounterfactualData, dt::Any)
+
+By default, all continuous features are transformable. This function returns the indices of all continuous features.
+"""
+function transformable_features(counterfactual_data::CounterfactualData, dt::Any)
+    return counterfactual_data.features_continuous
+end
+
+"""
+    transformable_features(counterfactual_data::CounterfactualData, dt::ZScoreTransform)
+
+Returns the indices of all continuous features that can be transformed. For constant features `ZScoreTransform` returns `NaN`.
+"""
+function transformable_features(
+    counterfactual_data::CounterfactualData, dt::ZScoreTransform
+)
     # Find all columns that have varying values:
     idx_not_all_equal = [
         length(unique(counterfactual_data.X[i, :])) != 1 for
