@@ -1,0 +1,35 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# `GreedyGenerator`
+
+We use the term **greedy** to describe the counterfactual generator introduced by @schut2021generating.
+
+## Description
+
+The Greedy generator works under the premise of generating realistic counterfactuals by minimizing predictive uncertainty. @schut2021generating show that for models that incorporates predictive uncertainty in their predictions, maximizing the predictive probability corresponds to minimizing the predictive uncertainty: by construction, the generated counterfactual will therefore be *realistic* (low epistemic uncertainty) and *unambiguous* (low aleatoric uncertainty). 
+
+For the counterfactual search @schut2021generating propose using a Jacobian-based Saliency Map Attack(JSMA). It is **greedy** in the sense that it is an "iterative algorithm that updates the most salient feature, i.e. the feature that has the largest influence on the classification, by $\delta$ at each step" [@schut2021generating].
+
+## Usage
+
+The approach can be used in our package as follows:
+
+```{julia}
+#| output: true
+M = fit_model(counterfactual_data, :DeepEnsemble)
+generator = GreedyGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+## References
+
+
