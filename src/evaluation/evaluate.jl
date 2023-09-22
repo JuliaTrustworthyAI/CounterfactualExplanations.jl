@@ -114,7 +114,9 @@ function evaluate(
     if output_format == :Dict
         return to_dict(computed_measures, measure)
     elseif output_format == :DataFrame
-        df = to_dataframe(computed_measures, measure, report_each, pivot_longer, store_ce, ce)
+        df = to_dataframe(
+            computed_measures, measure, report_each, pivot_longer, store_ce, ce
+        )
         if report_meta || !isnothing(meta_data)
             df = generate_meta_data(ce, df, meta_data)
         end

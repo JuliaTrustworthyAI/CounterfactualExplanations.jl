@@ -19,7 +19,11 @@ mutable struct CounterfactualData
     features_categorical::Union{Vector{Vector{Int}},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
     standardize::Bool
-    dt::Union{Nothing,StatsBase.AbstractDataTransform,MultivariateStats.AbstractDimensionalityReduction}
+    dt::Union{
+        Nothing,
+        StatsBase.AbstractDataTransform,
+        MultivariateStats.AbstractDimensionalityReduction,
+    }
     compressor::Union{Nothing,MultivariateStats.PCA}
     generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
     y_levels::AbstractVector
@@ -253,4 +257,3 @@ function transformable_features(
     # Returns indices of columns that have varying values:
     return counterfactual_data.features_continuous[idx_not_all_equal]
 end
-

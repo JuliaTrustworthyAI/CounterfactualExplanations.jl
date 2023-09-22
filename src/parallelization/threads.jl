@@ -138,9 +138,7 @@ function CounterfactualExplanations.parallelize(
     args = zip(counterfactuals, meta_data)
 
     Threads.@threads :static for (ce, meta) in collect(args)
-        push!(
-            evaluations[Threads.threadid()], f(ce, meta; kwargs...)
-        )
+        push!(evaluations[Threads.threadid()], f(ce, meta; kwargs...))
         if verbose
             ProgressMeter.next!(prog)
         end

@@ -6,29 +6,32 @@ using StatsBase
 
 Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) = MultivariateStats.predict(dt, x)
+encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
+    MultivariateStats.predict(dt, x)
 
 """
     encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) = StatsBase.transform(dt, x)
+encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
+    StatsBase.transform(dt, x)
 
 """
     decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) = MultivariateStats.reconstruct(dt, x)
+decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
+    MultivariateStats.reconstruct(dt, x)
 
 """
     decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) = StatsBase.reconstruct(dt, x)
-
+decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
+    StatsBase.reconstruct(dt, x)
 
 """
 function encode_state(
@@ -68,7 +71,8 @@ function encode_state(
     end
 
     # Compress:
-    if data.dt isa MultivariateStats.AbstractDimensionalityReduction
+    if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
+        !ce.params[:latent_space]
         s′ = encode_array(data.dt, s′)
     end
 
@@ -116,7 +120,8 @@ function decode_state(
     end
 
     # Decompress:
-    if data.dt isa MultivariateStats.AbstractDimensionalityReduction
+    if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
+        !ce.params[:latent_space]
         s′ = decode_array(data.dt, s′)
     end
 
