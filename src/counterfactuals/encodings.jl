@@ -1,3 +1,35 @@
+using MultivariateStats
+using StatsBase
+
+"""
+    encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
+"""
+encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) = MultivariateStats.predict(dt, x)
+
+"""
+    encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
+"""
+encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) = StatsBase.transform(dt, x)
+
+"""
+    decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
+
+Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
+"""
+decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) = MultivariateStats.reconstruct(dt, x)
+
+"""
+    decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+
+Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
+"""
+decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) = StatsBase.reconstruct(dt, x)
+
+
 """
 function encode_state(
     ce::CounterfactualExplanation, 
@@ -30,9 +62,14 @@ function encode_state(
         idx = transformable_features(data)
         ChainRulesCore.ignore_derivatives() do
             s = s′[idx, :]
-            StatsBase.transform!(dt, s)
+            s = encode_array(dt, s)
             s′[idx, :] = s
         end
+    end
+
+    # Compress:
+    if data.dt isa MultivariateStats.AbstractDimensionalityReduction
+        s′ = encode_array(data.dt, s′)
     end
 
     return s′
@@ -73,9 +110,14 @@ function decode_state(
         idx = transformable_features(data)
         ChainRulesCore.ignore_derivatives() do
             s = s′[idx, :]
-            StatsBase.reconstruct!(dt, s)
+            s = decode_array(dt, s)
             s′[idx, :] = s
         end
+    end
+
+    # Decompress:
+    if data.dt isa MultivariateStats.AbstractDimensionalityReduction
+        s′ = decode_array(data.dt, s′)
     end
 
     # Categorical:

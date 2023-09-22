@@ -34,7 +34,7 @@ end
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
 function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
-    if ce.params[:latent_space]
+    if ce.params[:latent_space] || ce.data.dt isa MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
