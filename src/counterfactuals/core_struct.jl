@@ -78,6 +78,7 @@ function CounterfactualExplanation(
     params = Dict{Symbol,Any}(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
+        :dim_reduction => generator.dim_reduction,
         :invalidation_rate => invalidation_rate,
         :learning_rate => learning_rate,
         :variance => variance,

@@ -3,6 +3,7 @@ mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
     penalty::Union{Nothing,Function,Vector{Function}}
     ϵ::Union{Nothing,AbstractFloat}
     latent_space::Bool
+    dim_reduction::Bool
 end
 
 """
@@ -20,7 +21,7 @@ According to the paper by Tolomei er al., an alternative choice here would be us
 - `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
 function FeatureTweakGenerator(ϵ::AbstractFloat=0.1)
-    return FeatureTweakGenerator(Objectives.distance_l2, ϵ, false)
+    return FeatureTweakGenerator(Objectives.distance_l2, ϵ, false, false)
 end
 
 """
