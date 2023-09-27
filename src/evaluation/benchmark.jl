@@ -291,7 +291,9 @@ function benchmark(
     meta_data = map(eachindex(ces)) do i
         # Meta Data:
         _dict = Dict(
-            :model => grid[i][3][1], :generator => grid[i][4][1], :sample => sample_ids[i]
+            :model => grid[i][3][1],
+            :generator => grid[i][4][1],
+            :sample => sample_ids[i],
         )
         # Add dataname if supplied:
         if !isnothing(dataname)

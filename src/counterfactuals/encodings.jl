@@ -72,7 +72,7 @@ function encode_state(
 
     # Compress:
     if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
-        !ce.params[:latent_space] && 
+        !ce.params[:latent_space] &&
         ce.params[:dim_reduction]
         s′ = encode_array(data.dt, s′)
     end
