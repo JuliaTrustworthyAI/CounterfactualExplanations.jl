@@ -259,8 +259,9 @@ function benchmark(
         xs = CounterfactualExplanations.vectorize_collection(xs)
         # Form the grid:
         for (i, x) in enumerate(xs)
+            sample_id = uuid1()
             for (gen_name, gen) in generators
-                comb = (x, target[i], (mod_name, M), (gen_name, gen))
+                comb = (x, target[i], (mod_name, M), (gen_name, gen), sample_id)
                 push!(grid, comb)
             end
         end
@@ -271,6 +272,7 @@ function benchmark(
     targets = [x[2] for x in grid]
     Ms = [x[3][2] for x in grid]
     gens = [x[4][2] for x in grid]
+    sample_ids = [x[5] for x in grid]
 
     # Generate counterfactuals; in parallel if so specified
     ces = parallelize(
@@ -287,10 +289,9 @@ function benchmark(
 
     # Meta Data:
     meta_data = map(eachindex(ces)) do i
-        sample_id = uuid1()
         # Meta Data:
         _dict = Dict(
-            :model => grid[i][3][1], :generator => grid[i][4][1], :sample => sample_id
+            :model => grid[i][3][1], :generator => grid[i][4][1], :sample => sample_ids[i]
         )
         # Add dataname if supplied:
         if !isnothing(dataname)
