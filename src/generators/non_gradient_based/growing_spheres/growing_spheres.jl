@@ -3,6 +3,7 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     n::Union{Nothing,Integer}
     η::Union{Nothing,AbstractFloat}
     latent_space::Bool
+    dim_reduction::Bool
 end
 
 """
@@ -13,7 +14,7 @@ Constructs a new Growing Spheres Generator object.
 function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100, η::Union{Nothing,AbstractFloat}=0.1
 )
-    return GrowingSpheresGenerator(n, η, false)
+    return GrowingSpheresGenerator(n, η, false, false)
 end
 
 """

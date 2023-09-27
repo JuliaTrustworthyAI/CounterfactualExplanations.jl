@@ -13,6 +13,7 @@ function update!(ce::CounterfactualExplanation)
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
     ce.x′ = decode_state(ce)                                    # decoded counterfactual state
+    ce.x′ = apply_domain_constraints(ce.data, ce.x′)   # apply domain constraints
     _times_changed = reshape(
         decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )
@@ -33,7 +34,8 @@ end
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
 function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
-    if ce.params[:latent_space]
+    if ce.params[:latent_space] ||
+        ce.data.dt isa MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end

@@ -14,6 +14,7 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
     penalty::Penalty
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}
     latent_space::Bool
+    dim_reduction::Bool
     opt::Flux.Optimise.AbstractOptimiser
 end
 
@@ -43,6 +44,7 @@ function GradientBasedGenerator(;
     penalty::Penalty=nothing,
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
+    dim_reduction::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
@@ -51,7 +53,7 @@ function GradientBasedGenerator(;
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, opt)
+    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
 end
 
 """
@@ -70,7 +72,8 @@ function Generator(;
     penalty::Penalty=nothing,
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
+    dim_reduction::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
 )
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, opt)
+    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
 end
