@@ -13,6 +13,7 @@ function CounterfactualExplanations.parallelize(
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
     verbose::Bool=false,
+    n_each::Union{Nothing,Int}=nothing,
     kwargs...,
 )
 

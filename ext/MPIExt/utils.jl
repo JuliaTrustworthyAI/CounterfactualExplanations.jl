@@ -1,4 +1,13 @@
 """
+    chunk_obs(obs::AbstractVector, n_each::Integer, n_groups::Integer)
+
+Split the vector of observations `obs` into chunks such that each chunk has `n_each` observations for each available CPU core (i.e. `n_groups`).
+"""
+function chunk_obs(obs::AbstractVector, n_each::Integer, n_groups::Integer)
+    Iterators.partition(obs, n_each * n_groups)
+end
+
+"""
     split_count(N::Integer, n::Integer)
 
 Return a vector of `n` integers which are approximately equally sized and sum to `N`. Lifted from https://juliaparallel.org/MPI.jl/v0.20/examples/06-scatterv/.
