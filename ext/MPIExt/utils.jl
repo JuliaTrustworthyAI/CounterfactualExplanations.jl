@@ -3,7 +3,7 @@
 
 Split the vector of observations `obs` into chunks such that each chunk has `n_each` observations for each available CPU core (i.e. `n_groups`).
 """
-function chunk_obs(obs::AbstractVector, n_each::Integer, n_groups::Integer)
+function chunk_obs(obs, n_each::Integer, n_groups::Integer)
     return Iterators.partition(obs, n_each * n_groups)
 end
 

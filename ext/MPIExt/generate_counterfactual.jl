@@ -13,70 +13,69 @@ function CounterfactualExplanations.parallelize(
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
     verbose::Bool=false,
-    n_each::Union{Nothing,Int}=nothing,
+    n_each::Union{Nothing,Int}=10,
     kwargs...,
 )
 
     # Extract positional arguments:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
-    target = args[2]
-    data = args[3]
-    M = args[4]
-    generator = args[5]
+    target = args[2] |> x -> isa(x, AbstractArray) ? x : fill(x, length(counterfactuals))
+    data = args[3] |> x -> isa(x, AbstractArray) ? x : fill(x, length(counterfactuals))
+    M = args[4] |> x -> isa(x, AbstractArray) ? x : fill(x, length(counterfactuals))
+    generator = args[5] |> x -> isa(x, AbstractArray) ? x : fill(x, length(counterfactuals))
 
-    # Split counterfactuals into groups of approximately equal size:
-    x = split_obs(counterfactuals, parallelizer.n_proc)
-    x = MPI.scatter(x, parallelizer.comm)
-
-    # Split targets into groups of approximately equal size if necessary:
-    if typeof(target) <: AbstractArray
-        target = split_obs(target, parallelizer.n_proc)
-        target = MPI.scatter(target, parallelizer.comm)
+    # Break down into chunks:
+    args = zip(counterfactuals, target, data, M, generator)
+    if !isnothing(n_each)
+        chunks = chunk_obs(args, n_each, parallelizer.n_proc)
+    else
+        chunks = args
     end
 
-    # Split models into groups of approximately equal size if necessary:
-    if typeof(M) <: AbstractArray
-        M = split_obs(M, parallelizer.n_proc)
-        M = MPI.scatter(M, parallelizer.comm)
-    end
+    # Setup:
+    outputs = []
 
-    # Split generators into groups of approximately equal size if necessary:
-    if typeof(generator) <: AbstractArray
-        generator = split_obs(generator, parallelizer.n_proc)
-        generator = MPI.scatter(generator, parallelizer.comm)
-    end
-
-    # Evaluate function:
-    if !parallelizer.threaded
-        if parallelizer.rank == 0 && verbose
-            output = @showprogress desc = "Generating counterfactuals ..." broadcast(
-                x, target, M, generator
-            ) do x, target, M, generator
-                with_logger(NullLogger()) do
-                    f(x, target, data, M, generator; kwargs...)
+    # For each chunk:
+    for chunk in chunks 
+        worker_chunk = split_obs(chunk, parallelizer.n_proc)
+        worker_chunk = MPI.scatter(worker_chunk, parallelizer.comm)
+        if !parallelizer.threaded
+            if parallelizer.rank == 0 && verbose
+                output = @showprogress desc = "Generating counterfactuals ..." broadcast(
+                    worker_chunk
+                ) do worker_chunk
+                    with_logger(NullLogger()) do
+                        f(worker_chunk...; kwargs...)
+                    end
+                end
+            else
+                output = with_logger(NullLogger()) do
+                    f.(worker_chunk...; kwargs...)
                 end
             end
         else
-            output = with_logger(NullLogger()) do
-                f.(x, target, data, M, generator; kwargs...)
-            end
+            second_parallelizer = ThreadsParallelizer()
+            output = CounterfactualExplanations.parallelize(
+                second_parallelizer, f, worker_chunk...; kwargs...
+            )
         end
-    else
-        second_parallelizer = ThreadsParallelizer()
-        output = CounterfactualExplanations.parallelize(
-            second_parallelizer, f, x, target, data, M, generator; kwargs...
-        )
-    end
-    MPI.Barrier(parallelizer.comm)
+        MPI.Barrier(parallelizer.comm)
 
-    # Collect output from all processe in rank 0:
-    collected_output = MPI.gather(output, parallelizer.comm)
-    if parallelizer.rank == 0
-        output = vcat(collected_output...)
-    else
-        output = nothing
+        # Collect output from all processe in rank 0:
+        collected_output = MPI.gather(output, parallelizer.comm)
+        if parallelizer.rank == 0
+            output = vcat(collected_output...)
+            push!(outputs, output)
+        else
+            output = nothing
+            push!(outputs, output)
+        end
+        MPI.Barrier(parallelizer.comm)
+
     end
-    MPI.Barrier(parallelizer.comm)
+
+    # Collect output from all processes in rank 0:
+    output = vcat(outputs...)
 
     # Broadcast output to all processes:
     final_output = MPI.bcast(output, parallelizer.comm; root=0)
