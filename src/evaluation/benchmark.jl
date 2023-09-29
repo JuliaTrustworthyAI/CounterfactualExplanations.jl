@@ -215,44 +215,42 @@ function benchmark(
     test_data = isnothing(test_data) ? data : test_data
     bmks = Benchmark[]
 
+    # Set up search:
+    # If no factual is provided, choose randomly from the data for all individuals. Otherwise, use the same factual for all individuals.
+    factual = if isnothing(factual)
+        rand(data.y_levels, n_individuals)
+    else
+        fill(factual, n_individuals)
+    end
+    if isnothing(target)
+        # If no target is provided, choose randomly from the data for all individuals, each time excluding the factual.
+        target = [
+            rand(data.y_levels[data.y_levels .!= factual[i]]) for i in 1:n_individuals
+        ]
+    else
+        # Otherwise, use the same target for all individuals.
+        target = fill(target, n_individuals)
+    end
+
+    # Train models if necessary:
+    if !suppress_training
+        @info "Training models on data."
+        if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
+            models = Dict(key => Models.train(model, data) for (key, model) in models)
+        else
+            models = Dict(key => Models.train(model(data), data) for (key, model) in models)
+        end
+    end
+
+    # Use all generators if none are provided:
+    generators = if isnothing(generators)
+        Dict(key => gen() for (key, gen) in generator_catalogue)
+    else
+        generators
+    end
+
     # Run benchmarking exercise `n_runs` times:
-    for i in 1:n_runs
-
-        # Set up search:
-        # If no factual is provided, choose randomly from the data for all individuals. Otherwise, use the same factual for all individuals.
-        factual = if isnothing(factual)
-            rand(data.y_levels, n_individuals)
-        else
-            fill(factual, n_individuals)
-        end
-        if isnothing(target)
-            # If no target is provided, choose randomly from the data for all individuals, each time excluding the factual.
-            target = [
-                rand(data.y_levels[data.y_levels .!= factual[i]]) for i in 1:n_individuals
-            ]
-        else
-            # Otherwise, use the same target for all individuals.
-            target = fill(target, n_individuals)
-        end
-
-        # Train models if necessary:
-        if !suppress_training
-            @info "Training models on data."
-            if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
-                models = Dict(key => Models.train(model, data) for (key, model) in models)
-            else
-                models = Dict(
-                    key => Models.train(model(data), data) for (key, model) in models
-                )
-            end
-        end
-
-        # Use all generators if none are provided:
-        generators = if isnothing(generators)
-            Dict(key => gen() for (key, gen) in generator_catalogue)
-        else
-            generators
-        end
+    for run in 1:n_runs
 
         # Grid setup:
         grid = []
@@ -314,7 +312,7 @@ function benchmark(
                 _dict[:dataname] = dataname
             end
             if n_runs > 1
-                _dict[:run] = i
+                _dict[:run] = run
             end
             return _dict
         end
@@ -336,7 +334,7 @@ function benchmark(
         push!(bmks, bmk)
     end
 
-    bmk = vcat(bmks...)
+    bmk = reduce(vcat, bmks)
 
     return bmk
 end
