@@ -1,3 +1,6 @@
+using MLUtils: stack
+using Serialization
+
 """
     CounterfactualExplanations.parallelize(
         parallelizer::MPIParallelizer,
@@ -29,34 +32,38 @@ function CounterfactualExplanations.parallelize(
     if !isnothing(n_each)
         chunks = chunk_obs(args, n_each, parallelizer.n_proc)
     else
-        chunks = args
+        chunks = [collect(args)]
     end
 
     # Setup:
-    outputs = []
+    storage_path = tempdir()
 
     # For each chunk:
-    for chunk in chunks 
+    for (i, chunk) in enumerate(chunks)
         worker_chunk = split_obs(chunk, parallelizer.n_proc)
         worker_chunk = MPI.scatter(worker_chunk, parallelizer.comm)
+        worker_chunk = stack(worker_chunk, dims=1)
         if !parallelizer.threaded
             if parallelizer.rank == 0 && verbose
                 output = @showprogress desc = "Generating counterfactuals ..." broadcast(
                     worker_chunk
                 ) do worker_chunk
                     with_logger(NullLogger()) do
-                        f(worker_chunk...; kwargs...)
+                        f(eachcol(worker_chunk)...; kwargs...)
                     end
                 end
             else
-                output = with_logger(NullLogger()) do
-                    f.(worker_chunk...; kwargs...)
+                output = with_logger(NullLogger()) do         
+                    f.(eachcol(worker_chunk)...; kwargs...)
                 end
             end
         else
             second_parallelizer = ThreadsParallelizer()
             output = CounterfactualExplanations.parallelize(
-                second_parallelizer, f, worker_chunk...; kwargs...
+                second_parallelizer,
+                f,
+                eachcol(worker_chunk)...;
+                kwargs...,
             )
         end
         MPI.Barrier(parallelizer.comm)
@@ -65,18 +72,25 @@ function CounterfactualExplanations.parallelize(
         collected_output = MPI.gather(output, parallelizer.comm)
         if parallelizer.rank == 0
             output = vcat(collected_output...)
-            push!(outputs, output)
-        else
-            output = nothing
-            push!(outputs, output)
+            Serialization.serialize(joinpath(storage_path, "output_$i.jls"), output)
         end
         MPI.Barrier(parallelizer.comm)
 
     end
 
+    # Load output from rank 0:
+    if parallelizer.rank == 0
+        outputs = []
+        for i in 1:length(chunks)
+            output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
+            push!(outputs, output)
+        end
+    else
+        outputs = nothing
+    end
+
     # Collect output from all processes in rank 0:
     output = vcat(outputs...)
-
     # Broadcast output to all processes:
     final_output = MPI.bcast(output, parallelizer.comm; root=0)
     MPI.Barrier(parallelizer.comm)
