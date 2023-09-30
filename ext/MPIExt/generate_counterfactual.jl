@@ -16,7 +16,7 @@ function CounterfactualExplanations.parallelize(
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
     verbose::Bool=false,
-    n_each::Union{Nothing,Int}=10,
+    n_each::Union{Nothing,Int}=nothing,
     kwargs...,
 )
 
@@ -42,28 +42,24 @@ function CounterfactualExplanations.parallelize(
     for (i, chunk) in enumerate(chunks)
         worker_chunk = split_obs(chunk, parallelizer.n_proc)
         worker_chunk = MPI.scatter(worker_chunk, parallelizer.comm)
-        worker_chunk = stack(worker_chunk, dims=1)
+        worker_chunk = stack(worker_chunk; dims=1)
         if !parallelizer.threaded
             if parallelizer.rank == 0 && verbose
-                output = @showprogress desc = "Generating counterfactuals ..." broadcast(
-                    worker_chunk
-                ) do worker_chunk
+                output = []
+                @showprogress desc = "Generating counterfactuals ..." for x in zip(eachcol(worker_chunk)...)
                     with_logger(NullLogger()) do
-                        f(eachcol(worker_chunk)...; kwargs...)
+                        push!(output, f(x...; kwargs...))
                     end
                 end
             else
-                output = with_logger(NullLogger()) do         
+                output = with_logger(NullLogger()) do
                     f.(eachcol(worker_chunk)...; kwargs...)
                 end
             end
         else
             second_parallelizer = ThreadsParallelizer()
             output = CounterfactualExplanations.parallelize(
-                second_parallelizer,
-                f,
-                eachcol(worker_chunk)...;
-                kwargs...,
+                second_parallelizer, f, eachcol(worker_chunk)...; kwargs...
             )
         end
         MPI.Barrier(parallelizer.comm)
@@ -75,7 +71,6 @@ function CounterfactualExplanations.parallelize(
             Serialization.serialize(joinpath(storage_path, "output_$i.jls"), output)
         end
         MPI.Barrier(parallelizer.comm)
-
     end
 
     # Load output from rank 0:
