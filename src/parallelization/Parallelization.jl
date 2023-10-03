@@ -8,7 +8,8 @@ using CounterfactualExplanations.Evaluation: evaluate
 using Logging
 using ProgressMeter
 
-include("threads.jl")
+include("utils.jl")
+include("threads/threads.jl")
 
 """
     @with_parallelizer(parallelizer, expr)
