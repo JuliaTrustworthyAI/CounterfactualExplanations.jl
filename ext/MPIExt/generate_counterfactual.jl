@@ -80,12 +80,13 @@ function CounterfactualExplanations.parallelize(
             output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
             push!(outputs, output)
         end
+        # Collect output from all processes in rank 0:
+        output = vcat(outputs...)
     else
-        outputs = nothing
+        output = nothing
     end
 
-    # Collect output from all processes in rank 0:
-    output = vcat(outputs...)
+    
     # Broadcast output to all processes:
     final_output = MPI.bcast(output, parallelizer.comm; root=0)
     MPI.Barrier(parallelizer.comm)
