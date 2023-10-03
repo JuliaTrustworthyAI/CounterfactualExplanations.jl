@@ -195,10 +195,12 @@ Runs the benchmarking exercise as follows:
 """
 function benchmark(
     data::CounterfactualData;
+    test_data::Union{Nothing,CounterfactualData}=nothing,
     models::Dict{<:Any,<:Any}=standard_models_catalogue,
     generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
     measure::Union{Function,Vector{Function}}=default_measures,
     n_individuals::Int=5,
+    n_runs::Int=1,
     suppress_training::Bool=false,
     factual::Union{Nothing,RawTargetType}=nothing,
     target::Union{Nothing,RawTargetType}=nothing,
@@ -208,6 +210,10 @@ function benchmark(
     verbose::Bool=true,
     kwrgs...,
 )
+
+    # Setup:
+    test_data = isnothing(test_data) ? data : test_data
+    bmks = Benchmark[]
 
     # Set up search:
     # If no factual is provided, choose randomly from the data for all individuals. Otherwise, use the same factual for all individuals.
@@ -243,79 +249,92 @@ function benchmark(
         generators
     end
 
-    # Grid setup:
-    grid = []
-    for (mod_name, M) in models
-        # Individuals need to be chosen separately for each model:
-        chosen = Vector{Int}()
-        for i in 1:n_individuals
-            # For each individual and specified factual label, randomly choose index of a factual observation:
-            chosen_ind = rand(
-                findall(CounterfactualExplanations.predict_label(M, data) .== factual[i])
-            )[1]
-            push!(chosen, chosen_ind)
-        end
-        xs = CounterfactualExplanations.select_factual(data, chosen)
-        xs = CounterfactualExplanations.vectorize_collection(xs)
-        # Form the grid:
-        for (i, x) in enumerate(xs)
-            sample_id = uuid1()
-            for (gen_name, gen) in generators
-                comb = (x, target[i], (mod_name, M), (gen_name, gen), sample_id)
-                push!(grid, comb)
+    # Run benchmarking exercise `n_runs` times:
+    for run in 1:n_runs
+
+        # Grid setup:
+        grid = []
+        for (mod_name, M) in models
+            # Individuals need to be chosen separately for each model:
+            chosen = Vector{Int}()
+            for i in 1:n_individuals
+                # For each individual and specified factual label, randomly choose index of a factual observation:
+                chosen_ind = rand(
+                    findall(
+                        CounterfactualExplanations.predict_label(M, test_data) .==
+                        factual[i],
+                    ),
+                )[1]
+                push!(chosen, chosen_ind)
+            end
+            xs = CounterfactualExplanations.select_factual(test_data, chosen)
+            xs = CounterfactualExplanations.vectorize_collection(xs)
+            # Form the grid:
+            for (i, x) in enumerate(xs)
+                sample_id = uuid1()
+                for (gen_name, gen) in generators
+                    comb = (x, target[i], (mod_name, M), (gen_name, gen), sample_id)
+                    push!(grid, comb)
+                end
             end
         end
-    end
 
-    # Vectorize the grid:
-    xs = [x[1] for x in grid]
-    targets = [x[2] for x in grid]
-    Ms = [x[3][2] for x in grid]
-    gens = [x[4][2] for x in grid]
-    sample_ids = [x[5] for x in grid]
+        # Vectorize the grid:
+        xs = [x[1] for x in grid]
+        targets = [x[2] for x in grid]
+        Ms = [x[3][2] for x in grid]
+        gens = [x[4][2] for x in grid]
+        sample_ids = [x[5] for x in grid]
 
-    # Generate counterfactuals; in parallel if so specified
-    ces = parallelize(
-        parallelizer,
-        generate_counterfactual,
-        xs,
-        targets,
-        data,
-        Ms,
-        gens;
-        verbose=verbose,
-        kwrgs...,
-    )
-
-    # Meta Data:
-    meta_data = map(eachindex(ces)) do i
-        # Meta Data:
-        _dict = Dict(
-            :model => grid[i][3][1],
-            :generator => grid[i][4][1],
-            :sample => sample_ids[i],
+        # Generate counterfactuals; in parallel if so specified
+        ces = parallelize(
+            parallelizer,
+            generate_counterfactual,
+            xs,
+            targets,
+            data,
+            Ms,
+            gens;
+            verbose=verbose,
+            kwrgs...,
         )
-        # Add dataname if supplied:
-        if !isnothing(dataname)
-            _dict[:dataname] = dataname
+
+        # Meta Data:
+        meta_data = map(eachindex(ces)) do i
+            # Meta Data:
+            _dict = Dict(
+                :model => grid[i][3][1],
+                :generator => grid[i][4][1],
+                :sample => sample_ids[i],
+            )
+            # Add dataname if supplied:
+            if !isnothing(dataname)
+                _dict[:dataname] = dataname
+            end
+            if n_runs > 1
+                _dict[:run] = run
+            end
+            return _dict
         end
-        return _dict
+
+        # Evaluate counterfactuals; in parallel if so specified
+        evaluations = parallelize(
+            parallelizer,
+            evaluate,
+            ces,
+            meta_data;
+            verbose=verbose,
+            measure=measure,
+            report_each=true,
+            report_meta=true,
+            store_ce=store_ce,
+            output_format=:DataFrame,
+        )
+        bmk = Benchmark(reduce(vcat, evaluations))
+        push!(bmks, bmk)
     end
 
-    # Evaluate counterfactuals; in parallel if so specified
-    evaluations = parallelize(
-        parallelizer,
-        evaluate,
-        ces,
-        meta_data;
-        verbose=verbose,
-        measure=measure,
-        report_each=true,
-        report_meta=true,
-        store_ce=store_ce,
-        output_format=:DataFrame,
-    )
-    bmk = Benchmark(reduce(vcat, evaluations))
+    bmk = reduce(vcat, bmks)
 
     return bmk
 end
