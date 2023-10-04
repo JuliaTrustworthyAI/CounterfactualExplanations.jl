@@ -94,7 +94,7 @@ We first instantiate an `MPIParallelizer` object:
 ```{julia}
 import MPI
 MPI.Init()
-parallelizer = MPIParallelizer(MPI.COMM_WORLD)
+parallelizer = MPIParallelizer(MPI.COMM_WORLD; threaded=true)
 ```
 
 To generate counterfactuals in parallel, we use the `parallelize` function:

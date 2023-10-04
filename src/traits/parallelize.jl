@@ -1,4 +1,4 @@
-vectorize_collection(collection::Vector) = collection
+vectorize_collection(collection::Union{Vector,SubArray}) = collection
 
 vectorize_collection(collection::Base.Iterators.Zip) = map(x -> x[1], collect(collection))
 
