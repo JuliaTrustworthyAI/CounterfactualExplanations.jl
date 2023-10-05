@@ -60,17 +60,21 @@ activation = relu
 function head(Xhat)
     return mlp(Xhat)
 end
-# A small MLP as our backbone, then a linear layer to map to the latent space and finally the decoder:
+# A small MLP as our backbone, then a linear layer to map to the latent space:
 tokenizer = Chain(
     Dense(size(Xtrain, 1) => latent, activation),
     Dense(latent => latent, activation),
     Dense(latent => vae.params.latent_dim),
+)
+# The decoder of our VAE:
+reconstructor = Chain(
     vae.decoder,
     x -> clamp.(x, -1, 1),
 )
 # A pre-trained MLP as our head to predict labels for the generated tokens:
 model = Chain(
     tokenizer,
+    reconstructor,
     head,
 )
 loss(ŷ,y) = Flux.logitcrossentropy(ŷ, y)
@@ -83,16 +87,27 @@ for epoch in 1:epochs
     end
 end
 
+# Linear Probes 
+# 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+
+
+
 # Plotting:
-function plot_latent(vae, loader)
-    plt = scatter(palette=:rainbow)
-    for (i, (x,y)) in enumerate(loader)
-        i < 20 || break
-        μ, _ = vae.encoder(x)
-        scatter!(μ[1, :], μ[2, :], 
-            markerstrokewidth=0, markeralpha=0.8,
-            aspect_ratio=1,
-            markercolor=y, label="")
-    end
+function plot_latent(vae, X, y; n=2500)
+    plt = scatter()
+    μ, _ = vae.encoder(X)
+    pc = svd(μ).Vt
+    x1 = pc[1, :]
+    x2 = pc[2, :]
+    idx = !isnothing(n) ? rand(1:size(X, 2), n) : 1:size(X, 2)
+    scatter!(
+        x1[idx],
+        x2[idx];
+        markerstrokewidth=0,
+        markeralpha=0.8,
+        aspect_ratio=1,
+        markercolor=y[idx],
+        label="",
+    )
     return plt
 end
