@@ -1,0 +1,5 @@
+[deps]
+CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
+MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
+OneHotArrays = "0b1bfda6-eb8a-41d2-88d8-f5af5cad476f"
