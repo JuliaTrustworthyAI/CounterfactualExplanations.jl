@@ -1,15 +1,19 @@
 using CounterfactualExplanations.Data: load_mnist
-using CounterfactualExplanations.Models: load_mnist_vae
+using CounterfactualExplanations.Models: load_mnist_vae, load_mnist_mlp
 using CSV
 using DataFrames
 using Flux
+using Images
 using MLJBase
 using MLJModels
 using OneHotArrays
+using Plots
 
 # Load MNIST data:
 data = load_mnist()
 X = data.X
+vae = load_mnist_vae()
+mlp = load_mnist_mlp().model
 
 # World Data:
 world_data = CSV.read("dev/misc/world_place.csv", DataFrame)
@@ -41,15 +45,54 @@ X = fifa_world_data[:,Not(:y)]
 model = (MLJModels.ContinuousEncoder() |> MLJModels.Standardizer())
 mach = machine(model, X)
 MLJBase.fit!(mach)
-Xtrain = MLJBase.transform(mach, X) |> MLJBase.matrix |> permutedims
+Xtrain = MLJBase.transform(mach, X) |> 
+    MLJBase.matrix |> 
+    permutedims |>
+    x -> Float32.(x)
 # One-hot encoding:
 y = fifa_world_data.y
-y = OneHotArrays.onehotbatch(y, 0:9)
+ytrain = OneHotArrays.onehotbatch(y, 0:9)
+# Dataloader:
+dl = Flux.DataLoader((Xtrain, ytrain), batchsize=32, shuffle=true)
 # Tokenizer:
+latent = 32
+activation = relu
+function head(Xhat)
+    return mlp(Xhat)
+end
+# A small MLP as our backbone, then a linear layer to map to the latent space and finally the decoder:
 tokenizer = Chain(
-    Dense()
+    Dense(size(Xtrain, 1) => latent, activation),
+    Dense(latent => latent, activation),
+    Dense(latent => vae.params.latent_dim),
+    vae.decoder,
+    x -> clamp.(x, -1, 1),
 )
+# A pre-trained MLP as our head to predict labels for the generated tokens:
+model = Chain(
+    tokenizer,
+    head,
+)
+loss(ŷ,y) = Flux.logitcrossentropy(ŷ, y)
+opt_state = Flux.setup(Adam(), model)
+# Train:
+epochs = 10
+for epoch in 1:epochs
+    Flux.train!(model, dl, opt_state) do m, x, y
+        loss(m(x), y)
+    end
+end
 
-# Encoding:
-vae = load_mnist_vae()
-vae.encoder
+# Plotting:
+function plot_latent(vae, loader)
+    plt = scatter(palette=:rainbow)
+    for (i, (x,y)) in enumerate(loader)
+        i < 20 || break
+        μ, _ = vae.encoder(x)
+        scatter!(μ[1, :], μ[2, :], 
+            markerstrokewidth=0, markeralpha=0.8,
+            aspect_ratio=1,
+            markercolor=y, label="")
+    end
+    return plt
+end
