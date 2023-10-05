@@ -16,9 +16,11 @@ function CounterfactualExplanations.parallelize(
     f::typeof(CounterfactualExplanations.generate_counterfactual),
     args...;
     verbose::Bool=false,
-    n_each::Union{Nothing,Int}=nothing,
     kwargs...,
 )
+
+    # Setup:
+    n_each = parallelizer.n_each
 
     # Extract positional arguments:
     counterfactuals = args[1] |> x -> CounterfactualExplanations.vectorize_collection(x)
@@ -30,7 +32,7 @@ function CounterfactualExplanations.parallelize(
     # Break down into chunks:
     args = zip(counterfactuals, target, data, M, generator)
     if !isnothing(n_each)
-        chunks = chunk_obs(args, n_each, parallelizer.n_proc)
+        chunks = Parallelization.chunk_obs(args, n_each, parallelizer.n_proc)
     else
         chunks = [collect(args)]
     end
@@ -40,23 +42,28 @@ function CounterfactualExplanations.parallelize(
 
     # For each chunk:
     for (i, chunk) in enumerate(chunks)
-        worker_chunk = split_obs(chunk, parallelizer.n_proc)
+        worker_chunk = Parallelization.split_obs(chunk, parallelizer.n_proc)
         worker_chunk = MPI.scatter(worker_chunk, parallelizer.comm)
         worker_chunk = stack(worker_chunk; dims=1)
         if !parallelizer.threaded
             if parallelizer.rank == 0 && verbose
+                # Generating counterfactuals with progress bar:
                 output = []
-                @showprogress desc = "Generating counterfactuals ..." for x in zip(eachcol(worker_chunk)...)
+                @showprogress desc = "Generating counterfactuals ..." for x in zip(
+                    eachcol(worker_chunk)...
+                )
                     with_logger(NullLogger()) do
                         push!(output, f(x...; kwargs...))
                     end
                 end
             else
+                # Generating counterfactuals without progress bar:
                 output = with_logger(NullLogger()) do
                     f.(eachcol(worker_chunk)...; kwargs...)
                 end
             end
         else
+            # Parallelize further with `Threads.@threads`:
             second_parallelizer = ThreadsParallelizer()
             output = CounterfactualExplanations.parallelize(
                 second_parallelizer, f, eachcol(worker_chunk)...; kwargs...
@@ -80,12 +87,12 @@ function CounterfactualExplanations.parallelize(
             output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
             push!(outputs, output)
         end
+        # Collect output from all processes in rank 0:
+        output = vcat(outputs...)
     else
-        outputs = nothing
+        output = nothing
     end
 
-    # Collect output from all processes in rank 0:
-    output = vcat(outputs...)
     # Broadcast output to all processes:
     final_output = MPI.bcast(output, parallelizer.comm; root=0)
     MPI.Barrier(parallelizer.comm)
