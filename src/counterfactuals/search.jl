@@ -13,7 +13,7 @@ function update!(ce::CounterfactualExplanation)
     # Updates:
     ce.s′ = s′                                                  # update counterfactual
     ce.x′ = decode_state(ce)                                    # decoded counterfactual state
-    ce.x′ = apply_domain_constraints(ce.data, ce.x′)   # apply domain constraints
+    apply_domain_constraints!(ce)                               # apply domain constraints
     _times_changed = reshape(
         decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )
@@ -62,8 +62,6 @@ end
 Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(ce::CounterfactualExplanation)
-    if !wants_latent_space(ce)
-        s′ = ce.s′
-        ce.s′ = DataPreprocessing.apply_domain_constraints(ce.data, s′)
-    end
+    ce.x′ = apply_domain_constraints(ce.data, ce.x′)            # apply domain constraints in feature space
+    ce.s′ = encode_state(ce.x′)                                 # re-encode counterfactual state
 end
