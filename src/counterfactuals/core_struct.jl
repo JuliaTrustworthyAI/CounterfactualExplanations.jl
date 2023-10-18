@@ -138,15 +138,15 @@ function CounterfactualExplanation(
         :iteration_count => 0,
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [ce.s′],
-        :terminated => threshold_reached(ce, ce.x),
     )
 
     # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
     # the above fields, which are not yet initialized.
     ce.search[:converged] = converged(ce)
+    ce.search[:terminated] = terminated(ce)
 
     # Check for redundancy:
-    if terminated(ce)
+    if in_target_class(ce) && threshold_reached(ce)
         @info "Factual already in target class and probability exceeds threshold γ."
     end
 
