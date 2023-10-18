@@ -16,7 +16,7 @@ end
 Check if the counterfactual is in the target class.
 """
 function in_target_class(ce::CounterfactualExplanation)
-    return Models.predict_label(ce.M, ce.data, ce.s′)[1] == ce.target
+    return Models.predict_label(ce.M, ce.data, ce.x′)[1] == ce.target
 end
 
 """
