@@ -252,6 +252,10 @@ function benchmark(
     # Run benchmarking exercise `n_runs` times:
     for run in 1:n_runs
 
+        if verbose
+            @info "Run $run of $n_runs."
+        end
+
         # Grid setup:
         grid = []
         for (mod_name, M) in models
