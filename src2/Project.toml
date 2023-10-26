@@ -1,0 +1,7 @@
+name = "src2"
+uuid = "bd981ab0-8c61-45ed-8040-4406d78a0bb1"
+authors = ["Vincent Pikand <pikandvincent@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
