@@ -293,7 +293,7 @@ function benchmark(
             # Split grid vertically:
             path_for_run = mkpath(joinpath(storage_path, "run_$run"))
             grids = partition(grid, Int(ceil(length(grid) / vertical_splits)))
-        else 
+        else
             grids = [grid]
         end
 
