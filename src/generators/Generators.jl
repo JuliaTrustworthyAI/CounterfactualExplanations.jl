@@ -63,7 +63,7 @@ include("gradient_based/probe.jl")
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
 
-include("non_gradient_based/feature_tweak/feature_tweak.jl")
+include("non_gradient_based/feature_tweak/generate_perturbations.jl")
 include("non_gradient_based/growing_spheres/growing_spheres.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
