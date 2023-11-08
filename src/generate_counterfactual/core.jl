@@ -107,6 +107,7 @@ function generate_counterfactual(
             ce.search[:iteration_count] = 1
             ce.search[:terminated] = true
             ce.search[:converged] = true
+            ce.x′ = decode_state(ce)                                    # decoded counterfactual state
         else
             @warn "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
         end
@@ -119,6 +120,7 @@ function generate_counterfactual(
 
         Generators.growing_spheres_generation!(ce)
         Generators.feature_selection!(ce)
+        ce.x′ = decode_state(ce)                                    # decoded counterfactual state
     else
         @error "Generator not recognized."
     end
