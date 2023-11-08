@@ -4,4 +4,3 @@
 # See also this related discussion: https://discourse.julialang.org/t/should-we-define-new-functions-structs-in-an-extension/103361
 
 include("MPIExt.jl")
-include("PythonCallExt.jl")

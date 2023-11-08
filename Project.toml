@@ -38,11 +38,9 @@ cuDNN = "02a925ec-e4fe-4b08-9a7e-0d78e3d38ccd"
 
 [weakdeps]
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 
 [extensions]
 MPIExt = "MPI"
-PythonCallExt = "PythonCall"
 
 [compat]
 CSV = "0.10"
