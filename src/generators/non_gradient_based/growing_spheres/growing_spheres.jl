@@ -38,7 +38,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     factual = ce.x
     counterfactual_data = ce.data
     target = [ce.target]
-    max_iter = 1000
+    max_iter = ce.max_iter
 
     # Copy hyperparameters
     n = generator.n
@@ -153,6 +153,11 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
 
         ce.search[:iteration_count] += 1
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
+
+        max_iter -= 1
+        if max_iter == 0
+            break
+        end
     end
 
     ce.s′ = counterfactual″
