@@ -37,7 +37,7 @@ generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
     @testset "Data" begin
-        include("data/data.jl")
+        include("data/data_preprocessing.jl")
     end
 
     @testset "Generators" begin
