@@ -39,10 +39,10 @@ using Random
                                 max_iter = 1000
                                 # Threshold reached if converged:
                                 counterfactual = generate_counterfactual(
-                                    x, 
-                                    target, 
-                                    counterfactual_data, 
-                                    M, 
+                                    x,
+                                    target,
+                                    counterfactual_data,
+                                    M,
                                     generator;
                                     max_iter = max_iter,
                                 )
