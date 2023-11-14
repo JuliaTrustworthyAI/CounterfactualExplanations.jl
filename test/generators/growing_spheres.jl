@@ -36,9 +36,15 @@ using Random
                         @testset "Convergence" begin
                             @testset "Non-trivial case" begin
                                 counterfactual_data.generative_model = nothing
+                                max_iter = 1000
                                 # Threshold reached if converged:
                                 counterfactual = generate_counterfactual(
-                                    x, target, counterfactual_data, M, generator;
+                                    x, 
+                                    target, 
+                                    counterfactual_data, 
+                                    M, 
+                                    generator;
+                                    max_iter = max_iter,
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
                                     M, counterfactual_data, counterfactual.s′
