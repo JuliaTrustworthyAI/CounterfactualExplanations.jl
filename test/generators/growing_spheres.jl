@@ -44,7 +44,7 @@ using Random
                                     counterfactual_data,
                                     M,
                                     generator;
-                                    max_iter = max_iter,
+                                    max_iter=max_iter,
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
                                     M, counterfactual_data, counterfactual.s′
