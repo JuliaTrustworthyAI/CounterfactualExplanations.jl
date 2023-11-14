@@ -81,6 +81,7 @@ function CounterfactualExplanations.parallelize(
     end
 
     # Collect output from all processes on each process:
+    outputs = []
     for i in 1:length(chunks)
         output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
         push!(outputs, output)
