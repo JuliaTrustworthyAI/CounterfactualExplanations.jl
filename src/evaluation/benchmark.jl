@@ -1,4 +1,5 @@
 using Base.Iterators
+using Serialization
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
@@ -192,6 +193,7 @@ Runs the benchmarking exercise as follows:
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(x::Union{AbstractArray,Base.Iterators.Zip},...)`](@ref).
 5. Finally, concatenate the results.
 
+If `vertical_splits` is specified to an integer, the computations are split vertically into `vertical_splits` chunks. In this case, the results are stored in a temporary directory and concatenated afterwards. 
 """
 function benchmark(
     data::CounterfactualData;
@@ -208,12 +210,15 @@ function benchmark(
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     dataname::Union{Nothing,Symbol,String}=nothing,
     verbose::Bool=true,
+    vertical_splits::Union{Nothing,Int}=nothing,
+    storage_path::String=tempdir(),
     kwrgs...,
 )
 
     # Setup:
     test_data = isnothing(test_data) ? data : test_data
     bmks = Benchmark[]
+    split_vertically = !isnothing(vertical_splits)
 
     # Set up search:
     # If no factual is provided, choose randomly from the data for all individuals. Otherwise, use the same factual for all individuals.
@@ -252,6 +257,7 @@ function benchmark(
     # Run benchmarking exercise `n_runs` times:
     for run in 1:n_runs
 
+        # General setup:
         if verbose
             @info "Run $run of $n_runs."
         end
@@ -283,59 +289,84 @@ function benchmark(
             end
         end
 
-        # Vectorize the grid:
-        xs = [x[1] for x in grid]
-        targets = [x[2] for x in grid]
-        Ms = [x[3][2] for x in grid]
-        gens = [x[4][2] for x in grid]
-        sample_ids = [x[5] for x in grid]
-
-        # Generate counterfactuals; in parallel if so specified
-        ces = parallelize(
-            parallelizer,
-            generate_counterfactual,
-            xs,
-            targets,
-            data,
-            Ms,
-            gens;
-            verbose=verbose,
-            kwrgs...,
-        )
-
-        # Meta Data:
-        meta_data = map(eachindex(ces)) do i
-            # Meta Data:
-            _dict = Dict(
-                :model => grid[i][3][1],
-                :generator => grid[i][4][1],
-                :sample => sample_ids[i],
-            )
-            # Add dataname if supplied:
-            if !isnothing(dataname)
-                _dict[:dataname] = dataname
-            end
-            if n_runs > 1
-                _dict[:run] = run
-            end
-            return _dict
+        if split_vertically
+            # Split grid vertically:
+            path_for_run = mkpath(joinpath(storage_path, "run_$run"))
+            grids = partition(grid, Int(ceil(length(grid) / vertical_splits)))
+        else
+            grids = [grid]
         end
 
-        # Evaluate counterfactuals; in parallel if so specified
-        evaluations = parallelize(
-            parallelizer,
-            evaluate,
-            ces,
-            meta_data;
-            verbose=verbose,
-            measure=measure,
-            report_each=true,
-            report_meta=true,
-            store_ce=store_ce,
-            output_format=:DataFrame,
-        )
-        bmk = Benchmark(reduce(vcat, evaluations))
-        push!(bmks, bmk)
+        # For each grid:
+        for (i, grid) in enumerate(grids)
+            # Info:
+            if split_vertically
+                @info "Split $i of $(length(grids)) for run $run."
+                output_path = joinpath(path_for_run, "output_$i.jls")
+                if isfile(output_path)
+                    bmk = Serialization.deserialize(output_path)
+                    push!(bmks, bmk)
+                    continue
+                end
+            end
+
+            # Vectorize the grid:
+            xs = [x[1] for x in grid]
+            targets = [x[2] for x in grid]
+            Ms = [x[3][2] for x in grid]
+            gens = [x[4][2] for x in grid]
+            sample_ids = [x[5] for x in grid]
+
+            # Generate counterfactuals; in parallel if so specified
+            ces = parallelize(
+                parallelizer,
+                generate_counterfactual,
+                xs,
+                targets,
+                data,
+                Ms,
+                gens;
+                verbose=verbose,
+                kwrgs...,
+            )
+
+            # Meta Data:
+            meta_data = map(eachindex(ces)) do i
+                # Meta Data:
+                _dict = Dict(
+                    :model => grid[i][3][1],
+                    :generator => grid[i][4][1],
+                    :sample => sample_ids[i],
+                )
+                # Add dataname if supplied:
+                if !isnothing(dataname)
+                    _dict[:dataname] = dataname
+                end
+                if n_runs > 1
+                    _dict[:run] = run
+                end
+                return _dict
+            end
+
+            # Evaluate counterfactuals; in parallel if so specified
+            evaluations = parallelize(
+                parallelizer,
+                evaluate,
+                ces,
+                meta_data;
+                verbose=verbose,
+                measure=measure,
+                report_each=true,
+                report_meta=true,
+                store_ce=store_ce,
+                output_format=:DataFrame,
+            )
+            bmk = Benchmark(reduce(vcat, evaluations))
+            if split_vertically
+                Serialization.serialize(output_path, bmk)
+            end
+            push!(bmks, bmk)
+        end
     end
 
     bmk = reduce(vcat, bmks)
