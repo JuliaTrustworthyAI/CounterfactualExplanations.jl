@@ -38,7 +38,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     factual = ce.x
     counterfactual_data = ce.data
     target = [ce.target]
-    max_iter = ce.max_iter
+    max_iter = ce.convergence[:max_iter]
 
     # Copy hyperparameters
     n = generator.n
