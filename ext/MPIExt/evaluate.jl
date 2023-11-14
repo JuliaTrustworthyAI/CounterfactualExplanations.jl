@@ -81,21 +81,13 @@ function CounterfactualExplanations.parallelize(
         MPI.Barrier(parallelizer.comm)
     end
 
-    # Load output from rank 0:
-    if parallelizer.rank == 0
-        outputs = []
-        for i in 1:length(chunks)
-            output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
-            push!(outputs, output)
-        end
-        # Collect output from all processes in rank 0:
-        output = vcat(outputs...)
-    else
-        output = nothing
+    # Collect output from all processes on each process:
+    outputs = []
+    for i in 1:length(chunks)
+        output = Serialization.deserialize(joinpath(storage_path, "output_$i.jls"))
+        push!(outputs, output)
     end
-
-    # Broadcast output to all processes:
-    final_output = MPI.bcast(output, parallelizer.comm; root=0)
+    final_output = vcat(outputs...)
     MPI.Barrier(parallelizer.comm)
 
     return final_output

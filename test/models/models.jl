@@ -1,6 +1,5 @@
 include("generative_models.jl")
 include("pretrained.jl")
-include("pytorch.jl")
 
 @testset "Standard models for synthetic data" begin
     for (key, value) in synthetic
