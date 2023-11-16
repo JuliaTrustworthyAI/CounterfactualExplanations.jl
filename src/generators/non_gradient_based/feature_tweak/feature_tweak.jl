@@ -22,7 +22,10 @@ The L0-norm simply minimizes the number of features that are changed through the
 # Returns
 - `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
-function FeatureTweakGenerator(; penalty::Union{Nothing,Function,Vector{Function}}=Objectives.distance_l2, ϵ::AbstractFloat=0.1)
+function FeatureTweakGenerator(;
+    penalty::Union{Nothing,Function,Vector{Function}}=Objectives.distance_l2,
+    ϵ::AbstractFloat=0.1,
+)
     return FeatureTweakGenerator(penalty, ϵ, false, false)
 end
 
