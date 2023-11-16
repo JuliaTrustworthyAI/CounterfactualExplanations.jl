@@ -43,9 +43,7 @@ Returns a counterfactual instance of `ce.x` based on the ensemble of classifiers
 # Example
 ce = feature_tweaking(ce) # returns a counterfactual inside the ce.s′ field based on the ensemble of classifiers provided
 """
-function feature_tweaking(
-    ce::AbstractCounterfactualExplanation
-)
+function feature_tweaking(ce::AbstractCounterfactualExplanation)
     @assert isa(ce.generator, Generators.FeatureTweakGenerator) "The feature tweak algorithm can only be applied using the feature tweak generator"
     @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
 
