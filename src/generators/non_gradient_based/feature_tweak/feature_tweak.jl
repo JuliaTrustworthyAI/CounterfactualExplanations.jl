@@ -64,10 +64,9 @@ function feature_tweaking(ce::AbstractCounterfactualExplanation)
             for key in keys(paths)
                 path = paths[key]
                 es_instance = esatisfactory_instance(ce.generator, ce.x, path)
-                candidate_counterfactual = ce.x - es_instance
-                if ce.target .== Models.predict_label(ce.M, candidate_counterfactual)[1]
+                if ce.target .== Models.predict_label(ce.M, es_instance)[1]
                     s′_old = ce.s′
-                    ce.s′ = reshape(candidate_counterfactual, :, 1)
+                    ce.s′ = reshape(es_instance, :, 1)
                     if ce.generator.penalty(ce) < delta
                         delta = ce.generator.penalty(ce)
                     else
