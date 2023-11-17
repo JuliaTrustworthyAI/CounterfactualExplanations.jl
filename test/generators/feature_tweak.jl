@@ -47,9 +47,11 @@
                         @testset "Counterfactual generation" begin
                             @testset "Non-trivial case" begin
                                 objectives = CounterfactualExplanations.Objectives.penalties_catalogue
-                                for (name, obj) in objectives
+                                for (name, penalty) in objectives
                                     @testset "$name" begin
-                                        generator = Generators.FeatureTweakGenerator(penalty=obj)
+                                        generator = Generators.FeatureTweakGenerator(;
+                                            penalty=penalty
+                                        )
                                         print(generator)
                                         data.generative_model = nothing
                                         counterfactual = CounterfactualExplanations.generate_counterfactual(
@@ -58,10 +60,16 @@
                                         @test Models.predict_label(
                                             M,
                                             data,
-                                            CounterfactualExplanations.decode_state(counterfactual),
+                                            CounterfactualExplanations.decode_state(
+                                                counterfactual
+                                            ),
                                         )[1] == target
-                                        @test CounterfactualExplanations.terminated(counterfactual)
-                                        @test CounterfactualExplanations.converged(counterfactual)
+                                        @test CounterfactualExplanations.terminated(
+                                            counterfactual
+                                        )
+                                        @test CounterfactualExplanations.converged(
+                                            counterfactual
+                                        )
                                     end
                                 end
                             end
