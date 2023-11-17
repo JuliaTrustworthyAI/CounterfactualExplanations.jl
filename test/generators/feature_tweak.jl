@@ -61,6 +61,7 @@
                                             CounterfactualExplanations.decode_state(counterfactual),
                                         )[1] == target
                                         @test CounterfactualExplanations.terminated(counterfactual)
+                                        @test CounterfactualExplanations.converged(counterfactual)
                                     end
                                 end
                             end
@@ -80,6 +81,9 @@
                                 if counterfactual.generator.latent_space == false
                                     @test isapprox(counterfactual.x, x′; atol=1e-6)
                                     @test CounterfactualExplanations.terminated(
+                                        counterfactual
+                                    )
+                                    @test CounterfactualExplanations.converged(
                                         counterfactual
                                     )
                                 end
