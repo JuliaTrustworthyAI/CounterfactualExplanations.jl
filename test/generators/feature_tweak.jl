@@ -58,7 +58,9 @@
                                         @test Models.predict_label(
                                             M,
                                             data,
-                                            CounterfactualExplanations.decode_state(counterfactual),
+                                            CounterfactualExplanations.decode_state(
+                                                counterfactual
+                                            ),
                                         )[1] == target
                                         @test CounterfactualExplanations.terminated(
                                             counterfactual
