@@ -60,7 +60,9 @@
                                             data,
                                             CounterfactualExplanations.decode_state(counterfactual),
                                         )[1] == target
-                                        @test CounterfactualExplanations.terminated(counterfactual)
+                                        @test CounterfactualExplanations.terminated(
+                                            counterfactual
+                                        )
                                     end
                                 end
                             end
