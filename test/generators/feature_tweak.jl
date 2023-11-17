@@ -49,7 +49,9 @@
                                 objectives = CounterfactualExplanations.Objectives.penalties_catalogue
                                 for (name, obj) in objectives
                                     @testset "$name" begin
-                                        generator = Generators.FeatureTweakGenerator(penalty=obj)
+                                        generator = Generators.FeatureTweakGenerator(;
+                                            penalty=obj
+                                        )
                                         print(generator)
                                         data.generative_model = nothing
                                         counterfactual = CounterfactualExplanations.generate_counterfactual(
