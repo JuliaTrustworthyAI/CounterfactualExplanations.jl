@@ -46,17 +46,26 @@
 
                         @testset "Counterfactual generation" begin
                             @testset "Non-trivial case" begin
-                                data.generative_model = nothing
-                                counterfactual = CounterfactualExplanations.generate_counterfactual(
-                                    x, target, data, M, generator
-                                )
-                                @test Models.predict_label(
-                                    M,
-                                    data,
-                                    CounterfactualExplanations.decode_state(counterfactual),
-                                )[1] == target
-                                @test CounterfactualExplanations.terminated(counterfactual)
+                                objectives = CounterfactualExplanations.Objectives.penalties_catalogue
+                                for (name, obj) in objectives
+                                    @testset "$name" begin
+                                        generator = Generators.FeatureTweakGenerator(penalty=obj)
+                                        print(generator)
+                                        data.generative_model = nothing
+                                        counterfactual = CounterfactualExplanations.generate_counterfactual(
+                                            x, target, data, M, generator
+                                        )
+                                        @test Models.predict_label(
+                                            M,
+                                            data,
+                                            CounterfactualExplanations.decode_state(counterfactual),
+                                        )[1] == target
+                                        @test CounterfactualExplanations.terminated(counterfactual)
+                                    end
+                                end
                             end
+
+                            generator = Generators.FeatureTweakGenerator()
 
                             @testset "Trivial case (already in target class)" begin
                                 data.generative_model = nothing
