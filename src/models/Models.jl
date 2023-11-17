@@ -5,16 +5,12 @@ using ..DataPreprocessing
 using Parameters
 using Flux
 using MLJBase
-using NearestNeighborModels
 using LazyArtifacts
 using Serialization
-using LaplaceRedux
 using MLUtils
 using ProgressMeter
 using Statistics
-using EvoTrees
 using DataFrames
-using MLJDecisionTreeInterface
 
 include("utils.jl")
 

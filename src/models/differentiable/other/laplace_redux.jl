@@ -4,7 +4,7 @@
 Constructor for `LaplaceRedux.jl` model.
 """
 struct LaplaceReduxModel <: AbstractCustomDifferentiableModel
-    model::Laplace
+    model::LaplaceRedux.Laplace
     likelihood::Symbol
     function LaplaceReduxModel(model, likelihood)
         if likelihood == :classification_binary

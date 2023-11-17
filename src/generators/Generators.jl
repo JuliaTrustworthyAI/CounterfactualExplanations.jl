@@ -11,10 +11,8 @@ using ..Models
 using ..Objectives
 using Statistics
 using Parameters
-using DecisionTree
 using DataFrames
 using MLJBase
-using MLJDecisionTreeInterface
 using Distributions
 using Random
 using Statistics
