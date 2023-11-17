@@ -46,7 +46,8 @@
 
                         @testset "Counterfactual generation" begin
                             @testset "Non-trivial case" begin
-                                objectives = CounterfactualExplanations.Objectives.penalties_catalogue
+                                objectives =
+                                    CounterfactualExplanations.Objectives.penalties_catalogue
                                 for (name, penalty) in objectives
                                     @testset "$name" begin
                                         generator = Generators.FeatureTweakGenerator(;
