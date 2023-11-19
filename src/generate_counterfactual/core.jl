@@ -112,15 +112,6 @@ function generate_counterfactual(
             @warn "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
         end
 
-    elseif isa(generator, GrowingSpheresGenerator)
-
-        # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
-        @assert ce.data.standardize == false "The `GrowingSpheres` currently doesn't support feature encodings."
-        @assert ce.generator.latent_space == false "The `GrowingSpheres` currently doesn't support feature encodings."
-
-        Generators.growing_spheres_generation!(ce)
-        Generators.feature_selection!(ce)
-        ce.x′ = decode_state(ce)                                    # decoded counterfactual state
     else
         @error "Generator not recognized."
     end

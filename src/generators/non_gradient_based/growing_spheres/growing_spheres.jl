@@ -32,14 +32,12 @@ This function applies the growing spheres generation algorithm to generate count
 
 The algorithm iteratively generates counterfactual candidates and predicts their labels using the model stored in `ce.M`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
 """
-function growing_spheres_generation!(
-    factual::Vector{Float64},
-    generator::GrowingSpheresGenerator,
-    model::Models.AbstractFittedModel,
-    counterfactual_data::CounterfactualData,
-    target::RawTargetType,
-)
-    target = [target]
+function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
+    generator = ce.generator
+    model = ce.M
+    factual = ce.x
+    counterfactual_data = ce.data
+    target = [ce.target]
     max_iter = 1000
 
     # Copy hyperparameters
@@ -106,7 +104,8 @@ function growing_spheres_generation!(
         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
 
-    return counterfactual_candidates[:, counterfactual]
+    ce.s′ = counterfactual_candidates[:, counterfactual]
+    return nothing
 end
 
 """

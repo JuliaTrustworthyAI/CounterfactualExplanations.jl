@@ -84,6 +84,7 @@ export Generator, @objective, @threshold
 ###
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
+export GrowingSpheresCounterfactualExplanation
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path

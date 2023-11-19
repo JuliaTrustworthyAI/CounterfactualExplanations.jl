@@ -3,7 +3,7 @@
 
 A convenience method to determine if the counterfactual search has terminated.
 """
-function terminated(ce::CounterfactualExplanation)
+function terminated(ce::AbstractCounterfactualExplanation)
     if ce.M isa Models.TreeModel
         return in_target_class(ce)
     end
@@ -15,7 +15,7 @@ end
 
 Check if the counterfactual is in the target class.
 """
-function in_target_class(ce::CounterfactualExplanation)
+function in_target_class(ce::AbstractCounterfactualExplanation)
     return Models.predict_label(ce.M, ce.data, decode_state(ce))[1] == ce.target
 end
 
@@ -24,7 +24,7 @@ end
 
 A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
 """
-function converged(ce::CounterfactualExplanation)
+function converged(ce::AbstractCounterfactualExplanation)
     if ce.generator isa GrowingSpheresGenerator
         conv = ce.search[:converged]
     elseif ce.convergence[:converge_when] == :decision_threshold
