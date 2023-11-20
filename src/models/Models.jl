@@ -11,6 +11,7 @@ using MLUtils
 using ProgressMeter
 using Statistics
 using DataFrames
+using MLJDecisionTreeInterface
 
 include("utils.jl")
 

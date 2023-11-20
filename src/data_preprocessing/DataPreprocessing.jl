@@ -5,6 +5,7 @@ using CounterfactualExplanations
 using ..GenerativeModels
 using DataFrames
 using Flux
+using MLJBase
 using MultivariateStats
 using StatsBase
 using Tables
