@@ -1,7 +1,7 @@
 """
-    Laplace
+    LaplaceReduxModel
 
-Exposes the `Laplace` from the `LaplaceReduxExt` extension.
+Exposes the `LaplaceReduxModel` from the `LaplaceReduxExt` extension.
 """
-function Laplace end
-export Laplace
+function LaplaceReduxModel end
+export LaplaceReduxModel

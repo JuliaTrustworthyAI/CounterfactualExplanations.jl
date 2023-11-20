@@ -6,8 +6,5 @@
 include("MPIExt.jl")
 include("PythonCallExt.jl")
 include("RCallExt.jl")
-include("MLJBaseExt.jl")
-include("MLJDecisionTreeInterfaceExt.jl")
-include("DecisionTreeExt.jl")
 include("EvoTreesExt.jl")
 include("LaplaceReduxExt.jl")

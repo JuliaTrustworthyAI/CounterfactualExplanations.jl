@@ -20,5 +20,3 @@ abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel e
 
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
-include("mlj/evotree.jl")
-include("other/laplace_redux.jl")
