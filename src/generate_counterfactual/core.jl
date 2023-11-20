@@ -100,7 +100,7 @@ function generate_counterfactual(
         @assert ce.generator.latent_space == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
 
         if isa(M, Models.TreeModel)
-            ce = Generators.feature_tweaking(ce)
+            ce = Generators.feature_tweaking!(ce)
             ce.search[:path] = [ce.search[:path]..., ce.s′]
             ce.search[:iteration_count] = 1
             ce.search[:terminated] = true

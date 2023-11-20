@@ -30,7 +30,7 @@ function FeatureTweakGenerator(;
 end
 
 """
-    feature_tweaking(ce::AbstractCounterfactualExplanation)
+    feature_tweaking!(ce::AbstractCounterfactualExplanation)
 
 Returns a counterfactual instance of `ce.x` based on the ensemble of classifiers provided.
 
@@ -41,9 +41,9 @@ Returns a counterfactual instance of `ce.x` based on the ensemble of classifiers
 - `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 
 # Example
-ce = feature_tweaking(ce) # returns a counterfactual inside the ce.s′ field based on the ensemble of classifiers provided
+ce = feature_tweaking!(ce) # returns a counterfactual inside the ce.s′ field based on the ensemble of classifiers provided
 """
-function feature_tweaking(ce::AbstractCounterfactualExplanation)
+function feature_tweaking!(ce::AbstractCounterfactualExplanation)
     @assert isa(ce.generator, Generators.FeatureTweakGenerator) "The feature tweak algorithm can only be applied using the feature tweak generator"
     @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
 
@@ -67,8 +67,9 @@ function feature_tweaking(ce::AbstractCounterfactualExplanation)
                 if ce.target .== Models.predict_label(ce.M, es_instance)[1]
                     s′_old = ce.s′
                     ce.s′ = reshape(es_instance, :, 1)
-                    if ce.generator.penalty(ce) < delta
-                        delta = ce.generator.penalty(ce)
+                    new_delta = calculate_delta(ce)
+                    if new_delta < delta
+                        delta = new_delta
                     else
                         ce.s′ = s′_old
                     end
@@ -78,6 +79,24 @@ function feature_tweaking(ce::AbstractCounterfactualExplanation)
     end
 
     return ce
+end
+
+"""
+    calculate_delta(ce::AbstractCounterfactualExplanation, penalty::Vector{Function})
+
+Calculates the penalty for the proposed feature tweak.
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+
+# Returns
+- `delta::Float64`: The calculated penalty for the proposed feature tweak.
+"""
+function calculate_delta(ce::AbstractCounterfactualExplanation)
+    penalty = ce.generator.penalty
+    penalty_functions = penalty isa Function ? [penalty] : penalty
+    delta = sum([p(ce) for p in penalty_functions])
+    return delta
 end
 
 """
