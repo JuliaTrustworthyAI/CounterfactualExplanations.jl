@@ -9,7 +9,6 @@ using Statistics
 using StatsBase
 
 include("core_struct.jl")
-include("growing_spheres.jl")
 
 include("convergence.jl")
 include("encodings.jl")

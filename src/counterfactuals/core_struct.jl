@@ -121,7 +121,8 @@ function CounterfactualExplanation(
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
     ce.x′ = decode_state(ce)            # decode the counterfactual state
 
-    if generator isa Generators.FeatureTweakGenerator
+    if generator isa Generators.FeatureTweakGenerator ||
+        generator isa Generators.GrowingSpheresGenerator
         ce.search = Dict(
             :iteration_count => 0,
             :times_changed_features => zeros(size(decode_state(ce))),

@@ -8,11 +8,8 @@ function generate_counterfactual(
     num_counterfactuals::Int=1,
     max_iter::Int=1000,
 )
-    search = Dict(
-        :iteration_count => 0, :path => [x], :terminated => false, :converged => false
-    )
-    ce = GrowingSpheresCounterfactualExplanation(
-        x, target, x, x, data, M, generator, num_counterfactuals, max_iter, search
+    ce = CounterfactualExplanation(
+        x, target, data, M, generator; num_counterfactuals, max_iter
     )
 
     Generators.growing_spheres_generation!(ce)
