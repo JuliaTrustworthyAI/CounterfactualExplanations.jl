@@ -55,8 +55,6 @@ function generate_counterfactual(
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
-    invalidation_rate::AbstractFloat=0.1,
-    learning_rate::AbstractFloat=1.0,
     variance::AbstractFloat=0.01,
 )
     # Initialize:
@@ -74,8 +72,6 @@ function generate_counterfactual(
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
         converge_when=converge_when,
-        invalidation_rate=invalidation_rate,
-        learning_rate=learning_rate,
         variance=variance,
     )
 

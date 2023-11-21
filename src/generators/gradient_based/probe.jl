@@ -18,6 +18,8 @@ function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
     penalty=Objectives.distance_l1,
+    invalidation_rate::AbstractFloat=0.1,
+    learning_rate::AbstractFloat=1.0,
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
