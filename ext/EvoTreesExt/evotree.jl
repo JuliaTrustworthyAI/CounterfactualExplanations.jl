@@ -12,7 +12,7 @@ Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
 # Returns
 - `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
-struct EvoTreeModel <: AbstractMLJModel
+struct EvoTreeModel <: Models.AbstractMLJModel
     model::MLJBase.Machine
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)

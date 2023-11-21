@@ -1,7 +1,7 @@
 """
-    EvoTreeClassifier
+    EvoTreeModel
 
-Exposes the `EvoTreeClassifier` from the `EvoTreesExt` extension.
+Exposes the `EvoTreeModel` from the `EvoTreesExt` extension.
 """
-function EvoTreeClassifier end
-export EvoTreeClassifier
+function EvoTreeModel end
+export EvoTreeModel

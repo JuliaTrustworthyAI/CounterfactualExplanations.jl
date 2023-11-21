@@ -62,6 +62,8 @@ const all_models_catalogue = Dict(
     :Linear => Linear,
     :MLP => FluxModel,
     :DeepEnsemble => FluxEnsemble,
+    :LaplaceRedux => LaplaceReduxModel,
+    :EvoTree => EvoTreeModel,
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
 )
@@ -72,7 +74,9 @@ const all_models_catalogue = Dict(
 A dictionary containing all machine learning models from the MLJ model registry that the package supports.
 """
 const mlj_models_catalogue = Dict(
-    :DecisionTree => DecisionTreeModel, :RandomForest => RandomForestModel
+    :EvoTree => EvoTreeModel,
+    :DecisionTree => DecisionTreeModel,
+    :RandomForest => RandomForestModel,
 )
 
 """

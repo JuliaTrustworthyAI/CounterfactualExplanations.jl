@@ -47,7 +47,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
+export Linear, FluxModel, FluxEnsemble
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,

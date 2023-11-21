@@ -5,7 +5,7 @@ using CounterfactualExplanations.Models
 
 Constructor for `LaplaceRedux.jl` model.
 """
-struct LaplaceReduxModel <: AbstractCustomDifferentiableModel
+struct LaplaceReduxModel <: Models.AbstractCustomDifferentiableModel
     model::LaplaceRedux.Laplace
     likelihood::Symbol
     function LaplaceReduxModel(model, likelihood)
