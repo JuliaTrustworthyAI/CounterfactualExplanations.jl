@@ -1,7 +1,7 @@
 module LaplaceReduxExt
 
 using CounterfactualExplanations
-using LaplaceReduxExt
+using LaplaceRedux
 
 include("laplace_redux.jl")
 

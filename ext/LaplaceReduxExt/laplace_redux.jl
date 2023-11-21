@@ -28,7 +28,7 @@ struct LaplaceReduxModel <: Models.AbstractCustomDifferentiableModel
 end
 
 # Outer constructor method:
-function LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.LaplaceReduxModel(model; likelihood::Symbol=:classification_binary)
     return LaplaceReduxModel(model, likelihood)
 end
 

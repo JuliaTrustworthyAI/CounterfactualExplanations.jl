@@ -32,7 +32,7 @@ end
 """
 Outer constructor method for EvoTreeModel.
 """
-function EvoTreeModel(model; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.EvoTreeModel(model; likelihood::Symbol=:classification_binary)
     return EvoTreeModel(model, likelihood)
 end
 
@@ -107,7 +107,7 @@ Not called by the user directly.
 # Returns
 - `model::EvoTreeModel`: The EvoTree model.
 """
-function EvoTreeModel(data::CounterfactualData; kwargs...)
+function CounterfactualExplanations.EvoTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     model = EvoTrees.EvoTreeClassifier(; kwargs...)
