@@ -72,8 +72,7 @@ const all_models_catalogue = Dict(
 A dictionary containing all machine learning models from the MLJ model registry that the package supports.
 """
 const mlj_models_catalogue = Dict(
-    :DecisionTree => DecisionTreeModel,
-    :RandomForest => RandomForestModel,
+    :DecisionTree => DecisionTreeModel, :RandomForest => RandomForestModel
 )
 
 """
