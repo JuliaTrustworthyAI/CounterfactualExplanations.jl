@@ -7,7 +7,7 @@ function generate_counterfactual(
     generator::Generators.GrowingSpheresGenerator;
     num_counterfactuals::Int=1,
     max_iter::Int=1000,
-    kwrgs...
+    kwrgs...,
 )
     ce = CounterfactualExplanation(
         x, target, data, M, generator; num_counterfactuals, max_iter
