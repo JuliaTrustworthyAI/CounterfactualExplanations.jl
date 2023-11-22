@@ -167,7 +167,6 @@ function CounterfactualData(
     )        # standardization
 
     counterfactual_data.X = Float32.(counterfactual_data.X)
-    
     return counterfactual_data
 end
 
