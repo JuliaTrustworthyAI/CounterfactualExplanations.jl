@@ -166,10 +166,8 @@ function CounterfactualData(
         dims=ndims(X),
     )        # standardization
 
-    if eltype(Tables.matrix(counterfactual_data.X)) != Float32
-        counterfactual_data.X = Float32.(counterfactual_data.X)
-    end
-
+    counterfactual_data.X = Float32.(counterfactual_data.X)
+    
     return counterfactual_data
 end
 
