@@ -49,7 +49,7 @@ function map_to_latent(
 
     if ce.params[:latent_space]
         generative_model = DataPreprocessing.get_generative_model(
-            data; ce.generative_model_params...
+            data; generator.generative_model_params...
         )
         # map counterfactual to latent space: s′=z′∼p(z|x)
         s′, _, _ = GenerativeModels.rand(generative_model.encoder, s′)

@@ -5,6 +5,7 @@ using .Models
 using ChainRulesCore
 using Flux
 using MLUtils
+using MultivariateStats
 using Statistics
 using StatsBase
 

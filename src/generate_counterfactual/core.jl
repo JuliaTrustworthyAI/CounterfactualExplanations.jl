@@ -48,15 +48,12 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    generative_model_params::NamedTuple=(;),
     max_iter::Int=100,
     decision_threshold::AbstractFloat=0.5,
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
-    invalidation_rate::AbstractFloat=0.1,
-    learning_rate::AbstractFloat=1.0,
     variance::AbstractFloat=0.01,
 )
     # Initialize:
@@ -68,14 +65,11 @@ function generate_counterfactual(
         generator;
         num_counterfactuals=num_counterfactuals,
         initialization=initialization,
-        generative_model_params=generative_model_params,
         max_iter=max_iter,
         min_success_rate=min_success_rate,
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
         converge_when=converge_when,
-        invalidation_rate=invalidation_rate,
-        learning_rate=learning_rate,
         variance=variance,
     )
 

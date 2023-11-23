@@ -10,7 +10,6 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
-    generative_model_params::NamedTuple
     params::Dict
     search::Union{Dict,Nothing}
     convergence::Dict
@@ -28,11 +27,8 @@ end
 		max_iter::Int = 100,
 		num_counterfactuals::Int = 1,
 		initialization::Symbol = :add_perturbation,
-		generative_model_params::NamedTuple = (;),
 		min_success_rate::AbstractFloat=0.99,
         converge_when::Symbol=:decision_threshold,
-        invalidation_rate::AbstractFloat=0.5,
-        learning_rate::AbstractFloat=1.0,
         variance::AbstractFloat=0.01,
 	)
 
@@ -46,14 +42,11 @@ function CounterfactualExplanation(
     generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    generative_model_params::NamedTuple=(;),
     max_iter::Int=100,
     decision_threshold::AbstractFloat=0.5,
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
-    invalidation_rate::AbstractFloat=0.5,
-    learning_rate::AbstractFloat=1.0,
     variance::AbstractFloat=0.01,
 )
 
@@ -79,8 +72,6 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
         :dim_reduction => generator.dim_reduction,
-        :invalidation_rate => invalidation_rate,
-        :learning_rate => learning_rate,
         :variance => variance,
     )
     ids = findall(predict_label(M, data) .== target)
@@ -107,7 +98,6 @@ function CounterfactualExplanation(
         data,
         M,
         deepcopy(generator),
-        generative_model_params,
         params,
         nothing,
         convergence,

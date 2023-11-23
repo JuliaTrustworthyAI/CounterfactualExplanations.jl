@@ -22,29 +22,67 @@ end
 """
     converged(ce::CounterfactualExplanation)
 
-A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
+A convenience method to determine if the counterfactual search has converged.
+The search is considered to have converged only if the counterfactual is valid.
 """
 function converged(ce::CounterfactualExplanation)
-    if ce.generator isa GrowingSpheresGenerator
-        conv = ce.search[:converged]
-    elseif ce.convergence[:converge_when] == :decision_threshold
-        conv = threshold_reached(ce)
-    elseif ce.convergence[:converge_when] == :generator_conditions
-        conv = threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
-    elseif ce.convergence[:converge_when] == :max_iter
-        conv = false
-    elseif ce.convergence[:converge_when] == :invalidation_rate
-        ir = Generators.invalidation_rate(ce)
-        # gets the label from an array, not sure why it is an array though.
-        label = predict_label(ce.M, ce.data, ce.x′)[1]
-        conv = label == ce.target && ce.params[:invalidation_rate] > ir
-    elseif (ce.convergence[:converge_when] == :early_stopping)
-        conv = steps_exhausted(ce)
-    else
-        @error "Convergence criterion not recognized."
-    end
+    return converged(ce, Val(ce.convergence[:converge_when]))
+end
 
-    return conv
+"""
+    converged(ce::CounterfactualExplanation, ::Val{:decision_threshold})
+
+Checks if the counterfactual search has converged when the convergence criterion is the decision threshold.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{:decision_threshold})
+    return threshold_reached(ce)
+end
+
+"""
+    converged(ce::CounterfactualExplanation, ::Val{:generator_conditions})
+
+Checks if the counterfactual search has converged when the convergence criterion is generator_conditions.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{:generator_conditions})
+    return threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
+end
+
+"""
+    converged(ce::CounterfactualExplanation, ::Val{:max_iter})
+
+Checks if the counterfactual search has converged when the convergence criterion is maximum iterations.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{:max_iter})
+    return false
+end
+
+"""
+    converged(ce::CounterfactualExplanation, ::Val{:invalidation_rate})
+
+Checks if the counterfactual search has converged when the convergence criterion is invalidation rate.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{:invalidation_rate})
+    ir = Generators.invalidation_rate(ce)
+    label = predict_label(ce.M, ce.data, ce.x′)[1]
+    return label == ce.target && ce.generator.invalidation_rate > ir
+end
+
+"""
+    converged(ce::CounterfactualExplanation, ::Val{:early_stopping})
+
+Checks if the counterfactual search has converged when the convergence criterion is early stopping.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{:early_stopping})
+    return steps_exhausted(ce)
+end
+
+"""
+    converged(ce::CounterfactualExplanation, ::Val{sym})
+
+Throws an error when the `converged()` method is called on an unrecognized convergence criterion.
+"""
+function converged(ce::CounterfactualExplanation, ::Val{sym}) where sym
+    @error "Convergence criterion not recognized: $sym"
 end
 
 """

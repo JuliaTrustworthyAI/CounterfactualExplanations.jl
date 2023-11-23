@@ -32,7 +32,6 @@ end
             converge_when=:invalidation_rate,
             max_iter=1000,
             invalidation_rate=0.1,
-            learning_rate=0.1,
         )
         loss = Generators.hinge_loss(linear_counterfactual)
         rate = Generators.invalidation_rate(linear_counterfactual)

@@ -1,6 +1,3 @@
-using MultivariateStats
-using StatsBase
-
 """
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
