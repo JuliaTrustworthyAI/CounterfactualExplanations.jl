@@ -7,73 +7,96 @@ mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
 end
 
 """
-    FeatureTweakGenerator(ϵ::AbstractFloat=0.1)
+    FeatureTweakGenerator(; penalty::Union{Nothing,Function,Vector{Function}}=Objectives.distance_l2, ϵ::AbstractFloat=0.1)
 
 Constructs a new Feature Tweak Generator object.
 
 Uses the L2-norm as the penalty to measure the distance between the counterfactual and the factual.
-According to the paper by Tolomei er al., an alternative choice here would be using the L0-norm to simply minimize the number of features that are changed through the tweak.
+According to the paper by Tolomei et al., another recommended choice for the penalty in addition to the L2-norm is the L0-norm.
+The L0-norm simply minimizes the number of features that are changed through the tweak.
 
 # Arguments
-- `ϵ::AbstractFloat`: The tolerance value for the feature tweaks. Described at length in Tolomei et al. (https://arxiv.org/pdf/1706.06691.pdf).
+- `penalty::Union{Nothing,Function,Vector{Function}}`: The penalty function to use for the generator. Defaults to `distance_l2`.
+- `ϵ::AbstractFloat`: The tolerance value for the feature tweaks. Described at length in Tolomei et al. (https://arxiv.org/pdf/1706.06691.pdf). Defaults to 0.1.
 
 # Returns
 - `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
-function FeatureTweakGenerator(ϵ::AbstractFloat=0.1)
-    return FeatureTweakGenerator(Objectives.distance_l2, ϵ, false, false)
+function FeatureTweakGenerator(;
+    penalty::Union{Nothing,Function,Vector{Function}}=Objectives.distance_l2,
+    ϵ::AbstractFloat=0.1,
+)
+    return FeatureTweakGenerator(penalty, ϵ, false, false)
 end
 
 """
-    feature_tweaking(generator::FeatureTweakGenerator, ensemble::FluxEnsemble, x::AbstractArray, target::RawTargetType)
+    feature_tweaking!(ce::AbstractCounterfactualExplanation)
 
-Returns a counterfactual instance of `x` based on the ensemble of classifiers provided.
+Returns a counterfactual instance of `ce.x` based on the ensemble of classifiers provided.
 
 # Arguments
-- `generator::FeatureTweakGenerator`: The feature tweak generator.
-- `M::Models.TreeModel`: The model for which the counterfactual is generated. Must be a tree-based model.
-- `x::AbstractArray`: The factual instance.
-- `target::RawTargetType`: The target class.
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 
 # Returns
-- `x_out::AbstractArray`: The counterfactual instance.
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 
 # Example
-x = feature_tweaking(generator, M, x, target) # returns a counterfactual instance of `x` based on the ensemble of classifiers provided
+ce = feature_tweaking!(ce) # returns a counterfactual inside the ce.s′ field based on the ensemble of classifiers provided
 """
-function feature_tweaking(
-    generator::FeatureTweakGenerator,
-    M::Models.TreeModel,
-    x::AbstractArray,
-    target::RawTargetType,
-)
-    if Models.predict_label(M, x) == target
+function feature_tweaking!(ce::AbstractCounterfactualExplanation)
+    @assert isa(ce.generator, Generators.FeatureTweakGenerator) "The feature tweak algorithm can only be applied using the feature tweak generator"
+    @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
+
+    if Models.predict_label(ce.M, ce.x) == ce.target
         return ce
     end
 
-    x_out = deepcopy(x)
     delta = 10^3
-    ensemble_prediction = Models.predict_label(M, x)[1]
+    ensemble_prediction = Models.predict_label(ce.M, ce.x)[1]
 
-    for classifier in Models.get_individual_classifiers(M)
-        if ensemble_prediction != target
+    for classifier in Models.get_individual_classifiers(ce.M)
+        if ensemble_prediction != ce.target
             y_levels = MLJBase.classes(
-                MLJBase.predict(M.model, DataFrames.DataFrame(x', :auto))
+                MLJBase.predict(ce.M.model, DataFrames.DataFrame(ce.x', :auto))
             )
-            paths = search_path(classifier, y_levels, target)
+            paths = search_path(classifier, y_levels, ce.target)
+
             for key in keys(paths)
                 path = paths[key]
-                es_instance = esatisfactory_instance(generator, x, path)
-                if target .== Models.predict_label(M, es_instance)[1]
-                    if LinearAlgebra.norm(x - es_instance) < delta
-                        x_out = es_instance
-                        delta = LinearAlgebra.norm(x - es_instance)
+                es_instance = esatisfactory_instance(ce.generator, ce.x, path)
+                if ce.target .== Models.predict_label(ce.M, es_instance)[1]
+                    s′_old = ce.s′
+                    ce.s′ = reshape(es_instance, :, 1)
+                    new_delta = calculate_delta(ce)
+                    if new_delta < delta
+                        delta = new_delta
+                    else
+                        ce.s′ = s′_old
                     end
                 end
             end
         end
     end
-    return x_out
+
+    return ce
+end
+
+"""
+    calculate_delta(ce::AbstractCounterfactualExplanation, penalty::Vector{Function})
+
+Calculates the penalty for the proposed feature tweak.
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+
+# Returns
+- `delta::Float64`: The calculated penalty for the proposed feature tweak.
+"""
+function calculate_delta(ce::AbstractCounterfactualExplanation)
+    penalty = ce.generator.penalty
+    penalty_functions = penalty isa Function ? [penalty] : penalty
+    delta = sum([p(ce) for p in penalty_functions])
+    return delta
 end
 
 """
@@ -96,6 +119,7 @@ function esatisfactory_instance(
     generator::FeatureTweakGenerator, x::AbstractArray, paths::AbstractArray
 )
     esatisfactory = deepcopy(x)
+
     for path in paths
         feature_idx = path["feature"]
         threshold_value = path["threshold"]
@@ -105,19 +129,20 @@ function esatisfactory_instance(
         elseif inequality_symbol == 1
             esatisfactory[feature_idx] = threshold_value + generator.ϵ
         else
-            error("Unable to find a valid e-satisfactory instance.")
+            error("Unable to find a valid ϵ-satisfactory instance.")
         end
     end
+
     return esatisfactory
 end
 
 """
-    search_path(tree::Union{Leaf, Node}, target::RawTargetType, path::AbstractArray)
+    search_path(tree::Union{DecisionTree.Leaf, DecisionTree.Node}, target::RawTargetType, path::AbstractArray)
 
 Return a path index list with the inequality symbols, thresholds and feature indices.
 
 # Arguments
-- `tree::Union{Leaf, Node}`: The root node of a decision tree.
+- `tree::Union{DecisionTree.Leaf, DecisionTree.Node}`: The root node of a decision tree.
 - `target::RawTargetType`: The target class.
 - `path::AbstractArray`: A list containing the paths found thus far.
 
@@ -128,7 +153,7 @@ Return a path index list with the inequality symbols, thresholds and feature ind
 paths = search_path(tree, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
 """
 function search_path(
-    tree::Union{Leaf,DecisionTree.Node},
+    tree::Union{DecisionTree.Leaf,DecisionTree.Node},
     y_levels::AbstractArray,
     target::RawTargetType,
     path::AbstractArray=[],
