@@ -4,9 +4,6 @@
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    if ce.M isa Models.TreeModel
-        return in_target_class(ce)
-    end
     return converged(ce) || steps_exhausted(ce)
 end
 
