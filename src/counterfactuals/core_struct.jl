@@ -29,7 +29,6 @@ end
 		initialization::Symbol = :add_perturbation,
 		min_success_rate::AbstractFloat=0.99,
         converge_when::Symbol=:decision_threshold,
-        variance::AbstractFloat=0.01,
 	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
@@ -47,7 +46,6 @@ function CounterfactualExplanation(
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
-    variance::AbstractFloat=0.01,
 )
 
     # Assertions:
@@ -72,7 +70,6 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
         :dim_reduction => generator.dim_reduction,
-        :variance => variance,
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])

@@ -17,6 +17,7 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
     dim_reduction::Bool
     opt::Flux.Optimise.AbstractOptimiser
     invalidation_rate::Union{Nothing,AbstractFloat}
+    variance::Union{Nothing,AbstractFloat}
     generative_model_params::NamedTuple
 end
 
@@ -38,6 +39,7 @@ Default outer constructor for `GradientBasedGenerator`.
 - `latent_space::Bool=false`: Whether to use the latent space of a generative model to generate counterfactuals.
 - `opt::Flux.Optimise.AbstractOptimiser=Flux.Descent()`: The optimizer to use for the generator.
 - `invalidation_rate::AbstractFloat=nothing`: The invalidation rate of the counterfactual explanation.
+- `variance::AbstractFloat=nothing`: The variance term to be used when calculating the invalidation rate of the counterfactual explanation.
 - `generative_model_params::NamedTuple`: The parameters of the generative model associated with the generator.
 
 # Returns
@@ -49,14 +51,17 @@ function GradientBasedGenerator(;
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
     dim_reduction::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent();
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
     invalidation_rate::AbstractFloat=nothing,
+    variance::AbstractFloat=nothing,
     generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty weight(s) provided but no penalty function(s) provided."
     @assert !(ce.converge_when == :invalidation_rate && isnothing(invalidation_rate)) "The convergence criterion is invalidation rate but no invalidation rate has been provided."
-    @assert !(ce.params[:latent_space] && generator.generative_model_params != (;)) "Latent space search requires the generative model parameters to be provided."
+    @assert !(ce.converge_when == :invalidation_rate && isnothing(variance)) "The convergence criterion is invalidation rate but no variance has been provided."
+    @assert !(ce.params[:latent_space] && generative_model_params != (;)) "Latent space search requires the generative model parameters to be provided."
+
     if typeof(penalty) <: Vector
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties

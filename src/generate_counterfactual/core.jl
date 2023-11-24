@@ -54,7 +54,6 @@ function generate_counterfactual(
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
     converge_when::Symbol=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
-    variance::AbstractFloat=0.01,
 )
     # Initialize:
     ce = CounterfactualExplanation(
@@ -70,7 +69,6 @@ function generate_counterfactual(
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
         converge_when=converge_when,
-        variance=variance,
     )
 
     # Search:

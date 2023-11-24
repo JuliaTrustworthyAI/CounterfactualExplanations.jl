@@ -18,11 +18,15 @@ function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
     penalty=Objectives.distance_l1,
+    invalidation_rate::AbstractFloat=0.1,
+    variance::AbstractFloat=0.01,
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = Objectives.losses_catalogue[loss]
-    return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
+    return GradientBasedGenerator(;
+        loss=user_loss, penalty=penalty, λ=λ, invalidation_rate, variance, kwargs...
+    )
 end
 
 """

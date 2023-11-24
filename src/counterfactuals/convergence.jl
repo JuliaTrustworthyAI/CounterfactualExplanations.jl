@@ -81,7 +81,7 @@ end
 
 Throws an error when the `converged()` method is called on an unrecognized convergence criterion.
 """
-function converged(ce::CounterfactualExplanation, ::Val{sym}) where sym
+function converged(ce::CounterfactualExplanation, ::Val{sym}) where {sym}
     @error "Convergence criterion not recognized: $sym"
 end
 
