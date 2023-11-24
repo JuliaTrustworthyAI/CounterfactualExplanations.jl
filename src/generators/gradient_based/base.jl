@@ -28,6 +28,9 @@ end
 		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
 		latent_space::Bool::false,
 		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+        invalidation_rate::AbstractFloat=nothing,
+        variance::AbstractFloat=nothing,
+        generative_model_params::NamedTuple=(;),
 	)
 
 Default outer constructor for `GradientBasedGenerator`.

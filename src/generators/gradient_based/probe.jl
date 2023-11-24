@@ -6,7 +6,9 @@ Create a generator that generates counterfactual probes using the specified loss
 # Arguments
 - `λ::AbstractFloat`: The regularization parameter for the generator.
 - `loss::Symbol`: The loss function to use for the generator. Defaults to `:mse`.
-- `penalty`: The penalty function to use for the generator. Defaults to `distance_l1`.
+- `penalty::Penalty`: The penalty function to use for the generator. Defaults to `distance_l1`.
+- `invalidation_rate::AbstractFloat`: The invalidation rate of the counterfactual explanation.
+- `variance::AbstractFloat`: The variance term to be used when calculating the invalidation rate of the counterfactual explanation.
 - `kwargs`: Additional keyword arguments to pass to the `Generator` constructor.
 
 # Returns
@@ -17,7 +19,7 @@ based on https://arxiv.org/abs/2203.06768
 function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
-    penalty=Objectives.distance_l1,
+    penalty::Penalty=Objectives.distance_l1,
     invalidation_rate::AbstractFloat=0.1,
     variance::AbstractFloat=0.01,
     kwargs...,
