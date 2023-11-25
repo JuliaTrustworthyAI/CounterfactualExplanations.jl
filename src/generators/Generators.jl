@@ -32,7 +32,7 @@ export GrowingSpheresGenerator
 export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
-export feature_tweaking
+export feature_tweaking!
 export feature_selection
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
