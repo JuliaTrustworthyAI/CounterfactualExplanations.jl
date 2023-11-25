@@ -15,7 +15,7 @@ function generate_perturbations(
     @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
 
     s′ = deepcopy(ce.s′)
-    new_s′ = feature_tweaking(generator, ce.M, ce.x, ce.target)
+    feature_tweaking!(ce)
     Δs′ = new_s′ - s′                                           # gradient step
     Δs′ = _replace_nans(Δs′)
     Δs′ = convert.(eltype(ce.x), Δs′)
