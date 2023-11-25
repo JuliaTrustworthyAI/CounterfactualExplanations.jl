@@ -22,7 +22,7 @@ end
         chosen = rand(findall(Models.predict_label(M, counterfactual_data) .== factual))
         x = DataPreprocessing.select_factual(counterfactual_data, chosen)
         # Search:
-        generator = Generators.ProbeGenerator()
+        generator = Generators.ProbeGenerator(; invalidation_rate=0.1)
         linear_counterfactual = CounterfactualExplanations.generate_counterfactual(
             x,
             target,
@@ -31,7 +31,6 @@ end
             generator;
             converge_when=:invalidation_rate,
             max_iter=1000,
-            invalidation_rate=0.1,
         )
         loss = Generators.hinge_loss(linear_counterfactual)
         rate = Generators.invalidation_rate(linear_counterfactual)

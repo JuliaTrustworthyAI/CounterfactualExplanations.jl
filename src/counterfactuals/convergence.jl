@@ -4,7 +4,6 @@
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
-    print("here")
     return converged(ce) || steps_exhausted(ce)
 end
 
