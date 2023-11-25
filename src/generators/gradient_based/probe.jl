@@ -34,7 +34,12 @@ function ProbeGenerator(;
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(;
-        loss=user_loss, penalty=penalty, λ=λ, invalidation_rate=invalidation_rate, variance=variance, kwargs...
+        loss=user_loss,
+        penalty=penalty,
+        λ=λ,
+        invalidation_rate=invalidation_rate,
+        variance=variance,
+        kwargs...,
     )
 end
 

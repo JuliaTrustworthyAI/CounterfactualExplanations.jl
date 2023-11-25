@@ -66,5 +66,15 @@ function GradientBasedGenerator(;
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt, invalidation_rate, variance, generative_model_params)
+    return GradientBasedGenerator(
+        loss,
+        penalty,
+        λ,
+        latent_space,
+        dim_reduction,
+        opt,
+        invalidation_rate,
+        variance,
+        generative_model_params,
+    )
 end

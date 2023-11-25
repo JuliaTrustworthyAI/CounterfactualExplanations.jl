@@ -4,7 +4,17 @@
 A convenience method to determine if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
+    print("here")
     return converged(ce) || steps_exhausted(ce)
+end
+
+"""
+    in_target_class(ce::CounterfactualExplanation)
+
+Check if the counterfactual is in the target class.
+"""
+function in_target_class(ce::CounterfactualExplanation)
+    return Models.predict_label(ce.M, ce.data, decode_state(ce))[1] == ce.target
 end
 
 """
@@ -81,18 +91,6 @@ A convenience method that determines if the predefined threshold for the target 
 function threshold_reached(ce::CounterfactualExplanation)
     γ = ce.convergence[:decision_threshold]
     success_rate = sum(target_probs(ce) .>= γ) / ce.num_counterfactuals
-    return success_rate > ce.convergence[:min_success_rate]
-end
-
-"""
-    threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
-
-A convenience method that determines if the predefined threshold for the target class probability has been reached for a specific sample `x`.
-"""
-function threshold_reached(ce::CounterfactualExplanation, x::AbstractArray)
-    print(ce.convergence[:min_success_rate])
-    γ = ce.convergence[:decision_threshold]
-    success_rate = sum(target_probs(ce, x) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence[:min_success_rate]
 end
 

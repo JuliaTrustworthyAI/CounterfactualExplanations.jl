@@ -1,7 +1,7 @@
-# include("clue.jl")
-# include("feature_tweak.jl")
-# include("counterfactuals.jl")
-# include("probe.jl")
+include("clue.jl")
+include("feature_tweak.jl")
+include("counterfactuals.jl")
+include("probe.jl")
 include("growing_spheres.jl")
 
 # generic tests
