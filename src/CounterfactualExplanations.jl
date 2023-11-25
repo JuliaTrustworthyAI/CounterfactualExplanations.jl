@@ -84,6 +84,7 @@ export Generator, @objective, @threshold
 ###
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
+export generate_counterfactual
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
@@ -92,9 +93,6 @@ export animate_path
 # Example data sets:
 include("data/Data.jl")
 using .Data
-
-include("generate_counterfactual/generate_counterfactual.jl")
-export generate_counterfactual
 
 include("evaluation/Evaluation.jl")
 using .Evaluation

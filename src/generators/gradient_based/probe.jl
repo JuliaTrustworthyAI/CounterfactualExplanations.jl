@@ -1,5 +1,12 @@
 """
-    ProbeGenerator(; λ::AbstractFloat=0.1, loss::Symbol=:mse, penalty=distance_l1, kwargs...)
+    ProbeGenerator(;
+        λ::AbstractFloat=0.1,
+        loss::Symbol=:logitbinarycrossentropy,
+        penalty::Penalty=Objectives.distance_l1,
+        invalidation_rate::AbstractFloat=0.1,
+        variance::AbstractFloat=0.01,
+        kwargs...,
+    )
 
 Create a generator that generates counterfactual probes using the specified loss function and penalty function.
 
@@ -27,7 +34,7 @@ function ProbeGenerator(;
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(;
-        loss=user_loss, penalty=penalty, λ=λ, invalidation_rate, variance, kwargs...
+        loss=user_loss, penalty=penalty, λ=λ, invalidation_rate=invalidation_rate, variance=variance, kwargs...
     )
 end
 

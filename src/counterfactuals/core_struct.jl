@@ -58,6 +58,8 @@ function CounterfactualExplanation(
         :invalidation_rate,
         :early_stopping,
     ]
+    @assert !(converge_when == :invalidation_rate && isnothing(generator.invalidation_rate)) "The convergence criterion is invalidation rate but no invalidation rate has been provided."
+    @assert !(converge_when == :invalidation_rate && isnothing(generator.variance)) "The convergence criterion is invalidation rate but no variance has been provided."
 
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x

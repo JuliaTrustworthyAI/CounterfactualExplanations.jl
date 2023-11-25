@@ -55,19 +55,16 @@ function GradientBasedGenerator(;
     latent_space::Bool=false,
     dim_reduction::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-    invalidation_rate::AbstractFloat=nothing,
-    variance::AbstractFloat=nothing,
+    invalidation_rate::Union{Nothing,AbstractFloat}=nothing,
+    variance::Union{Nothing,AbstractFloat}=nothing,
     generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty weight(s) provided but no penalty function(s) provided."
-    @assert !(ce.converge_when == :invalidation_rate && isnothing(invalidation_rate)) "The convergence criterion is invalidation rate but no invalidation rate has been provided."
-    @assert !(ce.converge_when == :invalidation_rate && isnothing(variance)) "The convergence criterion is invalidation rate but no variance has been provided."
-    @assert !(ce.params[:latent_space] && generative_model_params != (;)) "Latent space search requires the generative model parameters to be provided."
 
     if typeof(penalty) <: Vector
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
+    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt, invalidation_rate, variance, generative_model_params)
 end
