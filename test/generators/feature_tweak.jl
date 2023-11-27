@@ -127,4 +127,22 @@
             end
         end
     end
+
+    @testset "Test for errors" begin
+        value = binary_synthetic[:classification_binary]
+        data = value[:data]
+        X = data.X
+
+        model = :MLP
+        M = Models.fit_model(data, model)
+        # Randomly selected factual:
+        Random.seed!(123)
+        x = DataPreprocessing.select_factual(data, rand(1:size(X, 2)))
+        # Choose target:
+        y = Models.predict_label(M, data, x)
+        target = get_target(data, y[1])
+        @test_throws Error counterfactual = CounterfactualExplanations.generate_counterfactual(
+            x, target, data, M, generator
+        )
+    end
 end
