@@ -19,7 +19,7 @@ end
 """
     converged(ce::CounterfactualExplanation)
 
-A convenience method that checks if the counterfactual search has converged.
+A convenience method to determine if the counterfactual search has converged. The search is considered to have converged only if the counterfactual is valid.
 """
 function converged(ce::CounterfactualExplanation)
     return converged(ce, ce.convergence)
