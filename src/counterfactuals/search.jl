@@ -63,5 +63,5 @@ Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(ce::CounterfactualExplanation)
     ce.x′ = apply_domain_constraints(ce.data, ce.x′)            # apply domain constraints in feature space
-    ce.s′ = encode_state(ce, ce.x′)                             # re-encode counterfactual state
+    return ce.s′ = encode_state(ce, ce.x′)                             # re-encode counterfactual state
 end
