@@ -45,4 +45,3 @@ Base.@deprecate_moved load_fashion_mnist_test "TaijaData"
 Base.@deprecate_moved load_cifar_10 "TaijaData"
 
 Base.@deprecate_moved load_cifar_10_test "TaijaData"
-
