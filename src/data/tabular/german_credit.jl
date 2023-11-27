@@ -33,7 +33,6 @@ function load_german_credit(n::Union{Nothing,Int}=nothing)
     X = MLJBase.transform(mach, df[:, DataFrames.Not(:target)])
     X = Matrix(X)
     X = permutedims(X)
-    X = Float32.(X)
 
     # Counterfactual data:
     y = df.target
