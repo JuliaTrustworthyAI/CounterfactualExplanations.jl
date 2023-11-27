@@ -11,7 +11,6 @@ function load_fashion_mnist(n::Union{Nothing,Int}=nothing)
     counterfactual_data = CounterfactualExplanations.CounterfactualData(
         X, y; domain=(-1.0, 1.0), standardize=false
     )
-    counterfactual_data.X = Float32.(counterfactual_data.X)
     # Undersample:
     if !isnothing(n)
         counterfactual_data = CounterfactualExplanations.DataPreprocessing.subsample(
@@ -34,6 +33,5 @@ function load_fashion_mnist_test()
     counterfactual_data = CounterfactualExplanations.CounterfactualData(
         X, y; domain=(-1.0, 1.0)
     )
-    counterfactual_data.X = Float32.(counterfactual_data.X)
     return counterfactual_data
 end
