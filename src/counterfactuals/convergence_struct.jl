@@ -29,11 +29,12 @@ mutable struct EarlyStoppingConvergence <: AbstractConvergenceType
     max_iter::Int
 end
 
-
 """
 Outer constructor for `DecisionThresholdConvergence`.
 """
-function DecisionThresholdConvergence(; max_iter=100, decision_threshold=0.5, min_success_rate=parameters[:min_success_rate])
+function DecisionThresholdConvergence(;
+    max_iter=100, decision_threshold=0.5, min_success_rate=parameters[:min_success_rate]
+)
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
     return DecisionThresholdConvergence(max_iter, decision_threshold, min_success_rate)
 end
@@ -41,7 +42,11 @@ end
 """
 Outer constructor for `GeneratorConditionsConvergence`.
 """
-function GeneratorConditionsConvergence(; max_iter=100, min_success_rate=parameters[:min_success_rate], gradient_tol=parameters[:τ])
+function GeneratorConditionsConvergence(;
+    max_iter=100,
+    min_success_rate=parameters[:min_success_rate],
+    gradient_tol=parameters[:τ],
+)
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
     return GeneratorConditionsConvergence(max_iter, min_success_rate, gradient_tol)
 end

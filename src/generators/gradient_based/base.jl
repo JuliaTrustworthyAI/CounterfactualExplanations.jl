@@ -59,12 +59,6 @@ function GradientBasedGenerator(;
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
     return GradientBasedGenerator(
-        loss,
-        penalty,
-        λ,
-        latent_space,
-        dim_reduction,
-        opt,
-        generative_model_params,
+        loss, penalty, λ, latent_space, dim_reduction, opt, generative_model_params
     )
 end

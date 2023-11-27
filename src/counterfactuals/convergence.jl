@@ -39,7 +39,9 @@ end
 
 Checks if the counterfactual search has converged when the convergence criterion is generator_conditions.
 """
-function converged(ce::CounterfactualExplanation, convergence::GeneratorConditionsConvergence)
+function converged(
+    ce::CounterfactualExplanation, convergence::GeneratorConditionsConvergence
+)
     return threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
 end
 
