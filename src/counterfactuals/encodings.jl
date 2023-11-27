@@ -3,32 +3,40 @@
 
 Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
-    MultivariateStats.predict(dt, x)
+function encode_array(
+    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+)
+    return MultivariateStats.predict(dt, x)
+end
 
 """
     encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
-    StatsBase.transform(dt, x)
+function encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+    return StatsBase.transform(dt, x)
+end
 
 """
     decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
-    MultivariateStats.reconstruct(dt, x)
+function decode_array(
+    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+)
+    return MultivariateStats.reconstruct(dt, x)
+end
 
 """
     decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
-    StatsBase.reconstruct(dt, x)
+function decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+    return StatsBase.reconstruct(dt, x)
+end
 
 """
 function encode_state(

@@ -27,7 +27,6 @@ function load_credit_default(n::Union{Nothing,Int}=5000)
     counterfactual_data = CounterfactualExplanations.CounterfactualData(
         X, y; features_categorical=features_categorical
     )
-    counterfactual_data.X = Float32.(counterfactual_data.X)
 
     # Undersample:
     if !isnothing(n)
