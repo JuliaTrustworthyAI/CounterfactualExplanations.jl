@@ -12,7 +12,7 @@ MPI.Init()
 counterfactual_data = load_linearly_separable()
 parallelizer = MPIParallelizer(MPI.COMM_WORLD)
 with_logger(NullLogger()) do
-    bmk = benchmark(counterfactual_data; parallelizer=parallelizer)
+    bmk = Evaluation.benchmark(counterfactual_data; parallelizer=parallelizer)
 end
 MPI.Finalize()
 @test MPI.Finalized()
