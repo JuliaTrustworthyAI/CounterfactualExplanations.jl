@@ -40,7 +40,7 @@ function ∇(
     ce::AbstractCounterfactualExplanation,
 )
     ℓ = 0
-    if (ce.convergence[:converge_when] == :invalidation_rate)
+    if isa(ce.convergence, CounterfactualExplanations.InvalidationRateConvergence)
         ℓ = hinge_loss(ce)
     end
     return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ ℓ

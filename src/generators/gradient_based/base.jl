@@ -16,8 +16,6 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
     latent_space::Bool
     dim_reduction::Bool
     opt::Flux.Optimise.AbstractOptimiser
-    invalidation_rate::Union{Nothing,AbstractFloat}
-    variance::Union{Nothing,AbstractFloat}
     generative_model_params::NamedTuple
 end
 
@@ -28,8 +26,6 @@ end
 		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
 		latent_space::Bool::false,
 		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-        invalidation_rate::AbstractFloat=nothing,
-        variance::AbstractFloat=nothing,
         generative_model_params::NamedTuple=(;),
 	)
 
@@ -41,8 +37,6 @@ Default outer constructor for `GradientBasedGenerator`.
 - `λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing`: The weight of the penalty function.
 - `latent_space::Bool=false`: Whether to use the latent space of a generative model to generate counterfactuals.
 - `opt::Flux.Optimise.AbstractOptimiser=Flux.Descent()`: The optimizer to use for the generator.
-- `invalidation_rate::AbstractFloat=nothing`: The invalidation rate of the counterfactual explanation.
-- `variance::AbstractFloat=nothing`: The variance term to be used when calculating the invalidation rate of the counterfactual explanation.
 - `generative_model_params::NamedTuple`: The parameters of the generative model associated with the generator.
 
 # Returns
@@ -55,8 +49,6 @@ function GradientBasedGenerator(;
     latent_space::Bool=false,
     dim_reduction::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-    invalidation_rate::Union{Nothing,AbstractFloat}=nothing,
-    variance::Union{Nothing,AbstractFloat}=nothing,
     generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
@@ -73,8 +65,6 @@ function GradientBasedGenerator(;
         latent_space,
         dim_reduction,
         opt,
-        invalidation_rate,
-        variance,
         generative_model_params,
     )
 end

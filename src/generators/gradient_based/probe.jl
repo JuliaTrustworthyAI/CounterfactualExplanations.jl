@@ -3,8 +3,6 @@
         λ::AbstractFloat=0.1,
         loss::Symbol=:logitbinarycrossentropy,
         penalty::Penalty=Objectives.distance_l1,
-        invalidation_rate::AbstractFloat=0.1,
-        variance::AbstractFloat=0.01,
         kwargs...,
     )
 
@@ -14,8 +12,6 @@ Create a generator that generates counterfactual probes using the specified loss
 - `λ::AbstractFloat`: The regularization parameter for the generator.
 - `loss::Symbol`: The loss function to use for the generator. Defaults to `:mse`.
 - `penalty::Penalty`: The penalty function to use for the generator. Defaults to `distance_l1`.
-- `invalidation_rate::AbstractFloat`: The invalidation rate of the counterfactual explanation.
-- `variance::AbstractFloat`: The variance term to be used when calculating the invalidation rate of the counterfactual explanation.
 - `kwargs`: Additional keyword arguments to pass to the `Generator` constructor.
 
 # Returns
@@ -27,8 +23,6 @@ function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
     penalty::Penalty=Objectives.distance_l1,
-    invalidation_rate::AbstractFloat=0.1,
-    variance::AbstractFloat=0.01,
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
@@ -37,8 +31,6 @@ function ProbeGenerator(;
         loss=user_loss,
         penalty=penalty,
         λ=λ,
-        invalidation_rate=invalidation_rate,
-        variance=variance,
         kwargs...,
     )
 end
@@ -72,7 +64,7 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     gradᵀ = LinearAlgebra.transpose(grad)
 
     identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
-    denominator = sqrt(gradᵀ * ce.params[:variance] * identity_matrix * grad)[1]
+    denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
 
     normalized_gradient = f_loss / denominator
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
@@ -91,5 +83,5 @@ Calculate the hinge loss of a counterfactual explanation.
 The hinge loss of the counterfactual explanation.
 """
 function hinge_loss(ce::AbstractCounterfactualExplanation)
-    return max(0, invalidation_rate(ce) - ce.params[:invalidation_rate])
+    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
 end
