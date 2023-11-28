@@ -31,42 +31,6 @@ function ProbeGenerator(;
 end
 
 """
-    invalidation_rate(ce::AbstractCounterfactualExplanation)
-
-Calculate the invalidation rate of a counterfactual explanation.
-
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the invalidation rate for.
-- `kwargs`: Additional keyword arguments to pass to the function.
-
-# Returns
-The invalidation rate of the counterfactual explanation.
-"""
-function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
-    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-    grad = []
-    # This has to be done with a for loop because flux does not know how to take a gradient from an array of logits.
-    for i in 1:length(ce.s′)
-        push!(
-            grad,
-            Flux.gradient(
-                () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
-                Flux.params(ce.s′),
-            )[ce.s′],
-        )
-    end
-    gradᵀ = LinearAlgebra.transpose(grad)
-
-    identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
-    denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
-
-    normalized_gradient = f_loss / denominator
-    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
-    return 1 - ϕ
-end
-
-"""
     hinge_loss(ce::AbstractCounterfactualExplanation)
 
 Calculate the hinge loss of a counterfactual explanation.

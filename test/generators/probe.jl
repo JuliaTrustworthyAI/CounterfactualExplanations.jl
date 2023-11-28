@@ -29,8 +29,7 @@ end
             counterfactual_data,
             M,
             generator;
-            converge_when=:invalidation_rate,
-            max_iter=1000,
+            convergence=Convergence.InvalidationRateConvergence(; max_iter=1000),
         )
         loss = Generators.hinge_loss(linear_counterfactual)
         rate = Generators.invalidation_rate(linear_counterfactual)

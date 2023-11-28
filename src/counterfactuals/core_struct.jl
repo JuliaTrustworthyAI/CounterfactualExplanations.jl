@@ -12,7 +12,7 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     generator::Generators.AbstractGenerator
     params::Dict
     search::Union{Dict,Nothing}
-    convergence::AbstractConvergenceType
+    convergence::AbstractConvergence
     num_counterfactuals::Int
     initialization::Symbol
 end
@@ -28,7 +28,7 @@ end
 		num_counterfactuals::Int = 1,
 		initialization::Symbol = :add_perturbation,
         converge_when::Symbol=:decision_threshold,
-        convergence::AbstractConvergenceType=nothing,
+        convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
@@ -41,27 +41,15 @@ function CounterfactualExplanation(
     generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    converge_when::Symbol=:decision_threshold,
-    convergence::Union{AbstractConvergenceType,Nothing}=nothing,
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
 
     # Assertions:
     @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-    @assert converge_when ∈ [
-        :decision_threshold,
-        :generator_conditions,
-        :max_iter,
-        :invalidation_rate,
-        :early_stopping,
-    ] "Convergence criterion not recognized: $converge_when."
 
-    if isnothing(convergence)
-        convergence = convergence_catalogue[converge_when]
-    end
-
+    convergence = Convergence.get_convergence_type(convergence)
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
-
     # Target:
     target_encoded = data.output_encoder(target)
 
@@ -106,9 +94,8 @@ function CounterfactualExplanation(
         :path => [ce.s′],
     )
 
-    # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
+    # This is lifted out of the above ce.search initialization because calling terminated(ce) might self-reference
     # the above fields, which are not yet initialized.
-    ce.search[:converged] = converged(ce)
     ce.search[:terminated] = terminated(ce)
 
     # Check for redundancy:

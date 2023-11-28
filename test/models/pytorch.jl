@@ -109,14 +109,15 @@ if VERSION >= v"1.8"
                             counterfactual_data,
                             M,
                             generator;
-                            max_iter=max_iter,
-                            decision_threshold=γ,
+                            convergence=Convergence.DecisionThresholdConvergence(;
+                                max_iter=max_iter, decision_threshold=γ
+                            ),
                         )
                         using CounterfactualExplanations: counterfactual_probability
-                        @test !CounterfactualExplanations.converged(counterfactual) ||
+                        @test !Convergence.converged(counterfactual) ||
                             CounterfactualExplanations.target_probs(counterfactual)[1] >=
                               γ # either not converged or threshold reached
-                        @test !CounterfactualExplanations.converged(counterfactual) ||
+                        @test !Convergence.converged(counterfactual) ||
                             length(path(counterfactual)) <= max_iter
                     end
 
@@ -138,7 +139,7 @@ if VERSION >= v"1.8"
                         x′ = CounterfactualExplanations.decode_state(counterfactual)
                         if counterfactual.generator.latent_space == false
                             @test isapprox(counterfactual.x, x′; atol=1e-6)
-                            @test CounterfactualExplanations.converged(counterfactual)
+                            @test Convergence.converged(counterfactual)
                             @test CounterfactualExplanations.terminated(counterfactual)
                         end
                         @test CounterfactualExplanations.total_steps(counterfactual) == 0
