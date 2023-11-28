@@ -9,7 +9,7 @@ end
 
 Checks if the counterfactual search has converged when the convergence criterion is invalidation rate.
 """
-function converged(convergence::InvalidationRateConvergence, ce::CounterfactualExplanation)
+function converged(convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation)
     if ce.search[:iteration_count] == ce.convergence.max_iter
         return true
     end

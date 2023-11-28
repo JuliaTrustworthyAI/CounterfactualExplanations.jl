@@ -1,7 +1,8 @@
 module Convergence
 
-using .Generators
-using .Models
+using ..CounterfactualExplanations
+using ..Generators
+using ..Models
 
 include("decision_threshold.jl")
 include("generator_conditions.jl")
@@ -20,9 +21,34 @@ const convergence_catalogue = Dict(
     :invalidation_rate => InvalidationRateConvergence(),
 )
 
+"""
+    get_convergence_type(convergence::AbstractConvergence)
+
+Returns the convergence object.
+"""
+function get_convergence_type(convergence::AbstractConvergence)
+    return convergence
+end
+
+"""
+    get_convergence_type(convergence::Symbol)
+
+Returns the convergence object from the dictionary of default convergence types.
+"""
+function get_convergence_type(convergence::Symbol)
+    return get(
+        convergence_catalogue,
+        convergence,
+        () -> error("Convergence criterion not recognized: $convergence."),
+    )
+end
+
 export convergence_catalogue
 export converged
-export DecisionThresholdConvergence,
-    GeneratorConditionsConvergence, InvalidationRateConvergence, MaxIterConvergence
+export get_convergence_type
+export DecisionThresholdConvergence
+export GeneratorConditionsConvergence
+export InvalidationRateConvergence
+export MaxIterConvergence
 
 end

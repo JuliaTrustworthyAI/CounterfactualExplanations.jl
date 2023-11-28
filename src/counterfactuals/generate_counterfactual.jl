@@ -47,7 +47,7 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    converge_when::Symbol=:decision_threshold,
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
 )
     # Initialize:
@@ -58,8 +58,8 @@ function generate_counterfactual(
         M,
         generator;
         num_counterfactuals=num_counterfactuals,
-        converge_when=converge_when,
         initialization=initialization,
+        convergence=convergence,
     )
 
     # Search:
