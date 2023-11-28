@@ -283,7 +283,10 @@ function benchmark(
             for (i, x) in enumerate(xs)
                 sample_id = uuid1()
                 for (gen_name, gen) in generators
-                    if (!isa(M, Models.TreeModel) && isa(gen, Generators.FeatureTweakGenerator))
+                    if (
+                        !isa(M, Models.TreeModel) &&
+                        isa(gen, Generators.FeatureTweakGenerator)
+                    )
                         continue
                     end
                     comb = (x, target[i], (mod_name, M), (gen_name, gen), sample_id)
