@@ -9,7 +9,9 @@ end
 
 Checks if the counterfactual search has converged when the convergence criterion is the decision threshold.
 """
-function converged(convergence::DecisionThresholdConvergence, ce::AbstractCounterfactualExplanation)
+function converged(
+    convergence::DecisionThresholdConvergence, ce::AbstractCounterfactualExplanation
+)
     return threshold_reached(ce)
 end
 
