@@ -94,10 +94,6 @@ function CounterfactualExplanation(
         :path => [ce.s′],
     )
 
-    # This is lifted out of the above ce.search initialization because calling terminated(ce) might self-reference
-    # the above fields, which are not yet initialized.
-    ce.search[:terminated] = terminated(ce)
-
     # Check for redundancy:
     if in_target_class(ce) && threshold_reached(ce)
         @info "Factual already in target class and probability exceeds threshold γ."

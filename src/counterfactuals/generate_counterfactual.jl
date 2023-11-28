@@ -65,7 +65,7 @@ function generate_counterfactual(
     # Search:
     if isa(generator, AbstractGradientBasedGenerator)
         timer = isnothing(timeout) ? nothing : Timer(timeout)
-        while !ce.search[:terminated]
+        while !terminated(ce)
             update!(ce)
             if !isnothing(timer)
                 yield()
