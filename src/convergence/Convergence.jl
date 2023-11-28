@@ -18,7 +18,6 @@ const convergence_catalogue = Dict(
     :generator_conditions => GeneratorConditionsConvergence(),
     :max_iter => MaxIterConvergence(),
     :invalidation_rate => InvalidationRateConvergence(),
-    :early_stopping => EarlyStoppingConvergence(),
 )
 
 export convergence_catalogue
