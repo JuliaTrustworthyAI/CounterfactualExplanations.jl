@@ -53,7 +53,10 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     )
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while (!isnothing(counterfactual) && ce.search[:iteration_count] < ce.convergence[:max_iter])
+    while (
+        !isnothing(counterfactual) &&
+        ce.search[:iteration_count] < ce.convergence[:max_iter]
+    )
         η /= 2
         a₀ = convert(eltype(factual), 0.0)
 
