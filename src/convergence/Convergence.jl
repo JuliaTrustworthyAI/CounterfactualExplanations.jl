@@ -46,6 +46,7 @@ end
 export convergence_catalogue
 export converged
 export get_convergence_type
+export threshold_reached
 export DecisionThresholdConvergence
 export GeneratorConditionsConvergence
 export InvalidationRateConvergence

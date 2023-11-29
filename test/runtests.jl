@@ -14,6 +14,7 @@ using EvoTrees
 using MLJBase
 using MLJDecisionTreeInterface
 using Printf
+using CounterfactualExplanations.Convergence
 using CounterfactualExplanations.Data
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models

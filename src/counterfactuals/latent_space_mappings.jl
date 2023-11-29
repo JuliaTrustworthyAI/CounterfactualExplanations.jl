@@ -72,7 +72,7 @@ function wants_latent_space(ce::CounterfactualExplanation)
     latent_space = ce.params[:latent_space]
 
     # If threshold is already reached, training GM is redundant:
-    latent_space = latent_space && !threshold_reached(ce)
+    latent_space = latent_space && !Convergence.threshold_reached(ce)
 
     return latent_space
 end

@@ -22,7 +22,7 @@ end
         chosen = rand(findall(Models.predict_label(M, counterfactual_data) .== factual))
         x = DataPreprocessing.select_factual(counterfactual_data, chosen)
         # Search:
-        generator = Generators.ProbeGenerator(; invalidation_rate=0.1)
+        generator = Generators.ProbeGenerator()
         linear_counterfactual = CounterfactualExplanations.generate_counterfactual(
             x,
             target,

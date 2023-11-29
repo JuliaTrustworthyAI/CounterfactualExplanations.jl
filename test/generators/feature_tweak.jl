@@ -70,11 +70,11 @@
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )
-                                    @test Convergence.converged(counterfactual)
+                                    @test Convergence.converged(counterfactual.convergence, counterfactual)
                                 end
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
-                                ) == 1
+                                ) == 0
                             end
                         end
                     end
@@ -121,7 +121,7 @@
                     M, data, CounterfactualExplanations.decode_state(counterfactual)
                 )[1] == target
                 @test CounterfactualExplanations.terminated(counterfactual)
-                @test Convergence.converged(counterfactual)
+                @test Convergence.converged(counterfactual.convergence, counterfactual)
             end
         end
     end

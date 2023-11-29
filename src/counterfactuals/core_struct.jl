@@ -40,8 +40,8 @@ function CounterfactualExplanation(
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
-    initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
+    initialization::Symbol=:add_perturbation,
 )
 
     # Assertions:
@@ -95,7 +95,7 @@ function CounterfactualExplanation(
     )
 
     # Check for redundancy:
-    if in_target_class(ce) && threshold_reached(ce)
+    if in_target_class(ce) && Convergence.threshold_reached(ce)
         @info "Factual already in target class and probability exceeds threshold γ."
     end
 
