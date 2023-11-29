@@ -46,7 +46,7 @@ The default method to return mutability constraints that are dependent on the cu
 For generic gradient-based generators, no state-dependent constraints are added.
 """
 function mutability_constraints(
-    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
+    generator::AbstractGenerator, ce::AbstractCounterfactualExplanation
 )
     mutability = ce.params[:mutability]
     return mutability # no additional constraints for GenericGenerator
