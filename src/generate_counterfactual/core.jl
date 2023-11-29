@@ -45,9 +45,7 @@ function generate_counterfactual(
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
-    generator::Union{
-        Generators.AbstractGradientBasedGenerator,Generators.FeatureTweakGenerator
-    };
+    generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
     generative_model_params::NamedTuple=(;),
