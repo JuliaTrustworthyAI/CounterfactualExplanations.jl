@@ -64,7 +64,7 @@ function generate_counterfactual(
 
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
-    while !ce.search[:terminated]
+    while !terminated(ce)
         update!(ce)
         if !isnothing(timer)
             yield()
