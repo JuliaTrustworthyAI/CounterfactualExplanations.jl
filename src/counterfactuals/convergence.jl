@@ -49,35 +49,6 @@ function converged(ce::CounterfactualExplanation)
 end
 
 """
-    converged(ce::AbstractCounterfactualExplanation)
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
-# Returns
-- `converged::Bool`:
-Finds if we have converged.
-"""
-function converged(ce::AbstractCounterfactualExplanation)
-    model = ce.M
-    counterfactual_data = ce.data
-    factual = ce.x
-    counterfactual = ce.s′
-
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )[1]
-    counterfactual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, counterfactual
-    )[1]
-
-    if factual_class == counterfactual_class
-        ce.search[:terminated] = true
-        ce.search[:converged] = true
-    end
-
-    return ce.search[:converged]
-end
-
-"""
     threshold_reached(ce::CounterfactualExplanation)
 
 A convenience method that determines if the predefined threshold for the target class probability has been reached.
