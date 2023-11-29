@@ -109,7 +109,6 @@ export fit_model
 export model_evaluation
 export predict_label
 export predict_proba
-export pytorch_model_loader
 export reset!
 
 end
