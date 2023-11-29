@@ -84,7 +84,10 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
         )
     end
 
-    ce.s′ = counterfactual_candidates[:, counterfactual]
+    if !isnothing(counterfactual)
+        ce.s′ = counterfactual_candidates[:, counterfactual]
+    end
+
     return nothing
 end
 
@@ -102,6 +105,10 @@ Perform feature selection to find the dimension with the closest (but not equal)
 The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
+    if isnothing(ce.s′)
+        return nothing
+    end
+
     model = ce.M
     counterfactual_data = ce.data
     factual = ce.x
