@@ -70,7 +70,9 @@
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )
-                                    @test Convergence.converged(counterfactual.convergence, counterfactual)
+                                    @test Convergence.converged(
+                                        counterfactual.convergence, counterfactual
+                                    )
                                 end
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual

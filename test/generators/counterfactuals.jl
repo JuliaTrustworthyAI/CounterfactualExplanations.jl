@@ -85,12 +85,15 @@ for (key, generator_) in generators
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
-                                    @test !Convergence.converged(counterfactual.convergence, counterfactual) ||
+                                    @test !Convergence.converged(
+                                        counterfactual.convergence, counterfactual
+                                    ) ||
                                         CounterfactualExplanations.target_probs(
                                         counterfactual
                                     )[1] >= γ # either not converged or threshold reached
-                                    @test !Convergence.converged(counterfactual.convergence, counterfactual) ||
-                                        length(path(counterfactual)) <= max_iter
+                                    @test !Convergence.converged(
+                                        counterfactual.convergence, counterfactual
+                                    ) || length(path(counterfactual)) <= max_iter
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
@@ -107,7 +110,9 @@ for (key, generator_) in generators
                                         counterfactual_data,
                                         M,
                                         generator;
-                                        convergence=Convergence.DecisionThresholdConvergence(decision_threshold=γ),
+                                        convergence=Convergence.DecisionThresholdConvergence(;
+                                            decision_threshold=γ
+                                        ),
                                         initialization=:identity,
                                     )
                                     x′ = CounterfactualExplanations.decode_state(
@@ -115,7 +120,9 @@ for (key, generator_) in generators
                                     )
                                     if counterfactual.generator.latent_space == false
                                         @test isapprox(counterfactual.x, x′; atol=1e-6)
-                                        @test Convergence.converged(counterfactual.convergence, counterfactual)
+                                        @test Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        )
                                         @test CounterfactualExplanations.terminated(
                                             counterfactual
                                         )
