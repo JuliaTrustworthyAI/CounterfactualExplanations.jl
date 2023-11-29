@@ -68,7 +68,8 @@ using Random
                                     @test isapprox(counterfactual.x, x′; atol=1e-6)
                                 end
                                 @test CounterfactualExplanations.terminated(counterfactual)
-                                @test counterfactual.search[:iteration_count] == (length(counterfactual.search[:path] + 1))
+                                @test counterfactual.search[:iteration_count] == 
+                                    (length(counterfactual.search[:path] + 1))
                             end
                         end
                     end
