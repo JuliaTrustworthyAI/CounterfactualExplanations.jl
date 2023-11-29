@@ -19,5 +19,8 @@ function generate_counterfactual(
     # growing spheres does not support encodings, thus x′ is just s′
     ce.x′ = ce.s′
 
+    ce.search[:converged] = converged(ce)
+    ce.search[:terminated] = terminated(ce)
+
     return ce
 end

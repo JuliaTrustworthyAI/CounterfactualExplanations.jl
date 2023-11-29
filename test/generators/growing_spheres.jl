@@ -43,7 +43,7 @@ using Random
                                     counterfactual_data, 
                                     M, 
                                     generator; 
-                                    max_iter=1000
+                                    max_iter=100000
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
                                     M, counterfactual_data, counterfactual.s′

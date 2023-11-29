@@ -43,13 +43,9 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     n = generator.n
     η = convert(eltype(factual), generator.η)
 
-    if (factual == target)
-        ce.s′ = factual
-        return nothing
-    end
-
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
+    update_path(ce, counterfactual_candidates)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
@@ -57,44 +53,30 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     )
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while (!isnothing(counterfactual) && ce.convergence[:max_iter] > 0)
+    while (!isnothing(counterfactual) && ce.search[:iteration_count] < ce.convergence[:max_iter])
         η /= 2
         a₀ = convert(eltype(factual), 0.0)
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
+        update_path(ce, counterfactual_candidates)
         counterfactual = find_counterfactual(
             model, target, counterfactual_data, counterfactual_candidates
         )
-
-        ce.convergence[:max_iter] -= 1
-    end
-
-    # Update path
-    ce.search[:iteration_count] += n # <- might be wrong
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
 
     # Initialize boundaries of the sphere's radius
     a₀, a₁ = η, 2η
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while (isnothing(counterfactual) && ce.convergence[:max_iter] > 0)
+    while (isnothing(counterfactual) && ce.search[:iteration_count] < ce.convergence[:max_iter])
         a₀ = a₁
         a₁ += η
 
         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
+        update_path(ce, counterfactual_candidates)
         counterfactual = find_counterfactual(
             model, target, counterfactual_data, counterfactual_candidates
         )
-
-        ce.convergence[:max_iter] -= 1
-    end
-
-    # Update path
-    ce.search[:iteration_count] += n # Is this correct?
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
 
     ce.s′ = counterfactual_candidates[:, counterfactual]
@@ -135,7 +117,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         target == CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
         ) && 
-        ce.convergence[:max_iter] > 0
+        ce.search[:iteration_count] < ce.convergence[:max_iter]
     )
         counterfactual″ = counterfactual′
         i = find_closest_dimension(factual, counterfactual′)
@@ -143,17 +125,9 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
 
         ce.search[:iteration_count] += 1
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
-
-        ce.convergence[:max_iter] -= 1
     end
 
     ce.s′ = counterfactual″
-
-    if (ce.convergence[:max_iter] > 0)
-        ce.search[:converged] = true
-    end
-
-    ce.search[:terminated] = true
 
     return nothing
 end
@@ -259,31 +233,9 @@ function find_closest_dimension(factual, counterfactual)
     return closest_dimension
 end
 
-"""
-    converged(ce::AbstractCounterfactualExplanation)
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
-# Returns
-- `converged::Bool`:
-Finds if we have converged.
-"""
-function converged(ce::AbstractCounterfactualExplanation)
-    model = ce.M
-    counterfactual_data = ce.data
-    factual = ce.x
-    counterfactual = ce.s′
-
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )[1]
-    counterfactual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, counterfactual
-    )[1]
-
-    if factual_class == counterfactual_class
-        ce.search[:terminated] = true
-        ce.search[:converged] = true
+function update_path(ce, counterfactual_candidates)
+    for i in eachindex(counterfactual_candidates[1, :])
+        ce.search[:iteration_count] += 1
+        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
-
-    return ce.search[:converged]
 end
