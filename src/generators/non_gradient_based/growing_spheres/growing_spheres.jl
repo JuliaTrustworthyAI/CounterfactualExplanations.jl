@@ -134,7 +134,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         ) &&
         target == CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
-        ) && 
+        ) &&
         ce.convergence[:max_iter] > 0
     )
         counterfactual″ = counterfactual′
