@@ -38,19 +38,18 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     factual = ce.x
     counterfactual_data = ce.data
     target = [ce.target]
-    max_iter = 1000
 
     # Copy hyperparameters
     n = generator.n
     η = convert(eltype(factual), generator.η)
 
-    # Generate random points uniformly on a sphere
-    counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-
     if (factual == target)
         ce.s′ = factual
         return nothing
     end
+
+    # Generate random points uniformly on a sphere
+    counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
@@ -58,7 +57,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     )
 
     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while (!isnothing(counterfactual))
+    while (!isnothing(counterfactual) && ce.convergence[:max_iter] > 0)
         η /= 2
         a₀ = convert(eltype(factual), 0.0)
 
@@ -67,14 +66,11 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
             model, target, counterfactual_data, counterfactual_candidates
         )
 
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
+        ce.convergence[:max_iter] -= 1
     end
 
     # Update path
-    ce.search[:iteration_count] += n
+    ce.search[:iteration_count] += n # <- might be wrong
     for i in eachindex(counterfactual_candidates[1, :])
         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
@@ -83,7 +79,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     a₀, a₁ = η, 2η
 
     # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while (isnothing(counterfactual))
+    while (isnothing(counterfactual) && ce.convergence[:max_iter] > 0)
         a₀ = a₁
         a₁ += η
 
@@ -92,14 +88,11 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
             model, target, counterfactual_data, counterfactual_candidates
         )
 
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
+        ce.convergence[:max_iter] -= 1
     end
 
     # Update path
-    ce.search[:iteration_count] += n
+    ce.search[:iteration_count] += n # Is this correct?
     for i in eachindex(counterfactual_candidates[1, :])
         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
@@ -141,7 +134,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         ) &&
         target == CounterfactualExplanations.Models.predict_label(
             model, counterfactual_data, counterfactual′
-        )
+        ) && ce.convergence[:max_iter] > 0
     )
         counterfactual″ = counterfactual′
         i = find_closest_dimension(factual, counterfactual′)
@@ -149,11 +142,17 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
 
         ce.search[:iteration_count] += 1
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
+
+        ce.convergence[:max_iter] -= 1
     end
 
     ce.s′ = counterfactual″
+
+    if (ce.convergence[:max_iter] > 0)
+        ce.search[:converged] = true
+    end
+
     ce.search[:terminated] = true
-    ce.search[:converged] = true
 
     return nothing
 end
@@ -257,35 +256,4 @@ function find_closest_dimension(factual, counterfactual)
     end
 
     return closest_dimension
-end
-
-"""
-    converged(ce::AbstractCounterfactualExplanation)
-
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
-# Returns
-- `converged::Bool`:
-
-Finds if we have converged.
-"""
-function converged(ce::AbstractCounterfactualExplanation)
-    model = ce.M
-    counterfactual_data = ce.data
-    factual = ce.x
-    counterfactual = ce.s′
-
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )[1]
-    counterfactual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, counterfactual
-    )[1]
-
-    if factual_class == counterfactual_class
-        ce.search[:terminated] = true
-        ce.search[:converged] = true
-    end
-
-    return ce.search[:converged]
 end
