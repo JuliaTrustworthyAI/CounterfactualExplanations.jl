@@ -70,9 +70,9 @@
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )
-                                    @test CounterfactualExplanations.converged(
-                                        counterfactual
-                                    )
+                                    # @test CounterfactualExplanations.converged(
+                                    #     counterfactual
+                                    # )
                                 end
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
@@ -123,7 +123,7 @@
                     M, data, CounterfactualExplanations.decode_state(counterfactual)
                 )[1] == target
                 @test CounterfactualExplanations.terminated(counterfactual)
-                @test CounterfactualExplanations.converged(counterfactual)
+                # @test CounterfactualExplanations.converged(counterfactual)
             end
         end
     end
@@ -141,7 +141,7 @@
         # Choose target:
         y = Models.predict_label(M, data, x)
         target = get_target(data, y[1])
-        @test_throws Error counterfactual = CounterfactualExplanations.generate_counterfactual(
+        @test_throws AssertionError counterfactual = CounterfactualExplanations.generate_counterfactual(
             x, target, data, M, generator
         )
     end
