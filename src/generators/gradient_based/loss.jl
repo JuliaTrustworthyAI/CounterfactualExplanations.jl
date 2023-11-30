@@ -37,7 +37,7 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) . + hinge_loss(ce.convergence, ce)
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ hinge_loss(ce.convergence, ce)
 end
 
 """
