@@ -1,5 +1,8 @@
 module Convergence
 
+using Distributions
+using Flux
+using LinearAlgebra
 using ..CounterfactualExplanations
 using ..Generators
 using ..Models

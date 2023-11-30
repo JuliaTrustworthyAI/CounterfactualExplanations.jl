@@ -15,7 +15,6 @@ using DecisionTree
 using DataFrames
 using MLJBase
 using MLJDecisionTreeInterface
-using Distributions
 using Random
 using Statistics
 
