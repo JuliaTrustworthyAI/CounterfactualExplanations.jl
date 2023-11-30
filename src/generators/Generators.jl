@@ -38,7 +38,7 @@ export generate_perturbations, conditions_satisfied, mutability_constraints
 export GradientBasedGenerator
 export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
-export hinge_loss, invalidation_rate
+export hinge_loss
 export predictive_entropy
 export ProbeGenerator
 export growing_spheres_generation

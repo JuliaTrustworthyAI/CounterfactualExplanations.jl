@@ -31,8 +31,8 @@ end
             generator;
             convergence=Convergence.InvalidationRateConvergence(; max_iter=1000),
         )
-        loss = Generators.hinge_loss(linear_counterfactual)
-        rate = Generators.invalidation_rate(linear_counterfactual)
+        loss = Generators.hinge_loss(linear_counterfactual.convergence, linear_counterfactual)
+        rate = Convergence.invalidation_rate(linear_counterfactual)
         @test rate <= 0.1
         @test loss <= 0.9
     end
