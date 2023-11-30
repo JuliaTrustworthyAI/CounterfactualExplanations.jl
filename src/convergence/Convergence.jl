@@ -46,15 +46,6 @@ function get_convergence_type(convergence::Symbol)
     )
 end
 
-"""
-    hinge_loss(convergence::InvalidationRateConvergenc, ce::AbstractCounterfactualExplanation)
-
-The default hinge loss for any convergence criterion.
-"""
-function hinge_loss(convergence::AbstractConvergence, ce::AbstractCounterfactualExplanation)
-    return 0
-end
-
 export convergence_catalogue
 export converged
 export get_convergence_type

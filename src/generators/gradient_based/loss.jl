@@ -37,5 +37,15 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ Convergence.hinge_loss(ce.convergence, ce)
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) . + hinge_loss(ce.convergence, ce)
+end
+
+"""
+    hinge_loss(convergence::InvalidationRateConvergenc, ce::AbstractCounterfactualExplanation)
+
+The default hinge loss for any convergence criterion.
+Can be overwritten inside the `convergence` folder as part of the definition of specific convergence criteria.
+"""
+function hinge_loss(convergence::AbstractConvergence, ce::AbstractCounterfactualExplanation)
+    return 0
 end
