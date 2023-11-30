@@ -29,18 +29,3 @@ function ProbeGenerator(;
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end
-
-"""
-    hinge_loss(ce::AbstractCounterfactualExplanation)
-
-Calculate the hinge loss of a counterfactual explanation.
-
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the hinge loss for.
-
-# Returns
-The hinge loss of the counterfactual explanation.
-"""
-function hinge_loss(ce::AbstractCounterfactualExplanation)
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
-end

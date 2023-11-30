@@ -1,6 +1,6 @@
 Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
-    max_iter::Int = 100
     invalidation_rate::AbstractFloat = 0.1
+    max_iter::Int = 100
     variance::AbstractFloat = 0.01
 end
 
@@ -54,4 +54,20 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     normalized_gradient = f_loss / denominator
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
+end
+
+"""
+    hinge_loss(convergence::InvalidationRateConvergenc, ce::AbstractCounterfactualExplanation)
+
+Calculate the hinge loss of a counterfactual explanation.
+
+# Arguments
+- `convergence::InvalidationRateConvergence`: The convergence criterion to use.
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the hinge loss for.
+
+# Returns
+The hinge loss of the counterfactual explanation.
+"""
+function hinge_loss(convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation)
+    return max(0, invalidation_rate(ce) - convergence.invalidation_rate)
 end

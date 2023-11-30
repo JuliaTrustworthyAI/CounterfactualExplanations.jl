@@ -44,7 +44,7 @@ function CounterfactualExplanation(
 )
 
     # Assertions:
-    @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
+    @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
 
     convergence = Convergence.get_convergence_type(convergence)
     # Factual:

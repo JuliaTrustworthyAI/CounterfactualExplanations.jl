@@ -9,9 +9,7 @@ function ∂ℓ(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    gs = 0
-    gs = Flux.gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
-    return gs
+    return Flux.gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
 end
 
 """
@@ -39,9 +37,5 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    ℓ = 0
-    if isa(ce.convergence, CounterfactualExplanations.InvalidationRateConvergence)
-        ℓ = hinge_loss(ce)
-    end
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ ℓ
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ Convergence.hinge_loss(ce.convergence, ce)
 end
