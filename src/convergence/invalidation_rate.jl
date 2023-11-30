@@ -12,11 +12,8 @@ Checks if the counterfactual search has converged when the convergence criterion
 function converged(
     convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation
 )
-    if ce.search[:iteration_count] == ce.convergence.max_iter
-        return true
-    end
     ir = invalidation_rate(ce)
-    label = predict_label(ce.M, ce.data, ce.x′)[1]
+    label = Models.predict_label(ce.M, ce.data, ce.x′)[1]
     return label == ce.target && convergence.invalidation_rate > ir
 end
 
