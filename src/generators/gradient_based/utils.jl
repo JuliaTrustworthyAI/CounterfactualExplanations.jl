@@ -62,9 +62,9 @@ function conditions_satisfied(
 )
     Δs′ = ∇(generator, ce.M, ce)
     Δs′ = CounterfactualExplanations.apply_mutability(ce, Δs′)
-    τ = ce.convergence[:gradient_tol]
+    τ = ce.convergence.gradient_tol
     satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
     success_rate = sum(satisfied) / ce.num_counterfactuals
-    status = success_rate > ce.convergence[:min_success_rate]
+    status = success_rate > ce.convergence.min_success_rate
     return status
 end
