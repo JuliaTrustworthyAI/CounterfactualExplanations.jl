@@ -78,7 +78,7 @@ function feature_tweaking!(ce::AbstractCounterfactualExplanation)
         end
     end
 
-    return ce
+    return ce.s′
 end
 
 """
