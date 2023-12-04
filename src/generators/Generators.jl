@@ -56,6 +56,7 @@ include("gradient_based/utils.jl")
 include("gradient_based/loss.jl")
 
 include("gradient_based/generators.jl")
+include("gradient_based/generate_perturbations.jl")
 include("gradient_based/clue.jl")
 include("gradient_based/probe.jl")
 
