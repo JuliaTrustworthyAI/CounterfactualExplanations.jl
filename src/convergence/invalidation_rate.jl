@@ -33,7 +33,6 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
     f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
     grad = []
-    # This has to be done with a for loop because flux does not know how to take a gradient from an array of logits.
     for i in 1:length(ce.s′)
         push!(
             grad,

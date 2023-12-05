@@ -8,5 +8,5 @@ end
 Checks if the counterfactual search has converged when the convergence criterion is maximum iterations.
 """
 function converged(convergence::MaxIterConvergence, ce::AbstractCounterfactualExplanation)
-    return false
+    return ce.search[:iteration_count] == convergence.max_iter
 end
