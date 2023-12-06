@@ -41,7 +41,7 @@ function ∇(
 end
 
 """
-    hinge_loss(convergence::InvalidationRateConvergenc, ce::AbstractCounterfactualExplanation)
+    hinge_loss(convergence::AbstractConvergence, ce::AbstractCounterfactualExplanation)
 
 The default hinge loss for any convergence criterion.
 Can be overridden inside the `Convergence` module as part of the definition of specific convergence criteria.

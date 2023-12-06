@@ -53,7 +53,7 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
 end
 
 """
-    hinge_loss(convergence::InvalidationRateConvergenc, ce::AbstractCounterfactualExplanation)
+    hinge_loss(convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation)
 
 Calculate the hinge loss of a counterfactual explanation.
 
