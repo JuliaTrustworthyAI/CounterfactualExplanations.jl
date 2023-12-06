@@ -24,10 +24,9 @@ end
 		data::CounterfactualData,
 		M::Models.AbstractFittedModel,
 		generator::Generators.AbstractGenerator,
-		max_iter::Int = 100,
 		num_counterfactuals::Int = 1,
-		initialization::Symbol = :add_perturbation,
         convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
+		initialization::Symbol = :add_perturbation,
 	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
