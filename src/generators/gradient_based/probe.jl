@@ -22,7 +22,7 @@ based on https://arxiv.org/abs/2203.06768
 function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
-    penalty::Penalty=Objectives.distance_l1,
+    penalty::Penalty=[Objectives.hinge_loss_ir, Objectives.distance_l1],
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
