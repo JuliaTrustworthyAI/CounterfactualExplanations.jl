@@ -74,7 +74,7 @@ Calculate the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    if !(typeof(ce.convergence) <: InvalidationRateConvergence) 
+    if !isa(ce.convergence, Convergence.InvalidationRateConvergence)
         @warn "Invalidation rate is only defined for InvalidationRateConvergence. Returning 0."
         return 0
     end
