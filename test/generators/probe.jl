@@ -7,8 +7,8 @@
     end
 
     @testset "Custom arguments" begin
-        generator = Generators.ProbeGenerator(; λ=[1.0,0.5], loss=:mse)
-        @test generator.λ == [1.0,0.5]
+        generator = Generators.ProbeGenerator(; λ=[1.0, 0.5], loss=:mse)
+        @test generator.λ == [1.0, 0.5]
         @test generator.loss == Flux.Losses.mse
     end
 end
