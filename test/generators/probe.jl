@@ -7,8 +7,8 @@
     end
 
     @testset "Custom arguments" begin
-        generator = Generators.ProbeGenerator(; λ=0.5, loss=:mse)
-        @test generator.λ == 0.5
+        generator = Generators.ProbeGenerator(; λ=[1.0, 0.5], loss=:mse)
+        @test generator.λ == [1.0, 0.5]
         @test generator.loss == Flux.Losses.mse
     end
 end
@@ -31,7 +31,7 @@ end
             generator;
             convergence=Convergence.InvalidationRateConvergence(; max_iter=1000),
         )
-        loss = Generators.hinge_loss(
+        loss = Objectives.hinge_loss_ir(
             linear_counterfactual.convergence, linear_counterfactual
         )
         rate = Convergence.invalidation_rate(linear_counterfactual)
