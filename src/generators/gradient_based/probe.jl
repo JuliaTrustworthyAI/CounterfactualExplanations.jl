@@ -20,7 +20,7 @@ A `Generator` object that can be used to generate counterfactual probes.
 based on https://arxiv.org/abs/2203.06768
 """
 function ProbeGenerator(;
-    λ::Penalty=[1.0, 0.1],
+    λ::Vector{<:AbstractFloat}=[1.0, 0.1],
     loss::Symbol=:logitbinarycrossentropy,
     penalty::Penalty=[Objectives.hinge_loss_ir, Objectives.distance_l1],
     kwargs...,
