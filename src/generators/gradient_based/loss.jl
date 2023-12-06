@@ -37,5 +37,5 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) 
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce)
 end
