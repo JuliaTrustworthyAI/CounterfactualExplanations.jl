@@ -133,7 +133,7 @@ end
     )
 
     # test the LaplaceRedux model
-    flux_model = Models.fit_model(data, :Linear).model
+    flux_model = Models.fit_model(counterfactual_data, :Linear).model
     laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
     @test_throws ArgumentError Models.LaplaceReduxModel(
         laplace_model; likelihood=:classification_multi
