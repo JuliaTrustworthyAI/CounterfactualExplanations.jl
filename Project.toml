@@ -35,13 +35,9 @@ cuDNN = "02a925ec-e4fe-4b08-9a7e-0d78e3d38ccd"
 
 [weakdeps]
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 
 [extensions]
 MPIExt = "MPI"
-PythonCallExt = "PythonCall"
-RCallExt = "RCall"
 
 [compat]
 CUDA = "3, 4, 5"
@@ -67,9 +63,7 @@ PackageExtensionCompat = "1"
 Parameters = "0.12"
 PrecompileTools = "1"
 ProgressMeter = "1"
-PythonCall = "0.9.13"
 Random = "1.6, 1.7, 1.8, 1.9"
-RCall = "0.13.15"
 Serialization = "1.6, 1.7, 1.8, 1.9"
 Statistics = "1"
 StatsBase = "0.33, 0.34"
@@ -80,8 +74,6 @@ julia = "1.6, 1.7, 1.8, 1.9"
 [extras]
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
-PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
-RCall = "6f49c342-dc21-5d91-9882-a32aef131414"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]

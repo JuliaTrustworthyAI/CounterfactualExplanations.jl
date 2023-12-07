@@ -80,49 +80,16 @@ function generate_counterfactual(
     )
 
     # Search:
-    if isa(generator, AbstractGradientBasedGenerator)
-        timer = isnothing(timeout) ? nothing : Timer(timeout)
-        while !ce.search[:terminated]
-            update!(ce)
-            if !isnothing(timer)
-                yield()
-                if !isopen(timer)
-                    @info "Counterfactual search timed out before convergence"
-                    break
-                end
+    timer = isnothing(timeout) ? nothing : Timer(timeout)
+    while !ce.search[:terminated]
+        update!(ce)
+        if !isnothing(timer)
+            yield()
+            if !isopen(timer)
+                @info "Counterfactual search timed out before convergence"
+                break
             end
         end
-
-    elseif isa(generator, FeatureTweakGenerator)
-
-        # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
-        @assert ce.data.standardize == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
-        @assert ce.generator.latent_space == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
-
-        if isa(M, Models.TreeModel)
-            new_x = Generators.feature_tweaking(ce.generator, ce.M, ce.x, ce.target)
-            ce.s′ = new_x
-            new_x = reshape(new_x, :, 1)
-            ce.search[:path] = [ce.search[:path]..., new_x]
-            ce.search[:iteration_count] = 1
-            ce.search[:terminated] = true
-            ce.search[:converged] = true
-            ce.x′ = decode_state(ce)                                    # decoded counterfactual state
-        else
-            @warn "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
-        end
-
-    elseif isa(generator, GrowingSpheresGenerator)
-
-        # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
-        @assert ce.data.standardize == false "The `GrowingSpheres` currently doesn't support feature encodings."
-        @assert ce.generator.latent_space == false "The `GrowingSpheres` currently doesn't support feature encodings."
-
-        Generators.growing_spheres_generation!(ce)
-        Generators.feature_selection!(ce)
-        ce.x′ = decode_state(ce)                                    # decoded counterfactual state
-    else
-        @error "Generator not recognized."
     end
     return ce
 end

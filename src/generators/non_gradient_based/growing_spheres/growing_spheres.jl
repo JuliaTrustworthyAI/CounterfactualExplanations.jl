@@ -47,10 +47,6 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
 
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )
-
     if (factual == target)
         ce.s′ = factual
         return nothing

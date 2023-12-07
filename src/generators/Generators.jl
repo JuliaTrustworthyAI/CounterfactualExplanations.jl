@@ -32,7 +32,7 @@ export GrowingSpheresGenerator
 export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
-export feature_tweaking
+export feature_tweaking!
 export feature_selection
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
@@ -57,13 +57,14 @@ include("gradient_based/utils.jl")
 include("gradient_based/loss.jl")
 
 include("gradient_based/generators.jl")
+include("gradient_based/generate_perturbations.jl")
 include("gradient_based/clue.jl")
 include("gradient_based/probe.jl")
 
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
 
-include("non_gradient_based/feature_tweak/feature_tweak.jl")
+include("non_gradient_based/feature_tweak/generate_perturbations.jl")
 include("non_gradient_based/growing_spheres/growing_spheres.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."

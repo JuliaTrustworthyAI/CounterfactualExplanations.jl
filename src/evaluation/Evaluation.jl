@@ -2,6 +2,7 @@ module Evaluation
 
 using ..CounterfactualExplanations
 using DataFrames
+using ..Generators
 using ..Models
 using LinearAlgebra
 using Statistics
