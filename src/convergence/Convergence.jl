@@ -6,6 +6,7 @@ using LinearAlgebra
 using ..CounterfactualExplanations
 using ..Generators
 using ..Models
+using ..Objectives
 
 include("decision_threshold.jl")
 include("generator_conditions.jl")
