@@ -103,7 +103,7 @@ end
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
 
     data = TaijaData.load_linearly_separable()
-    counterfactual_data = CounterfactualExplantions.DataPreprocessing.CounterfactualData(
+    counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
         data[1], data[2]
     )
     X, y = DataPreprocessing.preprocess_data_for_mlj(counterfactual_data)
