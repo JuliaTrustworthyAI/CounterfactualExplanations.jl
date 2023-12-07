@@ -12,7 +12,7 @@ Checks if the counterfactual search has converged when the convergence criterion
 function converged(
     convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation
 )
-    ir = Generators.invalidation_rate(ce)
+    ir = Objectives.invalidation_rate(ce)
     label = Models.predict_label(ce.M, ce.data, ce.x′)[1]
     return label == ce.target && convergence.invalidation_rate > ir
 end
