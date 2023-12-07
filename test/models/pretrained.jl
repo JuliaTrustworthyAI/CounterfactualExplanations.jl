@@ -21,7 +21,7 @@ if VERSION >= v"1.8"
                 for (name, M) in value[:models]
                     name = string(name)
                     @testset "$name" begin
-                        counterfactual_data = Data.data_catalogue[:vision][key]()
+                        counterfactual_data = TaijaData.data_catalogue[:vision][key]()
                         X = counterfactual_data.X
                         # Randomly selected factual:
                         Random.seed!(123)

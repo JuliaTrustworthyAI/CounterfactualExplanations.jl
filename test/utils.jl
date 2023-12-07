@@ -14,7 +14,8 @@ function _load_synthetic()
     for (likelihood, data) in data_sets
         models = Dict()
         for (model_name, model) in Models.standard_models_catalogue
-            M = fit_model(data, model_name)
+            counterfactual_data = CounterfactualData(data[1], data[2])
+            M = fit_model(counterfactual_data, model_name)
             models[model_name] = Dict(:raw_model => M.model, :model => M)
         end
         synthetic[likelihood] = Dict(:models => models, :data => data)

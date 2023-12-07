@@ -102,7 +102,7 @@ end
     @test_throws ArgumentError Models.FluxModel("dummy"; likelihood=:regression)
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
 
-    data = Data.load_linearly_separable()
+    data = TaijaData.load_linearly_separable()
     X, y = DataPreprocessing.preprocess_data_for_mlj(data)
 
     # test the EvoTree model

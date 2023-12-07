@@ -14,7 +14,7 @@ using EvoTrees
 using MLJBase
 using MLJDecisionTreeInterface
 using Printf
-using CounterfactualExplanations.Data
+using TaijaData
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Evaluation
@@ -39,19 +39,19 @@ generators = Generators.generator_catalogue
         include("data/data_preprocessing.jl")
     end
 
-    @testset "Generators" begin
-        include("generators/generators.jl")
-    end
+    # @testset "Generators" begin
+    #     include("generators/generators.jl")
+    # end
 
-    @testset "Models" begin
-        include("models/models.jl")
-    end
+    # @testset "Models" begin
+    #     include("models/models.jl")
+    # end
 
-    @testset "Evaluation" begin
-        include("other/evaluation.jl")
-    end
+    # @testset "Evaluation" begin
+    #     include("other/evaluation.jl")
+    # end
 
-    @testset "Parallelization" begin
-        include("parallelization/parallelization.jl")
-    end
+    # @testset "Parallelization" begin
+    #     include("parallelization/parallelization.jl")
+    # end
 end

@@ -1,5 +1,6 @@
 @testset "Convenience functions" begin
-    counterfactual_data = Data.load_overlapping()
+    data = TaijaData.load_overlapping()
+    counterfactual_data = CounterfactualData(data[1], data[2])
     X = counterfactual_data.X
     y = counterfactual_data.output_encoder.y
 
@@ -17,6 +18,6 @@
     x = Random.randn(2)
     @test DataPreprocessing.apply_domain_constraints(counterfactual_data, x) == x
 
-    counterfactual_data = Data.CounterfactualData(X, y; domain=(0, 0))
+    counterfactual_data = DataPreprocessing.CounterfactualData(X, y; domain=(0, 0))
     @test unique(DataPreprocessing.apply_domain_constraints(counterfactual_data, x))[1] == 0
 end
