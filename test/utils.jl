@@ -9,12 +9,14 @@ function _load_synthetic()
 
     # Data:
     data_sets = Dict(
-        :classification_binary => CounterfactualExplanations.DataPreprocessing.CounterfactualData(
-            linearly_separable[1], linearly_separable[2]
-        ),
-        :classification_multi => CounterfactualExplanations.DataPreprocessing.CounterfactualData(
-            multi_class[1], multi_class[2]
-        ),
+        :classification_binary =>
+            CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                linearly_separable[1], linearly_separable[2]
+            ),
+        :classification_multi =>
+            CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                multi_class[1], multi_class[2]
+            ),
     )
     # Models
     synthetic = Dict()
