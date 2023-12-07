@@ -69,26 +69,3 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
 end
-
-"""
-    hinge_loss_ir(convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation)
-
-Calculate the hinge loss of a counterfactual explanation with respect to the probability of invalidation following: https://openreview.net/forum?id=sC-PmTsiTB.
-
-# Arguments
-- `convergence::InvalidationRateConvergence`: The convergence criterion to use.
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the hinge loss for.
-
-# Returns
-The hinge loss of the counterfactual explanation.
-"""
-function hinge_loss_ir(ce::AbstractCounterfactualExplanation)
-    if !hasfield(typeof(ce.convergence), :invalidation_rate)
-        @warn "Invalidation rate is only defined for InvalidationRateConvergence. Returning 0."
-        return 0.0
-    end
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
-end
-
-# Add the hinge loss to the losses catalogue.
-Objectives.losses_catalogue[:hinge_loss_ir] = hinge_loss_ir
