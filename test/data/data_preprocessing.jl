@@ -1,3 +1,5 @@
+ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
+
 @testset "Convenience functions" begin
     data = TaijaData.load_overlapping()
     counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
