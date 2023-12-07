@@ -102,7 +102,4 @@ include("assign_traits.jl")
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")
 
-# PrecompileTools.jl:
-include("precompile.jl")
-
 end
