@@ -1,6 +1,8 @@
 @testset "Convenience functions" begin
     data = TaijaData.load_overlapping()
-    counterfactual_data = CounterfactualData(data[1], data[2])
+    counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+        data[1], data[2]
+    )
     X = counterfactual_data.X
     y = counterfactual_data.output_encoder.y
 

@@ -15,7 +15,10 @@ end
 
 @testset "hinge_loss" begin
     @testset "Hinge loss calculation" begin
-        counterfactual_data = TaijaData.load_linearly_separable()
+        data = TaijaData.load_linearly_separable()
+        counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+            data[1], data[2]
+        )
         M = Models.fit_model(counterfactual_data, :Linear)
         target = 2
         factual = 1

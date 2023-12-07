@@ -103,7 +103,10 @@ end
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
 
     data = TaijaData.load_linearly_separable()
-    X, y = DataPreprocessing.preprocess_data_for_mlj(data)
+    counterfactual_data = CounterfactualExplantions.DataPreprocessing.CounterfactualData(
+        data[1], data[2]
+    )
+    X, y = DataPreprocessing.preprocess_data_for_mlj(counterfactual_data)
 
     # test the EvoTree model
     M = EvoTrees.EvoTreeClassifier()
