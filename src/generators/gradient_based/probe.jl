@@ -1,3 +1,5 @@
+using Distributions
+
 """
     ProbeGenerator(;
         λ::AbstractFloat=0.1,
