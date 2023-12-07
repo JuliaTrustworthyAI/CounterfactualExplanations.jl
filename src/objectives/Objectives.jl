@@ -1,6 +1,7 @@
 module Objectives
 
 using ..CounterfactualExplanations
+using ..CounterfactualExplanations.Generators
 using Flux
 using Flux.Losses
 using ChainRulesCore
