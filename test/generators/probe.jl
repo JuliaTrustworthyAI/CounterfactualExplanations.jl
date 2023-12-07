@@ -1,4 +1,4 @@
-using CounterfactualExplanations.Convergence
+using CounterfactualExplanations.Objectives
 
 @testset "ProbeGenerator" begin
     @testset "Default arguments" begin
