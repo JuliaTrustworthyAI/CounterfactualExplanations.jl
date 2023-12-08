@@ -1,14 +1,16 @@
+using CounterfactualExplanations.Objectives
+
 @testset "ProbeGenerator" begin
     @testset "Default arguments" begin
         generator = Generators.ProbeGenerator()
         @test typeof(generator) <: AbstractGenerator
-        @test generator.λ == 0.1
+        @test generator.λ == [1.0, 0.1]
         @test generator.loss == Flux.Losses.logitbinarycrossentropy
     end
 
     @testset "Custom arguments" begin
-        generator = Generators.ProbeGenerator(; λ=0.5, loss=:mse)
-        @test generator.λ == 0.5
+        generator = Generators.ProbeGenerator(; λ=[1.0, 0.5], loss=:mse)
+        @test generator.λ == [1.0, 0.5]
         @test generator.loss == Flux.Losses.mse
     end
 end
@@ -29,13 +31,12 @@ end
             counterfactual_data,
             M,
             generator;
-            converge_when=:invalidation_rate,
-            max_iter=1000,
-            invalidation_rate=0.1,
-            learning_rate=0.1,
+            convergence=Convergence.InvalidationRateConvergence(; max_iter=1000),
         )
-        loss = Generators.hinge_loss(linear_counterfactual)
-        rate = Generators.invalidation_rate(linear_counterfactual)
+        loss = Objectives.hinge_loss_ir(
+            linear_counterfactual.convergence, linear_counterfactual
+        )
+        rate = Convergence.invalidation_rate(linear_counterfactual)
         @test rate <= 0.1
         @test loss <= 0.9
     end

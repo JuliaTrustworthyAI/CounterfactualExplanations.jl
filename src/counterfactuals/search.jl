@@ -21,8 +21,7 @@ function update!(ce::CounterfactualExplanation)
     ce.search[:mutability] = Generators.mutability_constraints(ce.generator, ce)
     ce.search[:iteration_count] += 1                            # update iteration counter   
     ce.search[:path] = [ce.search[:path]..., ce.s′]
-    ce.search[:converged] = converged(ce)
-    return ce.search[:terminated] = terminated(ce)
+    return terminated(ce)
 end
 
 """

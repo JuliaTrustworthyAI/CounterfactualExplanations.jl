@@ -10,10 +10,9 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
-    generative_model_params::NamedTuple
     params::Dict
     search::Union{Dict,Nothing}
-    convergence::Dict
+    convergence::AbstractConvergence
     num_counterfactuals::Int
     initialization::Symbol
 end
@@ -25,15 +24,9 @@ end
 		data::CounterfactualData,
 		M::Models.AbstractFittedModel,
 		generator::Generators.AbstractGenerator,
-		max_iter::Int = 100,
 		num_counterfactuals::Int = 1,
+        convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 		initialization::Symbol = :add_perturbation,
-		generative_model_params::NamedTuple = (;),
-		min_success_rate::AbstractFloat=0.99,
-        converge_when::Symbol=:decision_threshold,
-        invalidation_rate::AbstractFloat=0.5,
-        learning_rate::AbstractFloat=1.0,
-        variance::AbstractFloat=0.01,
 	)
 
 Outer method to construct a `CounterfactualExplanation` structure.
@@ -45,32 +38,16 @@ function CounterfactualExplanation(
     M::Models.AbstractFittedModel,
     generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
     initialization::Symbol=:add_perturbation,
-    generative_model_params::NamedTuple=(;),
-    max_iter::Int=100,
-    decision_threshold::AbstractFloat=0.5,
-    gradient_tol::AbstractFloat=parameters[:τ],
-    min_success_rate::AbstractFloat=parameters[:min_success_rate],
-    converge_when::Symbol=:decision_threshold,
-    invalidation_rate::AbstractFloat=0.5,
-    learning_rate::AbstractFloat=1.0,
-    variance::AbstractFloat=0.01,
 )
 
     # Assertions:
-    @assert any(predict_label(M, data) .== target) "You model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-    @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
-    @assert converge_when ∈ [
-        :decision_threshold,
-        :generator_conditions,
-        :max_iter,
-        :invalidation_rate,
-        :early_stopping,
-    ]
+    @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
 
+    convergence = Convergence.get_convergence_type(convergence)
     # Factual:
     x = typeof(x) == Int ? select_factual(data, x) : x
-
     # Target:
     target_encoded = data.output_encoder(target)
 
@@ -79,23 +56,11 @@ function CounterfactualExplanation(
         :mutability => DataPreprocessing.mutability_constraints(data),
         :latent_space => generator.latent_space,
         :dim_reduction => generator.dim_reduction,
-        :invalidation_rate => invalidation_rate,
-        :learning_rate => learning_rate,
-        :variance => variance,
     )
     ids = findall(predict_label(M, data) .== target)
     n_candidates = minimum([size(data.y, 2), 1000])
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
-
-    # Convergence Parameters:
-    convergence = Dict(
-        :max_iter => max_iter,
-        :decision_threshold => decision_threshold,
-        :gradient_tol => gradient_tol,
-        :min_success_rate => min_success_rate,
-        :converge_when => converge_when,
-    )
 
     # Instantiate: 
     ce = CounterfactualExplanation(
@@ -107,7 +72,6 @@ function CounterfactualExplanation(
         data,
         M,
         deepcopy(generator),
-        generative_model_params,
         params,
         nothing,
         convergence,
@@ -116,22 +80,10 @@ function CounterfactualExplanation(
     )
 
     # Initialization:
-    adjust_shape!(ce)                                           # adjust shape to specified number of counterfactuals
+    adjust_shape!(ce)                   # adjust shape to specified number of counterfactuals
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
     ce.x′ = decode_state(ce)            # decode the counterfactual state
-
-    if generator isa Generators.FeatureTweakGenerator ||
-        generator isa Generators.GrowingSpheresGenerator
-        ce.search = Dict(
-            :iteration_count => 0,
-            :times_changed_features => zeros(size(decode_state(ce))),
-            :path => [ce.s′],
-            :terminated => false,
-            :converged => false,
-        )
-        return ce
-    end
 
     # Initialize search:
     ce.search = Dict(
@@ -140,13 +92,8 @@ function CounterfactualExplanation(
         :path => [ce.s′],
     )
 
-    # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
-    # the above fields, which are not yet initialized.
-    ce.search[:converged] = converged(ce)
-    ce.search[:terminated] = terminated(ce)
-
     # Check for redundancy:
-    if in_target_class(ce) && threshold_reached(ce)
+    if in_target_class(ce) && Convergence.threshold_reached(ce)
         @info "Factual already in target class and probability exceeds threshold γ."
     end
 

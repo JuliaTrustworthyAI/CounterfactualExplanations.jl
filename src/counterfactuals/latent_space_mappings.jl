@@ -49,7 +49,7 @@ function map_to_latent(
 
     if ce.params[:latent_space]
         generative_model = DataPreprocessing.get_generative_model(
-            data; ce.generative_model_params...
+            data; generator.generative_model_params...
         )
         # map counterfactual to latent space: s′=z′∼p(z|x)
         s′, _, _ = GenerativeModels.rand(generative_model.encoder, s′)
@@ -72,7 +72,7 @@ function wants_latent_space(ce::CounterfactualExplanation)
     latent_space = ce.params[:latent_space]
 
     # If threshold is already reached, training GM is redundant:
-    latent_space = latent_space && !threshold_reached(ce, ce.x)
+    latent_space = latent_space && !Convergence.threshold_reached(ce)
 
     return latent_space
 end

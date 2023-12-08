@@ -8,19 +8,7 @@ Initializes the starting point for the factual(s):
 """
 function initialize_state(ce::CounterfactualExplanation)
     @assert ce.initialization ∈ [:identity, :add_perturbation]
-
     s′ = ce.s′
-    data = ce.data
-
-    # No perturbation:
-    if ce.initialization == :identity
-        return s′
-    end
-
-    # If latent space, initial point is random anyway:
-    if ce.params[:latent_space]
-        return s′
-    end
 
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if ce.initialization == :add_perturbation

@@ -63,14 +63,17 @@ if VERSION >= v"1.8"
                                     counterfactual_data,
                                     M,
                                     generator;
-                                    max_iter=max_iter,
-                                    decision_threshold=γ,
+                                    convergence=Convergence.DecisionThresholdConvergence(;
+                                        max_iter=max_iter, decision_threshold=γ
+                                    ),
                                 )
                                 using CounterfactualExplanations: counterfactual_probability
-                                @test !converged(counterfactual) ||
-                                    target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                @test !converged(counterfactual) ||
-                                    length(path(counterfactual)) <= max_iter
+                                @test !Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                @test !Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                ) || length(path(counterfactual)) <= max_iter
                             end
 
                             @testset "Trivial case (already in target class)" begin
@@ -85,12 +88,16 @@ if VERSION >= v"1.8"
                                     counterfactual_data,
                                     M,
                                     generator;
-                                    decision_threshold=γ,
+                                    convergence=Convergence.DecisionThresholdConvergence(;
+                                        decision_threshold=γ
+                                    ),
                                     initialization=:identity,
                                 )
                                 x′ = CounterfactualExplanations.decode_state(counterfactual)
                                 @test isapprox(counterfactual.x, x′; atol=1e-6)
-                                @test converged(counterfactual)
+                                @test Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                )
                                 @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
@@ -113,15 +120,18 @@ if VERSION >= v"1.8"
                                             counterfactual_data,
                                             M,
                                             generator;
-                                            max_iter=max_iter,
-                                            decision_threshold=γ,
+                                            convergence=Convergence.DecisionThresholdConvergence(;
+                                                max_iter=max_iter, decision_threshold=γ
+                                            ),
                                         )
                                         using CounterfactualExplanations:
                                             counterfactual_probability
-                                        @test !converged(counterfactual) ||
-                                            target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                        @test !converged(counterfactual) ||
-                                            length(path(counterfactual)) <= max_iter
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) || length(path(counterfactual)) <= max_iter
                                     end
                                 end
                             end
