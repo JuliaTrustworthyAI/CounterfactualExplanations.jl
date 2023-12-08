@@ -1,6 +1,6 @@
 """
     function terminated(ce::CounterfactualExplanation)
-        
+
 A convenience method that checks if the counterfactual search has terminated.
 """
 function terminated(ce::CounterfactualExplanation)
