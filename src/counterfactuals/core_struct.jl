@@ -82,15 +82,6 @@ function CounterfactualExplanation(
     candidates = select_factual(data, rand(ids, n_candidates))
     params[:potential_neighbours] = reduce(hcat, map(x -> x[1], collect(candidates)))
 
-    # Convergence Parameters:
-    convergence = Dict(
-        :max_iter => max_iter,
-        :decision_threshold => decision_threshold,
-        :gradient_tol => gradient_tol,
-        :min_success_rate => min_success_rate,
-        :converge_when => converge_when,
-    )
-
     # Instantiate: 
     ce = CounterfactualExplanation(
         x,
