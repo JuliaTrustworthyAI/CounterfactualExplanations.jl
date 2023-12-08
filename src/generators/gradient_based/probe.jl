@@ -43,31 +43,34 @@ Calculate the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    if !haskey(ce.convergence, :invalidation_rate)
+    ir = try
+        index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
+        f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+        grad = []
+        for i in 1:length(ce.s′)
+            push!(
+                grad,
+                Flux.gradient(
+                    () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
+                    Flux.params(ce.s′),
+                )[ce.s′],
+            )
+        end
+        gradᵀ = LinearAlgebra.transpose(grad)
+
+        identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
+        denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
+
+        normalized_gradient = f_loss / denominator
+        ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
+        1 - ϕ
+    catch
+        # Catch the case where convergence.variance is not defined.
         @warn "Invalidation rate is only defined for InvalidationRateConvergence. Returning 0."
-        return 0.0
+        0.0
     end
 
-    index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
-    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-    grad = []
-    for i in 1:length(ce.s′)
-        push!(
-            grad,
-            Flux.gradient(
-                () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
-                Flux.params(ce.s′),
-            )[ce.s′],
-        )
-    end
-    gradᵀ = LinearAlgebra.transpose(grad)
-
-    identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
-    denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
-
-    normalized_gradient = f_loss / denominator
-    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
-    return 1 - ϕ
+    return ir
 end
 
 """
