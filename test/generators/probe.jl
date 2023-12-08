@@ -1,5 +1,3 @@
-using CounterfactualExplanations.Convergence
-
 @testset "ProbeGenerator" begin
     @testset "Default arguments" begin
         generator = Generators.ProbeGenerator()

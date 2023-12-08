@@ -12,7 +12,7 @@ include("distance_utils.jl")
 include("loss_functions.jl")
 include("penalties.jl")
 
-export logitbinarycrossentropy, logitcrossentropy, mse, hinge_loss_ir
+export logitbinarycrossentropy, logitcrossentropy, mse
 export losses_catalogue
 export distance, distance_mad, distance_l0, distance_l1, distance_l2, distance_linf
 export ddp_diversity
@@ -22,7 +22,6 @@ const losses_catalogue = Dict(
     :logitbinarycrossentropy => logitbinarycrossentropy,
     :logitcrossentropy => logitcrossentropy,
     :mse => mse,
-    :hinge_loss_ir => hinge_loss_ir,
 )
 
 const penalties_catalogue = Dict(
