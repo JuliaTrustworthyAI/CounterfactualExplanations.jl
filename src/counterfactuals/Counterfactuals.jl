@@ -1,3 +1,4 @@
+using .Convergence
 using .DataPreprocessing
 using .GenerativeModels
 using .Generators
@@ -9,8 +10,6 @@ using Statistics
 using StatsBase
 
 include("core_struct.jl")
-
-include("convergence.jl")
 include("encodings.jl")
 include("info_extraction.jl")
 include("initialisation.jl")

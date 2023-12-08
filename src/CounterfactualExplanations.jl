@@ -14,6 +14,7 @@ export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
 export AbstractParallelizer
+export AbstractConvergence
 
 # Traits:
 include("traits/traits.jl")
@@ -78,6 +79,9 @@ export WachterGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
+
+include("convergence/Convergence.jl")
+using .Convergence
 
 ### CounterfactualExplanation
 # argmin 

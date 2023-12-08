@@ -53,7 +53,9 @@ function generate_counterfactual(
     decision_threshold::AbstractFloat=0.5,
     gradient_tol::AbstractFloat=parameters[:τ],
     min_success_rate::AbstractFloat=parameters[:min_success_rate],
-    converge_when::Symbol=:decision_threshold,
+    convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
+        decision_threshold=(1 / length(data.y_levels))
+    ),
     timeout::Union{Nothing,Int}=nothing,
     invalidation_rate::AbstractFloat=0.1,
     learning_rate::AbstractFloat=1.0,
@@ -73,7 +75,7 @@ function generate_counterfactual(
         min_success_rate=min_success_rate,
         decision_threshold=decision_threshold,
         gradient_tol=gradient_tol,
-        converge_when=converge_when,
+        convergence=convergence,
         invalidation_rate=invalidation_rate,
         learning_rate=learning_rate,
         variance=variance,
