@@ -57,7 +57,9 @@ Calculate the hinge loss of a counterfactual explanation with respect to the pro
 # Returns
 The hinge loss of the counterfactual explanation.
 """
-function hinge_loss_ir(ce::AbstractCounterfactualExplanation)
+function hinge_loss_ir(
+    ce::AbstractCounterfactualExplanation
+)
     return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
 end
 

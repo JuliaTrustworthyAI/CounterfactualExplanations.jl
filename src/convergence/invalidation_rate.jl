@@ -1,4 +1,4 @@
-using .Objectives: invalidation_rate
+using Objectives: invalidation_rate
 
 Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
     invalidation_rate::AbstractFloat = 0.1
