@@ -102,5 +102,5 @@ function hinge_loss_ir(ce::AbstractCounterfactualExplanation)
         @warn "Invalidation rate is only defined for InvalidationRateConvergence. Returning 0."
         return 0.0
     end
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
+    return max(0, Generators.invalidation_rate(ce) - ce.convergence.invalidation_rate)
 end
