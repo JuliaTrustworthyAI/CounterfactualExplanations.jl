@@ -74,10 +74,6 @@ Calculate the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    if !(typeof(ce.convergence) <: InvalidationRateConvergence) 
-        @warn "Invalidation rate is only defined for InvalidationRateConvergence. Returning 0."
-        return 0
-    end
     index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
     f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
     grad = []

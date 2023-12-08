@@ -2,7 +2,7 @@
     @testset "Default arguments" begin
         generator = Generators.ProbeGenerator()
         @test typeof(generator) <: AbstractGenerator
-        @test generator.λ == [1.0, 0.1]
+        @test generator.λ == 0.1
         @test generator.loss == Flux.Losses.logitbinarycrossentropy
     end
 
