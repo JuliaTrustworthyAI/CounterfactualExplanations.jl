@@ -115,7 +115,7 @@ function CounterfactualExplanation(
 
     # This is lifted out of the above ce.search initialization because calling converged(ce) might self-reference
     # the above fields, which are not yet initialized.
-    ce.search[:converged] = Convergence.converged(ce)
+    ce.search[:converged] = Convergence.converged(ce.convergence, ce)
     ce.search[:terminated] = terminated(ce)
 
     # Check for redundancy:
