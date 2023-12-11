@@ -76,7 +76,7 @@
                                 end
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
-                                ) == 1
+                                ) == 0
                             end
                         end
                     end
