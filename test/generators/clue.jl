@@ -1,7 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using DataFrames
 using Flux

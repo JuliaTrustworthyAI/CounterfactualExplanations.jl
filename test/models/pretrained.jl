@@ -1,7 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using DataFrames
 using Flux
@@ -21,7 +20,10 @@ if VERSION >= v"1.8"
                 for (name, M) in value[:models]
                     name = string(name)
                     @testset "$name" begin
-                        counterfactual_data = Data.data_catalogue[:vision][key]()
+                        data = TaijaData.data_catalogue[:vision][key]()
+                        counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                            data[1], data[2]
+                        )
                         X = counterfactual_data.X
                         # Randomly selected factual:
                         Random.seed!(123)
