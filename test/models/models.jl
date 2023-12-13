@@ -102,8 +102,11 @@ end
     @test_throws ArgumentError Models.FluxModel("dummy"; likelihood=:regression)
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)
 
-    data = Data.load_linearly_separable()
-    X, y = DataPreprocessing.preprocess_data_for_mlj(data)
+    data = TaijaData.load_linearly_separable()
+    counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+        data[1], data[2]
+    )
+    X, y = DataPreprocessing.preprocess_data_for_mlj(counterfactual_data)
 
     # test the EvoTree model
     M = EvoTrees.EvoTreeClassifier()
@@ -130,7 +133,7 @@ end
     )
 
     # test the LaplaceRedux model
-    flux_model = Models.fit_model(data, :Linear).model
+    flux_model = Models.fit_model(counterfactual_data, :Linear).model
     laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
     @test_throws ArgumentError Models.LaplaceReduxModel(
         laplace_model; likelihood=:classification_multi

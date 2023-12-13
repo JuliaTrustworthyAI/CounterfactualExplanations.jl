@@ -4,10 +4,19 @@
 Loads synthetic data, models, and generators.
 """
 function _load_synthetic()
+    linearly_separable = TaijaData.load_linearly_separable()
+    multi_class = TaijaData.load_multi_class()
+
     # Data:
     data_sets = Dict(
-        :classification_binary => load_linearly_separable(),
-        :classification_multi => load_multi_class(),
+        :classification_binary =>
+            CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                linearly_separable[1], linearly_separable[2]
+            ),
+        :classification_multi =>
+            CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                multi_class[1], multi_class[2]
+            ),
     )
     # Models
     synthetic = Dict()

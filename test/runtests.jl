@@ -15,7 +15,7 @@ using MLJBase
 using MLJDecisionTreeInterface
 using Printf
 using CounterfactualExplanations.Convergence
-using CounterfactualExplanations.Data
+using TaijaData
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Evaluation
@@ -37,7 +37,7 @@ generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
     @testset "Data" begin
-        include("data/data.jl")
+        include("data/data_preprocessing.jl")
     end
 
     @testset "Generators" begin

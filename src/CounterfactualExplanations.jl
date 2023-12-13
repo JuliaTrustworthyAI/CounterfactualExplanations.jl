@@ -92,11 +92,6 @@ export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
 
-### Other
-# Example data sets:
-include("data/Data.jl")
-using .Data
-
 include("generate_counterfactual/generate_counterfactual.jl")
 export generate_counterfactual
 
@@ -111,7 +106,6 @@ include("assign_traits.jl")
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")
 
-# PrecompileTools.jl:
-include("precompile.jl")
+include("deprecated.jl")
 
 end
