@@ -63,14 +63,17 @@ using Random
                                 counterfactual_data,
                                 M,
                                 generator;
-                                max_iter=max_iter,
-                                decision_threshold=γ,
+                                convergence=Convergence.DecisionThresholdConvergence(;
+                                    max_iter=max_iter, decision_threshold=γ
+                                ),
                             )
                             using CounterfactualExplanations: counterfactual_probability
-                            @test !converged(counterfactual) ||
-                                target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                            @test !converged(counterfactual) ||
-                                length(path(counterfactual)) <= max_iter
+                            @test !Convergence.converged(
+                                counterfactual.convergence, counterfactual
+                            ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                            @test !Convergence.converged(
+                                counterfactual.convergence, counterfactual
+                            ) || length(path(counterfactual)) <= max_iter
                         end
                     end
                 end

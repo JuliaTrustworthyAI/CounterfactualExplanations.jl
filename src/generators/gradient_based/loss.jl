@@ -39,9 +39,15 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    ℓ = 0
-    if (ce.convergence[:converge_when] == :invalidation_rate)
-        ℓ = hinge_loss(ce)
-    end
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ ℓ
+    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ hinge_loss(ce.convergence, ce)
+end
+
+"""
+    hinge_loss(convergence::AbstractConvergence, ce::AbstractCounterfactualExplanation)
+
+The default hinge loss for any convergence criterion.
+Can be overridden inside the `Convergence` module as part of the definition of specific convergence criteria.
+"""
+function hinge_loss(convergence::AbstractConvergence, ce::AbstractCounterfactualExplanation)
+    return 0
 end

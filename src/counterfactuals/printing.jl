@@ -3,7 +3,7 @@ function Base.show(io::IO, z::CounterfactualExplanation)
         println(io, typeof(z))
         printstyled(
             io,
-            "Convergence: $(converged(z) ? "✅"  : "❌") after $(total_steps(z)) steps.";
+            "Convergence: $(Convergence.converged(z.convergence, z) ? "✅"  : "❌") after $(total_steps(z)) steps.";
             bold=true,
         )
     else
