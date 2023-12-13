@@ -102,4 +102,6 @@ include("assign_traits.jl")
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")
 
+include("deprecated.jl")
+
 end
