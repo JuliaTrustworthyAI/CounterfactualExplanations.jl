@@ -18,7 +18,6 @@ function update!(ce::CounterfactualExplanation)
         decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
-    ce.search[:mutability] = Generators.mutability_constraints(ce.generator, ce)
     ce.search[:iteration_count] += 1                            # update iteration counter   
     ce.search[:path] = [ce.search[:path]..., ce.s′]
     return terminated(ce)
