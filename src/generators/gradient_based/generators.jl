@@ -40,3 +40,26 @@ function GreedyGenerator(; η=0.1, n=nothing, kwargs...)
     opt = CounterfactualExplanations.Generators.JSMADescent(; η=η, n=n)
     return GradientBasedGenerator(; penalty=default_distance, λ=0.0, opt=opt, kwargs...)
 end
+
+"Constructor for `CLUEGenerator`."
+function CLUEGenerator(; λ::AbstractFloat=0.1, latent_space=true, kwargs...)
+    return GradientBasedGenerator(;
+        loss=predictive_entropy,
+        penalty=default_distance,
+        λ=λ,
+        latent_space=latent_space,
+        kwargs...,
+    )
+end
+
+"Constructor for `ProbeGenerator`."
+function ProbeGenerator(;
+    λ::AbstractFloat=0.1,
+    loss::Symbol=:logitbinarycrossentropy,
+    penalty=Objectives.distance_l1,
+    kwargs...,
+)
+    @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
+    user_loss = Objectives.losses_catalogue[loss]
+    return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
+end
