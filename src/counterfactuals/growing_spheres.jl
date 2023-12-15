@@ -1,4 +1,3 @@
-
 function generate_counterfactual(
     x::AbstractArray,
     target::RawTargetType,
@@ -6,7 +5,6 @@ function generate_counterfactual(
     M::Models.AbstractFittedModel,
     generator::Generators.GrowingSpheresGenerator;
     num_counterfactuals::Int=1,
-    max_iter::Int=1000,
     convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
         decision_threshold=(1 / length(data.y_levels)), max_iter=1000
     ),

@@ -40,7 +40,7 @@ using Random
 
                     @testset "Predetermined outputs" begin
                         if generator.latent_space
-                            @test counterfactual.params[:latent_space]
+                            @test counterfactual.generator.latent_space
                         end
                         @test counterfactual.target == target
                         @test counterfactual.x == x &&

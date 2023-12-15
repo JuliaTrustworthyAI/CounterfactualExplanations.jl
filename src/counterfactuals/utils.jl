@@ -64,8 +64,6 @@ function adjust_shape!(ce::CounterfactualExplanation)
     target_encoded = ce.target_encoded
     ce.target_encoded = adjust_shape(ce, target_encoded)
 
-    # Parameters:
-    params = ce.params
-    params[:mutability] = adjust_shape(ce, params[:mutability])      # augment to account for specified number of counterfactuals
-    return ce.params = params
+    ce.search[:mutability] = adjust_shape(ce, ce.search[:mutability])      # augment to account for specified number of counterfactuals
+    return nothing
 end

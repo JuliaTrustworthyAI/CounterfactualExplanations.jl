@@ -21,8 +21,7 @@ function update!(ce::CounterfactualExplanation)
     ce.search[:mutability] = Generators.mutability_constraints(ce.generator, ce)
     ce.search[:iteration_count] += 1                            # update iteration counter   
     ce.search[:path] = [ce.search[:path]..., ce.s′]
-    ce.search[:converged] = Convergence.converged(ce.convergence, ce)
-    return ce.search[:terminated] = terminated(ce)
+    return terminated(ce)
 end
 
 """
@@ -34,7 +33,7 @@ end
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
 function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
-    if ce.params[:latent_space] ||
+    if ce.generator.latent_space ||
         ce.data.dt isa MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
@@ -42,7 +41,7 @@ function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
         return Δs′
     end
 
-    mutability = ce.params[:mutability]
+    mutability = ce.search[:mutability]
     # Helper functions:
     both(x) = x
     increase(x) = ifelse(x < 0.0, 0.0, x)

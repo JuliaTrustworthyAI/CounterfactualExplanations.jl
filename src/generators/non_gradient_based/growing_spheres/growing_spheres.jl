@@ -152,9 +152,6 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     end
 
     ce.s′ = counterfactual″
-    ce.search[:terminated] = true
-    ce.search[:converged] = true
-
     return nothing
 end
 

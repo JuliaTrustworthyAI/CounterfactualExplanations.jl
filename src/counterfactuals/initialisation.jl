@@ -10,7 +10,6 @@ function initialize_state(ce::CounterfactualExplanation)
     @assert ce.initialization ∈ [:identity, :add_perturbation]
 
     s′ = ce.s′
-    data = ce.data
 
     # No perturbation:
     if ce.initialization == :identity
@@ -18,7 +17,7 @@ function initialize_state(ce::CounterfactualExplanation)
     end
 
     # If latent space, initial point is random anyway:
-    if ce.params[:latent_space]
+    if ce.generator.latent_space
         return s′
     end
 
