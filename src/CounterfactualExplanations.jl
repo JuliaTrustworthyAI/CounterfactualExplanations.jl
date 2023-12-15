@@ -88,12 +88,10 @@ using .Convergence
 ###
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
+export generate_counterfactual
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
-
-include("generate_counterfactual/generate_counterfactual.jl")
-export generate_counterfactual
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
