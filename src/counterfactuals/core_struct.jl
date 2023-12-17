@@ -63,19 +63,21 @@ function CounterfactualExplanation(
         initialization,
     )
 
+    # Initialize search:
+    ce.search = Dict(
+        :iteration_count => 0,
+        :times_changed_features => zeros(size(decode_state(ce))),
+        :path => [],
+        :mutability => DataPreprocessing.mutability_constraints(data),
+    )
+
     # Initialization:
     adjust_shape!(ce)                   # adjust shape to specified number of counterfactuals
     ce.s′ = encode_state(ce)            # encode the counterfactual state
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
     ce.x′ = decode_state(ce)            # decode the counterfactual state
 
-    # Initialize search:
-    ce.search = Dict(
-        :iteration_count => 0,
-        :times_changed_features => zeros(size(decode_state(ce))),
-        :path => [ce.s′],
-        :mutability => DataPreprocessing.mutability_constraints(data),
-    )
+    push!(ce.search[:path], ce.s′)
 
     # Check for redundancy:
     if in_target_class(ce) && Convergence.threshold_reached(ce)
