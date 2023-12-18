@@ -52,7 +52,7 @@ function find_potential_neighbors(ce::AbstractCounterfactualExplanation)
     ids = findall(Models.predict_label(ce.M, ce.data) .== ce.target)
     n_candidates = minimum([size(ce.data.y, 2), 1000])
     candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
-    potential_neighbors = reduce(hcat, map(x -> x[1], collect(candidates)))
+    potential_neighbors = hcat([x[1] for x in candidates]...)
     return potential_neighbors
 end
 
