@@ -37,8 +37,8 @@ end
 Computes the distance of the counterfactual from a point in the target main.
 """
 function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
-    ids = rand(1:size(ce.search[:potential_neighbors], 2), K)
-    neighbours = ce.search[:potential_neighbors][:, ids]
+    ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
+    neighbours = ce.search[:potential_neighbours][:, ids]
     centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
     Δ = distance(ce; from=centroid, kwrgs...)
     return Δ

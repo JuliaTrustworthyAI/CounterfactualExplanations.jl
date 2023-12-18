@@ -66,10 +66,8 @@ function CounterfactualExplanation(
     # Initialize search:
     ce.search = Dict(
         :iteration_count => 0,
-        :times_changed_features => zeros(size(decode_state(ce))),
-        :path => [],
         :mutability => DataPreprocessing.mutability_constraints(data),
-        :potential_neighbors => find_potential_neighbors(ce),
+        :potential_neighbours => find_potential_neighbours(ce),
     )
 
     # Initialization:
@@ -78,7 +76,8 @@ function CounterfactualExplanation(
     ce.s′ = initialize_state(ce)        # initialize the counterfactual state
     ce.x′ = decode_state(ce)            # decode the counterfactual state
 
-    push!(ce.search[:path], ce.s′)
+    ce.search[:path] = [ce.s′]
+    ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
 
     # Check for redundancy:
     if in_target_class(ce) && Convergence.threshold_reached(ce)

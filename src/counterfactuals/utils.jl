@@ -74,10 +74,10 @@ end
 
 Finds potential neighbors for the selected factual data point.
 """
-function find_potential_neighbors(ce::AbstractCounterfactualExplanation)
+function find_potential_neighbours(ce::AbstractCounterfactualExplanation)
     ids = findall(Models.predict_label(ce.M, ce.data) .== ce.target)
     n_candidates = minimum([size(ce.data.y, 2), 1000])
     candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
-    potential_neighbors = reduce(hcat, map(x -> x[1], collect(candidates)))
-    return potential_neighbors
+    potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
+    return potential_neighbours
 end
