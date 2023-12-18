@@ -42,6 +42,12 @@ function Flux.Losses.mse(ce::AbstractCounterfactualExplanation; kwargs...)
     return loss
 end
 
+"""
+    predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
+
+Computes the predictive entropy of the counterfactuals.
+Explained in https://arxiv.org/abs/1406.2541.
+"""
 function predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
     model = ce.M
     counterfactual_data = ce.data
