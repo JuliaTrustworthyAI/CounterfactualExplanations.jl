@@ -1,7 +1,7 @@
-Base.@kwdef struct DecisionThresholdConvergence <: AbstractConvergence
-    decision_threshold::AbstractFloat = 0.5
-    max_iter::Int = 100
-    min_success_rate::AbstractFloat = 0.75
+struct DecisionThresholdConvergence <: AbstractConvergence
+    decision_threshold::AbstractFloat
+    max_iter::Int
+    min_success_rate::AbstractFloat
 end
 
 function DecisionThresholdConvergence(;

@@ -17,9 +17,7 @@ end
 Returns the counterfactual probabilities for each step of the search.
 """
 function counterfactual_probability_path(ce::CounterfactualExplanation)
-    M = ce.M
-    p = map(X -> counterfactual_probability(ce, X), path(ce))
-    return p
+    return map(X -> counterfactual_probability(ce, X), path(ce))
 end
 
 """
