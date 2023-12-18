@@ -69,6 +69,7 @@ function CounterfactualExplanation(
         :times_changed_features => zeros(size(decode_state(ce))),
         :path => [],
         :mutability => DataPreprocessing.mutability_constraints(data),
+        :potential_neighbors => find_potential_neighbors(ce),
     )
 
     # Initialization:

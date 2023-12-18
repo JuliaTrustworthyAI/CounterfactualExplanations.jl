@@ -1,8 +1,6 @@
 module Objectives
 
 using ..CounterfactualExplanations
-using ..Models
-using ..DataPreprocessing
 using Flux
 using Flux.Losses
 using ChainRulesCore

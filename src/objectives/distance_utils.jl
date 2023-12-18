@@ -37,23 +37,11 @@ end
 Computes the distance of the counterfactual from a point in the target main.
 """
 function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
-    if !(:potential_neighbors ∈ collect(keys(ce.search)))
-        ce.search[:potential_neighbors] = find_potential_neighbors(ce)
-    end
-
     ids = rand(1:size(ce.search[:potential_neighbors], 2), K)
     neighbours = ce.search[:potential_neighbors][:, ids]
     centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
     Δ = distance(ce; from=centroid, kwrgs...)
     return Δ
-end
-
-function find_potential_neighbors(ce::AbstractCounterfactualExplanation)
-    ids = findall(Models.predict_label(ce.M, ce.data) .== ce.target)
-    n_candidates = minimum([size(ce.data.y, 2), 1000])
-    candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
-    potential_neighbors = hcat([x[1] for x in candidates]...)
-    return potential_neighbors
 end
 
 """

@@ -68,3 +68,16 @@ function adjust_shape!(ce::CounterfactualExplanation)
     search[:mutability] = adjust_shape(ce, search[:mutability])      # augment to account for specified number of counterfactuals
     return ce.search = search
 end
+
+"""
+    find_potential_neighbors(ce::AbstractCounterfactualExplanation)
+
+Finds potential neighbors for the selected factual data point.
+"""
+function find_potential_neighbors(ce::AbstractCounterfactualExplanation)
+    ids = findall(Models.predict_label(ce.M, ce.data) .== ce.target)
+    n_candidates = minimum([size(ce.data.y, 2), 1000])
+    candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
+    potential_neighbors = reduce(hcat, map(x -> x[1], collect(candidates)))
+    return potential_neighbors
+end
