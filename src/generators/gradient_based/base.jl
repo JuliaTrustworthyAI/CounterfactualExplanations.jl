@@ -55,25 +55,3 @@ function GradientBasedGenerator(;
     end
     return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
 end
-
-"""
-	Generator(;
-		loss::Union{Nothing,Function}=nothing,
-		penalty::Penalty=nothing,
-		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
-		latent_space::Bool::false,
-		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-	)
-
-An outer constructor that allows for more convenient creation of the `GradientBasedGenerator` type.
-"""
-function Generator(;
-    loss::Union{Nothing,Function}=nothing,
-    penalty::Penalty=nothing,
-    λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
-    latent_space::Bool=false,
-    dim_reduction::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-)
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
-end

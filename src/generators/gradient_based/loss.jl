@@ -9,9 +9,7 @@ function ∂ℓ(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    gs = 0
-    gs = Flux.gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
-    return gs
+    return Flux.gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
 end
 
 """
