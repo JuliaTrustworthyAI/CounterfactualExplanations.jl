@@ -1,8 +1,7 @@
 # -------- Main method:
 """
 	generate_counterfactual(
-		x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator;
-		γ::AbstractFloat=0.75, max_iter=1000
+		x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator
 	)
 
 The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. 
@@ -48,18 +47,10 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    generative_model_params::NamedTuple=(;),
-    max_iter::Int=100,
-    decision_threshold::AbstractFloat=0.5,
-    gradient_tol::AbstractFloat=parameters[:τ],
-    min_success_rate::AbstractFloat=parameters[:min_success_rate],
     convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
         decision_threshold=(1 / length(data.y_levels))
     ),
     timeout::Union{Nothing,Int}=nothing,
-    invalidation_rate::AbstractFloat=0.1,
-    learning_rate::AbstractFloat=1.0,
-    variance::AbstractFloat=0.01,
 )
     # Initialize:
     ce = CounterfactualExplanation(
@@ -70,20 +61,12 @@ function generate_counterfactual(
         generator;
         num_counterfactuals=num_counterfactuals,
         initialization=initialization,
-        generative_model_params=generative_model_params,
-        max_iter=max_iter,
-        min_success_rate=min_success_rate,
-        decision_threshold=decision_threshold,
-        gradient_tol=gradient_tol,
         convergence=convergence,
-        invalidation_rate=invalidation_rate,
-        learning_rate=learning_rate,
-        variance=variance,
     )
 
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
-    while !ce.search[:terminated]
+    while !terminated(ce)
         update!(ce)
         if !isnothing(timer)
             yield()

@@ -1,7 +1,16 @@
-Base.@kwdef struct DecisionThresholdConvergence <: AbstractConvergence
-    decision_threshold::AbstractFloat = 0.5
-    max_iter::Int = 100
-    min_success_rate::AbstractFloat = 0.75
+struct DecisionThresholdConvergence <: AbstractConvergence
+    decision_threshold::AbstractFloat
+    max_iter::Int
+    min_success_rate::AbstractFloat
+end
+
+function DecisionThresholdConvergence(;
+    decision_threshold::AbstractFloat=0.5,
+    max_iter::Int=100,
+    min_success_rate::AbstractFloat=0.75,
+)
+    @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
+    return DecisionThresholdConvergence(decision_threshold, max_iter, min_success_rate)
 end
 
 """

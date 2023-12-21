@@ -8,19 +8,6 @@ function _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
 end
 
 """
-    mutability_constraints(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
-
-The default method to return mutability constraints that are dependent on the current counterfactual search state.
-For generic gradient-based generators, no state-dependent constraints are added.
-"""
-function mutability_constraints(
-    generator::AbstractGenerator, ce::AbstractCounterfactualExplanation
-)
-    mutability = ce.params[:mutability]
-    return mutability # no additional constraints for GenericGenerator
-end
-
-"""
     conditions_satisfied(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.

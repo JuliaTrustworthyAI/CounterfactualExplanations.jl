@@ -9,7 +9,7 @@ function distance_mad(
     X = ce.data.X
     mad = []
     ChainRulesCore.ignore_derivatives() do
-        _dict = ce.params
+        _dict = ce.search
         if !(:mad_features ∈ collect(keys(_dict)))
             X̄ = Statistics.median(X; dims=ndims(X))
             _mad = Statistics.median(abs.(X .- X̄); dims=ndims(X))
