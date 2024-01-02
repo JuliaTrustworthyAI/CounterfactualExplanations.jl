@@ -16,6 +16,7 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
     latent_space::Bool
     dim_reduction::Bool
     opt::Flux.Optimise.AbstractOptimiser
+    generative_model_params::NamedTuple
 end
 
 """
@@ -25,6 +26,7 @@ end
 		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
 		latent_space::Bool::false,
 		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+        generative_model_params::NamedTuple=(;),
 	)
 
 Default outer constructor for `GradientBasedGenerator`.
@@ -35,6 +37,7 @@ Default outer constructor for `GradientBasedGenerator`.
 - `λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing`: The weight of the penalty function.
 - `latent_space::Bool=false`: Whether to use the latent space of a generative model to generate counterfactuals.
 - `opt::Flux.Optimise.AbstractOptimiser=Flux.Descent()`: The optimizer to use for the generator.
+- `generative_model_params::NamedTuple`: The parameters of the generative model associated with the generator.
 
 # Returns
 - `generator::GradientBasedGenerator`: A gradient-based counterfactual generator.
@@ -46,6 +49,7 @@ function GradientBasedGenerator(;
     latent_space::Bool=false,
     dim_reduction::Bool=false,
     opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+    generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty weight(s) provided but no penalty function(s) provided."
@@ -53,27 +57,7 @@ function GradientBasedGenerator(;
         @assert length(λ) == length(penalty) || length(λ) == 1 "The number of penalty weights must match the number of penalty functions or be equal to one."
         length(λ) == 1 && (λ = fill(λ[1], length(penalty)))     # if only one penalty weight is provided, use it for all penalties
     end
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
-end
-
-"""
-	Generator(;
-		loss::Union{Nothing,Function}=nothing,
-		penalty::Penalty=nothing,
-		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
-		latent_space::Bool::false,
-		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-	)
-
-An outer constructor that allows for more convenient creation of the `GradientBasedGenerator` type.
-"""
-function Generator(;
-    loss::Union{Nothing,Function}=nothing,
-    penalty::Penalty=nothing,
-    λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
-    latent_space::Bool=false,
-    dim_reduction::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
-)
-    return GradientBasedGenerator(loss, penalty, λ, latent_space, dim_reduction, opt)
+    return GradientBasedGenerator(
+        loss, penalty, λ, latent_space, dim_reduction, opt, generative_model_params
+    )
 end

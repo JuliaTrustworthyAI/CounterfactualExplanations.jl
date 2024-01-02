@@ -1,7 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using DataFrames
 using Flux
@@ -56,14 +55,9 @@ using Random
                                 target = y[1]
                                 γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
-                                    x,
-                                    target,
-                                    counterfactual_data,
-                                    M,
-                                    generator;
-                                    initialization=:identity,
+                                    x, target, counterfactual_data, M, generator;
                                 )
-                                x′ = CounterfactualExplanations.decode_state(counterfactual)
+                                x′ = counterfactual.x′
                                 if counterfactual.generator.latent_space == false
                                     @test isapprox(counterfactual.x, x′; atol=1e-6)
                                 end

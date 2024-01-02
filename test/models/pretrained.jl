@@ -1,7 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using DataFrames
 using Flux
@@ -21,7 +20,10 @@ if VERSION >= v"1.8"
                 for (name, M) in value[:models]
                     name = string(name)
                     @testset "$name" begin
-                        counterfactual_data = Data.data_catalogue[:vision][key]()
+                        data = TaijaData.data_catalogue[:vision][key]()
+                        counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
+                            data[1], data[2]
+                        )
                         X = counterfactual_data.X
                         # Randomly selected factual:
                         Random.seed!(123)
@@ -38,7 +40,7 @@ if VERSION >= v"1.8"
 
                         @testset "Predetermined outputs" begin
                             if generator.latent_space
-                                @test counterfactual.params[:latent_space]
+                                @test counterfactual.generator.latent_space
                             end
                             @test counterfactual.target == target
                             @test counterfactual.x == x &&
@@ -63,14 +65,17 @@ if VERSION >= v"1.8"
                                     counterfactual_data,
                                     M,
                                     generator;
-                                    max_iter=max_iter,
-                                    decision_threshold=γ,
+                                    convergence=Convergence.DecisionThresholdConvergence(;
+                                        max_iter=max_iter, decision_threshold=γ
+                                    ),
                                 )
                                 using CounterfactualExplanations: counterfactual_probability
-                                @test !converged(counterfactual) ||
-                                    target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                @test !converged(counterfactual) ||
-                                    length(path(counterfactual)) <= max_iter
+                                @test !Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                @test !Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                ) || length(path(counterfactual)) <= max_iter
                             end
 
                             @testset "Trivial case (already in target class)" begin
@@ -85,12 +90,16 @@ if VERSION >= v"1.8"
                                     counterfactual_data,
                                     M,
                                     generator;
-                                    decision_threshold=γ,
+                                    convergence=Convergence.DecisionThresholdConvergence(;
+                                        decision_threshold=γ
+                                    ),
                                     initialization=:identity,
                                 )
                                 x′ = CounterfactualExplanations.decode_state(counterfactual)
                                 @test isapprox(counterfactual.x, x′; atol=1e-6)
-                                @test converged(counterfactual)
+                                @test Convergence.converged(
+                                    counterfactual.convergence, counterfactual
+                                )
                                 @test CounterfactualExplanations.terminated(counterfactual)
                                 @test CounterfactualExplanations.total_steps(
                                     counterfactual
@@ -113,15 +122,18 @@ if VERSION >= v"1.8"
                                             counterfactual_data,
                                             M,
                                             generator;
-                                            max_iter=max_iter,
-                                            decision_threshold=γ,
+                                            convergence=Convergence.DecisionThresholdConvergence(;
+                                                max_iter=max_iter, decision_threshold=γ
+                                            ),
                                         )
                                         using CounterfactualExplanations:
                                             counterfactual_probability
-                                        @test !converged(counterfactual) ||
-                                            target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                                        @test !converged(counterfactual) ||
-                                            length(path(counterfactual)) <= max_iter
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) || length(path(counterfactual)) <= max_iter
                                     end
                                 end
                             end

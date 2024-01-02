@@ -68,7 +68,7 @@ plot(plts...)
 The package supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model. To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
 
 ```julia
-model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+model_loaded = TaijaInteroperability.pytorch_model_loader(
     "$(pwd())/docs/src/tutorials/miscellaneous",
     "neural_network_class",
     "NeuralNetwork",
@@ -95,7 +95,7 @@ The reason why the model file and Pickle file have to be provided separately is 
 Once the PyTorch model has been loaded into the package, wrap it inside the PyTorchModel class:
 
 ```julia
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
+model_pytorch = TaijaInteroperability.PyTorchModel(model_loaded, counterfactual_data.likelihood)
 ```
 
 This model can now be passed into the generators like any other.
@@ -126,7 +126,7 @@ Make sure to specify the correct file path where you want to save the model.
 To import the R torch model into the CounterfactualExplanations package, use the `rtorch_model_loader()` function. This function loads the model from the previously saved `.pt` file. Here is an example of how to load the R torch model:
 
 ```julia
-model_loaded = CounterfactualExplanations.RCallExt.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
+model_loaded = TaijaInteroperability.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
 ```
 
 The `rtorch_model_loader()` function requires only one argument:
@@ -137,7 +137,7 @@ The `rtorch_model_loader()` function requires only one argument:
 Once the R torch model has been loaded into the package, wrap it inside the `RTorchModel` class. This step prepares the model to be used by the counterfactual generators. Here is an example:
 
 ```julia
-model_R = CounterfactualExplanations.Models.RTorchModel(model_loaded, counterfactual_data.likelihood)
+model_R = TaijaInteroperability.RTorchModel(model_loaded, counterfactual_data.likelihood)
 ```
 
 ### Generating counterfactuals with the R torch model

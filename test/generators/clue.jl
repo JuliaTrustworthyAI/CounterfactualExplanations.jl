@@ -1,7 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Evaluation
 using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using DataFrames
 using Flux
@@ -41,7 +40,7 @@ using Random
 
                     @testset "Predetermined outputs" begin
                         if generator.latent_space
-                            @test counterfactual.params[:latent_space]
+                            @test counterfactual.generator.latent_space
                         end
                         @test counterfactual.target == target
                         @test counterfactual.x == x &&
@@ -64,14 +63,17 @@ using Random
                                 counterfactual_data,
                                 M,
                                 generator;
-                                max_iter=max_iter,
-                                decision_threshold=γ,
+                                convergence=Convergence.DecisionThresholdConvergence(;
+                                    max_iter=max_iter, decision_threshold=γ
+                                ),
                             )
                             using CounterfactualExplanations: counterfactual_probability
-                            @test !converged(counterfactual) ||
-                                target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
-                            @test !converged(counterfactual) ||
-                                length(path(counterfactual)) <= max_iter
+                            @test !Convergence.converged(
+                                counterfactual.convergence, counterfactual
+                            ) || target_probs(counterfactual)[1] >= γ # either not converged or threshold reached
+                            @test !Convergence.converged(
+                                counterfactual.convergence, counterfactual
+                            ) || length(path(counterfactual)) <= max_iter
                         end
                     end
                 end

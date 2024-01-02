@@ -14,6 +14,7 @@ export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
 export AbstractParallelizer
+export AbstractConvergence
 
 # Traits:
 include("traits/traits.jl")
@@ -79,22 +80,18 @@ export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
 
+include("convergence/Convergence.jl")
+using .Convergence
+
 ### CounterfactualExplanation
 # argmin 
 ###
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
+export generate_counterfactual
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
-
-### Other
-# Example data sets:
-include("data/Data.jl")
-using .Data
-
-include("generate_counterfactual/generate_counterfactual.jl")
-export generate_counterfactual
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
@@ -107,7 +104,6 @@ include("assign_traits.jl")
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")
 
-# PrecompileTools.jl:
-include("precompile.jl")
+include("deprecated.jl")
 
 end

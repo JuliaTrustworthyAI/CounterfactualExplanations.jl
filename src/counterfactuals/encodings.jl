@@ -1,37 +1,42 @@
-using MultivariateStats
-using StatsBase
-
 """
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
 Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
-    MultivariateStats.predict(dt, x)
+function encode_array(
+    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+)
+    return MultivariateStats.predict(dt, x)
+end
 
 """
     encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
-    StatsBase.transform(dt, x)
+function encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+    return StatsBase.transform(dt, x)
+end
 
 """
     decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
-decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray) =
-    MultivariateStats.reconstruct(dt, x)
+function decode_array(
+    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+)
+    return MultivariateStats.reconstruct(dt, x)
+end
 
 """
     decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray) =
-    StatsBase.reconstruct(dt, x)
+function decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+    return StatsBase.reconstruct(dt, x)
+end
 
 """
 function encode_state(
@@ -55,12 +60,12 @@ function encode_state(
     data = ce.data
 
     # Latent space:
-    if ce.params[:latent_space]
+    if ce.generator.latent_space
         s′ = map_to_latent(ce, s′)
     end
 
     # Standardize data unless latent space:
-    if !ce.params[:latent_space] && data.standardize
+    if !ce.generator.latent_space && data.standardize
         dt = data.dt
         idx = transformable_features(data)
         ChainRulesCore.ignore_derivatives() do
@@ -72,8 +77,8 @@ function encode_state(
 
     # Compress:
     if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
-        !ce.params[:latent_space] &&
-        ce.params[:dim_reduction]
+        !ce.generator.latent_space &&
+        ce.generator.dim_reduction
         s′ = encode_array(data.dt, s′)
     end
 
@@ -103,12 +108,12 @@ function decode_state(
     data = ce.data
 
     # Latent space:
-    if ce.params[:latent_space]
+    if ce.generator.latent_space
         s′ = map_from_latent(ce, s′)
     end
 
     # Standardization:
-    if !ce.params[:latent_space] && data.standardize
+    if !ce.generator.latent_space && data.standardize
         dt = data.dt
 
         # Continuous:
@@ -122,8 +127,8 @@ function decode_state(
 
     # Decompress:
     if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
-        !ce.params[:latent_space] &&
-        ce.params[:dim_reduction]
+        !ce.generator.latent_space &&
+        ce.generator.dim_reduction
         s′ = decode_array(data.dt, s′)
     end
 

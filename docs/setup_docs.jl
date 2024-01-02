@@ -21,11 +21,11 @@ setup_docs = quote
     using MLJModels: OneHotEncoder
     using Plots
     using Random
-    using RCall
     using SliceMap
     using StatsBase
     using Tables
     using TaijaPlotting: animate_path
+    using TaijaInteroperability
 
     # Setup:
     theme(:wong)
