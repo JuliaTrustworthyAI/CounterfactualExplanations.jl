@@ -39,6 +39,7 @@ MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 MPIExt = "MPI"
 
 [compat]
+CUDA = "5"
 CategoricalArrays = "0.10"
 ChainRulesCore = "1.15"
 DataFrames = "1"
