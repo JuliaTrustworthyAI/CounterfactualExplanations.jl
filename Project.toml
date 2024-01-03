@@ -41,7 +41,7 @@ MPIExt = "MPI"
 [compat]
 CategoricalArrays = "0.10"
 ChainRulesCore = "1.15"
-CUDA = "5"
+CUDA = "3, 4, 5"
 cuDNN = "1"
 DataFrames = "1"
 DecisionTree = "0.12.3"
