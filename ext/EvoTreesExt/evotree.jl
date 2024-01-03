@@ -1,7 +1,4 @@
-"""
-This type provides a basic interface to gradient-boosted tree models from the MLJ library.
-However, this might not be the final version of the interface: full support for generating counterfactual explanations for EvoTrees has not been implemented yet.
-"""
+using CounterfactualExplanations.Models
 
 """
     EvoTreeModel <: AbstractMLJModel
@@ -15,7 +12,7 @@ Constructor for gradient-boosted decision trees from the EvoTrees.jl library.
 # Returns
 - `EvoTreeModel`: An `EvoTreeClassifier` from `EvoTrees.jl` wrapped inside the EvoTreeModel class.
 """
-struct EvoTreeModel <: AbstractMLJModel
+struct EvoTreeModel <: Models.AbstractMLJModel
     model::MLJBase.Machine
     likelihood::Symbol
     function EvoTreeModel(model, likelihood)
@@ -35,13 +32,15 @@ end
 """
 Outer constructor method for EvoTreeModel.
 """
-function EvoTreeModel(model; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.EvoTreeModel(
+    model; likelihood::Symbol=:classification_binary
+)
     return EvoTreeModel(model, likelihood)
 end
 
 # Methods
 """
-    logits(M::EvoTreeModel, X::AbstractArray)
+    Models.logits(M::EvoTreeModel, X::AbstractArray)
 
 Calculates the logit scores output by the model M for the input data X.
 
@@ -55,8 +54,8 @@ Calculates the logit scores output by the model M for the input data X.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
 """
-function logits(M::EvoTreeModel, X::AbstractArray)
-    p = probs(M, X)
+function Models.logits(M::EvoTreeModel, X::AbstractArray)
+    p = Models.probs(M, X)
     if M.likelihood == :classification_binary
         logits = log.(p ./ (1 .- p))
     else
@@ -66,7 +65,7 @@ function logits(M::EvoTreeModel, X::AbstractArray)
 end
 
 """
-    probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
+    Models.probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2})
 
 Calculates the probability scores for each output class for the two-dimensional input data matrix X.
 
@@ -80,18 +79,18 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
+function Models.probs(M::EvoTreeModel, X::AbstractArray{<:Number,2})
     output = MLJBase.predict(M.model, DataFrames.DataFrame(X', :auto))
     p = MLJBase.pdf(output, MLJBase.classes(output))'
     return p
 end
 
 """
-    probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
+    Models.probs(M::EvoTreeModel, X::AbstractArray{<:Number, 1})
 
 Works the same way as the probs(M::EvoTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
-function probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
+function Models.probs(M::EvoTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
     output = MLJBase.predict(M.model, DataFrames.DataFrame(X, :auto))
     p = MLJBase.pdf(output, MLJBase.classes(output))'
@@ -110,7 +109,7 @@ Not called by the user directly.
 # Returns
 - `model::EvoTreeModel`: The EvoTree model.
 """
-function EvoTreeModel(data::CounterfactualData; kwargs...)
+function CounterfactualExplanations.EvoTreeModel(data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
 
     model = EvoTrees.EvoTreeClassifier(; kwargs...)
@@ -132,7 +131,7 @@ This method is not called by the user directly.
 # Returns
 - `M::EvoTreeModel`: The fitted EvoTree model.
 """
-function train(M::EvoTreeModel, data::CounterfactualData; kwargs...)
+function Models.train(M::EvoTreeModel, data::CounterfactualData; kwargs...)
     MLJBase.fit!(M.model)
     return M
 end

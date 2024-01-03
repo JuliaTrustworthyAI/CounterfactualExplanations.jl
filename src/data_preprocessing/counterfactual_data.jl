@@ -186,7 +186,7 @@ function CounterfactualData(X::Tables.MatrixTable, y::RawOutputArrayType; kwrgs.
         length(features_categorical) == 0 ? nothing : features_categorical
     features_continuous = findall([scitype(x) <: AbstractVector{<:Continuous} for x in X])
     features_continuous = length(features_continuous) == 0 ? nothing : features_continuous
-    X = permutedims(MLJBase.matrix(X))
+    X = permutedims(Tables.matrix(X))
 
     counterfactual_data = CounterfactualData(X, y; kwrgs...)
 
