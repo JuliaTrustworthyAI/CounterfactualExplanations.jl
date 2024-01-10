@@ -14,6 +14,7 @@ export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
 export AbstractParallelizer
+export AbstractConvergence
 
 # Traits:
 include("traits/traits.jl")
@@ -47,7 +48,7 @@ export CounterfactualData,
 include("models/Models.jl")
 using .Models
 export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble, LaplaceReduxModel
+export Linear, FluxModel, FluxEnsemble
 export flux_training_params
 export probs, logits
 export standard_models_catalogue,
@@ -79,17 +80,18 @@ export generator_catalogue
 export generate_perturbations, conditions_satisfied, mutability_constraints
 export Generator, @objective, @threshold
 
+include("convergence/Convergence.jl")
+using .Convergence
+
 ### CounterfactualExplanation
 # argmin 
 ###
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
+export generate_counterfactual
 export initialize!, update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
-
-include("generate_counterfactual/generate_counterfactual.jl")
-export generate_counterfactual
 
 include("evaluation/Evaluation.jl")
 using .Evaluation

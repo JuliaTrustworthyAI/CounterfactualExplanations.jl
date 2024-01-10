@@ -5,14 +5,11 @@ using ..DataPreprocessing
 using Parameters
 using Flux
 using MLJBase
-using NearestNeighborModels
 using LazyArtifacts
 using Serialization
-using LaplaceRedux
 using MLUtils
 using ProgressMeter
 using Statistics
-using EvoTrees
 using DataFrames
 using MLJDecisionTreeInterface
 
@@ -28,8 +25,6 @@ export AbstractDifferentiableModel
 export Linear
 export FluxModel
 export FluxEnsemble
-export LaplaceReduxModel
-export EvoTreeModel
 export DecisionTreeModel
 export RandomForestModel
 export flux_training_params
@@ -67,8 +62,6 @@ const all_models_catalogue = Dict(
     :Linear => Linear,
     :MLP => FluxModel,
     :DeepEnsemble => FluxEnsemble,
-    :LaplaceRedux => LaplaceReduxModel,
-    :EvoTree => EvoTreeModel,
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
 )
@@ -79,9 +72,7 @@ const all_models_catalogue = Dict(
 A dictionary containing all machine learning models from the MLJ model registry that the package supports.
 """
 const mlj_models_catalogue = Dict(
-    :EvoTree => EvoTreeModel,
-    :DecisionTree => DecisionTreeModel,
-    :RandomForest => RandomForestModel,
+    :DecisionTree => DecisionTreeModel, :RandomForest => RandomForestModel
 )
 
 """

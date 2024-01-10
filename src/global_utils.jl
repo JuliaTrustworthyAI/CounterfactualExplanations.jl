@@ -3,10 +3,6 @@ using Flux
 using MLJBase
 using Parameters
 
-# Global constants:
-"A container for global parameters."
-const parameters = Dict(:τ => 1e-2, :min_success_rate => 0.75)
-
 # Abstract Base Types:
 """
     RawTargetType

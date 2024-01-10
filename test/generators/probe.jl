@@ -32,13 +32,14 @@ end
             counterfactual_data,
             M,
             generator;
-            converge_when=:invalidation_rate,
-            max_iter=1000,
-            invalidation_rate=0.1,
-            learning_rate=0.1,
+            convergence=Convergence.InvalidationRateConvergence(;
+                max_iter=1000, invalidation_rate=0.1
+            ),
         )
-        loss = Generators.hinge_loss(linear_counterfactual)
-        rate = Generators.invalidation_rate(linear_counterfactual)
+        loss = Generators.hinge_loss(
+            linear_counterfactual.convergence, linear_counterfactual
+        )
+        rate = Convergence.invalidation_rate(linear_counterfactual)
         @test rate <= 0.1
         @test loss <= 0.9
     end

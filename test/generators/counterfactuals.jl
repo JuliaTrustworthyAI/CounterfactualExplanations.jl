@@ -53,7 +53,7 @@ for (key, generator_) in generators
 
                             @testset "Predetermined outputs" begin
                                 if generator.latent_space
-                                    @test counterfactual.params[:latent_space]
+                                    @test counterfactual.generator.latent_space
                                 end
                                 @test counterfactual.target == target
                                 @test counterfactual.x == x &&
@@ -79,19 +79,20 @@ for (key, generator_) in generators
                                         counterfactual_data,
                                         M,
                                         generator;
-                                        max_iter=max_iter,
-                                        decision_threshold=γ,
+                                        convergence=Convergence.DecisionThresholdConvergence(;
+                                            max_iter=max_iter, decision_threshold=γ
+                                        ),
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
-                                    @test !CounterfactualExplanations.converged(
-                                        counterfactual
+                                    @test !Convergence.converged(
+                                        counterfactual.convergence, counterfactual
                                     ) ||
                                         CounterfactualExplanations.target_probs(
                                         counterfactual
                                     )[1] >= γ # either not converged or threshold reached
-                                    @test !CounterfactualExplanations.converged(
-                                        counterfactual
+                                    @test !Convergence.converged(
+                                        counterfactual.convergence, counterfactual
                                     ) || length(path(counterfactual)) <= max_iter
                                 end
 
@@ -109,7 +110,9 @@ for (key, generator_) in generators
                                         counterfactual_data,
                                         M,
                                         generator;
-                                        decision_threshold=γ,
+                                        convergence=Convergence.DecisionThresholdConvergence(;
+                                            decision_threshold=γ
+                                        ),
                                         initialization=:identity,
                                     )
                                     x′ = CounterfactualExplanations.decode_state(
@@ -117,8 +120,8 @@ for (key, generator_) in generators
                                     )
                                     if counterfactual.generator.latent_space == false
                                         @test isapprox(counterfactual.x, x′; atol=1e-6)
-                                        @test CounterfactualExplanations.converged(
-                                            counterfactual
+                                        @test Convergence.converged(
+                                            counterfactual.convergence, counterfactual
                                         )
                                         @test CounterfactualExplanations.terminated(
                                             counterfactual

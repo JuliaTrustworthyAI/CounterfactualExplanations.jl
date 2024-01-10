@@ -53,13 +53,10 @@ include("optimizers/JSMADescent.jl")
 
 # Gradient-Based Generators:
 include("gradient_based/base.jl")
-include("gradient_based/utils.jl")
-include("gradient_based/loss.jl")
-
-include("gradient_based/generators.jl")
 include("gradient_based/generate_perturbations.jl")
-include("gradient_based/clue.jl")
-include("gradient_based/probe.jl")
+include("gradient_based/generators.jl")
+include("gradient_based/loss.jl")
+include("gradient_based/utils.jl")
 
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
