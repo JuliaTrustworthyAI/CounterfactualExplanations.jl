@@ -8,8 +8,5 @@ using Aqua
         broken = false
     )
 
-    Aqua.test_all(
-        CounterfactualExplanations;
-        ambiguities = false,
-    )
+    Aqua.test_all(CounterfactualExplanations; ambiguities=false)
 end
