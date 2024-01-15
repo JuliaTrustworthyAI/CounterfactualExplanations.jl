@@ -12,7 +12,7 @@ include("evaluate.jl")
 include("measures.jl")
 
 export Benchmark, benchmark, evaluate, default_measures
-export validity, distance, redundancy
+export validity, redundancy
 
 "The default evaluation measures."
 const default_measures = [

@@ -100,6 +100,5 @@ export fit_model
 export model_evaluation
 export predict_label
 export predict_proba
-export reset!
 
 end

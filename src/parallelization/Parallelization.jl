@@ -1,6 +1,6 @@
 module Parallelization
 
-export @with_parallelizer, with_parallelizer, ThreadsParallelizer
+export @with_parallelizer, ThreadsParallelizer
 
 import ..CounterfactualExplanations
 using CounterfactualExplanations: generate_counterfactual
