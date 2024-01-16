@@ -49,3 +49,18 @@ function generate_counterfactual(
 
     return counterfactuals
 end
+
+function generate_counterfactual(
+    x::Vector{<:Matrix},
+    target::RawTargetType,
+    data::CounterfactualData,
+    M::Models.AbstractFittedModel,
+    generator::Generators.GrowingSpheresGenerator;
+    kwargs...,
+)
+    counterfactuals = map(
+        x_ -> generate_counterfactual(x_, target, data, M, generator; kwargs...), x
+    )
+
+    return counterfactuals
+end
