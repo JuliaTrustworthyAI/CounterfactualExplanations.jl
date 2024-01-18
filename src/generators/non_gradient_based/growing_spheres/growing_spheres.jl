@@ -36,81 +36,81 @@ This function applies the growing spheres generation algorithm to generate count
 
 The algorithm iteratively generates counterfactual candidates and predicts their labels using the model stored in `ce.M`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
 """
-function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
-    generator = ce.generator
-    model = ce.M
-    factual = ce.x
-    counterfactual_data = ce.data
-    target = [ce.target]
-    max_iter = 1000
+# function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
+#     generator = ce.generator
+#     model = ce.M
+#     factual = ce.x
+#     counterfactual_data = ce.data
+#     target = [ce.target]
+#     max_iter = 1000
 
-    # Copy hyperparameters
-    n = generator.n
-    η = convert(eltype(factual), generator.η)
+#     # Copy hyperparameters
+#     n = generator.n
+#     η = convert(eltype(factual), generator.η)
 
-    # Generate random points uniformly on a sphere
-    counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
+#     # Generate random points uniformly on a sphere
+#     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
 
-    if (factual == target)
-        ce.s′ = factual
-        return nothing
-    end
+#     if (factual == target)
+#         ce.s′ = factual
+#         return nothing
+#     end
 
-    # Predict labels for each candidate counterfactual
-    counterfactual = find_counterfactual(
-        model, target, counterfactual_data, counterfactual_candidates
-    )
+#     # Predict labels for each candidate counterfactual
+#     counterfactual = find_counterfactual(
+#         model, target, counterfactual_data, counterfactual_candidates
+#     )
 
-    # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while (!isnothing(counterfactual))
-        η /= 2
-        a₀ = convert(eltype(factual), 0.0)
+#     # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
+#     while (!isnothing(counterfactual))
+#         η /= 2
+#         a₀ = convert(eltype(factual), 0.0)
 
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
-        counterfactual = find_counterfactual(
-            model, target, counterfactual_data, counterfactual_candidates
-        )
+#         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
+#         counterfactual = find_counterfactual(
+#             model, target, counterfactual_data, counterfactual_candidates
+#         )
 
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
-    end
+#         max_iter -= 1
+#         if max_iter == 0
+#             break
+#         end
+#     end
 
-    # Update path
-    ce.search[:iteration_count] += n
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
-    end
+#     # Update path
+#     ce.search[:iteration_count] += n
+#     for i in eachindex(counterfactual_candidates[1, :])
+#         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
+#     end
 
-    # Initialize boundaries of the sphere's radius
-    a₀, a₁ = η, 2η
+#     # Initialize boundaries of the sphere's radius
+#     a₀, a₁ = η, 2η
 
-    # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while (isnothing(counterfactual))
-        a₀ = a₁
-        a₁ += η
+#     # Repeat until there's at least one counterfactual (process of expanding the search space)
+#     while (isnothing(counterfactual))
+#         a₀ = a₁
+#         a₁ += η
 
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
-        counterfactual = find_counterfactual(
-            model, target, counterfactual_data, counterfactual_candidates
-        )
+#         counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
+#         counterfactual = find_counterfactual(
+#             model, target, counterfactual_data, counterfactual_candidates
+#         )
 
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
-    end
+#         max_iter -= 1
+#         if max_iter == 0
+#             break
+#         end
+#     end
 
-    # Update path
-    ce.search[:iteration_count] += n
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
-    end
+#     # Update path
+#     ce.search[:iteration_count] += n
+#     for i in eachindex(counterfactual_candidates[1, :])
+#         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
+#     end
 
-    ce.s′ = counterfactual_candidates[:, counterfactual]
-    return nothing
-end
+#     ce.s′ = counterfactual_candidates[:, counterfactual]
+#     return nothing
+# end
 
 function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
     # Generate random points uniformly on a sphere
@@ -252,6 +252,7 @@ Find the first counterfactual index by predicting labels.
 function find_counterfactual(
     model, target_class, counterfactual_data, counterfactual_candidates
 )
+    # I could try to change it to make it possible to use convergence logic here
     predicted_labels = map(
         e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e),
         eachcol(counterfactual_candidates),
