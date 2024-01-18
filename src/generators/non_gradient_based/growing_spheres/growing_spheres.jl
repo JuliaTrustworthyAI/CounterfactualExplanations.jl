@@ -180,37 +180,16 @@ Perform feature selection to find the dimension with the closest (but not equal)
 The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
-    model = ce.M
-    counterfactual_data = ce.data
-    factual = ce.x
-    target = [ce.target]
+    s′ = ce.generator.s′
 
-    # Assign the initial counterfactual to both counterfactual′ and counterfactual″
-    counterfactual′ = ce.s′
-    counterfactual″ = ce.s′
+    i = find_closest_dimension(ce.x, s′)
+    s′[i] = factual[i]
 
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )[1]
-
-    while (
-        factual_class != CounterfactualExplanations.Models.predict_label(
-            model, counterfactual_data, counterfactual′
-        ) &&
-        target == CounterfactualExplanations.Models.predict_label(
-            model, counterfactual_data, counterfactual′
-        )
-    )
-        counterfactual″ = counterfactual′
-        i = find_closest_dimension(factual, counterfactual′)
-        counterfactual′[i] = factual[i]
-
-        ce.search[:iteration_count] += 1
-        push!(ce.search[:path], reshape(counterfactual″, :, 1))
+    if (CounterfactualExplanations.Models.predict_label(ce.M, ce.data, counterfactual′) == [ce.target])
+        ce.generator.s′ = s′
+    else
+        ce.s′ = ce.generator.s′
     end
-
-    ce.s′ = counterfactual″
-    return nothing
 end
 
 """
