@@ -13,15 +13,23 @@ counterfactual_data = CounterfactualExplanations.DataPreprocessing.Counterfactua
 X = counterfactual_data.X
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))
 y = predict_label(M, counterfactual_data, x)
-target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= y[1]])
+
+target_non_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= y[1]])
+target_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .== y[1]])
 
 generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
 
 M = fit_model(classification_multi, :MLP)
 
-counterfactual_explanation = 
+counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator)
 
-(x, target, counterfactual_data, M, generator)
+counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator)
+```
 
-TaijaPlotting.plot(counterfactual_explanation)
+```{julia}
+TaijaPlotting.plot(counterfactual_explanation_non_trivial)
+```
+
+```{julia}
+TaijaPlotting.plot(counterfactual_explanation_trivial)
 ```
