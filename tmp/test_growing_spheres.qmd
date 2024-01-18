@@ -1,0 +1,27 @@
+```{julia}
+using TaijaData
+using CounterfactualExplanations
+using TaijaPlotting
+```
+
+```{julia}
+# Load data
+multi_class_data = TaijaData.load_multi_class()
+counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(multi_class_data[1], multi_class_data[2])
+
+# Choose factual and target class
+X = counterfactual_data.X
+x = select_factual(counterfactual_data, rand(1:size(X, 2)))
+y = predict_label(M, counterfactual_data, x)
+target = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .!= y[1]])
+
+generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
+
+M = fit_model(classification_multi, :MLP)
+
+counterfactual_explanation = 
+
+(x, target, counterfactual_data, M, generator)
+
+TaijaPlotting.plot(counterfactual_explanation)
+```
