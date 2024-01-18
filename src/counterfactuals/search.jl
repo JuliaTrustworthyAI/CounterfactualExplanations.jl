@@ -22,6 +22,18 @@ function update!(ce::CounterfactualExplanation)
     ce.search[:path] = [ce.search[:path]..., ce.s′]
 end
 
+function update!(ce::CounterfactualExplanations)
+    #TODO implement ce.search updating
+
+    if (ce.generator == :shrink)
+        growing_spheres_shrink!(ce)
+    elseif (ce.generator == :expand)
+        growing_spheres_expand!(ce)
+    else (ce.generator == :feature_selection)
+        feature_selection!(ce)
+    end
+end
+
 """
     apply_mutability(
         ce::CounterfactualExplanation,

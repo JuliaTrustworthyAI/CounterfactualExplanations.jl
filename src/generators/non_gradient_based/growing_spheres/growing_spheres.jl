@@ -4,6 +4,9 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     η::Union{Nothing,AbstractFloat}
     latent_space::Bool
     dim_reduction::Bool
+    flag::Symbol = :shrinking
+    a₀ = 0.0
+    a₁ = 0.0
 end
 
 """
@@ -106,6 +109,60 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
 
     ce.s′ = counterfactual_candidates[:, counterfactual]
     return nothing
+end
+
+function growing_spheres_shrink(ce::AbstractCounterfactualExplanation)
+    # TODO: remove the folowing line
+    target = [ce.target]
+
+    # Generate random points uniformly on a sphere
+    counterfactual_candidates = hyper_sphere_coordinates(
+        ce.generator.n, 
+        ce.x, 
+        0.0, 
+        ce.generator.η
+    )
+
+    # Predict labels for each candidate counterfactual
+    counterfactual = find_counterfactual(
+        ce.M, 
+        target, 
+        ce.data, 
+        counterfactual_candidates
+    )
+
+    if (!isnothing(counterfactual))
+        ce.generator.η /= 2
+    else
+        # Update the boundaries of the sphere's radius for the next phase
+        ce.generator.a₀, ce.generator.a₁ = ce.generator.η, 2ce.generator.η
+        ce.generator.flag = :expanding
+end
+
+function growing_spheres_expand(ce::AbstractCounterfactualExplanation)
+    # Generate random points uniformly on a sphere
+    counterfactual_candidates = hyper_sphere_coordinates(
+        ce.generator.n, 
+        ce.x, 
+        ce.generator.a₀, 
+        ce.generator.a₁
+    )
+
+    # Predict labels for each candidate counterfactual
+    counterfactual = find_counterfactual(
+        ce.M, 
+        target, 
+        ce.data, 
+        counterfactual_candidates
+    )
+
+    if (isnothing(counterfactual))
+        ce.generator.a₀ = ce.generator.a₁
+        ce.generator.a₁ = ce.generator.a₁ + ce.generator.η
+    else
+        ce.s′ = counterfactual_candidates[:, counterfactual]
+        ce.generator.flag = :feature_selection
+    end
 end
 
 """
