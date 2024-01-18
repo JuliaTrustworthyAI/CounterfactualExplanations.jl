@@ -7,6 +7,7 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     flag::Symbol = :shrinking
     a₀ = 0.0
     a₁ = 0.0
+    s′ = nothing
 end
 
 """
@@ -111,7 +112,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     return nothing
 end
 
-function growing_spheres_shrink(ce::AbstractCounterfactualExplanation)
+function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
     # TODO: remove the folowing line
     target = [ce.target]
 
@@ -139,7 +140,7 @@ function growing_spheres_shrink(ce::AbstractCounterfactualExplanation)
         ce.generator.flag = :expanding
 end
 
-function growing_spheres_expand(ce::AbstractCounterfactualExplanation)
+function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(
         ce.generator.n, 
@@ -160,7 +161,7 @@ function growing_spheres_expand(ce::AbstractCounterfactualExplanation)
         ce.generator.a₀ = ce.generator.a₁
         ce.generator.a₁ = ce.generator.a₁ + ce.generator.η
     else
-        ce.s′ = counterfactual_candidates[:, counterfactual]
+        ce.generator.s′ = counterfactual_candidates[:, counterfactual]
         ce.generator.flag = :feature_selection
     end
 end
