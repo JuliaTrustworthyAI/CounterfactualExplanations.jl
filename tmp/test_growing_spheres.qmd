@@ -21,9 +21,13 @@ target_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_levels 
 
 generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
 
-counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator)
+convergence = CounterfactualExplanations.Convergence.MaxIterConvergence()
+```
 
-counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator)
+```{julia}
+counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator; convergence = convergence)
+
+counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator; convergence = convergence)
 ```
 
 ```{julia}

@@ -7,7 +7,7 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     flag::Symbol
     a₀::AbstractFloat
     a₁::AbstractFloat
-    s′::AbstractArray
+    s′::Union{Nothing,AbstractArray}
 end
 
 """
@@ -18,7 +18,7 @@ Constructs a new Growing Spheres Generator object.
 function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100, η::Union{Nothing,AbstractFloat}=0.1
 )
-    return GrowingSpheresGenerator(n, η, false, false, :shrinking, 0.0, 0.0, nothing)
+    return GrowingSpheresGenerator(n, η, false, false, :shrink, 0.0, 0.0, nothing)
 end
 
 """

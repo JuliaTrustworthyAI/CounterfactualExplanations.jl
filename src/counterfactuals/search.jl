@@ -25,14 +25,17 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 
 function update!(ce::CounterfactualExplanation)
     #TODO implement ce.search updating
+    println(ce.generator.flag)
 
-    if (ce.generator == :shrink)
+    if (ce.generator.flag == :shrink)
         growing_spheres_shrink!(ce)
-    elseif (ce.generator == :expand)
+    elseif (ce.generator.flag == :expand)
         growing_spheres_expand!(ce)
     else (ce.generator == :feature_selection)
         feature_selection!(ce)
     end
+
+    ce.search[:iteration_count] += 1
 end
 
 """

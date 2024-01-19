@@ -29,6 +29,7 @@ export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
 export GrowingSpheresGenerator
+export growing_spheres_shrink!, growing_spheres_expand!, feature_selection!
 export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
