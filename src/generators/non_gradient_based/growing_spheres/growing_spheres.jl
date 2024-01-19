@@ -4,10 +4,10 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     η::Union{Nothing,AbstractFloat}
     latent_space::Bool
     dim_reduction::Bool
-    flag::Symbol = :shrinking
-    a₀ = 0.0
-    a₁ = 0.0
-    s′ = nothing
+    flag::Symbol
+    a₀::AbstractFloat
+    a₁::AbstractFloat
+    s′::AbstractArray
 end
 
 """
@@ -18,7 +18,7 @@ Constructs a new Growing Spheres Generator object.
 function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100, η::Union{Nothing,AbstractFloat}=0.1
 )
-    return GrowingSpheresGenerator(n, η, false, false)
+    return GrowingSpheresGenerator(n, η, false, false, :shrinking, 0.0, 0.0, nothing)
 end
 
 """
@@ -135,6 +135,7 @@ function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
         # Update the boundaries of the sphere's radius for the next phase
         ce.generator.a₀, ce.generator.a₁ = ce.generator.η, 2ce.generator.η
         ce.generator.flag = :expanding
+    end
 end
 
 function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)

@@ -9,6 +9,8 @@ using TaijaPlotting
 multi_class_data = TaijaData.load_multi_class()
 counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(multi_class_data[1], multi_class_data[2])
 
+M = fit_model(counterfactual_data, :MLP)
+
 # Choose factual and target class
 X = counterfactual_data.X
 x = select_factual(counterfactual_data, rand(1:size(X, 2)))
@@ -18,8 +20,6 @@ target_non_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_lev
 target_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_levels .== y[1]])
 
 generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
-
-M = fit_model(classification_multi, :MLP)
 
 counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator)
 
