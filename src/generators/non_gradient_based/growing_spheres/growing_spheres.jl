@@ -183,7 +183,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     i = find_closest_dimension(ce.x, s′)
     s′[i] = factual[i]
 
-    if (CounterfactualExplanations.Models.predict_label(ce.M, ce.data, counterfactual′) == [ce.target])
+    if (CounterfactualExplanations.Models.predict_label(ce.M, ce.data, s′) == [ce.target])
         ce.generator.s′ = s′
     else
         ce.s′ = ce.generator.s′

@@ -26,7 +26,9 @@ convergence = CounterfactualExplanations.Convergence.MaxIterConvergence()
 
 ```{julia}
 counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator; convergence = convergence)
+```
 
+```{julia}
 counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator; convergence = convergence)
 ```
 

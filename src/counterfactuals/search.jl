@@ -25,7 +25,6 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 
 function update!(ce::CounterfactualExplanation)
     #TODO implement ce.search updating
-    println(ce.generator.flag)
 
     if (ce.generator.flag == :shrink)
         growing_spheres_shrink!(ce)
