@@ -134,7 +134,7 @@ function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
     else
         # Update the boundaries of the sphere's radius for the next phase
         ce.generator.a₀, ce.generator.a₁ = ce.generator.η, 2ce.generator.η
-        ce.generator.flag = :expanding
+        ce.generator.flag = :expand
     end
 end
 
