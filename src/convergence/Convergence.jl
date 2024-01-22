@@ -43,7 +43,9 @@ function get_convergence_type(convergence::Symbol, y_levels::AbstractVector)
         convergence_catalogue,
         convergence,
         () -> error("Convergence criterion not recognized: $convergence."),
-    )(y_levels)
+    )(
+        y_levels
+    )
 end
 
 export convergence_catalogue
