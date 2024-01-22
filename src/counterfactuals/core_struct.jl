@@ -41,7 +41,7 @@ function CounterfactualExplanation(
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
     @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-    convergence = Convergence.get_convergence_type(convergence)
+    convergence = Convergence.get_convergence_type(convergence, data.y_levels)
 
     # Factual and target:
     x = typeof(x) == Int ? select_factual(data, x) : x

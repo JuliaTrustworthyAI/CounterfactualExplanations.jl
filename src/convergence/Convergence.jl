@@ -29,7 +29,7 @@ const convergence_catalogue = Dict(
 
 Returns the convergence object.
 """
-function get_convergence_type(convergence::AbstractConvergence)
+function get_convergence_type(convergence::AbstractConvergence, y_levels::AbstractVector)
     return convergence
 end
 
@@ -38,10 +38,10 @@ end
 
 Returns the convergence object from the dictionary of default convergence types.
 """
-function get_convergence_type(convergence::Symbol)
+function get_convergence_type(convergence::Symbol, y_levels::AbstractVector)
     return get(
         convergence_catalogue,
-        convergence,
+        convergence(y_levels),
         () -> error("Convergence criterion not recognized: $convergence."),
     )
 end

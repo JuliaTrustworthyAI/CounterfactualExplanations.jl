@@ -3,6 +3,7 @@ struct GeneratorConditionsConvergence <: AbstractConvergence
     gradient_tol::AbstractFloat
     max_iter::Int
     min_success_rate::AbstractFloat
+    y_levels::Union{Nothing,AbstractVector}
 end
 
 function GeneratorConditionsConvergence(;
@@ -10,10 +11,14 @@ function GeneratorConditionsConvergence(;
     gradient_tol::AbstractFloat=1e-2,
     max_iter::Int=100,
     min_success_rate::AbstractFloat=0.75,
+    y_levels::Union{Nothing,AbstractVector}=nothing
 )
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
+    if isa(AbstractVector, y_levels)
+        decision_threshold = 1 / length(y_levels)
+    end
     return GeneratorConditionsConvergence(
-        decision_threshold, gradient_tol, max_iter, min_success_rate
+        decision_threshold, gradient_tol, max_iter, min_success_rate, y_levels
     )
 end
 

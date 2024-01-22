@@ -1,5 +1,6 @@
 Base.@kwdef struct MaxIterConvergence <: AbstractConvergence
     max_iter::Int = 100
+    y_levels::Union{Nothing, AbstractVector} = nothing
 end
 
 """

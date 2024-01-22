@@ -2,6 +2,7 @@ Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
     invalidation_rate::AbstractFloat = 0.1
     max_iter::Int = 100
     variance::AbstractFloat = 0.01
+    y_levels::Union{Nothing, AbstractVector} = nothing
 end
 
 """
