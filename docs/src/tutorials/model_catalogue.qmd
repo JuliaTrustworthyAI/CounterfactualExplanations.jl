@@ -21,7 +21,7 @@ The `standard_models_catalogue` can be used to inspect the available default mod
 standard_models_catalogue
 ```
 
-As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
+The dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
 
 ## Fitting Models
 
@@ -37,11 +37,12 @@ However, when using models not included in the `standard_models_catalogue`, addi
 
 ## Fitting Flux Models
 
-First, let's load one of the synthetic datasets:
+First, let's load one of the synthetic datasets. For this, we'll first need to import the `TaijaData.jl` package:
 
 ```{julia}
 n = 500
-counterfactual_data = load_multi_class(n)
+data = TaijaData.load_multi_class(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 ```
 
 We could use a Deep Ensemble [@lakshminarayanan2016simple] as follows:
@@ -151,7 +152,8 @@ Please note that RCall is not fully compatible with PythonCall. Therefore, it is
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let's tackle a more challenging dataset: MNIST [@lecun1998mnist]. 
 
 ```{julia}
-counterfactual_data = load_mnist(10000)
+data = TaijaData.load_mnist(10000)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 train_data, test_data = 
     CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
 ```
@@ -219,19 +221,20 @@ CounterfactualExplanations.reset!(flux_training_params)
 
 ## Fitting and tuning MLJ models
 
-Among models from the MLJ library, three models are supported as of now:
+Among models from the MLJ library, two models are integrated as part of the core functionality of the package:
 
 ```{julia}
 mlj_models_catalogue
 ```
 
-From these models, the `DecisionTreeModel` and the `RandomForestModel` are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them. Support for generating counterfactuals for the `EvoTreeModel` has not been implemented yet.
+These models are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
 
 Tuning MLJ models is very simple. As the first step, let's reload the dataset:
 
 ```{julia}
 n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+data = TaijaData.load_moons(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 ```
 
 Using the usual procedure for fitting models, we can call the following method:
@@ -246,8 +249,27 @@ However, it's also possible to tune the DecisionTreeClassifier's parameters. Thi
 tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
 ```
 
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
 
-Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
+## Package extension models
+
+The package also includes two models which don't form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceReduxModel` from `LaplaceRedux.jl`.
+
+To trigger the package extensions, the weak dependency first has to be loaded with the `using` keyword:
+
+```{julia}
+using EvoTrees
+```
+
+Once this is done, the extension models can be used like any other model:
+
+```{julia}
+#| output: true
+M = fit_model(counterfactual_data, :EvoTree; model_params...)
+```
+
+The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+
+Please note that support for counterfactual generation with both `LaplaceReduxModel` and `EvoTreeModel` is not yet fully implemented.
 
 ## References

@@ -36,7 +36,8 @@ Markdown.parse(
 ```
 
 ```{julia}
-counterfactual_data = load_multi_class(n_samples)
+data = TaijaData.load_multi_class(n_samples)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, model_name)
 ```
 
@@ -57,7 +58,7 @@ Next, we begin by specifying our target and factual label. We then draw a random
 target = 2
 factual = 4
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
-x = select_factual(counterfactual_data,chosen)
+x = select_factual(counterfactual_data, chosen)
 ```
 
 ```{julia}
@@ -90,8 +91,9 @@ for (key, Generator) in generator_catalogue
     ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator;
         num_counterfactuals = num_counterfactuals,
-        decision_threshold=decision_threshold,
-        converge_when=:generator_conditions
+        convergence=GeneratorConditionsConvergence(
+            decision_threshold=decision_threshold
+        )
     )
     ces[key] = ce
     plts = [plts..., plot(ce; title=key, colorbar=false)]

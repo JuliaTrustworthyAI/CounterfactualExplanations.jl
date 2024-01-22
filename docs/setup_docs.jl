@@ -5,8 +5,8 @@ setup_docs = quote
     using Chain: @chain
     using CounterfactualExplanations
     using CounterfactualExplanations: counterfactual, counterfactual_label
-    using CounterfactualExplanations.Data
-    using CounterfactualExplanations.DataPreprocessing: unpack_data
+    using CounterfactualExplanations.Convergence
+    using CounterfactualExplanations.DataPreprocessing
     using CounterfactualExplanations.Evaluation: benchmark
     using CounterfactualExplanations.Generators
     using CounterfactualExplanations.Models
@@ -26,17 +26,19 @@ setup_docs = quote
     using Tables
     using TaijaPlotting: animate_path
     using TaijaInteroperability
+    using TaijaData
 
     # Setup:
     theme(:wong)
     Random.seed!(2022)
     www_path = "$(pwd())/docs/src/www"
     include("$(pwd())/docs/src/utils.jl")
-    synthetic = CounterfactualExplanations.Data.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
     # Counteractual data and model:
-    counterfactual_data = load_linearly_separable()
+    data = TaijaData.load_linearly_separable()
+    counterfactual_data = DataPreprocessing.CounterfactualData(data[1], data[2])
+
     M = fit_model(counterfactual_data, :Linear)
     target = 2
     factual = 1
@@ -44,6 +46,6 @@ setup_docs = quote
     x = select_factual(counterfactual_data, chosen)
 
     # Search:
-    generator = GenericGenerator()
+    generator = Generators.GenericGenerator()
     ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-end;
+end
