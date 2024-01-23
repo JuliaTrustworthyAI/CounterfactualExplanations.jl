@@ -7,7 +7,6 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     flag::Symbol
     a₀::AbstractFloat
     a₁::AbstractFloat
-    s′::Union{Nothing,AbstractArray}
 end
 
 """
@@ -18,7 +17,7 @@ Constructs a new Growing Spheres Generator object.
 function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100, η::Union{Nothing,AbstractFloat}=0.1
 )
-    return GrowingSpheresGenerator(n, η, false, false, :shrink, 0.0, 0.0, nothing)
+    return GrowingSpheresGenerator(n, η, false, false, :shrink, 0.0, 0.0)
 end
 
 """
@@ -123,9 +122,7 @@ function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
-        ce.M, 
-        [ce.target], 
-        ce.data, 
+        ce,
         counterfactual_candidates
     )
 
@@ -149,9 +146,7 @@ function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
-        ce.M, 
-        [ce.target], 
-        ce.data, 
+        ce,
         counterfactual_candidates
     )
 
@@ -159,7 +154,7 @@ function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)
         ce.generator.a₀ = ce.generator.a₁
         ce.generator.a₁ = ce.generator.a₁ + ce.generator.η
     else
-        ce.generator.s′ = counterfactual_candidates[:, counterfactual]
+        ce.x′ = counterfactual_candidates[:, counterfactual]
         ce.generator.flag = :feature_selection
     end
 end
@@ -178,15 +173,16 @@ Perform feature selection to find the dimension with the closest (but not equal)
 The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
-    s′ = ce.generator.s′
+    x′ = copy(ce.x′)
 
-    i = find_closest_dimension(ce.x, s′)
-    s′[i] = factual[i]
+    i = find_closest_dimension(ce.x, x′)
+    
+    x′[i] = ce.x[i]
 
-    if (CounterfactualExplanations.Models.predict_label(ce.M, ce.data, s′) == [ce.target])
-        ce.generator.s′ = s′
+    if (target_probs(ce, x′) .>= ce.convergence.decision_threshold)
+        ce.x′ = x′
     else
-        ce.s′ = ce.generator.s′
+        ce.generator.flag = :converged
     end
 end
 
@@ -250,17 +246,16 @@ Find the first counterfactual index by predicting labels.
 # Returns
 - `counterfactual`: The index of the first counterfactual found.
 """
-function find_counterfactual(
-    model, target_class, counterfactual_data, counterfactual_candidates
-)
-    # I could try to change it to make it possible to use convergence logic here
-    predicted_labels = map(
-        e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e),
-        eachcol(counterfactual_candidates),
+function find_counterfactual(ce, counterfactual_candidates)
+    predicted_target_probabilities = map(
+        e -> target_probs(ce, e)[1], eachcol(counterfactual_candidates),
     )
-    counterfactual = findfirst(predicted_labels .== target_class)
+        
+    predicted_counterfactual = findfirst(
+        predicted_target_probabilities .>= ce.convergence.decision_threshold
+    )
 
-    return counterfactual
+    return predicted_counterfactual
 end
 
 """

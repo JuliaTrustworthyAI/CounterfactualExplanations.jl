@@ -21,15 +21,24 @@ target_trivial = rand(counterfactual_data.y_levels[counterfactual_data.y_levels 
 
 generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
 
-convergence = CounterfactualExplanations.Convergence.MaxIterConvergence()
+convergence_generator_conditions = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence(max_iter=1000, min_success_rate=0.01)
+```
+
+# Plan on how to implement Growing Spheres currently
+
+1. `terminated()` calls `Convergence.converged(ce.convergence, ce) || steps_exhausted(ce)`. I'm assuming ce.convergence is always `GeneratorConditionsConvergence` since Growing Spheres has a very specific condition to stop searching (i.e., `feature_selection` has to terminate).
+   1. `converged()` calls `threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)`. I have to reimplement growing spheres to actually start using `threshold_reached` in the generator itself. I have to implement specific `conditions_satified` for growing spheres as well (this part has been commented out for now, it always says true basically). One more assumption: `ce.num_counterfactuals` has to be always 1.
+   2. `steps_exhausted()` is expected to work just fine.
+2. Once point 1 is done, I have to revisit `update!()`. `threshold_reached` works just fine now.
+
+```{julia}
+generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
+
+counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator; convergence = convergence_generator_conditions)
 ```
 
 ```{julia}
-counterfactual_explanation_non_trivial = generate_counterfactual(x, target_non_trivial, counterfactual_data, M, generator; convergence = convergence)
-```
-
-```{julia}
-counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator; convergence = convergence)
+counterfactual_explanation_trivial = generate_counterfactual(x, target_trivial, counterfactual_data, M, generator; convergence = convergence_generator_conditions)
 ```
 
 ```{julia}
