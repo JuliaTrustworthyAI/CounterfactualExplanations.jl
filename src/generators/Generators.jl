@@ -33,16 +33,14 @@ export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
 export feature_tweaking!
-export feature_selection
 export generator_catalogue
-export generate_perturbations, conditions_satisfied, mutability_constraints
+export generate_perturbations, conditions_satisfied
 export GradientBasedGenerator
-export @objective, @threshold, @with_optimiser, @search_feature_space, @search_latent_space
+export @objective, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
-export hinge_loss, invalidation_rate
+export hinge_loss
 export predictive_entropy
 export ProbeGenerator
-export growing_spheres_generation
 
 include("macros.jl")
 include("loss.jl")

@@ -27,7 +27,7 @@ using Flux
 include("global_utils.jl")
 export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
 export OutputEncoder
-export get_target_index, encode_output
+export get_target_index
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ
@@ -77,8 +77,8 @@ export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
 export generator_catalogue
-export generate_perturbations, conditions_satisfied, mutability_constraints
-export Generator, @objective, @threshold
+export generate_perturbations, conditions_satisfied
+export @objective
 
 include("convergence/Convergence.jl")
 using .Convergence
@@ -89,7 +89,7 @@ using .Convergence
 include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation
 export generate_counterfactual
-export initialize!, update!
+export update!
 export total_steps, converged, terminated, path, target_probs
 export animate_path
 
