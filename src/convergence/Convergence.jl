@@ -29,7 +29,7 @@ const convergence_catalogue = Dict(
 
 Returns the convergence object.
 """
-function get_convergence_type(convergence::AbstractConvergence)
+function get_convergence_type(convergence::AbstractConvergence, y_levels::AbstractVector)
     return convergence
 end
 
