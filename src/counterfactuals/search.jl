@@ -30,7 +30,8 @@ function update!(ce::CounterfactualExplanation)
         growing_spheres_shrink!(ce)
     elseif (ce.generator.flag == :expand)
         growing_spheres_expand!(ce)
-    else (ce.generator == :feature_selection)
+    else
+        (ce.generator == :feature_selection)
         feature_selection!(ce)
     end
 
