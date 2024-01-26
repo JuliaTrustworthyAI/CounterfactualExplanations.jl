@@ -176,7 +176,6 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
     x′ = copy(ce.x′)
 
     i = find_closest_dimension(ce.x, x′)
-    
     x′[i] = ce.x[i]
 
     if (target_probs(ce, x′) .>= ce.convergence.decision_threshold)
@@ -248,9 +247,8 @@ Find the first counterfactual index by predicting labels.
 """
 function find_counterfactual(ce, counterfactual_candidates)
     predicted_target_probabilities = map(
-        e -> target_probs(ce, e)[1], eachcol(counterfactual_candidates),
+        e -> target_probs(ce, e)[1], eachcol(counterfactual_candidates)
     )
-        
     predicted_counterfactual = findfirst(
         predicted_target_probabilities .>= ce.convergence.decision_threshold
     )
