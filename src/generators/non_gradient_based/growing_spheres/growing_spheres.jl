@@ -47,17 +47,11 @@ end
 function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)
     # Generate random points uniformly on a sphere
     counterfactual_candidates = hyper_sphere_coordinates(
-        ce.generator.n, 
-        ce.x, 
-        ce.generator.a₀, 
-        ce.generator.a₁
+        ce.generator.n, ce.x, ce.generator.a₀, ce.generator.a₁
     )
 
     # Predict labels for each candidate counterfactual
-    counterfactual = find_counterfactual(
-        ce,
-        counterfactual_candidates
-    )
+    counterfactual = find_counterfactual(ce, counterfactual_candidates)
 
     if (isnothing(counterfactual))
         ce.generator.a₀ = ce.generator.a₁
