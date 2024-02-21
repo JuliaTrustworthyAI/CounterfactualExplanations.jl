@@ -9,7 +9,7 @@ using MLUtils
 using Random
 
 @testset "Growing Spheres" begin
-    generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
+    convergence = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence(max_iter=1000)
     models = CounterfactualExplanations.Models.standard_models_catalogue
     @testset "Models for synthetic data" begin
         for (key, value) in synthetic
@@ -34,13 +34,14 @@ using Random
 
                         @testset "Convergence" begin
                             @testset "Non-trivial case" begin
+                                generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
                                 counterfactual_data.generative_model = nothing
                                 # Threshold reached if converged:
                                 counterfactual = generate_counterfactual(
-                                    x, target, counterfactual_data, M, generator;
+                                    x, target, counterfactual_data, M, generator; convergence = convergence
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
-                                    M, counterfactual_data, counterfactual.s′
+                                    M, counterfactual_data, counterfactual.x′
                                 )[1] == target
 
                                 @test CounterfactualExplanations.terminated(counterfactual)
@@ -54,8 +55,9 @@ using Random
                                 )
                                 target = y[1]
                                 γ = minimum([1 / length(counterfactual_data.y_levels), 0.5])
+                                generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
-                                    x, target, counterfactual_data, M, generator;
+                                    x, target, counterfactual_data, M, generator; initialization=:identity, convergence = convergence
                                 )
                                 x′ = counterfactual.x′
                                 if counterfactual.generator.latent_space == false

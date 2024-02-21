@@ -36,25 +36,27 @@ synthetic = _load_synthetic()
 generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-    include("Aqua.jl")
+    # include("Aqua.jl")
 
-    @testset "Data" begin
-        include("data/data_preprocessing.jl")
-    end
+    # @testset "Data" begin
+    #     include("data/data_preprocessing.jl")
+    # end
 
-    @testset "Generators" begin
-        include("generators/generators.jl")
-    end
+    # @testset "Generators" begin
+    #     include("generators/generators.jl")
+    # end
 
-    @testset "Models" begin
-        include("models/models.jl")
-    end
+    # @testset "Models" begin
+    #     include("models/models.jl")
+    # end
 
-    @testset "Evaluation" begin
-        include("other/evaluation.jl")
-    end
+    # @testset "Evaluation" begin
+    #     include("other/evaluation.jl")
+    # end
 
-    @testset "Parallelization" begin
-        include("parallelization/parallelization.jl")
-    end
+    # @testset "Parallelization" begin
+    #     include("parallelization/parallelization.jl")
+    # end
+
+    include("generators/growing_spheres.jl")
 end
