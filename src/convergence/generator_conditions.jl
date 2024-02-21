@@ -10,8 +10,12 @@ function GeneratorConditionsConvergence(;
     gradient_tol::AbstractFloat=1e-2,
     max_iter::Int=100,
     min_success_rate::AbstractFloat=0.75,
+    y_levels::Union{Nothing,AbstractVector}=nothing,
 )
     @assert 0.0 < min_success_rate <= 1.0 "Minimum success rate should be ∈ [0.0,1.0]."
+    if isa(y_levels, AbstractVector)
+        decision_threshold = 1 / length(y_levels)
+    end
     return GeneratorConditionsConvergence(
         decision_threshold, gradient_tol, max_iter, min_success_rate
     )

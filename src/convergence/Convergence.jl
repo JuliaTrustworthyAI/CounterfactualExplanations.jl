@@ -18,10 +18,10 @@ include("max_iter.jl")
 A dictionary containing all convergence criteria.
 """
 const convergence_catalogue = Dict(
-    :decision_threshold => DecisionThresholdConvergence(),
-    :generator_conditions => GeneratorConditionsConvergence(),
-    :max_iter => MaxIterConvergence(),
-    :invalidation_rate => InvalidationRateConvergence(),
+    :decision_threshold => (y_levels) -> DecisionThresholdConvergence(; y_levels),
+    :generator_conditions => (y_levels) -> GeneratorConditionsConvergence(; y_levels),
+    :max_iter => (y_levels) -> MaxIterConvergence(),
+    :invalidation_rate => (y_levels) -> InvalidationRateConvergence(),
 )
 
 """
@@ -29,7 +29,7 @@ const convergence_catalogue = Dict(
 
 Returns the convergence object.
 """
-function get_convergence_type(convergence::AbstractConvergence)
+function get_convergence_type(convergence::AbstractConvergence, y_levels::AbstractVector)
     return convergence
 end
 
@@ -38,11 +38,13 @@ end
 
 Returns the convergence object from the dictionary of default convergence types.
 """
-function get_convergence_type(convergence::Symbol)
+function get_convergence_type(convergence::Symbol, y_levels::AbstractVector)
     return get(
         convergence_catalogue,
         convergence,
         () -> error("Convergence criterion not recognized: $convergence."),
+    )(
+        y_levels
     )
 end
 
