@@ -31,6 +31,11 @@ convergence_generator_conditions = CounterfactualExplanations.Convergence.Genera
    2. `steps_exhausted()` is expected to work just fine.
 2. Once point 1 is done, I have to revisit `update!()`. `threshold_reached` works just fine now.
 
+# Progress so far (21.02.2024)
+1. `terminated()` function is working properly (disclaimer: `GrowingSpheresGenerator` always requires `GeneratorsConditionsConvergence` due to its peculiar nature).
+2. The path of a generated counterfactual is NOT updated accordingly yet.
+3. The dispatch on `update!()` function has to be moved to `generate_pertubations()`.
+
 ```{julia}
 generator = CounterfactualExplanations.Generators.GrowingSpheresGenerator()
 
