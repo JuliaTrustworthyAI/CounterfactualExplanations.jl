@@ -47,9 +47,7 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
-        decision_threshold=(1 / length(data.y_levels))
-    ),
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
     timeout::Union{Nothing,Int}=nothing,
 )
     # Initialize:
