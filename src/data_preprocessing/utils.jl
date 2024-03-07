@@ -23,7 +23,7 @@ Splits data into train and test split.
 # Arguments
 - `data::CounterfactualData`: The data to be preprocessed.
 - `test_size=0.2`: Proportion of the data to be used for testing. 
-- `keep_class_ratio=false`: Decides whether sample equally from each class, or keep their relative size.
+- `keep_class_ratio=false`: Decides whether to sample equally from each class, or keep their relative size.
 
 # Returns
 - (`train_data::CounterfactualData`, `test_data::CounterfactualData`): A tuple containing the train and test splits.
@@ -37,34 +37,22 @@ function train_test_split(data::CounterfactualData; test_size=0.2, keep_class_ra
     y = data.output_encoder.y
 
     if keep_class_ratio
-        class_ratios = [
-                            length(findall(vec(y .== cls))) / length(y)
-                            for cls in classes_
-                        ]
+        class_ratios = [length(findall(vec(y .== cls))) / length(y) for cls in classes_]
         class_samples = [
-                            sample(
-                                findall(vec(y .== cls)),
-                                Int(floor(test_size * cls_ratio));
-                                replace=false,
-                            ) for (cls, cls_ratio) in zip(classes_, class_ratios)
-                        ]
+            sample(
+                findall(vec(y .== cls)), Int(floor(test_size * cls_ratio)); replace=false
+            ) for (cls, cls_ratio) in zip(classes_, class_ratios)
+        ]
     else
         n_per_class = round(N / length(classes_))
         class_samples = [
-                            sample(
-                                findall(vec(y .== cls)),
-                                Int(floor(test_size * n_per_class));
-                                replace=false,
-                            ) for cls in classes_
-                        ]
+            sample(
+                findall(vec(y .== cls)), Int(floor(test_size * n_per_class)); replace=false
+            ) for cls in classes_
+        ]
     end
 
-    test_idx = sort(
-        reduce(
-            vcat,
-            class_samples,
-        ),
-    )
+    test_idx = sort(reduce(vcat, class_samples))
     train_idx = setdiff(1:N, test_idx)
     train_data = _subset(data, train_idx)
     test_data = _subset(data, test_idx)
