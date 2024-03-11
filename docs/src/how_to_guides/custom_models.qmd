@@ -26,7 +26,8 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 ```{julia}
 # Data:
 N = 200
-counterfactual_data = load_blobs(N; centers=4, cluster_std=0.5)
+data = TaijaData.load_blobs(N; centers=4, cluster_std=0.5)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 y = counterfactual_data.y
 X = counterfactual_data.X
 

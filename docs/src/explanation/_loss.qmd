@@ -271,14 +271,14 @@ To understand the properties of the different loss functions we will now look at
 
 ```{julia}
 # Some random data:
-using Flux, Random, CounterfactualExplanations.Data
+using Flux, Random, TaijaData, CounterfactualExplanations.DataPreprocessing
 Random.seed!(1234)
 N = 25
 w = [1.0 1.0]# true coefficients
 b = 0
-xs, ys = Data.toy_data_linear(N)
+xs, ys = TaijaData.toy_data_linear(N)
 X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
+counterfactual_data = DataPreprocessing.CounterfactualData(X, ys')
 ```
 
 The plot below shows the samples coloured by label along with the decision boundary. You can think of this as representing the outcome of some automated decision making system. The highlighted sample was chosen to receive algorithmic recourse in the following: we will search for a counterfactual that leads to a label switch.

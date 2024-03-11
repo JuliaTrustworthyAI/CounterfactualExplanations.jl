@@ -29,6 +29,7 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     λ::AbstractFloat # strength of penalty
     latent_space::Bool
     opt::Any # optimizer
+    generative_model_params::NamedTuple
     p_dropout::AbstractFloat # dropout rate
 end
 
@@ -39,6 +40,7 @@ generator = DropoutGenerator(
     0.1,
     false,
     Flux.Optimise.Descent(0.1),
+    (;),
     0.5,
 )
 ```

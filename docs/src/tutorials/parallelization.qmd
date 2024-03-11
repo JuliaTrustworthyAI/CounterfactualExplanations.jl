@@ -146,7 +146,8 @@ import MPI
 
 MPI.Init()
 
-counterfactual_data = load_linearly_separable()
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, :Linear)
 factual = 1
 target = 2
