@@ -1,0 +1,7 @@
+[deps]
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
+IJulia = "7073ff75-c697-5162-941a-fcdaad2a7d2a"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+Transformers = "21ca0261-441d-5938-ace7-c90938fde4d4"
+TrillionDollarWords = "d66529d5-f4f4-49d9-a69b-da67f5535f0a"
