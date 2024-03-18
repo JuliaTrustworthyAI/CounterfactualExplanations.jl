@@ -1,2 +1,8 @@
+channels = ["anaconda", "pytorch", "nvidia", "conda-forge"]
+
 [deps]
+pytorch-cuda = "12.1"
+pytorch = ""
 transformers-interpret = ""
+python = ">=3.8,<4"
+transformers = "4.15.0"
