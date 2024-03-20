@@ -25,3 +25,30 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
     counterfactual_data = DataPreprocessing.CounterfactualData(X, y; domain=(0, 0))
     @test unique(DataPreprocessing.apply_domain_constraints(counterfactual_data, x))[1] == 0
 end
+
+@testset "Categorical" begin
+    X = (
+        name=categorical(["Danesh", "Lee", "Mary", "John"]),
+        grade=categorical(["A", "B", "A", "C"]; ordered=true),
+        sex=categorical(["male", "female", "male", "male"]),
+        height=[1.85, 1.67, 1.5, 1.67],
+    )
+    # Encoding:
+    hot = OneHotEncoder()
+    mach = fit!(machine(hot, X))
+    W = transform(mach, X)
+    X = permutedims(MLJBase.matrix(W))
+    # Assign:
+    features_categorical = [
+        [1, 2, 3, 4],    # name
+        [5, 6, 7],    # grade
+        [8, 9],       # sex
+    ]
+    features_continuous = [10]
+    counterfactual_data = CounterfactualData(
+        X,
+        y;
+        features_categorical=features_categorical,
+        features_continuous=features_continuous,
+    )
+end
