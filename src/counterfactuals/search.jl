@@ -3,24 +3,39 @@
 
 An important subroutine that updates the counterfactual explanation. It takes a snapshot of the current counterfactual search state and passes it to the generator. Based on the current state the generator generates perturbations. Various constraints are then applied to the proposed vector of feature perturbations. Finally, the counterfactual search state is updated.
 """
+# TODO combine both update methods into one by dispatching on generatoe_pertrubations if possible
+# function update!(ce::CounterfactualExplanation)
+
+#     # Generate peturbations:
+#     Δs′ = Generators.generate_perturbations(ce.generator, ce)
+#     Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
+#     s′ = ce.s′ + Δs′                        # new proposed state
+
+#     # Updates:
+#     ce.s′ = s′                                                  # update counterfactual
+#     ce.x′ = decode_state(ce)                                    # decoded counterfactual state
+#     apply_domain_constraints!(ce)                               # apply domain constraints
+#     _times_changed = reshape(
+#         decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
+#     )
+#     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
+#     ce.search[:iteration_count] += 1                            # update iteration counter   
+#     ce.search[:path] = [ce.search[:path]..., ce.s′]
+# end
+
 function update!(ce::CounterfactualExplanation)
+    #TODO implement ce.search updating
 
-    # Generate peturbations:
-    Δs′ = Generators.generate_perturbations(ce.generator, ce)
-    Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
-    s′ = ce.s′ + Δs′                        # new proposed state
+    if (ce.generator.flag == :shrink)
+        growing_spheres_shrink!(ce)
+    elseif (ce.generator.flag == :expand)
+        growing_spheres_expand!(ce)
+    else
+        (ce.generator == :feature_selection)
+        feature_selection!(ce)
+    end
 
-    # Updates:
-    ce.s′ = s′                                                  # update counterfactual
-    ce.x′ = decode_state(ce)                                    # decoded counterfactual state
-    apply_domain_constraints!(ce)                               # apply domain constraints
-    _times_changed = reshape(
-        decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
-    )
-    ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
-    ce.search[:iteration_count] += 1                            # update iteration counter   
-    ce.search[:path] = [ce.search[:path]..., ce.s′]
-    return terminated(ce)
+    ce.search[:iteration_count] += 1
 end
 
 """

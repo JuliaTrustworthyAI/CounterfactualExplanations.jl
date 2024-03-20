@@ -4,6 +4,9 @@ mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     η::Union{Nothing,AbstractFloat}
     latent_space::Bool
     dim_reduction::Bool
+    flag::Symbol
+    a₀::AbstractFloat
+    a₁::AbstractFloat
 end
 
 """
@@ -14,98 +17,49 @@ Constructs a new Growing Spheres Generator object.
 function GrowingSpheresGenerator(;
     n::Union{Nothing,Integer}=100, η::Union{Nothing,AbstractFloat}=0.1
 )
-    return GrowingSpheresGenerator(n, η, false, false)
+    return GrowingSpheresGenerator(n, η, false, false, :shrink, 0.0, 0.0)
 end
 
-"""
-    growing_spheres_generation(ce::AbstractCounterfactualExplanation)
-
-Generate counterfactual candidates using the growing spheres generation algorithm.
-
-# Arguments
-- `ce::AbstractCounterfactualExplanation`: An instance of the `AbstractCounterfactualExplanation` type representing the counterfactual explanation.
-
-# Returns
-- `nothing`
-
-This function applies the growing spheres generation algorithm to generate counterfactual candidates. It starts by generating random points uniformly on a sphere, gradually reducing the search space until no counterfactuals are found. Then it expands the search space until at least one counterfactual is found or the maximum number of iterations is reached.
-
-The algorithm iteratively generates counterfactual candidates and predicts their labels using the model stored in `ce.M`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
-"""
-function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
-    generator = ce.generator
-    model = ce.M
-    factual = ce.x
-    counterfactual_data = ce.data
-    target = [ce.target]
-    max_iter = 1000
-
-    # Copy hyperparameters
-    n = generator.n
-    η = convert(eltype(factual), generator.η)
-
+function growing_spheres_shrink!(ce::AbstractCounterfactualExplanation)
     # Generate random points uniformly on a sphere
-    counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
-
-    if (factual == target)
-        ce.s′ = factual
-        return nothing
-    end
+    counterfactual_candidates = hyper_sphere_coordinates(
+        ce.generator.n, 
+        ce.x, 
+        0.0, 
+        ce.generator.η
+    )
 
     # Predict labels for each candidate counterfactual
     counterfactual = find_counterfactual(
-        model, target, counterfactual_data, counterfactual_candidates
+        ce,
+        counterfactual_candidates
     )
 
-    # Repeat until there's no counterfactual points (process of removing all counterfactuals by reducing the search space)
-    while (!isnothing(counterfactual))
-        η /= 2
-        a₀ = convert(eltype(factual), 0.0)
-
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, η)
-        counterfactual = find_counterfactual(
-            model, target, counterfactual_data, counterfactual_candidates
-        )
-
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
+    if (!isnothing(counterfactual))
+        ce.generator.η /= 2
+    else
+        # Update the boundaries of the sphere's radius for the next phase
+        ce.generator.a₀, ce.generator.a₁ = ce.generator.η, 2ce.generator.η
+        ce.generator.flag = :expand
     end
+end
 
-    # Update path
-    ce.search[:iteration_count] += n
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
+function growing_spheres_expand!(ce::AbstractCounterfactualExplanation)
+    # Generate random points uniformly on a sphere
+    counterfactual_candidates = hyper_sphere_coordinates(
+        ce.generator.n, ce.x, ce.generator.a₀, ce.generator.a₁
+    )
+
+    # Predict labels for each candidate counterfactual
+    counterfactual = find_counterfactual(ce, counterfactual_candidates)
+
+    if (isnothing(counterfactual))
+        ce.generator.a₀ = ce.generator.a₁
+        ce.generator.a₁ = ce.generator.a₁ + ce.generator.η
+    else
+        ce.x′ = counterfactual_candidates[:, counterfactual]
+        ce.generator.flag = :feature_selection
     end
-
-    # Initialize boundaries of the sphere's radius
-    a₀, a₁ = η, 2η
-
-    # Repeat until there's at least one counterfactual (process of expanding the search space)
-    while (isnothing(counterfactual))
-        a₀ = a₁
-        a₁ += η
-
-        counterfactual_candidates = hyper_sphere_coordinates(n, factual, a₀, a₁)
-        counterfactual = find_counterfactual(
-            model, target, counterfactual_data, counterfactual_candidates
-        )
-
-        max_iter -= 1
-        if max_iter == 0
-            break
-        end
-    end
-
-    # Update path
-    ce.search[:iteration_count] += n
-    for i in eachindex(counterfactual_candidates[1, :])
-        push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
-    end
-
-    ce.s′ = counterfactual_candidates[:, counterfactual]
-    return nothing
 end
 
 """
@@ -122,37 +76,16 @@ Perform feature selection to find the dimension with the closest (but not equal)
 The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
-    model = ce.M
-    counterfactual_data = ce.data
-    factual = ce.x
-    target = [ce.target]
+    x′ = copy(ce.x′)
 
-    # Assign the initial counterfactual to both counterfactual′ and counterfactual″
-    counterfactual′ = ce.s′
-    counterfactual″ = ce.s′
+    i = find_closest_dimension(ce.x, x′)
+    x′[i] = ce.x[i]
 
-    factual_class = CounterfactualExplanations.Models.predict_label(
-        model, counterfactual_data, factual
-    )[1]
-
-    while (
-        factual_class != CounterfactualExplanations.Models.predict_label(
-            model, counterfactual_data, counterfactual′
-        ) &&
-        target == CounterfactualExplanations.Models.predict_label(
-            model, counterfactual_data, counterfactual′
-        )
-    )
-        counterfactual″ = counterfactual′
-        i = find_closest_dimension(factual, counterfactual′)
-        counterfactual′[i] = factual[i]
-
-        ce.search[:iteration_count] += 1
-        push!(ce.search[:path], reshape(counterfactual″, :, 1))
+    if (target_probs(ce, x′) .>= ce.convergence.decision_threshold)
+        ce.x′ = x′
+    else
+        ce.generator.flag = :converged
     end
-
-    ce.s′ = counterfactual″
-    return nothing
 end
 
 """
@@ -215,16 +148,15 @@ Find the first counterfactual index by predicting labels.
 # Returns
 - `counterfactual`: The index of the first counterfactual found.
 """
-function find_counterfactual(
-    model, target_class, counterfactual_data, counterfactual_candidates
-)
-    predicted_labels = map(
-        e -> CounterfactualExplanations.Models.predict_label(model, counterfactual_data, e),
-        eachcol(counterfactual_candidates),
+function find_counterfactual(ce, counterfactual_candidates)
+    predicted_target_probabilities = map(
+        e -> target_probs(ce, e)[1], eachcol(counterfactual_candidates)
     )
-    counterfactual = findfirst(predicted_labels .== target_class)
+    predicted_counterfactual = findfirst(
+        predicted_target_probabilities .>= ce.convergence.decision_threshold
+    )
 
-    return counterfactual
+    return predicted_counterfactual
 end
 
 """
