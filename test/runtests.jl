@@ -1,23 +1,24 @@
 using Chain: @chain
 using CounterfactualExplanations
+using CounterfactualExplanations.Convergence
+using CounterfactualExplanations.DataPreprocessing
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Models
 using Test
 using DataFrames
-using Flux
-using LinearAlgebra
-using MLUtils
-using Random
-using Plots
-using LaplaceRedux
 using EvoTrees
+using Flux
+using LaplaceRedux
+using LinearAlgebra
+using MLDatasets
 using MLJBase
 using MLJDecisionTreeInterface
 using Printf
-using CounterfactualExplanations.Convergence
+using MLUtils
+using Random
 using TaijaData
-using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Models
-using CounterfactualExplanations.Evaluation
-using CounterfactualExplanations.DataPreprocessing
+
 
 Random.seed!(0)
 
