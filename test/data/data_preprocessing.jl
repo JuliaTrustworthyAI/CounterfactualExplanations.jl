@@ -26,32 +26,12 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
     @test unique(DataPreprocessing.apply_domain_constraints(counterfactual_data, x))[1] == 0
 end
 
-@testset "Categorical" begin
-    using MLJModels: OneHotEncoder
-    y = rand([1, 0], 4)
-    X = (
-        name=categorical(["Danesh", "Lee", "Mary", "John"]),
-        grade=categorical(["A", "B", "A", "C"]; ordered=true),
-        sex=categorical(["male", "female", "male", "male"]),
-        height=[1.85, 1.67, 1.5, 1.67],
-    )
-    # Encoding:
-    hot = OneHotEncoder()
-    mach = MLJBase.fit!(machine(hot, X))
-    W = MLJBase.transform(mach, X)
-    X = permutedims(MLJBase.matrix(W))
-    # Assign:
-    features_categorical = [
-        [1, 2, 3, 4],      # name
-        [5, 6, 7],        # grade
-        [8, 9],           # sex
-    ]
-    features_continuous = [10]
-    # Counterfactual data:
-    counterfactual_data = CounterfactualData(
-        X,
-        y;
-        features_categorical=features_categorical,
-        features_continuous=features_continuous,
-    )
+@testset "Other" begin
+    # MatrixTable:
+    dataset = Iris()
+    X = dataset.features
+    y = dataset.targets
+    X = MLJBase.table(Tables.matrix(X))
+    y = y[:, 1]
+    counterfactual_data = CounterfactualData(X, y)
 end
