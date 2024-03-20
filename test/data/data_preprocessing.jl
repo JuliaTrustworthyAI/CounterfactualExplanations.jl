@@ -27,6 +27,8 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 end
 
 @testset "Categorical" begin
+    using MLJModels: OneHotEncoder
+    y = rand([1, 0], 4)
     X = (
         name=categorical(["Danesh", "Lee", "Mary", "John"]),
         grade=categorical(["A", "B", "A", "C"]; ordered=true),
@@ -35,16 +37,17 @@ end
     )
     # Encoding:
     hot = OneHotEncoder()
-    mach = fit!(machine(hot, X))
-    W = transform(mach, X)
+    mach = MLJBase.fit!(machine(hot, X))
+    W = MLJBase.transform(mach, X)
     X = permutedims(MLJBase.matrix(W))
     # Assign:
     features_categorical = [
-        [1, 2, 3, 4],    # name
-        [5, 6, 7],    # grade
-        [8, 9],       # sex
+        [1, 2, 3, 4],      # name
+        [5, 6, 7],        # grade
+        [8, 9],           # sex
     ]
     features_continuous = [10]
+    # Counterfactual data:
     counterfactual_data = CounterfactualData(
         X,
         y;
