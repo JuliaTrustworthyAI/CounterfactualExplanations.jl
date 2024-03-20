@@ -15,6 +15,7 @@ MLJModels = "d491faf4-2d78-11e9-2867-c94bc002c0b7"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 TaijaData = "9d524318-b4e6-4a65-86d2-b2b72d07866c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 

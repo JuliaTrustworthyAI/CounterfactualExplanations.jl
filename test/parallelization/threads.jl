@@ -14,4 +14,6 @@ ces = @with_parallelizer parallelizer begin
     generate_counterfactual(xs, target, counterfactual_data, M, generator)
 end
 
+@with_parallelizer parallelizer evaluate(ces)
+
 @test true

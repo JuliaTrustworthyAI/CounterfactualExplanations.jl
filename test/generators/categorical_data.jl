@@ -1,4 +1,6 @@
 using MLJModels: OneHotEncoder
+using StatsBase: Weights
+
 @testset "Categorical data" begin
 
     # Set up a simple categorical dataset:
@@ -42,7 +44,7 @@ using MLJModels: OneHotEncoder
     # Generate a counterfactual:
     generator = GenericGenerator()
     ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-    
+
     # Test:
     @test true
 end
