@@ -25,3 +25,13 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
     counterfactual_data = DataPreprocessing.CounterfactualData(X, y; domain=(0, 0))
     @test unique(DataPreprocessing.apply_domain_constraints(counterfactual_data, x))[1] == 0
 end
+
+@testset "Other" begin
+    # MatrixTable:
+    dataset = Iris()
+    X = dataset.features
+    y = dataset.targets
+    X = MLJBase.table(Tables.matrix(X))
+    y = y[:, 1]
+    counterfactual_data = CounterfactualData(X, y)
+end

@@ -1,3 +1,5 @@
+using MLJBase
+
 """
     CounterfactualData(
         X::AbstractMatrix, y::AbstractMatrix;
@@ -181,10 +183,14 @@ Outer constructor method that accepts a `Tables.MatrixTable`. By default, the in
 
 """
 function CounterfactualData(X::Tables.MatrixTable, y::RawOutputArrayType; kwrgs...)
-    features_categorical = findall([scitype(x) <: AbstractVector{<:Finite} for x in X])
+    features_categorical = findall([
+        MLJBase.scitype(x) <: AbstractVector{<:Finite} for x in X
+    ])
     features_categorical =
         length(features_categorical) == 0 ? nothing : features_categorical
-    features_continuous = findall([scitype(x) <: AbstractVector{<:Continuous} for x in X])
+    features_continuous = findall([
+        MLJBase.scitype(x) <: AbstractVector{<:Continuous} for x in X
+    ])
     features_continuous = length(features_continuous) == 0 ? nothing : features_continuous
     X = permutedims(Tables.matrix(X))
 
