@@ -1,3 +1,3 @@
-reset!(flux_training_params)
+CounterfactualExplanations.reset!(flux_training_params)
 
 @test true

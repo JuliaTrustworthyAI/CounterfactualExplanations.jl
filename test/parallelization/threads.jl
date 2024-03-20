@@ -1,4 +1,5 @@
 using CounterfactualExplanations
+using CounterfactualExplanations.Evaluation: evaluate
 using CounterfactualExplanations.Parallelization
 
 counterfactual_data = synthetic[:classification_binary][:data]
