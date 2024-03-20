@@ -3,6 +3,7 @@ include("feature_tweak.jl")
 include("counterfactuals.jl")
 include("probe.jl")
 include("growing_spheres.jl")
+include("categorical_data.jl")
 
 # generic tests
 @testset "Construction" begin
