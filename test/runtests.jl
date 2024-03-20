@@ -19,7 +19,6 @@ using MLUtils
 using Random
 using TaijaData
 
-
 Random.seed!(0)
 
 using Logging
