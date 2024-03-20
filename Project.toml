@@ -32,12 +32,10 @@ cuDNN = "02a925ec-e4fe-4b08-9a7e-0d78e3d38ccd"
 [weakdeps]
 EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
-MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 
 [extensions]
 EvoTreesExt = "EvoTrees"
 LaplaceReduxExt = "LaplaceRedux"
-MPIExt = "MPI"
 
 [compat]
 CategoricalArrays = "0.10"
@@ -56,7 +54,6 @@ Logging = "1.6, 1.7, 1.8, 1.9, 1.10"
 MLJBase = "0.21, 1"
 MLJDecisionTreeInterface = "0.4.0"
 MLUtils = "0.2, 0.3, 0.4"
-MPI = "0.20"
 MultivariateStats = "0.9, 0.10"
 PackageExtensionCompat = "1"
 Parameters = "0.12"
@@ -68,10 +65,7 @@ StatsBase = "0.33, 0.34"
 Tables = "1"
 UUIDs = "1.6, 1.7, 1.8, 1.9, 1.10"
 julia = "1.6, 1.7, 1.8, 1.9, 1.10"
-MPIPreferences = "0.2"
 
 [extras]
 EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
-MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
-MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"

@@ -8,7 +8,6 @@ using CounterfactualExplanations.Evaluation: evaluate
 using Logging
 using ProgressMeter
 
-include("utils.jl")
 include("threads/threads.jl")
 
 """
