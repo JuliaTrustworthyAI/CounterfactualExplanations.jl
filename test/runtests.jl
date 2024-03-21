@@ -34,7 +34,7 @@ synthetic = _load_synthetic()
 generators = Generators.generator_catalogue
 
 @testset "CounterfactualExplanations.jl" begin
-    include("Aqua.jl")
+    include("aqua.jl")
 
     @testset "Data" begin
         include("data/data_preprocessing.jl")

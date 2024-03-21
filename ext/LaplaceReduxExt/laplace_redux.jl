@@ -102,7 +102,7 @@ function Models.train(
     # Fit Laplace Approximation
     @info "Fitting Laplace Approximation"
     LaplaceRedux.fit!(la, zip(eachcol(data.X), data.y))
-    
+
     # Optimize prior
     if optimize_prior
         @info "Optimizing prior"
