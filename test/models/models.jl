@@ -87,7 +87,7 @@ end
             model = Models.fit_model(value[:data], :LaplaceRedux)
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
-                @test model.likelihood == :classification_binary
+                @test model.likelihood == :classification_multi
             end
         end
     end
