@@ -2,6 +2,7 @@ channels = ["anaconda", "pytorch", "nvidia", "conda-forge"]
 
 [deps]
 pytorch-cuda = "12.1"
+cudnn = ""
 pytorch = ""
 transformers-interpret = ""
 python = ">=3.8,<4"
