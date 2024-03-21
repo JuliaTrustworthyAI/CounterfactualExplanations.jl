@@ -84,11 +84,7 @@ end
             end
 
             # Test the LaplaceReduxModel
-            flux_model = Models.fit_model(value[:data], :Linear).model
-            laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
-            model = Models.LaplaceReduxModel(
-                laplace_model; likelihood=:classification_binary
-            )
+            model = Models.fit_model(value[:data], :LaplaceRedux)
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
                 @test model.likelihood == :classification_binary
