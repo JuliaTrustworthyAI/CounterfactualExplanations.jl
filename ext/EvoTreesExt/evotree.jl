@@ -22,7 +22,7 @@ struct EvoTreeModel <: Models.AbstractMLJModel
             throw(
                 ArgumentError(
                     "`likelihood` should be in `[:classification_binary, :classification_multi].
-                    Support for regressors has not been implemented yet.`"
+                    Support for regressors has not been implemented yet.`",
                 ),
             )
         end
