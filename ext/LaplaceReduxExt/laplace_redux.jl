@@ -9,7 +9,16 @@ struct LaplaceReduxModel <: Models.AbstractCustomDifferentiableModel
     model::LaplaceRedux.Laplace
     likelihood::Symbol
     function LaplaceReduxModel(model, likelihood)
-        @assert likelihood in [:classification_binary, :classification_multi] "Likelihood should be in `[:classification_binary, :classification_multi]`"
+        if likelihood ∈ [:classification_binary, :classification_multi]
+            new(model, likelihood)
+        else
+            throw(
+                ArgumentError(
+                    "`likelihood` should be in `[:classification_binary, :classification_multi].
+                    Support for regressors has not been implemented yet.`",
+                ),
+            )
+        end
         return new(model, likelihood)
     end
 end
