@@ -1,15 +1,11 @@
-using CounterfactualExplanations.Evaluation: Benchmark
+using CounterfactualExplanations.Evaluation: Benchmark, evaluate, validity
+using CounterfactualExplanations.Objectives: distance, distance_measures
+
+# Dataset
 data = TaijaData.load_overlapping()
 counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(
     data[1], data[2]
 )
-bmk = Evaluation.benchmark(counterfactual_data; convergence=:generator_conditions)
-
-@testset "Basics" begin
-    @test typeof(bmk()) <: DataFrame
-    @test typeof(bmk(; agg=nothing)) <: DataFrame
-    @test typeof(vcat(bmk, bmk)) <: Benchmark
-end
 
 # Factual and target:
 n_individuals = 5
@@ -24,6 +20,7 @@ generator = GenericGenerator()
 ces = generate_counterfactual(
     xs, target, counterfactual_data, M, generator; num_counterfactuals=5
 )
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 # Meta data:
 meta_data = Dict(:generator => "Generic", :model => "MLP")
 meta_data = [meta_data for i in 1:length(ces)]
@@ -40,35 +37,57 @@ generators = Dict(
     :ClaPROAR => ClaPROARGenerator(),
 )
 
-@testset "Benchmarks" begin
-    @test typeof(benchmark(ces)) <: Benchmark
-    @test typeof(benchmark(ces; meta_data=meta_data)) <: Benchmark
-    @test typeof(
-        benchmark(x, target, counterfactual_data; models=models, generators=generators)
-    ) <: Benchmark
+@testset "Evaluation" begin
+    @test typeof(evaluate(ce; measure=validity)) <: Vector
+    @test typeof(evaluate(ce; measure=distance)) <: Vector
+    @test typeof(evaluate(ce; measure=distance_measures)) <: Vector
+    @test typeof(evaluate(ce)) <: Vector
+    @test typeof(evaluate.(ces)) <: Vector
+    @test typeof(evaluate.(ces; report_each=true)) <: Vector
+    @test typeof(evaluate.(ces; output_format=:Dict, report_each=true)) <: Vector{<:Dict}
+    @test typeof(evaluate.(ces; output_format=:DataFrame, report_each=true)) <:
+        Vector{<:DataFrame}
 end
 
-@testset "Full one" begin
-    # Data:
-    datasets = Dict(
-        :moons => CounterfactualData(load_moons()...),
-        :circles => CounterfactualData(load_circles()...),
-    )
+@testset "Benchmarking" begin
+    bmk = Evaluation.benchmark(counterfactual_data; convergence=:generator_conditions)
 
-    # Models:
-    models = Dict(:MLP => FluxModel, :Linear => Linear)
-
-    # Generators:
-    generators = Dict(:Generic => GenericGenerator(), :Greedy => GreedyGenerator())
-
-    using CounterfactualExplanations.Evaluation: distance_measures
-    bmks = []
-    for (dataname, dataset) in datasets
-        bmk = benchmark(
-            dataset; models=models, generators=generators, measure=distance_measures
-        )
-        push!(bmks, bmk)
+    @testset "Basics" begin
+        @test typeof(bmk()) <: DataFrame
+        @test typeof(bmk(; agg=nothing)) <: DataFrame
+        @test typeof(vcat(bmk, bmk)) <: Benchmark
     end
-    bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
-    @test typeof(bmk) <: Benchmark
+
+    @testset "Different methods" begin
+        @test typeof(benchmark(ces)) <: Benchmark
+        @test typeof(benchmark(ces; meta_data=meta_data)) <: Benchmark
+        @test typeof(
+            benchmark(x, target, counterfactual_data; models=models, generators=generators)
+        ) <: Benchmark
+    end
+
+    @testset "Full one" begin
+        # Data:
+        datasets = Dict(
+            :moons => CounterfactualData(load_moons()...),
+            :circles => CounterfactualData(load_circles()...),
+        )
+
+        # Models:
+        models = Dict(:MLP => FluxModel, :Linear => Linear)
+
+        # Generators:
+        generators = Dict(:Generic => GenericGenerator(), :Greedy => GreedyGenerator())
+
+        using CounterfactualExplanations.Evaluation: distance_measures
+        bmks = []
+        for (dataname, dataset) in datasets
+            bmk = benchmark(
+                dataset; models=models, generators=generators, measure=distance_measures
+            )
+            push!(bmks, bmk)
+        end
+        bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
+        @test typeof(bmk) <: Benchmark
+    end
 end
