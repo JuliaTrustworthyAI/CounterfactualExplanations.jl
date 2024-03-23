@@ -1,5 +1,6 @@
-using CounterfactualExplanations.Evaluation: Benchmark, evaluate, validity
-using CounterfactualExplanations.Objectives: distance, distance_measures
+using CounterfactualExplanations.Evaluation:
+    Benchmark, evaluate, validity, distance_measures
+using CounterfactualExplanations.Objectives: distance
 
 # Dataset
 data = TaijaData.load_overlapping()
