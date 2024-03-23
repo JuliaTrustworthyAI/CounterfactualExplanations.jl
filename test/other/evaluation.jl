@@ -1,3 +1,4 @@
+using TaijaData: load_moons, load_circles
 using CounterfactualExplanations.Evaluation:
     Benchmark, evaluate, validity, distance_measures
 using CounterfactualExplanations.Objectives: distance
