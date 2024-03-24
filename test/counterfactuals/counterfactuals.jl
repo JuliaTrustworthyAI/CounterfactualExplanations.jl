@@ -14,3 +14,5 @@ generator = GenericGenerator()
 
 include("encodings.jl")
 include("generate_counterfactual.jl")
+include("path_tracking.jl")
+include("utils.jl")
