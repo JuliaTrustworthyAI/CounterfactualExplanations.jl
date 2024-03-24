@@ -121,7 +121,7 @@ function evaluate(
             df = generate_meta_data(ce, df, meta_data)
         end
         if !("sample" ∈ names(df))
-            df[!,"sample"] .= uuid1()
+            df[!, "sample"] .= uuid1()
         end
         DataFrames.select!(df, :sample, :num_counterfactual, :)
         return df
