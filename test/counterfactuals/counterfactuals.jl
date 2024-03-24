@@ -13,3 +13,4 @@ x = select_factual(counterfactual_data, chosen)
 generator = GenericGenerator()
 
 include("encodings.jl")
+include("generate_counterfactual.jl")
