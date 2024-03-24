@@ -44,6 +44,10 @@ generators = Generators.generator_catalogue
         include("generators/generators.jl")
     end
 
+    @testset "Counterfactuals" begin
+        include("counterfactuals/counterfactuals.jl")
+    end
+
     @testset "Models" begin
         include("models/models.jl")
     end

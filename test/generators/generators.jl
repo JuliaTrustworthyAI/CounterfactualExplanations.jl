@@ -1,6 +1,6 @@
 include("clue.jl")
 include("feature_tweak.jl")
-include("counterfactuals.jl")
+include("full_runs.jl")
 include("probe.jl")
 include("growing_spheres.jl")
 include("categorical_data.jl")
