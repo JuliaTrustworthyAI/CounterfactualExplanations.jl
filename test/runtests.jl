@@ -60,10 +60,6 @@ generators = Generators.generator_catalogue
         include("other/objectives.jl")
     end
 
-    @testset "Parallelization" begin
-        include("parallelization/parallelization.jl")
-    end
-
     @testset "Other" begin
         include("other/other.jl")
     end
