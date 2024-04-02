@@ -1,3 +1,4 @@
+# Loads the Trillion Dollar Word classifier
 function load_fomc_classifier(; kwrgs...)
     model_name = "gtfintechlab/FOMC-RoBERTa"
     
@@ -8,6 +9,7 @@ function load_fomc_classifier(; kwrgs...)
     return tkr, mod
 end
 
+# Loads the CMLM model
 function load_fomc_cmlm(; kwrgs...)
     model_name = "karoldobiczek/relitc-FOMC-CMLM"
     

@@ -1,5 +1,7 @@
 include("get_attributions.jl");
 
+# [Relevance-based Infilling for Natural Language Counterfactuals](https://dl.acm.org/doi/10.1145/3583780.3615029) (RELITC) is a Language Model counterfactual explanation method. It uses LM feature attributions to identify tokens in the original text which contribute the most to the LM classification. Once idendified, the tokens are masked and a Conditional Masked LM (CMLM), like BERT is used to fill the masks, creating a new text that should be classified to the target class. RELITC additionally tries to quantify the uncertainty of the CMLM to guide the infilling process. The only parameter of the method, $K$, percentage of masked tokens is established through beam search.
+
 mutable struct RelitcGenerator <: AbstractNonGradientBasedGenerator
     filling_scheme::Union{Nothing, Function}
     attribution_generator::Py
@@ -14,6 +16,7 @@ function RelitcGenerator(;
     return RelitcGenerator(filling_scheme, attribution_generator, cmlm)
 end
 
+# Generate counterfactual using RELITC (to be dispatched)
 function relitc!(ce::AbstractCounterfactualExplanation)
     text = ce.x
     attributions = get_attributions(text, scorer)
@@ -36,11 +39,8 @@ function relitc!(ce::AbstractCounterfactualExplanation)
     left_to_right_filling(copy(cmlm_decoded), idx_to_mask, cmlm_mod, cmlm_tkr)
 end
 
-
-
-
-
-
+# The tokenizer returns tokens instead of words
+# the tokens are grouped into words and max pooling is used to get the word attribution
 function group_into_words(text, attributions, cls_tkr)
     toks = decode(cls_tkr, encode(cls_tkr, text).token)
     word_attributions = []
@@ -59,6 +59,7 @@ function group_into_words(text, attributions, cls_tkr)
     return word_attributions
 end
 
+# Returns a list of indexes of words with the highest attribution scores
 function get_top_k_idx(attributions, k=10)
     sorted = sort(attributions, by = x -> -maximum(x[3]))
     idx_to_mask = []
@@ -68,6 +69,7 @@ function get_top_k_idx(attributions, k=10)
     return idx_to_mask
 end
 
+# Masks tokens (here words) at corresponding indexes and forms them into a string
 function mask_toks_at_idx(toks, idx_to_mask)
     masked_text = Vector{Char}()
     for (i, token) in enumerate(toks)
@@ -83,6 +85,8 @@ function mask_toks_at_idx(toks, idx_to_mask)
     return String(masked_text)
 end
 
+# Since the CMLM model and the classifier models' tokenizers differ
+# we have to create a different masking for the CMLM tokenizer
 function get_idx_cmlm(cmlm_decoded)
     idx_to_mask = []
     for (i, tok) in enumerate(cmlm_decoded)
@@ -93,6 +97,7 @@ function get_idx_cmlm(cmlm_decoded)
     return idx_to_mask
 end
 
+# Merges a token list into a string, masking at specified indexes
 function merge_tokens(tokens, idx_to_mask=[])
     merged_text = Vector{Char}()
     for (i, token) in enumerate(tokens)
@@ -106,6 +111,7 @@ function merge_tokens(tokens, idx_to_mask=[])
     return chop(String(merged_text), head=1, tail=0)
 end
 
+# Merges the CMLM output token list into a string
 function group_into_words(cmlm_out, delim="##")
     word_list = []
     for token in cmlm_out
@@ -118,6 +124,10 @@ function group_into_words(cmlm_out, delim="##")
     return word_list
 end
 
+# Recursively fills in the tokens
+# The function selects the lowest index from mask_position and uses the CMLM
+# to fill in the predicted token at the given position
+# Once the mask_position list is empty, the merged string is returned
 function left_to_right_filling(tokens, mask_positions, model, tokenizer)
     if length(mask_positions) == 0
         return merge_tokens(tokens)
@@ -138,6 +148,10 @@ function left_to_right_filling(tokens, mask_positions, model, tokenizer)
     return left_to_right_filling(tokens, mask_positions, model, tokenizer)
 end
 
+# Recursively fills in the tokens using CMLM uncertainty
+# The function selects the masked token with the lowest logit entropy
+# and fills in the predicted token at the given position
+# Once the mask_position list is empty, the merged string is returned
 function uncertainty_filling(tokens, mask_positions, model, tokenizer)
     if length(mask_positions) == 0
         return merge_tokens(tokens)
