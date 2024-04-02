@@ -1,9 +1,14 @@
 module CounterfactualExplanations
 
+# Package extensions:
 using PackageExtensionCompat
 function __init__()
     @require_extensions
 end
+
+# Dependencies:
+using Flux
+using TaijaBase
 
 # Setup:
 include("artifacts_setup.jl")
@@ -13,15 +18,7 @@ include("base_types.jl")
 export AbstractCounterfactualExplanation
 export AbstractFittedModel
 export AbstractGenerator
-export AbstractParallelizer
 export AbstractConvergence
-
-# Traits:
-include("traits/traits.jl")
-export parallelizable, parallelize
-
-# Dependencies:
-using Flux
 
 # Global constants:
 include("global_utils.jl")
@@ -95,11 +92,6 @@ export animate_path
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
-
-include("parallelization/Parallelization.jl")
-using .Parallelization
-
-include("assign_traits.jl")
 
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")

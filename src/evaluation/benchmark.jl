@@ -1,5 +1,6 @@
 using Base.Iterators
 using Serialization
+using TaijaBase: AbstractParallelizer
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
