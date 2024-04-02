@@ -16,6 +16,7 @@ using DataFrames
 using MLJBase
 using MLJDecisionTreeInterface
 using Distributions
+using PythonCall
 using Random
 using Statistics
 
@@ -61,6 +62,7 @@ include("non_gradient_based/base.jl")
 
 include("non_gradient_based/feature_tweak/generate_perturbations.jl")
 include("non_gradient_based/growing_spheres/growing_spheres.jl")
+include("non_gradient_based/relitc/relitc.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(

@@ -87,7 +87,7 @@ using .Convergence
 # argmin 
 ###
 include("counterfactuals/Counterfactuals.jl")
-export CounterfactualExplanation
+export CounterfactualExplanation, TextCounterfactualExplanation
 export generate_counterfactual
 export update!
 export total_steps, converged, terminated, path, target_probs
