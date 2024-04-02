@@ -1,6 +1,6 @@
 using Base.Iterators
 using Serialization
-using TaijaBase: AbstractParallelizer
+using TaijaBase: AbstractParallelizer, vectorize_collection
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
@@ -109,7 +109,7 @@ function benchmark(
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
-    xs = CounterfactualExplanations.vectorize_collection(xs)
+    xs = vectorize_collection(xs)
 
     # Grid setup:
     grid = []
@@ -279,7 +279,7 @@ function benchmark(
                 push!(chosen, chosen_ind)
             end
             xs = CounterfactualExplanations.select_factual(test_data, chosen)
-            xs = CounterfactualExplanations.vectorize_collection(xs)
+            xs = vectorize_collection(xs)
             # Form the grid:
             for (i, x) in enumerate(xs)
                 sample_id = uuid1()
