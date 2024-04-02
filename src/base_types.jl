@@ -13,8 +13,5 @@ abstract type AbstractGenerator end
 "Treat `AbstractGenerator` as scalar when broadcasting."
 Base.broadcastable(gen::AbstractGenerator) = Ref(gen)
 
-"An abstract type for parallelizers."
-abstract type AbstractParallelizer end
-
 "An abstract type that serves as the base type for convergence objects."
 abstract type AbstractConvergence end
