@@ -1,3 +1,4 @@
+# Here we test edge cases for the function 'generate_counterfactual'.
 using CounterfactualExplanations.Objectives: distance_mad
 
 @testset "Counterfactual generation" begin
