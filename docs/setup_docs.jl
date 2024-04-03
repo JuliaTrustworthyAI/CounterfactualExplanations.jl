@@ -36,9 +36,7 @@ setup_docs = quote
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
     # Counteractual data and model:
-    data = TaijaData.load_linearly_separable()
-    counterfactual_data = DataPreprocessing.CounterfactualData(data[1], data[2])
-
+    counterfactual_data = CounterfactualData(load_linearly_separable()...)
     M = fit_model(counterfactual_data, :Linear)
     target = 2
     factual = 1

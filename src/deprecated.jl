@@ -55,3 +55,9 @@ Base.@deprecate_moved preprocess_python_data "TaijaInteroperability"
 Base.@deprecate_moved RTorchModel "TaijaInteroperability"
 
 Base.@deprecate_moved rtorch_model_loader "TaijaInteroperability"
+
+Base.@deprecate_moved parallelize "TaijaParallel"
+
+Base.@deprecate_moved parallelizable "TaijaParallel"
+
+Base.@deprecate_moved AbstractParallelizer "TaijaBase"

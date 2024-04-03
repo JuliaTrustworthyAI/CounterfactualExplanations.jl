@@ -1,17 +1,35 @@
-# -------- Main method:
 """
 	generate_counterfactual(
-		x::Union{AbstractArray,Int}, target::RawTargetType, data::CounterfactualData, M::Models.AbstractFittedModel, generator::AbstractGenerator
-	)
+        x::AbstractArray,
+        target::RawTargetType,
+        data::CounterfactualData,
+        M::Models.AbstractFittedModel,
+        generator::AbstractGenerator;
+        num_counterfactuals::Int=1,
+        initialization::Symbol=:add_perturbation,
+        convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
+        timeout::Union{Nothing,Real}=nothing,
+    )
 
-The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. 
-Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
+The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
+
+# Arguments
+
+- `x::AbstractArray`: Factual data point.
+- `target::RawTargetType`: Target class.
+- `data::CounterfactualData`: Counterfactual data.
+- `M::Models.AbstractFittedModel`: Fitted model.
+- `generator::AbstractGenerator`: Generator.
+- `num_counterfactuals::Int=1`: Number of counterfactuals to generate for factual.
+- `initialization::Symbol=:add_perturbation`: Initialization method. By default, the initialization is done by adding a small random perturbation to the factual to achieve more robustness.
+- `convergence::Union{AbstractConvergence,Symbol}=:decision_threshold`: Convergence criterion. By default, the convergence is based on the decision threshold.
+- `timeout::Union{Nothing,Int}=nothing`: Timeout in seconds.
 
 # Examples
 
 ## Generic generator
 
-```julia-repl
+```julia
 using CounterfactualExplanations
 
 # Data:
@@ -47,10 +65,8 @@ function generate_counterfactual(
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,
-    convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
-        decision_threshold=(1 / length(data.y_levels))
-    ),
-    timeout::Union{Nothing,Int}=nothing,
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
+    timeout::Union{Nothing,Real}=nothing,
 )
     # Initialize:
     ce = CounterfactualExplanation(

@@ -1,25 +1,23 @@
 using Chain: @chain
-import CompatHelperLocal as CHL
-CHL.@check()
 using CounterfactualExplanations
+using CounterfactualExplanations.Convergence
+using CounterfactualExplanations.DataPreprocessing
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Models
 using Test
 using DataFrames
-using Flux
-using LinearAlgebra
-using MLUtils
-using Random
-using Plots
-using LaplaceRedux
 using EvoTrees
+using Flux
+using LaplaceRedux
+using LinearAlgebra
+using MLDatasets
 using MLJBase
 using MLJDecisionTreeInterface
 using Printf
-using CounterfactualExplanations.Convergence
+using MLUtils
+using Random
 using TaijaData
-using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Models
-using CounterfactualExplanations.Evaluation
-using CounterfactualExplanations.DataPreprocessing
 
 Random.seed!(0)
 
@@ -46,6 +44,10 @@ generators = Generators.generator_catalogue
         include("generators/generators.jl")
     end
 
+    @testset "Counterfactuals" begin
+        include("counterfactuals/counterfactuals.jl")
+    end
+
     @testset "Models" begin
         include("models/models.jl")
     end
@@ -54,7 +56,11 @@ generators = Generators.generator_catalogue
         include("other/evaluation.jl")
     end
 
-    @testset "Parallelization" begin
-        include("parallelization/parallelization.jl")
+    @testset "Objectives" begin
+        include("other/objectives.jl")
+    end
+
+    @testset "Other" begin
+        include("other/other.jl")
     end
 end

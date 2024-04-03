@@ -88,7 +88,7 @@ function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; 
 
     # Set up:
     M = all_models_catalogue[model](counterfactual_data; kwrgs...)
-    train(M, counterfactual_data)
+    M = train(M, counterfactual_data)
 
     return M
 end
