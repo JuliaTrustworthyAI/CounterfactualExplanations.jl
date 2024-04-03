@@ -1,5 +1,5 @@
 function generate_counterfactual(
-    x::AbstractArray,
+    x::Matrix,
     target::RawTargetType,
     data::DataPreprocessing.CounterfactualData,
     M::Models.AbstractFittedModel,
