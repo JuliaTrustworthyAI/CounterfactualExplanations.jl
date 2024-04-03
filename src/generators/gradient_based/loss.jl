@@ -16,12 +16,16 @@ end
     ∂h(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators.
-It assumes that `Zygote.jl` has gradient access.
+It assumes that `Zygote.jl` has gradient access. 
+
+If the penalty is not provided, it returns 0.0. By default, Zygote never works out the gradient for constants and instead returns 'nothing', so we need to add a manual step to override this behaviour. See here: https://discourse.julialang.org/t/zygote-gradient/26715.
 """
 function ∂h(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    return Flux.gradient(() -> h(generator, ce), Flux.params(ce.s′))[ce.s′]
+    _grad = Flux.gradient(() -> h(generator, ce), Flux.params(ce.s′))[ce.s′]
+    _grad = isnothing(_grad) ? 0.0 : _grad
+    return _grad
 end
 
 # Gradient:
@@ -37,7 +41,7 @@ function ∇(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return ∂ℓ(generator, M, ce) + ∂h(generator, ce) .+ hinge_loss(ce.convergence, ce)
+    return ∂ℓ(generator, M, ce) .+ ∂h(generator, ce) .+ hinge_loss(ce.convergence, ce)
 end
 
 """

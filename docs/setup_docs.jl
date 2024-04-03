@@ -24,6 +24,7 @@ setup_docs = quote
     using SliceMap
     using StatsBase
     using Tables
+    using TaijaData
     using TaijaPlotting: animate_path
     using TaijaInteroperability
     using TaijaData
@@ -33,6 +34,7 @@ setup_docs = quote
     Random.seed!(2022)
     www_path = "$(pwd())/docs/src/www"
     include("$(pwd())/docs/src/utils.jl")
+    synthetic = TaijaData.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
     # Counteractual data and model:

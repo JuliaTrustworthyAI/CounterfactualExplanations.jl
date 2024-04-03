@@ -11,11 +11,14 @@ end
 """
     model_evaluation(M::AbstractFittedModel, test_data::CounterfactualData)
 
-Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set.
+Helper function to compute F-Score for `AbstractFittedModel` on a (test) data set. By default, it computes the accuracy. Any other measure, e.g. from the [StatisticalMeasures](https://juliaai.github.io/StatisticalMeasures.jl/dev/auto_generated_list_of_measures/#aliases) package, can be passed as an argument. Currently, only measures applicable to classification tasks are supported.
 """
 function model_evaluation(
-    M::AbstractFittedModel, test_data::CounterfactualData; measure=multiclass_f1score
+    M::AbstractFittedModel,
+    test_data::CounterfactualData;
+    measure::Union{Nothing,Function,Vector{<:Function}}=nothing,
 )
+    measure = isnothing(measure) ? (ŷ, y) -> sum(ŷ .== y) / length(ŷ) : measure
     measure = measure isa AbstractVector ? measure : [measure]
     y = test_data.output_encoder.y
     ŷ = predict_label(M, test_data)

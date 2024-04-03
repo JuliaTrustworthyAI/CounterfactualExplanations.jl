@@ -1,6 +1,6 @@
 """
 	generate_counterfactual(
-        x::AbstractArray,
+        x::Matrix,
         target::RawTargetType,
         data::CounterfactualData,
         M::Models.AbstractFittedModel,
@@ -15,7 +15,7 @@ The core function that is used to run counterfactual search for a given factual 
 
 # Arguments
 
-- `x::AbstractArray`: Factual data point.
+- `x::Matrix`: Factual data point.
 - `target::RawTargetType`: Target class.
 - `data::CounterfactualData`: Counterfactual data.
 - `M::Models.AbstractFittedModel`: Fitted model.
@@ -58,7 +58,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 """
 function generate_counterfactual(
-    x::AbstractArray,
+    x::Matrix,
     target::RawTargetType,
     data::CounterfactualData,
     M::Models.AbstractFittedModel,
