@@ -1,5 +1,6 @@
 using CounterfactualExplanations.Models: load_mnist_mlp
 using MultivariateStats: MultivariateStats
+using TaijaData: load_mnist
 
 @testset "encodings.jl" begin
     @testset "Standardize" begin

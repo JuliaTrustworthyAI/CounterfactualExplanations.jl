@@ -1,4 +1,4 @@
-using CounterfactualExplanations: output_dim, get_meta
+using CounterfactualExplanations: output_dim, get_meta, guess_loss
 
 @testset "Utils" begin
     ce = generate_counterfactual(x, target, counterfactual_data, M, GenericGenerator())
