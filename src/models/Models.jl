@@ -47,7 +47,7 @@ function probs(M::AbstractFittedModel, X::AbstractArray) end
 """
     standard_models_catalogue
 
-A dictionary containing all trainable machine learning models.
+A dictionary containing all differentiable machine learning models.
 """
 const standard_models_catalogue = Dict(
     :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble
@@ -56,7 +56,7 @@ const standard_models_catalogue = Dict(
 """
     all_models_catalogue
 
-A dictionary containing both trainable and non-trainable machine learning models.
+A dictionary containing both differentiable and non-differentiable machine learning models.
 """
 const all_models_catalogue = Dict(
     :Linear => Linear,

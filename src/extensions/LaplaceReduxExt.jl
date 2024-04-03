@@ -7,3 +7,5 @@ function LaplaceReduxModel end
 export LaplaceReduxModel
 
 CounterfactualExplanations.Models.all_models_catalogue[:LaplaceRedux] = LaplaceReduxModel
+CounterfactualExplanations.Models.standard_models_catalogue[:LaplaceRedux] =
+    LaplaceReduxModel

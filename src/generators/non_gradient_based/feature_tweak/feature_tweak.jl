@@ -47,10 +47,6 @@ function feature_tweaking!(ce::AbstractCounterfactualExplanation)
     @assert isa(ce.generator, Generators.FeatureTweakGenerator) "The feature tweak algorithm can only be applied using the feature tweak generator"
     @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
 
-    if Models.predict_label(ce.M, ce.x) == ce.target
-        return ce
-    end
-
     delta = 10^3
     ensemble_prediction = Models.predict_label(ce.M, ce.x)[1]
 

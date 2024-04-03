@@ -4,6 +4,7 @@ include("full_runs.jl")
 include("probe.jl")
 include("growing_spheres.jl")
 include("categorical_data.jl")
+include("optimizers.jl")
 
 # generic tests
 @testset "Construction" begin
