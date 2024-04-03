@@ -57,22 +57,3 @@ function map_to_latent(
 
     return s′
 end
-
-"""
-    wants_latent_space(
-        ce::CounterfactualExplanation, 
-        x::Union{AbstractArray,Nothing} = nothing,
-    )   
-
-A convenience function that checks if latent space search is applicable.
-"""
-function wants_latent_space(ce::CounterfactualExplanation)
-
-    # Unpack:
-    latent_space = ce.generator.latent_space
-
-    # If threshold is already reached, training GM is redundant:
-    latent_space = latent_space && !Convergence.threshold_reached(ce)
-
-    return latent_space
-end
