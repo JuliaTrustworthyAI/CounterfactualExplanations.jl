@@ -1,9 +1,11 @@
-# `GrowingSpheres`
+
 
 ``` markdown
 @meta
 CurrentModule = CounterfactualExplanations
 ```
+
+# `GrowingSpheres`
 
 **Growing Spheres** refers to the generator introduced by Laugel et al. (2017). Our implementation takes inspiration from the [CARLA library](https://github.com/carla-recourse/CARLA).
 
