@@ -53,7 +53,8 @@ generators = Dict(
     "ClaPROAR" => ClaPROARGenerator(opt = opt, λ=[0.0,1.0]),
 )
 
-counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; converge_when=:generator_conditions) for (name, gen) in generators])
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; convergence=conv) for (name, gen) in generators])
 # Plots:
 plts = []
 for (name,ce) ∈ counterfactuals

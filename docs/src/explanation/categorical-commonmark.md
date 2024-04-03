@@ -1,10 +1,10 @@
 
 
+# Categorical Features
+
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
-
-# Categorical Features
 
 To illustrate how data is preprocessed under the hood, we consider a simple toy dataset with three categorical features (`name`, `grade` and `sex`) and one continuous feature (`age`):
 

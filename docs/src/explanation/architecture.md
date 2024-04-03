@@ -1,8 +1,10 @@
-# Package Architecture
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+## Package Architecture
 
 > Modular, composable, scalable!
 

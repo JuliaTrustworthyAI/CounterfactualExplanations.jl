@@ -4,6 +4,7 @@ authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
 version = "0.1.35"
 
 [deps]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
@@ -17,7 +18,6 @@ Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
 MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
-MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
