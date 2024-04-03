@@ -1,3 +1,20 @@
+
+"""
+    generate_counterfactual(
+        x::Matrix,
+        target::RawTargetType,
+        data::DataPreprocessing.CounterfactualData,
+        M::Models.AbstractFittedModel,
+        generator::Generators.GrowingSpheresGenerator;
+        num_counterfactuals::Int=1,
+        convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
+            decision_threshold=(1 / length(data.y_levels)), max_iter=1000
+        ),
+        kwrgs...,
+    )
+
+Overloads the `generate_counterfactual` for the `GrowingSpheresGenerator` generator.
+"""
 function generate_counterfactual(
     x::Matrix,
     target::RawTargetType,
