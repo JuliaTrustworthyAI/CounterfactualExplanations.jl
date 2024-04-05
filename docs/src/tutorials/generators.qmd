@@ -67,12 +67,12 @@ end
 ```{julia}
 #| echo: false
 using CounterfactualExplanations.Models: load_mnist_ensemble, load_mnist_vae
-counterfactual_data = load_mnist()
-X, y = unpack_data(counterfactual_data)
+counterfactual_data = CounterfactualData(load_mnist()...)
+X, y = counterfactual_data.X, counterfactual_data.y
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_ensemble()
 vae = load_mnist_vae()
-generator.generative_model = vae # assign generative model
+counterfactual_data.generative_model = vae # assign generative model
 ```
 
 ```{julia}
