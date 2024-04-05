@@ -1,10 +1,10 @@
 
 
-# `REVISEGenerator`
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `REVISEGenerator`
 
 REVISE is a Latent Space generator introduced by Joshi et al. (2019).
 
@@ -41,7 +41,7 @@ Below we load 2D data and train a VAE on it and plot the original samples agains
 ``` julia
 # output: true
 
-counterfactual_data = load_overlapping()
+counterfactual_data = CounterfactualData(load_overlapping()...)
 X = counterfactual_data.X
 y = counterfactual_data.y
 input_dim = size(X, 1)
@@ -85,7 +85,7 @@ To illustrate the notion of Latent Space search, let’s look at an example invo
 
 ``` julia
 # Data and Classifier:
-counterfactual_data = load_blobs(k=3)
+counterfactual_data = CounterfactualData(load_blobs(k=3)...)
 X = counterfactual_data.X
 ys = counterfactual_data.output_encoder.labels.refs
 M = fit_model(counterfactual_data, :MLP)
@@ -109,7 +109,7 @@ Let’s carry the ideas introduced above over to a more complex example. The cod
 
 ``` julia
 using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_ensemble, load_mnist_vae
-counterfactual_data = load_mnist()
+counterfactual_data = CounterfactualData(load_mnist()...)
 X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(counterfactual_data)
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
@@ -141,10 +141,12 @@ The API call is the same as always:
 
 ``` julia
 γ = 0.95
+conv = 
+  CounterfactualExplanations.Convergence.DecisionThresholdConvergence(decision_threshold=γ)
 # Define generator:
-generator = REVISEGenerator(opt=Flux.Adam(0.5))
+generator = REVISEGenerator(opt=Flux.Adam(0.1))
 # Generate recourse:
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator; decision_threshold=γ)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; convergence=conv)
 ```
 
 The chart below shows the results:

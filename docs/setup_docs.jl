@@ -25,6 +25,8 @@ setup_docs = quote
     using StatsBase
     using Tables
     using TaijaData
+    using TaijaParallel
+    using TaijaParallel: @with_parallelizer
     using TaijaPlotting: animate_path
     using TaijaInteroperability
     using TaijaData

@@ -1,10 +1,10 @@
 
 
-# `DiCEGenerator`
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `DiCEGenerator`
 
 The `DiCEGenerator` can be used to generate multiple diverse counterfactuals for a single factual.
 
@@ -57,9 +57,10 @@ The approach can be used in our package as follows:
 
 ``` julia
 generator = DiCEGenerator()
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator; 
-    num_counterfactuals=5, converge_when=:generator_conditions
+    num_counterfactuals=5, convergence=conv
 )
 plot(ce)
 ```
@@ -80,7 +81,7 @@ for λ₂ ∈ Λ₂
       ces...,
       generate_counterfactual(
             x, target, counterfactual_data, M, generator; 
-            num_counterfactuals=n_cf, converge_when=:generator_conditions
+            num_counterfactuals=n_cf, convergence=conv
       )
     )
 end
@@ -92,6 +93,6 @@ The figure below shows the resulting counterfactual paths. As expected, the resu
 
 ## References
 
-Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17.
+Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17. <https://doi.org/10.1145/3351095.3372850>.
 
 \[1\] With thanks to the respondents on [Discourse](https://discourse.julialang.org/t/getting-around-zygote-mutating-array-issue/83907/2.png)

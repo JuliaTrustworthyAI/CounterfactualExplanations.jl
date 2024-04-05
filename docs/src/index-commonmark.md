@@ -80,7 +80,7 @@ The figure below shows counterfactuals for 10 randomly chosen individuals that w
 
 The figure below shows a counterfactual generated for an image classifier trained on MNIST: in particular, it demonstrates which pixels need to change in order for the classifier to predict 3 instead of 8.
 
-Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from Wachter, Mittelstadt, and Russell (2017) and Altmeyer et al. (2023):
+Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from Wachter, Mittelstadt, and Russell (2017) and Altmeyer et al. (2023):
 
 ``` julia
 # Compose generator:
@@ -140,16 +140,16 @@ The animation below shows the resulting counterfactual path:
 
 Currently, the following counterfactual generators are implemented:
 
-- ClaPROAR (Altmeyer et al. 2023)
-- CLUE (Antorán et al. 2020)
+- ClaPROAR (Altmeyer et al. 2023)
+- CLUE (Antorán et al. 2020)
 - DiCE (Mothilal, Sharma, and Tan 2020)
-- FeatureTweak (Tolomei et al. 2017)
+- FeatureTweak (Tolomei et al. 2017)
 - Generic
-- GravitationalGenerator (Altmeyer et al. 2023)
-- Greedy (Schut et al. 2021)
-- GrowingSpheres (Laugel et al. 2017)
-- PROBE (Pawelczyk et al. 2022)
-- REVISE (Joshi et al. 2019)
+- GravitationalGenerator (Altmeyer et al. 2023)
+- Greedy (Schut et al. 2021)
+- GrowingSpheres (Laugel et al. 2017)
+- PROBE (Pawelczyk et al. 2022)
+- REVISE (Joshi et al. 2019)
 - Wachter (Wachter, Mittelstadt, and Russell 2017)
 
 ## 🎯 Goals and limitations
@@ -171,7 +171,7 @@ If any of the below applies to you, this might be the right open-source project 
 - You’re experienced with Julia and are happy to help someone less experienced to up their game. Ideally, you are also curious about Trustworthy AI.
 - You’re new to Julia and open-source development and would like to start your learning journey by contributing to a recent and active development. Ideally, you are familiar with machine learning.
 
-[@pat-alt](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions).
+[(**pat-alt?**)](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions).
 
 For more details on how to contribute see [here](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev/contribute/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
 
@@ -210,7 +210,7 @@ Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machin
 
 Pawelczyk, Martin, Teresa Datta, Johannes van-den-Heuvel, Gjergji Kasneci, and Himabindu Lakkaraju. 2022. “Probabilistically Robust Recourse: Navigating the Trade-Offs Between Costs and Robustness in Algorithmic Recourse.” *arXiv Preprint arXiv:2203.06768*.
 
-Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
+Schut, Lisa, Oscar Key, Rory Mc Grath, Luca Costabello, Bogdan Sacaleanu, Yarin Gal, et al. 2021. “Generating Interpretable Counterfactual Explanations By Implicit Minimisation of Epistemic and Aleatoric Uncertainties.” In *International Conference on Artificial Intelligence and Statistics*, 1756–64. PMLR.
 
 Tolomei, Gabriele, Fabrizio Silvestri, Andrew Haines, and Mounia Lalmas. 2017. “Interpretable Predictions of Tree-Based Ensembles via Actionable Feature Tweaking.” In *Proceedings of the 23rd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, 465–74. <https://doi.org/10.1145/3097983.3098039>.
 
