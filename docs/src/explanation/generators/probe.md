@@ -1,8 +1,10 @@
-# `ProbeGenerator`
+
 
 ``` @meta›
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `ProbeGenerator`
 
 The `ProbeGenerator` is designed to navigate the trade-offs between costs and robustness in Algorithmic Recourse (Pawelczyk et al. 2022).
 
@@ -46,7 +48,8 @@ Note: It is important to set the convergence to “:invalidation_rate” here.
 M = fit_model(counterfactual_data, :DeepEnsemble)
 opt = Descent(0.01)
 generator = CounterfactualExplanations.Generators.ProbeGenerator(opt=opt)
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator, converge_when =:invalidation_rate, invalidation_rate = 0.5, learning_rate = 0.5)
+conv = CounterfactualExplanations.Convergence.InvalidationRateConvergence(;invalidation_rate=0.5)
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator, convergence=conv)
 plot(ce)
 ```
 

@@ -1,10 +1,10 @@
 
 
-# `CLUEGenerator`
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `CLUEGenerator`
 
 In this tutorial, we introduce the CLUEGenerator, a counterfactual generator based on the Counterfactual Latent Uncertainty Explanations (CLUE) method proposed by Antorán et al. (2020).
 
@@ -33,15 +33,16 @@ The CLUEGenerator can be used in the following manner:
 ``` julia
 generator = CLUEGenerator()
 M = fit_model(counterfactual_data, :DeepEnsemble)
+conv = CounterfactualExplanations.Convergence.MaxIterConvergence(max_iter=1000)
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator;
-    converge_when=:max_iter, max_iter=1000)
+    convergence=conv)
 plot(ce)
 ```
 
 ![](clue_files/figure-commonmark/cell-3-output-1.svg)
 
-Extra: The CLUE generator can also be used upon already having achieved a counterfactual with a different generator. In this case you can use CLUE and make the counterfactual more robust.
+Extra: The CLUE generator can also be used upon already having achieved a counterfactual with a different generator. In this case, you can use CLUE and make the counterfactual more robust.
 
 *Note: The above documentation is based on the information provided in the CLUE paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
 
