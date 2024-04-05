@@ -155,8 +155,8 @@ bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
 ## MPI
 
 !!! note
-    To use MPI, you need to have MPI installed on your machine. Running the following code straight from a running Julia session will work if you have MPI installed on your machine, but it will be run on a single process. To execute the code on multiple processes, you need to run it from the command line with `mpirun` or `mpiexec`. For example, to run a script on 4 processes, you can run the following command from the command line:
-    
+To use MPI, you need to have MPI installed on your machine. Running the following code straight from a running Julia session will work if you have MPI installed on your machine, but it will be run on a single process. To execute the code on multiple processes, you need to run it from the command line with `mpirun` or `mpiexec`. For example, to run a script on 4 processes, you can run the following command from the command line:
+
     ```
 
 
@@ -291,7 +291,7 @@ To evaluate counterfactuals in parallel, we again use the `parallelize` function
      Vector[[1.0], Float32[3.1369917], [0.0]]
 
 !!! tip
-    Note that parallelizable processes can be supplied as input to the macro either as a block or directly as an expression.
+Note that parallelizable processes can be supplied as input to the macro either as a block or directly as an expression.
 
 Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
 

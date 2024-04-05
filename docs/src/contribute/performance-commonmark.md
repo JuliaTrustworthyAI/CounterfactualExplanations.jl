@@ -3,7 +3,8 @@
 ``` julia
 Random.seed!(42)
 # Counteractual data and model:
-counterfactual_data = load_linearly_separable()
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, :Linear)
 target = 2
 factual = 1
@@ -16,7 +17,8 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
 ``` julia
-counterfactual_data_large = load_linearly_separable(100000)
+data_large = TaijaData.load_linearly_separable(100000)
+counterfactual_data_large = DataPreprocessing.CounterfactualData(data_large...)
 ```
 
 ``` julia
