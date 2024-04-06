@@ -93,7 +93,7 @@ Benchmarks always report metadata for each counterfactual explanation, which is 
 @chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end
 ```
@@ -116,7 +116,7 @@ bmk = benchmark(ces; meta_data=meta_data)
 @chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end
 ```
@@ -239,8 +239,8 @@ Fortunately, it is very easy to run benchmarks for multiple datasets anyway, sin
 
 # Data:
 datasets = Dict(
-    :moons => load_moons(),
-    :circles => load_circles(),
+    :moons => CounterfactualData(load_moons()...),
+    :circles => CounterfactualData(load_circles()...),
 )
 
 # Models:

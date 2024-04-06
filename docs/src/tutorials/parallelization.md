@@ -54,7 +54,7 @@ ces = @with_parallelizer parallelizer begin
 end
 ```
 
-    Generating counterfactuals ...   0%|       |  ETA: 0:01:33 (92.85 ms/it)Generating counterfactuals ... 100%|███████| Time: 0:00:01 ( 1.64 ms/it)
+    Generating counterfactuals ...   0%|       |  ETA: 0:01:32 (92.31 ms/it)Generating counterfactuals ... 100%|███████| Time: 0:00:01 ( 1.64 ms/it)
 
     1000-element Vector{AbstractCounterfactualExplanation}:
      CounterfactualExplanation
@@ -115,7 +115,7 @@ To evaluate counterfactuals in parallel, we again use the `parallelize` function
 @with_parallelizer parallelizer evaluate(ces)
 ```
 
-    Evaluating counterfactuals ...   0%|       |  ETA: 0:07:21 ( 0.44  s/it)Evaluating counterfactuals ... 100%|███████| Time: 0:00:00 ( 0.89 ms/it)
+    Evaluating counterfactuals ...   0%|       |  ETA: 0:07:27 ( 0.45  s/it)Evaluating counterfactuals ... 100%|███████| Time: 0:00:00 ( 0.90 ms/it)
 
     1000-element Vector{Any}:
      Vector[[1.0], Float32[3.2939816], [0.0]]
@@ -175,9 +175,9 @@ parallelizer = MPIParallelizer(MPI.COMM_WORLD; threaded=true)
 
     Precompiling MPIExt
       ✓ TaijaParallel → MPIExt
-      1 dependency successfully precompiled in 3 seconds. 255 already precompiled.
+      1 dependency successfully precompiled in 4 seconds. 255 already precompiled.
     [ Info: Precompiling MPIExt [48137b38-b316-530b-be8a-261f41e68c23]
-    ┌ Warning: Module TaijaParallel with build ID ffffffff-ffff-ffff-0000-abca70332c61 is missing from the cache.
+    ┌ Warning: Module TaijaParallel with build ID ffffffff-ffff-ffff-0000-b4913f271dd8 is missing from the cache.
     │ This may mean TaijaParallel [bf1c2c22-5e42-4e78-8b6b-92e6c673eeb0] does not support precompilation but is imported by a module that does.
     └ @ Base loading.jl:1948
     [ Info: Skipping precompilation since __precompile__(false). Importing MPIExt [48137b38-b316-530b-be8a-261f41e68c23].
@@ -201,7 +201,7 @@ ces = @with_parallelizer parallelizer begin
 end
 ```
 
-    Generating counterfactuals ...   8%|▋      |  ETA: 0:00:01 ( 1.19 ms/it)Generating counterfactuals ...  19%|█▎     |  ETA: 0:00:01 ( 1.08 ms/it)Generating counterfactuals ...  29%|██     |  ETA: 0:00:01 ( 1.07 ms/it)Generating counterfactuals ...  38%|██▋    |  ETA: 0:00:01 ( 1.12 ms/it)Generating counterfactuals ...  48%|███▍   |  ETA: 0:00:01 ( 1.10 ms/it)Generating counterfactuals ...  58%|████   |  ETA: 0:00:00 ( 1.09 ms/it)Generating counterfactuals ...  68%|████▊  |  ETA: 0:00:00 ( 1.11 ms/it)Generating counterfactuals ...  78%|█████▌ |  ETA: 0:00:00 ( 1.09 ms/it)Generating counterfactuals ...  88%|██████▏|  ETA: 0:00:00 ( 1.08 ms/it)Generating counterfactuals ...  98%|██████▉|  ETA: 0:00:00 ( 1.07 ms/it)Generating counterfactuals ... 100%|███████| Time: 0:00:01 ( 1.07 ms/it)
+    Generating counterfactuals ...   8%|▋      |  ETA: 0:00:01 ( 1.19 ms/it)Generating counterfactuals ...  17%|█▏     |  ETA: 0:00:01 ( 1.19 ms/it)Generating counterfactuals ...  26%|█▉     |  ETA: 0:00:01 ( 1.15 ms/it)Generating counterfactuals ...  36%|██▌    |  ETA: 0:00:01 ( 1.15 ms/it)Generating counterfactuals ...  45%|███▏   |  ETA: 0:00:01 ( 1.14 ms/it)Generating counterfactuals ...  55%|███▉   |  ETA: 0:00:01 ( 1.12 ms/it)Generating counterfactuals ...  64%|████▌  |  ETA: 0:00:00 ( 1.12 ms/it)Generating counterfactuals ...  74%|█████▏ |  ETA: 0:00:00 ( 1.11 ms/it)Generating counterfactuals ...  84%|█████▉ |  ETA: 0:00:00 ( 1.11 ms/it)Generating counterfactuals ...  94%|██████▌|  ETA: 0:00:00 ( 1.10 ms/it)Generating counterfactuals ... 100%|███████| Time: 0:00:01 ( 1.10 ms/it)
 
     1000-element Vector{AbstractCounterfactualExplanation}:
      CounterfactualExplanation

@@ -1,10 +1,10 @@
 
 
-# Whistle-Stop Tour
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Whistle-Stop Tour
 
 In this tutorial, we will go through a slightly more complex example involving synthetic data. We will generate Counterfactual Explanations using different generators and visualize the results.
 
@@ -21,7 +21,8 @@ model_name = :MLP
 The code chunk below generates synthetic data and uses it to fit a classifier. The outcome variable `counterfactual_data.y` consists of 4 classes. The input data `counterfactual_data.X` consists of 2 features. We generate a total of 400 samples. On the model side, we have specified `model_name = :MLP`. The `fit_model` can be used to fit a number of default models.
 
 ``` julia
-counterfactual_data = load_multi_class(n_samples)
+data = TaijaData.load_multi_class(n_samples)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, model_name)
 ```
 
@@ -42,7 +43,7 @@ Next, we begin by specifying our target and factual label. We then draw a random
 target = 2
 factual = 4
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
-x = select_factual(counterfactual_data,chosen)
+x = select_factual(counterfactual_data, chosen)
 ```
 
 This sets the baseline for our counterfactual search: we plan to perturb the factual `x` to change the predicted label from `y`=4 to our target label `target`=2.
@@ -55,23 +56,25 @@ decision_threshold = 0.75
 num_counterfactuals = 3
 ```
 
-The code below runs the counterfactual search for each generator available in the `generator_catalogue`. In each case, we also call the generic `plot()` method on the generated instance of type `CounterfactualExplanation`. This generates a simple plot that visualizes the entire counterfactual path. The chart below shows the results for all counterfactual generators.
+The code below runs the counterfactual search for each generator available in the `generator_catalogue`. In each case, we also call the generic `plot()` method on the generated instance of type `CounterfactualExplanation`. This generates a simple plot that visualizes the entire counterfactual path. The chart below shows the results for all counterfactual generators: Factual: 4 → Target: 2.
 
 ``` julia
 ces = Dict()
 plts = []
+plottable_generators = filter(((k,v),) -> k ∉ [:growing_spheres, :feature_tweak], generator_catalogue)
 # Search:
-for (key, Generator) in generator_catalogue
+for (key, Generator) in plottable_generators
     generator = Generator()
     ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator;
         num_counterfactuals = num_counterfactuals,
-        decision_threshold=decision_threshold,
-        converge_when=:generator_conditions
+        convergence=GeneratorConditionsConvergence(
+            decision_threshold=decision_threshold
+        )
     )
     ces[key] = ce
     plts = [plts..., plot(ce; title=key, colorbar=false)]
 end
 ```
 
-![](whistle_stop_files/figure-commonmark/cell-11-output-1.svg)
+![](whistle_stop_files/figure-commonmark/cell-12-output-1.svg)
