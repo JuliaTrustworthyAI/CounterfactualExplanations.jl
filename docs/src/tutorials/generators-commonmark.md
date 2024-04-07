@@ -1,10 +1,10 @@
 
 
-# Handling Generators
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Handling Generators
 
 Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `GradientBasedGenerator`s are used. They are discussed in more detail in the explanatory section of the documentation.
 

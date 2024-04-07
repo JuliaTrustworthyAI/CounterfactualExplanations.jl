@@ -1,10 +1,10 @@
 
 
-# Performance Benchmarks
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Performance Benchmarks
 
 In the previous tutorial, we have seen how counterfactual explanations can be evaluated. An important follow-up task is to compare the performance of different counterfactual generators is an important task. Researchers can use benchmarks to test new ideas they want to implement. Practitioners can find the right counterfactual generator for their specific use case through benchmarks. In this tutorial, we will see how to run benchmarks for counterfactual generators.
 
@@ -37,25 +37,25 @@ bmk()
 ```
 
     15×7 DataFrame
-     Row │ sample  variable    value    generator                          model   ⋯
-         │ Int64   String      Float64  Symbol                             Symbol  ⋯
+     Row │ sample                                variable    value    generator    ⋯
+         │ Base.UUID                             String      Float64  Symbol       ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  distance    3.17243  GradientBasedGenerator(nothing, …  FluxMod ⋯
-       2 │      1  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-       3 │      1  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-       4 │      2  distance    3.07148  GradientBasedGenerator(nothing, …  FluxMod
-       5 │      2  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
-       6 │      2  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-       7 │      3  distance    3.62159  GradientBasedGenerator(nothing, …  FluxMod
-       8 │      3  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-       9 │      3  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
-      10 │      4  distance    2.62783  GradientBasedGenerator(nothing, …  FluxMod
-      11 │      4  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-      12 │      4  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-      13 │      5  distance    2.91985  GradientBasedGenerator(nothing, …  FluxMod ⋯
-      14 │      5  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-      15 │      5  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-                                                                   3 columns omitted
+       1 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03  distance    3.17243  GradientBase ⋯
+       2 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03  redundancy  0.0      GradientBase
+       3 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03  validity    1.0      GradientBase
+       4 │ 1cfad5e6-f42e-11ee-301b-ed0f5ad5da41  distance    3.07148  GradientBase
+       5 │ 1cfad5e6-f42e-11ee-301b-ed0f5ad5da41  redundancy  0.0      GradientBase ⋯
+       6 │ 1cfad5e6-f42e-11ee-301b-ed0f5ad5da41  validity    1.0      GradientBase
+       7 │ 1cfadb9a-f42e-11ee-3f4d-e38b20922cc3  distance    3.62159  GradientBase
+       8 │ 1cfadb9a-f42e-11ee-3f4d-e38b20922cc3  redundancy  0.0      GradientBase
+       9 │ 1cfadb9a-f42e-11ee-3f4d-e38b20922cc3  validity    1.0      GradientBase ⋯
+      10 │ 1cfadfe8-f42e-11ee-116e-8da8b6d04de4  distance    2.62783  GradientBase
+      11 │ 1cfadfe8-f42e-11ee-116e-8da8b6d04de4  redundancy  0.0      GradientBase
+      12 │ 1cfadfe8-f42e-11ee-116e-8da8b6d04de4  validity    1.0      GradientBase
+      13 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec  distance    2.91985  GradientBase ⋯
+      14 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec  redundancy  0.0      GradientBase
+      15 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec  validity    1.0      GradientBase
+                                                                   4 columns omitted
 
 To retrieve the granular dataset, simply do:
 
@@ -64,32 +64,32 @@ bmk(agg=nothing)
 ```
 
     75×8 DataFrame
-     Row │ sample  num_counterfactual  variable    value    generator              ⋯
-         │ Int64   Int64               String      Float64  Symbol                 ⋯
+     Row │ sample                                num_counterfactual  variable    v ⋯
+         │ Base.UUID                             Int64               String      F ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    3.15903  GradientBasedGenerator ⋯
-       2 │      1                   2  distance    3.16773  GradientBasedGenerator
-       3 │      1                   3  distance    3.17011  GradientBasedGenerator
-       4 │      1                   4  distance    3.20239  GradientBasedGenerator
-       5 │      1                   5  distance    3.16291  GradientBasedGenerator ⋯
-       6 │      1                   1  redundancy  0.0      GradientBasedGenerator
-       7 │      1                   2  redundancy  0.0      GradientBasedGenerator
-       8 │      1                   3  redundancy  0.0      GradientBasedGenerator
-       9 │      1                   4  redundancy  0.0      GradientBasedGenerator ⋯
-      10 │      1                   5  redundancy  0.0      GradientBasedGenerator
-      11 │      1                   1  validity    1.0      GradientBasedGenerator
-      ⋮  │   ⋮             ⋮               ⋮          ⋮                     ⋮      ⋱
-      66 │      5                   1  redundancy  0.0      GradientBasedGenerator
-      67 │      5                   2  redundancy  0.0      GradientBasedGenerator ⋯
-      68 │      5                   3  redundancy  0.0      GradientBasedGenerator
-      69 │      5                   4  redundancy  0.0      GradientBasedGenerator
-      70 │      5                   5  redundancy  0.0      GradientBasedGenerator
-      71 │      5                   1  validity    1.0      GradientBasedGenerator ⋯
-      72 │      5                   2  validity    1.0      GradientBasedGenerator
-      73 │      5                   3  validity    1.0      GradientBasedGenerator
-      74 │      5                   4  validity    1.0      GradientBasedGenerator
-      75 │      5                   5  validity    1.0      GradientBasedGenerator ⋯
-                                                       4 columns and 54 rows omitted
+       1 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   1  distance    3 ⋯
+       2 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   2  distance    3
+       3 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   3  distance    3
+       4 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   4  distance    3
+       5 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   5  distance    3 ⋯
+       6 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   1  redundancy  0
+       7 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   2  redundancy  0
+       8 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   3  redundancy  0
+       9 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   4  redundancy  0 ⋯
+      10 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   5  redundancy  0
+      11 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03                   1  validity    1
+      ⋮  │                  ⋮                            ⋮               ⋮         ⋱
+      66 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   1  redundancy  0
+      67 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   2  redundancy  0 ⋯
+      68 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   3  redundancy  0
+      69 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   4  redundancy  0
+      70 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   5  redundancy  0
+      71 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   1  validity    1 ⋯
+      72 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   2  validity    1
+      73 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   3  validity    1
+      74 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   4  validity    1
+      75 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec                   5  validity    1 ⋯
+                                                       5 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
 
@@ -101,15 +101,18 @@ using Tidier
 end
 ```
 
+    [ Info: Precompiling Tidier [f0413319-3358-4bb0-8e7c-0c83523a93bd]
+    [ Info: Precompiling GeometryBasicsExt [b238bd29-021f-5edc-8b0e-16b9cda5f63a]
+
     5×3 DataFrame
-     Row │ sample  variable  value   
-         │ Int64   String    Float64 
-    ─────┼───────────────────────────
-       1 │      1  distance  3.17243
-       2 │      2  distance  3.07148
-       3 │      3  distance  3.62159
-       4 │      4  distance  2.62783
-       5 │      5  distance  2.91985
+     Row │ sample                                variable  value   
+         │ Base.UUID                             String    Float64 
+    ─────┼─────────────────────────────────────────────────────────
+       1 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03  distance  3.17243
+       2 │ 1cfad5e6-f42e-11ee-301b-ed0f5ad5da41  distance  3.07148
+       3 │ 1cfadb9a-f42e-11ee-3f4d-e38b20922cc3  distance  3.62159
+       4 │ 1cfadfe8-f42e-11ee-116e-8da8b6d04de4  distance  2.62783
+       5 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec  distance  2.91985
 
 ### Metadata for Counterfactual Explanations
 
@@ -119,20 +122,20 @@ Benchmarks always report metadata for each counterfactual explanation, which is 
 @chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end
 ```
 
     5×3 DataFrame
-     Row │ sample  model                              generator                    ⋯
-         │ Int64   Symbol                             Symbol                       ⋯
+     Row │ sample                                model                             ⋯
+         │ Base.UUID                             Symbol                            ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │      1  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi ⋯
-       2 │      2  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
-       3 │      3  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
-       4 │      4  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi
-       5 │      5  FluxModel(Chain(Dense(2 => 2)), …  GradientBasedGenerator(nothi ⋯
+       1 │ 1cf32774-f42e-11ee-1dc3-c14a27548b03  FluxModel(Chain(Dense(2 => 2)), … ⋯
+       2 │ 1cfad5e6-f42e-11ee-301b-ed0f5ad5da41  FluxModel(Chain(Dense(2 => 2)), …
+       3 │ 1cfadb9a-f42e-11ee-3f4d-e38b20922cc3  FluxModel(Chain(Dense(2 => 2)), …
+       4 │ 1cfadfe8-f42e-11ee-116e-8da8b6d04de4  FluxModel(Chain(Dense(2 => 2)), …
+       5 │ 1cfae3f6-f42e-11ee-0e0b-dfd18963acec  FluxModel(Chain(Dense(2 => 2)), … ⋯
                                                                     1 column omitted
 
 Metadata can also be provided as an optional key argument.
@@ -147,20 +150,20 @@ bmk = benchmark(ces; meta_data=meta_data)
 @chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end
 ```
 
     5×3 DataFrame
-     Row │ sample  model   generator 
-         │ Int64   String  String    
-    ─────┼───────────────────────────
-       1 │      1  MLP     Generic
-       2 │      2  MLP     Generic
-       3 │      3  MLP     Generic
-       4 │      4  MLP     Generic
-       5 │      5  MLP     Generic
+     Row │ sample                                model   generator 
+         │ Base.UUID                             String  String    
+    ─────┼─────────────────────────────────────────────────────────
+       1 │ efe3f866-f42e-11ee-2eed-6b8741e13460  MLP     Generic
+       2 │ efe6c708-f42e-11ee-2914-0136f102d9af  MLP     Generic
+       3 │ efe6cadc-f42e-11ee-2f0e-df68cf455760  MLP     Generic
+       4 │ efe6cdf2-f42e-11ee-3940-9138efb62d55  MLP     Generic
+       5 │ efe6d0ae-f42e-11ee-366f-4bf618ab1e59  MLP     Generic
 
 ## Ad Hoc Benchmarking
 
@@ -215,17 +218,18 @@ end
 ```
 
     8×5 DataFrame
-     Row │ sample  variable  value    model   generator     
-         │ Int64   String    Float64  Symbol  Symbol        
-    ─────┼──────────────────────────────────────────────────
-       1 │      1  distance  3.23559  Linear  Gravitational
-       2 │      1  distance  3.40924  Linear  ClaPROAR
-       3 │      1  distance  3.08311  Linear  Generic
-       4 │      1  distance  3.1338   Linear  Wachter
-       5 │      1  distance  4.44266  MLP     Gravitational
-       6 │      1  distance  4.67161  MLP     ClaPROAR
-       7 │      1  distance  4.98131  MLP     Generic
-       8 │      1  distance  4.32344  MLP     Wachter
+     Row │ sample                                variable  value    model          ⋯
+         │ Base.UUID                             String    Float64  Tuple…         ⋯
+    ─────┼──────────────────────────────────────────────────────────────────────────
+       1 │ f4988dea-f42e-11ee-1052-e5336b447160  distance  4.38877  (:Linear, Flux ⋯
+       2 │ f4b4f4d0-f42e-11ee-3bf1-b5ac117b9715  distance  4.17021  (:Linear, Flux
+       3 │ f4b4f598-f42e-11ee-28f4-3d100497acf3  distance  4.31145  (:Linear, Flux
+       4 │ f4b4f5c0-f42e-11ee-2888-b12fc3148ede  distance  4.17035  (:Linear, Flux
+       5 │ f4b4f5de-f42e-11ee-1d74-15cc131d8fe4  distance  5.73182  (:MLP, FluxMod ⋯
+       6 │ f4b4f5fc-f42e-11ee-0333-23e56121d20a  distance  5.50606  (:MLP, FluxMod
+       7 │ f4b4f618-f42e-11ee-136e-658c23224dd0  distance  5.2114   (:MLP, FluxMod
+       8 │ f4b4f638-f42e-11ee-2415-b704dd7602e6  distance  5.3623   (:MLP, FluxMod
+                                                                   2 columns omitted
 
 ### Everything at once
 
@@ -248,33 +252,33 @@ This will use the default models from [`standard_models_catalogue`](@ref) and tr
 end
 ```
 
-    165×5 DataFrame
-     Row │ sample  variable  value    model   generator       
-         │ Int64   String    Float64  Symbol  Symbol          
-    ─────┼────────────────────────────────────────────────────
-       1 │      1  validity      1.0  Linear  gravitational
-       2 │      2  validity      1.0  Linear  gravitational
-       3 │      3  validity      1.0  Linear  gravitational
-       4 │      4  validity      1.0  Linear  gravitational
-       5 │      5  validity      1.0  Linear  gravitational
-       6 │      1  validity      1.0  Linear  growing_spheres
-       7 │      2  validity      1.0  Linear  growing_spheres
-       8 │      3  validity      1.0  Linear  growing_spheres
-       9 │      4  validity      1.0  Linear  growing_spheres
-      10 │      5  validity      1.0  Linear  growing_spheres
-      11 │      1  validity      1.0  Linear  revise
-      ⋮  │   ⋮        ⋮         ⋮       ⋮            ⋮
-     156 │     11  validity      1.0  MLP     generic
-     157 │     12  validity      1.0  MLP     generic
-     158 │     13  validity      1.0  MLP     generic
-     159 │     14  validity      1.0  MLP     generic
-     160 │     15  validity      1.0  MLP     generic
-     161 │     11  validity      1.0  MLP     greedy
-     162 │     12  validity      1.0  MLP     greedy
-     163 │     13  validity      1.0  MLP     greedy
-     164 │     14  validity      1.0  MLP     greedy
-     165 │     15  validity      1.0  MLP     greedy
-                                              144 rows omitted
+    200×5 DataFrame
+     Row │ sample                                variable  value    model   genera ⋯
+         │ Base.UUID                             String    Float64  Symbol  Symbol ⋯
+    ─────┼──────────────────────────────────────────────────────────────────────────
+       1 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  gravit ⋯
+       2 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  growin
+       3 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  revise
+       4 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  clue
+       5 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  probe  ⋯
+       6 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  dice
+       7 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  clapro
+       8 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  wachte
+       9 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  generi ⋯
+      10 │ fa9efec2-f42e-11ee-3ffa-8573e6574f34  validity      1.0  Linear  greedy
+      11 │ fa9fcebc-f42e-11ee-12fc-fff8c5c8948e  validity      1.0  Linear  gravit
+      ⋮  │                  ⋮                       ⋮         ⋮       ⋮            ⋱
+     191 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     gravit
+     192 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     growin ⋯
+     193 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     revise
+     194 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     clue
+     195 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     probe
+     196 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     dice   ⋯
+     197 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     clapro
+     198 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     wachte
+     199 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     generi
+     200 │ fb4e9e6a-f42e-11ee-101c-1197127b452f  validity      1.0  MLP     greedy ⋯
+                                                       1 column and 179 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
@@ -293,8 +297,8 @@ Fortunately, it is very easy to run benchmarks for multiple datasets anyway, sin
 ``` julia
 # Data:
 datasets = Dict(
-    :moons => load_moons(),
-    :circles => load_circles(),
+    :moons => CounterfactualData(load_moons()...),
+    :circles => CounterfactualData(load_circles()...),
 )
 
 # Models:
@@ -316,7 +320,7 @@ Then we can simply loop over the datasets and eventually concatenate the results
 using CounterfactualExplanations.Evaluation: distance_measures
 bmks = []
 for (dataname, dataset) in datasets
-    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures, verbose=true)
+    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures)
     push!(bmks, bmk)
 end
 bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
@@ -338,7 +342,7 @@ end
      Row │ dataset  generator  L1_norm  
          │ Symbol   Symbol     Float32  
     ─────┼──────────────────────────────
-       1 │ circles  Generic    2.71561
-       2 │ circles  Greedy     0.596901
-       3 │ moons    Generic    1.30436
-       4 │ moons    Greedy     0.742734
+       1 │ moons    Generic    1.56555
+       2 │ moons    Greedy     0.819269
+       3 │ circles  Generic    1.83524
+       4 │ circles  Greedy     0.498953

@@ -1,8 +1,10 @@
-# Handling Data
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Handling Data
 
 The package works with custom data containers that contain the input and output data as well as information about the type and mutability of features. In this tutorial, we will see how data can be prepared for use with the package.
 
@@ -204,9 +206,9 @@ chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
 x = select_factual(counterfactual_data, chosen) 
 ```
 
-    5×1 Matrix{Float64}:
-     -2.943347196681443
-      0.5782962763892812
+    5×1 Matrix{Float32}:
+     -2.9433472
+      0.5782963
       0.0
       0.0
       1.0
@@ -220,10 +222,8 @@ generator = GenericGenerator()
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
-
-    Convergence: ✅
-
-     after 5 steps.
+    CounterfactualExplanation
+    Convergence: ✅ after 7 steps.
 
 The search yields the following counterfactual:
 
@@ -231,14 +231,14 @@ The search yields the following counterfactual:
 x′ = counterfactual(ce)
 ```
 
-    5-element Vector{Float64}:
-     0.014063284971383538
-     0.7482142358817984
+    5-element Vector{Float32}:
+     1.1222683
+     0.7145791
+     0.0
+     0.0
      1.0
-     0.0
-     0.0
 
-It belongs to group X.
+It belongs to group Z.
 
 This is intuitive because by construction the categorical variable is most likely to take that value when `y` is equal to the target outcome.
 
@@ -251,7 +251,7 @@ To illustrate how this can be implemented in `CounterfactualExplanations.jl` we 
 Below we impose that the second feature is immutable.
 
 ``` julia
-counterfactual_data = load_linearly_separable()
+counterfactual_data = CounterfactualData(load_linearly_separable()...)
 M = fit_model(counterfactual_data, :Linear)
 counterfactual_data.mutability = [:both, :none]
 ```
@@ -270,8 +270,7 @@ The resulting counterfactual path is shown in the chart below. Since only the fi
 plot(ce)
 ```
 
-![Figure 1: Counterfactual path with an immutable feature.](data_preprocessing_files/figure-commonmark/fig-mutability-output-1.svg)
-
+![](data_preprocessing_files/figure-commonmark/fig-mutability-output-1.svg)
 <!-- ## Domain constraints
 &#10;In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of $0.5$ for our two features.
 &#10;```{.julia}
