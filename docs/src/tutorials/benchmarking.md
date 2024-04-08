@@ -26,7 +26,7 @@ You may be interested in comparing the outcomes across individuals. To benchmark
 bmk = benchmark(ces)
 ```
 
-Under the hood, the [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) uses [`evaluate(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) to generate a [`Benchmark`](@ref) object, which contains the evaluation in its most granular form as a `DataFrame`.
+Under the hood, the [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) uses [`CounterfactualExplanations.Evaluation.evaluate(ce::CounterfactualExplanation)`](@ref) to generate a [`Benchmark`](@ref) object, which contains the evaluation in its most granular form as a `DataFrame`.
 
 ### Working with `Benchmark`s
 
@@ -40,21 +40,21 @@ bmk()
      Row │ sample                                variable    value    generator    ⋯
          │ Base.UUID                             String      Float64  Symbol       ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │ 4d870646-f4c2-11ee-2da2-038400ab9389  distance    3.17243  GradientBase ⋯
-       2 │ 4d870646-f4c2-11ee-2da2-038400ab9389  redundancy  0.0      GradientBase
-       3 │ 4d870646-f4c2-11ee-2da2-038400ab9389  validity    1.0      GradientBase
-       4 │ 4d8e474e-f4c2-11ee-20a0-271d06823dfc  distance    3.07148  GradientBase
-       5 │ 4d8e474e-f4c2-11ee-20a0-271d06823dfc  redundancy  0.0      GradientBase ⋯
-       6 │ 4d8e474e-f4c2-11ee-20a0-271d06823dfc  validity    1.0      GradientBase
-       7 │ 4d8e4c80-f4c2-11ee-1287-81610e5fb51c  distance    3.62159  GradientBase
-       8 │ 4d8e4c80-f4c2-11ee-1287-81610e5fb51c  redundancy  0.0      GradientBase
-       9 │ 4d8e4c80-f4c2-11ee-1287-81610e5fb51c  validity    1.0      GradientBase ⋯
-      10 │ 4d8e5068-f4c2-11ee-11cc-193c402ab999  distance    2.62783  GradientBase
-      11 │ 4d8e5068-f4c2-11ee-11cc-193c402ab999  redundancy  0.0      GradientBase
-      12 │ 4d8e5068-f4c2-11ee-11cc-193c402ab999  validity    1.0      GradientBase
-      13 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f  distance    2.91985  GradientBase ⋯
-      14 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f  redundancy  0.0      GradientBase
-      15 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f  validity    1.0      GradientBase
+       1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  distance    3.17243  GradientBase ⋯
+       2 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  redundancy  0.0      GradientBase
+       3 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  validity    1.0      GradientBase
+       4 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  distance    3.07148  GradientBase
+       5 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  redundancy  0.0      GradientBase ⋯
+       6 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  validity    1.0      GradientBase
+       7 │ 2398b916-f59f-11ee-3f13-bd00858a39af  distance    3.62159  GradientBase
+       8 │ 2398b916-f59f-11ee-3f13-bd00858a39af  redundancy  0.0      GradientBase
+       9 │ 2398b916-f59f-11ee-3f13-bd00858a39af  validity    1.0      GradientBase ⋯
+      10 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  distance    2.62783  GradientBase
+      11 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  redundancy  0.0      GradientBase
+      12 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  validity    1.0      GradientBase
+      13 │ 2398c08a-f59f-11ee-175b-81c155750752  distance    2.91985  GradientBase ⋯
+      14 │ 2398c08a-f59f-11ee-175b-81c155750752  redundancy  0.0      GradientBase
+      15 │ 2398c08a-f59f-11ee-175b-81c155750752  validity    1.0      GradientBase
                                                                    4 columns omitted
 
 To retrieve the granular dataset, simply do:
@@ -67,28 +67,28 @@ bmk(agg=nothing)
      Row │ sample                                num_counterfactual  variable    v ⋯
          │ Base.UUID                             Int64               String      F ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   1  distance    3 ⋯
-       2 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   2  distance    3
-       3 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   3  distance    3
-       4 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   4  distance    3
-       5 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   5  distance    3 ⋯
-       6 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   1  redundancy  0
-       7 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   2  redundancy  0
-       8 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   3  redundancy  0
-       9 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   4  redundancy  0 ⋯
-      10 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   5  redundancy  0
-      11 │ 4d870646-f4c2-11ee-2da2-038400ab9389                   1  validity    1
+       1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  distance    3 ⋯
+       2 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   2  distance    3
+       3 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   3  distance    3
+       4 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   4  distance    3
+       5 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   5  distance    3 ⋯
+       6 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  redundancy  0
+       7 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   2  redundancy  0
+       8 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   3  redundancy  0
+       9 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   4  redundancy  0 ⋯
+      10 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   5  redundancy  0
+      11 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  validity    1
       ⋮  │                  ⋮                            ⋮               ⋮         ⋱
-      66 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   1  redundancy  0
-      67 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   2  redundancy  0 ⋯
-      68 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   3  redundancy  0
-      69 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   4  redundancy  0
-      70 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   5  redundancy  0
-      71 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   1  validity    1 ⋯
-      72 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   2  validity    1
-      73 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   3  validity    1
-      74 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   4  validity    1
-      75 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f                   5  validity    1 ⋯
+      66 │ 2398c08a-f59f-11ee-175b-81c155750752                   1  redundancy  0
+      67 │ 2398c08a-f59f-11ee-175b-81c155750752                   2  redundancy  0 ⋯
+      68 │ 2398c08a-f59f-11ee-175b-81c155750752                   3  redundancy  0
+      69 │ 2398c08a-f59f-11ee-175b-81c155750752                   4  redundancy  0
+      70 │ 2398c08a-f59f-11ee-175b-81c155750752                   5  redundancy  0
+      71 │ 2398c08a-f59f-11ee-175b-81c155750752                   1  validity    1 ⋯
+      72 │ 2398c08a-f59f-11ee-175b-81c155750752                   2  validity    1
+      73 │ 2398c08a-f59f-11ee-175b-81c155750752                   3  validity    1
+      74 │ 2398c08a-f59f-11ee-175b-81c155750752                   4  validity    1
+      75 │ 2398c08a-f59f-11ee-175b-81c155750752                   5  validity    1 ⋯
                                                        5 columns and 54 rows omitted
 
 Since benchmarks return a `DataFrame` object on call, post-processing is straightforward. For example, we could use [`Tidier.jl`](https://kdpsingh.github.io/Tidier.jl/dev/):
@@ -105,11 +105,11 @@ end
      Row │ sample                                variable  value   
          │ Base.UUID                             String    Float64 
     ─────┼─────────────────────────────────────────────────────────
-       1 │ 4d870646-f4c2-11ee-2da2-038400ab9389  distance  3.17243
-       2 │ 4d8e474e-f4c2-11ee-20a0-271d06823dfc  distance  3.07148
-       3 │ 4d8e4c80-f4c2-11ee-1287-81610e5fb51c  distance  3.62159
-       4 │ 4d8e5068-f4c2-11ee-11cc-193c402ab999  distance  2.62783
-       5 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f  distance  2.91985
+       1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  distance  3.17243
+       2 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  distance  3.07148
+       3 │ 2398b916-f59f-11ee-3f13-bd00858a39af  distance  3.62159
+       4 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  distance  2.62783
+       5 │ 2398c08a-f59f-11ee-175b-81c155750752  distance  2.91985
 
 ### Metadata for Counterfactual Explanations
 
@@ -128,11 +128,11 @@ end
      Row │ sample                                model                             ⋯
          │ Base.UUID                             Symbol                            ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │ 4d870646-f4c2-11ee-2da2-038400ab9389  FluxModel(Chain(Dense(2 => 2)), … ⋯
-       2 │ 4d8e474e-f4c2-11ee-20a0-271d06823dfc  FluxModel(Chain(Dense(2 => 2)), …
-       3 │ 4d8e4c80-f4c2-11ee-1287-81610e5fb51c  FluxModel(Chain(Dense(2 => 2)), …
-       4 │ 4d8e5068-f4c2-11ee-11cc-193c402ab999  FluxModel(Chain(Dense(2 => 2)), …
-       5 │ 4d8e53f6-f4c2-11ee-2cd8-d5ee288aa79f  FluxModel(Chain(Dense(2 => 2)), … ⋯
+       1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  FluxModel(Chain(Dense(2 => 2)), … ⋯
+       2 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  FluxModel(Chain(Dense(2 => 2)), …
+       3 │ 2398b916-f59f-11ee-3f13-bd00858a39af  FluxModel(Chain(Dense(2 => 2)), …
+       4 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  FluxModel(Chain(Dense(2 => 2)), …
+       5 │ 2398c08a-f59f-11ee-175b-81c155750752  FluxModel(Chain(Dense(2 => 2)), … ⋯
                                                                     1 column omitted
 
 Metadata can also be provided as an optional key argument.
@@ -156,11 +156,11 @@ end
      Row │ sample                                model   generator 
          │ Base.UUID                             String  String    
     ─────┼─────────────────────────────────────────────────────────
-       1 │ 51c54c68-f4c2-11ee-08c0-d9c30ebb747b  MLP     Generic
-       2 │ 51c838b0-f4c2-11ee-2d0c-0733278674ca  MLP     Generic
-       3 │ 51c83c84-f4c2-11ee-17ed-d9ba1ae239c3  MLP     Generic
-       4 │ 51c83fea-f4c2-11ee-32bf-a552d6fa02bb  MLP     Generic
-       5 │ 51c842e2-f4c2-11ee-1ebf-ed383d576cc8  MLP     Generic
+       1 │ 27fae496-f59f-11ee-2c30-f35d1025a6d4  MLP     Generic
+       2 │ 27fdcc6a-f59f-11ee-030b-152c9794c5f1  MLP     Generic
+       3 │ 27fdd04a-f59f-11ee-2010-e1732ff5d8d2  MLP     Generic
+       4 │ 27fdd340-f59f-11ee-1d20-050a69dcacef  MLP     Generic
+       5 │ 27fdd5fc-f59f-11ee-02e8-d198e436abb3  MLP     Generic
 
 ## Ad Hoc Benchmarking
 
@@ -218,14 +218,14 @@ end
      Row │ sample                                variable  value    model          ⋯
          │ Base.UUID                             String    Float64  Tuple…         ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │ 56537c94-f4c2-11ee-28a2-33f830cc2aeb  distance  4.38877  (:Linear, Flux ⋯
-       2 │ 566e1272-f4c2-11ee-3976-55aee61c911f  distance  4.17021  (:Linear, Flux
-       3 │ 566e1330-f4c2-11ee-22a2-916be39f526d  distance  4.31145  (:Linear, Flux
-       4 │ 566e135a-f4c2-11ee-0486-051aa65063ec  distance  4.17035  (:Linear, Flux
-       5 │ 566e1380-f4c2-11ee-2594-0f37b28bb409  distance  5.73182  (:MLP, FluxMod ⋯
-       6 │ 566e139e-f4c2-11ee-32a1-df1a7abb4111  distance  5.50606  (:MLP, FluxMod
-       7 │ 566e13ba-f4c2-11ee-1c05-81ec3ba1ff08  distance  5.2114   (:MLP, FluxMod
-       8 │ 566e13da-f4c2-11ee-07b0-61ef5fc9258a  distance  5.3623   (:MLP, FluxMod
+       1 │ 2cba5eee-f59f-11ee-1844-cbc7a8372a38  distance  4.38877  (:Linear, Flux ⋯
+       2 │ 2cd740fe-f59f-11ee-35c3-1157eb1b7583  distance  4.17021  (:Linear, Flux
+       3 │ 2cd741e2-f59f-11ee-2b09-0d55ef9892b9  distance  4.31145  (:Linear, Flux
+       4 │ 2cd7420c-f59f-11ee-1996-6fa75e23bb57  distance  4.17035  (:Linear, Flux
+       5 │ 2cd74234-f59f-11ee-0ad0-9f21949f5932  distance  5.73182  (:MLP, FluxMod ⋯
+       6 │ 2cd7425c-f59f-11ee-3eb4-af34f85ffd3d  distance  5.50606  (:MLP, FluxMod
+       7 │ 2cd7427a-f59f-11ee-10d3-a1df6c8dc125  distance  5.2114   (:MLP, FluxMod
+       8 │ 2cd74298-f59f-11ee-32d1-f501c104fea8  distance  5.3623   (:MLP, FluxMod
                                                                    2 columns omitted
 
 ### Everything at once
@@ -253,28 +253,28 @@ end
      Row │ sample                                variable  value    model   genera ⋯
          │ Base.UUID                             String    Float64  Symbol  Symbol ⋯
     ─────┼──────────────────────────────────────────────────────────────────────────
-       1 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  gravit ⋯
-       2 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  growin
-       3 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  revise
-       4 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  clue
-       5 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  probe  ⋯
-       6 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  dice
-       7 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  clapro
-       8 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  wachte
-       9 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  generi ⋯
-      10 │ 5c195b3c-f4c2-11ee-322a-9173776f3b7a  validity      1.0  Linear  greedy
-      11 │ 5c1a277e-f4c2-11ee-0a8e-fb5f14a8e654  validity      1.0  Linear  gravit
+       1 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  gravit ⋯
+       2 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  growin
+       3 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  revise
+       4 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  clue
+       5 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  probe  ⋯
+       6 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  dice
+       7 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  clapro
+       8 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  wachte
+       9 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  generi ⋯
+      10 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  greedy
+      11 │ 32d255e8-f59f-11ee-3e8d-a9e9f6e23ea8  validity      1.0  Linear  gravit
       ⋮  │                  ⋮                       ⋮         ⋮       ⋮            ⋱
-     191 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     gravit
-     192 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     growin ⋯
-     193 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     revise
-     194 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     clue
-     195 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     probe
-     196 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     dice   ⋯
-     197 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     clapro
-     198 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     wachte
-     199 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     generi
-     200 │ 5cc2ba42-f4c2-11ee-3d2a-d5b8e088cf5b  validity      1.0  MLP     greedy ⋯
+     191 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     gravit
+     192 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     growin ⋯
+     193 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     revise
+     194 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     clue
+     195 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     probe
+     196 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     dice   ⋯
+     197 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     clapro
+     198 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     wachte
+     199 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     generi
+     200 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     greedy ⋯
                                                        1 column and 179 rows omitted
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:

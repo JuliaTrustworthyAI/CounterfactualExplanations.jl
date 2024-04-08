@@ -1,6 +1,6 @@
 
 
-``` @meta›
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 

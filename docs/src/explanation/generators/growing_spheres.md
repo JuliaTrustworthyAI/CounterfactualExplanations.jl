@@ -1,7 +1,6 @@
 
 
-``` markdown
-@meta
+``` @meta
 CurrentModule = CounterfactualExplanations
 ```
 

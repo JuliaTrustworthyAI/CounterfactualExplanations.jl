@@ -41,7 +41,7 @@ You may be interested in comparing the outcomes across individuals. To benchmark
 bmk = benchmark(ces)
 ```
 
-Under the hood, the [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) uses [`evaluate(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) to generate a [`Benchmark`](@ref) object, which contains the evaluation in its most granular form as a `DataFrame`.
+Under the hood, the [`benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})`](@ref) uses [`CounterfactualExplanations.Evaluation.evaluate(ce::CounterfactualExplanation)`](@ref) to generate a [`Benchmark`](@ref) object, which contains the evaluation in its most granular form as a `DataFrame`.
 
 ### Working with `Benchmark`s
 
