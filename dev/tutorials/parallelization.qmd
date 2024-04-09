@@ -34,7 +34,6 @@ In the following, we will generate multiple counterfactuals and evaluate them in
 
 ```{julia}
 #| output: false
-using CounterfactualExplanations.Parallelization
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 1000)
 xs = select_factual(counterfactual_data, chosen)
 ```
@@ -138,15 +137,14 @@ The following code snippet shows a complete example script that uses MPI for run
 #| echo: true
 
 using CounterfactualExplanations
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Evaluation: benchmark
 using CounterfactualExplanations.Models
-using CounterfactualExplanations.Parallelization
 import MPI
 
 MPI.Init()
 
-counterfactual_data = load_linearly_separable()
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, :Linear)
 factual = 1
 target = 2

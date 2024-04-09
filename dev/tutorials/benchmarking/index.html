@@ -3,77 +3,77 @@
 n_individuals = 5
 ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
 xs = select_factual(counterfactual_data, ids)
-ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)</code></pre><p>You may be interested in comparing the outcomes across individuals. To benchmark the various counterfactual explanations using default evaluation measures, you can simply proceed as follows:</p><pre><code class="language-julia hljs">bmk = benchmark(ces)</code></pre><p>Under the hood, the <a href="tutorials/@ref"><code>benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})</code></a> uses <a href="tutorials/@ref"><code>evaluate(counterfactual_explanations::Vector{CounterfactualExplanation})</code></a> to generate a <a href="tutorials/@ref"><code>Benchmark</code></a> object, which contains the evaluation in its most granular form as a <code>DataFrame</code>.</p><h3 id="Working-with-Benchmarks"><a class="docs-heading-anchor" href="#Working-with-Benchmarks">Working with <code>Benchmark</code>s</a><a id="Working-with-Benchmarks-1"></a><a class="docs-heading-anchor-permalink" href="#Working-with-Benchmarks" title="Permalink"></a></h3><p>For convenience, the <code>DataFrame</code> containing the evaluation can be returned by simply calling the <code>Benchmark</code> object. By default, the aggregated evaluation measures across <code>id</code> (in line with the default behaviour of <code>evaluate</code>).</p><pre><code class="language-julia hljs">bmk()</code></pre><pre><code class="nohighlight hljs">15×7 DataFrame
- Row │ sample  variable    value    generator                          model   ⋯
-     │ Int64   String      Float64  Symbol                             Symbol  ⋯
+ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)</code></pre><p>You may be interested in comparing the outcomes across individuals. To benchmark the various counterfactual explanations using default evaluation measures, you can simply proceed as follows:</p><pre><code class="language-julia hljs">bmk = benchmark(ces)</code></pre><p>Under the hood, the <a href="../../reference/#CounterfactualExplanations.Evaluation.benchmark-Tuple{Vector{CounterfactualExplanation}}"><code>benchmark(counterfactual_explanations::Vector{CounterfactualExplanation})</code></a> uses <a href="../../reference/#CounterfactualExplanations.Evaluation.evaluate"><code>CounterfactualExplanations.Evaluation.evaluate(ce::CounterfactualExplanation)</code></a> to generate a <a href="../../reference/#CounterfactualExplanations.Evaluation.Benchmark"><code>Benchmark</code></a> object, which contains the evaluation in its most granular form as a <code>DataFrame</code>.</p><h3 id="Working-with-Benchmarks"><a class="docs-heading-anchor" href="#Working-with-Benchmarks">Working with <code>Benchmark</code>s</a><a id="Working-with-Benchmarks-1"></a><a class="docs-heading-anchor-permalink" href="#Working-with-Benchmarks" title="Permalink"></a></h3><p>For convenience, the <code>DataFrame</code> containing the evaluation can be returned by simply calling the <code>Benchmark</code> object. By default, the aggregated evaluation measures across <code>id</code> (in line with the default behaviour of <code>evaluate</code>).</p><pre><code class="language-julia hljs">bmk()</code></pre><pre><code class="nohighlight hljs">15×7 DataFrame
+ Row │ sample                                variable    value    generator    ⋯
+     │ Base.UUID                             String      Float64  Symbol       ⋯
 ─────┼──────────────────────────────────────────────────────────────────────────
-   1 │      1  distance    3.17243  GradientBasedGenerator(nothing, …  FluxMod ⋯
-   2 │      1  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-   3 │      1  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-   4 │      2  distance    3.07148  GradientBasedGenerator(nothing, …  FluxMod
-   5 │      2  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
-   6 │      2  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-   7 │      3  distance    3.62159  GradientBasedGenerator(nothing, …  FluxMod
-   8 │      3  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-   9 │      3  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod ⋯
-  10 │      4  distance    2.62783  GradientBasedGenerator(nothing, …  FluxMod
-  11 │      4  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-  12 │      4  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-  13 │      5  distance    2.91985  GradientBasedGenerator(nothing, …  FluxMod ⋯
-  14 │      5  redundancy  0.0      GradientBasedGenerator(nothing, …  FluxMod
-  15 │      5  validity    1.0      GradientBasedGenerator(nothing, …  FluxMod
-                                                               3 columns omitted</code></pre><p>To retrieve the granular dataset, simply do:</p><pre><code class="language-julia hljs">bmk(agg=nothing)</code></pre><pre><code class="nohighlight hljs">75×8 DataFrame
- Row │ sample  num_counterfactual  variable    value    generator              ⋯
-     │ Int64   Int64               String      Float64  Symbol                 ⋯
+   1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  distance    3.17243  GradientBase ⋯
+   2 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  redundancy  0.0      GradientBase
+   3 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  validity    1.0      GradientBase
+   4 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  distance    3.07148  GradientBase
+   5 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  redundancy  0.0      GradientBase ⋯
+   6 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  validity    1.0      GradientBase
+   7 │ 2398b916-f59f-11ee-3f13-bd00858a39af  distance    3.62159  GradientBase
+   8 │ 2398b916-f59f-11ee-3f13-bd00858a39af  redundancy  0.0      GradientBase
+   9 │ 2398b916-f59f-11ee-3f13-bd00858a39af  validity    1.0      GradientBase ⋯
+  10 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  distance    2.62783  GradientBase
+  11 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  redundancy  0.0      GradientBase
+  12 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  validity    1.0      GradientBase
+  13 │ 2398c08a-f59f-11ee-175b-81c155750752  distance    2.91985  GradientBase ⋯
+  14 │ 2398c08a-f59f-11ee-175b-81c155750752  redundancy  0.0      GradientBase
+  15 │ 2398c08a-f59f-11ee-175b-81c155750752  validity    1.0      GradientBase
+                                                               4 columns omitted</code></pre><p>To retrieve the granular dataset, simply do:</p><pre><code class="language-julia hljs">bmk(agg=nothing)</code></pre><pre><code class="nohighlight hljs">75×8 DataFrame
+ Row │ sample                                num_counterfactual  variable    v ⋯
+     │ Base.UUID                             Int64               String      F ⋯
 ─────┼──────────────────────────────────────────────────────────────────────────
-   1 │      1                   1  distance    3.15903  GradientBasedGenerator ⋯
-   2 │      1                   2  distance    3.16773  GradientBasedGenerator
-   3 │      1                   3  distance    3.17011  GradientBasedGenerator
-   4 │      1                   4  distance    3.20239  GradientBasedGenerator
-   5 │      1                   5  distance    3.16291  GradientBasedGenerator ⋯
-   6 │      1                   1  redundancy  0.0      GradientBasedGenerator
-   7 │      1                   2  redundancy  0.0      GradientBasedGenerator
-   8 │      1                   3  redundancy  0.0      GradientBasedGenerator
-   9 │      1                   4  redundancy  0.0      GradientBasedGenerator ⋯
-  10 │      1                   5  redundancy  0.0      GradientBasedGenerator
-  11 │      1                   1  validity    1.0      GradientBasedGenerator
-  ⋮  │   ⋮             ⋮               ⋮          ⋮                     ⋮      ⋱
-  66 │      5                   1  redundancy  0.0      GradientBasedGenerator
-  67 │      5                   2  redundancy  0.0      GradientBasedGenerator ⋯
-  68 │      5                   3  redundancy  0.0      GradientBasedGenerator
-  69 │      5                   4  redundancy  0.0      GradientBasedGenerator
-  70 │      5                   5  redundancy  0.0      GradientBasedGenerator
-  71 │      5                   1  validity    1.0      GradientBasedGenerator ⋯
-  72 │      5                   2  validity    1.0      GradientBasedGenerator
-  73 │      5                   3  validity    1.0      GradientBasedGenerator
-  74 │      5                   4  validity    1.0      GradientBasedGenerator
-  75 │      5                   5  validity    1.0      GradientBasedGenerator ⋯
-                                                   4 columns and 54 rows omitted</code></pre><p>Since benchmarks return a <code>DataFrame</code> object on call, post-processing is straightforward. For example, we could use <a href="https://kdpsingh.github.io/Tidier.jl/dev/"><code>Tidier.jl</code></a>:</p><pre><code class="language-julia hljs">using Tidier
+   1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  distance    3 ⋯
+   2 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   2  distance    3
+   3 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   3  distance    3
+   4 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   4  distance    3
+   5 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   5  distance    3 ⋯
+   6 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  redundancy  0
+   7 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   2  redundancy  0
+   8 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   3  redundancy  0
+   9 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   4  redundancy  0 ⋯
+  10 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   5  redundancy  0
+  11 │ 239104d0-f59f-11ee-3d0c-d1db071927ff                   1  validity    1
+  ⋮  │                  ⋮                            ⋮               ⋮         ⋱
+  66 │ 2398c08a-f59f-11ee-175b-81c155750752                   1  redundancy  0
+  67 │ 2398c08a-f59f-11ee-175b-81c155750752                   2  redundancy  0 ⋯
+  68 │ 2398c08a-f59f-11ee-175b-81c155750752                   3  redundancy  0
+  69 │ 2398c08a-f59f-11ee-175b-81c155750752                   4  redundancy  0
+  70 │ 2398c08a-f59f-11ee-175b-81c155750752                   5  redundancy  0
+  71 │ 2398c08a-f59f-11ee-175b-81c155750752                   1  validity    1 ⋯
+  72 │ 2398c08a-f59f-11ee-175b-81c155750752                   2  validity    1
+  73 │ 2398c08a-f59f-11ee-175b-81c155750752                   3  validity    1
+  74 │ 2398c08a-f59f-11ee-175b-81c155750752                   4  validity    1
+  75 │ 2398c08a-f59f-11ee-175b-81c155750752                   5  validity    1 ⋯
+                                                   5 columns and 54 rows omitted</code></pre><p>Since benchmarks return a <code>DataFrame</code> object on call, post-processing is straightforward. For example, we could use <a href="https://kdpsingh.github.io/Tidier.jl/dev/"><code>Tidier.jl</code></a>:</p><pre><code class="language-julia hljs">using Tidier
 @chain bmk() begin
     @filter(variable == &quot;distance&quot;)
     @select(sample, variable, value)
 end</code></pre><pre><code class="nohighlight hljs">5×3 DataFrame
- Row │ sample  variable  value   
-     │ Int64   String    Float64 
-─────┼───────────────────────────
-   1 │      1  distance  3.17243
-   2 │      2  distance  3.07148
-   3 │      3  distance  3.62159
-   4 │      4  distance  2.62783
-   5 │      5  distance  2.91985</code></pre><h3 id="Metadata-for-Counterfactual-Explanations"><a class="docs-heading-anchor" href="#Metadata-for-Counterfactual-Explanations">Metadata for Counterfactual Explanations</a><a id="Metadata-for-Counterfactual-Explanations-1"></a><a class="docs-heading-anchor-permalink" href="#Metadata-for-Counterfactual-Explanations" title="Permalink"></a></h3><p>Benchmarks always report metadata for each counterfactual explanation, which is automatically inferred by default. The default metadata concerns the explained <code>model</code> and the employed <code>generator</code>. In the current example, we used the same model and generator for each individual:</p><pre><code class="language-julia hljs">@chain bmk() begin
+ Row │ sample                                variable  value   
+     │ Base.UUID                             String    Float64 
+─────┼─────────────────────────────────────────────────────────
+   1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  distance  3.17243
+   2 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  distance  3.07148
+   3 │ 2398b916-f59f-11ee-3f13-bd00858a39af  distance  3.62159
+   4 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  distance  2.62783
+   5 │ 2398c08a-f59f-11ee-175b-81c155750752  distance  2.91985</code></pre><h3 id="Metadata-for-Counterfactual-Explanations"><a class="docs-heading-anchor" href="#Metadata-for-Counterfactual-Explanations">Metadata for Counterfactual Explanations</a><a id="Metadata-for-Counterfactual-Explanations-1"></a><a class="docs-heading-anchor-permalink" href="#Metadata-for-Counterfactual-Explanations" title="Permalink"></a></h3><p>Benchmarks always report metadata for each counterfactual explanation, which is automatically inferred by default. The default metadata concerns the explained <code>model</code> and the employed <code>generator</code>. In the current example, we used the same model and generator for each individual:</p><pre><code class="language-julia hljs">@chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end</code></pre><pre><code class="nohighlight hljs">5×3 DataFrame
- Row │ sample  model                              generator                    ⋯
-     │ Int64   Symbol                             Symbol                       ⋯
+ Row │ sample                                model                             ⋯
+     │ Base.UUID                             Symbol                            ⋯
 ─────┼──────────────────────────────────────────────────────────────────────────
-   1 │      1  FluxModel(Chain(Dense(2 =&gt; 2)), …  GradientBasedGenerator(nothi ⋯
-   2 │      2  FluxModel(Chain(Dense(2 =&gt; 2)), …  GradientBasedGenerator(nothi
-   3 │      3  FluxModel(Chain(Dense(2 =&gt; 2)), …  GradientBasedGenerator(nothi
-   4 │      4  FluxModel(Chain(Dense(2 =&gt; 2)), …  GradientBasedGenerator(nothi
-   5 │      5  FluxModel(Chain(Dense(2 =&gt; 2)), …  GradientBasedGenerator(nothi ⋯
+   1 │ 239104d0-f59f-11ee-3d0c-d1db071927ff  FluxModel(Chain(Dense(2 =&gt; 2)), … ⋯
+   2 │ 2398b3e2-f59f-11ee-3323-13d53fb7e75b  FluxModel(Chain(Dense(2 =&gt; 2)), …
+   3 │ 2398b916-f59f-11ee-3f13-bd00858a39af  FluxModel(Chain(Dense(2 =&gt; 2)), …
+   4 │ 2398bce8-f59f-11ee-37c1-ef7c6de27b6b  FluxModel(Chain(Dense(2 =&gt; 2)), …
+   5 │ 2398c08a-f59f-11ee-175b-81c155750752  FluxModel(Chain(Dense(2 =&gt; 2)), … ⋯
                                                                 1 column omitted</code></pre><p>Metadata can also be provided as an optional key argument.</p><pre><code class="language-julia hljs">meta_data = Dict(
     :generator =&gt; &quot;Generic&quot;,
     :model =&gt; &quot;MLP&quot;,
@@ -83,17 +83,17 @@ bmk = benchmark(ces; meta_data=meta_data)
 @chain bmk() begin
     @group_by(sample)
     @select(sample, model, generator)
-    @summarize(model=unique(model),generator=unique(generator))
+    @summarize(model=first(model),generator=first(generator))
     @ungroup
 end</code></pre><pre><code class="nohighlight hljs">5×3 DataFrame
- Row │ sample  model   generator 
-     │ Int64   String  String    
-─────┼───────────────────────────
-   1 │      1  MLP     Generic
-   2 │      2  MLP     Generic
-   3 │      3  MLP     Generic
-   4 │      4  MLP     Generic
-   5 │      5  MLP     Generic</code></pre><h2 id="Ad-Hoc-Benchmarking"><a class="docs-heading-anchor" href="#Ad-Hoc-Benchmarking">Ad Hoc Benchmarking</a><a id="Ad-Hoc-Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Ad-Hoc-Benchmarking" title="Permalink"></a></h2><p>So far we have assumed the following workflow:</p><ol><li>Fit some machine learning model.</li><li>Generate counterfactual explanations for some individual(s) (<code>generate_counterfactual</code>).</li><li>Evaluate and benchmark them (<code>benchmark(ces::Vector{CounterfactualExplanation})</code>).</li></ol><p>In many cases, it may be preferable to combine these steps. To this end, we have added support for two scenarios of Ad Hoc Benchmarking.</p><h3 id="Pre-trained-Models"><a class="docs-heading-anchor" href="#Pre-trained-Models">Pre-trained Models</a><a id="Pre-trained-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Pre-trained-Models" title="Permalink"></a></h3><p>In the first scenario, it is assumed that the machine learning models have been pre-trained and so the workflow can be summarized as follows:</p><ol><li>Fit some machine learning model(s).</li><li>Generate counterfactual explanations and benchmark them.</li></ol><p>We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let’s go through this workflow using a simple example. We first train some models and store them in a dictionary:</p><pre><code class="language-julia hljs">models = Dict(
+ Row │ sample                                model   generator 
+     │ Base.UUID                             String  String    
+─────┼─────────────────────────────────────────────────────────
+   1 │ 27fae496-f59f-11ee-2c30-f35d1025a6d4  MLP     Generic
+   2 │ 27fdcc6a-f59f-11ee-030b-152c9794c5f1  MLP     Generic
+   3 │ 27fdd04a-f59f-11ee-2010-e1732ff5d8d2  MLP     Generic
+   4 │ 27fdd340-f59f-11ee-1d20-050a69dcacef  MLP     Generic
+   5 │ 27fdd5fc-f59f-11ee-02e8-d198e436abb3  MLP     Generic</code></pre><h2 id="Ad-Hoc-Benchmarking"><a class="docs-heading-anchor" href="#Ad-Hoc-Benchmarking">Ad Hoc Benchmarking</a><a id="Ad-Hoc-Benchmarking-1"></a><a class="docs-heading-anchor-permalink" href="#Ad-Hoc-Benchmarking" title="Permalink"></a></h2><p>So far we have assumed the following workflow:</p><ol><li>Fit some machine learning model.</li><li>Generate counterfactual explanations for some individual(s) (<code>generate_counterfactual</code>).</li><li>Evaluate and benchmark them (<code>benchmark(ces::Vector{CounterfactualExplanation})</code>).</li></ol><p>In many cases, it may be preferable to combine these steps. To this end, we have added support for two scenarios of Ad Hoc Benchmarking.</p><h3 id="Pre-trained-Models"><a class="docs-heading-anchor" href="#Pre-trained-Models">Pre-trained Models</a><a id="Pre-trained-Models-1"></a><a class="docs-heading-anchor-permalink" href="#Pre-trained-Models" title="Permalink"></a></h3><p>In the first scenario, it is assumed that the machine learning models have been pre-trained and so the workflow can be summarized as follows:</p><ol><li>Fit some machine learning model(s).</li><li>Generate counterfactual explanations and benchmark them.</li></ol><p>We suspect that this is the most common workflow for practitioners who are interested in benchmarking counterfactual explanations for the pre-trained machine learning models. Let’s go through this workflow using a simple example. We first train some models and store them in a dictionary:</p><pre><code class="language-julia hljs">models = Dict(
     :MLP =&gt; fit_model(counterfactual_data, :MLP),
     :Linear =&gt; fit_model(counterfactual_data, :Linear),
 )</code></pre><p>Next, we store the counterfactual generators of interest in a dictionary as well:</p><pre><code class="language-julia hljs">generators = Dict(
@@ -105,49 +105,50 @@ end</code></pre><pre><code class="nohighlight hljs">5×3 DataFrame
     @filter(variable == &quot;distance&quot;)
     @select(sample, variable, value, model, generator)
 end</code></pre><pre><code class="nohighlight hljs">8×5 DataFrame
- Row │ sample  variable  value    model   generator     
-     │ Int64   String    Float64  Symbol  Symbol        
-─────┼──────────────────────────────────────────────────
-   1 │      1  distance  3.23559  Linear  Gravitational
-   2 │      1  distance  3.40924  Linear  ClaPROAR
-   3 │      1  distance  3.08311  Linear  Generic
-   4 │      1  distance  3.1338   Linear  Wachter
-   5 │      1  distance  4.44266  MLP     Gravitational
-   6 │      1  distance  4.67161  MLP     ClaPROAR
-   7 │      1  distance  4.98131  MLP     Generic
-   8 │      1  distance  4.32344  MLP     Wachter</code></pre><h3 id="Everything-at-once"><a class="docs-heading-anchor" href="#Everything-at-once">Everything at once</a><a id="Everything-at-once-1"></a><a class="docs-heading-anchor-permalink" href="#Everything-at-once" title="Permalink"></a></h3><p>Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:</p><ol><li>Fit some machine learning model(s), generate counterfactual explanations and benchmark them.</li></ol><p>It involves calling <code>benchmark</code> directly on counterfactual data (the only positional argument):</p><pre><code class="language-julia hljs">bmk = benchmark(counterfactual_data)</code></pre><p>This will use the default models from <a href="tutorials/@ref"><code>standard_models_catalogue</code></a> and train them on the data. All available generators from <a href="tutorials/@ref"><code>generator_catalogue</code></a> will also be used:</p><pre><code class="language-julia hljs">@chain bmk() begin
+ Row │ sample                                variable  value    model          ⋯
+     │ Base.UUID                             String    Float64  Tuple…         ⋯
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ 2cba5eee-f59f-11ee-1844-cbc7a8372a38  distance  4.38877  (:Linear, Flux ⋯
+   2 │ 2cd740fe-f59f-11ee-35c3-1157eb1b7583  distance  4.17021  (:Linear, Flux
+   3 │ 2cd741e2-f59f-11ee-2b09-0d55ef9892b9  distance  4.31145  (:Linear, Flux
+   4 │ 2cd7420c-f59f-11ee-1996-6fa75e23bb57  distance  4.17035  (:Linear, Flux
+   5 │ 2cd74234-f59f-11ee-0ad0-9f21949f5932  distance  5.73182  (:MLP, FluxMod ⋯
+   6 │ 2cd7425c-f59f-11ee-3eb4-af34f85ffd3d  distance  5.50606  (:MLP, FluxMod
+   7 │ 2cd7427a-f59f-11ee-10d3-a1df6c8dc125  distance  5.2114   (:MLP, FluxMod
+   8 │ 2cd74298-f59f-11ee-32d1-f501c104fea8  distance  5.3623   (:MLP, FluxMod
+                                                               2 columns omitted</code></pre><h3 id="Everything-at-once"><a class="docs-heading-anchor" href="#Everything-at-once">Everything at once</a><a id="Everything-at-once-1"></a><a class="docs-heading-anchor-permalink" href="#Everything-at-once" title="Permalink"></a></h3><p>Researchers, in particular, may be interested in combining all steps into one. This is the second scenario of Ad Hoc Benchmarking:</p><ol><li>Fit some machine learning model(s), generate counterfactual explanations and benchmark them.</li></ol><p>It involves calling <code>benchmark</code> directly on counterfactual data (the only positional argument):</p><pre><code class="language-julia hljs">bmk = benchmark(counterfactual_data)</code></pre><p>This will use the default models from <a href="../../reference/#CounterfactualExplanations.Models.standard_models_catalogue"><code>standard_models_catalogue</code></a> and train them on the data. All available generators from <a href="../../reference/#CounterfactualExplanations.Generators.generator_catalogue"><code>generator_catalogue</code></a> will also be used:</p><pre><code class="language-julia hljs">@chain bmk() begin
     @filter(variable == &quot;validity&quot;)
     @select(sample, variable, value, model, generator)
-end</code></pre><pre><code class="nohighlight hljs">165×5 DataFrame
- Row │ sample  variable  value    model   generator       
-     │ Int64   String    Float64  Symbol  Symbol          
-─────┼────────────────────────────────────────────────────
-   1 │      1  validity      1.0  Linear  gravitational
-   2 │      2  validity      1.0  Linear  gravitational
-   3 │      3  validity      1.0  Linear  gravitational
-   4 │      4  validity      1.0  Linear  gravitational
-   5 │      5  validity      1.0  Linear  gravitational
-   6 │      1  validity      1.0  Linear  growing_spheres
-   7 │      2  validity      1.0  Linear  growing_spheres
-   8 │      3  validity      1.0  Linear  growing_spheres
-   9 │      4  validity      1.0  Linear  growing_spheres
-  10 │      5  validity      1.0  Linear  growing_spheres
-  11 │      1  validity      1.0  Linear  revise
-  ⋮  │   ⋮        ⋮         ⋮       ⋮            ⋮
- 156 │     11  validity      1.0  MLP     generic
- 157 │     12  validity      1.0  MLP     generic
- 158 │     13  validity      1.0  MLP     generic
- 159 │     14  validity      1.0  MLP     generic
- 160 │     15  validity      1.0  MLP     generic
- 161 │     11  validity      1.0  MLP     greedy
- 162 │     12  validity      1.0  MLP     greedy
- 163 │     13  validity      1.0  MLP     greedy
- 164 │     14  validity      1.0  MLP     greedy
- 165 │     15  validity      1.0  MLP     greedy
-                                          144 rows omitted</code></pre><p>Optionally, you can instead provide a dictionary of <code>models</code> and <code>generators</code> as before. Each value in the <code>models</code> dictionary should be one of two things:</p><ol><li>Either be an object <code>M</code> of type <a href="tutorials/@ref"><code>AbstractFittedModel</code></a> that implements the <a href="tutorials/@ref"><code>Models.train</code></a> method.</li><li>Or a <code>DataType</code> that can be called on <a href="tutorials/@ref"><code>CounterfactualData</code></a> to create an object <code>M</code> as in (a).</li></ol><h2 id="Multiple-Datasets"><a class="docs-heading-anchor" href="#Multiple-Datasets">Multiple Datasets</a><a id="Multiple-Datasets-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Datasets" title="Permalink"></a></h2><p>Benchmarks are run on single instances of type <a href="tutorials/@ref"><code>CounterfactualData</code></a>. This is our design choice for two reasons:</p><ol><li>We want to avoid the loops inside the <code>benchmark</code> method(s) from getting too nested and convoluted.</li><li>While it is straightforward to infer metadata for models and generators, this is not the case for datasets.</li></ol><p>Fortunately, it is very easy to run benchmarks for multiple datasets anyway, since <code>Benchmark</code> instances can be concatenated. To see how, let’s consider an example involving multiple datasets, models and generators:</p><pre><code class="language-julia hljs"># Data:
+end</code></pre><pre><code class="nohighlight hljs">200×5 DataFrame
+ Row │ sample                                variable  value    model   genera ⋯
+     │ Base.UUID                             String    Float64  Symbol  Symbol ⋯
+─────┼──────────────────────────────────────────────────────────────────────────
+   1 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  gravit ⋯
+   2 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  growin
+   3 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  revise
+   4 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  clue
+   5 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  probe  ⋯
+   6 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  dice
+   7 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  clapro
+   8 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  wachte
+   9 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  generi ⋯
+  10 │ 32d1817e-f59f-11ee-152f-a30b18c2e6f7  validity      1.0  Linear  greedy
+  11 │ 32d255e8-f59f-11ee-3e8d-a9e9f6e23ea8  validity      1.0  Linear  gravit
+  ⋮  │                  ⋮                       ⋮         ⋮       ⋮            ⋱
+ 191 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     gravit
+ 192 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     growin ⋯
+ 193 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     revise
+ 194 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     clue
+ 195 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     probe
+ 196 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     dice   ⋯
+ 197 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     clapro
+ 198 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     wachte
+ 199 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     generi
+ 200 │ 3382d08a-f59f-11ee-10b3-f7d18cf7d3b5  validity      1.0  MLP     greedy ⋯
+                                                   1 column and 179 rows omitted</code></pre><p>Optionally, you can instead provide a dictionary of <code>models</code> and <code>generators</code> as before. Each value in the <code>models</code> dictionary should be one of two things:</p><ol><li>Either be an object <code>M</code> of type <a href="../../reference/#CounterfactualExplanations.AbstractFittedModel"><code>AbstractFittedModel</code></a> that implements the <a href="../../reference/#CounterfactualExplanations.Models.train-Tuple{CounterfactualExplanations.Models.TreeModel, CounterfactualData}"><code>Models.train</code></a> method.</li><li>Or a <code>DataType</code> that can be called on <a href="../../reference/#CounterfactualExplanations.DataPreprocessing.CounterfactualData-Tuple{AbstractMatrix, Union{AbstractMatrix, AbstractVector}}"><code>CounterfactualData</code></a> to create an object <code>M</code> as in (a).</li></ol><h2 id="Multiple-Datasets"><a class="docs-heading-anchor" href="#Multiple-Datasets">Multiple Datasets</a><a id="Multiple-Datasets-1"></a><a class="docs-heading-anchor-permalink" href="#Multiple-Datasets" title="Permalink"></a></h2><p>Benchmarks are run on single instances of type <a href="../../reference/#CounterfactualExplanations.DataPreprocessing.CounterfactualData-Tuple{AbstractMatrix, Union{AbstractMatrix, AbstractVector}}"><code>CounterfactualData</code></a>. This is our design choice for two reasons:</p><ol><li>We want to avoid the loops inside the <code>benchmark</code> method(s) from getting too nested and convoluted.</li><li>While it is straightforward to infer metadata for models and generators, this is not the case for datasets.</li></ol><p>Fortunately, it is very easy to run benchmarks for multiple datasets anyway, since <code>Benchmark</code> instances can be concatenated. To see how, let’s consider an example involving multiple datasets, models and generators:</p><pre><code class="language-julia hljs"># Data:
 datasets = Dict(
-    :moons =&gt; load_moons(),
-    :circles =&gt; load_circles(),
+    :moons =&gt; CounterfactualData(load_moons()...),
+    :circles =&gt; CounterfactualData(load_circles()...),
 )
 
 # Models:
@@ -163,7 +164,7 @@ generators = Dict(
 )</code></pre><p>Then we can simply loop over the datasets and eventually concatenate the results like so:</p><pre><code class="language-julia hljs">using CounterfactualExplanations.Evaluation: distance_measures
 bmks = []
 for (dataname, dataset) in datasets
-    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures, verbose=true)
+    bmk = benchmark(dataset; models=models, generators=generators, measure=distance_measures)
     push!(bmks, bmk)
 end
 bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))</code></pre><p>When <code>ids</code> are supplied, then a new id column is added to the evaluation data frame that contains unique identifiers for the different benchmarks. The optional <code>idcol_name</code> argument can be used to specify the name for that indicator column (defaults to <code>&quot;dataset&quot;</code>):</p><pre><code class="language-julia hljs">@chain bmk() begin
@@ -176,7 +177,7 @@ end</code></pre><pre><code class="nohighlight hljs">4×3 DataFrame
  Row │ dataset  generator  L1_norm  
      │ Symbol   Symbol     Float32  
 ─────┼──────────────────────────────
-   1 │ circles  Generic    2.71561
-   2 │ circles  Greedy     0.596901
-   3 │ moons    Generic    1.30436
-   4 │ moons    Greedy     0.742734</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../evaluation/">« Evaluating Explanations</a><a class="docs-footer-nextpage" href="../parallelization/">Parallelization »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Wednesday 3 April 2024 13:55">Wednesday 3 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+   1 │ moons    Generic    1.56555
+   2 │ moons    Greedy     0.819269
+   3 │ circles  Generic    1.83524
+   4 │ circles  Greedy     0.498953</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../evaluation/">« Evaluating Explanations</a><a class="docs-footer-nextpage" href="../parallelization/">Parallelization »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.25 on <span class="colophon-date" title="Tuesday 9 April 2024 11:15">Tuesday 9 April 2024</span>. Using Julia version 1.10.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

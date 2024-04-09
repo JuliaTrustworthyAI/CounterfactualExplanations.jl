@@ -43,6 +43,7 @@ There is a tradeoff then, between the distance of counterfactuals from their fac
 Λ₂ = [0.0, 0.1, 0.25]
 ces = []
 generators = []
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
 for λ₂ ∈ Λ₂  
     λ = [0.1, λ₂]
     generator = GravitationalGenerator(λ=λ)
@@ -51,7 +52,7 @@ for λ₂ ∈ Λ₂
       ces...,
       generate_counterfactual(
             x, target, counterfactual_data, M, generator; 
-            converge_when=:generator_conditions
+            convergence=conv
       )
     )
 end
@@ -91,7 +92,7 @@ generators = Dict(
 )
 
 
-counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; converge_when=:generator_conditions) for (name, gen) in generators])
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; convergence=conv) for (name, gen) in generators])
 # Plots:
 plts = []
 for (name,ce) ∈ counterfactuals
