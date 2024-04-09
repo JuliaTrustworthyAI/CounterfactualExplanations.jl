@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "0.1.35"
+version = "1.0.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"

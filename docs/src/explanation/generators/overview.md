@@ -1,8 +1,10 @@
-# Counterfactual Generators (**id?** generators_explanation)
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# [Counterfactual Generators](@id generators_explanation)
 
 Counterfactual generators form the very core of this package. The [`generator_catalogue`](@ref) can be used to inspect the available generators:
 
@@ -41,4 +43,4 @@ For most generators, the state space *is* the feature space ($f$ is the identity
 
 ## References
 
-Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.
+Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*. <https://doi.org/10.1109/satml54575.2023.00036>.

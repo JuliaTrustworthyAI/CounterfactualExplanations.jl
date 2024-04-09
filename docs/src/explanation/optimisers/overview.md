@@ -1,8 +1,10 @@
-# Optimisation Rules
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Optimisation Rules
 
 Counterfactual search is an optimization problem. Consequently, the choice of the optimisation rule affects the generated counterfactuals. In the short term, we aim to enable users to choose any of the available `Flux` optimisers. This has not been sufficiently tested yet, and you may run into issues.
 

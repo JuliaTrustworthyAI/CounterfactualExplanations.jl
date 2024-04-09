@@ -36,7 +36,8 @@ Markdown.parse(
 ```
 
 ```{julia}
-counterfactual_data = load_multi_class(n_samples)
+data = TaijaData.load_multi_class(n_samples)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 M = fit_model(counterfactual_data, model_name)
 ```
 
@@ -57,7 +58,7 @@ Next, we begin by specifying our target and factual label. We then draw a random
 target = 2
 factual = 4
 chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
-x = select_factual(counterfactual_data,chosen)
+x = select_factual(counterfactual_data, chosen)
 ```
 
 ```{julia}
@@ -79,19 +80,32 @@ decision_threshold = 0.75
 num_counterfactuals = 3
 ```
 
-The code below runs the counterfactual search for each generator available in the `generator_catalogue`. In each case, we also call the generic `plot()` method on the generated instance of type `CounterfactualExplanation`. This generates a simple plot that visualizes the entire counterfactual path. The chart below shows the results for all counterfactual generators.
+
+
+```{julia}
+#| echo: false
+#| output: true
+
+Markdown.parse(
+    """
+    The code below runs the counterfactual search for each generator available in the `generator_catalogue`. In each case, we also call the generic `plot()` method on the generated instance of type `CounterfactualExplanation`. This generates a simple plot that visualizes the entire counterfactual path. The chart below shows the results for all counterfactual generators: Factual: $(factual) → Target: $(target).
+    """
+)
+```
 
 ```{julia}
 ces = Dict()
 plts = []
+plottable_generators = filter(((k,v),) -> k ∉ [:growing_spheres, :feature_tweak], generator_catalogue)
 # Search:
-for (key, Generator) in generator_catalogue
+for (key, Generator) in plottable_generators
     generator = Generator()
     ce = generate_counterfactual(
         x, target, counterfactual_data, M, generator;
         num_counterfactuals = num_counterfactuals,
-        decision_threshold=decision_threshold,
-        converge_when=:generator_conditions
+        convergence=GeneratorConditionsConvergence(
+            decision_threshold=decision_threshold
+        )
     )
     ces[key] = ce
     plts = [plts..., plot(ce; title=key, colorbar=false)]
@@ -110,6 +124,5 @@ asp_ratio = _ncol/_nrow
 plot(
     plts..., 
     ncol=_ncol, size=(asp_ratio * _size,_size),
-    plot_title="Factual: $(factual) → Target: $(target)"
 )
 ```

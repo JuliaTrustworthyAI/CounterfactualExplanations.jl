@@ -1,8 +1,10 @@
-# `GravitationalGenerator`
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `GravitationalGenerator`
 
 The `GravitationalGenerator` was introduced in Altmeyer et al. (2023). It is named so because it generates counterfactuals that gravitate towards some sensible point in the target domain.
 
@@ -52,4 +54,4 @@ The figure below compares the outcome for the `GenericGenerator` and the `Gravit
 
 ## References
 
-Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.
+Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*. <https://doi.org/10.1109/satml54575.2023.00036>.

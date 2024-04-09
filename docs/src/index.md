@@ -1,4 +1,4 @@
-# CounterfactualExplanations
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations
@@ -8,9 +8,11 @@ CurrentModule = CounterfactualExplanations
 
 Documentation for [CounterfactualExplanations.jl](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl).
 
+# CounterfactualExplanations
+
 *Counterfactual Explanations and Algorithmic Recourse in Julia.*
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations) [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
 
@@ -76,18 +78,19 @@ The figure below shows counterfactuals for 10 randomly chosen individuals that w
 
 ### Example: MNIST
 
-The figure below shows a counterfactual generated for an image classifier trained on MNIST: in particular, it demonstrates which pixels need to change in order for the classifier to predict 4 instead of 9.
+The figure below shows a counterfactual generated for an image classifier trained on MNIST: in particular, it demonstrates which pixels need to change in order for the classifier to predict 3 instead of 8.
 
-Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from Joshi et al. (2019) (REVISE) and Schut et al. (2021):
+Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from Wachter, Mittelstadt, and Russell (2017) and Altmeyer et al. (2023):
 
 ``` julia
 # Compose generator:
+using CounterfactualExplanations.Objectives: distance_from_target
 generator = GradientBasedGenerator()
 @chain generator begin
-    @objective logitcrossentropy + 0.001distance_l2     
-    @with_optimiser JSMADescent(η=0.5)                  # Greedy (Schut et al. 2021)
-    @search_latent_space                                # REVISE (Joshi et al. 2019)
+    @objective logitcrossentropy + 0.1distance_mad + 0.1distance_from_target
+    @with_optimiser Adam(0.1)                  
 end
+counterfactual_data.generative_model = vae # assign generative model
 ```
 
 ![](index_files/figure-commonmark/cell-10-output-1.svg)
@@ -98,7 +101,7 @@ Generating counterfactuals will typically look like follows. Below we first fit 
 
 ``` julia
 # Data and Classifier:
-counterfactual_data = load_linearly_separable()
+counterfactual_data = CounterfactualData(load_linearly_separable()...)
 M = fit_model(counterfactual_data, :Linear)
 
 # Select random sample:
@@ -120,10 +123,10 @@ Here, we have chosen to use the `GradientBasedGenerator` to move the individual 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 
 ``` julia
+conv = conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
 ce = generate_counterfactual(
   x, target, counterfactual_data, M, generator; 
-  num_counterfactuals=3, converge_when=:generator_conditions,
-  gradient_tol=1e-3
+  num_counterfactuals=3, convergence=conv,
 )
 ```
 
@@ -170,7 +173,9 @@ If any of the below applies to you, this might be the right open-source project 
 
 [@pat-alt](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions).
 
-For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
+For more details on how to contribute see [here](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev/contribute/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
+
+There are also some general pointers for people looking to contribute to any of our Taija packages [here](https://github.com/JuliaTrustworthyAI#general-pointers-for-contributors).
 
 ## 🎓 Citation
 

@@ -5,8 +5,8 @@ setup_docs = quote
     using Chain: @chain
     using CounterfactualExplanations
     using CounterfactualExplanations: counterfactual, counterfactual_label
-    using CounterfactualExplanations.Data
-    using CounterfactualExplanations.DataPreprocessing: unpack_data
+    using CounterfactualExplanations.Convergence
+    using CounterfactualExplanations.DataPreprocessing
     using CounterfactualExplanations.Evaluation: benchmark
     using CounterfactualExplanations.Generators
     using CounterfactualExplanations.Models
@@ -25,8 +25,11 @@ setup_docs = quote
     using StatsBase
     using Tables
     using TaijaData
+    using TaijaParallel
+    using TaijaParallel: @with_parallelizer
     using TaijaPlotting: animate_path
     using TaijaInteroperability
+    using TaijaData
 
     # Setup:
     theme(:wong)
@@ -45,6 +48,6 @@ setup_docs = quote
     x = select_factual(counterfactual_data, chosen)
 
     # Search:
-    generator = GenericGenerator()
+    generator = Generators.GenericGenerator()
     ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-end;
+end

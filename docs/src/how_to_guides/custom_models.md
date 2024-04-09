@@ -1,8 +1,10 @@
-# How to add Custom Models
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# How to add Custom Models
 
 Adding custom models is possible and relatively straightforward, as we will demonstrate in this guide.
 
@@ -20,7 +22,8 @@ To demonstrate how this can be done in practice, we will reiterate here how nati
 ``` julia
 # Data:
 N = 200
-counterfactual_data = load_blobs(N; centers=4, cluster_std=0.5)
+data = TaijaData.load_blobs(N; centers=4, cluster_std=0.5)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 y = counterfactual_data.y
 X = counterfactual_data.X
 
@@ -88,4 +91,4 @@ plot(ce)
 
 ## References
 
-Innes, Mike. 2018. “Flux: Elegant Machine Learning with Julia.” *Journal of Open Source Software* 3 (25): 602.
+Innes, Mike. 2018. “Flux: Elegant Machine Learning with Julia.” *Journal of Open Source Software* 3 (25): 602. <https://doi.org/10.21105/joss.00602>.

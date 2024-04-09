@@ -1,8 +1,10 @@
-# Jacobian-based Saliency Map Attack
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Jacobian-based Saliency Map Attack
 
 To search counterfactuals, Schut et al. (2021) propose to use a Jacobian-Based Saliency Map Attack (JSMA) inspired by the literature on adversarial attacks. It works by moving in the direction of the most salient feature at a fixed step size in each iteration. Schut et al. (2021) use this optimisation rule in the context of Bayesian classifiers and demonstrate good results in terms of plausibility — how realistic counterfactuals are — and redundancy — how sparse the proposed feature changes are.
 

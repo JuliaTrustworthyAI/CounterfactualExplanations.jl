@@ -1,4 +1,5 @@
 
+
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
@@ -25,10 +26,11 @@ Depth = 3
 ``` @autodocs
 Modules = [
     CounterfactualExplanations, 
+    CounterfactualExplanations.Convergence,
     CounterfactualExplanations.Evaluation,
-    CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
-    CounterfactualExplanations.Models, 
+    CounterfactualExplanations.Models,
+    CounterfactualExplanations.GenerativeModels, 
     CounterfactualExplanations.Generators, 
     CounterfactualExplanations.Objectives
 ]
@@ -40,10 +42,11 @@ Private = false
 ``` @autodocs
 Modules = [
     CounterfactualExplanations, 
+    CounterfactualExplanations.Convergence,
     CounterfactualExplanations.Evaluation,
-    CounterfactualExplanations.Data,
     CounterfactualExplanations.DataPreprocessing,
     CounterfactualExplanations.Models, 
+    CounterfactualExplanations.GenerativeModels,
     CounterfactualExplanations.Generators, 
     CounterfactualExplanations.Objectives
 ]

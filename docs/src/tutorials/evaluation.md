@@ -1,8 +1,10 @@
-# Performance Evaluation
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Performance Evaluation
 
 Now that we know how to generate counterfactual explanations in Julia, you may have a few follow-up questions: How do I know if the counterfactual search has been successful? How good is my counterfactual explanation? What does ‘good’ even mean in this context? In this tutorial, we will see how counterfactual explanations can be evaluated with respect to their performance.
 
@@ -148,32 +150,23 @@ It may be necessary to generate counterfactual explanations for multiple individ
 
 Below, for example, we first select multiple samples (5) from the non-target class and then generate counterfactual explanations for all of them.
 
+This can be done using broadcasting:
+
 ``` julia
 # Factual and target:
 ids = rand(findall(predict_label(M, counterfactual_data) .== factual), n_individuals)
 xs = select_factual(counterfactual_data, ids)
 ces = generate_counterfactual(xs, target, counterfactual_data, M, generator; num_counterfactuals=5)
-evaluation = evaluate(ces)
+evaluation = evaluate.(ces)
 ```
 
-    15×4 DataFrame
-     Row │ sample  num_counterfactual  variable    value                     
-         │ Int64   Int64               String      Any                       
-    ─────┼───────────────────────────────────────────────────────────────────
-       1 │      1                   1  distance    3.35118
-       2 │      1                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-       3 │      1                   1  validity    1.0
-       4 │      2                   1  distance    2.64059
-       5 │      2                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-       6 │      2                   1  validity    1.0
-       7 │      3                   1  distance    2.93501
-       8 │      3                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-       9 │      3                   1  validity    1.0
-      10 │      4                   1  distance    3.53484
-      11 │      4                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-      12 │      4                   1  validity    1.0
-      13 │      5                   1  distance    3.9374
-      14 │      5                   1  redundancy  [0.0, 0.0, 0.0, 0.0, 0.0]
-      15 │      5                   1  validity    1.0
+    5-element Vector{Vector{Vector}}:
+     [[1.0], Float32[3.351181], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[2.6405892], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[2.935012], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[3.5348382], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[3.9373996], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+
+    Vector{Vector}[[[1.0], Float32[3.351181], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[2.6405892], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[2.935012], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[3.5348382], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[3.9373996], [[0.0, 0.0, 0.0, 0.0, 0.0]]]]
 
 This leads us to our next topic: Performance Benchmarks.

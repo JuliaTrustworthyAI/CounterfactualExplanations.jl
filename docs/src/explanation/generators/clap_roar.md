@@ -1,8 +1,10 @@
-# `ClaPROARGenerator`
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `ClaPROARGenerator`
 
 The `ClaPROARGenerator` was introduced in Altmeyer et al. (2023).
 
@@ -38,6 +40,6 @@ The figure below compares the outcome for the `GenericGenerator` and the `ClaPRO
 
 ## References
 
-Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*.
+Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *First IEEE Conference on Secure and Trustworthy Machine Learning*. <https://doi.org/10.1109/satml54575.2023.00036>.
 
 Upadhyay, Sohini, Shalmali Joshi, and Himabindu Lakkaraju. 2021. “Towards Robust and Reliable Algorithmic Recourse.” <https://arxiv.org/abs/2102.13620>.
