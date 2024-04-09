@@ -35,9 +35,9 @@ end
 Outer constructor method for NeuroTreeModel.
 """
 function CounterfactualExplanations.NeuroTreeModel(
-    model; likelihood::Symbol=:classification_binary
+    model; likelihood::Symbol=:classification_binary, fitresult
 )
-    return NeuroTreeModel(model, likelihood, nothing)
+    return NeuroTreeModel(model, likelihood, fitresult)
 end
 
 """
@@ -53,7 +53,8 @@ Not called by the user directly.
 - `model::NeuroTreeModel`: The NeuroTree model.
 """
 function CounterfactualExplanations.NeuroTreeModel(data::CounterfactualData; kwargs...)
-    model = NeuroTreeModels.NeuroTreeRegressor(; loss=:mlogloss, kwargs...)
+    l = data.likelihood == :classification_multi ? :mlogloss : :mse
+    model = NeuroTreeModels.NeuroTreeRegressor(; loss=l, kwargs...)
     return NeuroTreeModel(model, data.likelihood, nothing)
 end
 
@@ -72,8 +73,65 @@ This method is not called by the user directly.
 """
 function Models.train(M::NeuroTreeModel, data::CounterfactualData; kwargs...)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
+    y = Int.(y.refs)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
-    M.fitresult = mach.fitresult
+    M = NeuroTreeModel(M.model, M.likelihood, mach.fitresult)
     return M
+end
+
+"""
+    Models.logits(M::NeuroTreeModel, X::AbstractArray)
+
+Calculates the logit scores output by the model M for the input data X.
+
+# Arguments
+- `M::NeuroTreeModel`: The model selected by the user. Must be a model from the MLJ library.
+- `X::AbstractArray`: The feature vector for which the logit scores are calculated.
+
+# Returns
+- `logits::Matrix`: A matrix of logits for each output class for each data point in X.
+
+# Example
+logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
+"""
+function Models.logits(M::NeuroTreeModel, X::AbstractArray)
+    p = Models.probs(M, X)
+    if M.likelihood == :classification_binary
+        logits = log.(p ./ (1 .- p))
+    else
+        logits = log.(p)
+    end
+    return logits
+end
+
+"""
+    Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2})
+
+Calculates the probability scores for each output class for the two-dimensional input data matrix X.
+
+# Arguments
+- `M::NeuroTreeModel`: The NeuroTree model.
+- `X::AbstractArray`: The feature vector for which the predictions are made.
+
+# Returns
+- `p::Matrix`: A matrix of probability scores for each output class for each data point in X.
+
+# Example
+probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
+"""
+function Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,2})
+    output = MLJBase.predict(M.model, M.fitresult, DataFrames.DataFrame(X', :auto))
+    return output'
+end
+
+"""
+    Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 1})
+
+Works the same way as the probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
+"""
+function Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,1})
+    X = reshape(X, 1, length(X))
+    output = MLJBase.predict(M.model, M.fitresult, DataFrames.DataFrame(X, :auto))
+    return output'
 end
