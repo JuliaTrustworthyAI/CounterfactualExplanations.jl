@@ -1,8 +1,10 @@
-# Handling Models
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Handling Models
 
 The typical use-case for Counterfactual Explanations and Algorithmic Recourse is as follows: users have trained some supervised model that is not inherently interpretable and are looking for a way to explain it. In this tutorial, we will see how pre-trained models can be used with this package.
 
@@ -12,7 +14,8 @@ We will train a simple binary classifier in `Flux.jl` on the popular Moons datas
 
 ``` julia
 n = 500
-counterfactual_data = load_moons(n)
+data = TaijaData.load_moons(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 X = counterfactual_data.X
 y = counterfactual_data.y
 plt = plot()
@@ -61,15 +64,15 @@ end
 ```
 
     Epoch 20
-    avg_loss(data) = 0.14074339f0
+    avg_loss(data) = 0.1407434f0
     Epoch 40
-    avg_loss(data) = 0.113451175f0
+    avg_loss(data) = 0.11345118f0
     Epoch 60
     avg_loss(data) = 0.046319224f0
     Epoch 80
     avg_loss(data) = 0.011847609f0
     Epoch 100
-    avg_loss(data) = 0.0072429096f0
+    avg_loss(data) = 0.007242911f0
 
 To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2016).
 

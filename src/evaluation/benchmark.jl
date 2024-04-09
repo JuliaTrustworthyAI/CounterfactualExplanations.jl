@@ -1,5 +1,6 @@
 using Base.Iterators
 using Serialization
+using TaijaBase: AbstractParallelizer, vectorize_collection, parallelize
 using UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
@@ -108,7 +109,7 @@ function benchmark(
     parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
     kwrgs...,
 )
-    xs = CounterfactualExplanations.vectorize_collection(xs)
+    xs = vectorize_collection(xs)
 
     # Grid setup:
     grid = []
@@ -190,7 +191,7 @@ Runs the benchmarking exercise as follows:
 1. Randomly choose a `factual` and `target` label unless specified. 
 2. If no pretrained `models` are provided, it is assumed that a dictionary of callable model objects is provided (by default using the `standard_models_catalogue`). 
 3. Each of these models is then trained on the data. 
-4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(x::Union{AbstractArray,Base.Iterators.Zip},...)`](@ref).
+4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(xs::Union{AbstractArray,Base.Iterators.Zip})`](@ref).
 5. Finally, concatenate the results.
 
 If `vertical_splits` is specified to an integer, the computations are split vertically into `vertical_splits` chunks. In this case, the results are stored in a temporary directory and concatenated afterwards. 
@@ -278,7 +279,7 @@ function benchmark(
                 push!(chosen, chosen_ind)
             end
             xs = CounterfactualExplanations.select_factual(test_data, chosen)
-            xs = CounterfactualExplanations.vectorize_collection(xs)
+            xs = vectorize_collection(xs)
             # Form the grid:
             for (i, x) in enumerate(xs)
                 sample_id = uuid1()

@@ -1,8 +1,10 @@
-# Model Catalogue
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# Model Catalogue
 
 While in general it is assumed that users will use this package to explain their pre-trained models, we provide out-of-the-box functionality to train various simple default models. In this tutorial, we will see how these models can be fitted to `CounterfactualData`.
 
@@ -14,12 +16,13 @@ The `standard_models_catalogue` can be used to inspect the available default mod
 standard_models_catalogue
 ```
 
-    Dict{Symbol, Any} with 3 entries:
+    Dict{Symbol, Any} with 4 entries:
       :Linear       => Linear
+      :LaplaceRedux => LaplaceReduxModel
       :DeepEnsemble => FluxEnsemble
       :MLP          => FluxModel
 
-As with the [`data_catalogue`](@ref), the dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
+The dictionary keys correspond to the model names. In this case, the dictionary values are constructors that can be used called on instances of type `CounterfactualData` to fit the corresponding model. In most cases, users will find it most convenient to use the [`fit_model`](@ref) API call instead.
 
 ## Fitting Models
 
@@ -35,11 +38,12 @@ However, when using models not included in the `standard_models_catalogue`, addi
 
 ## Fitting Flux Models
 
-First, let’s load one of the synthetic datasets:
+First, let’s load one of the synthetic datasets. For this, we’ll first need to import the `TaijaData.jl` package:
 
 ``` julia
 n = 500
-counterfactual_data = load_multi_class(n)
+data = TaijaData.load_multi_class(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 ```
 
 We could use a Deep Ensemble (Lakshminarayanan, Pritzel, and Blundell 2016) as follows:
@@ -66,7 +70,7 @@ plot(plts...)
 The package supports generating counterfactuals for any neural network that has been previously defined and trained using PyTorch, regardless of the specific architectural details of the model. To generate counterfactuals for a PyTorch model, save the model inside a `.pt` file and call the following function:
 
 ``` julia
-model_loaded = CounterfactualExplanations.Models.pytorch_model_loader(
+model_loaded = TaijaInteroperability.pytorch_model_loader(
     "$(pwd())/docs/src/tutorials/miscellaneous",
     "neural_network_class",
     "NeuralNetwork",
@@ -93,7 +97,7 @@ The reason why the model file and Pickle file have to be provided separately is 
 Once the PyTorch model has been loaded into the package, wrap it inside the PyTorchModel class:
 
 ``` julia
-model_pytorch = CounterfactualExplanations.Models.PyTorchModel(model_loaded, counterfactual_data.likelihood)
+model_pytorch = TaijaInteroperability.PyTorchModel(model_loaded, counterfactual_data.likelihood)
 ```
 
 This model can now be passed into the generators like any other.
@@ -122,7 +126,7 @@ Make sure to specify the correct file path where you want to save the model.
 To import the R torch model into the CounterfactualExplanations package, use the `rtorch_model_loader()` function. This function loads the model from the previously saved `.pt` file. Here is an example of how to load the R torch model:
 
 ``` julia
-model_loaded = CounterfactualExplanations.Models.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
+model_loaded = TaijaInteroperability.rtorch_model_loader("$(pwd())/docs/src/tutorials/miscellaneous/r_model.pt")
 ```
 
 The `rtorch_model_loader()` function requires only one argument:
@@ -133,7 +137,7 @@ The `rtorch_model_loader()` function requires only one argument:
 Once the R torch model has been loaded into the package, wrap it inside the `RTorchModel` class. This step prepares the model to be used by the counterfactual generators. Here is an example:
 
 ``` julia
-model_R = CounterfactualExplanations.Models.RTorchModel(model_loaded, counterfactual_data.likelihood)
+model_R = TaijaInteroperability.RTorchModel(model_loaded, counterfactual_data.likelihood)
 ```
 
 ### Generating counterfactuals with the R torch model
@@ -147,7 +151,8 @@ Please note that RCall is not fully compatible with PythonCall. Therefore, it is
 By default, model architectures are very simple. Through optional arguments, users have some control over the neural network architecture and can choose to impose regularization through dropout. Let’s tackle a more challenging dataset: MNIST (LeCun 1998).
 
 ``` julia
-counterfactual_data = load_mnist(10000)
+data = TaijaData.load_mnist(10000)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 train_data, test_data = 
     CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
 ```
@@ -198,7 +203,7 @@ model_evaluation(M, test_data)
 ```
 
     1-element Vector{Float64}:
-     0.9136076495599659
+     0.9185
 
 Finally, let’s restore the default training parameters:
 
@@ -208,19 +213,20 @@ CounterfactualExplanations.reset!(flux_training_params)
 
 ## Fitting and tuning MLJ models
 
-Among models from the MLJ library, three models are supported as of now:
+Among models from the MLJ library, two models are integrated as part of the core functionality of the package:
 
 ``` julia
 mlj_models_catalogue
 ```
 
-From these models, the `DecisionTreeModel` and the `RandomForestModel` are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don’t apply for them. Support for generating counterfactuals for the `EvoTreeModel` has not been implemented yet.
+These models are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don’t apply for them.
 
 Tuning MLJ models is very simple. As the first step, let’s reload the dataset:
 
 ``` julia
 n = 500
-counterfactual_data = CounterfactualExplanations.Data.load_moons(n)
+data = TaijaData.load_moons(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 ```
 
 Using the usual procedure for fitting models, we can call the following method:
@@ -235,9 +241,43 @@ However, it’s also possible to tune the DecisionTreeClassifier’s parameters.
 tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
 ```
 
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections. The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
 
-Please note again that generating counterfactuals for the `EvoTreeModel` is not supported yet.
+## Package extension models
+
+The package also includes two models which don’t form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceReduxModel` from `LaplaceRedux.jl`.
+
+To trigger the package extensions, the weak dependency first has to be loaded with the `using` keyword:
+
+``` julia
+using EvoTrees
+```
+
+Once this is done, the extension models can be used like any other model:
+
+``` julia
+M = fit_model(counterfactual_data, :EvoTree; model_params...)
+```
+
+    EvoTreesExt.EvoTreeModel(machine(EvoTreeClassifier{EvoTrees.MLogLoss}
+     - nrounds: 100
+     - L2: 0.0
+     - lambda: 0.0
+     - gamma: 0.0
+     - eta: 0.1
+     - max_depth: 6
+     - min_weight: 1.0
+     - rowsample: 1.0
+     - colsample: 1.0
+     - nbins: 64
+     - alpha: 0.5
+     - tree_type: binary
+     - rng: MersenneTwister(123, (0, 9018, 8016, 884))
+    , …), :classification_multi)
+
+The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
+
+Please note that support for counterfactual generation with both `LaplaceReduxModel` and `EvoTreeModel` is not yet fully implemented.
 
 ## References
 

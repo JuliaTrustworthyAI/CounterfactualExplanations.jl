@@ -1,8 +1,10 @@
-# How to add Custom Generators
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# How to add Custom Generators
 
 As we will see in this short tutorial, building custom counterfactual generators is straightforward. We hope that this will facilitate contributions through the community.
 
@@ -23,6 +25,7 @@ struct DropoutGenerator <: AbstractDropoutGenerator
     λ::AbstractFloat # strength of penalty
     latent_space::Bool
     opt::Any # optimizer
+    generative_model_params::NamedTuple
     p_dropout::AbstractFloat # dropout rate
 end
 
@@ -33,6 +36,7 @@ generator = DropoutGenerator(
     0.1,
     false,
     Flux.Optimise.Descent(0.1),
+    (;),
     0.5,
 )
 ```

@@ -64,9 +64,10 @@ The approach can be used in our package as follows:
 ```{julia}
 #| output: true
 generator = DiCEGenerator()
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
 ce = generate_counterfactual(
     x, target, counterfactual_data, M, generator; 
-    num_counterfactuals=5, converge_when=:generator_conditions
+    num_counterfactuals=5, convergence=conv
 )
 plot(ce)
 ```
@@ -85,7 +86,7 @@ for λ₂ ∈ Λ₂
       ces...,
       generate_counterfactual(
             x, target, counterfactual_data, M, generator; 
-            num_counterfactuals=n_cf, converge_when=:generator_conditions
+            num_counterfactuals=n_cf, convergence=conv
       )
     )
 end

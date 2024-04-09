@@ -19,7 +19,8 @@ We will train a simple binary classifier in `Flux.jl` on the popular Moons datas
 ```{julia}
 #| output: true
 n = 500
-counterfactual_data = load_moons(n)
+data = TaijaData.load_moons(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 X = counterfactual_data.X
 y = counterfactual_data.y
 plt = plot()

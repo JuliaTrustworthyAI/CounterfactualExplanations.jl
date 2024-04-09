@@ -1,8 +1,10 @@
-# `GenericGenerator`
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
+
+# `GenericGenerator`
 
 We use the term **generic** to relate to the basic counterfactual generator proposed by Wachter, Mittelstadt, and Russell (2017) with $L1$-norm regularization. There is also a variant of this generator that uses the distance metric proposed in Wachter, Mittelstadt, and Russell (2017), which we call `WachterGenerator`.
 
@@ -30,4 +32,4 @@ plot(ce)
 
 ## References
 
-Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. “Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.” *Harv. JL & Tech.* 31: 841.
+Wachter, Sandra, Brent Mittelstadt, and Chris Russell. 2017. “Counterfactual Explanations Without Opening the Black Box: Automated Decisions and the GDPR.” *Harv. JL & Tech.* 31: 841. <https://doi.org/10.2139/ssrn.3063289>.

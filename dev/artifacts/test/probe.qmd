@@ -21,16 +21,14 @@ x = select_factual(counterfactual_data, chosen)
 generator = ProbeGenerator()
 ```
 ```{julia}
+conv = CounterfactualExplanations.Convergence.InvalidationRateConvergence(;invalidation_rate=0.99, max_iter=1000)
 linear_counterfactual = generate_counterfactual(
     x,
     target,
     counterfactual_data,
     M,
     generator;
-    converge_when=:invalidation_rate,
-    max_iter=1000,
-    invalidation_rate=0.99,
-    learning_rate=0.1,
+    convergence=conv,
 )
 CounterfactualExplanations.plot(linear_counterfactual)
 ```

@@ -1,19 +1,23 @@
-# Simple Example
+
 
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
+# Simple Example
+
 In this tutorial, we will go through a simple example involving synthetic data and a generic counterfactual generator.
 
 ## Data and Classifier
 
-Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it. For more information on generating data and models, refer to the `Handling Data` and `Handling Models` tutorials respectively.
+Below we generate some linearly separable data and fit a simple MLP classifier with batch normalization to it.
+For more information on generating data and models, refer to the `Handling Data` and `Handling Models` tutorials respectively.
 
 ``` julia
 # Counteractual data and model:
 flux_training_params.batchsize = 10
-counterfactual_data = load_linearly_separable()
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 counterfactual_data.standardize = true
 M = fit_model(counterfactual_data, :MLP, batch_norm=true)
 ```
