@@ -80,6 +80,7 @@ function Models.train(M::NeuroTreeModel, data::CounterfactualData)
     X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
+    Flux.testmode!(mach.fitresult.chain)
     M = NeuroTreeModel(M.model, M.likelihood, mach.fitresult)
     return M
 end
