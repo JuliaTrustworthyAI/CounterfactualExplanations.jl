@@ -1,4 +1,5 @@
 using CounterfactualExplanations.Models
+using Flux
 using MLJBase
 using Tables: columntable
 
@@ -98,15 +99,7 @@ Calculates the logit scores output by the model M for the input data X.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
 """
-function Models.logits(M::NeuroTreeModel, X::AbstractArray)
-    p = Models.probs(M, X)
-    if M.likelihood == :classification_binary
-        logits = log.(p ./ (1 .- p))
-    else
-        logits = log.(p)
-    end
-    return logits
-end
+Models.logits(M::NeuroTreeModel, X::AbstractArray) = M.fitresult(X)
 
 """
     Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2})
@@ -123,10 +116,7 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-function Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,2})
-    output = MLJBase.predict(M.model, M.fitresult, DataFrames.DataFrame(X', :auto))
-    return output'
-end
+Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,2}) = softmax(logits(M, X))
 
 """
     Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 1})
@@ -135,6 +125,5 @@ Works the same way as the probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2}
 """
 function Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,1})
     X = reshape(X, 1, length(X))
-    output = MLJBase.predict(M.model, M.fitresult, DataFrames.DataFrame(X, :auto))
-    return output'
+    return Models.probs(M, X)
 end
