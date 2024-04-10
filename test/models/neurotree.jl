@@ -15,4 +15,4 @@ x = select_factual(data, chosen)
 
 generator = GenericGenerator()
 
-
+ce = generate_counterfactual(x, target, data, M, generator)
