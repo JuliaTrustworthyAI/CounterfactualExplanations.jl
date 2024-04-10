@@ -1,5 +1,6 @@
 using CounterfactualExplanations.Models
 using MLJBase
+using Tables: columntable
 
 """
     NeuroTreeModel <: AbstractMLJModel
@@ -54,7 +55,8 @@ Not called by the user directly.
 """
 function CounterfactualExplanations.NeuroTreeModel(data::CounterfactualData; kwargs...)
     l = data.likelihood == :classification_multi ? :mlogloss : :mse
-    model = NeuroTreeModels.NeuroTreeRegressor(; loss=l, kwargs...)
+    outsize = length(data.y_levels)
+    model = NeuroTreeModels.NeuroTreeRegressor(; loss=l, outsize=outsize, kwargs...)
     return NeuroTreeModel(model, data.likelihood, nothing)
 end
 
@@ -71,9 +73,10 @@ This method is not called by the user directly.
 # Returns
 - `M::NeuroTreeModel`: The fitted NeuroTree model.
 """
-function Models.train(M::NeuroTreeModel, data::CounterfactualData; kwargs...)
-    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
-    y = Int.(y.refs)
+function Models.train(M::NeuroTreeModel, data::CounterfactualData)
+    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data) 
+    y = float.(y.refs)
+    X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
     M = NeuroTreeModel(M.model, M.likelihood, mach.fitresult)
