@@ -20,5 +20,5 @@ using TaijaData
     )
     ce = generate_counterfactual(x, target, data, M, generator)
     @test typeof(ce) <: CounterfactualExplanation
-    @test CounterfactualExplanations.counterfactual_label(ce) == target
+    @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end
