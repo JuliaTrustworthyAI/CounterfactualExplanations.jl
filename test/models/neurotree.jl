@@ -2,7 +2,6 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using MLJBase
 using NeuroTreeModels
-using Plots
 using TaijaData
 
 @testset "NeuroTreeModel" begin
