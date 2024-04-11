@@ -15,7 +15,9 @@ using TaijaData
 
     η = 0.5
     generator = GenericGenerator(; opt=Descent(η))
-    conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(decision_threshold=0.9)
+    conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(;
+        decision_threshold=0.9
+    )
     ce = generate_counterfactual(x, target, data, M, generator)
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == target
