@@ -20,4 +20,3 @@ using TaijaData
     @test typeof(ce) <: CounterfactualExplanation
     @test converged(ce.convergence, ce)
 end
-

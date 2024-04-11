@@ -75,7 +75,7 @@ This method is not called by the user directly.
 - `M::NeuroTreeModel`: The fitted NeuroTree model.
 """
 function Models.train(M::NeuroTreeModel, data::CounterfactualData)
-    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data) 
+    X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     y = float.(y.refs)
     X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
