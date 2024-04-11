@@ -1,6 +1,7 @@
 include("generative_models.jl")
 include("pretrained.jl")
 include("flux/mlp.jl")
+include("neurotree.jl")
 include("utils.jl")
 
 @testset "Standard models for synthetic data" begin
