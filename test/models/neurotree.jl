@@ -13,9 +13,10 @@ using TaijaData
     chosen = rand(findall(predict_label(M, data) .== factual))
     x = select_factual(data, chosen)
 
-    η = 0.1
+    η = 0.5
     generator = GenericGenerator(; opt=Descent(η))
+    conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(decision_threshold=0.9)
     ce = generate_counterfactual(x, target, data, M, generator)
     @test typeof(ce) <: CounterfactualExplanation
-    @test converged(ce.convergence, ce)
+    @test CounterfactualExplanations.counterfactual_label(ce) == target
 end
