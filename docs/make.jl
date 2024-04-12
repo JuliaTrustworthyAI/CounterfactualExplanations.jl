@@ -16,6 +16,7 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl",
         assets=String[],
+        size_threshold_ignore=["reference.md"],
     ),
     pages=[
         "🏠 Home" => "index.md",
