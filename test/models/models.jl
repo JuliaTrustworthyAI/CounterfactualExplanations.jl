@@ -3,7 +3,7 @@ include("pretrained.jl")
 include("flux/mlp.jl")
 if VERSION >= v"1.9"
     # Extension currently only works with Julia 1.9 and above (https://github.com/Evovest/NeuroTreeModels.jl/pull/7)
-    include("neurotree.jl")
+    include("neurotree/neurotree.jl")
 end
 include("utils.jl")
 
