@@ -9,3 +9,44 @@ eval(setup_docs)
 ```
 
 # [NeuroTreeModels.jl](https://evovest.github.io/NeuroTreeModels.jl/dev/)
+
+[NeuroTreeModels.jl](https://evovest.github.io/NeuroTreeModels.jl/dev/) is a package that provides a framework for training differentiable tree-based models. This is relevant to the work on counterfactual explanations (CE), which often assumes that the underlying black-box model is differentiable with respect to its input. The literature on CE therefore regularly focuses exclusively on explaining deep learning models. This is at odds with the fact that the literature also typically focuses on tabular data, which is often best modeled by tree-based models [@grinsztajn2022why]. The extension for NeuroTreeModels.jl provides a way to bridge this gap by allowing users to apply existing gradient-based CE methods to differentiable tree-based models.
+
+## Example
+
+```{julia}
+#| echo: false
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Flux
+using MLJBase
+using Plots
+using TaijaData
+using TaijaPlotting
+```
+
+```{julia}
+using NeuroTreeModels
+
+# Fit model to data:
+data = CounterfactualData(load_linearly_separable()...)
+M = fit_model(data, :NeuroTree; depth=2, lr=2e-2, nrounds=50)
+
+# Select a factual instance:
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Generate counterfactual explanation:
+η = 0.1
+generator = GenericGenerator(; opt=Descent(η))
+conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(;
+    decision_threshold=0.9, max_iter=250
+)
+ce = generate_counterfactual(x, target, data, M, generator)
+plot(ce)
+```
+
+# References
