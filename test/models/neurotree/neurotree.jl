@@ -5,6 +5,10 @@ using MLJBase
 using NeuroTreeModels
 using TaijaData
 
+@info "Activating local environment"
+using Pkg
+Pkg.activate(".")
+
 @testset "NeuroTreeModel" begin
     data = CounterfactualData(load_linearly_separable()...)
     M = fit_model(data, :NeuroTree; depth=2, lr=2e-2, nrounds=50)
@@ -23,3 +27,6 @@ using TaijaData
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end
+
+@info "Deactivating local environment"
+Pkg.activate("../../")
