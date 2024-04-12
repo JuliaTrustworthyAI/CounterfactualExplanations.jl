@@ -23,10 +23,10 @@ using TaijaData
     x = select_factual(data, chosen)
 
     # Generate counterfactual explanation:
-    η = 0.1
+    η = 1.0
     generator = GenericGenerator(; opt=Descent(η), λ=0.01)
     conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(;
-        decision_threshold=0.9, max_iter=100
+        decision_threshold=0.9, max_iter=250
     )
     ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
     @test typeof(ce) <: CounterfactualExplanation
