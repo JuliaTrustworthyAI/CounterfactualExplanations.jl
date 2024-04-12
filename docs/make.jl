@@ -62,6 +62,7 @@ makedocs(;
             "... add custom models" => "how_to_guides/custom_models.md",
             # "... explain R/Python models" => "how_to_guides/interop.md",
         ],
+        "⛓️ Extensions" => ["Overview" => "extensions/index.md"],
         "🧐 Reference" => "reference.md",
         "🛠 Contribute" => "contribute.md",
         "📚 Additional Resources" => "assets/resources.md",
