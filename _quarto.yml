@@ -5,6 +5,8 @@ crossref:
   fig-prefix: Figure
   tbl-prefix: Table
 bibliography: bib.bib
+resource-path: 
+  - docs/src/assets
 
 execute: 
   freeze: auto

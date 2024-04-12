@@ -16,6 +16,7 @@ makedocs(;
         prettyurls=get(ENV, "CI", "false") == "true",
         canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl",
         assets=String[],
+        size_threshold_ignore=["reference.md"],
     ),
     pages=[
         "🏠 Home" => "index.md",
@@ -59,7 +60,11 @@ makedocs(;
             "Overview" => "how_to_guides/index.md",
             "... add custom generators" => "how_to_guides/custom_generators.md",
             "... add custom models" => "how_to_guides/custom_models.md",
-            # "... explain R/Python models" => "how_to_guides/interop.md",
+        ],
+        "⛓️ Extensions" => [
+            "Overview" => "extensions/index.md",
+            "NeuroTrees" => "extensions/neurotree.md",
+            "LaplaceRedux" => "extensions/laplace_redux.md",
         ],
         "🧐 Reference" => "reference.md",
         "🛠 Contribute" => "contribute.md",

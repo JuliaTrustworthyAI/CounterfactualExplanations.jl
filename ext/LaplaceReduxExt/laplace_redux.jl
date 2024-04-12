@@ -103,7 +103,7 @@ function Models.train(
     # Train atomic model
     if train_atomic
         @info "Training atomic model"
-        M_atomic = FluxModel(data; kwargs...)
+        M_atomic = FluxModel(la.model; likelihood=M.likelihood)
         M_atomic = Models.train(M_atomic, data)
         la = LaplaceRedux.Laplace(M_atomic.model; likelihood=M.model.likelihood)
     end

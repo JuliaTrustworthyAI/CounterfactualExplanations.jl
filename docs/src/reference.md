@@ -18,7 +18,7 @@ In other words, you come here because you want to take a very close look at the 
 
 ``` @contents
 Pages = ["reference.md"]
-Depth = 3
+Depth = 2
 ```
 
 ## Exported functions

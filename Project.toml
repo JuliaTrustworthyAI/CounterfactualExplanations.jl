@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "1.0.0"
+version = "1.1.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
@@ -32,10 +32,12 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 [weakdeps]
 EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 
 [extensions]
 EvoTreesExt = "EvoTrees"
 LaplaceReduxExt = "LaplaceRedux"
+NeuroTreeExt = "NeuroTreeModels"
 
 [compat]
 Aqua = "0.8"
@@ -55,6 +57,7 @@ MLJBase = "0.21, 1"
 MLJDecisionTreeInterface = "0.4.0"
 MLUtils = "0.2, 0.3, 0.4"
 MultivariateStats = "0.9, 0.10"
+NeuroTreeModels = "1.1.0"
 PackageExtensionCompat = "1"
 Parameters = "0.12"
 ProgressMeter = "1"
@@ -72,7 +75,8 @@ julia = "1.6, 1.7, 1.8, 1.9, 1.10"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "EvoTrees", "LaplaceRedux", "Test"]
+test = ["Aqua", "EvoTrees", "LaplaceRedux", "NeuroTreeModels", "Test"]

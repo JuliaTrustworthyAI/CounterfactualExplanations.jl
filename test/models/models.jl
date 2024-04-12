@@ -1,6 +1,10 @@
 include("generative_models.jl")
 include("pretrained.jl")
 include("flux/mlp.jl")
+if VERSION >= v"1.9"
+    # Extension currently only works with Julia 1.9 and above (https://github.com/Evovest/NeuroTreeModels.jl/pull/7)
+    include("neurotree/neurotree.jl")
+end
 include("utils.jl")
 
 @testset "Standard models for synthetic data" begin

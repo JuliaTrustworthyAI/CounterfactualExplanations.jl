@@ -5,3 +5,4 @@
 
 include("EvoTreesExt.jl")
 include("LaplaceReduxExt.jl")
+include("NeuroTreeExt.jl")
