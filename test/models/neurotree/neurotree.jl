@@ -1,13 +1,13 @@
+@info "Activating local environment"
+using Pkg
+Pkg.activate(".")
+
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using Flux
 using MLJBase
 using NeuroTreeModels
 using TaijaData
-
-@info "Activating local environment"
-using Pkg
-Pkg.activate(".")
 
 @testset "NeuroTreeModel" begin
     data = CounterfactualData(load_linearly_separable()...)
