@@ -1,0 +1,11 @@
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# [NeuroTreeModels.jl](https://evovest.github.io/NeuroTreeModels.jl/dev/)
