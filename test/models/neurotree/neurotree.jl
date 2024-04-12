@@ -1,6 +1,6 @@
 @info "Activating local environment"
 using Pkg
-Pkg.activate(".")
+Pkg.activate("models/neurotree/")
 
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
@@ -29,4 +29,4 @@ using TaijaData
 end
 
 @info "Deactivating local environment"
-Pkg.activate("../../")
+Pkg.activate(".")
