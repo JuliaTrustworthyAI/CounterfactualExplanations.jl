@@ -21,5 +21,3 @@ using TaijaData
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end
-
-
