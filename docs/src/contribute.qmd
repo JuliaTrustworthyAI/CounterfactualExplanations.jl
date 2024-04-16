@@ -1,17 +1,9 @@
-```@meta
-CurrentModule = CounterfactualExplanations 
-```
+## 🛠 Contribute
 
-# 🛠 Contribute
+Contributions of any kind are very much welcome! Take a look at the [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) to see what things we are currently working on. If you have an idea for a new feature or want to report a bug, please open a new issue. 
 
-Contributions of any kind are very much welcome! Take a look at the [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) to see what things we are currently working on.
+If your looking to contribute code, it may be helpful to check out the [Explanation](explanation/index.qmd) section of the docs. 
 
-If any of the below applies to you, this might be the right open-source project for you:
+There are also some general pointers for people looking to contribute to any of our Taija packages [here](https://github.com/JuliaTrustworthyAI#general-pointers-for-contributors).
 
--   You're an expert in Counterfactual Explanations or Explainable AI more broadly and you are curious about Julia.
--   You're experienced with Julia and are happy to help someone less experienced to up their game. Ideally, you are also curious about Trustworthy AI.
--   You're new to Julia and open-source development and would like to start your learning journey by contributing to a recent and active development. Ideally, you are familiar with machine learning.
-
-[\@pat-alt](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions). 
-
-For more details on how to contribute see [here](https://www.paltmeyer.com/CounterfactualExplanations.jl/dev/contributing/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
+Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).

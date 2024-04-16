@@ -1,3 +1,12 @@
+"""
+    MaxIterConvergence
+
+Convergence criterion based on the maximum number of iterations.
+
+# Fields
+
+- `max_iter::Int`: The maximum number of iterations.
+"""
 Base.@kwdef struct MaxIterConvergence <: AbstractConvergence
     max_iter::Int = 100
 end

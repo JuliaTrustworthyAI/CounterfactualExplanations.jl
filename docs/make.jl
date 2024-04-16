@@ -1,20 +1,29 @@
 using CounterfactualExplanations
+using Changelog
 using Documenter
 
 include("setup_docs.jl")
 
 DocMeta.setdocmeta!(
-    CounterfactualExplanations, :DocTestSetup, :(setup_docs); recursive=true
+    CounterfactualExplanations, :DocTestSetup, :($setup_docs); recursive=true
+)
+
+# Generate a Documenter-friendly changelog from CHANGELOG.md
+Changelog.generate(
+    Changelog.Documenter(),
+    joinpath(@__DIR__, "..", "CHANGELOG.md"),
+    joinpath(@__DIR__, "src", "release-notes.md");
+    repo="juliatrustworthyai/CounterfactualExplanations.jl",
 )
 
 makedocs(;
     modules=[CounterfactualExplanations],
     authors="Patrick Altmeyer",
-    repo="https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/{commit}{path}#{line}",
+    repo=Documenter.Remotes.GitHub("juliatrustworthyai", "CounterfactualExplanations.jl"),
     sitename="CounterfactualExplanations.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl",
+        canonical="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable",
         assets=String[],
         size_threshold_ignore=["reference.md"],
     ),
@@ -32,6 +41,7 @@ makedocs(;
             "Evaluating Explanations" => "tutorials/evaluation.md",
             "Benchmarking Explanations" => "tutorials/benchmarking.md",
             "Parallelization" => "tutorials/parallelization.md",
+            "Convergence" => "tutorials/convergence.md",
         ],
         "🤓 Explanation" => [
             "Overview" => "explanation/index.md",
@@ -69,9 +79,11 @@ makedocs(;
         "🧐 Reference" => "reference.md",
         "🛠 Contribute" => "contribute.md",
         "📚 Additional Resources" => "assets/resources.md",
+        "Release Notes" => "release-notes.md",
     ],
 )
 
 deploydocs(;
-    repo="github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl", devbranch="main"
+    repo="github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl.git", 
+    devbranch="main"
 )

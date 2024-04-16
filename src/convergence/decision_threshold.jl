@@ -1,3 +1,14 @@
+"""
+    DecisionThresholdConvergence
+
+Convergence criterion based on the target class probability threshold. The search stops when the target class probability exceeds the predefined threshold.
+
+# Fields
+
+- `decision_threshold::AbstractFloat`: The predefined threshold for the target class probability.
+- `max_iter::Int`: The maximum number of iterations.
+- `min_success_rate::AbstractFloat`: The minimum success rate for the target class probability.
+"""
 struct DecisionThresholdConvergence <: AbstractConvergence
     decision_threshold::AbstractFloat
     max_iter::Int
