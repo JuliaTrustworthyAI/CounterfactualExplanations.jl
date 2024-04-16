@@ -315,15 +315,13 @@ ce = generate_counterfactual(
 )
 ```
 
-The animation below shows the resulting counterfactual path:
+The plot below shows the resulting counterfactual path:
 
 ```{julia}
 #| output: true
 #| echo: false
 
-anim = animate_path(ce; title="Factual: $(factual) → Target: $(target)")
-anim = gif(anim, fps=10)
-display(anim)
+plot(ce; title="Factual: $(factual) → Target: $(target)")
 ```
 
 ## ☑️ Implemented Counterfactual Generators
