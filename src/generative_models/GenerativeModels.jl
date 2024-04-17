@@ -1,7 +1,6 @@
 module GenerativeModels
 
 using CounterfactualExplanations
-using CUDA
 using Flux
 using Parameters
 using ProgressMeter

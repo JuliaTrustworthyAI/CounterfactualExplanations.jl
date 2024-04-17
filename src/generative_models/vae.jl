@@ -9,7 +9,7 @@ Parameters.@with_kw mutable struct VAEParams <: AbstractGMParams
     batch_size = 50         # batch size
     epochs = 100            # number of epochs
     seed = 0                # random seed
-    cuda = true             # use GPU
+    gpu = true             # use GPU
     device = gpu            # default device
     latent_dim = 2          # latent dimension
     hidden_dim = 32         # hidden dimension
@@ -41,7 +41,7 @@ function VAE(input_dim; kws...)
     args = VAEParams(; kws...)
 
     # GPU config
-    if args.cuda && CUDA.has_cuda()
+    if args.gpu
         args.device = gpu
     else
         args.device = cpu

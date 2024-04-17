@@ -27,7 +27,7 @@ function initialize_state(ce::CounterfactualExplanation)
     if ce.initialization == :add_perturbation
         Δs′ = randn(eltype(s′), size(s′)) * convert(eltype(s′), 0.1)
         Δs′ = apply_mutability(ce, Δs′)
-        s′ .+= Flux.get_device()(Δs′)
+        s′ .+= Δs′
     end
 
     return s′
