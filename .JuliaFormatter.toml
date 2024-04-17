@@ -1,6 +1,2 @@
 style = "blue"
 pipe_to_function_call = false
-ignore = [
-    "docs/src/LICENSE",
-    "docs/src/CHANGELOG.md"
-]
