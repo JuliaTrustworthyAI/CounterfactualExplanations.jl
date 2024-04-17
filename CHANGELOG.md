@@ -4,13 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-*Note*: We try to adhere to these practices as of version `1.1.1`.
+*Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## [Unreleased]
 
-### Version [v1.1.3] - 2024-04-17
+## Version [v1.1.3] - 2024-04-17
+
+### Added
 
 - Adds a section on `Convergence` to the documentation, `Changelog.jl` functionality and a few doc tests. [#429]
+
+### Changed
+
+- Changes style of taking gradients for the counterfactual search from implicit to explicit. [#430]
 
 ## Version [v1.1.2] - 2024-04-16
 

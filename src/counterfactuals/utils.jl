@@ -19,7 +19,7 @@ function guess_loss(ce::CounterfactualExplanation)
         elseif ce.M.likelihood == :classification_multi
             loss_fun = Objectives.logitcrossentropy
         else
-            loss_fun = Flux.Losses.mse
+            loss_fun = Objectives.mse
         end
     else
         loss_fun = nothing
