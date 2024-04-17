@@ -11,7 +11,7 @@ Changelog.generate(
 )
 
 makedocs(;
-    doctest = false,
+    doctest=false,
     modules=[CounterfactualExplanations],
     authors="Patrick Altmeyer",
     repo=Documenter.Remotes.GitHub("juliatrustworthyai", "CounterfactualExplanations.jl"),
