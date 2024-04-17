@@ -16,7 +16,6 @@ using MLJBase: MLJBase
 using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 using Distributions: Distributions
 using Random
-using Statistics
 
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
