@@ -1,3 +1,7 @@
+using ChainRulesCore: ignore_derivatives
+using MultivariateStats: MultivariateStats
+using StatsBase: StatsBase
+
 """
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
@@ -68,7 +72,7 @@ function encode_state(
     if !ce.generator.latent_space && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        ChainRulesCore.ignore_derivatives() do
+        ignore_derivatives() do
             s = s′[idx, :]
             s = encode_array(dt, s)
             s′[idx, :] = s
@@ -83,6 +87,19 @@ function encode_state(
     end
 
     return s′
+end
+
+"""
+    encode_state!(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+
+In-place version of `encode_state`.
+"""
+function encode_state!(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
+    ce.s′ = encode_state(ce, x)
+
+    return ce
 end
 
 """
@@ -118,7 +135,7 @@ function decode_state(
 
         # Continuous:
         idx = transformable_features(data)
-        ChainRulesCore.ignore_derivatives() do
+        ignore_derivatives() do
             s = s′[idx, :]
             s = decode_array(dt, s)
             s′[idx, :] = s
@@ -136,4 +153,17 @@ function decode_state(
     s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
 
     return s′
+end
+
+"""
+    decode_state!(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+
+In-place version of `decode_state`.
+"""
+function decode_state!(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
+    ce.x′ = decode_state(ce, x)
+
+    return ce
 end

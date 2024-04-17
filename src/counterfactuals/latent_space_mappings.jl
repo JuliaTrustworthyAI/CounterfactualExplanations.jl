@@ -1,3 +1,5 @@
+using Flux: Flux
+
 """
     map_from_latent(
         ce::CounterfactualExplanation,

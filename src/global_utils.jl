@@ -1,7 +1,6 @@
-using CategoricalArrays
+using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
 using Flux
-using MLJBase
-using Parameters
+using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
 
 # Abstract Base Types:
 """
@@ -133,7 +132,7 @@ end
 
 Default MLP training parameters.
 """
-@with_kw mutable struct FluxModelParams
+Base.@kwdef mutable struct FluxModelParams
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100

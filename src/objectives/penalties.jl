@@ -1,3 +1,7 @@
+using LinearAlgebra: LinearAlgebra, det, norm
+using Random: Random
+using Statistics: mean
+
 """
     distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
 

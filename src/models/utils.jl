@@ -1,3 +1,5 @@
+using MLUtils: MLUtils
+
 """
     data_loader(data::CounterfactualData)
 
@@ -5,7 +7,8 @@ Prepares counterfactual data for training in Flux.
 """
 function data_loader(data::CounterfactualData; batchsize=1)
     X, y = CounterfactualExplanations.DataPreprocessing.unpack_data(data)
-    return MLUtils.DataLoader((X, y); batchsize=batchsize)
+    dl = MLUtils.DataLoader((X, y); batchsize=batchsize)
+    return dl
 end
 
 """

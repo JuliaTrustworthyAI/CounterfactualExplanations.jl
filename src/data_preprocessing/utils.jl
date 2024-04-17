@@ -1,3 +1,6 @@
+using CategoricalArrays: CategoricalArrays
+using StatsBase: sample
+
 "Treat `CounterfactualData` as scalar when broadcasting."
 Base.broadcastable(data::CounterfactualData) = Ref(data)
 

@@ -1,3 +1,5 @@
+using Flux: Flux
+
 """
     distance(ce::AbstractCounterfactualExplanation, p::Real=2)
 

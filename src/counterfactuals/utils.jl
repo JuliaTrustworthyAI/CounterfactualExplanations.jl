@@ -19,7 +19,7 @@ function guess_loss(ce::CounterfactualExplanation)
         elseif ce.M.likelihood == :classification_multi
             loss_fun = Objectives.logitcrossentropy
         else
-            loss_fun = Flux.Losses.mse
+            loss_fun = Objectives.mse
         end
     else
         loss_fun = nothing
@@ -66,7 +66,9 @@ function adjust_shape!(ce::CounterfactualExplanation)
 
     search = ce.search
     search[:mutability] = adjust_shape(ce, search[:mutability])      # augment to account for specified number of counterfactuals
-    return ce.search = search
+    ce.search = search
+
+    return ce
 end
 
 """

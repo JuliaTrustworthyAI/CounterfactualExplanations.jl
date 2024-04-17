@@ -1,15 +1,19 @@
+using Flux: Flux, Adam, cpu, gpu
+using ProgressMeter: Progress, next!
+using Statistics: mean
+
 """
     VAEParams <: AbstractGMParams
 
 The default VAE parameters describing both the encoder/decoder architecture and the training process.
 """
-Parameters.@with_kw mutable struct VAEParams <: AbstractGMParams
+Base.@kwdef mutable struct VAEParams <: AbstractGMParams
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization parameter
     batch_size = 50         # batch size
     epochs = 100            # number of epochs
     seed = 0                # random seed
-    cuda = true             # use GPU
+    gpu = true             # use GPU
     device = gpu            # default device
     latent_dim = 2          # latent dimension
     hidden_dim = 32         # hidden dimension
@@ -41,7 +45,7 @@ function VAE(input_dim; kws...)
     args = VAEParams(; kws...)
 
     # GPU config
-    if args.cuda && CUDA.has_cuda()
+    if args.gpu
         args.device = gpu
     else
         args.device = cpu

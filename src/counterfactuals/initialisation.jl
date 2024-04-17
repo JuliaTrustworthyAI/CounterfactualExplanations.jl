@@ -1,3 +1,5 @@
+using Flux
+
 """
     initialize_state(ce::CounterfactualExplanation)
 
@@ -29,4 +31,15 @@ function initialize_state(ce::CounterfactualExplanation)
     end
 
     return s′
+end
+
+"""
+    initialize_state!(ce::CounterfactualExplanation)
+
+Initializes the starting point for the factual(s) in-place.
+"""
+function initialize_state!(ce::CounterfactualExplanation)
+    ce.s′ = initialize_state(ce)
+
+    return ce
 end

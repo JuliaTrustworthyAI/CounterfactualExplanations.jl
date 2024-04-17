@@ -1,4 +1,4 @@
-using LazyArtifacts
+using LazyArtifacts: LazyArtifacts, @artifact_str
 
 function generate_artifact_dir(name::String)
     _artifacts_julia_version = "$(Int(VERSION.major)).$(Int(VERSION.minor))"

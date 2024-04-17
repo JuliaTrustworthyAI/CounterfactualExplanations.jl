@@ -43,7 +43,7 @@ end
 
 Default Deep Ensemble training parameters.
 """
-@with_kw struct FluxEnsembleParams
+Base.@kwdef struct FluxEnsembleParams
     loss::Symbol = :logitbinarycrossentropy
     opt::Symbol = :Adam
     n_epochs::Int = 100

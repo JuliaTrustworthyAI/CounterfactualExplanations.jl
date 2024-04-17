@@ -71,10 +71,7 @@ function CounterfactualExplanation(
     )
 
     # Initialization:
-    adjust_shape!(ce)                   # adjust shape to specified number of counterfactuals
-    ce.s′ = encode_state(ce)            # encode the counterfactual state
-    ce.s′ = initialize_state(ce)        # initialize the counterfactual state
-    ce.x′ = decode_state(ce)            # decode the counterfactual state
+    adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))

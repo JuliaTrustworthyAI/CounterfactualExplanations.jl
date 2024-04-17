@@ -1,12 +1,10 @@
 module GenerativeModels
 
 using CounterfactualExplanations
-using CUDA
 using Flux
-using Parameters
-using ProgressMeter
+using ProgressMeter: ProgressMeter
 using Random
-using Statistics
+using Statistics: Statistics
 
 """
 Base type for generative model.
