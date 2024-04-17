@@ -3,11 +3,11 @@ using .DataPreprocessing
 using .GenerativeModels
 using .Generators
 using .Models
-using ChainRulesCore
+using ChainRulesCore: ChainRulesCore
 using Flux
-using MLUtils
+using MLUtils: MLUtils
 using MultivariateStats
-using Statistics
+using Statistics: Statistics
 using StatsBase
 
 include("core_struct.jl")

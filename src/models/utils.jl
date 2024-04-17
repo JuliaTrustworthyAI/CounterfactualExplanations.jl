@@ -1,3 +1,5 @@
+using MLUtils: MLUtils
+
 """
     data_loader(data::CounterfactualData)
 

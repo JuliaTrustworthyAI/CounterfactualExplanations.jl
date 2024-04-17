@@ -1,3 +1,5 @@
+using Serialization: Serialization
+
 function load_fashion_mnist_mlp()
     M = Serialization.deserialize(joinpath(vision_dir, "fashion_mnist_mlp.jls"))
     return M

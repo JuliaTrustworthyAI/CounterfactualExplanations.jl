@@ -1,3 +1,7 @@
+using ChainRulesCore: ignore_derivatives
+using MultivariateStats: MultivariateStats
+using StatsBase: StatsBase
+
 """
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
@@ -68,7 +72,7 @@ function encode_state(
     if !ce.generator.latent_space && data.standardize
         dt = data.dt
         idx = transformable_features(data)
-        ChainRulesCore.ignore_derivatives() do
+        ignore_derivatives() do
             s = s′[idx, :]
             s = encode_array(dt, s)
             s′[idx, :] = s
@@ -131,7 +135,7 @@ function decode_state(
 
         # Continuous:
         idx = transformable_features(data)
-        ChainRulesCore.ignore_derivatives() do
+        ignore_derivatives() do
             s = s′[idx, :]
             s = decode_array(dt, s)
             s′[idx, :] = s

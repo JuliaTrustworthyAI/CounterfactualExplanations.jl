@@ -1,14 +1,14 @@
 module CounterfactualExplanations
 
 # Package extensions:
-using PackageExtensionCompat
+using PackageExtensionCompat: PackageExtensionCompat, @require_extensions
 function __init__()
     @require_extensions
 end
 
 # Dependencies:
 using Flux
-using TaijaBase
+using TaijaBase: TaijaBase
 
 # Setup:
 include("artifacts_setup.jl")

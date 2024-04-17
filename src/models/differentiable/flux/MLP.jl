@@ -1,4 +1,6 @@
 using Flux: Flux, Chain
+using ProgressMeter: ProgressMeter
+using Statistics: mean
 
 """
     FluxModel <: AbstractFluxModel

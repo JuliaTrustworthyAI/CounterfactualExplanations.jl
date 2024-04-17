@@ -2,8 +2,8 @@ module Objectives
 
 using ..CounterfactualExplanations
 using Flux
-using Flux.Losses
-using ChainRulesCore
+using Flux.Losses: Losses, logitbinarycrossentropy, logitcrossentropy, mse
+using ChainRulesCore: ChainRulesCore
 using LinearAlgebra
 using Statistics
 using Random

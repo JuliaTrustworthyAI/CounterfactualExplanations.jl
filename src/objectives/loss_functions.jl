@@ -1,3 +1,5 @@
+using Statistics: Statistics
+
 """
 	Flux.Losses.logitbinarycrossentropy(ce::AbstractCounterfactualExplanation)
 

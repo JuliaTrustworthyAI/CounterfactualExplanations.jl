@@ -2,14 +2,15 @@ module Models
 
 using ..CounterfactualExplanations
 using ..DataPreprocessing
+using DataFrames: DataFrames
 using Flux
-using MLJBase
-using LazyArtifacts
-using Serialization
+using LazyArtifacts: LazyArtifacts
+using MLJBase: MLJBase
 using MLUtils
 using ProgressMeter
-using Statistics
-using MLJDecisionTreeInterface
+using Serialization
+using Statistics: Statistics
+using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 
 include("utils.jl")
 
