@@ -163,20 +163,3 @@ function reset!(flux_training_params::FluxModelParams)
     return flux_training_params
 end
 
-"""
-    to_device(x)
-
-Move `x` to the device.
-"""
-to_device(x) = Flux.get_device()(x)
-
-"""
-    to_device!(x)
-
-Move `x` to the device in place.
-"""
-function to_device!(x) 
-    x = to_device(x)
-    return x
-end
-

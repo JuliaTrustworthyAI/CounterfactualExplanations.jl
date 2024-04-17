@@ -1,5 +1,3 @@
-using CounterfactualExplanations: to_device!
-
 """
     FluxModel <: AbstractFluxModel
 
@@ -10,7 +8,7 @@ struct FluxModel <: AbstractFluxModel
     likelihood::Symbol
     function FluxModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
-            Flux.testmode!(model) |> to_device!
+            Flux.testmode!(model) 
             new(model, likelihood)
         else
             throw(
@@ -29,9 +27,7 @@ end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    m = M.model |> to_device!
-    X = X |> to_device!
-    return m(X)
+    return M.model(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)
@@ -89,8 +85,6 @@ function forward!(
     end
 
     Flux.trainmode!(model)
-    # data = gpu(data)
-    # model = gpu(model)
     opt_state = Flux.setup(opt_, model)
     for epoch in 1:n_epochs
         for d in data

@@ -41,12 +41,6 @@ function CounterfactualExplanation(
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
 
-    # To device:
-    x = to_device(x)
-    data = to_device(data)
-    target = to_device(target)
-    to_device!(M)
-
     @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
 

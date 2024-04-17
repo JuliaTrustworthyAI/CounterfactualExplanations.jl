@@ -8,17 +8,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Added
+### Version [v1.1.3] - 2024-04-17
 
 - Adds a section on `Convergence` to the documentation, `Changelog.jl` functionality and a few doc tests. [#429]
 
-## [1.1.2] - 2024-04-16
+## Version [v1.1.2] - 2024-04-16
 
 ### Changed
 
 - Replaces the GIF in the README and introduction of docs for a static image. 
 
-## [1.1.1] - 2024-04-15
+## Version [v1.1.1] - 2024-04-15
 
 ### Added
 

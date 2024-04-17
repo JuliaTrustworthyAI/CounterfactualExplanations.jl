@@ -9,7 +9,7 @@ function ∂ℓ(
     M::Models.AbstractDifferentiableModel,
     ce::AbstractCounterfactualExplanation,
 )
-    return Flux.gradient(() -> ℓ(generator, ce), Flux.params(ce.s′))[ce.s′]
+    return Flux.gradient(ce -> ℓ(generator, ce), ce)[1][:s′]
 end
 
 """
@@ -23,7 +23,7 @@ If the penalty is not provided, it returns 0.0. By default, Zygote never works o
 function ∂h(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    _grad = Flux.gradient(() -> h(generator, ce), Flux.params(ce.s′))[ce.s′]
+    _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:s′]
     _grad = isnothing(_grad) ? 0.0 : _grad
     return _grad
 end
