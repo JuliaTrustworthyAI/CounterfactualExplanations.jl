@@ -6,7 +6,7 @@
 
 *Counterfactual Explanations and Algorithmic Recourse in Julia.*
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](assets/intro.gif) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations) [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) [![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) [![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) [![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) [![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) [![Package Downloads](https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/CounterfactualExplanations/.png)](https://pkgs.genieframework.com?packages=CounterfactualExplanations) [![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
 
 `CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
 
@@ -155,19 +155,29 @@ Our ambition is to enhance the package through the following features:
 
 ## 🛠 Contribute
 
-Contributions of any kind are very much welcome! Take a look at the [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) to see what things we are currently working on.
+Contributions of any kind are very much welcome! Take a look at the [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) to see what things we are currently working on. If you have an idea for a new feature or want to report a bug, please open a new issue.
 
-If any of the below applies to you, this might be the right open-source project for you:
+### Development
 
-- You’re an expert in Counterfactual Explanations or Explainable AI more broadly and you are curious about Julia.
-- You’re experienced with Julia and are happy to help someone less experienced to up their game. Ideally, you are also curious about Trustworthy AI.
-- You’re new to Julia and open-source development and would like to start your learning journey by contributing to a recent and active development. Ideally, you are familiar with machine learning.
+If your looking to contribute code, it may be helpful to check out the [Explanation](explanation/index.qmd) section of the docs.
 
-[@pat-alt](https://github.com/pat-alt) here: I am still very much at the beginning of my Julia journey, so if you spot any issues or have any suggestions for design improvement, please just open [issue](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues) or start a [discussion](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/discussions).
+#### Testing
 
-For more details on how to contribute see [here](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev/contribute/). Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
+Please always make sure to add tests for any new features or changes.
+
+#### Documentation
+
+If you add new features or change existing ones, please make sure to update the documentation accordingly. The documentation is written in [Documenter.jl](https://juliadocs.github.io/Documenter.jl/stable/) and is located in the `docs/src` folder.
+
+#### Log Changes
+
+As of version `1.1.1`, we have tried to be more stringent about logging changes. Please make sure to add a note to the [CHANGELOG.md](CHANGELOG.md) file for any changes you make. It is sufficient to add a note under the `Unreleased` section.
+
+### General Pointers
 
 There are also some general pointers for people looking to contribute to any of our Taija packages [here](https://github.com/JuliaTrustworthyAI#general-pointers-for-contributors).
+
+Please follow the [SciML ColPrac guide](https://github.com/SciML/ColPrac).
 
 ## 🎓 Citation
 

@@ -1,7 +1,9 @@
-setup_docs = quote
-    using Pkg
-    Pkg.activate("docs")
+using Pkg
+Pkg.activate("docs/")
+www_path = "$(pwd())/docs/src/www"
+include("$(pwd())/docs/src/utils.jl")
 
+setup_docs = quote
     using Chain: @chain
     using CounterfactualExplanations
     using CounterfactualExplanations: counterfactual, counterfactual_label
@@ -34,8 +36,6 @@ setup_docs = quote
     # Setup:
     theme(:wong)
     Random.seed!(2022)
-    www_path = "$(pwd())/docs/src/www"
-    include("$(pwd())/docs/src/utils.jl")
     synthetic = TaijaData.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 

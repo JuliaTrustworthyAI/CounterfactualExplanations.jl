@@ -1,3 +1,15 @@
+"""
+    GeneratorConditionsConvergence
+
+Convergence criterion for counterfactual explanations based on the generator conditions. The search stops when the gradients of the search objective are below a certain threshold and the generator conditions are satisfied.
+
+# Fields
+
+- `decision_threshold::AbstractFloat`: The threshold for the decision probability.
+- `gradient_tol::AbstractFloat`: The tolerance for the gradients of the search objective.
+- `max_iter::Int`: The maximum number of iterations.
+- `min_success_rate::AbstractFloat`: The minimum success rate for the generator conditions (across counterfactuals).
+"""
 struct GeneratorConditionsConvergence <: AbstractConvergence
     decision_threshold::AbstractFloat
     gradient_tol::AbstractFloat
@@ -5,6 +17,11 @@ struct GeneratorConditionsConvergence <: AbstractConvergence
     min_success_rate::AbstractFloat
 end
 
+"""
+    GeneratorConditionsConvergence(; decision_threshold=0.5, gradient_tol=1e-2, max_iter=100, min_success_rate=0.75, y_levels=nothing)
+
+Outer constructor for `GeneratorConditionsConvergence`.
+"""
 function GeneratorConditionsConvergence(;
     decision_threshold::AbstractFloat=0.5,
     gradient_tol::AbstractFloat=1e-2,

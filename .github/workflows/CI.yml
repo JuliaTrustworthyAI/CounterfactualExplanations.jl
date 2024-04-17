@@ -60,13 +60,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-      - run: |
-          julia --project=docs -e '
-            using Documenter: DocMeta, doctest
-            using CounterfactualExplanations
-            DocMeta.setdocmeta!(CounterfactualExplanations, :DocTestSetup, :(using CounterfactualExplanations); recursive=true)
-            doctest(CounterfactualExplanations)'
-      - run: julia --project=docs docs/make.jl
+      - name: Doctest
+        run: julia --color=yes --project=docs/ docs/doctest.jl
+      - name: Build docs
+        run: julia --color=yes --project=docs docs/make.jl
         env:
           JULIA_PKG_SERVER: ""
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

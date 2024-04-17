@@ -22,39 +22,62 @@ The core function that is used to run counterfactual search for a given factual 
 - `generator::AbstractGenerator`: Generator.
 - `num_counterfactuals::Int=1`: Number of counterfactuals to generate for factual.
 - `initialization::Symbol=:add_perturbation`: Initialization method. By default, the initialization is done by adding a small random perturbation to the factual to achieve more robustness.
-- `convergence::Union{AbstractConvergence,Symbol}=:decision_threshold`: Convergence criterion. By default, the convergence is based on the decision threshold.
+- `convergence::Union{AbstractConvergence,Symbol}=:decision_threshold`: Convergence criterion. By default, the convergence is based on the decision threshold. Possible values are `:decision_threshold`, `:max_iter`, `:generator_conditions` or a conrete convergence object (e.g. [`DecisionThresholdConvergence`](@ref)). 
 - `timeout::Union{Nothing,Int}=nothing`: Timeout in seconds.
 
 # Examples
 
 ## Generic generator
 
-```julia
-using CounterfactualExplanations
+```jldoctest
+julia> using CounterfactualExplanations
 
-# Data:
-using CounterfactualExplanations.Data
-using Random
-Random.seed!(1234)
-xs, ys = Data.toy_data_linear()
-X = hcat(xs...)
-counterfactual_data = CounterfactualData(X,ys')
+julia> using TaijaData
+       
+        # Counteractual data and model:
 
-# Model
-using CounterfactualExplanations.Models: LogisticModel, probs 
-# Logit model:
-w = [1.0 1.0] # true coefficients
-b = 0
-M = LogisticModel(w, [b])
+julia> counterfactual_data = CounterfactualData(load_linearly_separable()...);
 
-# Randomly selected factual:
-x = select_factual(counterfactual_data,rand(1:size(X)[2]))
-y = round(probs(M, x)[1])
-target = round(probs(M, x)[1])==0 ? 1 : 0 
+julia> M = fit_model(counterfactual_data, :Linear);
 
-# Counterfactual search:
-generator = GenericGenerator()
-ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+julia> target = 2;
+
+julia> factual = 1;
+
+julia> chosen = rand(findall(predict_label(M, counterfactual_data) .== factual));
+
+julia> x = select_factual(counterfactual_data, chosen);
+       
+       # Search:
+
+julia> generator = Generators.GenericGenerator();
+
+julia> ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+CounterfactualExplanation
+Convergence: ✅ after 7 steps.
+```
+
+## Broadcasting
+
+The `generate_counterfactual` method can also be broadcasted over a tuple containing an array. This allows for generating multiple counterfactuals in parallel. 
+
+```jldoctest
+julia> chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 5);
+
+julia> xs = select_factual(counterfactual_data, chosen);
+
+julia> ces = generate_counterfactual.(xs, target, counterfactual_data, M, generator)
+5-element Vector{CounterfactualExplanation}:
+ CounterfactualExplanation
+Convergence: ✅ after 7 steps.
+ CounterfactualExplanation
+Convergence: ✅ after 7 steps.
+ CounterfactualExplanation
+Convergence: ✅ after 8 steps.
+ CounterfactualExplanation
+Convergence: ✅ after 6 steps.
+ CounterfactualExplanation
+Convergence: ✅ after 7 steps.
 ```
 """
 function generate_counterfactual(
@@ -95,7 +118,11 @@ function generate_counterfactual(
     return ce
 end
 
-"Overloads the `generate_counterfactual` method to accept a tuple containing and array. This allows for broadcasting over `Zip` iterators."
+"""
+    generate_counterfactual(x::Tuple{<:AbstractArray}, args...; kwargs...)
+
+Overloads the `generate_counterfactual` method to accept a tuple containing and array. This allows for broadcasting over `Zip` iterators.
+"""
 function generate_counterfactual(x::Tuple{<:AbstractArray}, args...; kwargs...)
     return generate_counterfactual(x[1], args...; kwargs...)
 end
