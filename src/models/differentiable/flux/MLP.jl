@@ -8,7 +8,7 @@ struct FluxModel <: AbstractFluxModel
     likelihood::Symbol
     function FluxModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
-            Flux.testmode!(model) 
+            Flux.testmode!(model)
             new(model, likelihood)
         else
             throw(
@@ -57,7 +57,7 @@ function train(M::FluxModel, data::CounterfactualData; args=flux_training_params
     end
 
     # Training:
-    model = M.model 
+    model = M.model
     Flux.trainmode!(model)
     forward!(model, data; loss=loss, opt=args.opt, n_epochs=args.n_epochs)
     Flux.testmode!(model)
@@ -101,7 +101,6 @@ function forward!(
     Flux.testmode!(model)
 
     return model
-
 end
 
 """

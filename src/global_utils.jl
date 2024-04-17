@@ -162,4 +162,3 @@ function reset!(flux_training_params::FluxModelParams)
     end
     return flux_training_params
 end
-
