@@ -2,6 +2,8 @@ using CounterfactualExplanations
 using Changelog
 using Documenter
 
+include("assets.jl")
+
 # Generate a Documenter-friendly changelog from CHANGELOG.md
 Changelog.generate(
     Changelog.Documenter(),
