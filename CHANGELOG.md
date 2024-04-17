@@ -19,7 +19,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Removed 
 
-- Removed CUDA.jl dependence, because redundant. [#430]
+- Removed CUDA.jl dependency, because redundant. [#430]
+- Removed Parameters.jl dependency, because redundant. [#430]
 
 ## Version [v1.1.2] - 2024-04-16
 

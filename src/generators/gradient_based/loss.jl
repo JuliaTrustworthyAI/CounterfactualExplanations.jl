@@ -23,9 +23,12 @@ If the penalty is not provided, it returns 0.0. By default, Zygote never works o
 function ∂h(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:s′]
-    _grad = isnothing(_grad) ? 0.0 : _grad
-    return _grad
+    if isnothing(generator.penalty)
+        return 0.0
+    else
+        _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:s′]
+        return _grad
+    end
 end
 
 # Gradient:

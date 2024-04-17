@@ -3,7 +3,7 @@
 
 The default VAE parameters describing both the encoder/decoder architecture and the training process.
 """
-Parameters.@with_kw mutable struct VAEParams <: AbstractGMParams
+Base.@kwdef mutable struct VAEParams <: AbstractGMParams
     η = 1e-3                # learning rate
     λ = 0.01f0              # regularization parameter
     batch_size = 50         # batch size

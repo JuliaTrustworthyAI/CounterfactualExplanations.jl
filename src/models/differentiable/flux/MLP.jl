@@ -1,3 +1,5 @@
+using Flux: Flux, Chain
+
 """
     FluxModel <: AbstractFluxModel
 
