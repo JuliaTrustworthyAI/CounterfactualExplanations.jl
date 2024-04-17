@@ -40,6 +40,13 @@ function CounterfactualExplanation(
     initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
+
+    # To device:
+    x = to_device(x)
+    data = to_device(data)
+    target = to_device(target)
+    to_device!(M)
+
     @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
 
@@ -71,10 +78,10 @@ function CounterfactualExplanation(
     )
 
     # Initialization:
-    adjust_shape!(ce)                   # adjust shape to specified number of counterfactuals
-    ce.s′ = encode_state(ce)            # encode the counterfactual state
-    ce.s′ = initialize_state(ce)        # initialize the counterfactual state
-    ce.x′ = decode_state(ce)            # decode the counterfactual state
+    adjust_shape!(ce) |>
+        encode_state! |>
+        initialize_state! |>
+        decode_state! 
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))

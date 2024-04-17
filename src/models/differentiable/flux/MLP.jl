@@ -1,3 +1,5 @@
+using CounterfactualExplanations: to_device!
+
 """
     FluxModel <: AbstractFluxModel
 
@@ -8,6 +10,7 @@ struct FluxModel <: AbstractFluxModel
     likelihood::Symbol
     function FluxModel(model, likelihood)
         if likelihood ∈ [:classification_binary, :classification_multi]
+            Flux.testmode!(model) |> to_device!
             new(model, likelihood)
         else
             throw(
@@ -21,13 +24,14 @@ end
 
 # Outer constructor method:
 function FluxModel(model; likelihood::Symbol=:classification_binary)
-    Flux.testmode!(model)
     return FluxModel(model, likelihood)
 end
 
 # Methods
 function logits(M::FluxModel, X::AbstractArray)
-    return M.model(X)
+    m = M.model |> to_device!
+    X = X |> to_device!
+    return m(X)
 end
 
 function probs(M::FluxModel, X::AbstractArray)
@@ -57,8 +61,10 @@ function train(M::FluxModel, data::CounterfactualData; args=flux_training_params
     end
 
     # Training:
-    model = M.model
+    model = M.model 
+    Flux.trainmode!(model)
     forward!(model, data; loss=loss, opt=args.opt, n_epochs=args.n_epochs)
+    Flux.testmode!(model)
 
     return M
 end
@@ -68,8 +74,8 @@ function forward!(
 )
 
     # Loss:
-    loss_(x, y) = getfield(Flux.Losses, loss)(model(x), y)
-    avg_loss(data) = mean(map(d -> loss_(d[1], d[2]), data))
+    loss_(x, y) = getfield(Flux.Losses, loss)(x, y)
+    avg_loss(data) = mean(map(d -> loss_(model(d[1]), d[2]), data))
 
     # Optimizer:
     opt_ = getfield(Flux.Optimise, opt)()
@@ -83,18 +89,25 @@ function forward!(
     end
 
     Flux.trainmode!(model)
+    # data = gpu(data)
+    # model = gpu(model)
+    opt_state = Flux.setup(opt_, model)
     for epoch in 1:n_epochs
         for d in data
-            gs = Flux.gradient(Flux.params(model)) do
-                l = loss_(d...)
+            input, label = d
+            gs = Flux.gradient(model) do m
+                loss_(m(input), label)
             end
-            Flux.Optimise.update!(opt_, Flux.params(model), gs)
+            Flux.Optimise.update!(opt_state, model, gs[1])
         end
         if flux_training_params.verbose
             ProgressMeter.next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])
         end
     end
-    return Flux.testmode!(model)
+    Flux.testmode!(model)
+
+    return model
+
 end
 
 """

@@ -66,7 +66,9 @@ function adjust_shape!(ce::CounterfactualExplanation)
 
     search = ce.search
     search[:mutability] = adjust_shape(ce, search[:mutability])      # augment to account for specified number of counterfactuals
-    return ce.search = search
+    ce.search = search
+
+    return ce
 end
 
 """

@@ -1,3 +1,5 @@
+using Flux
+
 """
     initialize_state(ce::CounterfactualExplanation)
 
@@ -25,8 +27,19 @@ function initialize_state(ce::CounterfactualExplanation)
     if ce.initialization == :add_perturbation
         Δs′ = randn(eltype(s′), size(s′)) * convert(eltype(s′), 0.1)
         Δs′ = apply_mutability(ce, Δs′)
-        s′ .+= Δs′
+        s′ .+= Flux.get_device()(Δs′)
     end
 
     return s′
+end
+
+"""
+    initialize_state!(ce::CounterfactualExplanation)
+
+Initializes the starting point for the factual(s) in-place.
+"""
+function initialize_state!(ce::CounterfactualExplanation)
+    ce.s′ = initialize_state(ce)
+
+    return ce
 end

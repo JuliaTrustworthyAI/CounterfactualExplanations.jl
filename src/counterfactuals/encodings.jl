@@ -86,6 +86,19 @@ function encode_state(
 end
 
 """
+    encode_state!(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+
+In-place version of `encode_state`.
+"""
+function encode_state!(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
+    ce.s′ = encode_state(ce, x)
+
+    return ce
+end
+
+"""
 function decode_state(
     ce::CounterfactualExplanation,
     x::Union{AbstractArray,Nothing}=nothing,
@@ -136,4 +149,17 @@ function decode_state(
     s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
 
     return s′
+end
+
+"""
+    decode_state!(ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+
+In-place version of `decode_state`.
+"""
+function decode_state!(
+    ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
+    ce.x′ = decode_state(ce, x)
+
+    return ce
 end

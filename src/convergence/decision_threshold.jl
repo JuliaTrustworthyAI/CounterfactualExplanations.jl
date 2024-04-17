@@ -46,6 +46,6 @@ Determines if the predefined threshold for the target class probability has been
 """
 function threshold_reached(ce::AbstractCounterfactualExplanation)
     γ = ce.convergence.decision_threshold
-    success_rate = sum(target_probs(ce) .>= γ) / ce.num_counterfactuals
+    success_rate = sum(cpu(target_probs(ce)) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence.min_success_rate
 end
