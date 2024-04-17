@@ -48,7 +48,9 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     end
     gradᵀ = LinearAlgebra.transpose(grad)
 
-    identity_matrix = LinearAlgebra.Matrix{Float32}(LinearAlgebra.I, length(grad), length(grad))
+    identity_matrix = LinearAlgebra.Matrix{Float32}(
+        LinearAlgebra.I, length(grad), length(grad)
+    )
     denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
 
     normalized_gradient = f_loss / denominator

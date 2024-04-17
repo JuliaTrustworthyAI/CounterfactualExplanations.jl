@@ -6,7 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-
 ## Version [v1.1.3] - 2024-04-17
 
 ### Added
@@ -16,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - Changes style of taking gradients for the counterfactual search from implicit to explicit. [#430]
+- Removed all implicit imports. [#430]
 
 ### Removed 
 
