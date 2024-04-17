@@ -4,7 +4,6 @@ www_path = "$(pwd())/docs/src/www"
 include("$(pwd())/docs/src/utils.jl")
 
 setup_docs = quote
-    
     using Chain: @chain
     using CounterfactualExplanations
     using CounterfactualExplanations: counterfactual, counterfactual_label

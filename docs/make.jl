@@ -2,12 +2,6 @@ using CounterfactualExplanations
 using Changelog
 using Documenter
 
-include("setup_docs.jl")
-
-DocMeta.setdocmeta!(
-    CounterfactualExplanations, :DocTestSetup, :($setup_docs); recursive=true
-)
-
 # Generate a Documenter-friendly changelog from CHANGELOG.md
 Changelog.generate(
     Changelog.Documenter(),
@@ -84,6 +78,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl.git", 
-    devbranch="main"
+    repo="github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl.git", devbranch="main"
 )
