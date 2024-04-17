@@ -4,7 +4,7 @@ using ..CounterfactualExplanations
 using DataFrames
 using ..Generators
 using ..Models
-using LinearAlgebra
+using LinearAlgebra: LinearAlgebra
 using Statistics
 
 include("benchmark.jl")

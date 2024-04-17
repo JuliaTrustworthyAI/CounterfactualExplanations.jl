@@ -1,3 +1,5 @@
+using Statistics: Statistics
+
 """
     validity(ce::CounterfactualExplanation; γ=0.5)
 

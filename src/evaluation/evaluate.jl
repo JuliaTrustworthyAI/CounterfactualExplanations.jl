@@ -1,4 +1,5 @@
-using UUIDs
+using DataFrames: nrow
+using UUIDs: uuid1
 
 """
     compute_measure(ce::CounterfactualExplanation, measure::Function, agg::Function)

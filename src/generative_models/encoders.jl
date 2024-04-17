@@ -1,3 +1,6 @@
+using Flux: sigmoid
+using Random: Random
+
 """
 Encoder
 

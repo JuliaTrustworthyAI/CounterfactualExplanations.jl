@@ -2,9 +2,9 @@ module GenerativeModels
 
 using CounterfactualExplanations
 using Flux
-using ProgressMeter
+using ProgressMeter: ProgressMeter
 using Random
-using Statistics
+using Statistics: Statistics
 
 """
 Base type for generative model.

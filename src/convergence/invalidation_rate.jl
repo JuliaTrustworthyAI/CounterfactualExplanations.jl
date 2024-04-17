@@ -1,3 +1,7 @@
+using Distributions: Distributions
+using Flux: Flux
+using LinearAlgebra: LinearAlgebra
+
 Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
     invalidation_rate::AbstractFloat = 0.1
     max_iter::Int = 100
@@ -44,7 +48,7 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     end
     gradᵀ = LinearAlgebra.transpose(grad)
 
-    identity_matrix = LinearAlgebra.Matrix{Float32}(I, length(grad), length(grad))
+    identity_matrix = LinearAlgebra.Matrix{Float32}(LinearAlgebra.I, length(grad), length(grad))
     denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
 
     normalized_gradient = f_loss / denominator

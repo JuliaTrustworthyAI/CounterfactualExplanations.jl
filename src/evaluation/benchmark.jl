@@ -1,7 +1,9 @@
 using Base.Iterators
-using Serialization
+using DataFrames: DataFrames
+using Serialization: Serialization
+using Statistics: mean
 using TaijaBase: AbstractParallelizer, vectorize_collection, parallelize
-using UUIDs
+using UUIDs: UUIDs
 
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark

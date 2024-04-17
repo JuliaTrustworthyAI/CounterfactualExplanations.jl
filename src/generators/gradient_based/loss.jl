@@ -1,3 +1,5 @@
+using Flux: Flux
+
 """
     ∂ℓ(generator::AbstractGradientBasedGenerator, M::Union{Models.LogisticModel, Models.BayesianLogisticModel}, ce::AbstractCounterfactualExplanation)
 

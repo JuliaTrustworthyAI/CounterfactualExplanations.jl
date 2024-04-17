@@ -1,3 +1,6 @@
+using LinearAlgebra: LinearAlgebra
+using Random: Random
+
 "Growing Spheres counterfactual generator class."
 mutable struct GrowingSpheresGenerator <: AbstractNonGradientBasedGenerator
     n::Union{Nothing,Integer}

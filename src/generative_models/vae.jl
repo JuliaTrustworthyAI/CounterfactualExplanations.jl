@@ -1,3 +1,7 @@
+using Flux: Flux, Adam, cpu, gpu
+using ProgressMeter: Progress, next!
+using Statistics: mean
+
 """
     VAEParams <: AbstractGMParams
 

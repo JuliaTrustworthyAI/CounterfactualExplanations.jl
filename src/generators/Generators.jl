@@ -9,12 +9,12 @@ using Flux
 using LinearAlgebra
 using ..Models
 using ..Objectives
-using Statistics
+using Statistics: Statistics
 using DecisionTree
-using DataFrames
-using MLJBase
-using MLJDecisionTreeInterface
-using Distributions
+using DataFrames: DataFrames
+using MLJBase: MLJBase
+using MLJDecisionTreeInterface: MLJDecisionTreeInterface
+using Distributions: Distributions
 using Random
 using Statistics
 
