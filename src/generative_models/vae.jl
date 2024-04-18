@@ -89,14 +89,15 @@ function model_loss(generative_model::VAE, λ, x, device)
     return elbo
 end
 
-function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws...)
+function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
+    generative_model = VAE(size(X, 1); kws...)
 
     # load hyperparamters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
 
     # load data
-    loader = get_data(X, y, args.batch_size)
+    loader = get_data(X, args.batch_size)
 
     # parameters
     ps = Flux.params(generative_model)
@@ -112,7 +113,52 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     # training
     for epoch in 1:(args.epochs)
         avg_loss = []
-        for (x, _) in loader
+        for (x,) in loader
+            loss, back = Flux.pullback(ps) do
+                model_loss(generative_model, args.λ, args.device(x), args.device)
+            end
+
+            avg_loss = vcat(avg_loss, loss)
+            grad = back(1.0f0)
+            Flux.Optimise.update!(args.opt, ps, grad)
+        end
+
+        avg_loss = mean(avg_loss)
+        if flux_training_params.verbose
+            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss)")])
+        end
+    end
+
+    # Set training status to true:
+    generative_model.trained = true
+
+    return generative_model
+end
+
+function train!(generative_model::VAE, X::AbstractArray; kws...)
+
+    # load hyperparamters
+    args = generative_model.params
+    args.seed > 0 && Random.seed!(args.seed)
+
+    # load data
+    loader = get_data(X, args.batch_size)
+
+    # parameters
+    ps = Flux.params(generative_model)
+
+    # Verbosity
+    if flux_training_params.verbose
+        @info "Begin training VAE"
+        p_epoch = Progress(
+            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
+        )
+    end
+
+    # training
+    for epoch in 1:(args.epochs)
+        avg_loss = []
+        for (x,) in loader
             loss, back = Flux.pullback(ps) do
                 model_loss(generative_model, args.λ, args.device(x), args.device)
             end
@@ -132,14 +178,14 @@ function train!(generative_model::VAE, X::AbstractArray, y::AbstractArray; kws..
     return generative_model.trained = true
 end
 
-function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_epochs=10)
+function retrain!(generative_model::VAE, X::AbstractArray; n_epochs=10)
 
     # load hyperparameters
     args = generative_model.params
     args.seed > 0 && Random.seed!(args.seed)
 
     # load data
-    loader = get_data(X, y, args.batch_size)
+    loader = get_data(X, args.batch_size)
 
     # parameters
     ps = Flux.params(generative_model)
@@ -156,7 +202,7 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
     train_steps = 0
     for epoch in 1:n_epochs
         avg_loss = []
-        for (x, _) in loader
+        for (x,) in loader
             loss, back = Flux.pullback(ps) do
                 model_loss(generative_model, args.λ, args.device(x), args.device)
             end
@@ -176,10 +222,10 @@ function retrain!(generative_model::VAE, X::AbstractArray, y::AbstractArray; n_e
 end
 
 """
-    get_data(X::AbstractArray, y::AbstractArray, batch_size)
+    get_data(X::AbstractArray, batch_size)
 
 Preparing data for mini-batch training .
 """
-function get_data(X::AbstractArray, y::AbstractArray, batch_size)
-    return Flux.DataLoader((X, y); batchsize=batch_size, shuffle=true)
+function get_data(X::AbstractArray, batch_size)
+    return Flux.DataLoader((X,); batchsize=batch_size, shuffle=true)
 end
