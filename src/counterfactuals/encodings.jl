@@ -7,7 +7,7 @@ using StatsBase: StatsBase
 
 Helper function to encode an array `x` using a data transform `dt::Nothing`. This is a no-op.
 """
-encode_array(dt::Nothing, x::AbstractArray) = x
+encode_array(data::CounterfactualData, dt::Nothing, x::AbstractArray) = x
 
 """
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
@@ -15,7 +15,9 @@ encode_array(dt::Nothing, x::AbstractArray) = x
 Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
 function encode_array(
-    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+    data::CounterfactualData,
+    dt::MultivariateStats.AbstractDimensionalityReduction,
+    x::AbstractArray,
 )
     return MultivariateStats.predict(dt, x)
 end
@@ -25,8 +27,14 @@ end
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-function encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
-    return StatsBase.transform(dt, x)
+function encode_array(data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+    idx = transformable_features(data)
+    ignore_derivatives() do
+        s = x[idx, :]
+        s = StatsBase.transform(dt, s)
+        x[idx, :] = s
+    end
+    return x
 end
 
 """
@@ -34,7 +42,9 @@ end
 
 Helper function to encode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
-function encode_array(dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray)
+function encode_array(
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+)
     return GenerativeModels.encode(dt, x)
 end
 
@@ -43,7 +53,7 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::Nothing`. This is a no-op.
 """
-decode_array(dt::Nothing, x::AbstractArray) = x
+decode_array(data::CounterfactualData, dt::Nothing, x::AbstractArray) = x
 
 """
     decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
@@ -51,7 +61,9 @@ decode_array(dt::Nothing, x::AbstractArray) = x
 Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
 function decode_array(
-    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+    data::CounterfactualData,
+    dt::MultivariateStats.AbstractDimensionalityReduction,
+    x::AbstractArray,
 )
     return MultivariateStats.reconstruct(dt, x)
 end
@@ -61,8 +73,16 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-function decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
-    return StatsBase.reconstruct(dt, x)
+function decode_array(
+    data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray
+)
+    idx = transformable_features(data)
+    ignore_derivatives() do
+        s = x[idx, :]
+        s = StatsBase.reconstruct(dt, s)
+        x[idx, :] = s
+    end
+    return x
 end
 
 """
@@ -70,7 +90,9 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
-function decode_array(dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray)
+function decode_array(
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+)
     return GenerativeModels.decode(dt, x)
 end
 
@@ -97,12 +119,7 @@ function encode_state(
     dt = data.input_encoder
 
     # Transform features:
-    idx = transformable_features(data)
-    ignore_derivatives() do
-        s = s′[idx, :]
-        s = encode_array(dt, s)
-        s′[idx, :] = s
-    end
+    s′ = encode_array(data, dt, s′)
 
     return s′
 end
@@ -144,12 +161,7 @@ function decode_state(
     dt = data.input_encoder
 
     # Inverse-transform features:
-    idx = transformable_features(data)
-    ignore_derivatives() do
-        s = s′[idx, :]
-        s = decode_array(dt, s)
-        s′[idx, :] = s
-    end
+    s′ = decode_array(data, dt, s′)
 
     # Categorical:
     s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)

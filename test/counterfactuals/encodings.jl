@@ -17,7 +17,9 @@ using TaijaData: load_mnist
     if VERSION >= v"1.8"
         @testset "Dimensionality Reduction" begin
             dt_pca = CounterfactualData(load_mnist(1000)...)
-            dt_pca.input_encoder = fit_transformer(dt_pca, MultivariateStats.PCA)
+            dt_pca.input_encoder = fit_transformer(
+                dt_pca, MultivariateStats.PCA; maxoutdim=16
+            )
             M = load_mnist_mlp()
             target = 9
             factual = 7
