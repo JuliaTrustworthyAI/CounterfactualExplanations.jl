@@ -12,7 +12,6 @@ using Random: Random
 
 include("counterfactual_data.jl")
 include("utils.jl")
-include("generative_model_utils.jl")
 include("data_contraints.jl")
 
 export CounterfactualData
