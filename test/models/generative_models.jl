@@ -14,6 +14,4 @@ ce = CounterfactualExplanations.generate_counterfactual(
 )
 
 using CounterfactualExplanations.GenerativeModels: retrain!
-CounterfactualExplanations.GenerativeModels.retrain!(
-    counterfactual_data.input_encoder, X
-)
+CounterfactualExplanations.GenerativeModels.retrain!(counterfactual_data.input_encoder, X)
