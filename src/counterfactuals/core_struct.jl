@@ -1,3 +1,6 @@
+using ..GenerativeModels: GenerativeModels
+using MultivariateStats: MultivariateStats
+
 """
 A struct that collects all information relevant to a specific counterfactual explanation for a single individual.
 """
@@ -40,8 +43,20 @@ function CounterfactualExplanation(
     initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
+
+    # Assertions:
     @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
+
+    # Setups:
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
+    if generator.latent_space && !(typeof(data.input_encoder) <: GenerativeModels.AbstractGenerativeModel)
+        @info "No pre-trained generative model found. Training default VAE."
+        data.input_encoder = DataPreprocessing.fit_transformer(data, GenerativeModels.VAE)
+    end
+    if generator.dim_reduction && !(typeof(data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction)
+        @info "No pre-trained dimensionality reduction model found. Training default PCA."
+        data.input_encoder = DataPreprocessing.fit_transformer(data, MultivariateStats.PCA)
+    end
 
     # Factual and target:
     x = typeof(x) == Int ? select_factual(data, x) : x
