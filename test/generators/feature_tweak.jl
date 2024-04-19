@@ -25,6 +25,7 @@
                         y = Models.predict_label(M, data, x)
                         target = get_target(data, y[1])
                         # Single sample:
+                        data.input_encoder = nothing
                         counterfactual = CounterfactualExplanations.generate_counterfactual(
                             x, target, data, M, generator
                         )
@@ -99,6 +100,7 @@
         y = Models.predict_label(M, data, x)
         target = get_target(data, y[1])
         # Single sample:
+        data.input_encoder = nothing
         counterfactual = CounterfactualExplanations.generate_counterfactual(
             x, target, data, M, generator
         )
