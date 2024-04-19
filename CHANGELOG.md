@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [v1.1.4] - 2024-04-19
+
+### Changed
+
+- Refactors the encodings and decodings such that it is now more streamlined. Instead of conditional statements, encodings are now dispatched on the type of a new unifying `data.input_encoder` field. [#432]
+
 ## Version [v1.1.3] - 2024-04-17
 
 ### Added

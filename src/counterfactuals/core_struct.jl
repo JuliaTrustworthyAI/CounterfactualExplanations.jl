@@ -49,11 +49,13 @@ function CounterfactualExplanation(
 
     # Setups:
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
-    if generator.latent_space && !(typeof(data.input_encoder) <: GenerativeModels.AbstractGenerativeModel)
+    if generator.latent_space &&
+        !(typeof(data.input_encoder) <: GenerativeModels.AbstractGenerativeModel)
         @info "No pre-trained generative model found. Training default VAE."
         data.input_encoder = DataPreprocessing.fit_transformer(data, GenerativeModels.VAE)
     end
-    if generator.dim_reduction && !(typeof(data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction)
+    if generator.dim_reduction &&
+        !(typeof(data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction)
         @info "No pre-trained dimensionality reduction model found. Training default PCA."
         data.input_encoder = DataPreprocessing.fit_transformer(data, MultivariateStats.PCA)
     end
