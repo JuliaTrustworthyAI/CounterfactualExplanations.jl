@@ -53,7 +53,7 @@ using Random
 
                     @testset "Convergence" begin
                         @testset "Non-trivial case" begin
-                            counterfactual_data.generative_model = nothing
+                            counterfactual_data.input_encoder = nothing
                             # Threshold reached if converged:
                             γ = 0.9
                             max_iter = 1000

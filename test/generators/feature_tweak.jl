@@ -43,7 +43,7 @@
 
                         @testset "Counterfactual generation" begin
                             @testset "Non-trivial case" begin
-                                data.generative_model = nothing
+                                data.input_encoder = nothing
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
                                     x, target, data, M, generator
                                 )
@@ -56,7 +56,7 @@
                             end
 
                             @testset "Trivial case (already in target class)" begin
-                                data.generative_model = nothing
+                                data.input_encoder = nothing
                                 # Already in target class:
                                 y = Models.predict_label(M, data, x)
                                 target = y[1]
@@ -115,7 +115,7 @@
         for (name, penalty) in objectives
             @testset "$name" begin
                 generator = Generators.FeatureTweakGenerator(; penalty=penalty)
-                data.generative_model = nothing
+                data.input_encoder = nothing
                 counterfactual = CounterfactualExplanations.generate_counterfactual(
                     x, target, data, M, generator
                 )

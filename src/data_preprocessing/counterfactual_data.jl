@@ -109,12 +109,13 @@ include("transformer.jl")
 
 """
     CounterfactualData(
-        X::AbstractMatrix, y::AbstractMatrix;
+        X::AbstractMatrix,
+        y::RawOutputArrayType;
         mutability::Union{Vector{Symbol},Nothing}=nothing,
         domain::Union{Any,Nothing}=nothing,
-        features_categorical::Union{Vector{Int},Nothing}=nothing,
+        features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
         features_continuous::Union{Vector{Int},Nothing}=nothing,
-        standardize::Bool=false
+        input_encoder::Union{Nothing,InputTransformer,TypedInputTransformer}=nothing,
     )
 
 This outer constructor method prepares features `X` and labels `y` to be used with the package. Mutability and domain constraints can be added for the features. The function also accepts arguments that specify which features are categorical and which are continues. These arguments are currently not used. 

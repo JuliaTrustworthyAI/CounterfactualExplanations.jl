@@ -34,7 +34,7 @@ using Random
 
                         @testset "Convergence" begin
                             @testset "Non-trivial case" begin
-                                counterfactual_data.generative_model = nothing
+                                counterfactual_data.input_encoder = nothing
                                 # Threshold reached if converged:
                                 counterfactual = generate_counterfactual(
                                     x, target, counterfactual_data, M, generator;
@@ -47,7 +47,7 @@ using Random
                             end
 
                             @testset "Trivial case (already in target class)" begin
-                                counterfactual_data.generative_model = nothing
+                                counterfactual_data.input_encoder = nothing
                                 # Already in target class:
                                 y = CounterfactualExplanations.Models.predict_label(
                                     M, counterfactual_data, x

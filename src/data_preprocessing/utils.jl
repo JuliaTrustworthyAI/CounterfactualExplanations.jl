@@ -94,7 +94,7 @@ function subsample(data::CounterfactualData, n::Int)
         features_continuous=data.features_continuous,
         features_categorical=data.features_categorical,
         mutability=data.mutability,
-        standardize=data.standardize,
+        input_encoder=data.input_encoder,
     )
 
     return new_data
