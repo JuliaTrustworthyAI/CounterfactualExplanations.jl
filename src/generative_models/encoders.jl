@@ -53,6 +53,6 @@ Draws random samples from the latent distribution.
 """
 function Random.rand(encoder::Encoder, x, device=cpu)
     μ, logσ = encoder(x)
-    z = reparameterization_trick(μ, logσ)
+    z = reparameterization_trick(μ, logσ, device)
     return z, μ, logσ
 end
