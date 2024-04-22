@@ -26,10 +26,14 @@ function total_steps(ce::CounterfactualExplanation)
 end
 
 """
-    in_target_class(ce::CounterfactualExplanation)
+    already_in_target_class(ce::CounterfactualExplanation)
 
-Check if the counterfactual is in the target class.
+Check if the factual is already in the target class.
 """
-function in_target_class(ce::AbstractCounterfactualExplanation)
-    return Models.predict_label(ce.M, ce.data, decode_state(ce))[1] == ce.target
+function already_in_target_class(ce::AbstractCounterfactualExplanation)
+    return Models.predict_label(ce.M, ce.data, ce.x)[1] == ce.target
+end
+
+function already_beats_treshold(ce::AbstractCounterfactualExplanation)
+    return Convergence.threshold_reached(ce)
 end

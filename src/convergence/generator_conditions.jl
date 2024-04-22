@@ -39,12 +39,18 @@ function GeneratorConditionsConvergence(;
 end
 
 """
-    converged(convergence::GeneratorConditionsConvergence, ce::CounterfactualExplanation)
+    converged(
+        convergence::GeneratorConditionsConvergence,
+        ce::AbstractCounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
 
 Checks if the counterfactual search has converged when the convergence criterion is generator_conditions.
 """
 function converged(
-    convergence::GeneratorConditionsConvergence, ce::AbstractCounterfactualExplanation
+    convergence::GeneratorConditionsConvergence,
+    ce::AbstractCounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
-    return threshold_reached(ce) && Generators.conditions_satisfied(ce.generator, ce)
+    return threshold_reached(ce, x) && Generators.conditions_satisfied(ce.generator, ce)
 end

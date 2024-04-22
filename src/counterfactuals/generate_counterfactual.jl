@@ -103,8 +103,8 @@ function generate_counterfactual(
         convergence=convergence,
     )
 
-    # Check for redundancy:
-    if in_target_class(ce) && Convergence.threshold_reached(ce)
+    # Check for redundancy (assess if already converged with respect to factual):
+    if Convergence.converged(ce.convergence, ce, ce.x)
         @info "Factual already in target class and probability exceeds threshold γ=$(ce.convergence.decision_threshold)."
         return ce
     end
