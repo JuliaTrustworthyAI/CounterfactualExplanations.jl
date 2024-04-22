@@ -27,7 +27,9 @@ end
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-function encode_array(data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray)
+function encode_array(
+    data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray
+)
     idx = transformable_features(data)
     ignore_derivatives() do
         s = x[idx, :]

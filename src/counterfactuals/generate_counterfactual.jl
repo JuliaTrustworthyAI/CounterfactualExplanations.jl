@@ -103,6 +103,12 @@ function generate_counterfactual(
         convergence=convergence,
     )
 
+    # Check for redundancy:
+    if in_target_class(ce) && Convergence.threshold_reached(ce)
+        @info "Factual already in target class and probability exceeds threshold γ=$(ce.convergence.decision_threshold)."
+        return ce
+    end
+
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !terminated(ce)

@@ -93,10 +93,5 @@ function CounterfactualExplanation(
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
 
-    # Check for redundancy:
-    if in_target_class(ce) && Convergence.threshold_reached(ce)
-        @info "Factual already in target class and probability exceeds threshold γ."
-    end
-
     return ce
 end
