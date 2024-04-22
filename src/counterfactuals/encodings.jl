@@ -3,12 +3,21 @@ using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
 
 """
+    encode_array(dt::Nothing, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::Nothing`. This is a no-op.
+"""
+encode_array(data::CounterfactualData, dt::Nothing, x::AbstractArray) = x
+
+"""
     encode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
 
 Helper function to encode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
 function encode_array(
-    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+    data::CounterfactualData,
+    dt::MultivariateStats.AbstractDimensionalityReduction,
+    x::AbstractArray,
 )
     return MultivariateStats.predict(dt, x)
 end
@@ -18,9 +27,35 @@ end
 
 Helper function to encode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-function encode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
-    return StatsBase.transform(dt, x)
+function encode_array(
+    data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray
+)
+    idx = transformable_features(data)
+    ignore_derivatives() do
+        s = x[idx, :]
+        s = StatsBase.transform(dt, s)
+        x[idx, :] = s
+    end
+    return x
 end
+
+"""
+    encode_array(dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
+"""
+function encode_array(
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+)
+    return GenerativeModels.encode(dt, x)
+end
+
+"""
+    decode_array(dt::Nothing, x::AbstractArray)
+
+Helper function to decode an array `x` using a data transform `dt::Nothing`. This is a no-op.
+"""
+decode_array(data::CounterfactualData, dt::Nothing, x::AbstractArray) = x
 
 """
     decode_array(dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray)
@@ -28,7 +63,9 @@ end
 Helper function to decode an array `x` using a data transform `dt::MultivariateStats.AbstractDimensionalityReduction`.
 """
 function decode_array(
-    dt::MultivariateStats.AbstractDimensionalityReduction, x::AbstractArray
+    data::CounterfactualData,
+    dt::MultivariateStats.AbstractDimensionalityReduction,
+    x::AbstractArray,
 )
     return MultivariateStats.reconstruct(dt, x)
 end
@@ -38,8 +75,27 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::StatsBase.AbstractDataTransform`.
 """
-function decode_array(dt::StatsBase.AbstractDataTransform, x::AbstractArray)
-    return StatsBase.reconstruct(dt, x)
+function decode_array(
+    data::CounterfactualData, dt::StatsBase.AbstractDataTransform, x::AbstractArray
+)
+    idx = transformable_features(data)
+    ignore_derivatives() do
+        s = x[idx, :]
+        s = StatsBase.reconstruct(dt, s)
+        x[idx, :] = s
+    end
+    return x
+end
+
+"""
+    decode_array(dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray)
+
+Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
+"""
+function decode_array(
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+)
+    return GenerativeModels.decode(dt, x)
 end
 
 """
@@ -62,29 +118,10 @@ function encode_state(
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
     data = ce.data
+    dt = data.input_encoder
 
-    # Latent space:
-    if ce.generator.latent_space
-        s′ = map_to_latent(ce, s′)
-    end
-
-    # Standardize data unless latent space:
-    if !ce.generator.latent_space && data.standardize
-        dt = data.dt
-        idx = transformable_features(data)
-        ignore_derivatives() do
-            s = s′[idx, :]
-            s = encode_array(dt, s)
-            s′[idx, :] = s
-        end
-    end
-
-    # Compress:
-    if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
-        !ce.generator.latent_space &&
-        ce.generator.dim_reduction
-        s′ = encode_array(data.dt, s′)
-    end
+    # Transform features:
+    s′ = encode_array(data, dt, s′)
 
     return s′
 end
@@ -123,31 +160,10 @@ function decode_state(
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
     data = ce.data
+    dt = data.input_encoder
 
-    # Latent space:
-    if ce.generator.latent_space
-        s′ = map_from_latent(ce, s′)
-    end
-
-    # Standardization:
-    if !ce.generator.latent_space && data.standardize
-        dt = data.dt
-
-        # Continuous:
-        idx = transformable_features(data)
-        ignore_derivatives() do
-            s = s′[idx, :]
-            s = decode_array(dt, s)
-            s′[idx, :] = s
-        end
-    end
-
-    # Decompress:
-    if data.dt isa MultivariateStats.AbstractDimensionalityReduction &&
-        !ce.generator.latent_space &&
-        ce.generator.dim_reduction
-        s′ = decode_array(data.dt, s′)
-    end
+    # Inverse-transform features:
+    s′ = decode_array(data, dt, s′)
 
     # Categorical:
     s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)

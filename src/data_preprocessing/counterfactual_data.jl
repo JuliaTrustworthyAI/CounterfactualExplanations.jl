@@ -3,6 +3,32 @@ using StatsBase: StatsBase, ZScoreTransform
 using Tables: Tables
 
 """
+    InputTransformer
+
+Abstract type for data transformers. This can be any of the following:
+
+- `StatsBase.AbstractDataTransform`: A data transformation object from the `StatsBase` package.
+- `MultivariateStats.AbstractDimensionalityReduction`: A dimensionality reduction object from the `MultivariateStats` package.
+- `GenerativeModels.AbstractGenerativeModel`: A generative model object from the `GenerativeModels` module.
+"""
+const InputTransformer = Union{
+    StatsBase.AbstractDataTransform,
+    MultivariateStats.AbstractDimensionalityReduction,
+    GenerativeModels.AbstractGenerativeModel,
+}
+
+"""
+    TypedInputTransformer
+
+Abstract type for data transformers.
+"""
+const TypedInputTransformer = Union{
+    Type{<:StatsBase.AbstractDataTransform},
+    Type{<:MultivariateStats.AbstractDimensionalityReduction},
+    Type{<:GenerativeModels.AbstractGenerativeModel},
+}
+
+"""
     CounterfactualData(
         X::AbstractMatrix, y::AbstractMatrix;
         mutability::Union{Vector{Symbol},Nothing}=nothing,
@@ -22,14 +48,7 @@ mutable struct CounterfactualData
     domain::Union{Any,Nothing}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
-    standardize::Bool
-    dt::Union{
-        Nothing,
-        StatsBase.AbstractDataTransform,
-        MultivariateStats.AbstractDimensionalityReduction,
-    }
-    compressor::Union{Nothing,MultivariateStats.PCA}
-    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel} # generative model
+    input_encoder::Union{Nothing,InputTransformer}
     y_levels::AbstractVector
     output_encoder::OutputEncoder
     function CounterfactualData(
@@ -40,10 +59,7 @@ mutable struct CounterfactualData
         domain,
         features_categorical,
         features_continuous,
-        standardize,
-        dt,
-        compressor,
-        generative_model,
+        input_encoder,
         y_levels,
         output_encoder,
     )
@@ -81,10 +97,7 @@ mutable struct CounterfactualData
                 domain,
                 features_categorical,
                 features_continuous,
-                standardize,
-                dt,
-                compressor,
-                generative_model,
+                input_encoder,
                 y_levels,
                 output_encoder,
             )
@@ -92,14 +105,17 @@ mutable struct CounterfactualData
     end
 end
 
+include("transformer.jl")
+
 """
     CounterfactualData(
-        X::AbstractMatrix, y::AbstractMatrix;
+        X::AbstractMatrix,
+        y::RawOutputArrayType;
         mutability::Union{Vector{Symbol},Nothing}=nothing,
         domain::Union{Any,Nothing}=nothing,
-        features_categorical::Union{Vector{Int},Nothing}=nothing,
+        features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
         features_continuous::Union{Vector{Int},Nothing}=nothing,
-        standardize::Bool=false
+        input_encoder::Union{Nothing,InputTransformer,TypedInputTransformer}=nothing,
     )
 
 This outer constructor method prepares features `X` and labels `y` to be used with the package. Mutability and domain constraints can be added for the features. The function also accepts arguments that specify which features are categorical and which are continues. These arguments are currently not used. 
@@ -121,8 +137,7 @@ function CounterfactualData(
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
     features_continuous::Union{Vector{Int},Nothing}=nothing,
-    standardize::Bool=false,
-    generative_model::Union{Nothing,GenerativeModels.AbstractGenerativeModel}=nothing,
+    input_encoder::Union{Nothing,InputTransformer,TypedInputTransformer}=nothing,
 )
 
     # Output variable:
@@ -140,7 +155,6 @@ function CounterfactualData(
     end
 
     # Defaults:
-    compressor = nothing                                                                # dimensionality reduction
     domain = typeof(domain) <: Tuple ? [domain for var in features_continuous] : domain          # domain constraints
 
     counterfactual_data = CounterfactualData(
@@ -151,10 +165,7 @@ function CounterfactualData(
         domain,
         features_categorical,
         features_continuous,
-        standardize,
         nothing,
-        compressor,
-        generative_model,
         y_levels,
         output_encoder,
     )
@@ -164,13 +175,9 @@ function CounterfactualData(
         counterfactual_data.features_continuous
         @warn "Some of the underlying features are constant."
     end
-    counterfactual_data.dt = StatsBase.fit(
-        StatsBase.ZScoreTransform,
-        X[transformable_features(counterfactual_data), :];
-        dims=ndims(X),
-    )        # standardization
-
+    counterfactual_data.input_encoder = fit_transformer(counterfactual_data, input_encoder)
     counterfactual_data.X = Float32.(counterfactual_data.X)
+
     return counterfactual_data
 end
 
@@ -204,7 +211,7 @@ end
 """
     reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::Vector)
 
-Reconstruct the categorical encoding for a single instance. 
+Reconstruct the categorical encoding for a single instance.
 """
 function reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::AbstractArray)
     features_categorical = counterfactual_data.features_categorical
@@ -238,25 +245,27 @@ end
 Dispatches the `transformable_features` function to the appropriate method based on the type of the `dt` field.
 """
 function transformable_features(counterfactual_data::CounterfactualData)
-    return transformable_features(counterfactual_data, counterfactual_data.dt)
+    return transformable_features(counterfactual_data, counterfactual_data.input_encoder)
 end
 
 """
-    transformable_features(counterfactual_data::CounterfactualData, dt::Any)
+    transformable_features(counterfactual_data::CounterfactualData, input_encoder::Any)
 
 By default, all continuous features are transformable. This function returns the indices of all continuous features.
 """
-function transformable_features(counterfactual_data::CounterfactualData, dt::Any)
+function transformable_features(counterfactual_data::CounterfactualData, input_encoder::Any)
     return counterfactual_data.features_continuous
 end
 
 """
-    transformable_features(counterfactual_data::CounterfactualData, dt::ZScoreTransform)
+    transformable_features(
+        counterfactual_data::CounterfactualData, input_encoder::Type{ZScoreTransform}
+    )
 
 Returns the indices of all continuous features that can be transformed. For constant features `ZScoreTransform` returns `NaN`.
 """
 function transformable_features(
-    counterfactual_data::CounterfactualData, dt::ZScoreTransform
+    counterfactual_data::CounterfactualData, input_encoder::Type{ZScoreTransform}
 )
     # Find all columns that have varying values:
     idx_not_all_equal = [

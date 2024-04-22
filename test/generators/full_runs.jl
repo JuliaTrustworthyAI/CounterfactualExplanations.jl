@@ -69,7 +69,7 @@ for (key, generator_) in generators
 
                             @testset "Convergence" begin
                                 @testset "Non-trivial case" begin
-                                    counterfactual_data.generative_model = nothing
+                                    counterfactual_data.input_encoder = nothing
                                     # Threshold reached if converged:
                                     γ = 0.9
                                     max_iter = 1000
@@ -97,7 +97,7 @@ for (key, generator_) in generators
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
-                                    counterfactual_data.generative_model = nothing
+                                    counterfactual_data.input_encoder = nothing
                                     # Already in target and exceeding threshold probability:
                                     y = Models.predict_label(M, counterfactual_data, x)
                                     target = y[1]

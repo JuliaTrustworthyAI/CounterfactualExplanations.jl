@@ -29,23 +29,31 @@ function DecisionThresholdConvergence(;
 end
 
 """
-    converged(convergence::DecisionThresholdConvergence, ce::CounterfactualExplanation)
+    converged(
+        convergence::DecisionThresholdConvergence,
+        ce::AbstractCounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
 
 Checks if the counterfactual search has converged when the convergence criterion is the decision threshold.
 """
 function converged(
-    convergence::DecisionThresholdConvergence, ce::AbstractCounterfactualExplanation
+    convergence::DecisionThresholdConvergence,
+    ce::AbstractCounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
-    return threshold_reached(ce)
+    return threshold_reached(ce, x)
 end
 
 """
-    threshold_reached(ce::CounterfactualExplanation)
+    threshold_reached(ce::AbstractCounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
 
 Determines if the predefined threshold for the target class probability has been reached.
 """
-function threshold_reached(ce::AbstractCounterfactualExplanation)
+function threshold_reached(
+    ce::AbstractCounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+)
     γ = ce.convergence.decision_threshold
-    success_rate = sum(target_probs(ce) .>= γ) / ce.num_counterfactuals
+    success_rate = sum(target_probs(ce, x) .>= γ) / ce.num_counterfactuals
     return success_rate > ce.convergence.min_success_rate
 end

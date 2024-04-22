@@ -9,12 +9,18 @@ Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
 end
 
 """
-    converged(convergence::InvalidationRateConvergence, ce::CounterfactualExplanation)
+    converged(
+        convergence::InvalidationRateConvergence,
+        ce::AbstractCounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
 
 Checks if the counterfactual search has converged when the convergence criterion is invalidation rate.
 """
 function converged(
-    convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation
+    convergence::InvalidationRateConvergence,
+    ce::AbstractCounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
     ir = invalidation_rate(ce)
     label = Models.predict_label(ce.M, ce.data, ce.x′)[1]

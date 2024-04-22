@@ -55,7 +55,7 @@ if VERSION >= v"1.8"
 
                         @testset "Convergence" begin
                             @testset "Non-trivial case, no latent space" begin
-                                counterfactual_data.generative_model = nothing
+                                counterfactual_data.input_encoder = nothing
                                 # Threshold reached if converged:
                                 γ = 0.9
                                 max_iter = 1000
@@ -79,7 +79,7 @@ if VERSION >= v"1.8"
                             end
 
                             @testset "Trivial case (already in target class)" begin
-                                counterfactual_data.generative_model = nothing
+                                counterfactual_data.input_encoder = nothing
                                 # Already in target and exceeding threshold probability:
                                 y = Models.predict_label(M, counterfactual_data, x)
                                 target = y[1]
@@ -112,7 +112,7 @@ if VERSION >= v"1.8"
                                 for (name, vae) in value[:latent]
                                     name = string(name)
                                     @testset "$name" begin
-                                        counterfactual_data.generative_model = vae
+                                        counterfactual_data.input_encoder = vae
                                         # Threshold reached if converged:
                                         γ = 0.9
                                         max_iter = 1000
