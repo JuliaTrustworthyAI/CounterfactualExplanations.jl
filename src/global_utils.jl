@@ -1,5 +1,5 @@
 using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
-using Flux
+using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
 
 # Abstract Base Types:
