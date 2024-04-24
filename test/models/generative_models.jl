@@ -13,5 +13,9 @@ ce = CounterfactualExplanations.generate_counterfactual(
     x, target, counterfactual_data, M, generator
 )
 
-using CounterfactualExplanations.GenerativeModels: retrain!
-CounterfactualExplanations.GenerativeModels.retrain!(counterfactual_data.input_encoder, X)
+using CounterfactualExplanations.GenerativeModels: train!, retrain!, VAE
+generative_model = VAE(size(X, 1))
+train!(generative_model, X)
+retrain!(generative_model, X)
+
+@test true
