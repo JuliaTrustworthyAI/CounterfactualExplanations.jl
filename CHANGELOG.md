@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Refactors the encodings and decodings such that it is now more streamlined. Instead of conditional statements, encodings are now dispatched on the type of a new unifying `data.input_encoder` field. [#432]
 - Refactors the check for redundancy. This is now based on the convergence type and done right before the counterfactual search begins, if not redundant. [#432]
 
+### Added
+
+- Added additional unit tests. 
+
 ## Version [v1.1.3] - 2024-04-17
 
 ### Added
