@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Added additional unit tests. 
+- Added additional unit tests. [#437]
 
 ## Version [v1.1.3] - 2024-04-17
 
