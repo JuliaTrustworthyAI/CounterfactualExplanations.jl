@@ -1,0 +1,81 @@
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# [NeuroTreeModels.jl](https://evovest.github.io/NeuroTreeModels.jl/dev/)
+
+[NeuroTreeModels.jl](https://evovest.github.io/NeuroTreeModels.jl/dev/) is a package that provides a framework for training differentiable tree-based models. This is relevant to the work on counterfactual explanations (CE), which often assumes that the underlying black-box model is differentiable with respect to its input. The literature on CE therefore regularly focuses exclusively on explaining deep learning models. This is at odds with the fact that the literature also typically focuses on tabular data, which is often best modeled by tree-based models [@grinsztajn2022why]. The extension for NeuroTreeModels.jl provides a way to bridge this gap by allowing users to apply existing gradient-based CE methods to differentiable tree-based models.
+
+```{=commonmark}
+!!! warning "Experimental Feature"
+    Please note that this extension is still experimental. Neither the behaviour of differentiable tree-based models nor their interplay with counterfactual explanations is well understood at this point. If you encounter any issues, please report them to the package maintainers. Your feedback is highly appreciated.
+
+    Please also note that this extension is only tested on Julia 1.9 and higher, due to compatibility [issues](https://github.com/Evovest/NeuroTreeModels.jl/pull/7).
+```
+
+## Example
+
+```{julia}
+#| echo: false
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Flux
+using MLJBase
+using Plots
+using TaijaData
+using TaijaPlotting
+```
+
+The extension will be loaded automatically when loading the `NeuroTreeModels` package (assuming the `CounterfactualExplanations` package is also loaded).
+
+```{julia}
+#| output: true
+#| echo: true
+
+using NeuroTreeModels
+```
+
+Next, we will fit a NeuroTree model to the moons dataset using our standard package API for doing so. 
+
+```{julia}
+#| output: true
+#| echo: true
+
+# Fit model to data:
+data = CounterfactualData(load_moons()...)
+M = fit_model(
+    data, :NeuroTree; 
+    depth=2, lr=5e-2, nrounds=50, batchsize=10
+)
+```
+
+Finally, we select a factual instance and generate a counterfactual explanation for it using the generic gradient-based CE method.
+
+```{julia}
+#| output: true
+#| echo: true
+
+# Select a factual instance:
+target = 1
+factual = 0
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Generate counterfactual explanation:
+η = 0.01
+generator = GenericGenerator(; opt=Descent(η), λ=0.01)
+conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(;
+    decision_threshold=0.9, max_iter=100
+)
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
+plot(ce, alpha=0.1)
+```
+
+# References
