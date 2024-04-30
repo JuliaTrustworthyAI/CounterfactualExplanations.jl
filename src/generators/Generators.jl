@@ -75,4 +75,11 @@ generator_catalogue = Dict(
     :clue => Generators.CLUEGenerator,
 )
 
+"""
+    total_loss(ce::CounterfactualExplanation)
+
+Computes the total loss of a counterfactual explanation with respect to the search objective.
+"""
+total_loss(ce::CounterfactualExplanation) = ℓ(ce.generator, ce) + h(ce.generator, ce)
+
 end
