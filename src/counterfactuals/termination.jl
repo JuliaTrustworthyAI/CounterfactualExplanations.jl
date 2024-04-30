@@ -31,7 +31,7 @@ end
 Check if the factual is already in the target class.
 """
 function already_in_target_class(ce::AbstractCounterfactualExplanation)
-    return Models.predict_label(ce.M[], ce.data[], ce.x)[1] == ce.target
+    return Models.predict_label(ce.M, ce.data, ce.x)[1] == ce.target
 end
 
 function already_beats_treshold(ce::AbstractCounterfactualExplanation)

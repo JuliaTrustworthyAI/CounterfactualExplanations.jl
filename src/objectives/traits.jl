@@ -21,7 +21,8 @@ needs_neighbours(::NeedsNeighbours, x) = true
 
 Check if a generator needs access to neighbors in the target class.
 """
-needs_neighbours(gen::AbstractGenerator) = hasfield(typeof(gen), :penalty) ? any(needs_neighbours.(gen.penalty)) : false
+needs_neighbours(gen::AbstractGenerator) =
+    hasfield(typeof(gen), :penalty) ? any(needs_neighbours.(gen.penalty)) : false
 
 """
     needs_neighbours(ce::AbstractCounterfactualExplanation)

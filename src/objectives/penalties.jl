@@ -10,7 +10,7 @@ This is the distance measure proposed by Wachter et al. (2017).
 function distance_mad(
     ce::AbstractCounterfactualExplanation; agg=Statistics.mean, noise=1e-5, kwrgs...
 )
-    X = ce.data[].X
+    X = ce.data.X
     mad = []
     ChainRulesCore.ignore_derivatives() do
         _dict = ce.search

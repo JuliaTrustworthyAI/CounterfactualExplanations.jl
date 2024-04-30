@@ -33,13 +33,13 @@ Generate counterfactual candidates using the growing spheres generation algorith
 
 This function applies the growing spheres generation algorithm to generate counterfactual candidates. It starts by generating random points uniformly on a sphere, gradually reducing the search space until no counterfactuals are found. Then it expands the search space until at least one counterfactual is found or the maximum number of iterations is reached.
 
-The algorithm iteratively generates counterfactual candidates and predicts their labels using the model stored in `ce.M[]`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
+The algorithm iteratively generates counterfactual candidates and predicts their labels using the model stored in `ce.M`. It checks if any of the predicted labels are different from the factual class. The process of reducing the search space involves halving the search radius, while the process of expanding the search space involves increasing the search radius.
 """
 function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     generator = ce.generator
-    model = ce.M[]
+    model = ce.M
     factual = ce.x
-    counterfactual_data = ce.data[]
+    counterfactual_data = ce.data
     target = [ce.target]
     max_iter = 1000
 
@@ -125,8 +125,8 @@ Perform feature selection to find the dimension with the closest (but not equal)
 The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
-    model = ce.M[]
-    counterfactual_data = ce.data[]
+    model = ce.M
+    counterfactual_data = ce.data
     factual = ce.x
     target = [ce.target]
 

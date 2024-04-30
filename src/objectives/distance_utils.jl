@@ -56,7 +56,7 @@ Additional penalty for ClaPROARGenerator.
 """
 function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
     x_ = CounterfactualExplanations.counterfactual(ce)
-    M = ce.M[]
+    M = ce.M
     model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
     y_ = ce.target_encoded
 

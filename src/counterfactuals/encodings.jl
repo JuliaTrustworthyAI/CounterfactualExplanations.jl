@@ -117,7 +117,7 @@ function encode_state(
 
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
-    data = ce.data[]
+    data = ce.data
     dt = data.input_encoder
 
     # Transform features:
@@ -159,7 +159,7 @@ function decode_state(
 
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
-    data = ce.data[]
+    data = ce.data
     dt = data.input_encoder
 
     # Inverse-transform features:

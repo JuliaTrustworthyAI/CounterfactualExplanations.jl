@@ -13,7 +13,7 @@ end
 A convenience method to compute the class probabilities of the factual.
 """
 function factual_probability(ce::CounterfactualExplanation)
-    return Models.probs(ce.M[], ce.x)
+    return Models.probs(ce.M, ce.x)
 end
 
 """
@@ -22,8 +22,8 @@ end
 A convenience method to get the predicted label associated with the factual.
 """
 function factual_label(ce::CounterfactualExplanation)
-    M = ce.M[]
-    counterfactual_data = ce.data[]
+    M = ce.M
+    counterfactual_data = ce.data
     y = predict_label(M, counterfactual_data, factual(ce))
     return y
 end
@@ -48,7 +48,7 @@ function counterfactual_probability(
     if isnothing(x)
         x = counterfactual(ce)
     end
-    p = Models.probs(ce.M[], x)
+    p = Models.probs(ce.M, x)
     return p
 end
 
@@ -58,8 +58,8 @@ end
 A convenience method that returns the predicted label of the counterfactual.
 """
 function counterfactual_label(ce::CounterfactualExplanation)
-    M = ce.M[]
-    counterfactual_data = ce.data[]
+    M = ce.M
+    counterfactual_data = ce.data
     y = predict_label(M, counterfactual_data, counterfactual(ce))
     return y
 end
@@ -75,7 +75,7 @@ Returns the predicted probability of the target class for `x`. If `x` is `nothin
 function target_probs(
     ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
-    data = ce.data[]
+    data = ce.data
     likelihood = data.likelihood
     p = counterfactual_probability(ce, x)
     target = ce.target

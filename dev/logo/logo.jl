@@ -136,7 +136,7 @@ function logo_picture(;
     # Dots:
     idx = sample(1:length(x), ndots; replace=false)
     xplot, yplot = (x[idx], y[idx])
-    _scale = (frame_size / (2 * maximum(abs.(ce.data[].X)))) * (1 - margin)
+    _scale = (frame_size / (2 * maximum(abs.(ce.data.X)))) * (1 - margin)
 
     # Decision Boundary:
     setline(db_stroke_size)
@@ -150,8 +150,8 @@ function logo_picture(;
     data_plot = zip(xplot, yplot)
     for i in 1:length(data_plot)
         _point = collect(data_plot)[i]
-        _lab = predict_label(M, ce.data[], [_point[1], _point[2]])
-        color_idx = get_target_index(ce.data[].y_levels, _lab[1])
+        _lab = predict_label(M, ce.data, [_point[1], _point[2]])
+        color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
         setcolor(sethue(mcolor[color_idx]...)..., m_alpha)
         circle(Point(_x, _y), ms; action=:fill)
@@ -161,8 +161,8 @@ function logo_picture(;
     ce_path = CounterfactualExplanations.path(ce)
     for i in eachindex(ce_path)
         _point = (ce_path[i][1, :, 1][1], ce_path[i][2, :, 1][1])
-        _lab = predict_label(M, ce.data[], [_point[1], _point[2]])
-        color_idx = get_target_index(ce.data[].y_levels, _lab[1])
+        _lab = predict_label(M, ce.data, [_point[1], _point[2]])
+        color_idx = get_target_index(ce.data.y_levels, _lab[1])
         _x, _y = _scale .* _point
         _alpha =
             i != length(ce_path) ? m_alpha + ((1 - m_alpha) * i / length(ce_path)) : 1.0

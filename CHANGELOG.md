@@ -10,7 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Moved the call to `find_potential_neighbours` to the `distance_from_target` function, because it's only really needed there and is computationally potentially costly (forward-pass). [#436] 
+- The `find_potential_neighbours` is now only triggered if one of the penalties of the generator requires access to samples from the target domain. This improves scalability because calling the function can be computationally costly (forward-pass). [#436] 
+- The target variable encodings are now handled more efficiently. Previously certain tasks were repeated, which was not necessary. [#436]
 
 ### Removed
 

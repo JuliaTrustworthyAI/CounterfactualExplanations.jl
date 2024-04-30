@@ -10,8 +10,8 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     target_encoded::EncodedTargetType
     s′::AbstractArray
     x′::AbstractArray
-    data::Ref{<:DataPreprocessing.CounterfactualData}
-    M::Ref{<:Models.AbstractFittedModel}
+    data::DataPreprocessing.CounterfactualData
+    M::Models.AbstractFittedModel
     generator::Generators.AbstractGenerator
     search::Union{Dict,Nothing}
     convergence::AbstractConvergence
@@ -68,8 +68,8 @@ function CounterfactualExplanation(
         target_encoded,
         x,
         x,
-        Ref(data),
-        Ref(M),
+        data,
+        M,
         deepcopy(generator),
         nothing,
         convergence,
@@ -98,7 +98,7 @@ function initialize!(ce::CounterfactualExplanation)
     # Initialize search:
     ce.search = Dict(
         :iteration_count => 0,
-        :mutability => DataPreprocessing.mutability_constraints(ce.data[]),
+        :mutability => DataPreprocessing.mutability_constraints(ce.data),
     )
 
     # Check if the objective needs neighbours:

@@ -16,7 +16,7 @@ By default, gradient-based search is considered to have converged as soon as the
 function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    Δs′ = ∇(generator, ce.M[], ce)
+    Δs′ = ∇(generator, ce.M, ce)
     Δs′ = CounterfactualExplanations.apply_mutability(ce, Δs′)
     τ = ce.convergence.gradient_tol
     satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
