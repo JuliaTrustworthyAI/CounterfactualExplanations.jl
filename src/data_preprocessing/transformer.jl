@@ -12,7 +12,9 @@ end
 
 Fit a transformer to the data for an `InputTransformer` object. This is a no-op.
 """
-function fit_transformer(data::CounterfactualData, input_encoder::InputTransformer; kwargs...)
+function fit_transformer(
+    data::CounterfactualData, input_encoder::InputTransformer; kwargs...
+)
     return input_encoder
 end
 
