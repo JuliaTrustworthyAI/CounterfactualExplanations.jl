@@ -76,10 +76,10 @@ generator_catalogue = Dict(
 )
 
 """
-    total_loss(ce::CounterfactualExplanation)
+    total_loss(ce::AbstractCounterfactualExplanation)
 
 Computes the total loss of a counterfactual explanation with respect to the search objective.
 """
-total_loss(ce::CounterfactualExplanation) = ℓ(ce.generator, ce) + h(ce.generator, ce)
+total_loss(ce::AbstractCounterfactualExplanation) = ℓ(ce.generator, ce) + h(ce.generator, ce)
 
 end
