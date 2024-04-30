@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.1.6]
+
+### Changed
+
+- No longer running alloc test on Windows. [#441]
+
 ## Version [v1.1.5] - 2024-04-30
 
 ### Added 
