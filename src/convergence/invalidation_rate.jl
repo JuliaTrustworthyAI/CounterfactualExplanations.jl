@@ -23,7 +23,7 @@ function converged(
     x::Union{AbstractArray,Nothing}=nothing,
 )
     ir = invalidation_rate(ce)
-    label = Models.predict_label(ce.M, ce.data, ce.x′)[1]
+    label = Models.predict_label(ce.M[], ce.data[], ce.x′)[1]
     return label == ce.target && convergence.invalidation_rate > ir
 end
 
@@ -40,14 +40,14 @@ Calculates the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
-    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+    index_target = findfirst(map(x -> x == ce.target, ce.data[].y_levels))
+    f_loss = logits(ce.M[], CounterfactualExplanations.decode_state(ce))[index_target]
     grad = []
     for i in 1:length(ce.s′)
         push!(
             grad,
             Flux.gradient(
-                () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
+                () -> logits(ce.M[], CounterfactualExplanations.decode_state(ce))[i],
                 Flux.params(ce.s′),
             )[ce.s′],
         )

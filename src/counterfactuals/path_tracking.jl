@@ -26,8 +26,8 @@ end
 Returns the counterfactual labels for each step of the search.
 """
 function counterfactual_label_path(ce::CounterfactualExplanation)
-    counterfactual_data = ce.data
-    M = ce.M
+    counterfactual_data = ce.data[]
+    M = ce.M[]
     ŷ = map(X -> predict_label(M, counterfactual_data, X), path(ce))
     return ŷ
 end

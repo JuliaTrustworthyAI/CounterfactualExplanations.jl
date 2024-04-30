@@ -32,8 +32,8 @@ end
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
 function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
-    if typeof(ce.data.input_encoder) <: GenerativeModels.AbstractGenerativeModel ||
-        typeof(ce.data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction
+    if typeof(ce.data[].input_encoder) <: GenerativeModels.AbstractGenerativeModel ||
+        typeof(ce.data[].input_encoder) <: MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
@@ -60,6 +60,6 @@ end
 Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(ce::CounterfactualExplanation)
-    ce.x′ = apply_domain_constraints(ce.data, ce.x′)            # apply domain constraints in feature space
+    ce.x′ = apply_domain_constraints(ce.data[], ce.x′)            # apply domain constraints in feature space
     return ce.s′ = encode_state(ce, ce.x′)                             # re-encode counterfactual state
 end

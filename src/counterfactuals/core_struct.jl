@@ -10,8 +10,8 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     target_encoded::EncodedTargetType
     s′::AbstractArray
     x′::AbstractArray
-    data::DataPreprocessing.CounterfactualData
-    M::Models.AbstractFittedModel
+    data::Ref{<:DataPreprocessing.CounterfactualData}
+    M::Ref{<:Models.AbstractFittedModel}
     generator::Generators.AbstractGenerator
     search::Union{Dict,Nothing}
     convergence::AbstractConvergence
@@ -45,7 +45,7 @@ function CounterfactualExplanation(
 )
 
     # Assertions:
-    @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
+    @assert any(predict_label(M, DataPreprocessing.subsample(data, 1000)) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
 
     # Setups:
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
@@ -71,8 +71,8 @@ function CounterfactualExplanation(
         target_encoded,
         x,
         x,
-        data,
-        M,
+        Ref(data),
+        Ref(M),
         deepcopy(generator),
         nothing,
         convergence,

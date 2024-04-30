@@ -4,7 +4,7 @@
 A convenience method that returns the output dimension of the predictive model.
 """
 function output_dim(ce::CounterfactualExplanation)
-    return size(Models.probs(ce.M, ce.x))[1]
+    return size(Models.probs(ce.M[], ce.x))[1]
 end
 
 """
@@ -13,10 +13,11 @@ end
 Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
 """
 function guess_loss(ce::CounterfactualExplanation)
-    if :likelihood in fieldnames(typeof(ce.M))
-        if ce.M.likelihood == :classification_binary
+    M = ce.M[]
+    if :likelihood in fieldnames(typeof(M))
+        if M.likelihood == :classification_binary
             loss_fun = Objectives.logitbinarycrossentropy
-        elseif ce.M.likelihood == :classification_multi
+        elseif M.likelihood == :classification_multi
             loss_fun = Objectives.logitcrossentropy
         else
             loss_fun = Objectives.mse
@@ -33,7 +34,7 @@ end
 Returns meta data for a counterfactual explanation.
 """
 function get_meta(ce::CounterfactualExplanation)
-    meta_data = Dict(:model => Symbol(ce.M), :generator => Symbol(ce.generator))
+    meta_data = Dict(:model => Symbol(ce.M[]), :generator => Symbol(ce.generator))
     return meta_data
 end
 
@@ -77,9 +78,10 @@ end
 Finds potential neighbors for the selected factual data point.
 """
 function find_potential_neighbours(ce::AbstractCounterfactualExplanation)
-    ids = findall(Models.predict_label(ce.M, ce.data) .== ce.target)
-    n_candidates = minimum([size(ce.data.y, 2), 1000])
-    candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
+    data = DataPreprocessing.subsample(ce.data[], 1000)
+    ids = findall(Models.predict_label(ce.M[], data) .== ce.target)
+    n_candidates = minimum([size(ce.data[].y, 2), 1000])
+    candidates = DataPreprocessing.select_factual(ce.data[], rand(ids, n_candidates))
     potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
     return potential_neighbours
 end

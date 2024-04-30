@@ -10,7 +10,7 @@ This is the distance measure proposed by Wachter et al. (2017).
 function distance_mad(
     ce::AbstractCounterfactualExplanation; agg=Statistics.mean, noise=1e-5, kwrgs...
 )
-    X = ce.data.X
+    X = ce.data[].X
     mad = []
     ChainRulesCore.ignore_derivatives() do
         _dict = ce.search
@@ -88,8 +88,8 @@ function distance_from_targets(
     agg=mean,
     n_nearest_neighbors::Union{Int,Nothing}=nothing,
 )
-    target_idx = ce.data.output_encoder.labels .== ce.target
-    target_samples = ce.data.X[:, target_idx] |> X -> X[:, rand(1:end, n)]
+    target_idx = ce.data[].output_encoder.labels .== ce.target
+    target_samples = ce.data[].X[:, target_idx] |> X -> X[:, rand(1:end, n)]
     x′ = CounterfactualExplanations.counterfactual(ce)
     loss = map(eachslice(x′; dims=ndims(x′))) do x
         Δ = map(eachcol(target_samples)) do xsample
