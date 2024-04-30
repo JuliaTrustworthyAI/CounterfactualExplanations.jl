@@ -6,7 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [v1.1.4] - 2024-04-24
+## Version [v1.1.5] - 2024-04-30
+
+### Changed
+
+- Moved the call to `find_potential_neighbours` to the `distance_from_target` function, because it's only really needed there and is computationally potentially costly (forward-pass). [#436] 
+
+### Removed
+
+- Removed the assertion checking that the model ever predicts the target value. While this assertion is useful, it is not essential. For large enough models and datasets, this forward pass can be very costly. [#436]
+
+## Version [v1.1.4] - 2024-04-25
 
 ### Changed
 

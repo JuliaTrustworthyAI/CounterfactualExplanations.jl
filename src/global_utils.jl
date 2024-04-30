@@ -67,7 +67,7 @@ end
 
 On call, the `OutputEncoder` returns the encoded output array.
 """
-function (encoder::OutputEncoder)()
+function (encoder::OutputEncoder)(; return_y::Bool=true)
 
     # Setup:
     y = encoder.y
@@ -82,16 +82,20 @@ function (encoder::OutputEncoder)()
 
     # Encode:
     y_levels = levels(y)
-    y = Int.(y.refs)
-    if likelihood == :classification_binary
-        y = permutedims(y)
-        y = y .- 1  # map to [0,1]
-    else
-        # One-hot encode:
-        y = reduce(hcat, map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y))
-    end
+    if return_y
+        y = Int.(y.refs)
+        if likelihood == :classification_binary
+            y = permutedims(y)
+            y = y .- 1  # map to [0,1]
+        else
+            # One-hot encode:
+            y = reduce(hcat, map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y))
+        end
 
-    return y, y_levels, likelihood
+        return y, y_levels, likelihood
+    else
+        return y_levels, likelihood
+    end
 end
 
 """
@@ -102,7 +106,7 @@ When called on a new value `ynew`, the `OutputEncoder` encodes it based on the i
 function (encoder::OutputEncoder)(ynew::RawTargetType)
 
     # Setup:
-    _, y_levels, likelihood = encoder()
+    y_levels, likelihood = encoder(; return_y=false)
     @assert ynew ∈ y_levels "Supplied output value is not in `y_levels`."
 
     # Encode:

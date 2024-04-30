@@ -44,9 +44,6 @@ function CounterfactualExplanation(
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
 
-    # Assertions:
-    @assert any(predict_label(M, DataPreprocessing.subsample(data, 1000)) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-
     # Setups:
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
     if generator.latent_space &&
@@ -84,7 +81,6 @@ function CounterfactualExplanation(
     ce.search = Dict(
         :iteration_count => 0,
         :mutability => DataPreprocessing.mutability_constraints(data),
-        :potential_neighbours => find_potential_neighbours(ce),
     )
 
     # Initialization:
