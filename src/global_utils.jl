@@ -71,18 +71,24 @@ function (encoder::OutputEncoder)(; return_y::Bool=true)
 
     # Setup:
     y = encoder.y
-    y = ndims(y) == 2 ? vec(y) : y
     likelihood, stype = guess_likelihood(encoder.y)
 
-    # Deal with non-categorical output array:
-    if !(stype <: AbstractArray{<:Finite})
-        y = categorical(y)
+    if isnothing(encoder.labels)
+        y = ndims(y) == 2 ? vec(y) : y
+
+        # Deal with non-categorical output array:
+        if !(stype <: AbstractArray{<:Finite})
+            y = categorical(y)
+        end
+        encoder.labels = y
     end
-    encoder.labels = y
 
     # Encode:
     y_levels = levels(y)
-    if return_y
+
+    if !return_y
+        return y_levels, likelihood
+    else
         y = Int.(y.refs)
         if likelihood == :classification_binary
             y = permutedims(y)
@@ -93,8 +99,6 @@ function (encoder::OutputEncoder)(; return_y::Bool=true)
         end
 
         return y, y_levels, likelihood
-    else
-        return y_levels, likelihood
     end
 end
 
@@ -103,10 +107,14 @@ end
 
 When called on a new value `ynew`, the `OutputEncoder` encodes it based on the initial encoding.
 """
-function (encoder::OutputEncoder)(ynew::RawTargetType)
+function (encoder::OutputEncoder)(ynew::RawTargetType; y_levels=nothing)
 
     # Setup:
-    y_levels, likelihood = encoder(; return_y=false)
+    if isnothing(y_levels)
+        y_levels, likelihood = encoder(; return_y=false)
+    else
+        likelihood = guess_likelihood(encoder.y)[1]
+    end
     @assert ynew ∈ y_levels "Supplied output value is not in `y_levels`."
 
     # Encode:

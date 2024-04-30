@@ -59,7 +59,7 @@ function CounterfactualExplanation(
 
     # Factual and target:
     x = typeof(x) == Int ? select_factual(data, x) : x
-    target_encoded = data.output_encoder(target)
+    target_encoded = data.output_encoder(target; y_levels=data.y_levels)
 
     # Instantiate:
     ce = CounterfactualExplanation(

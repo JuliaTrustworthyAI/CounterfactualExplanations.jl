@@ -80,6 +80,6 @@ generator_catalogue = Dict(
 
 Computes the total loss of a counterfactual explanation with respect to the search objective.
 """
-total_loss(ce::AbstractCounterfactualExplanation) = ℓ(ce.generator, ce) + h(ce.generator, ce)
+total_loss(ce::AbstractCounterfactualExplanation) = hasfield(typeof(ce.generator), :loss) ? ℓ(ce.generator, ce) + h(ce.generator, ce) : nothing
 
 end
