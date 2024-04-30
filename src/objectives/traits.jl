@@ -24,8 +24,8 @@ Check if a generator needs access to neighbors in the target class.
 needs_neighbours(gen::AbstractGenerator) = any(needs_neighbours.(gen.penalty))
 
 """
-    needs_neighbours(ce::CounterfactualExplanation)
+    needs_neighbours(ce::AbstractCounterfactualExplanation)
 
 Check if a counterfactual explanation needs access to neighbors in the target class.
 """
-needs_neighbours(ce::CounterfactualExplanation) = needs_neighbours(ce.generator)
+needs_neighbours(ce::AbstractCounterfactualExplanation) = needs_neighbours(ce.generator)
