@@ -10,7 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added 
 
-- Unit tests: adds a simple performance benchmark to test that for a small problem, generating a counterfactual using the generic generator takes at most 700 µs. Only run on julia `v1.10` and higher. [#436]
+- Unit tests: adds a simple performance benchmark to test that for a small problem, generating a counterfactual using the generic generator takes at most 4700 allocations. Only run on julia `v1.10` and higher. [#436]
 
 ### Changed
 

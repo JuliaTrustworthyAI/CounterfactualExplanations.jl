@@ -12,8 +12,8 @@ x = select_factual(counterfactual_data, chosen)
 generator = GenericGenerator()
 
 if VERSION >= v"1.10"
-    t = @belapsed generate_counterfactual(x, target, counterfactual_data, M, generator) samples =
+    t = @benchmark generate_counterfactual(x, target, counterfactual_data, M, generator) samples =
         1000
-    expected_time = 0.0007      # at most 700 µs
-    @test t <= expected_time
+    expected_allocs = 4700
+    @test t.allocs <= expected_allocs
 end
