@@ -9,8 +9,7 @@ PenaltyRequirements(::Type) = NoPenaltyRequirements()
 struct NeedsNeighbours <: PenaltyRequirements end
 
 "The `distance_from_target` method needs neighbors in the target class."
-PenaltyRequirements(::Type{<:typeof(distance_from_target)}) =
-    NeedsNeighbours()
+PenaltyRequirements(::Type{<:typeof(distance_from_target)}) = NeedsNeighbours()
 
 # Implementing trait behaviour:
 needs_neighbours(x::T) where {T} = needs_neighbours(PenaltyRequirements(T), x)

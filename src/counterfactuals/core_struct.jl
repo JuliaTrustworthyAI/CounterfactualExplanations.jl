@@ -94,7 +94,7 @@ Initializes the counterfactual explanation. This method is called by the constru
 4. Initializes the loss.
 """
 function initialize!(ce::CounterfactualExplanation)
-    
+
     # Initialize search:
     ce.search = Dict(
         :iteration_count => 0,
