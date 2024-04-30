@@ -67,31 +67,39 @@ end
 
 On call, the `OutputEncoder` returns the encoded output array.
 """
-function (encoder::OutputEncoder)()
+function (encoder::OutputEncoder)(; return_y::Bool=true)
 
     # Setup:
     y = encoder.y
-    y = ndims(y) == 2 ? vec(y) : y
     likelihood, stype = guess_likelihood(encoder.y)
 
-    # Deal with non-categorical output array:
-    if !(stype <: AbstractArray{<:Finite})
-        y = categorical(y)
+    if isnothing(encoder.labels)
+        y = ndims(y) == 2 ? vec(y) : y
+
+        # Deal with non-categorical output array:
+        if !(stype <: AbstractArray{<:Finite})
+            y = categorical(y)
+        end
+        encoder.labels = y
     end
-    encoder.labels = y
 
     # Encode:
     y_levels = levels(y)
-    y = Int.(y.refs)
-    if likelihood == :classification_binary
-        y = permutedims(y)
-        y = y .- 1  # map to [0,1]
-    else
-        # One-hot encode:
-        y = reduce(hcat, map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y))
-    end
 
-    return y, y_levels, likelihood
+    if !return_y
+        return y_levels, likelihood
+    else
+        y = Int.(y.refs)
+        if likelihood == :classification_binary
+            y = permutedims(y)
+            y = y .- 1  # map to [0,1]
+        else
+            # One-hot encode:
+            y = reduce(hcat, map(_y -> Flux.onehot(_y[1], 1:length(y_levels)), y))
+        end
+
+        return y, y_levels, likelihood
+    end
 end
 
 """
@@ -99,10 +107,14 @@ end
 
 When called on a new value `ynew`, the `OutputEncoder` encodes it based on the initial encoding.
 """
-function (encoder::OutputEncoder)(ynew::RawTargetType)
+function (encoder::OutputEncoder)(ynew::RawTargetType; y_levels=nothing)
 
     # Setup:
-    _, y_levels, likelihood = encoder()
+    if isnothing(y_levels)
+        y_levels, likelihood = encoder(; return_y=false)
+    else
+        likelihood = guess_likelihood(encoder.y)[1]
+    end
     @assert ynew ∈ y_levels "Supplied output value is not in `y_levels`."
 
     # Encode:

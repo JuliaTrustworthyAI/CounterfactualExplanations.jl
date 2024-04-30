@@ -76,7 +76,7 @@ function target_probs(
     ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
     data = ce.data
-    likelihood = ce.data.likelihood
+    likelihood = data.likelihood
     p = counterfactual_probability(ce, x)
     target = ce.target
     target_idx = get_target_index(data.y_levels, target)

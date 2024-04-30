@@ -11,6 +11,7 @@ using Random
 include("distance_utils.jl")
 include("loss_functions.jl")
 include("penalties.jl")
+include("traits.jl")
 
 export logitbinarycrossentropy, logitcrossentropy, mse, predictive_entropy
 export losses_catalogue

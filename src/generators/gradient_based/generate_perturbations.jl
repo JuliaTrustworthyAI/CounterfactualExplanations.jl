@@ -24,7 +24,8 @@ Proposes new state based on backpropagation.
 function propose_state(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    grads = ∇(generator, ce.M, ce) # gradient
+    M = ce.M
+    grads = ∇(generator, M, ce) # gradient
     new_s′ = deepcopy(ce.s′)
     Flux.Optimise.update!(generator.opt, new_s′, grads)
     return new_s′

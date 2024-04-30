@@ -63,4 +63,8 @@ generators = Generators.generator_catalogue
     @testset "Other" begin
         include("other/other.jl")
     end
+
+    @testset "Performance" begin
+        include("other/performance.jl")
+    end
 end

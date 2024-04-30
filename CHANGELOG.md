@@ -6,7 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [v1.1.4] - 2024-04-24
+## Version [v1.1.5] - 2024-04-30
+
+### Added 
+
+- Unit tests: adds a simple performance benchmark to test that for a small problem, generating a counterfactual using the generic generator takes at most 4700 allocations. Only run on julia `v1.10` and higher. [#436]
+
+### Changed
+
+- The `find_potential_neighbours` is now only triggered if one of the penalties of the generator requires access to samples from the target domain. This improves scalability because calling the function can be computationally costly (forward-pass). [#436] 
+- The target variable encodings are now handled more efficiently. Previously certain tasks were repeated, which was not necessary. [#436]
+
+### Removed
+
+- Removed the assertion checking that the model ever predicts the target value. While this assertion is useful, it is not essential. For large enough models and datasets, this forward pass can be very costly. [#436]
+- Removed redundant `distance_from_targets` function. [#436]
+
+## Version [v1.1.4] - 2024-04-25
 
 ### Changed
 

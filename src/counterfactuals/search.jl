@@ -20,6 +20,7 @@ function update!(ce::CounterfactualExplanation)
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     ce.search[:iteration_count] += 1                            # update iteration counter   
     ce.search[:path] = [ce.search[:path]..., ce.s′]
+    ce.search[:loss] = [ce.search[:loss]..., Generators.total_loss(ce)]
     return terminated(ce)
 end
 

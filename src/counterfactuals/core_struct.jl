@@ -44,9 +44,6 @@ function CounterfactualExplanation(
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )
 
-    # Assertions:
-    @assert any(predict_label(M, data) .== target) "Your model `M` never predicts the target value `target` for any of the samples contained in `data`. Are you sure the model is correctly specified?"
-
     # Setups:
     convergence = Convergence.get_convergence_type(convergence, data.y_levels)
     if generator.latent_space &&
@@ -62,7 +59,7 @@ function CounterfactualExplanation(
 
     # Factual and target:
     x = typeof(x) == Int ? select_factual(data, x) : x
-    target_encoded = data.output_encoder(target)
+    target_encoded = data.output_encoder(target; y_levels=data.y_levels)
 
     # Instantiate:
     ce = CounterfactualExplanation(
@@ -80,18 +77,44 @@ function CounterfactualExplanation(
         initialization,
     )
 
+    # Initialize:
+    initialize!(ce)
+
+    return ce
+end
+
+"""
+    initialize!(ce::CounterfactualExplanation)
+
+Initializes the counterfactual explanation. This method is called by the constructor. It does the following:
+
+1. Creates a dictionary to store information about the search.
+2. Initializes the counterfactual state.
+3. Initializes the search path.
+4. Initializes the loss.
+"""
+function initialize!(ce::CounterfactualExplanation)
+
     # Initialize search:
     ce.search = Dict(
         :iteration_count => 0,
-        :mutability => DataPreprocessing.mutability_constraints(data),
-        :potential_neighbours => find_potential_neighbours(ce),
+        :mutability => DataPreprocessing.mutability_constraints(ce.data),
     )
+
+    # Check if the objective needs neighbours:
+    if Objectives.needs_neighbours(ce)
+        get!(
+            ce.search,
+            :potential_neighbours,
+            CounterfactualExplanations.find_potential_neighbours(ce),
+        )
+    end
 
     # Initialization:
     adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
-
+    ce.search[:loss] = [Generators.total_loss(ce)]
     return ce
 end
