@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [v1.1.5] - 2024-04-30
 
+### Added 
+
+- Unit tests: adds a simple performance benchmark to test that for a small problem, generating a counterfactual using the generic generator takes at most 700 µs. Only run on julia `v1.10` and higher. [#436]
+
 ### Changed
 
 - The `find_potential_neighbours` is now only triggered if one of the penalties of the generator requires access to samples from the target domain. This improves scalability because calling the function can be computationally costly (forward-pass). [#436] 
