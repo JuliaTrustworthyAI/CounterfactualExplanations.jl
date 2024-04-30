@@ -8,6 +8,15 @@ function fit_transformer(data::CounterfactualData, input_encoder::Nothing; kwarg
 end
 
 """
+    fit_transformer(data::CounterfactualData, input_encoder::InputTransformer; kwargs...)
+
+Fit a transformer to the data for an `InputTransformer` object. This is a no-op.
+"""
+function fit_transformer(data::CounterfactualData, input_encoder::InputTransformer; kwargs...)
+    return input_encoder
+end
+
+"""
     fit_transformer(
         data::CounterfactualData,
         input_encoder::Type{StatsBase.AbstractDataTransform};
