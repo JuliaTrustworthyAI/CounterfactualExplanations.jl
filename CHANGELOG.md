@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Removed
 
 - Removed the assertion checking that the model ever predicts the target value. While this assertion is useful, it is not essential. For large enough models and datasets, this forward pass can be very costly. [#436]
+- Removed redundant `distance_from_targets` function. [#436]
 
 ## Version [v1.1.4] - 2024-04-25
 

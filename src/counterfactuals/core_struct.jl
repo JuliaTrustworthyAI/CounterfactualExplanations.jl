@@ -77,11 +77,38 @@ function CounterfactualExplanation(
         initialization,
     )
 
+    # Initialize:
+    initialize!(ce)
+
+    return ce
+end
+
+"""
+    initialize!(ce::CounterfactualExplanation)
+
+Initializes the counterfactual explanation. This method is called by the constructor. It does the following:
+
+1. Creates a dictionary to store information about the search.
+2. Initializes the counterfactual state.
+3. Initializes the search path.
+4. Initializes the loss.
+"""
+function initialize!(ce::CounterfactualExplanation)
+    
     # Initialize search:
     ce.search = Dict(
         :iteration_count => 0,
-        :mutability => DataPreprocessing.mutability_constraints(data),
+        :mutability => DataPreprocessing.mutability_constraints(ce.data[]),
     )
+
+    # Check if the objective needs neighbours:
+    if Objectives.needs_neighbours(ce)
+        get!(
+            ce.search,
+            :potential_neighbours,
+            CounterfactualExplanations.find_potential_neighbours(ce),
+        )
+    end
 
     # Initialization:
     adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
@@ -89,6 +116,5 @@ function CounterfactualExplanation(
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
     ce.search[:loss] = [Generators.total_loss(ce)]
-
     return ce
 end
