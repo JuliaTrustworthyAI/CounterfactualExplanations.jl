@@ -55,9 +55,8 @@ Not called by the user directly.
 - `model::NeuroTreeModel`: The NeuroTree model.
 """
 function CounterfactualExplanations.NeuroTreeModel(data::CounterfactualData; kwargs...)
-    l = data.likelihood == :classification_multi ? :mlogloss : :mse
     outsize = length(data.y_levels)
-    model = NeuroTreeModels.NeuroTreeRegressor(; loss=l, outsize=outsize, kwargs...)
+    model = NeuroTreeModels.NeuroTreeClassifier(; outsize=outsize, kwargs...)
     return NeuroTreeModel(model, data.likelihood, nothing)
 end
 
