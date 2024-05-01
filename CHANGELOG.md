@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - No longer running alloc test on Windows. [#441]
+- Slight change to doctests. [#447]
 
 ## Version [v1.1.5] - 2024-04-30
 

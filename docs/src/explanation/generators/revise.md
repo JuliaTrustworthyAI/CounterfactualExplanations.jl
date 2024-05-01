@@ -48,7 +48,7 @@ input_dim = size(X, 1)
 using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.01, latent_dim=2, hidden_dim=32)
 flux_training_params.verbose = true
-train!(vae, X, y)
+train!(vae, X)
 X̂ = reconstruct(vae, X)[1]
 p0 = scatter(X[1, :], X[2, :], color=:blue, label="Original", xlab="x₁", ylab="x₂")
 scatter!(X̂[1, :], X̂[2, :], color=:orange, label="Reconstructed", xlab="x₁", ylab="x₂")
@@ -121,7 +121,7 @@ The F1-score of our pre-trained image classifier on test data is: 0.94
 Before continuing, we supply the pre-trained generative model to our data container:
 
 ``` julia
-counterfactual_data.generative_model = vae # assign generative model
+counterfactual_data.input_encoder = vae # assign generative model
 ```
 
 Now let’s define a factual and target label:

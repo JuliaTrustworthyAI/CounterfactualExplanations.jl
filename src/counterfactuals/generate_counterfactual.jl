@@ -52,9 +52,10 @@ julia> x = select_factual(counterfactual_data, chosen);
 
 julia> generator = Generators.GenericGenerator();
 
-julia> ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-CounterfactualExplanation
-Convergence: ✅ after 7 steps.
+julia> ce = generate_counterfactual(x, target, counterfactual_data, M, generator);
+
+julia> converged(ce.convergence, ce)
+true
 ```
 
 ## Broadcasting
@@ -66,18 +67,10 @@ julia> chosen = rand(findall(predict_label(M, counterfactual_data) .== factual),
 
 julia> xs = select_factual(counterfactual_data, chosen);
 
-julia> ces = generate_counterfactual.(xs, target, counterfactual_data, M, generator)
-5-element Vector{CounterfactualExplanation}:
- CounterfactualExplanation
-Convergence: ✅ after 7 steps.
- CounterfactualExplanation
-Convergence: ✅ after 7 steps.
- CounterfactualExplanation
-Convergence: ✅ after 8 steps.
- CounterfactualExplanation
-Convergence: ✅ after 6 steps.
- CounterfactualExplanation
-Convergence: ✅ after 7 steps.
+julia> ces = generate_counterfactual.(xs, target, counterfactual_data, M, generator);
+
+julia> converged(ce.convergence, ce)
+true
 ```
 """
 function generate_counterfactual(

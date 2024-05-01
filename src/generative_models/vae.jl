@@ -231,6 +231,15 @@ function get_data(X::AbstractArray, batch_size)
 end
 
 """
+    get_data(X::AbstractArray, y::AbstractArray, batch_size)
+
+Preparing data for mini-batch training .
+"""
+function get_data(X::AbstractArray, y::AbstractArray, batch_size)
+    return Flux.DataLoader((X, y); batchsize=batch_size, shuffle=true)
+end
+
+"""
     encode(generative_model::VAE, x::AbstractArray)
 
 Encodes an array `x` using the VAE encoder. Specifically, it samples from the latent distribution. It does so by first passing `x` through the encoder to obtain the mean and log-variance of the latent distribution. Then, it samples from the latent distribution using the reparameterization trick. See [`Random.rand(encoder::Encoder, x, device=cpu)`](@ref) for more details.
