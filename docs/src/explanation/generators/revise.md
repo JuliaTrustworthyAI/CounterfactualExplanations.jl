@@ -48,7 +48,7 @@ input_dim = size(X, 1)
 using CounterfactualExplanations.GenerativeModels: VAE, train!, reconstruct
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.01, latent_dim=2, hidden_dim=32)
 flux_training_params.verbose = true
-train!(vae, X, y)
+train!(vae, X)
 X̂ = reconstruct(vae, X)[1]
 p0 = scatter(X[1, :], X[2, :], color=:blue, label="Original", xlab="x₁", ylab="x₂")
 scatter!(X̂[1, :], X̂[2, :], color=:orange, label="Reconstructed", xlab="x₁", ylab="x₂")
