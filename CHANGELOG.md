@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444]
 - No longer running alloc test on Windows. [#441]
 - Slight change to doctests. [#447]
 
