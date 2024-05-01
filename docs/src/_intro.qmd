@@ -235,7 +235,7 @@ generator = GradientBasedGenerator()
     @objective logitcrossentropy + 0.1distance_mad + 0.1distance_from_target
     @with_optimiser Adam(0.1)                  
 end
-counterfactual_data.generative_model = vae # assign generative model
+counterfactual_data.input_encoder = vae # assign generative model
 ```
 
 ```{julia}
