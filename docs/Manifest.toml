@@ -659,10 +659,10 @@ uuid = "150eb455-5306-5404-9cee-2592286d6298"
 version = "0.6.3"
 
 [[deps.CounterfactualExplanations]]
-deps = ["CUDA", "CategoricalArrays", "ChainRulesCore", "DataFrames", "DecisionTree", "Distributions", "Flux", "LazyArtifacts", "LinearAlgebra", "Logging", "MLJBase", "MLJDecisionTreeInterface", "MLUtils", "MultivariateStats", "PackageExtensionCompat", "Parameters", "ProgressMeter", "Random", "Serialization", "Statistics", "StatsBase", "Tables", "TaijaBase", "UUIDs"]
+deps = ["CategoricalArrays", "ChainRulesCore", "DataFrames", "DecisionTree", "Distributions", "Flux", "LazyArtifacts", "LinearAlgebra", "Logging", "MLJBase", "MLJDecisionTreeInterface", "MLUtils", "MultivariateStats", "PackageExtensionCompat", "ProgressMeter", "Random", "Serialization", "Statistics", "StatsBase", "Tables", "TaijaBase", "UUIDs"]
 path = ".."
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-version = "1.1.2"
+version = "1.1.6"
 
     [deps.CounterfactualExplanations.extensions]
     EvoTreesExt = "EvoTrees"
@@ -3349,9 +3349,9 @@ weakdeps = ["MPI"]
 
 [[deps.TaijaPlotting]]
 deps = ["CategoricalArrays", "ConformalPrediction", "CounterfactualExplanations", "DataAPI", "Distributions", "Flux", "LaplaceRedux", "LinearAlgebra", "MLJBase", "MLUtils", "MultivariateStats", "NaturalSort", "NearestNeighborModels", "Plots"]
-git-tree-sha1 = "e408d0162419206852142c6a08ba72a924379065"
+path = "../../TaijaPlotting.jl"
 uuid = "bd7198b4-c7d6-400c-9bab-9a24614b0240"
-version = "1.1.1"
+version = "1.1.2"
 
 [[deps.Tar]]
 deps = ["ArgTools", "SHA"]
