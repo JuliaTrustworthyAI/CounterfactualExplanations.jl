@@ -121,7 +121,7 @@ The F1-score of our pre-trained image classifier on test data is: 0.94
 Before continuing, we supply the pre-trained generative model to our data container:
 
 ``` julia
-counterfactual_data.generative_model = vae # assign generative model
+counterfactual_data.input_encoder = vae # assign generative model
 ```
 
 Now let’s define a factual and target label:

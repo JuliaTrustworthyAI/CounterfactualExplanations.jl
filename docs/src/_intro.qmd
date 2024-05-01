@@ -197,17 +197,18 @@ display(plt)
 
 ```{julia}
 #| echo: false
-using CounterfactualExplanations.Models: load_mnist_mlp, load_mnist_vae
+using CounterfactualExplanations.Models: load_mnist_mlp
 data = TaijaData.load_mnist()
 counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 X, y = counterfactual_data.X, counterfactual_data.y
 input_dim, n_obs = size(counterfactual_data.X)
 M = load_mnist_mlp()
-vae = load_mnist_vae()
 ```
 
 ```{julia}
 #| echo: false
+
+Random.seed!(42)
 factual_label = 8
 x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
 target = 3
@@ -229,13 +230,12 @@ Since `v0.1.9` counterfactual generators are fully composable. Here we have comp
 
 ```{julia}
 # Compose generator:
-using CounterfactualExplanations.Objectives: distance_from_target
+using CounterfactualExplanations.Objectives: distance_mad, distance_from_target
 generator = GradientBasedGenerator()
 @chain generator begin
-    @objective logitcrossentropy + 0.1distance_mad + 0.1distance_from_target
+    @objective logitcrossentropy + 0.2distance_mad + 0.1distance_from_target
     @with_optimiser Adam(0.1)                  
 end
-counterfactual_data.input_encoder = vae # assign generative model
 ```
 
 ```{julia}
