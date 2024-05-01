@@ -1,4 +1,22 @@
 """
+    fit_transformer!(
+        data::CounterfactualData,
+        input_encoder::Union{Nothing,InputTransformer,TypedInputTransformer};
+        kwargs...,
+    )
+
+Fit a transformer to the data in place.
+"""
+function fit_transformer!(
+    data::CounterfactualData,
+    input_encoder::Union{Nothing,InputTransformer,TypedInputTransformer};
+    kwargs...,
+)
+    data.input_encoder = fit_transformer(data, input_encoder; kwargs...)
+    return data
+end
+
+"""
     fit_transformer(data::CounterfactualData, input_encoder::Nothing; kwargs...)
 
 Fit a transformer to the data. This is a no-op if `input_encoder` is `Nothing`.

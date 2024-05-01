@@ -51,7 +51,7 @@ end
 A simple macro that can be used to specify feature space search.
 """
 macro search_feature_space(generator)
-    return esc(:($generator.feature_space = false; $generator))
+    return esc(:($generator.latent_space = false; $generator))
 end
 
 """
