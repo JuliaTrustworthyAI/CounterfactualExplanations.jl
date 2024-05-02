@@ -1,0 +1,2 @@
+struct DeepEnsemble <: AbstractFluxModelType end
+

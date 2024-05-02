@@ -4,6 +4,13 @@ abstract type AbstractFluxModelType <: AbstractModelType end
 
 include("utils.jl")
 include("Linear.jl")
+include("MLP.jl")
+include("DeepEnsemble.jl")
+
+function Model(model, type::AbstractFluxModelType; likelihood::Symbol=:classification_binary)
+    model = testmode!(model)
+    return Model(model, likelihood, nothing, type)
+end
 
 # Methods
 function logits(M::Model, type::AbstractFluxModelType,  X::AbstractArray)
