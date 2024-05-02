@@ -3,7 +3,7 @@
         x::Matrix,
         target::RawTargetType,
         data::CounterfactualData,
-        M::Models.AbstractFittedModel,
+        M::Models.AbstractModel,
         generator::AbstractGenerator;
         num_counterfactuals::Int=1,
         initialization::Symbol=:add_perturbation,
@@ -18,7 +18,7 @@ The core function that is used to run counterfactual search for a given factual 
 - `x::Matrix`: Factual data point.
 - `target::RawTargetType`: Target class.
 - `data::CounterfactualData`: Counterfactual data.
-- `M::Models.AbstractFittedModel`: Fitted model.
+- `M::Models.AbstractModel`: Fitted model.
 - `generator::AbstractGenerator`: Generator.
 - `num_counterfactuals::Int=1`: Number of counterfactuals to generate for factual.
 - `initialization::Symbol=:add_perturbation`: Initialization method. By default, the initialization is done by adding a small random perturbation to the factual to achieve more robustness.
@@ -77,7 +77,7 @@ function generate_counterfactual(
     x::Matrix,
     target::RawTargetType,
     data::CounterfactualData,
-    M::Models.AbstractFittedModel,
+    M::Models.AbstractModel,
     generator::AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,

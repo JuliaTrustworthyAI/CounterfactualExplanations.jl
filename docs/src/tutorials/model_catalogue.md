@@ -52,7 +52,7 @@ We could use a Deep Ensemble (Lakshminarayanan, Pritzel, and Blundell 2016) as f
 M = fit_model(counterfactual_data, :DeepEnsemble)
 ```
 
-The returned object is an instance of type `FluxEnsemble <: AbstractFittedModel` and can be used in downstream tasks without further ado. For example, the resulting fit can be visualised using the generic `plot()` method as:
+The returned object is an instance of type `FluxEnsemble <: AbstractModel` and can be used in downstream tasks without further ado. For example, the resulting fit can be visualised using the generic `plot()` method as:
 
 ``` julia
 plts = []

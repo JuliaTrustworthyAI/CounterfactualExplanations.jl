@@ -2,7 +2,7 @@ module NeuroTreeExt
 
 using CounterfactualExplanations
 using DataFrames
-using NeuroTreeModels
+using NeuroTreeModels: NeuroTreeModels
 using MLJBase
 
 include("neurotree.jl")

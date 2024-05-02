@@ -3,7 +3,7 @@
         x::Base.Iterators.Zip,
         target::RawTargetType,
         data::CounterfactualData,
-        M::Models.AbstractFittedModel,
+        M::Models.AbstractModel,
         generator::AbstractGenerator;
         kwargs...,
     )
@@ -14,7 +14,7 @@ function generate_counterfactual(
     x::Base.Iterators.Zip,
     target::RawTargetType,
     data::CounterfactualData,
-    M::Models.AbstractFittedModel,
+    M::Models.AbstractModel,
     generator::AbstractGenerator;
     kwargs...,
 )
@@ -28,7 +28,7 @@ end
         x::Vector{<:Matrix},
         target::RawTargetType,
         data::CounterfactualData,
-        M::Models.AbstractFittedModel,
+        M::Models.AbstractModel,
         generator::AbstractGenerator;
         kwargs...,
     )
@@ -39,7 +39,7 @@ function generate_counterfactual(
     x::Vector{<:Matrix},
     target::RawTargetType,
     data::CounterfactualData,
-    M::Models.AbstractFittedModel,
+    M::Models.AbstractModel,
     generator::AbstractGenerator;
     kwargs...,
 )

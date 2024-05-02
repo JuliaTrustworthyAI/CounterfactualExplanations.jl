@@ -1,7 +1,7 @@
 """
 Base type for differentiable models.
 """
-abstract type AbstractDifferentiableModel <: AbstractFittedModel end
+abstract type AbstractDifferentiableModel <: AbstractModel end
 
 """
 Base type for differentiable models written in Flux.

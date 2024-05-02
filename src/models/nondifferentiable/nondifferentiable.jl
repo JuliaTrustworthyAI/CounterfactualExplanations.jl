@@ -1,7 +1,7 @@
 """
 Base type for non-differentiable models.
 """
-abstract type AbstractNonDifferentiableModel <: AbstractFittedModel end
+abstract type AbstractNonDifferentiableModel <: AbstractModel end
 
 """
 Base type for non-differentiable models written in pure Julia.

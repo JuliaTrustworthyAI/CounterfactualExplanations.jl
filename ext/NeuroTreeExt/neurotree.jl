@@ -3,6 +3,10 @@ using Flux
 using MLJBase
 using Tables: columntable
 
+const MLJNeuroTreeModel = Union{
+    NeuroTreeModels.NeuroTreeClassifier,NeuroTreeModels.NeuroTreeRegressor
+}
+
 """
     NeuroTreeModel <: AbstractMLJModel
 
@@ -16,7 +20,7 @@ Constructor for gradient-boosted decision trees from the NeuroTrees.jl library.
 - `NeuroTreeModel`: An `NeuroTreeRegressor` from `NeuroTreeModels.jl` wrapped inside the NeuroTreeModel class.
 """
 struct NeuroTreeModel <: Models.AbstractMLJModel
-    model::NeuroTreeModels.NeuroTreeRegressor
+    model::MLJNeuroTreeModel
     likelihood::Symbol
     fitresult::Any
     function NeuroTreeModel(model, likelihood, fitresult)
@@ -36,10 +40,10 @@ end
 """
 Outer constructor method for NeuroTreeModel.
 """
-function CounterfactualExplanations.NeuroTreeModel(
-    model; likelihood::Symbol=:classification_binary, fitresult
+function NeuroTreeModels.NeuroTreeModel(
+    model::MLJNeuroTreeModel; likelihood::Symbol=:classification_binary, fitresult
 )
-    return NeuroTreeModel(model, likelihood, fitresult)
+    return CounterfactualExplanations.Models.NeuroTreeModel(model, likelihood, fitresult)
 end
 
 """
@@ -54,7 +58,7 @@ Not called by the user directly.
 # Returns
 - `model::NeuroTreeModel`: The NeuroTree model.
 """
-function CounterfactualExplanations.NeuroTreeModel(data::CounterfactualData; kwargs...)
+function NeuroTreeModels.NeuroTreeModel(data::CounterfactualData; kwargs...)
     outsize = length(data.y_levels)
     model = NeuroTreeModels.NeuroTreeClassifier(; outsize=outsize, kwargs...)
     return NeuroTreeModel(model, data.likelihood, nothing)
@@ -75,7 +79,9 @@ This method is not called by the user directly.
 """
 function Models.train(M::NeuroTreeModel, data::CounterfactualData)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
-    y = float.(y.refs)
+    if M.likelihood ∉ [:classification_multi, :classification_binary]
+        y = float.(y.refs)
+    end
     X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)

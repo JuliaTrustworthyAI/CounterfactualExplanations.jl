@@ -61,3 +61,5 @@ Base.@deprecate_moved parallelize "TaijaParallel"
 Base.@deprecate_moved parallelizable "TaijaParallel"
 
 Base.@deprecate_moved AbstractParallelizer "TaijaBase"
+
+Base.@deprecate_binding AbstractFittedModel AbstractModel

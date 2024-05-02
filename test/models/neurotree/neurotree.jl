@@ -14,7 +14,7 @@ using TaijaData
 @testset "NeuroTreeModel" begin
     # Fit model to data:
     data = CounterfactualData(load_linearly_separable()...)
-    M = fit_model(data, :NeuroTree; depth=2, lr=2e-2, nrounds=50, batchsize=10)
+    M = fit_model(data, NeuroTreeModel; depth=2, lr=2e-2, nrounds=50, batchsize=10)
 
     # Select a factual instance:
     target = 2

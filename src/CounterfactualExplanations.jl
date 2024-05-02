@@ -16,7 +16,7 @@ include("artifacts_setup.jl")
 # Base types:
 include("base_types.jl")
 export AbstractCounterfactualExplanation
-export AbstractFittedModel
+export AbstractModel
 export AbstractGenerator
 export AbstractConvergence
 
@@ -44,7 +44,7 @@ export CounterfactualData,
 ###
 include("models/Models.jl")
 using .Models
-export AbstractFittedModel, AbstractDifferentiableModel
+export AbstractModel, AbstractDifferentiableModel
 export Linear, FluxModel, FluxEnsemble
 export flux_training_params
 export probs, logits
