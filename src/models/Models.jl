@@ -29,20 +29,7 @@ export RandomForestModel
 export flux_training_params
 export probs, logits
 
-"""
-    logits(M::AbstractModel, X::AbstractArray)
-
-Generic method that is compulsory for all models. It returns the raw model predictions. In classification this is sometimes referred to as *logits*: the non-normalized predictions that are fed into a link function to produce predicted probabilities. In regression (not currently implemented) raw outputs typically correspond to final outputs. In other words, there is typically no normalization involved.
-"""
-function logits(M::AbstractModel, X::AbstractArray) end
-
-"""
-    probs(M::AbstractModel, X::AbstractArray)
-
-Generic method that is compulsory for all models. It returns the normalized model predictions, so the predicted probabilities in the case of classification. In regression (not currently implemented) this method is redundant. 
-"""
-function probs(M::AbstractModel, X::AbstractArray) end
-
+abstract type AbstractModelType end
 
 """
     Model <: AbstractModel
@@ -52,7 +39,40 @@ Constructor for all models.
 mutable struct Model <: AbstractModel
     model
     likelihood::Symbol
-    builder::Function
+    fitresult
+    type::AbstractModelType
+end
+
+"""
+    Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
+
+Outer constructor for `Model`.
+"""
+function Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
+    return Model(model, likelihood, nothing, type)
+end
+
+"""
+    logits(M::Model, X::AbstractArray)
+
+Returns the logits of the model.
+"""
+logits(M::Model, X::AbstractArray) = logits(M, M.type, X)
+
+"""
+    probs(M::Model, X::AbstractArray)
+
+Returns the probabilities of the model.
+"""
+probs(M::Model, X::AbstractArray) = probs(M, M.type, X)
+
+"""
+    (M::Model)(data::CounterfactualData; kwargs...)
+
+Wrap model `M` around the data in `data`.
+"""
+function (M::Model)(data::CounterfactualData; kwargs...)
+    return (M::Model)(data, M.type; kwargs...)
 end
 
 """
@@ -85,6 +105,11 @@ A dictionary containing all machine learning models from the MLJ model registry 
 const mlj_models_catalogue = Dict(
     :DecisionTree => DecisionTreeModel, :RandomForest => RandomForestModel
 )
+
+function fit_model(
+    counterfactual_data::CounterfactualData, type::AbstractModelType; kwrgs...
+)
+end
 
 """
     fit_model(

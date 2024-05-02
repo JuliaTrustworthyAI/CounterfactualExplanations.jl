@@ -20,3 +20,4 @@ abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel e
 
 include("flux/MLP.jl")
 include("flux/ensemble.jl")
+include("flux/Linear.jl")

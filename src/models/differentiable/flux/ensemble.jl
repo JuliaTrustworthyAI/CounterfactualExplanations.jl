@@ -39,18 +39,6 @@ function probs(M::FluxEnsemble, X::AbstractArray)
 end
 
 """
-    FluxModelParams
-
-Default Deep Ensemble training parameters.
-"""
-Base.@kwdef struct FluxEnsembleParams
-    loss::Symbol = :logitbinarycrossentropy
-    opt::Symbol = :Adam
-    n_epochs::Int = 100
-    batchsize::Int = 1
-end
-
-"""
     train(M::FluxEnsemble, data::CounterfactualData; kwargs...)
 
 Wrapper function to retrain.
