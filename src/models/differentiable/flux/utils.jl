@@ -104,3 +104,13 @@ function forward!(
 
     return model
 end
+
+"""
+    build_ensemble(K::Int;kw=(input_dim=2,n_hidden=32,output_dim=1))
+
+Helper function that builds an ensemble of `K` models.
+"""
+function build_ensemble(K::Int; kwargs...)
+    ensemble = [build_mlp(; kwargs...) for i in 1:K]
+    return ensemble
+end

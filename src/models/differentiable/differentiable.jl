@@ -18,6 +18,4 @@ Base type for custom differentiable models.
 """
 abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel end
 
-include("flux/MLP.jl")
-include("flux/ensemble.jl")
-include("flux/Linear.jl")
+include("flux/flux.jl")

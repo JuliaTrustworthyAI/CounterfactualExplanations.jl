@@ -1,9 +1,18 @@
-struct MLP <: AbstractFluxModelType end
+struct MLP <: FluxNN end
+
+"""
+    MLP(model; likelihood::Symbol=:classification_binary)
+
+An outer constructor for a multi-layer perceptron (MLP) model.
+"""
+function MLP(model; likelihood::Symbol=:classification_binary)
+    return Model(model, MLP(); likelihood=likelihood)
+end
 
 """
     (M::Model)(data::CounterfactualData, type::MLP; kwargs...)
     
-Constructs a multi-layer perceptron (MLP).
+Constructs a multi-layer perceptron (MLP) for the given data.
 """
 function (M::Model)(data::CounterfactualData, type::MLP; kwargs...)
     # Basic setup:

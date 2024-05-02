@@ -1,23 +1,42 @@
 using Flux: Flux, Chain
 
-abstract type AbstractFluxModelType <: AbstractModelType end
+abstract type FluxNN <: AbstractModelType end
 
 include("utils.jl")
 include("Linear.jl")
 include("MLP.jl")
 include("DeepEnsemble.jl")
+include("deprecated/deprecated.jl")
 
-function Model(model, type::AbstractFluxModelType; likelihood::Symbol=:classification_binary)
-    model = testmode!(model)
+"""
+    Model(model, type::FluxNN; likelihood::Symbol=:classification_binary)
+
+Overloaded constructor for Flux models.
+"""
+function Model(model, type::FluxNN; likelihood::Symbol=:classification_binary)
+    if typeof(model) <: Array
+        @.(Flux.testmode!(model))
+    else
+        Flux.testmode!(model)
+    end
     return Model(model, likelihood, nothing, type)
 end
 
-# Methods
-function logits(M::Model, type::AbstractFluxModelType,  X::AbstractArray)
+"""
+    logits(M::Model, type::FluxNN, X::AbstractArray)
+
+Overloads the `logits` function for Flux models.
+"""
+function logits(M::Model, type::FluxNN, X::AbstractArray)
     return M.model(X)
 end
 
-function probs(M::Model, type::AbstractFluxModelType, X::AbstractArray)
+"""
+    probs(M::Model, type::FluxNN, X::AbstractArray)
+
+Overloads the `probs` function for Flux models.
+"""
+function probs(M::Model, type::FluxNN, X::AbstractArray)
     if M.likelihood == :classification_binary
         output = Flux.σ.(logits(M, type, X))
     elseif M.likelihood == :classification_multi
@@ -31,12 +50,7 @@ end
 
 Wrapper function to train Flux models.
 """
-function train(
-    M::Model,
-    type::AbstractFluxModelType,
-    data::CounterfactualData;
-    args=flux_training_params,
-)
+function train(M::Model, type::FluxNN, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
     data = data_loader(data; batchsize=args.batchsize)
