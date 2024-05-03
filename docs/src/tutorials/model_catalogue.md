@@ -18,7 +18,7 @@ standard_models_catalogue
 
     Dict{Symbol, Any} with 4 entries:
       :Linear       => Linear
-      :LaplaceRedux => LaplaceReduxModel
+      :LaplaceRedux => LaplaceNN
       :DeepEnsemble => FluxEnsemble
       :MLP          => FluxModel
 
@@ -245,7 +245,7 @@ For all supported MLJ models, every tunable parameter they have is supported as 
 
 ## Package extension models
 
-The package also includes two models which don’t form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceReduxModel` from `LaplaceRedux.jl`.
+The package also includes two models which don’t form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceNN` from `LaplaceRedux.jl`.
 
 To trigger the package extensions, the weak dependency first has to be loaded with the `using` keyword:
 
@@ -277,7 +277,7 @@ M = fit_model(counterfactual_data, :EvoTree; model_params...)
 
 The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
 
-Please note that support for counterfactual generation with both `LaplaceReduxModel` and `EvoTreeModel` is not yet fully implemented.
+Please note that support for counterfactual generation with both `LaplaceNN` and `EvoTreeModel` is not yet fully implemented.
 
 ## References
 

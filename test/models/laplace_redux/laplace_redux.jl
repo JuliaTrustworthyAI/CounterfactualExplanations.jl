@@ -7,7 +7,7 @@ using TaijaData
     data =
         TaijaData.load_linearly_separable() |>
         x -> (Float32.(x[1]), x[2]) |> x -> CounterfactualData(x...)
-    M = Models.fit_model(data, LaplaceReduxModel)
+    M = Models.fit_model(data, LaplaceNN)
 
     # Select a factual instance:
     target = 2
