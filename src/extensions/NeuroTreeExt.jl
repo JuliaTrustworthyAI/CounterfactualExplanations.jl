@@ -1,7 +1,8 @@
 """
-    NeuroTreeModel
+    NeuroTree
 
-Exposes the `NeuroTreeModel` from the `NeuroTreeExt` extension.
+Concrete type for differentiable tree-based models from `NeuroTreeModels`.
 """
-function NeuroTreeModel end
-export NeuroTreeModel
+struct NeuroTree <: Models.MLJModelType end
+
+Models.all_models_catalogue[:NeuroTree] = CounterfactualExplanations.NeuroTree

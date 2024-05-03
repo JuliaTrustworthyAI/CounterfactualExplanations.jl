@@ -15,6 +15,7 @@ using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 include("utils.jl")
 
 include("core_struct.jl")
+include("mlj.jl")
 
 include("differentiable/differentiable.jl")
 include("nondifferentiable/nondifferentiable.jl")
@@ -49,8 +50,8 @@ A dictionary containing both differentiable and non-differentiable machine learn
 """
 const all_models_catalogue = Dict(
     :Linear => Linear,
-    :MLP => FluxModel,
-    :DeepEnsemble => FluxEnsemble,
+    :MLP => MLP,
+    :DeepEnsemble => DeepEnsemble,
     :DecisionTree => DecisionTreeModel,
     :RandomForest => RandomForestModel,
 )

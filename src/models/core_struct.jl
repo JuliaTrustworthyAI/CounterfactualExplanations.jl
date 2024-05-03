@@ -99,3 +99,18 @@ function fit_model(
 
     return M
 end
+
+"""
+    fit_model(
+        counterfactual_data::CounterfactualData, model::Symbol=:MLP;
+        kwrgs...
+    )
+
+Fits one of the available default models to the `counterfactual_data`. The `model` argument can be used to specify the desired model. The available values correspond to the keys of the [`all_models_catalogue`](@ref) dictionary.
+"""
+function fit_model(counterfactual_data::CounterfactualData, model::Symbol=:MLP; kwrgs...)
+    @assert model in keys(all_models_catalogue) "Specified model does not match any of the models available in the `all_models_catalogue`."
+    type = all_models_catalogue[model]
+    M = fit_model(counterfactual_data, type(); kwrgs...)
+    return M
+end

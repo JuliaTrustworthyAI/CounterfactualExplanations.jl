@@ -3,65 +3,32 @@ using Flux
 using MLJBase
 using Tables: columntable
 
-const MLJNeuroTreeModel = Union{
+const AtomicNeuroTree = Union{
     NeuroTreeModels.NeuroTreeClassifier,NeuroTreeModels.NeuroTreeRegressor
 }
 
 """
-    NeuroTreeModel <: AbstractMLJModel
+    NeuroTree(model::AtomicNeuroTree; likelihood::Symbol=:classification_binary)
 
-Constructor for gradient-boosted decision trees from the NeuroTrees.jl library.
-
-# Arguments
-- `model::Any`: The model selected by the user. Must be a model from the MLJ library.
-- `likelihood::Symbol`: The likelihood of the model. Must be one of `[:classification_binary, :classification_multi]`.
-
-# Returns
-- `NeuroTreeModel`: An `NeuroTreeRegressor` from `NeuroTreeModels.jl` wrapped inside the NeuroTreeModel class.
+Outer constructor for a differentiable tree-based model from `NeuroTreeModels.jl`.
 """
-struct NeuroTreeModel <: Models.AbstractMLJModel
-    model::MLJNeuroTreeModel
-    likelihood::Symbol
-    fitresult::Any
-    function NeuroTreeModel(model, likelihood, fitresult)
-        if likelihood ∈ [:classification_binary, :classification_multi]
-            new(model, likelihood, fitresult)
-        else
-            throw(
-                ArgumentError(
-                    "`likelihood` should be in `[:classification_binary, :classification_multi].
-                    Support for regressors has not been implemented yet.`",
-                ),
-            )
-        end
-    end
+function NeuroTree(model::AtomicNeuroTree; likelihood::Symbol=:classification_binary)
+    return Models.Model(
+        model, CounterfactualExplanations.NeuroTree(); likelihood=likelihood
+    )
 end
 
 """
-Outer constructor method for NeuroTreeModel.
+    (M::Model)(data::CounterfactualData, type::NeuroTree; kwargs...)
+    
+Constructs a differentiable tree-based model for the given data.
 """
-function NeuroTreeModels.NeuroTreeModel(
-    model::MLJNeuroTreeModel; likelihood::Symbol=:classification_binary, fitresult
+function (M::Models.Model)(
+    data::CounterfactualData, type::CounterfactualExplanations.NeuroTree; kwargs...
 )
-    return CounterfactualExplanations.Models.NeuroTreeModel(model, likelihood, fitresult)
-end
-
-"""
-    NeuroTreeModel(data::CounterfactualData; kwargs...)
-
-Constructs a new NeuroTreeModel object from the data in a `CounterfactualData` object.
-Not called by the user directly.
-
-# Arguments
-- `data::CounterfactualData`: The `CounterfactualData` object containing the data to be used for training the model.
-
-# Returns
-- `model::NeuroTreeModel`: The NeuroTree model.
-"""
-function NeuroTreeModels.NeuroTreeModel(data::CounterfactualData; kwargs...)
     outsize = length(data.y_levels)
     model = NeuroTreeModels.NeuroTreeClassifier(; outsize=outsize, kwargs...)
-    return NeuroTreeModel(model, data.likelihood, nothing)
+    return NeuroTree(model; likelihood=data.likelihood)
 end
 
 """
@@ -77,7 +44,9 @@ This method is not called by the user directly.
 # Returns
 - `M::NeuroTreeModel`: The fitted NeuroTree model.
 """
-function Models.train(M::NeuroTreeModel, data::CounterfactualData)
+function Models.train(
+    M::Models.Model, type::CounterfactualExplanations.NeuroTree, data::CounterfactualData
+)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     if M.likelihood ∉ [:classification_multi, :classification_binary]
         y = float.(y.refs)
@@ -85,8 +54,7 @@ function Models.train(M::NeuroTreeModel, data::CounterfactualData)
     X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
-    Flux.testmode!(mach.fitresult.chain)
-    M = NeuroTreeModel(M.model, M.likelihood, mach.fitresult)
+    M.fitresult = mach.fitresult
     return M
 end
 
@@ -105,7 +73,11 @@ Calculates the logit scores output by the model M for the input data X.
 # Example
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
 """
-Models.logits(M::NeuroTreeModel, X::AbstractArray) = M.fitresult(X)
+function Models.logits(
+    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
+)
+    return M.fitresult(X)
+end
 
 """
     Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2})
@@ -122,14 +94,20 @@ Calculates the probability scores for each output class for the two-dimensional 
 # Example
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
-Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,2}) = softmax(logits(M, X))
+function Models.probs(
+    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray{<:Number,2}
+)
+    return softmax(logits(M, X))
+end
 
 """
     Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 1})
 
 Works the same way as the probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
-function Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number,1})
+function Models.probs(
+    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray{<:Number,1}
+)
     X = reshape(X, 1, length(X))
     return Models.probs(M, X)
 end

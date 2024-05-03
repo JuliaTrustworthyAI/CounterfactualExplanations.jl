@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.1.6]
 
+### Added
+
+- New general `Model` struct that wraps empty concrete types. This adds a more general interface that is still flexible enough by simply using multiple dispatch on the empty concrete types.
+
 ### Changed
 
 - Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444]

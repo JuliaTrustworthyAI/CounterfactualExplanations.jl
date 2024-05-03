@@ -67,5 +67,3 @@ Base.@deprecate_binding AbstractFittedModel AbstractModel
 Base.@deprecate FluxModel(model) MLP(model) false
 
 Base.@deprecate FluxEnsemble(model) DeepEnsemble(model) false
-
-Base.@deprecate fit_model(::CounterfactualData, ::Symbol) fit_model(::CounterfactualData, ::AbstractModelType) false
