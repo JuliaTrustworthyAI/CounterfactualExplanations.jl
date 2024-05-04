@@ -16,13 +16,24 @@ function generate_perturbations(
     return Δs′
 end
 
-"""
-    propose_state(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
-
-Proposes new state based on backpropagation.
-"""
 function propose_state(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
+)
+    return propose_state(Models.Differentiability(ce.M), generator, ce)
+end
+"""
+    propose_state(
+        ::Models.IsDifferentiable,
+        generator::AbstractGradientBasedGenerator,
+        ce::AbstractCounterfactualExplanation,
+    )
+
+Proposes new state based on backpropagation for gradient-based generators and differentiable models.
+"""
+function propose_state(
+    ::Models.IsDifferentiable,
+    generator::AbstractGradientBasedGenerator,
+    ce::AbstractCounterfactualExplanation,
 )
     grads = ∇(generator, ce) # gradient
     new_s′ = deepcopy(ce.s′)
