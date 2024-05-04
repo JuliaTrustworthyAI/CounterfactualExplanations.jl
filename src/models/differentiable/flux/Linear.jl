@@ -1,4 +1,4 @@
-struct Linear <: FluxNN end
+struct Linear <: AbstractFluxNN end
 
 """
     Linear(model; likelihood::Symbol=:classification_binary)

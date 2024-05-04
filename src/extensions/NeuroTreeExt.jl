@@ -5,4 +5,6 @@ Concrete type for differentiable tree-based models from `NeuroTreeModels`. Since
 """
 struct NeuroTree <: Models.MLJModelType end
 
+Models.Differentiability(::CounterfactualExplanations.NeuroTree) = Models.IsDifferentiable()
+
 Models.all_models_catalogue[:NeuroTree] = CounterfactualExplanations.NeuroTree

@@ -1,7 +1,15 @@
+
+"Abstract types for differentiable models."
+abstract type AbstractDifferentiableModelType <: AbstractModelType end
+
+Differentiability(::AbstractDifferentiableModelType) = IsDifferentiable()
+
 """
 Base type for differentiable models.
 """
 abstract type AbstractDifferentiableModel <: AbstractModel end
+
+Differentiability(::AbstractDifferentiableModel) = IsDifferentiable()
 
 """
 Base type for differentiable models written in Flux.

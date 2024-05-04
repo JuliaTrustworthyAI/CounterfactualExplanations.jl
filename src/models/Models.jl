@@ -15,6 +15,8 @@ using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 include("utils.jl")
 
 include("core_struct.jl")
+include("traits.jl")
+
 include("mlj.jl")
 
 include("differentiable/differentiable.jl")

@@ -1,4 +1,4 @@
-struct MLP <: FluxNN end
+struct MLP <: AbstractFluxNN end
 
 """
     MLP(model; likelihood::Symbol=:classification_binary)

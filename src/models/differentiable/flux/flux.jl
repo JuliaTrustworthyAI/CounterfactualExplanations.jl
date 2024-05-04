@@ -1,10 +1,10 @@
 using Flux: Flux, Chain
 
 "Abstract type for Flux models."
-abstract type FluxNN <: AbstractModelType end
+abstract type AbstractFluxNN <: AbstractDifferentiableModelType end
 
 "Concrete type for Flux models."
-struct FluxNNModel <: FluxNN end
+struct FluxNN <: AbstractFluxNN end
 
 include("utils.jl")
 include("Linear.jl")
@@ -13,11 +13,11 @@ include("DeepEnsemble.jl")
 include("deprecated/deprecated.jl")
 
 """
-    Model(model, type::FluxNN; likelihood::Symbol=:classification_binary)
+    Model(model, type::AbstractFluxNN; likelihood::Symbol=:classification_binary)
 
 Overloaded constructor for Flux models.
 """
-function Model(model, type::FluxNN; likelihood::Symbol=:classification_binary)
+function Model(model, type::AbstractFluxNN; likelihood::Symbol=:classification_binary)
     if typeof(model) <: Array
         @.(Flux.testmode!(model))
     else
@@ -27,20 +27,20 @@ function Model(model, type::FluxNN; likelihood::Symbol=:classification_binary)
 end
 
 """
-    logits(M::Model, type::FluxNN, X::AbstractArray)
+    logits(M::Model, type::AbstractFluxNN, X::AbstractArray)
 
 Overloads the `logits` function for Flux models.
 """
-function logits(M::Model, type::FluxNN, X::AbstractArray)
-    return M.model(X)
+function logits(M::Model, type::AbstractFluxNN, X::AbstractArray)
+    return M.fitresult(X)
 end
 
 """
-    probs(M::Model, type::FluxNN, X::AbstractArray)
+    probs(M::Model, type::AbstractFluxNN, X::AbstractArray)
 
 Overloads the `probs` function for Flux models.
 """
-function probs(M::Model, type::FluxNN, X::AbstractArray)
+function probs(M::Model, type::AbstractFluxNN, X::AbstractArray)
     if M.likelihood == :classification_binary
         output = Flux.σ.(logits(M, type, X))
     elseif M.likelihood == :classification_multi
@@ -54,7 +54,7 @@ end
 
 Wrapper function to train Flux models.
 """
-function train(M::Model, type::FluxNN, data::CounterfactualData; args=flux_training_params)
+function train(M::Model, type::AbstractFluxNN, data::CounterfactualData; args=flux_training_params)
 
     # Prepare data:
     data = data_loader(data; batchsize=args.batchsize)
@@ -71,6 +71,9 @@ function train(M::Model, type::FluxNN, data::CounterfactualData; args=flux_train
     Flux.trainmode!(model)
     forward!(model, data; loss=loss, opt=args.opt, n_epochs=args.n_epochs)
     Flux.testmode!(model)
+
+    # Store the trained model:
+    M.fitresult = model
 
     return M
 end

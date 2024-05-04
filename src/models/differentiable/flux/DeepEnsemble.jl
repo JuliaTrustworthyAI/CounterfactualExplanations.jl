@@ -1,4 +1,4 @@
-struct DeepEnsemble <: FluxNN end
+struct DeepEnsemble <: AbstractFluxNN end
 
 """
     DeepEnsemble(model; likelihood::Symbol=:classification_binary)
@@ -16,7 +16,7 @@ end
 Overloads the `logits` function for deep ensembles.
 """
 function logits(M::Model, type::DeepEnsemble, X::AbstractArray)
-    return sum(map(nn -> nn(X), M.model)) / length(M.model)
+    return sum(map(nn -> nn(X), M.fitresult)) / length(M.fitresult)
 end
 
 """
@@ -26,9 +26,9 @@ Overloads the `probs` function for deep ensembles.
 """
 function probs(M::Model, type::DeepEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = sum(map(nn -> Flux.σ.(nn(X)), M.model)) / length(M.model)
+        output = sum(map(nn -> Flux.σ.(nn(X)), M.fitresult)) / length(M.fitresult)
     elseif M.likelihood == :classification_multi
-        output = sum(map(nn -> Flux.softmax(nn(X)), M.model)) / length(M.model)
+        output = sum(map(nn -> Flux.softmax(nn(X)), M.fitresult)) / length(M.fitresult)
     end
     return output
 end
@@ -79,6 +79,8 @@ function train(
 
         count += 1
     end
+
+    M.fitresult = ensemble
 
     return M
 end

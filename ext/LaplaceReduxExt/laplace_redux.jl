@@ -59,7 +59,7 @@ function Models.train(
     # Train atomic model
     if train_atomic
         @info "Training atomic model"
-        M_atomic = Models.Model(la.model, Models.FluxNNModel(); likelihood=M.likelihood)
+        M_atomic = Models.Model(la.model, Models.FluxNN(); likelihood=M.likelihood)
         M_atomic = Models.train(M_atomic, data)             # standard training for Flux models
         la = LaplaceRedux.Laplace(M_atomic.model; likelihood=M.model.likelihood)
     end
@@ -74,7 +74,11 @@ function Models.train(
         LaplaceRedux.optimize_prior!(la)
     end
 
-    return LaplaceNN(la; likelihood=M.likelihood)
+    # Update model
+    M.model = la
+    M.fitresult = la
+
+    return M
 end
 
 """
@@ -85,7 +89,7 @@ Predicts the logit scores for the input data `X` using the model `M`.
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.LaplaceNN, X::AbstractArray
 )
-    return LaplaceRedux.predict(M.model, X; predict_proba=false)
+    return LaplaceRedux.predict(M.fitresult, X; predict_proba=false)
 end
 
 """
@@ -95,4 +99,4 @@ Predicts the probabilities of the classes for the input data `X` using the model
 """
 Models.probs(
     M::Models.Model, type::CounterfactualExplanations.LaplaceNN, X::AbstractArray
-) = LaplaceRedux.predict(M.model, X)
+) = LaplaceRedux.predict(M.fitresult, X)
