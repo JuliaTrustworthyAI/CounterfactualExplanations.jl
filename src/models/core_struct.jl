@@ -54,6 +54,15 @@ function (M::Model)(data::CounterfactualData; kwargs...)
 end
 
 """
+    (type::AbstractModelType)(data::CounterfactualData; kwargs...)
+
+Wrap model `type` around the data in `data`. This is a convenience function to avoid having to construct a `Model` object.
+"""
+function (type::AbstractModelType)(data::CounterfactualData; kwargs...)
+    return Model(type; likelihood=data.likelihood)(data; kwargs...)
+end
+
+"""
     train(M::Model, data::CounterfactualData)
 
 Trains the model `M` on the data in `data`.

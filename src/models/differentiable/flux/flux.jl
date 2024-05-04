@@ -1,6 +1,10 @@
 using Flux: Flux, Chain
 
+"Abstract type for Flux models."
 abstract type FluxNN <: AbstractModelType end
+
+"Concrete type for Flux models."
+struct FluxNNModel <: FluxNN end
 
 include("utils.jl")
 include("Linear.jl")

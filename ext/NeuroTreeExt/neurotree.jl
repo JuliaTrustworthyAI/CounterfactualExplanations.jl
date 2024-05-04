@@ -74,7 +74,7 @@ Calculates the logit scores output by the model M for the input data X.
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
 """
 function Models.logits(
-    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
+    M::Models.Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
 )
     return M.fitresult(X)
 end
@@ -95,7 +95,9 @@ Calculates the probability scores for each output class for the two-dimensional 
 probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
 """
 function Models.probs(
-    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray{<:Number,2}
+    M::Models.Model,
+    type::CounterfactualExplanations.NeuroTree,
+    X::AbstractArray{<:Number,2},
 )
     return softmax(logits(M, X))
 end
@@ -106,7 +108,9 @@ end
 Works the same way as the probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
 """
 function Models.probs(
-    M::Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray{<:Number,1}
+    M::Models.Model,
+    type::CounterfactualExplanations.NeuroTree,
+    X::AbstractArray{<:Number,1},
 )
     X = reshape(X, 1, length(X))
     return Models.probs(M, X)

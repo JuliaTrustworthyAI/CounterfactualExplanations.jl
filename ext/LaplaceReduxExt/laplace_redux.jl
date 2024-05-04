@@ -7,9 +7,7 @@ Outer constructor for a neural network with Laplace Approximation from `LaplaceR
 """
 function LaplaceNN(model::LaplaceRedux.Laplace; likelihood::Symbol=:classification_binary)
     return Models.Model(
-        model,
-        CounterfactualExplanations.LaplaceNN();
-        likelihood=likelihood,
+        model, CounterfactualExplanations.LaplaceNN(); likelihood=likelihood
     )
 end
 
@@ -21,7 +19,7 @@ Constructs a differentiable tree-based model for the given data.
 function (M::Models.Model)(
     data::CounterfactualData, type::CounterfactualExplanations.LaplaceNN; kwargs...
 )
-    M_det = Models.MLP(data; kwargs...)
+    M_det = Models.MLP()(data; kwargs...)
     # Laplace wrapper:
     lkli = if M_det.likelihood ∈ [:classification_binary, :classification_multi]
         :classification
@@ -29,7 +27,7 @@ function (M::Models.Model)(
         :regression
     end
     la = LaplaceRedux.Laplace(M_det.model; likelihood=lkli)
-    M = CounterfactualExplanations.LaplaceNN(la; likelihood=M_det.likelihood)
+    M = LaplaceNN(la; likelihood=M_det.likelihood)
     return M
 end
 
@@ -48,7 +46,7 @@ This method is not called by the user directly.
 """
 function Models.train(
     M::Models.Model,
-    type::CounterfactualExplanations.LaplaceNN, 
+    type::CounterfactualExplanations.LaplaceNN,
     data::CounterfactualData;
     train_atomic=true,
     optimize_prior=true,
@@ -61,7 +59,7 @@ function Models.train(
     # Train atomic model
     if train_atomic
         @info "Training atomic model"
-        M_atomic = Model(la.model, Models.FluxNN; likelihood=M.likelihood)
+        M_atomic = Models.Model(la.model, Models.FluxNNModel(); likelihood=M.likelihood)
         M_atomic = Models.train(M_atomic, data)             # standard training for Flux models
         la = LaplaceRedux.Laplace(M_atomic.model; likelihood=M.model.likelihood)
     end
@@ -76,7 +74,7 @@ function Models.train(
         LaplaceRedux.optimize_prior!(la)
     end
 
-    return LaplaceNN(la, M.likelihood)
+    return LaplaceNN(la; likelihood=M.likelihood)
 end
 
 """
@@ -84,14 +82,17 @@ end
 
 Predicts the logit scores for the input data `X` using the model `M`.
 """
-Models.logits(M::LaplaceNN, X::AbstractArray) =
-    LaplaceRedux.predict(M.model, X; predict_proba=false)
+function Models.logits(
+    M::Models.Model, type::CounterfactualExplanations.LaplaceNN, X::AbstractArray
+)
+    return LaplaceRedux.predict(M.model, X; predict_proba=false)
+end
 
 """
     probs(M::LaplaceNN, X::AbstractArray)
 
 Predicts the probabilities of the classes for the input data `X` using the model `M`.
 """
-Models.probs(M::LaplaceNN, X::AbstractArray) = LaplaceRedux.predict(M.model, X)
-
-
+Models.probs(
+    M::Models.Model, type::CounterfactualExplanations.LaplaceNN, X::AbstractArray
+) = LaplaceRedux.predict(M.model, X)
