@@ -54,7 +54,9 @@ end
 
 Wrapper function to train Flux models.
 """
-function train(M::Model, type::AbstractFluxNN, data::CounterfactualData; args=flux_training_params)
+function train(
+    M::Model, type::AbstractFluxNN, data::CounterfactualData; args=flux_training_params
+)
 
     # Prepare data:
     data = data_loader(data; batchsize=args.batchsize)

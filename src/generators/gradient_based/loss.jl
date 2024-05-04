@@ -10,8 +10,7 @@ The default method to compute the gradient of the loss function at the current c
 It assumes that `Zygote.jl` has gradient access.
 """
 function ∂ℓ(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     return Flux.gradient(ce -> ℓ(generator, ce), ce)[1][:s′]
 end
@@ -45,11 +44,7 @@ The default method to compute the gradient of the counterfactual search objectiv
 It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 If the counterfactual is being generated using Probe, the hinge loss is added to the gradient.
 """
-function ∇(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation,
-)
-
+function ∇(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
     return ∂ℓ(generator, ce) .+ ∂h(generator, ce) .+ hinge_loss(ce.convergence, ce)
 end
 
