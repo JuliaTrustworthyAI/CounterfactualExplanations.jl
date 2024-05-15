@@ -121,3 +121,28 @@ function search_path(
         return paths
     end
 end
+
+"""
+    get_individual_classifiers(M::Model)
+
+Returns the individual classifiers in the forest.
+If the input is a decision tree, the method returns the decision tree itself inside an array.
+
+# Arguments
+- `M::TreeModel`: The model selected by the user.
+- `model::CounterfactualExplanations.D`
+
+# Returns
+- `classifiers::AbstractArray`: An array of individual classifiers in the forest.
+"""
+function get_individual_classifiers(M::Model)
+    fitted_params = MLJBase.fitted_params(M.model, M.fitresult)
+    if M.model.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
+        return [fitted_params.tree.node]
+    end
+    trees = []
+    for tree in fitted_params.forest.trees
+        push!(trees, tree)
+    end
+    return trees
+end

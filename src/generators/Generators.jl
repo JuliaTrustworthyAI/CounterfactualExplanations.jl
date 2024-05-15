@@ -57,8 +57,6 @@ include("gradient_based/utils.jl")
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
 
-include("non_gradient_based/growing_spheres/growing_spheres.jl")
-
 "A dictionary containing the constructors of all available counterfactual generators."
 generator_catalogue = Dict(
     :claproar => Generators.ClaPROARGenerator,

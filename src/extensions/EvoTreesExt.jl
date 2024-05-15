@@ -3,8 +3,6 @@
 
 Exposes the `EvoTreeModel` from the `EvoTreesExt` extension.
 """
-function EvoTreeModel end
-export EvoTreeModel
+struct EvoTree <: Models.MLJModelType end
 
-CounterfactualExplanations.Models.all_models_catalogue[:EvoTree] = EvoTreeModel
-CounterfactualExplanations.Models.mlj_models_catalogue[:EvoTree] = EvoTreeModel
+CounterfactualExplanations.Models.all_models_catalogue[:EvoTree] = EvoTree

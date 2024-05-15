@@ -1,17 +1,17 @@
 """
-     propose_state(
+    Generators.propose_state(
         generator::Generators.FeatureTweakGenerator, ce::AbstractCounterfactualExplanation
     )
 
-Overloads the [`propose_state`](@ref) method for the `FeatureTweakGenerator`.
+Overloads the [`Generators.propose_state`](@ref) method for the `FeatureTweakGenerator`.
 """
-function propose_state(
+function Generators.propose_state(
     generator::Generators.FeatureTweakGenerator, ce::AbstractCounterfactualExplanation
 )
     delta = 10^3
     ensemble_prediction = Models.predict_label(ce.M, ce.x)[1]
 
-    for classifier in Models.get_individual_classifiers(ce.M)
+    for classifier in get_individual_classifiers(ce.M)
         if ensemble_prediction != ce.target
             y_levels = MLJBase.classes(
                 MLJBase.predict(ce.M.model, DataFrames.DataFrame(ce.x', :auto))
