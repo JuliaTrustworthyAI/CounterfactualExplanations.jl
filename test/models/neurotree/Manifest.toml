@@ -329,19 +329,20 @@ uuid = "6add18c4-b38d-439d-96f6-d6bc489c04c5"
 version = "0.1.3"
 
 [[deps.CounterfactualExplanations]]
-deps = ["CategoricalArrays", "ChainRulesCore", "DataFrames", "DecisionTree", "Distributions", "Flux", "LazyArtifacts", "LinearAlgebra", "Logging", "MLJBase", "MLJDecisionTreeInterface", "MLUtils", "MultivariateStats", "PackageExtensionCompat", "ProgressMeter", "Random", "Serialization", "Statistics", "StatsBase", "Tables", "TaijaBase", "UUIDs"]
+deps = ["CategoricalArrays", "ChainRulesCore", "DataFrames", "Distributions", "Flux", "LazyArtifacts", "LinearAlgebra", "Logging", "MLJBase", "MLUtils", "MultivariateStats", "PackageExtensionCompat", "ProgressMeter", "Random", "Serialization", "Statistics", "StatsBase", "Tables", "TaijaBase", "UUIDs"]
 path = "../../.."
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 version = "1.1.6"
 
     [deps.CounterfactualExplanations.extensions]
-    EvoTreesExt = "EvoTrees"
+    DecisionTreeExt = "DecisionTree"
     LaplaceReduxExt = "LaplaceRedux"
     NeuroTreeExt = "NeuroTreeModels"
 
     [deps.CounterfactualExplanations.weakdeps]
-    EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
+    DecisionTree = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
     LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+    MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
     NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 
 [[deps.Crayons]]

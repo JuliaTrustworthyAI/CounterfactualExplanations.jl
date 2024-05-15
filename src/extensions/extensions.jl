@@ -5,7 +5,6 @@
 
 using CounterfactualExplanations.Models
 
-include("EvoTreesExt.jl")
 include("DecisionTreeExt.jl")
 include("LaplaceReduxExt.jl")
 include("NeuroTreeExt.jl")

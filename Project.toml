@@ -7,14 +7,12 @@ version = "1.1.6"
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
-MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
@@ -28,12 +26,13 @@ TaijaBase = "10284c91-9f28-4c9a-abbf-ee43576dfff6"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [weakdeps]
-EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
+DecisionTree = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 
 [extensions]
-EvoTreesExt = "EvoTrees"
+DecisionTreeExt = "DecisionTree"
 LaplaceReduxExt = "LaplaceRedux"
 NeuroTreeExt = "NeuroTreeModels"
 
@@ -44,7 +43,6 @@ ChainRulesCore = "1.15"
 DataFrames = "1"
 DecisionTree = "0.12.3"
 Distributions = "0.25.97"
-EvoTrees = "0.14, 0.15, 0.16"
 Flux = "0.12, 0.13, 0.14"
 LaplaceRedux = "0.1.4, 0.2, 1.0"
 LazyArtifacts = "1"
@@ -69,10 +67,10 @@ julia = "1.6, 1.7, 1.8, 1.9, 1.10"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
-EvoTrees = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
+DecisionTree = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "EvoTrees", "LaplaceRedux", "NeuroTreeModels", "Test"]
+test = ["Aqua", "DecisionTree", "LaplaceRedux", "NeuroTreeModels", "Test"]

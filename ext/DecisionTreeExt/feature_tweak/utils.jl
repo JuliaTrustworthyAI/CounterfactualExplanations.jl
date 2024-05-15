@@ -129,7 +129,7 @@ Returns the individual classifiers in the forest.
 If the input is a decision tree, the method returns the decision tree itself inside an array.
 
 # Arguments
-- `M::TreeModel`: The model selected by the user.
+- `M::Model`: The model selected by the user.
 - `model::CounterfactualExplanations.D`
 
 # Returns

@@ -10,10 +10,8 @@ using LinearAlgebra
 using ..Models
 using ..Objectives
 using Statistics: Statistics
-using DecisionTree
 using DataFrames: DataFrames
 using MLJBase: MLJBase
-using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 using Distributions: Distributions
 using Random
 

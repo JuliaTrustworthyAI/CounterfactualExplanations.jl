@@ -7,7 +7,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using Test
 using DataFrames
-using EvoTrees
+using DecisionTree
 using Flux
 using LaplaceRedux
 using LinearAlgebra

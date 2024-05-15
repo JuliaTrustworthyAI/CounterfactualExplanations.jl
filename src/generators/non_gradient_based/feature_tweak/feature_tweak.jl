@@ -1,5 +1,3 @@
-using DecisionTree: DecisionTree
-
 "Feature Tweak counterfactual generator class."
 mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
     penalty::Union{Nothing,Function,Vector{Function}}

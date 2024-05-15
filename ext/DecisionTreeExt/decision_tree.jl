@@ -16,20 +16,20 @@ function DecisionTree(model::AtomicDecisionTree; likelihood::Symbol=:classificat
     )
 end
 
-"Type union for `DecisionTree` random forest classifiers and regressors."
-const AtomicRandomForest = Union{
-    MLJDecisionTreeInterface.RandomForestClassifier, MLJDecisionTreeInterface.RandomForestRegressor
-}
-
 """
-    RandomForest(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
-
-Outer constructor for random forests.
-"""
-function RandomForest(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
-    return Models.Model(
-        model,
-        CounterfactualExplanations.RandomForest();
-        likelihood=likelihood,
+    (M::Models.Model)(
+        data::CounterfactualData,
+        type::CounterfactualExplanations.DecisionTree;
+        kwargs...,
     )
+    
+Constructs a decision tree for the given data.
+"""
+function (M::Models.Model)(
+    data::CounterfactualData,
+    type::CounterfactualExplanations.DecisionTree;
+    kwargs...,
+)
+    model = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
+    return DecisionTree(model; likelihood=data.likelihood)
 end

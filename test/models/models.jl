@@ -42,23 +42,6 @@ end
         @testset "$name" begin
             X = value[:data].X
 
-            # Test the EvoTree model
-            model = Models.fit_model(value[:data], :EvoTree)
-            name = "EvoTree"
-            @testset "$name" begin
-                @testset "Verify correctness of likelihood field" begin
-                    @test model.likelihood == value[:data].likelihood
-                end
-                @testset "Matrix of inputs" begin
-                    @test size(Models.logits(model, X))[2] == size(X, 2)
-                    @test size(Models.probs(model, X))[2] == size(X, 2)
-                end
-                @testset "Vector of inputs" begin
-                    @test size(Models.logits(model, X[:, 1]), 2) == 1
-                    @test size(Models.probs(model, X[:, 1]), 2) == 1
-                end
-            end
-
             # Test the DecisionTree model
             model = Models.fit_model(value[:data], :DecisionTree)
             name = "DecisionTree"
@@ -113,30 +96,6 @@ end
         data[1], data[2]
     )
     X, y = DataPreprocessing.preprocess_data_for_mlj(counterfactual_data)
-
-    # test the EvoTree model
-    M = EvoTrees.EvoTreeClassifier()
-    evotree = MLJBase.machine(M, X, y)
-    @test_throws ArgumentError Models.EvoTreeModel(evotree; likelihood=:regression)
-
-    # test the DecisionTree model
-    M = MLJDecisionTreeInterface.DecisionTreeClassifier()
-    tree_model = MLJBase.machine(M, X, y)
-    @test_throws ArgumentError Models.TreeModel(tree_model; likelihood=:regression)
-
-    # test the RandomForest model
-    M = MLJDecisionTreeInterface.RandomForestClassifier()
-    forest_model = MLJBase.machine(M, X, y)
-    @test_throws ArgumentError Models.TreeModel(forest_model; likelihood=:regression)
-
-    M = MLJDecisionTreeInterface.DecisionTreeRegressor()
-    regression_model = MLJBase.machine(M, X, y)
-    @test_throws ArgumentError Models.TreeModel(
-        regression_model; likelihood=:classification_binary
-    )
-    @test_throws ArgumentError Models.TreeModel(
-        regression_model; likelihood=:classification_multi
-    )
 
     # test the LaplaceRedux model
     flux_model = Models.fit_model(counterfactual_data, :Linear).model
