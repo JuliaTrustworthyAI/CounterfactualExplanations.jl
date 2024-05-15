@@ -1,5 +1,3 @@
-include("feature_tweak.jl")
-
 """
     generate_perturbations(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
@@ -11,8 +9,8 @@ function generate_perturbations(
 
     # Asserts related to https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/258
     @assert isnothing(ce.data.input_encoder) "The `FeatureTweakGenerator` currently doesn't support feature encodings."
-    @assert ce.generator.latent_space == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
-    @assert isa(ce.M, Models.TreeModel) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
+    @assert generator.latent_space == false "The `FeatureTweakGenerator` currently doesn't support feature encodings."
+    @assert isa(ce.M.type, CounterfactualExplanations.AbstractDecisionTree) "The `FeatureTweakGenerator` currently only supports tree models. The counterfactual search will be terminated."
 
     s′ = deepcopy(ce.s′)
     new_s′ = feature_tweaking!(ce)

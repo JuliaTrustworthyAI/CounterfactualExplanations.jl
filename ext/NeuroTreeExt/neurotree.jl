@@ -3,6 +3,7 @@ using Flux
 using MLJBase
 using Tables: columntable
 
+"Type union for NeuroTree classifiers and regressors."
 const AtomicNeuroTree = Union{
     NeuroTreeModels.NeuroTreeClassifier,NeuroTreeModels.NeuroTreeRegressor
 }
@@ -26,8 +27,7 @@ Constructs a differentiable tree-based model for the given data.
 function (M::Models.Model)(
     data::CounterfactualData, type::CounterfactualExplanations.NeuroTree; kwargs...
 )
-    outsize = length(data.y_levels)
-    model = NeuroTreeModels.NeuroTreeClassifier(; outsize=outsize, kwargs...)
+    model = NeuroTreeModels.NeuroTreeClassifier(; kwargs...)
     return NeuroTree(model; likelihood=data.likelihood)
 end
 
@@ -54,6 +54,7 @@ function Models.train(
     X = columntable(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
+    Flux.testmode!(mach.fitresult.chain)
     M.fitresult = mach.fitresult
     return M
 end
@@ -80,38 +81,21 @@ function Models.logits(
 end
 
 """
-    Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2})
+    Models.probs(
+        M::Models.Model,
+        type::CounterfactualExplanations.NeuroTree,
+        X::AbstractArray,
+    )
 
-Calculates the probability scores for each output class for the two-dimensional input data matrix X.
-
-# Arguments
-- `M::NeuroTreeModel`: The NeuroTree model.
-- `X::AbstractArray`: The feature vector for which the predictions are made.
-
-# Returns
-- `p::Matrix`: A matrix of probability scores for each output class for each data point in X.
-
-# Example
-probabilities = Models.probs(M, X) # calculates the probability scores for each output class for each data point in X.
+Overloads the [probs](@ref) method for NeuroTree models.
 """
 function Models.probs(
     M::Models.Model,
     type::CounterfactualExplanations.NeuroTree,
-    X::AbstractArray{<:Number,2},
+    X::AbstractArray,
 )
+    if ndims(X) == 1
+        X = X[:, :]      # account for 1-dimensional inputs
+    end
     return softmax(logits(M, X))
-end
-
-"""
-    Models.probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 1})
-
-Works the same way as the probs(M::NeuroTreeModel, X::AbstractArray{<:Number, 2}) method above, but handles 1-dimensional rather than 2-dimensional input data.
-"""
-function Models.probs(
-    M::Models.Model,
-    type::CounterfactualExplanations.NeuroTree,
-    X::AbstractArray{<:Number,1},
-)
-    X = reshape(X, 1, length(X))
-    return Models.probs(M, X)
 end

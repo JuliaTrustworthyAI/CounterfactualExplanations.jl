@@ -43,6 +43,7 @@ export ProbeGenerator
 include("macros.jl")
 include("loss.jl")
 include("complexity.jl")
+include("generate_perturbations.jl")
 
 # Optimizers
 include("optimizers/JSMADescent.jl")

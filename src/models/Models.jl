@@ -10,7 +10,6 @@ using MLUtils
 using ProgressMeter
 using Serialization
 using Statistics: Statistics
-using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 
 include("utils.jl")
 
