@@ -30,7 +30,6 @@ export GrowingSpheresGenerator
 export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
-export feature_tweaking!
 export generator_catalogue
 export generate_perturbations, conditions_satisfied
 export GradientBasedGenerator
@@ -58,7 +57,6 @@ include("gradient_based/utils.jl")
 # Non-Gradient-Based Generators:
 include("non_gradient_based/base.jl")
 
-include("non_gradient_based/feature_tweak/generate_perturbations.jl")
 include("non_gradient_based/growing_spheres/growing_spheres.jl")
 
 "A dictionary containing the constructors of all available counterfactual generators."
@@ -75,6 +73,15 @@ generator_catalogue = Dict(
     :probe => Generators.ProbeGenerator,
     :clue => Generators.CLUEGenerator,
 )
+
+"""
+    incompatible(AbstractGenerator, AbstractCounterfactualExplanation)
+
+Checks if the generator is incompatible with any of the additional specifications for the counterfactual explanations. By default, generators are assumed to be compatible.
+"""
+function incompatible(AbstractGenerator, AbstractCounterfactualExplanation)
+    return false
+end
 
 """
     total_loss(ce::AbstractCounterfactualExplanation)

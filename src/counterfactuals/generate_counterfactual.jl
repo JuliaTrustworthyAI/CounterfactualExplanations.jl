@@ -102,6 +102,12 @@ function generate_counterfactual(
         return ce
     end
 
+    # Check for incompatibility:
+    if Generators.incompatible(ce.generator, ce)
+        @info "Generator is incompatible with other specifications for the counterfactual explanation (e.g. the model). No search run."
+        return ce
+    end
+
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !terminated(ce)
