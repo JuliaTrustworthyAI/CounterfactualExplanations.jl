@@ -1,3 +1,5 @@
+using Tables
+
 "Abstract type for MLJ models."
 abstract type MLJModelType <: AbstractModelType end
 
@@ -19,7 +21,8 @@ function train(
     if M.likelihood ∉ [:classification_multi, :classification_binary]
         y = float.(y.refs)
     end
-    X = MLJBase.reformat(M.model, X)
+    X = MLJBase.reformat(M.model, X)[1]
+    X = Tables.table(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
     M.fitresult = mach.fitresult
@@ -47,7 +50,8 @@ function probs(
     if ndims(X)==1
         X = X[:,:]      # account for 1-dimensional inputs
     end
-    X = MLJBase.reformat(M.model, X)
+    X = Tables.table(X)
+    X = MLJBase.reformat(M.model, X)[1]
     output = MLJBase.predict(M.model, M.fitresult, X)
     p = MLJBase.pdf(output, MLJBase.classes(output))'
     if M.likelihood == :classification_binary
