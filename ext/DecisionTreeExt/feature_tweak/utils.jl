@@ -54,12 +54,12 @@ function esatisfactory_instance(
 end
 
 """
-    search_path(tree::Union{DecisionTree.Leaf, DecisionTree.Node}, target::RawTargetType, path::AbstractArray)
+    search_path(tree::Union{DT.Leaf, DT.Node}, target::RawTargetType, path::AbstractArray)
 
 Return a path index list with the inequality symbols, thresholds and feature indices.
 
 # Arguments
-- `tree::Union{DecisionTree.Leaf, DecisionTree.Node}`: The root node of a decision tree.
+- `tree::Union{DT.Leaf, DT.Node}`: The root node of a decision tree.
 - `target::RawTargetType`: The target class.
 - `path::AbstractArray`: A list containing the paths found thus far.
 
@@ -70,13 +70,13 @@ Return a path index list with the inequality symbols, thresholds and feature ind
 paths = search_path(tree, target) # returns a list of paths to the leaves of the tree to be used for tweaking the feature
 """
 function search_path(
-    tree::Union{DecisionTree.Leaf,DecisionTree.Node},
+    tree::Union{DT.Leaf,DT.Node},
     y_levels::AbstractArray,
     target::RawTargetType,
     path::AbstractArray=[],
 )
     # Check if the current tree is a leaf
-    if DecisionTree.is_leaf(tree)
+    if DT.is_leaf(tree)
         # Check if the leaf's majority value matches the target
         if y_levels[tree.majority] == target
             return [path]

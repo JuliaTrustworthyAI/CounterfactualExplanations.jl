@@ -19,7 +19,7 @@ function train(
     if M.likelihood ∉ [:classification_multi, :classification_binary]
         y = float.(y.refs)
     end
-    X = columntable(X)
+    X = MLJBase.reformat(M.model, X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
     M.fitresult = mach.fitresult

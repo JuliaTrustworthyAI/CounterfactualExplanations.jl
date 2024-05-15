@@ -1,3 +1,5 @@
+using CounterfactualExplanations.Models
+
 "Type union for `DecisionTree` decision tree classifiers and regressors."
 const AtomicDecisionTree = Union{
     MLJDecisionTreeInterface.DecisionTreeClassifier, MLJDecisionTreeInterface.DecisionTreeRegressor

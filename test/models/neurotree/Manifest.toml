@@ -15,11 +15,6 @@ weakdeps = ["ChainRulesCore", "Test"]
     AbstractFFTsChainRulesCoreExt = "ChainRulesCore"
     AbstractFFTsTestExt = "Test"
 
-[[deps.AbstractTrees]]
-git-tree-sha1 = "2d9c9a55f9c93e8887ad391fbae72f8ef55e1177"
-uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
-version = "0.4.5"
-
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
 git-tree-sha1 = "6a55b747d1812e699320963ffde36f1ebdda4099"
@@ -335,12 +330,12 @@ uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 version = "1.1.6"
 
     [deps.CounterfactualExplanations.extensions]
-    DecisionTreeExt = "DecisionTree"
+    DecisionTreeExt = ["DecisionTree", "MLJDecisionTreeInterface"]
     LaplaceReduxExt = "LaplaceRedux"
     NeuroTreeExt = "NeuroTreeModels"
 
     [deps.CounterfactualExplanations.weakdeps]
-    DecisionTree = "f6006082-12f8-11e9-0c9c-0d5d367ab1e5"
+    DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
     LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
     MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
     NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
@@ -381,12 +376,6 @@ version = "1.0.0"
 [[deps.Dates]]
 deps = ["Printf"]
 uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
-
-[[deps.DecisionTree]]
-deps = ["AbstractTrees", "DelimitedFiles", "LinearAlgebra", "Random", "ScikitLearnBase", "Statistics"]
-git-tree-sha1 = "526ca14aaaf2d5a0e242f3a8a7966eb9065d7d78"
-uuid = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
-version = "0.12.4"
 
 [[deps.DefineSingletons]]
 git-tree-sha1 = "0fba8b706d0178b4dc7fd44a96a92382c9065c2c"
@@ -859,12 +848,6 @@ version = "1.2.1"
     [deps.MLJBase.weakdeps]
     StatisticalMeasures = "a19d573c-0a75-4610-95b3-7071388c7541"
 
-[[deps.MLJDecisionTreeInterface]]
-deps = ["CategoricalArrays", "DecisionTree", "MLJModelInterface", "Random", "Tables"]
-git-tree-sha1 = "90ef4d3b6cacec631c57cc034e1e61b4aa0ce511"
-uuid = "c6f25543-311c-4c74-83dc-3ea6d1015661"
-version = "0.4.2"
-
 [[deps.MLJModelInterface]]
 deps = ["Random", "ScientificTypesBase", "StatisticalTraits"]
 git-tree-sha1 = "d2a45e1b5998ba3fdfb6cfe0c81096d4c7fb40e7"
@@ -1271,12 +1254,6 @@ version = "3.0.2"
 git-tree-sha1 = "a8e18eb383b5ecf1b5e6fc237eb39255044fd92b"
 uuid = "30f210dd-8aff-4c5f-94ba-8e64358c1161"
 version = "3.0.0"
-
-[[deps.ScikitLearnBase]]
-deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "7877e55c1523a4b336b433da39c8e8c08d2f221f"
-uuid = "6e75b9c4-186b-50bd-896f-2d2496a4843e"
-version = "0.5.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]

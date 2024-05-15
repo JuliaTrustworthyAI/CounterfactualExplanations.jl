@@ -2,6 +2,7 @@ module DecisionTreeExt
 
 using CounterfactualExplanations
 using DataFrames
+import DecisionTree as DT
 using MLJDecisionTreeInterface: MLJDecisionTreeInterface
 using MLJBase
 

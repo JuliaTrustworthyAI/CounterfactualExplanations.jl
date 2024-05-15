@@ -5,11 +5,11 @@ const AtomicRandomForest = Union{
 }
 
 """
-    RandomForest(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
+    RandomForest(model::AtomicRandomForest; likelihood::Symbol=:classification_binary)
 
 Outer constructor for random forests.
 """
-function RandomForest(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
+function RandomForest(model::AtomicRandomForest; likelihood::Symbol=:classification_binary)
     return Models.Model(
         model, CounterfactualExplanations.RandomForest(); likelihood=likelihood
     )

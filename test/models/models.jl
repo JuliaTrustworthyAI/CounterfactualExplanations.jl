@@ -9,6 +9,7 @@ if VERSION >= v"1.7"
     # Extension currently only works with Julia 1.7.
     include("laplace_redux/laplace_redux.jl")
 end
+include("decision_tree/decision_tree.jl")
 include("utils.jl")
 
 @testset "Standard models for synthetic data" begin
