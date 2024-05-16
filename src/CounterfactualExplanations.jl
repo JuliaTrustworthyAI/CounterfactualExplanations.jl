@@ -44,7 +44,7 @@ export CounterfactualData,
 ###
 include("models/Models.jl")
 using .Models
-export AbstractModel, AbstractDifferentiableModel
+export AbstractModel
 export Linear, MLP, DeepEnsemble
 export flux_training_params
 export probs, logits
