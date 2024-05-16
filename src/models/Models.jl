@@ -23,7 +23,7 @@ include("differentiable/differentiable.jl")
 include("pretrained/pretrained.jl")
 
 export AbstractModel
-export AbstractDifferentiableModel
+export Model
 export Linear
 export MLP
 export DeepEnsemble
