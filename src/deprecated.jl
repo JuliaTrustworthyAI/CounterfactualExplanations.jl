@@ -64,9 +64,9 @@ Base.@deprecate_moved AbstractParallelizer "TaijaBase"
 
 Base.@deprecate_binding AbstractFittedModel AbstractModel
 
-Base.@deprecate FluxModel(model) MLP(model) false
+Base.@deprecate Models.FluxModel MLP false
 
-Base.@deprecate FluxEnsemble(model) DeepEnsemble(model) false
+Base.@deprecate Models.FluxEnsemble DeepEnsemble false
 
 Base.@deprecate LaplaceReduxModel LaplaceNN
 
