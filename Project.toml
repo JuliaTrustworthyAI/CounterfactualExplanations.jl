@@ -13,6 +13,7 @@ LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
+MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 MLUtils = "f1d291b0-491e-4a28-83b9-f70985020b54"
 MultivariateStats = "6f286f6a-111f-5878-ab1e-185364afe411"
 PackageExtensionCompat = "65ce6f38-6b18-4e1d-a461-8949797d7930"
@@ -28,11 +29,10 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 [weakdeps]
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
-MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 
 [extensions]
-DecisionTreeExt = ["DecisionTree", "MLJDecisionTreeInterface"]
+DecisionTreeExt = "DecisionTree"
 LaplaceReduxExt = "LaplaceRedux"
 NeuroTreeExt = "NeuroTreeModels"
 
@@ -69,9 +69,8 @@ julia = "1.6, 1.7, 1.8, 1.9, 1.10"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
-MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DecisionTree", "LaplaceRedux", "MLJDecisionTreeInterface", "NeuroTreeModels", "Test"]
+test = ["Aqua", "DecisionTree", "LaplaceRedux", "NeuroTreeModels", "Test"]

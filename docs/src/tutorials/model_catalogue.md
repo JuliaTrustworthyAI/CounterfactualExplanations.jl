@@ -16,9 +16,8 @@ The `standard_models_catalogue` can be used to inspect the available default mod
 standard_models_catalogue
 ```
 
-    Dict{Symbol, Any} with 4 entries:
+    Dict{Symbol, DataType} with 3 entries:
       :Linear       => Linear
-      :LaplaceRedux => LaplaceNN
       :DeepEnsemble => FluxEnsemble
       :MLP          => FluxModel
 
@@ -46,7 +45,7 @@ data = TaijaData.load_multi_class(n)
 counterfactual_data = DataPreprocessing.CounterfactualData(data...)
 ```
 
-We could use a Deep Ensemble (Lakshminarayanan, Pritzel, and Blundell 2016) as follows:
+We could use a Deep Ensemble (Lakshminarayanan, Pritzel, and Blundell 2017) as follows:
 
 ``` julia
 M = fit_model(counterfactual_data, :DeepEnsemble)
@@ -165,12 +164,7 @@ In this case, we will use a Multi-Layer Perceptron (MLP) but we will adjust the 
 flux_training_params
 ```
 
-    CounterfactualExplanations.FluxModelParams
-      loss: Symbol logitbinarycrossentropy
-      opt: Symbol Adam
-      n_epochs: Int64 100
-      batchsize: Int64 1
-      verbose: Bool false
+    CounterfactualExplanations.FluxModelParams(:logitbinarycrossentropy, :Adam, 100, 1, false)
 
 In cases like this one, where model training can be expected to take a few moments, it can be useful to activate verbosity, so let’s set the corresponding field value to `true`. We’ll also impose mini-batch training:
 
@@ -194,7 +188,7 @@ The `model_params` can be supplied to the familiar API call:
 M = fit_model(train_data, :MLP; model_params...)
 ```
 
-    FluxModel(Chain(Dense(784 => 32, relu), Dropout(0.25, active=false), Dense(32 => 10)), :classification_multi)
+    CounterfactualExplanations.Models.Model(Chain(Dense(784 => 32, relu), Dropout(0.25, active=false), Dense(32 => 10)), :classification_multi, Chain(Dense(784 => 32, relu), Dropout(0.25, active=false), Dense(32 => 10)), MLP())
 
 The model performance on our test set can be evaluated as follows:
 
@@ -211,76 +205,8 @@ Finally, let’s restore the default training parameters:
 CounterfactualExplanations.reset!(flux_training_params)
 ```
 
-## Fitting and tuning MLJ models
-
-Among models from the MLJ library, two models are integrated as part of the core functionality of the package:
-
-``` julia
-mlj_models_catalogue
-```
-
-These models are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don’t apply for them.
-
-Tuning MLJ models is very simple. As the first step, let’s reload the dataset:
-
-``` julia
-n = 500
-data = TaijaData.load_moons(n)
-counterfactual_data = DataPreprocessing.CounterfactualData(data...)
-```
-
-Using the usual procedure for fitting models, we can call the following method:
-
-``` julia
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-However, it’s also possible to tune the DecisionTreeClassifier’s parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
-
-``` julia
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
-```
-
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
-
-## Package extension models
-
-The package also includes two models which don’t form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceNN` from `LaplaceRedux.jl`.
-
-To trigger the package extensions, the weak dependency first has to be loaded with the `using` keyword:
-
-``` julia
-using EvoTrees
-```
-
-Once this is done, the extension models can be used like any other model:
-
-``` julia
-M = fit_model(counterfactual_data, :EvoTree; model_params...)
-```
-
-    EvoTreesExt.EvoTreeModel(machine(EvoTreeClassifier{EvoTrees.MLogLoss}
-     - nrounds: 100
-     - L2: 0.0
-     - lambda: 0.0
-     - gamma: 0.0
-     - eta: 0.1
-     - max_depth: 6
-     - min_weight: 1.0
-     - rowsample: 1.0
-     - colsample: 1.0
-     - nbins: 64
-     - alpha: 0.5
-     - tree_type: binary
-     - rng: MersenneTwister(123, (0, 9018, 8016, 884))
-    , …), :classification_multi)
-
-The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
-
-Please note that support for counterfactual generation with both `LaplaceNN` and `EvoTreeModel` is not yet fully implemented.
-
 ## References
 
-Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” <https://arxiv.org/abs/1612.01474>.
+Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2017. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” *Advances in Neural Information Processing Systems* 30.
 
-LeCun, Yann. 1998. “The MNIST Database of Handwritten Digits.”
+LeCun, Yann. 1998. “The MNIST Database of Handwritten Digits.” http://yann.lecun.com/exdb/mnist/.

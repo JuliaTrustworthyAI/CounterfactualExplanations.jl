@@ -6,14 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.1.6]
+## Version [1.1.6] - 2024-05-16
+
+### Removed
+
+- Removed the `mlj_models_catalogue` because it served no obvious purpose. In the future, we may instead add meta information to the `all_models_catalogue`. [#444]
 
 ### Added
 
-- New general `Model` struct that wraps empty concrete types. This adds a more general interface that is still flexible enough by simply using multiple dispatch on the empty concrete types.
+- New general `Model` struct that wraps empty concrete types. This adds a more general interface that is still flexible enough by simply using multiple dispatch on the empty concrete types. [#444]
+- A new `incompatible(::AbstractGenerator, ::AbstractCounterfactualExplanation)` function has been added to avoid running a counterfactual search if the generator is incompatible with any other specification (e.g. the model). [#444]
 
 ### Changed
 
+- Some function signatures have been deprecated, e.g. `NeuroTreeModel` to `NeuroTree`, `LaplaceReduxModel` to `LaplaceNN`. [#444]
+- Support for `DecisionTree.jl` models and the `FeatureTweakGenerator` have been moved to an extension (`DecisionTreeExt`). [#444]
 - Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444]
 - No longer running alloc test on Windows. [#441]
 - Slight change to doctests. [#447]

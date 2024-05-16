@@ -219,36 +219,4 @@ Finally, let's restore the default training parameters:
 CounterfactualExplanations.reset!(flux_training_params)
 ```
 
-## Fitting and tuning MLJ models
-
-Among models from the MLJ library, two models are integrated as part of the core functionality of the package:
-
-```{julia}
-mlj_models_catalogue
-```
-
-These models are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
-
-Tuning MLJ models is very simple. As the first step, let's reload the dataset:
-
-```{julia}
-n = 500
-data = TaijaData.load_moons(n)
-counterfactual_data = DataPreprocessing.CounterfactualData(data...)
-```
-
-Using the usual procedure for fitting models, we can call the following method:
-
-```{julia}
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
-
-```{julia}
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
-```
-
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
-
 ## References
