@@ -104,7 +104,7 @@ function generate_counterfactual(
 
     # Check for incompatibility:
     if Generators.incompatible(ce.generator, ce)
-        @info "Generator is incompatible with other specifications for the counterfactual explanation (e.g. the model). No search run."
+        @info "Generator is incompatible with other specifications for the counterfactual explanation (e.g. the model). See warnings for details. No search completed."
         return ce
     end
 

@@ -4,11 +4,11 @@ using DecisionTree
 using MLJDecisionTreeInterface
 using TaijaData
 
-@testset "LaplaceRedux" begin
+@testset "DecisionTree" begin
     data =
         TaijaData.load_linearly_separable() |>
         x -> (Float32.(x[1]), x[2]) |> x -> CounterfactualData(x...)
-    M = Models.fit_model(data, :DecisionTree)
+    M = Models.fit_model(data, :RandomForest)
 
     # Select a factual instance:
     target = 2
@@ -17,7 +17,7 @@ using TaijaData
     x = select_factual(data, chosen)
 
     # Search:
-    generator = GenericGenerator()
+    generator = FeatureTweakGenerator()
     ce = generate_counterfactual(x, target, data, M, generator)
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]

@@ -12,11 +12,7 @@ abstract type MLJModelType <: AbstractModelType end
 
 Overloads the `train` function for MLJ models.
 """
-function train(
-    M::Model,
-    type::MLJModelType,
-    data::CounterfactualData,
-)
+function train(M::Model, type::MLJModelType, data::CounterfactualData)
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     if M.likelihood ∉ [:classification_multi, :classification_binary]
         y = float.(y.refs)
@@ -42,15 +38,11 @@ Overloads the [`probs`](@ref) method for MLJ models.
 
 Note that currently the underlying MLJ methods (`reformat`, `predict`) are incompatible with Zygote's autodiff. For differentiable MLJ models, the [`probs``](@ref) and [`logits`](@ref) methods need to be overloaded.
 """
-function probs(
-    M::Model,
-    type::MLJModelType,
-    X::AbstractArray,
-)
-    if ndims(X)==1
-        X = X[:,:]      # account for 1-dimensional inputs
+function probs(M::Model, type::MLJModelType, X::AbstractArray)
+    if ndims(X) == 1
+        X = X[:, :]      # account for 1-dimensional inputs
     end
-    X = Tables.table(X)
+    X = Tables.table(X')
     X = MLJBase.reformat(M.model, X)[1]
     output = MLJBase.predict(M.model, M.fitresult, X)
     p = MLJBase.pdf(output, MLJBase.classes(output))'

@@ -9,11 +9,15 @@ const AtomicNeuroTree = Union{
 }
 
 """
-    NeuroTree(model::AtomicNeuroTree; likelihood::Symbol=:classification_binary)
+    CounterfactualExplanations.NeuroTree(
+        model::AtomicNeuroTree; likelihood::Symbol=:classification_binary
+    )
 
 Outer constructor for a differentiable tree-based model from `NeuroTreeModels.jl`.
 """
-function NeuroTree(model::AtomicNeuroTree; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.NeuroTree(
+    model::AtomicNeuroTree; likelihood::Symbol=:classification_binary
+)
     return Models.Model(
         model, CounterfactualExplanations.NeuroTree(); likelihood=likelihood
     )
@@ -90,9 +94,7 @@ end
 Overloads the [probs](@ref) method for NeuroTree models.
 """
 function Models.probs(
-    M::Models.Model,
-    type::CounterfactualExplanations.NeuroTree,
-    X::AbstractArray,
+    M::Models.Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
 )
     if ndims(X) == 1
         X = X[:, :]      # account for 1-dimensional inputs

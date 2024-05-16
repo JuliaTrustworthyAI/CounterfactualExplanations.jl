@@ -47,9 +47,7 @@ const standard_models_catalogue = Dict(
 A dictionary containing both differentiable and non-differentiable machine learning models.
 """
 const all_models_catalogue = Dict(
-    :Linear => Linear,
-    :MLP => MLP,
-    :DeepEnsemble => DeepEnsemble,
+    :Linear => Linear, :MLP => MLP, :DeepEnsemble => DeepEnsemble
 )
 
 export standard_models_catalogue

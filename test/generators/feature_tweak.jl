@@ -130,7 +130,7 @@
         end
     end
 
-    @testset "Test for errors" begin
+    @testset "Test for incompatible model" begin
         value = binary_synthetic[:classification_binary]
         data = value[:data]
         X = data.X
@@ -143,8 +143,9 @@
         # Choose target:
         y = Models.predict_label(M, data, x)
         target = get_target(data, y[1])
-        @test_throws AssertionError counterfactual = CounterfactualExplanations.generate_counterfactual(
+        ce = CounterfactualExplanations.generate_counterfactual(
             x, target, data, M, generator
         )
+        @test !converged(ce)
     end
 end

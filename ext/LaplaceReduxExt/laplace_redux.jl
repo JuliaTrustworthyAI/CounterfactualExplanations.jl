@@ -1,11 +1,15 @@
 using CounterfactualExplanations.Models
 
 """
-    LaplaceNN(model::LaplaceRedux.Laplace; likelihood::Symbol=:classification_binary)
+    CounterfactualExplanations.LaplaceNN(
+        model::LaplaceRedux.Laplace; likelihood::Symbol=:classification_binary
+    )
 
 Outer constructor for a neural network with Laplace Approximation from `LaplaceRedux.jl`.
 """
-function LaplaceNN(model::LaplaceRedux.Laplace; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.LaplaceNN(
+    model::LaplaceRedux.Laplace; likelihood::Symbol=:classification_binary
+)
     return Models.Model(
         model, CounterfactualExplanations.LaplaceNN(); likelihood=likelihood
     )

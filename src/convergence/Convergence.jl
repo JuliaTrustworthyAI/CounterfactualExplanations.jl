@@ -13,6 +13,15 @@ include("invalidation_rate.jl")
 include("max_iter.jl")
 
 """
+    converged(ce::AbstractCounterfactualExplanation)
+
+Returns `true` if the counterfactual explanation has converged.
+"""
+function converged(ce::AbstractCounterfactualExplanation)
+    return converged(ce.convergence, ce)
+end
+
+"""
     convergence_catalogue
 
 A dictionary containing all convergence criteria.

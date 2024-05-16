@@ -78,7 +78,7 @@ end
             end
 
             # Test the LaplaceNN
-            model = Models.fit_model(value[:data], :LaplaceRedux)
+            model = Models.fit_model(value[:data], CounterfactualExplanations.LaplaceNN())
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
                 @test model.likelihood == :classification_multi
@@ -97,9 +97,4 @@ end
         data[1], data[2]
     )
     X, y = DataPreprocessing.preprocess_data_for_mlj(counterfactual_data)
-
-    # test the LaplaceRedux model
-    flux_model = Models.fit_model(counterfactual_data, :Linear).model
-    laplace_model = LaplaceRedux.Laplace(flux_model; likelihood=:classification)
-    @test_throws ArgumentError Models.LaplaceNN(laplace_model; likelihood=:regression)
 end

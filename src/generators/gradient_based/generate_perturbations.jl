@@ -8,7 +8,7 @@ function generate_perturbations(
 )
     s′ = deepcopy(ce.s′)
     new_s′ = propose_state(generator, ce)
-    Δs′ = new_s′ - s′                                           
+    Δs′ = new_s′ - s′
     Δs′ = _replace_nans(Δs′)
     Δs′ = convert.(eltype(ce.x), Δs′)
     Δs′ *= ce.num_counterfactuals       # rescale to account for number of counterfactuals
