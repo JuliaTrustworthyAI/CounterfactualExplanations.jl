@@ -88,6 +88,8 @@ end
 end
 
 @testset "Test for errors" begin
+    @test_throws AssertionError Models.Model(MLP(); likelihood=:regression)
+
     # test Flux models
     @test_throws ArgumentError Models.FluxModel("dummy"; likelihood=:regression)
     @test_throws ArgumentError Models.FluxEnsemble("dummy"; likelihood=:regression)

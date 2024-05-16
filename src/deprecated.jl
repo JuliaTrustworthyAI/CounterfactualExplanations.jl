@@ -67,3 +67,11 @@ Base.@deprecate_binding AbstractFittedModel AbstractModel
 Base.@deprecate FluxModel(model) MLP(model) false
 
 Base.@deprecate FluxEnsemble(model) DeepEnsemble(model) false
+
+Base.@deprecate LaplaceReduxModel LaplaceNN
+
+Base.@deprecate NeuroTreeModel NeuroTree
+
+Base.@deprecate DecisionTreeModel DecisionTree
+
+Base.@deprecate RandomForestModel RandomForest

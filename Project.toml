@@ -69,8 +69,9 @@ julia = "1.6, 1.7, 1.8, 1.9, 1.10"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+MLJDecisionTreeInterface = "c6f25543-311c-4c74-83dc-3ea6d1015661"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DecisionTree", "LaplaceRedux", "NeuroTreeModels", "Test"]
+test = ["Aqua", "DecisionTree", "LaplaceRedux", "MLJDecisionTreeInterface", "NeuroTreeModels", "Test"]

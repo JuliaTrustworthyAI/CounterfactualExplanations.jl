@@ -31,7 +31,7 @@ function (M::Models.Model)(
         :regression
     end
     la = LaplaceRedux.Laplace(M_det.model; likelihood=lkli)
-    M = LaplaceNN(la; likelihood=M_det.likelihood)
+    M = CounterfactualExplanations.LaplaceNN(la; likelihood=M_det.likelihood)
     return M
 end
 

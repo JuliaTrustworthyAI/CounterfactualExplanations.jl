@@ -32,7 +32,7 @@ function (M::Models.Model)(
     data::CounterfactualData, type::CounterfactualExplanations.NeuroTree; kwargs...
 )
     model = NeuroTreeModels.NeuroTreeClassifier(; kwargs...)
-    return NeuroTree(model; likelihood=data.likelihood)
+    return CounterfactualExplanations.NeuroTree(model; likelihood=data.likelihood)
 end
 
 """

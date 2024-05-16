@@ -10,6 +10,10 @@ mutable struct Model <: AbstractModel
     likelihood::Symbol
     fitresult
     type::AbstractModelType
+    function Model(model, likelihood, fitresult, type)
+        @assert likelihood in [:classification_binary, :classification_multi] "Invalid likelihood specified. Currently supported likelihoods are `:classification_binary` and `:classification_multi`."
+        return new(model, likelihood, fitresult, type)
+    end
 end
 
 """
@@ -18,6 +22,7 @@ end
 Outer constructor for `Model` where the atomic model is not yet defined.
 """
 function Model(type::AbstractModelType; likelihood::Symbol=:classification_binary)
+    @assert likelihood in [:classification_binary, :classification_multi] "Invalid likelihood specified. Currently supported likelihoods are `:classification_binary` and `:classification_multi`."
     return Model(nothing, likelihood, nothing, type)
 end
 
