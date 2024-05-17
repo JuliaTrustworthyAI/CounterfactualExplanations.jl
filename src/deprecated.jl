@@ -66,10 +66,10 @@ Base.@deprecate_binding AbstractFittedModel AbstractModel
 
 Base.@deprecate FluxModel(model) MLP(model)
 
-Base.@deprecate FluxModel(data::CounterfactualData) MLP(data::CounterfactualData)
+Base.@deprecate FluxModel(data::CounterfactualData) MLP()(data::CounterfactualData)
 
 Base.@deprecate FluxEnsemble(model) DeepEnsemble(model)
 
-Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble(
+Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble()(
     data::CounterfactualData
 )
