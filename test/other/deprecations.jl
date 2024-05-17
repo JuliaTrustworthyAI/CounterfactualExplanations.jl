@@ -1,7 +1,7 @@
 using Flux
 using TaijaData
 
-model = Chain(Dense(20,2))
+model = Chain(Dense(20, 2))
 data = CounterfactualData(load_linearly_separable()...)
 
 @testset "Deprecations" begin
@@ -10,4 +10,3 @@ data = CounterfactualData(load_linearly_separable()...)
     @test_deprecated FluxEnsemble(model)
     @test_deprecated FluxEnsemble(data)
 end
-

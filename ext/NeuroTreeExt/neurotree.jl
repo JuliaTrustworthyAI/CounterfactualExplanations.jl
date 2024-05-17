@@ -49,7 +49,9 @@ This method is not called by the user directly.
 - `M::NeuroTreeModel`: The fitted NeuroTree model.
 """
 function Models.train(
-    M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, data::CounterfactualData
+    M::Models.Model,
+    type::CounterfactualExplanations.NeuroTreeModel,
+    data::CounterfactualData,
 )
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     if M.likelihood ∉ [:classification_multi, :classification_binary]

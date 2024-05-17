@@ -15,9 +15,7 @@ function CounterfactualExplanations.RandomForestModel(
     model::AtomicRandomForest; likelihood::Symbol=:classification_binary
 )
     return Models.Model(
-        model,
-        CounterfactualExplanations.RandomForestModel();
-        likelihood=likelihood,
+        model, CounterfactualExplanations.RandomForestModel(); likelihood=likelihood
     )
 end
 
@@ -29,9 +27,7 @@ end
 Constructs a random forest for the given data.
 """
 function (M::Models.Model)(
-    data::CounterfactualData,
-    type::CounterfactualExplanations.RandomForestModel;
-    kwargs...,
+    data::CounterfactualData, type::CounterfactualExplanations.RandomForestModel; kwargs...
 )
     model = MLJDecisionTreeInterface.RandomForestClassifier(; kwargs...)
     return CounterfactualExplanations.RandomForestModel(model; likelihood=data.likelihood)

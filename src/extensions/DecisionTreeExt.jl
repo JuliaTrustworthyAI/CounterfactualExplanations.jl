@@ -9,7 +9,8 @@ Concrete type for tree-based models from `DecisionTree.jl`. Since `DecisionTree.
 """
 struct DecisionTreeModel <: AbstractDecisionTree end
 
-Models.all_models_catalogue[:DecisionTreeModel] = CounterfactualExplanations.DecisionTreeModel
+Models.all_models_catalogue[:DecisionTreeModel] =
+    CounterfactualExplanations.DecisionTreeModel
 
 """
     RandomForestModel

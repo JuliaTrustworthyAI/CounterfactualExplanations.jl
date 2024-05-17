@@ -5,4 +5,5 @@ Concrete type for neural networks with Laplace Approximation from the `LaplaceRe
 """
 struct LaplaceReduxModel <: Models.AbstractFluxNN end
 
-Models.all_models_catalogue[:LaplaceReduxModel] = CounterfactualExplanations.LaplaceReduxModel
+Models.all_models_catalogue[:LaplaceReduxModel] =
+    CounterfactualExplanations.LaplaceReduxModel
