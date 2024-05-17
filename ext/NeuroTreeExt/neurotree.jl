@@ -9,30 +9,30 @@ const AtomicNeuroTree = Union{
 }
 
 """
-    CounterfactualExplanations.NeuroTree(
+    CounterfactualExplanations.NeuroTreeModel(
         model::AtomicNeuroTree; likelihood::Symbol=:classification_binary
     )
 
 Outer constructor for a differentiable tree-based model from `NeuroTreeModels.jl`.
 """
-function CounterfactualExplanations.NeuroTree(
+function CounterfactualExplanations.NeuroTreeModel(
     model::AtomicNeuroTree; likelihood::Symbol=:classification_binary
 )
     return Models.Model(
-        model, CounterfactualExplanations.NeuroTree(); likelihood=likelihood
+        model, CounterfactualExplanations.NeuroTreeModel(); likelihood=likelihood
     )
 end
 
 """
-    (M::Model)(data::CounterfactualData, type::NeuroTree; kwargs...)
+    (M::Model)(data::CounterfactualData, type::NeuroTreeModel; kwargs...)
     
 Constructs a differentiable tree-based model for the given data.
 """
 function (M::Models.Model)(
-    data::CounterfactualData, type::CounterfactualExplanations.NeuroTree; kwargs...
+    data::CounterfactualData, type::CounterfactualExplanations.NeuroTreeModel; kwargs...
 )
     model = NeuroTreeModels.NeuroTreeClassifier(; kwargs...)
-    return CounterfactualExplanations.NeuroTree(model; likelihood=data.likelihood)
+    return CounterfactualExplanations.NeuroTreeModel(model; likelihood=data.likelihood)
 end
 
 """
@@ -49,7 +49,7 @@ This method is not called by the user directly.
 - `M::NeuroTreeModel`: The fitted NeuroTree model.
 """
 function Models.train(
-    M::Models.Model, type::CounterfactualExplanations.NeuroTree, data::CounterfactualData
+    M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, data::CounterfactualData
 )
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     if M.likelihood ∉ [:classification_multi, :classification_binary]
@@ -79,7 +79,7 @@ Calculates the logit scores output by the model M for the input data X.
 logits = Models.logits(M, x) # calculates the logit scores for each output class for the data point x
 """
 function Models.logits(
-    M::Models.Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
+    M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
     return M.fitresult(X)
 end
@@ -87,14 +87,14 @@ end
 """
     Models.probs(
         M::Models.Model,
-        type::CounterfactualExplanations.NeuroTree,
+        type::CounterfactualExplanations.NeuroTreeModel,
         X::AbstractArray,
     )
 
 Overloads the [probs](@ref) method for NeuroTree models.
 """
 function Models.probs(
-    M::Models.Model, type::CounterfactualExplanations.NeuroTree, X::AbstractArray
+    M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
     if ndims(X) == 1
         X = X[:, :]      # account for 1-dimensional inputs

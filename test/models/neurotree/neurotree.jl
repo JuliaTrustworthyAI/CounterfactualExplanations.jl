@@ -16,7 +16,7 @@ using TaijaData
     data = CounterfactualData(load_linearly_separable()...)
     M = fit_model(
         data,
-        CounterfactualExplanations.NeuroTree();
+        CounterfactualExplanations.NeuroTreeModel();
         depth=2,
         lr=2e-2,
         nrounds=50,

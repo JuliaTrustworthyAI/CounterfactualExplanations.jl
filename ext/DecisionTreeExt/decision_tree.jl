@@ -7,28 +7,32 @@ const AtomicDecisionTree = Union{
 }
 
 """
-    DecisionTree(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
+    CounterfactualExplanations.DecisionTreeModel(
+        model::AtomicDecisionTree; likelihood::Symbol=:classification_binary
+    )
 
 Outer constructor for a decision trees.
 """
-function DecisionTree(model::AtomicDecisionTree; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.DecisionTreeModel(
+    model::AtomicDecisionTree; likelihood::Symbol=:classification_binary
+)
     return Models.Model(
-        model, CounterfactualExplanations.DecisionTree(); likelihood=likelihood
+        model, CounterfactualExplanations.DecisionTreeModel(); likelihood=likelihood
     )
 end
 
 """
     (M::Models.Model)(
         data::CounterfactualData,
-        type::CounterfactualExplanations.DecisionTree;
+        type::CounterfactualExplanations.DecisionTreeModel;
         kwargs...,
     )
     
 Constructs a decision tree for the given data.
 """
 function (M::Models.Model)(
-    data::CounterfactualData, type::CounterfactualExplanations.DecisionTree; kwargs...
+    data::CounterfactualData, type::CounterfactualExplanations.DecisionTreeModel; kwargs...
 )
     model = MLJDecisionTreeInterface.DecisionTreeClassifier(; kwargs...)
-    return DecisionTree(model; likelihood=data.likelihood)
+    return CounterfactualExplanations.DecisionTreeModel(model; likelihood=data.likelihood)
 end

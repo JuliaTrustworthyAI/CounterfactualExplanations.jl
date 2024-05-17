@@ -1,10 +1,10 @@
 """
-    NeuroTree
+    NeuroTreeModel
 
 Concrete type for differentiable tree-based models from `NeuroTreeModels`. Since `NeuroTreeModels` has an MLJ interface, we subtype the `MLJModelType` model type.
 """
-struct NeuroTree <: Models.MLJModelType end
+struct NeuroTreeModel <: Models.MLJModelType end
 
-Models.Differentiability(::CounterfactualExplanations.NeuroTree) = Models.IsDifferentiable()
+Models.Differentiability(::CounterfactualExplanations.NeuroTreeModel) = Models.IsDifferentiable()
 
-Models.all_models_catalogue[:NeuroTree] = CounterfactualExplanations.NeuroTree
+Models.all_models_catalogue[:NeuroTreeModel] = CounterfactualExplanations.NeuroTreeModel

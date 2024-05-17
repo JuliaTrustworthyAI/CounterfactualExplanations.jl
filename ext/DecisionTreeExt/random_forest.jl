@@ -5,26 +5,34 @@ const AtomicRandomForest = Union{
 }
 
 """
-    RandomForest(model::AtomicRandomForest; likelihood::Symbol=:classification_binary)
+    CounterfactualExplanations.RandomForestModel(
+        model::AtomicRandomForest; likelihood::Symbol=:classification_binary
+    )
 
 Outer constructor for random forests.
 """
-function RandomForest(model::AtomicRandomForest; likelihood::Symbol=:classification_binary)
+function CounterfactualExplanations.RandomForestModel(
+    model::AtomicRandomForest; likelihood::Symbol=:classification_binary
+)
     return Models.Model(
-        model, CounterfactualExplanations.RandomForest(); likelihood=likelihood
+        model,
+        CounterfactualExplanations.RandomForestModel();
+        likelihood=likelihood,
     )
 end
 
 """
     (M::Models.Model)(
-        data::CounterfactualData, type::CounterfactualExplanations.RandomForest; kwargs...
+        data::CounterfactualData, type::CounterfactualExplanations.RandomForestModel; kwargs...
     )
     
 Constructs a random forest for the given data.
 """
 function (M::Models.Model)(
-    data::CounterfactualData, type::CounterfactualExplanations.RandomForest; kwargs...
+    data::CounterfactualData,
+    type::CounterfactualExplanations.RandomForestModel;
+    kwargs...,
 )
     model = MLJDecisionTreeInterface.RandomForestClassifier(; kwargs...)
-    return RandomForest(model; likelihood=data.likelihood)
+    return CounterfactualExplanations.RandomForestModel(model; likelihood=data.likelihood)
 end

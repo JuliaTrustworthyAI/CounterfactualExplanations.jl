@@ -86,7 +86,7 @@ A wrapper function to fit a model to the `counterfactual_data` for a given `type
 # Arguments
 
 - `counterfactual_data::CounterfactualData`: The data to be used for training the model.
-- `type::AbstractModelType`: The type of model to be trained, e.g., `MLP`, `DecisionTree`, etc.
+- `type::AbstractModelType`: The type of model to be trained, e.g., `MLP`, `DecisionTreeModel`, etc.
 
 # Examples
 

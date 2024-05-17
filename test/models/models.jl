@@ -1,6 +1,8 @@
 include("generative_models.jl")
 include("pretrained.jl")
 include("flux/mlp.jl")
+
+# Extensions:
 if VERSION >= v"1.9"
     # Extension currently only works with Julia 1.9 and above (https://github.com/Evovest/NeuroTreeModels.jl/pull/7)
     include("neurotree/neurotree.jl")
@@ -10,6 +12,7 @@ if VERSION >= v"1.7"
     include("laplace_redux/laplace_redux.jl")
 end
 include("decision_tree/decision_tree.jl")
+
 include("utils.jl")
 
 @testset "Standard models for synthetic data" begin
@@ -43,9 +46,9 @@ end
         @testset "$name" begin
             X = value[:data].X
 
-            # Test the DecisionTree model
-            model = Models.fit_model(value[:data], :DecisionTree)
-            name = "DecisionTree"
+            # Test the DecisionTreeModel model
+            model = Models.fit_model(value[:data], :DecisionTreeModel)
+            name = "DecisionTreeModel"
             @testset "$name" begin
                 @testset "Verify correctness of likelihood field" begin
                     @test model.likelihood == value[:data].likelihood
@@ -61,8 +64,8 @@ end
             end
 
             # Test the RandomForest model
-            model = Models.fit_model(value[:data], :RandomForest)
-            name = "RandomForest"
+            model = Models.fit_model(value[:data], :RandomForestModel)
+            name = "RandomForestModel"
             @testset "$name" begin
                 @testset "Verify correctness of likelihood field" begin
                     @test model.likelihood == value[:data].likelihood
@@ -77,8 +80,8 @@ end
                 end
             end
 
-            # Test the LaplaceNN
-            model = Models.fit_model(value[:data], CounterfactualExplanations.LaplaceNN())
+            # Test the LaplaceReduxModel
+            model = Models.fit_model(value[:data], CounterfactualExplanations.LaplaceReduxModel())
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
                 @test model.likelihood == :classification_multi

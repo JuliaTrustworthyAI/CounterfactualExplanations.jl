@@ -10,7 +10,6 @@ include("utils.jl")
 include("Linear.jl")
 include("MLP.jl")
 include("DeepEnsemble.jl")
-include("deprecated/deprecated.jl")
 
 """
     Model(model, type::AbstractFluxNN; likelihood::Symbol=:classification_binary)

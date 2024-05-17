@@ -3,19 +3,20 @@ using MLJDecisionTreeInterface
 abstract type AbstractDecisionTree <: Models.MLJModelType end
 
 """
-    DecisionTree
+    DecisionTreeModel
 
-Concrete type for tree-based models from `DecisionTree`. Since `DecisionTree` has an MLJ interface, we subtype the `MLJModelType` model type.
+Concrete type for tree-based models from `DecisionTree.jl`. Since `DecisionTree.jl` has an MLJ interface, we subtype the `MLJModelType` model type.
 """
-struct DecisionTree <: AbstractDecisionTree end
+struct DecisionTreeModel <: AbstractDecisionTree end
 
-Models.all_models_catalogue[:DecisionTree] = CounterfactualExplanations.DecisionTree
+Models.all_models_catalogue[:DecisionTreeModel] = CounterfactualExplanations.DecisionTreeModel
 
 """
-    RandomForest
+    RandomForestModel
 
-Concrete type for tree-based models from `DecisionTree`. Since the `DecisionTree` package has an MLJ interface, we subtype the `MLJModelType` model type.
+Concrete type for random forest model from `DecisionTree.jl`. Since the `DecisionTree` package has an MLJ interface, we subtype the `MLJModelType` model type.
 """
-struct RandomForest <: AbstractDecisionTree end
+struct RandomForestModel <: AbstractDecisionTree end
 
-Models.all_models_catalogue[:RandomForest] = CounterfactualExplanations.RandomForest
+Models.all_models_catalogue[:RandomForestModel] =
+    CounterfactualExplanations.RandomForestModel

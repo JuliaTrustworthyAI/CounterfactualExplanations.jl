@@ -38,7 +38,7 @@ export probs, logits
 A dictionary containing all differentiable machine learning models.
 """
 const standard_models_catalogue = Dict(
-    :Linear => Linear, :MLP => FluxModel, :DeepEnsemble => FluxEnsemble
+    :Linear => Linear, :MLP => MLP, :DeepEnsemble => DeepEnsemble
 )
 
 """

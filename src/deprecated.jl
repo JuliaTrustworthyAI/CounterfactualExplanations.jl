@@ -64,14 +64,12 @@ Base.@deprecate_moved AbstractParallelizer "TaijaBase"
 
 Base.@deprecate_binding AbstractFittedModel AbstractModel
 
-Base.@deprecate Models.FluxModel MLP false
+Base.@deprecate FluxModel(model) MLP(model) 
 
-Base.@deprecate Models.FluxEnsemble DeepEnsemble false
+Base.@deprecate FluxModel(data::CounterfactualData) MLP(data::CounterfactualData) 
 
-Base.@deprecate LaplaceReduxModel LaplaceNN
+Base.@deprecate FluxEnsemble(model) DeepEnsemble(model) 
 
-Base.@deprecate NeuroTreeModel NeuroTree
-
-Base.@deprecate DecisionTreeModel DecisionTree
-
-Base.@deprecate RandomForestModel RandomForest
+Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble(
+    data::CounterfactualData
+) 
