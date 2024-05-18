@@ -16,7 +16,7 @@ Adding custom models is possible and relatively straightforward, as we will demo
 
 Apart from the default models you can use any arbitrary (differentiable) model and generate recourse in the same way as before. Only two steps are necessary to make your own Julia model compatible with this package:
 
-1. The model needs to be declared as a subtype of `<:CounterfactualExplanations.Models.AbstractFittedModel`.
+1. The model needs to be declared as a subtype of `<:CounterfactualExplanations.Models.AbstractModel`.
 2. You need to extend the functions `CounterfactualExplanations.Models.logits` and `CounterfactualExplanations.Models.probs` for your custom model.
 
 ### How `FluxModel` was added
@@ -59,7 +59,7 @@ for epoch = 1:epochs
 end
 ```
 
-The code below implements the two steps that were necessary to make Flux models compatible with the package. We first declare our new struct as a subtype of `<:AbstractDifferentiableModel`, which itself is an abstract subtype of `<:AbstractFittedModel`. Computing logits amounts to just calling the model on inputs. Predicted probabilities for labels can in this case be computed by passing predicted logits through the softmax function. Finally, we just instantiate our model in the same way as always.
+The code below implements the two steps that were necessary to make Flux models compatible with the package. We first declare our new struct as a subtype of `<:AbstractDifferentiableModel`, which itself is an abstract subtype of `<:AbstractModel`. Computing logits amounts to just calling the model on inputs. Predicted probabilities for labels can in this case be computed by passing predicted logits through the softmax function. Finally, we just instantiate our model in the same way as always.
 
 ```{julia}
 # Step 1)

@@ -67,13 +67,14 @@ for epoch = 1:epochs
 end
 ```
 
-To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates [@lakshminarayanan2016simple].
+To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`MLP`](@ref). There is also a separate constructor called [`DeepEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates [@lakshminarayanan2016simple].
 
 The appropriate API call to wrap our simple network in a container follows below:
 
 ```{julia}
 #| output: true
-M = FluxModel(nn)
+
+M = MLP(nn)
 ```
 
 The likelihood function of the output variable is automatically inferred from the data. The generic `plot()` method can be called on the model and data to visualise the results:
