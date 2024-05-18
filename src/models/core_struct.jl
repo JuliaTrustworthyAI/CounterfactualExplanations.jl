@@ -100,7 +100,7 @@ julia> using TaijaData
 julia> data = CounterfactualData(load_linearly_separable()...);
 
 julia> M = fit_model(data, Linear())
-Model(Chain(Dense(2 => 2)), :classification_multi, nothing, Linear())
+CounterfactualExplanations.Models.Model(Chain(Dense(2 => 2)), :classification_multi, Chain(Dense(2 => 2)), Linear())
 ```
 """
 function fit_model(
