@@ -32,7 +32,7 @@ CounterfactualExplanations.reset!(flux_training_params)
 ```
 
 ```{julia}
-test_data = CounterfactualData(load_mnist_test()...)
+test_data = CounterfactualData(TaijaData.load_mnist_test()...)
 println("MLP test score (F1): $(model_evaluation(M, test_data))")
 println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 ```
@@ -114,7 +114,7 @@ savefig(plt, joinpath(www_path, "mnist_vae_weak.png"))
 ## FashionMNIST 
 
 ```{julia}
-counterfactual_data = CounterfactualData(load_fashion_mnist()...)
+counterfactual_data = CounterfactualData(TaijaData.load_fashion_mnist()...)
 X = counterfactual_data.X
 y = counterfactual_data.output_encoder.y  
 input_dim, n_obs = size(X)
@@ -147,7 +147,7 @@ CounterfactualExplanations.reset!(flux_training_params)
 ```
 
 ```{julia}
-test_data = CounterfactualData(load_fashion_mnist_test()...)
+test_data = CounterfactualData(TaijaData.load_fashion_mnist_test()...)
 println("MLP test score (F1): $(model_evaluation(M, test_data)[1])")
 println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])")
 ```
@@ -216,17 +216,10 @@ plt = plot(p1, p2, axis=false, size=(800,375))
 savefig(plt, joinpath(www_path, "fashion_mnist_vae_weak.png"))
 ```
 
-## Generate Artifacts
-
-```{julia}
-artifact_name = "$(model_name)"
-generate_artifacts(model_path; artifact_name=artifact_name)
-```
-
 ## CIFAR 10
 
 ```{julia}
-counterfactual_data = CounterfactualData(load_cifar_10()...)
+counterfactual_data = CounterfactualData(TaijaData.load_cifar_10()...)
 X = counterfactual_data.X
 y = counterfactual_data.output_encoder.y  
 input_dim, n_obs = size(X)
@@ -260,7 +253,7 @@ CounterfactualExplanations.reset!(flux_training_params)
 ```
 
 ```{julia}
-test_data = CounterfactualData(load_cifar_10_test()...)
+test_data = CounterfactualData(TaijaData.load_cifar_10_test()...)
 println("MLP test score (F1): $(model_evaluation(M, test_data)[1])")
 println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])")
 ```
@@ -330,6 +323,6 @@ savefig(plt, joinpath(www_path, "cifar_10_vae_weak.png"))
 ## Generate Artifacts
 
 ```{julia}
-artifact_name = "$(model_name)-$(Int(VERSION.major)).$(Int(VERSION.minor))"
+artifact_name = "$(model_name)"
 generate_artifacts(model_path; artifact_name=artifact_name)
 ```

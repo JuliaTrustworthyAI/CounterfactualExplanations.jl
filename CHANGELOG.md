@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- Updated pre-trained model artifacts. [#444]
 - Some function signatures have been deprecated, e.g. `NeuroTreeModel` to `NeuroTree`, `LaplaceReduxModel` to `LaplaceNN`. [#444]
 - Support for `DecisionTree.jl` models and the `FeatureTweakGenerator` have been moved to an extension (`DecisionTreeExt`). [#444]
 - Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444]
