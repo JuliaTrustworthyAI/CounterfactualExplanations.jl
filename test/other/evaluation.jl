@@ -76,7 +76,7 @@ end
         )
 
         # Models:
-        models = Dict(:MLP => MLP(), :Linear => Linear())
+        models = Dict(:MLP => MLP, :Linear => Linear)
 
         # Generators:
         generators = Dict(:Generic => GenericGenerator(), :Greedy => GreedyGenerator())
