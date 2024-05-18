@@ -73,3 +73,5 @@ Base.@deprecate FluxEnsemble(model) DeepEnsemble(model)
 Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble()(
     data::CounterfactualData
 )
+
+Base.@deprecate train!(vae, X, y) GenerativeModels.train!(vae, X)

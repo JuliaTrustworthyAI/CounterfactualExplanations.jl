@@ -31,6 +31,8 @@ export FluxModel
 export FluxEnsemble
 export flux_training_params
 export probs, logits
+export load_mnist_mlp, load_fashion_mnist_ensemble, load_fashion_mnist_vae
+export load_cifar_10_mlp, load_cifar_10_ensemble, load_cifar_10_vae
 
 """
     standard_models_catalogue

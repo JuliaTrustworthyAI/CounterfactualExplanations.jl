@@ -29,10 +29,10 @@ end
 """
     Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
 
-Outer constructor for `Model` where the atomic model is defined, but the model has not been trained yet.
+Outer constructor for `Model` where the atomic model is defined and assumed to be pre-trained.
 """
 function Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
-    return Model(model, likelihood, nothing, type)
+    return Model(model, likelihood, model, type)
 end
 
 """

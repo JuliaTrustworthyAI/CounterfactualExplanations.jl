@@ -7,6 +7,8 @@ setup = quote
     using CounterfactualExplanations.Models
     using Flux
     using Images
+    using MLDatasets
+    using TaijaData
 
     # Utils
     include("$(pwd())/dev/artifacts/utils.jl")

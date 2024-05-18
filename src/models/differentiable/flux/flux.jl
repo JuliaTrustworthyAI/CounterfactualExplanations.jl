@@ -22,7 +22,7 @@ function Model(model, type::AbstractFluxNN; likelihood::Symbol=:classification_b
     else
         Flux.testmode!(model)
     end
-    return Model(model, likelihood, nothing, type)
+    return Model(model, likelihood, model, type)
 end
 
 """
