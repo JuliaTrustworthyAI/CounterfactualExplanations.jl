@@ -246,7 +246,7 @@ function benchmark(
         if typeof(models) <: Dict{<:Any,<:AbstractModel}
             models = Dict(key => Models.train(model, data) for (key, model) in models)
         else
-            models = Dict(key => Models.train(model(data), data) for (key, model) in models)
+            models = Dict(key => Models.fit_model(data, model) for (key, model) in models)
         end
     end
 

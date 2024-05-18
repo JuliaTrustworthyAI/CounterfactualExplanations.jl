@@ -74,15 +74,15 @@ end
     Epoch 100
     avg_loss(data) = 0.007242911f0
 
-To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`FluxModel`](@ref). There is also a separate constructor called [`FluxEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2016).
+To prepare the fitted model for use with our package, we need to wrap it inside a container. For plain-vanilla models trained in `Flux.jl`, the corresponding constructor is called [`MLP`](@ref). There is also a separate constructor called [`DeepEnsemble`](@ref), which applies to Deep Ensembles. Deep Ensembles are a popular approach to approximate Bayesian Deep Learning and have been shown to generate good predictive uncertainty estimates (Lakshminarayanan, Pritzel, and Blundell 2017).
 
 The appropriate API call to wrap our simple network in a container follows below:
 
 ``` julia
-M = FluxModel(nn)
+M = MLP(nn)
 ```
 
-    FluxModel(Chain(Dense(2 => 32, relu), Dropout(0.1, active=false), Dense(32 => 2)), :classification_binary)
+    CounterfactualExplanations.Models.Model(Chain(Dense(2 => 32, relu), Dropout(0.1, active=false), Dense(32 => 2)), :classification_binary, Chain(Dense(2 => 32, relu), Dropout(0.1, active=false), Dense(32 => 2)), MLP())
 
 The likelihood function of the output variable is automatically inferred from the data. The generic `plot()` method can be called on the model and data to visualise the results:
 
@@ -96,4 +96,4 @@ Our model `M` is now ready for use with the package.
 
 ## References
 
-Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2016. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” <https://arxiv.org/abs/1612.01474>.
+Lakshminarayanan, Balaji, Alexander Pritzel, and Charles Blundell. 2017. “Simple and Scalable Predictive Uncertainty Estimation Using Deep Ensembles.” *Advances in Neural Information Processing Systems* 30.
