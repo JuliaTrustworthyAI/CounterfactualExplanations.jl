@@ -1,11 +1,14 @@
 "Base type for counterfactual explanations."
 abstract type AbstractCounterfactualExplanation end
 
-"Base type for fitted models."
-abstract type AbstractFittedModel end
+"Base type for models."
+abstract type AbstractModel end
 
-"Treat `AbstractFittedModel` as scalar when broadcasting."
-Base.broadcastable(model::AbstractFittedModel) = Ref(model)
+"Alias for `AbstractModel` (deprecated)."
+const AbstractFittedModel = AbstractModel
+
+"Treat `AbstractModel` as scalar when broadcasting."
+Base.broadcastable(model::AbstractModel) = Ref(model)
 
 "An abstract type that serves as the base type for counterfactual generators."
 abstract type AbstractGenerator end

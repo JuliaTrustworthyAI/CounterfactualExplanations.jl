@@ -4,7 +4,7 @@
         x::Matrix,
         target::RawTargetType,
         data::DataPreprocessing.CounterfactualData,
-        M::Models.AbstractFittedModel,
+        M::Models.AbstractModel,
         generator::Generators.GrowingSpheresGenerator;
         num_counterfactuals::Int=1,
         convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;
@@ -19,7 +19,7 @@ function generate_counterfactual(
     x::Matrix,
     target::RawTargetType,
     data::DataPreprocessing.CounterfactualData,
-    M::Models.AbstractFittedModel,
+    M::Models.AbstractModel,
     generator::Generators.GrowingSpheresGenerator;
     num_counterfactuals::Int=1,
     convergence::Union{AbstractConvergence,Symbol}=Convergence.DecisionThresholdConvergence(;

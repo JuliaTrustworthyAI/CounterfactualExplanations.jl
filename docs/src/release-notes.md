@@ -8,21 +8,77 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-*Note*: We try to adhere to these practices as of version `1.1.1`.
+*Note*: We try to adhere to these practices as of version [v1.1.1](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.1).
 
-## [Unreleased]
+## Version [1.1.6] - 2024-05-16
+
+### Removed
+
+- Removed the `mlj_models_catalogue` because it served no obvious purpose. In the future, we may instead add meta information to the `all_models_catalogue`. [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+
+### Added
+
+- New general `Model` struct that wraps empty concrete types. This adds a more general interface that is still flexible enough by simply using multiple dispatch on the empty concrete types. [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+- A new `incompatible(::AbstractGenerator, ::AbstractCounterfactualExplanation)` function has been added to avoid running a counterfactual search if the generator is incompatible with any other specification (e.g. the model). [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+
+### Changed
+
+- Some function signatures have been deprecated, e.g. `NeuroTreeModel` to `NeuroTree`, `LaplaceReduxModel` to `LaplaceNN`. [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+- Support for `DecisionTree.jl` models and the `FeatureTweakGenerator` have been moved to an extension (`DecisionTreeExt`). [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+- Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/444)
+- No longer running alloc test on Windows. [#441](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/441)
+- Slight change to doctests. [#447](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/447)
+
+## Version [v1.1.5](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.5) - 2024-04-30
+
+### Added 
+
+- Unit tests: adds a simple performance benchmark to test that for a small problem, generating a counterfactual using the generic generator takes at most 4700 allocations. Only run on julia `v1.10` and higher. [#436](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/436)
+
+### Changed
+
+- The `find_potential_neighbours` is now only triggered if one of the penalties of the generator requires access to samples from the target domain. This improves scalability because calling the function can be computationally costly (forward-pass). [#436](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/436) 
+- The target variable encodings are now handled more efficiently. Previously certain tasks were repeated, which was not necessary. [#436](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/436)
+
+### Removed
+
+- Removed the assertion checking that the model ever predicts the target value. While this assertion is useful, it is not essential. For large enough models and datasets, this forward pass can be very costly. [#436](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/436)
+- Removed redundant `distance_from_targets` function. [#436](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/436)
+
+## Version [v1.1.4](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.4) - 2024-04-25
+
+### Changed
+
+- Refactors the encodings and decodings such that it is now more streamlined. Instead of conditional statements, encodings are now dispatched on the type of a new unifying `data.input_encoder` field. [#432](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/432)
+- Refactors the check for redundancy. This is now based on the convergence type and done right before the counterfactual search begins, if not redundant. [#432](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/432)
+
+### Added
+
+- Added additional unit tests. [#437](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/437)
+
+## Version [v1.1.3](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.3) - 2024-04-17
 
 ### Added
 
 - Adds a section on `Convergence` to the documentation, `Changelog.jl` functionality and a few doc tests. [#429](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/429)
 
-## [1.1.2] - 2024-04-16
+### Changed
+
+- Changes style of taking gradients for the counterfactual search from implicit to explicit. [#430](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/430)
+- Removed all implicit imports. [#430](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/430)
+
+### Removed 
+
+- Removed CUDA.jl dependency, because redundant. [#430](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/430)
+- Removed Parameters.jl dependency, because redundant. [#430](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/430)
+
+## Version [v1.1.2](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.2) - 2024-04-16
 
 ### Changed
 
 - Replaces the GIF in the README and introduction of docs for a static image. 
 
-## [1.1.1] - 2024-04-15
+## Version [v1.1.1](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.1) - 2024-04-15
 
 ### Added
 

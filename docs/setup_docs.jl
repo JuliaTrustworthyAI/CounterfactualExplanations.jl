@@ -23,7 +23,6 @@ setup_docs = quote
     using MLJModels: OneHotEncoder
     using Plots
     using Random
-    using SliceMap
     using StatsBase
     using Tables
     using TaijaData

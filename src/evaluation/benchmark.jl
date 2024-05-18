@@ -85,7 +85,7 @@ end
         x::Union{AbstractArray,Base.Iterators.Zip},
         target::RawTargetType,
         data::CounterfactualData;
-        models::Dict{<:Any,<:AbstractFittedModel},
+        models::Dict{<:Any,<:AbstractModel},
         generators::Dict{<:Any,<:AbstractGenerator},
         measure::Union{Function,Vector{Function}}=default_measures,
         xids::Union{Nothing,AbstractArray}=nothing,
@@ -102,7 +102,7 @@ function benchmark(
     xs::Union{AbstractArray,Base.Iterators.Zip},
     target::RawTargetType,
     data::CounterfactualData;
-    models::Dict{<:Any,<:AbstractFittedModel},
+    models::Dict{<:Any,<:AbstractModel},
     generators::Dict{<:Any,<:AbstractGenerator},
     measure::Union{Function,Vector{Function}}=default_measures,
     dataname::Union{Nothing,Symbol,String}=nothing,
@@ -243,10 +243,10 @@ function benchmark(
     # Train models if necessary:
     if !suppress_training
         @info "Training models on data."
-        if typeof(models) <: Dict{<:Any,<:AbstractFittedModel}
+        if typeof(models) <: Dict{<:Any,<:AbstractModel}
             models = Dict(key => Models.train(model, data) for (key, model) in models)
         else
-            models = Dict(key => Models.train(model(data), data) for (key, model) in models)
+            models = Dict(key => Models.fit_model(data, model()) for (key, model) in models)
         end
     end
 
@@ -286,12 +286,6 @@ function benchmark(
             for (i, x) in enumerate(xs)
                 sample_id = uuid1()
                 for (gen_name, gen) in generators
-                    if (
-                        !isa(M, Models.TreeModel) &&
-                        isa(gen, Generators.FeatureTweakGenerator)
-                    )
-                        continue
-                    end
                     comb = (x, target[i], (mod_name, M), (gen_name, gen), sample_id)
                     push!(grid, comb)
                 end

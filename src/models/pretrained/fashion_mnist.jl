@@ -1,12 +1,14 @@
 using Serialization: Serialization
 
 function load_fashion_mnist_mlp()
-    M = Serialization.deserialize(joinpath(vision_dir, "fashion_mnist_mlp.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "fashion_mnist_mlp.jls"))
+    M = MLP(model; likelihood=:classification_multi)
     return M
 end
 
 function load_fashion_mnist_ensemble()
-    M = Serialization.deserialize(joinpath(vision_dir, "fashion_mnist_ensemble.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "fashion_mnist_ensemble.jls"))
+    M = DeepEnsemble(model; likelihood=:classification_multi)
     return M
 end
 

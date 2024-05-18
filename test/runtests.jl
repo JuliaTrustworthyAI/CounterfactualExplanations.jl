@@ -7,7 +7,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
 using Test
 using DataFrames
-using EvoTrees
+using DecisionTree
 using Flux
 using LaplaceRedux
 using LinearAlgebra
@@ -66,5 +66,9 @@ generators = Generators.generator_catalogue
 
     @testset "Performance" begin
         include("other/performance.jl")
+    end
+
+    @testset "Deprecations" begin
+        include("other/deprecations.jl")
     end
 end

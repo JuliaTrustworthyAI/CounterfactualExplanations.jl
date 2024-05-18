@@ -1,10 +1,12 @@
 function load_mnist_mlp()
-    M = Serialization.deserialize(joinpath(vision_dir, "mnist_mlp.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "mnist_mlp.jls"))
+    M = MLP(model; likelihood=:classification_multi)
     return M
 end
 
 function load_mnist_ensemble()
-    M = Serialization.deserialize(joinpath(vision_dir, "mnist_ensemble.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "mnist_ensemble.jls"))
+    M = DeepEnsemble(model; likelihood=:classification_multi)
     return M
 end
 

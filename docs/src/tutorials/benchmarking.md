@@ -279,7 +279,7 @@ end
 
 Optionally, you can instead provide a dictionary of `models` and `generators` as before. Each value in the `models` dictionary should be one of two things:
 
-1.  Either be an object `M` of type [`AbstractFittedModel`](@ref) that implements the [`Models.train`](@ref) method.
+1.  Either be an object `M` of type [`AbstractModel`](@ref) that implements the [`Models.train`](@ref) method.
 2.  Or a `DataType` that can be called on [`CounterfactualData`](@ref) to create an object `M` as in (a).
 
 ## Multiple Datasets

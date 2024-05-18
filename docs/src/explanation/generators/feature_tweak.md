@@ -6,6 +6,9 @@ CurrentModule = CounterfactualExplanations
 
 # `FeatureTweakGenerator`
 
+!!! warning "Moved to extension"
+    As of version `1.1.6`, the functionality of the `FeatureTweakGenerator` has been moved to the `DecisionTreeExt` extension. This means it is lazily loaded only if the `DecisionTree.jl` package is loaded by the user, since the `FeatureTweakGenerator` is only compatible with tree-based models. 
+
 **Feature Tweak** refers to the generator introduced by Tolomei et al. (2017). Our implementation takes inspiration from the [featureTweakPy library](https://github.com/upura/featureTweakPy).
 
 ## Description
@@ -23,6 +26,12 @@ The following equation displays how a true negative instance x can be transforme
 ```
 
 ## Example
+
+To make use of the `FeatureTweakGenerator`, you need to have the `DecisionTree.jl` package installed. Loading the package will load the functionality of the `FeatureTweakGenerator` through the `DecisionTreeExt` extension:
+
+``` julia
+using DecisionTree
+```
 
 In this example we apply the Feature Tweak algorithm to a decision tree and a random forest trained on the moons dataset. We first load the data and fit the models:
 
@@ -42,7 +51,7 @@ Next, we select a point to explain and a target class to transform the point to.
 ``` julia
 # Select a point to explain:
 x = float32.([1, -0.5])[:,:]
-factual = Models.predict_label(forest, x)
+factual = Models.predict_label(forest, counterfactual_data, x)
 target = counterfactual_data.y_levels[findall(counterfactual_data.y_levels != factual)][1]
 
 # Search for counterfactuals:
@@ -72,7 +81,7 @@ p2 = plot(
 display(plot(p1, p2; size=(800, 400)))
 ```
 
-![](feature_tweak_files/figure-commonmark/cell-5-output-1.svg)
+![](feature_tweak_files/figure-commonmark/cell-6-output-1.svg)
 
 ## References
 

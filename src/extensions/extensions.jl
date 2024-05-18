@@ -3,6 +3,8 @@
 # See here for an example use case: https://discourse.julialang.org/t/how-to-use-functions-defined-in-package-extensions-but-not-the-main-package/99979
 # See also this related discussion: https://discourse.julialang.org/t/should-we-define-new-functions-structs-in-an-extension/103361
 
-include("EvoTreesExt.jl")
+using CounterfactualExplanations.Models
+
+include("DecisionTreeExt.jl")
 include("LaplaceReduxExt.jl")
 include("NeuroTreeExt.jl")

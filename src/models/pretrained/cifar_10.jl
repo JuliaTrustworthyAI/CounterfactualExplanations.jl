@@ -1,10 +1,12 @@
 function load_cifar_10_mlp()
-    M = Serialization.deserialize(joinpath(vision_dir, "cifar_10_mlp.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "cifar_10_mlp.jls"))
+    M = MLP(model; likelihood=:classification_multi)
     return M
 end
 
 function load_cifar_10_ensemble()
-    M = Serialization.deserialize(joinpath(vision_dir, "cifar_10_ensemble.jls"))
+    model = Serialization.deserialize(joinpath(vision_dir, "cifar_10_ensemble.jls"))
+    M = DeepEnsemble(model; likelihood=:classification_multi)
     return M
 end
 

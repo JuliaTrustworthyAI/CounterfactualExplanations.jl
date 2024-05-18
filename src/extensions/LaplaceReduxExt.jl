@@ -1,11 +1,9 @@
 """
     LaplaceReduxModel
 
-Exposes the `LaplaceReduxModel` from the `LaplaceReduxExt` extension.
+Concrete type for neural networks with Laplace Approximation from the `LaplaceRedux` package. Currently subtyping the `AbstractFluxNN` model type, although this may be changed to MLJ in the future.
 """
-function LaplaceReduxModel end
-export LaplaceReduxModel
+struct LaplaceReduxModel <: Models.AbstractFluxNN end
 
-CounterfactualExplanations.Models.all_models_catalogue[:LaplaceRedux] = LaplaceReduxModel
-CounterfactualExplanations.Models.standard_models_catalogue[:LaplaceRedux] =
-    LaplaceReduxModel
+Models.all_models_catalogue[:LaplaceReduxModel] =
+    CounterfactualExplanations.LaplaceReduxModel

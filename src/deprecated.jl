@@ -61,3 +61,17 @@ Base.@deprecate_moved parallelize "TaijaParallel"
 Base.@deprecate_moved parallelizable "TaijaParallel"
 
 Base.@deprecate_moved AbstractParallelizer "TaijaBase"
+
+Base.@deprecate_binding AbstractFittedModel AbstractModel
+
+Base.@deprecate FluxModel(model) MLP(model)
+
+Base.@deprecate FluxModel(data::CounterfactualData) MLP()(data::CounterfactualData)
+
+Base.@deprecate FluxEnsemble(model) DeepEnsemble(model)
+
+Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble()(
+    data::CounterfactualData
+)
+
+Base.@deprecate train!(vae, X, y) GenerativeModels.train!(vae, X)

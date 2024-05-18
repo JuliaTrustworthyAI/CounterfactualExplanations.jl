@@ -1,7 +1,15 @@
+
+"Abstract types for differentiable models."
+abstract type AbstractDifferentiableModelType <: AbstractModelType end
+
+Differentiability(::AbstractDifferentiableModelType) = IsDifferentiable()
+
 """
 Base type for differentiable models.
 """
-abstract type AbstractDifferentiableModel <: AbstractFittedModel end
+abstract type AbstractDifferentiableModel <: AbstractModel end
+
+Differentiability(::AbstractDifferentiableModel) = IsDifferentiable()
 
 """
 Base type for differentiable models written in Flux.
@@ -18,5 +26,4 @@ Base type for custom differentiable models.
 """
 abstract type AbstractCustomDifferentiableModel <: AbstractDifferentiableModel end
 
-include("flux/MLP.jl")
-include("flux/ensemble.jl")
+include("flux/flux.jl")

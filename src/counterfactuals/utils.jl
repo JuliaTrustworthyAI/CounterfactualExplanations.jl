@@ -10,7 +10,7 @@ end
 """
     guess_loss(ce::CounterfactualExplanation)
 
-Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractFittedModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
+Guesses the loss function to be used for the counterfactual search in case `likelihood` field is specified for the [`AbstractModel`](@ref) instance and no loss function was explicitly declared for [`AbstractGenerator`](@ref) instance.
 """
 function guess_loss(ce::CounterfactualExplanation)
     M = ce.M

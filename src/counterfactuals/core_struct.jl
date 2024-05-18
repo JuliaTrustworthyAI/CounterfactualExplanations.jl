@@ -11,7 +11,7 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     s′::AbstractArray
     x′::AbstractArray
     data::DataPreprocessing.CounterfactualData
-    M::Models.AbstractFittedModel
+    M::Models.AbstractModel
     generator::Generators.AbstractGenerator
     search::Union{Dict,Nothing}
     convergence::AbstractConvergence
@@ -24,7 +24,7 @@ end
 		x::AbstractArray,
 		target::RawTargetType,
 		data::CounterfactualData,
-		M::Models.AbstractFittedModel,
+		M::Models.AbstractModel,
 		generator::Generators.AbstractGenerator,
 		num_counterfactuals::Int = 1,
 		initialization::Symbol = :add_perturbation,
@@ -37,7 +37,7 @@ function CounterfactualExplanation(
     x::AbstractArray,
     target::RawTargetType,
     data::CounterfactualData,
-    M::Models.AbstractFittedModel,
+    M::Models.AbstractModel,
     generator::Generators.AbstractGenerator;
     num_counterfactuals::Int=1,
     initialization::Symbol=:add_perturbation,

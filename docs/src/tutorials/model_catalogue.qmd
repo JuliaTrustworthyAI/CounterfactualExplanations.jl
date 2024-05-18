@@ -51,7 +51,7 @@ We could use a Deep Ensemble [@lakshminarayanan2016simple] as follows:
 M = fit_model(counterfactual_data, :DeepEnsemble)
 ```
 
-The returned object is an instance of type `FluxEnsemble <: AbstractFittedModel` and can be used in downstream tasks without further ado. For example, the resulting fit can be visualised using the generic `plot()` method as:
+The returned object is an instance of type `FluxEnsemble <: AbstractModel` and can be used in downstream tasks without further ado. For example, the resulting fit can be visualised using the generic `plot()` method as:
 
 ```{julia}
 #| output: true
@@ -218,58 +218,5 @@ Finally, let's restore the default training parameters:
 ```{julia}
 CounterfactualExplanations.reset!(flux_training_params)
 ```
-
-## Fitting and tuning MLJ models
-
-Among models from the MLJ library, two models are integrated as part of the core functionality of the package:
-
-```{julia}
-mlj_models_catalogue
-```
-
-These models are compatible with the Feature Tweak generator. Support for other generators has not been implemented, as both decision trees and random forests are non-differentiable tree-based models and thus, gradient-based generators don't apply for them.
-
-Tuning MLJ models is very simple. As the first step, let's reload the dataset:
-
-```{julia}
-n = 500
-data = TaijaData.load_moons(n)
-counterfactual_data = DataPreprocessing.CounterfactualData(data...)
-```
-
-Using the usual procedure for fitting models, we can call the following method:
-
-```{julia}
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree)
-```
-
-However, it's also possible to tune the DecisionTreeClassifier's parameters. This can be done using the keyword arguments when calling `fit_model()` as follows:
-
-```{julia}
-tree = CounterfactualExplanations.Models.fit_model(counterfactual_data, :DecisionTree; max_depth=2, min_samples_leaf=3)
-```
-
-For all supported MLJ models, every tunable parameter they have is supported as a keyword argument. The tunable parameters for the `DecisionTreeModel` and the `RandomForestModel` can be found from the [documentation of the `DecisionTree.jl` package](https://docs.juliahub.com/DecisionTree/pEDeB/0.10.11/) under the Decision Tree Classifier and Random Forest Classifier sections.
-
-## Package extension models
-
-The package also includes two models which don't form a part of the core functionality of the package, but which can be accessed as package extensions. These are the `EvoTreeModel` from the MLJ library and the `LaplaceReduxModel` from `LaplaceRedux.jl`.
-
-To trigger the package extensions, the weak dependency first has to be loaded with the `using` keyword:
-
-```{julia}
-using EvoTrees
-```
-
-Once this is done, the extension models can be used like any other model:
-
-```{julia}
-#| output: true
-M = fit_model(counterfactual_data, :EvoTree; model_params...)
-```
-
-The tunable parameters for the `EvoTreeModel` can be found from the [documentation of the `EvoTrees.jl` package](https://evovest.github.io/EvoTrees.jl/stable/) under the EvoTreeClassifier section.
-
-Please note that support for counterfactual generation with both `LaplaceReduxModel` and `EvoTreeModel` is not yet fully implemented.
 
 ## References

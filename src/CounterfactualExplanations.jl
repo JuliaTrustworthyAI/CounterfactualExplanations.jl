@@ -16,7 +16,7 @@ include("artifacts_setup.jl")
 # Base types:
 include("base_types.jl")
 export AbstractCounterfactualExplanation
-export AbstractFittedModel
+export AbstractModel
 export AbstractGenerator
 export AbstractConvergence
 
@@ -44,12 +44,11 @@ export CounterfactualData,
 ###
 include("models/Models.jl")
 using .Models
-export AbstractFittedModel, AbstractDifferentiableModel
-export Linear, FluxModel, FluxEnsemble
+export AbstractModel
+export Linear, MLP, DeepEnsemble
 export flux_training_params
 export probs, logits
-export standard_models_catalogue,
-    all_models_catalogue, fit_model, model_evaluation, predict_label
+export standard_models_catalogue, all_models_catalogue, model_evaluation, predict_label
 
 ### Objectives
 # ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
