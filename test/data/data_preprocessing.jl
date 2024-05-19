@@ -27,11 +27,8 @@ ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
     @test unique(DataPreprocessing.apply_domain_constraints(counterfactual_data, x))[1] == 0
 
     @testset "Matrix table" begin
-        dataset = Iris()
-        X = dataset.features
-        y = dataset.targets
-        X = MLJBase.table(Tables.matrix(X))
-        y = y[:, 1]
+        X, y = TaijaData.load_linearly_separable()
+        X = MLJBase.table(X')
         counterfactual_data = CounterfactualData(X, y)
     end
 end
