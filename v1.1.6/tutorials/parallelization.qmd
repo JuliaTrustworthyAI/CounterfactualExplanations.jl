@@ -1,0 +1,168 @@
+---
+execute: 
+  output: true
+---
+
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+#| output: false
+
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Parallelization
+
+Version `0.1.15` adds support for parallelization through multi-processing. Currently, the only available backend for parallelization is [MPI.jl](https://juliaparallel.org/MPI.jl/latest/). 
+
+## Available functions
+
+Parallelization is only available for certain functions. To check if a function is parallelizable, you can use  `parallelizable` function:
+
+```{julia}
+using CounterfactualExplanations.Evaluation: evaluate, benchmark
+println(parallelizable(generate_counterfactual))
+println(parallelizable(evaluate))
+println(parallelizable(predict_label))
+```
+
+In the following, we will generate multiple counterfactuals and evaluate them in parallel:
+
+```{julia}
+#| output: false
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 1000)
+xs = select_factual(counterfactual_data, chosen)
+```
+
+## Multi-threading
+
+We first instantiate an `ThreadParallelizer` object:
+
+```{julia}
+parallelizer = ThreadsParallelizer()
+```
+
+To generate counterfactuals in parallel, we use the `parallelize` function:
+
+```{julia}
+ces = @with_parallelizer parallelizer begin
+    generate_counterfactual(
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+    )
+end
+```
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+```{julia}
+@with_parallelizer parallelizer evaluate(ces)
+```
+
+Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
+
+```{julia}
+#| eval: false
+
+# Models:
+bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
+```
+
+## MPI
+
+```{=commonmark}
+!!! note
+    To use MPI, you need to have MPI installed on your machine. Running the following code straight from a running Julia session will work if you have MPI installed on your machine, but it will be run on a single process. To execute the code on multiple processes, you need to run it from the command line with `mpirun` or `mpiexec`. For example, to run a script on 4 processes, you can run the following command from the command line:
+    
+    ```
+    mpiexecjl --project -n 4 julia -e 'include("docs/src/srcipts/mpi.jl")'
+    ```
+
+    For more information, see [MPI.jl](https://juliaparallel.org/MPI.jl/latest/). 
+```
+
+We first instantiate an `MPIParallelizer` object:
+
+```{julia}
+import MPI
+MPI.Init()
+parallelizer = MPIParallelizer(MPI.COMM_WORLD; threaded=true)
+```
+
+To generate counterfactuals in parallel, we use the `parallelize` function:
+
+```{julia}
+ces = @with_parallelizer parallelizer begin
+    generate_counterfactual(
+        xs,
+        target,
+        counterfactual_data,
+        M,
+        generator
+    )
+end
+```
+
+To evaluate counterfactuals in parallel, we again use the `parallelize` function:
+
+```{julia}
+@with_parallelizer parallelizer evaluate(ces)
+```
+
+```{=commonmark}
+!!! tip
+    Note that parallelizable processes can be supplied as input to the macro either as a block or directly as an expression.
+```
+
+Benchmarks can also be run with parallelization by specifying `parallelizer` argument:
+
+```{julia}
+#| eval: false
+
+# Models:
+bmk = benchmark(counterfactual_data; parallelizer = parallelizer)
+```
+
+The following code snippet shows a complete example script that uses MPI for running a benchmark in parallel:
+
+```{julia}
+#| eval: false
+#| echo: true
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Evaluation: benchmark
+using CounterfactualExplanations.Models
+import MPI
+
+MPI.Init()
+
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+factual = 1
+target = 2
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 100)
+xs = select_factual(counterfactual_data, chosen)
+generator = GenericGenerator()
+
+parallelizer = MPIParallelizer(MPI.COMM_WORLD)
+
+bmk = benchmark(counterfactual_data; parallelizer=parallelizer)
+
+MPI.Finalize()
+```
+
+The file can be executed from the command line as follows:
+
+```
+mpiexecjl --project -n 4 julia -e 'include("docs/src/srcipts/mpi.jl")'
+```
+
+
