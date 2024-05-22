@@ -20,6 +20,7 @@ export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
 export CLUEGenerator
 export DiCEGenerator
+export ECCoGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
@@ -68,6 +69,7 @@ generator_catalogue = Dict(
     :wachter => Generators.WachterGenerator,
     :probe => Generators.ProbeGenerator,
     :clue => Generators.CLUEGenerator,
+    :ecco => Generators.ECCoGenerator,
 )
 
 """

@@ -81,3 +81,92 @@ function ddp_diversity(
     cost = -agg(K)
     return cost
 end
+
+"""
+    distance_from_target(
+        ce::AbstractCounterfactualExplanation;
+        K::Int=50
+    )
+
+Computes the distance of the counterfactual from a point in the target main.
+"""
+function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
+    ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
+    neighbours = ce.search[:potential_neighbours][:, ids]
+    centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
+    Δ = distance(ce; from=centroid, kwrgs...)
+    return Δ
+end
+
+"""
+    function model_loss_penalty(
+        ce::AbstractCounterfactualExplanation;
+        agg=mean
+    )
+
+Additional penalty for ClaPROARGenerator.
+"""
+function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
+    x_ = CounterfactualExplanations.counterfactual(ce)
+    M = ce.M
+    model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
+    y_ = ce.target_encoded
+
+    if M.likelihood == :classification_binary
+        loss_type = :logitbinarycrossentropy
+    else
+        loss_type = :logitcrossentropy
+    end
+
+    function loss(x, y)
+        return sum([getfield(Flux.Losses, loss_type)(nn(x), y) for nn in model]) / length(model)
+    end
+
+    return loss(x_, y_)
+end
+
+"""
+    energy(
+        ce::AbstractCounterfactualExplanation;
+        agg=mean,
+        reg_strength=0.1,
+        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+        kwargs...,
+    )
+
+
+"""
+function energy(
+    ce::AbstractCounterfactualExplanation;
+    agg=mean,
+    reg_strength=0.1,
+    decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+    kwargs...,
+)
+    x′ = CounterfactualExplanations.decode_state(ce)     # current state
+
+    t = get_target_index(ce.data.y_levels, ce.target)
+    E(x) = -logits(ce.M, x)[t, :]                                # negative logits for taraget class
+
+    # Generative loss:
+    gen_loss = E(x′)
+    gen_loss = reduce((x, y) -> x + y, gen_loss) / length(gen_loss)                  # aggregate over samples
+
+    # Regularization loss:
+    reg_loss = norm(E(x′))^2
+    reg_loss = reduce((x, y) -> x + y, reg_loss) / length(reg_loss)                  # aggregate over samples
+
+    # Decay:
+    ϕ = 1.0
+    if !isnothing(decay)
+        iter = total_steps(ce)
+        if iter % decay[2] == 0
+            ϕ = exp(-decay[1] * total_steps(ce))
+        end
+    end
+
+    # Total loss:
+    ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
+
+    return ℒ
+end

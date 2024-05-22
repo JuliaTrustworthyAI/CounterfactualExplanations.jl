@@ -1,5 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
+using Flux
 using LaplaceRedux
 using TaijaData
 
