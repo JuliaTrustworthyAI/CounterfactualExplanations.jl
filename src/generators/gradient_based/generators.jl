@@ -7,7 +7,7 @@ end
 
 "Constructor for `ECCoGenerator`. This corresponds to the generator proposed in https://arxiv.org/abs/2312.10648, without the conformal set size penalty."
 function ECCoGenerator(; λ::Vector{<:AbstractFloat}=[0.1, 0.5], kwargs...)
-    _penalties = [default_distance, Objectives.energy]
+    _penalties = [default_distance, Objectives.energy_constraint]
     return GradientBasedGenerator(; penalty=_penalties, λ=λ, kwargs...)
 end
 

@@ -126,7 +126,16 @@ function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistic
 end
 
 """
-    energy(
+    energy(M::AbstractModel, x::AbstractArray, t::Int)
+
+Computes the energy of the model at a given state as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
+"""
+function energy(M::AbstractModel, x::AbstractArray, t::Int)
+    return -logits(M, x)[t]
+end
+
+"""
+    energy_constraint(
         ce::AbstractCounterfactualExplanation;
         agg=mean,
         reg_strength=0.1,
@@ -134,29 +143,26 @@ end
         kwargs...,
     )
 
-
+Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
 """
-function energy(
+function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
     reg_strength=0.1,
     decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
     kwargs...,
 )
-
-    ℒ = 0 
+    ℒ = 0
     x′ = CounterfactualExplanations.decode_state(ce)     # current state
 
     t = get_target_index(ce.data.y_levels, ce.target)
     xs = eachslice(x′; dims=ndims(x′))
-    E(x) = -logits(ce.M, x)[t]
-    println("E(x′): ", E(xs[1]))                
 
     # Generative loss:
-    gen_loss = E(x′) |> agg
+    gen_loss = energy.(ce.M, xs, t) |> agg
 
     # Regularization loss:
-    reg_loss = norm(E(x′))^2 |> agg
+    reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
 
     # Decay:
     ϕ = 1.0
@@ -169,11 +175,6 @@ function energy(
 
     # Total loss:
     ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
-    println("ℒ: ", ℒ)
-    ℒ = E(xs[1])
-    println("E(x′): ", ℒ)
-    println(typeof(ℒ))
-    println(-logits(ce.M, xs[1])[t] == E(xs[1]))
 
     return ℒ
 end

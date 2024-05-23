@@ -30,7 +30,6 @@ function ∂h(
         return 0.0
     else
         _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:s′]
-        println(_grad)
         return _grad
     end
 end
