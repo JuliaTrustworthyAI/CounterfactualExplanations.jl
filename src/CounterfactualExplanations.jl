@@ -64,6 +64,7 @@ using .Generators
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export ECCoGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator

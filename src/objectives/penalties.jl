@@ -81,3 +81,100 @@ function ddp_diversity(
     cost = -agg(K)
     return cost
 end
+
+"""
+    distance_from_target(
+        ce::AbstractCounterfactualExplanation;
+        K::Int=50
+    )
+
+Computes the distance of the counterfactual from a point in the target main.
+"""
+function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
+    ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
+    neighbours = ce.search[:potential_neighbours][:, ids]
+    centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
+    Δ = distance(ce; from=centroid, kwrgs...)
+    return Δ
+end
+
+"""
+    function model_loss_penalty(
+        ce::AbstractCounterfactualExplanation;
+        agg=mean
+    )
+
+Additional penalty for ClaPROARGenerator.
+"""
+function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
+    x_ = CounterfactualExplanations.counterfactual(ce)
+    M = ce.M
+    model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
+    y_ = ce.target_encoded
+
+    if M.likelihood == :classification_binary
+        loss_type = :logitbinarycrossentropy
+    else
+        loss_type = :logitcrossentropy
+    end
+
+    function loss(x, y)
+        return sum([getfield(Flux.Losses, loss_type)(nn(x), y) for nn in model]) / length(model)
+    end
+
+    return loss(x_, y_)
+end
+
+"""
+    energy(M::AbstractModel, x::AbstractArray, t::Int)
+
+Computes the energy of the model at a given state as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
+"""
+function energy(M::AbstractModel, x::AbstractArray, t::Int)
+    return -logits(M, x)[t]
+end
+
+"""
+    energy_constraint(
+        ce::AbstractCounterfactualExplanation;
+        agg=mean,
+        reg_strength=0.1,
+        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+        kwargs...,
+    )
+
+Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
+"""
+function energy_constraint(
+    ce::AbstractCounterfactualExplanation;
+    agg=mean,
+    reg_strength=0.1,
+    decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+    kwargs...,
+)
+    ℒ = 0
+    x′ = CounterfactualExplanations.decode_state(ce)     # current state
+
+    t = get_target_index(ce.data.y_levels, ce.target)
+    xs = eachslice(x′; dims=ndims(x′))
+
+    # Generative loss:
+    gen_loss = energy.(ce.M, xs, t) |> agg
+
+    # Regularization loss:
+    reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
+
+    # Decay:
+    ϕ = 1.0
+    if !isnothing(decay)
+        iter = total_steps(ce)
+        if iter % decay[2] == 0
+            ϕ = exp(-decay[1] * total_steps(ce))
+        end
+    end
+
+    # Total loss:
+    ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
+
+    return ℒ
+end
