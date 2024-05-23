@@ -27,9 +27,7 @@ function distance_from_energy(
     ignore_derivatives() do
         _dict = ce.params
         if !(:energy_sampler ∈ collect(keys(_dict)))
-            _dict[:energy_sampler] = EnergySampler(
-                ce; niter=niter, nsamples=n, kwargs...
-            )
+            _dict[:energy_sampler] = EnergySampler(ce; niter=niter, nsamples=n, kwargs...)
         end
         eng_sampler = _dict[:energy_sampler]
         if choose_lowest_energy
