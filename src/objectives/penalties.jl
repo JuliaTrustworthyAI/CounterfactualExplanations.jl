@@ -143,18 +143,20 @@ function energy(
     decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
     kwargs...,
 )
+
+    ℒ = 0 
     x′ = CounterfactualExplanations.decode_state(ce)     # current state
 
     t = get_target_index(ce.data.y_levels, ce.target)
-    E(x) = -logits(ce.M, x)[t, :]                                # negative logits for taraget class
+    xs = eachslice(x′; dims=ndims(x′))
+    E(x) = -logits(ce.M, x)[t]
+    println("E(x′): ", E(xs[1]))                
 
     # Generative loss:
-    gen_loss = E(x′)
-    gen_loss = reduce((x, y) -> x + y, gen_loss) / length(gen_loss)                  # aggregate over samples
+    gen_loss = E(x′) |> agg
 
     # Regularization loss:
-    reg_loss = norm(E(x′))^2
-    reg_loss = reduce((x, y) -> x + y, reg_loss) / length(reg_loss)                  # aggregate over samples
+    reg_loss = norm(E(x′))^2 |> agg
 
     # Decay:
     ϕ = 1.0
@@ -167,6 +169,11 @@ function energy(
 
     # Total loss:
     ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
+    println("ℒ: ", ℒ)
+    ℒ = E(xs[1])
+    println("E(x′): ", ℒ)
+    println(typeof(ℒ))
+    println(-logits(ce.M, xs[1])[t] == E(xs[1]))
 
     return ℒ
 end
