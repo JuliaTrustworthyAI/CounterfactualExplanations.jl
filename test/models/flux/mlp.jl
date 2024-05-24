@@ -30,7 +30,4 @@ using TaijaData
         build_mlp(; dropout=true) |> x -> @test typeof(x) <: Chain
         build_mlp(; batch_norm=true) |> x -> @test typeof(x) <: Chain
     end
-
 end
-
-
