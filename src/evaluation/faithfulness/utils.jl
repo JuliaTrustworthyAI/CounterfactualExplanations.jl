@@ -4,7 +4,7 @@ using ChainRulesCore: ChainRulesCore
 using Distributions
 using Flux
 using TaijaBase: Samplers
-using TaijaBase.Samplers: ImproperSGLD, ConditionalSampler, AbstractSamplingRule
+using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule
 
 """
     (model::AbstractModel)(x)
@@ -40,7 +40,7 @@ function EnergySampler(
     model::AbstractModel,
     data::CounterfactualData,
     y::Any;
-    opt::AbstractSamplingRule=ImproperSGLD(),
+    opt::AbstractSamplingRule=ImproperSGLD(4.0, 0.01),
     niter::Int=100,
     nsamples::Int=100,
 )
@@ -52,7 +52,7 @@ function EnergySampler(
     𝒟x = prior_sampling_space(data)
     𝒟y = Categorical(ones(K) ./ K)
     # Sampler:
-    sampler = ConditionalSampler(𝒟x, 𝒟y; input_size=input_size)
+    sampler = ConditionalSampler(𝒟x, 𝒟y; input_size=input_size, prob_buffer=0.95)
     yidx = get_target_index(data.y_levels, y)
 
     # Initiate:
@@ -165,8 +165,8 @@ Computes the distance from the counterfactual to generated conditional samples.
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
-    n::Int=100,
-    niter=100,
+    n::Int=50,
+    niter=500,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,
