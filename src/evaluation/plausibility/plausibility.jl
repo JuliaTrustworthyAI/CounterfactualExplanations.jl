@@ -17,7 +17,8 @@ Computes the plausibility of a counterfactual explanation based on the distance 
 function plausibility(
     ce::CounterfactualExplanation,
     fun::typeof(Objectives.distance_from_target);
-    λ::AbstractFloat=1.0,
+    K=nothing,
+    λ::AbstractFloat=0.5,
     kwrgs...,
 )
     # If the potential neighbours have not been computed, do so:
@@ -27,6 +28,10 @@ function plausibility(
         CounterfactualExplanations.find_potential_neighbours(ce),
     )
     # Compute the distance from the target:
-    Δ = fun(ce; kwrgs...)
+    if isnothing(K)
+        K = maximum([1000,size(ce.search[:potential_neighbours], 2)])
+    end
+    println(K)
+    Δ = fun(ce; K=K, kwrgs...)
     return exp_decay(Δ, λ)
 end

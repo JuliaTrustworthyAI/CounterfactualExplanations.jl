@@ -106,8 +106,7 @@ function distance_from_target(
     # Get potential neighbours:
     ys = ce.search[:potential_neighbours]
     if K > size(ys, 2)
-        @warn "K is larger than the number of potential neighbours. Setting K to the number of potential neighbours."
-        K = size(ys, 2)
+        @warn "`K` is larger than the number of potential neighbours. Future warnings will be suppressed." maxlog = 1
     end
 
     # Get K samples from potential neighbours:

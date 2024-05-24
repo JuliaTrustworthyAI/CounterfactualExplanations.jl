@@ -1,8 +1,10 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
+using ChainRulesCore: ChainRulesCore
 using Distributions
 using Flux
-using TaijaBase.Samplers
+using TaijaBase: Samplers
+using TaijaBase.Samplers: ImproperSGLD, ConditionalSampler, AbstractSamplingRule
 
 """
     (model::AbstractModel)(x)
@@ -137,7 +139,73 @@ function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
     model = sampler.model
     y = sampler.yidx
     x = selectdim(
-        X, ndims(X), energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n))
+        X, ndims(X), Samplers.energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n))
     )
     return x
+end
+
+"""
+    prior_sampling_space(data::CounterfactualData; n_std=3)
+
+Define the prior sampling space for the data.
+"""
+function prior_sampling_space(data::CounterfactualData; n_std=3)
+    X = data.X
+    centers = mean(X; dims=2)
+    stds = std(X; dims=2)
+    lower_bound = minimum(centers .- n_std .* stds)[1]
+    upper_bound = maximum(centers .+ n_std .* stds)[1]
+    return Uniform(lower_bound, upper_bound)
+end
+
+"""
+    distance_from_posterior(ce::AbstractCounterfactualExplanation)
+
+Computes the distance from the counterfactual to generated conditional samples.
+"""
+function distance_from_posterior(
+    ce::AbstractCounterfactualExplanation;
+    n::Int=100,
+    niter=100,
+    from_buffer=true,
+    agg=mean,
+    choose_lowest_energy=true,
+    choose_random=false,
+    nmin::Int=25,
+    return_conditionals=false,
+    p::Int=1,
+    kwargs...,
+)
+    _loss = 0.0
+    nmin = minimum([nmin, n])
+
+    @assert choose_lowest_energy ⊻ choose_random || !choose_lowest_energy && !choose_random "Must choose either lowest energy or random samples or neither."
+
+    conditional_samples = []
+    ChainRulesCore.ignore_derivatives() do
+        _dict = ce.search
+        if !(:energy_sampler ∈ collect(keys(_dict)))
+            _dict[:energy_sampler] = EnergySampler(ce; niter=niter, nsamples=n, kwargs...)
+        end
+        eng_sampler = _dict[:energy_sampler]
+        if choose_lowest_energy
+            nmin = minimum([nmin, size(eng_sampler.buffer)[end]])
+            xmin = get_lowest_energy_sample(eng_sampler; n=nmin)
+            push!(conditional_samples, xmin)
+        elseif choose_random
+            push!(conditional_samples, rand(eng_sampler, n; from_buffer=from_buffer))
+        else
+            push!(conditional_samples, eng_sampler.buffer)
+        end
+    end
+
+    _loss = map(eachcol(conditional_samples[1])) do xsample
+        distance(ce; from=xsample, agg=agg, p=p)
+    end
+    _loss = reduce((x, y) -> x + y, _loss) / n       # aggregate over samples
+
+    if return_conditionals
+        return conditional_samples[1]
+    end
+    return _loss
 end
