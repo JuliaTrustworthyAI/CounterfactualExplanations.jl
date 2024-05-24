@@ -88,11 +88,43 @@ end
         K::Int=50
     )
 
-Computes the distance of the counterfactual from a point in the target main.
+Computes the distance of the counterfactual from samples in the target main. If `choose_randomly` is `true`, the function will randomly sample `K` neighbours from the target manifold. Otherwise, it will compute the pairwise distances and select the `K` closest neighbours.
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation.
+- `K::Int=50`: The number of neighbours to sample.
+- `choose_randomly::Bool=true`: Whether to sample neighbours randomly.
+- `kwrgs...`: Additional keyword arguments for the distance function.
+
+# Returns
+- `Δ::AbstractFloat`: The distance from the counterfactual to the target manifold.
 """
-function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
-    ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
-    neighbours = ce.search[:potential_neighbours][:, ids]
+function distance_from_target(
+    ce::AbstractCounterfactualExplanation; K::Int=50, choose_randomly::Bool=true, kwrgs...
+)
+
+    # Get potential neighbours:
+    ys = ce.search[:potential_neighbours]
+    if K > size(ys, 2)
+        @warn "K is larger than the number of potential neighbours. Setting K to the number of potential neighbours."
+        K = size(ys, 2)
+    end
+
+    # Get K samples from potential neighbours:
+    if choose_randomly
+        # Choose K random samples:
+        ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
+    else
+        # Compute pairwise distances:
+
+        Δ = map(eachcol(ys)) do y
+            distance(ce; from=y, kwrgs...)
+        end
+        # Get K closest neighbours:
+        ids = sortperm(Δ)[1:K]
+    end
+
+    neighbours = ys[:, ids]
     centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
     Δ = distance(ce; from=centroid, kwrgs...)
     return Δ
