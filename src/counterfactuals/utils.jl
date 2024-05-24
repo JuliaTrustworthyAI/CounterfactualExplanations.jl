@@ -82,7 +82,7 @@ function find_potential_neighbours(ce::AbstractCounterfactualExplanation)
     data = DataPreprocessing.subsample(ce.data, minimum([nobs, 1000]))
     ids = findall(Models.predict_label(ce.M, data) .== ce.target)
     n_candidates = minimum([size(ce.data.y, 2), 1000])
-    candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
+    candidates = DataPreprocessing.select_factual(data, rand(ids, n_candidates))
     potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
     return potential_neighbours
 end

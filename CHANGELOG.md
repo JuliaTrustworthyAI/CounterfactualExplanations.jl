@@ -13,6 +13,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added new evaluation metric to measure unfaithfulness as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). [#454]
 - Added support for an energy constraint as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). This is the first step towards adding functionality for ECCCo. [#387] 
 
+### Removed
+
+- Removed bug in `find_potential_neighbours` method. [#454]
+
 ## Version [1.1.6] - 2024-05-19
 
 ### Removed

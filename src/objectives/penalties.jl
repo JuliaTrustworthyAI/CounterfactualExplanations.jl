@@ -113,7 +113,7 @@ function distance_from_target(
     # Get K samples from potential neighbours:
     if choose_randomly
         # Choose K random samples:
-        ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
+        ids = rand(1:size(ys, 2), K)
     else
         # Compute pairwise distances:
 

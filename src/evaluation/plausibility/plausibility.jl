@@ -12,7 +12,7 @@ end
         kwrgs...,
     )
 
-Computes the plausibility of a counterfactual explanation based on the distance from the target. Specifically, the function computes the plausibility as the exponential of the CDF of the distance from the target.
+Computes the plausibility of a counterfactual explanation based on the distance from the target. Specifically, the function computes the plausibility as the exponential decay of the distance from the target with rate parameter `λ`. Larger values of `λ` result in a faster decay of the plausibility. If you input data is not normalized, you may want to adjust the rate parameter `λ` accordingly, e.g. higher values for larger feature scales.
 """
 function plausibility(
     ce::CounterfactualExplanation,
