@@ -48,15 +48,33 @@ Under the hood, the constructor performs basic preprocessing steps. For example,
 counterfactual_data.y
 ```
 
-Similarly, a transformer used to scale continuous input features is automatically fitted:
+## Input Encoders
 
 ```{julia}
-#| output: true
-
-counterfactual_data.dt
+using CounterfactualExplanations.Convergence: MaxIterConvergence;
+conv = MaxIterConvergence(100);
+data = CounterfactualData(load_cifar_10()...);
+M = load_cifar_10_mlp();
+target = 4;
+factual = 9;
+chosen = rand(findall(predict_label(M, data) .== factual));
+x = select_factual(data, chosen);
+generator = Generators.GenericGenerator();
 ```
 
-## Categorical Features
+```{julia}
+using MultivariateStats
+data_lowdim = deepcopy(data);
+fit_transformer!(data_lowdim, PCA; maxoutdim=2);
+typeof(data_lowdim.input_encoder);
+```
+
+```{julia}
+@time ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
+@time ce_lowdim = generate_counterfactual(x, target, data_lowdim, M, generator; convergence=conv)
+```
+
+## Categorical Inputs
 
 For the counterfactual search, it is important to distinguish between continuous and categorical features. This is because categorical features cannot be perturbed arbitrarily: they can take specific discrete values, but not just any value on the real line. 
 
