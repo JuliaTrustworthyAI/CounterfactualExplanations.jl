@@ -89,7 +89,7 @@ function (encoder::OutputEncoder)(; return_y::Bool=true)
     if !return_y
         return y_levels, likelihood
     else
-        y = Int.(y.refs)
+        y = Int.(encoder.labels.refs)
         if likelihood == :classification_binary
             y = permutedims(y)
             y = y .- 1  # map to [0,1]

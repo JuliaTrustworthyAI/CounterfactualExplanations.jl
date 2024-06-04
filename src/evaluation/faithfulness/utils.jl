@@ -167,8 +167,8 @@ Computes the distance from the counterfactual to generated conditional samples.
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
-    n::Int=20,
-    niter=100,
+    n::Int=50,
+    niter=500,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,
