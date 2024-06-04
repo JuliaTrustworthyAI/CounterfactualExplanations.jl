@@ -40,7 +40,7 @@ function EnergySampler(
     model::AbstractModel,
     data::CounterfactualData,
     y::Any;
-    opt::AbstractSamplingRule=ImproperSGLD(2.0,0.01),
+    opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
     niter::Int=20000,
     nsamples::Int=100,
 )
@@ -167,8 +167,8 @@ Computes the distance from the counterfactual to generated conditional samples.
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
-    n::Int=50,
-    niter=1000,
+    n::Int=20,
+    niter=100,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,

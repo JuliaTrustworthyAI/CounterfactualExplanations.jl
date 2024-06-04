@@ -13,11 +13,10 @@ using TaijaBase: TaijaBase
 Outer constructor for a neural network with Laplace Approximation from `LaplaceRedux.jl`.
 """
 function CounterfactualExplanations.JEM(
-    model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_binary
+    model::JointEnergyModels.JointEnergyClassifier;
+    likelihood::Symbol=:classification_binary,
 )
-    return Models.Model(
-        model, CounterfactualExplanations.JEM(); likelihood=likelihood
-    )
+    return Models.Model(model, CounterfactualExplanations.JEM(); likelihood=likelihood)
 end
 
 """
@@ -27,14 +26,12 @@ Constructs a differentiable tree-based model for the given data.
 """
 function (M::Models.Model)(
     data::CounterfactualData, type::CounterfactualExplanations.JEM; kwargs...
-)   
+)
     n = CounterfactualExplanations.DataPreprocessing.outdim(data)
     𝒟y = Categorical(ones(n) ./ n)
     𝒟x = CounterfactualExplanations.Evaluation.prior_sampling_space(data)
     input_dim = size(data.X, 1)
-    sampler = JointEnergyModels.ConditionalSampler(
-        𝒟x, 𝒟y; input_size=(input_dim,)
-    )
+    sampler = JointEnergyModels.ConditionalSampler(𝒟x, 𝒟y; input_size=(input_dim,))
     model = JointEnergyModels.JointEnergyClassifier(sampler; kwargs...)
     M = CounterfactualExplanations.JEM(model; likelihood=data.likelihood)
     return M
@@ -59,7 +56,6 @@ function Models.train(
     data::CounterfactualData;
     kwargs...,
 )
-
     X, y = CounterfactualExplanations.DataPreprocessing.preprocess_data_for_mlj(data)
     if M.likelihood ∉ [:classification_multi, :classification_binary]
         y = float.(y.refs)
