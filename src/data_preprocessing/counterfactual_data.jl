@@ -275,3 +275,12 @@ function transformable_features(
     # Returns indices of columns that have varying values:
     return counterfactual_data.features_continuous[idx_not_all_equal]
 end
+
+"""
+    outdim(data::CounterfactualData)
+
+Returns the number of output classes.
+"""
+function outdim(data::CounterfactualData)
+    return length(data.y_levels)
+end

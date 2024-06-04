@@ -29,7 +29,7 @@ function plausibility(
     )
     # Compute the distance from the target:
     if isnothing(K)
-        K = maximum([1000,size(ce.search[:potential_neighbours], 2)])
+        K = maximum([1000, size(ce.search[:potential_neighbours], 2)])
     end
     println(K)
     Δ = fun(ce; K=K, kwrgs...)

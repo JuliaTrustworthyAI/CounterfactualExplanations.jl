@@ -1,10 +1,10 @@
 """
-    output_dim(ce::CounterfactualExplanation)
+    outdim(ce::CounterfactualExplanation)
 
 A convenience method that returns the output dimension of the predictive model.
 """
-function output_dim(ce::CounterfactualExplanation)
-    return size(Models.probs(ce.M, ce.x))[1]
+function outdim(ce::CounterfactualExplanation)
+    return CounterfactualExplanations.DataPreprocessing.outdim(ce.data)
 end
 
 """

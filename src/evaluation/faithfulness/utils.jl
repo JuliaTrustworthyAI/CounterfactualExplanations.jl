@@ -40,8 +40,8 @@ function EnergySampler(
     model::AbstractModel,
     data::CounterfactualData,
     y::Any;
-    opt::AbstractSamplingRule=ImproperSGLD(4.0, 0.01),
-    niter::Int=100,
+    opt::AbstractSamplingRule=ImproperSGLD(2.0,0.01),
+    niter::Int=20000,
     nsamples::Int=100,
 )
     @assert y ∈ data.y_levels || y ∈ 1:length(data.y_levels)
@@ -139,7 +139,9 @@ function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
     model = sampler.model
     y = sampler.yidx
     x = selectdim(
-        X, ndims(X), Samplers.energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n))
+        X,
+        ndims(X),
+        Samplers.energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n)),
     )
     return x
 end
@@ -166,7 +168,7 @@ Computes the distance from the counterfactual to generated conditional samples.
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
     n::Int=50,
-    niter=500,
+    niter=1000,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,
