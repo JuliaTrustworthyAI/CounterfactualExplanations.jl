@@ -88,7 +88,8 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.JEM, X::AbstractArray
 )
-    return M.fitresult[1](X)
+    nn = M.fitresult[1][1]
+    return nn(X)
 end
 
 """

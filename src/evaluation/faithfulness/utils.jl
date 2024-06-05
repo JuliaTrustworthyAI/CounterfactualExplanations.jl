@@ -6,14 +6,6 @@ using Flux
 using TaijaBase: Samplers
 using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule, PCD
 
-"""
-    (model::AbstractModel)(x)
-
-When called on data `x`, softmax logits are returned. In the binary case, outputs are one-hot encoded.
-"""
-(model::AbstractModel)(x) =
-    log.(CounterfactualExplanations.predict_proba(model, nothing, x))
-
 "Base type that stores information relevant to energy-based posterior sampling from `AbstractModel`."
 mutable struct EnergySampler
     model::AbstractModel
@@ -46,15 +38,18 @@ function EnergySampler(
     ntransitions::Int=100,
     prob_buffer::AbstractFloat=0.95,
     nsamples::Int=50,
+    niter_final::Int=500,
     kwargs...,
 )
     @assert y ∈ data.y_levels || y ∈ 1:length(data.y_levels)
 
     K = length(data.y_levels)
     input_size = size(selectdim(data.X, ndims(data.X), 1))
+
     # Prior distribution:
     𝒟x = prior_sampling_space(data)
     𝒟y = Categorical(ones(K) ./ K)
+
     # Sampler:
     sampler = ConditionalSampler(
         𝒟x, 𝒟y; input_size=input_size, prob_buffer=prob_buffer, batch_size=batch_size
@@ -64,10 +59,14 @@ function EnergySampler(
     # Initiate:
     energy_sampler = EnergySampler(model, data, sampler, opt, nothing, yidx)
 
-    # Generate conditional samples for the conditioning value `y` and store in buffer:
-    generate_samples!(
-        energy_sampler, nsamples, yidx; niter=niter, ntransitions=ntransitions, kwargs...
+    # Train:
+    train!(energy_sampler, yidx; niter=niter, ntransitions=ntransitions, kwargs...)
+
+    # Construct posterior samples:
+    Xpost = generate_posterior_samples(
+        energy_sampler, nsamples; niter=niter_final, kwargs...
     )
+    energy_sampler.buffer = Xpost
 
     return energy_sampler
 end
@@ -91,36 +90,39 @@ function EnergySampler(ce::CounterfactualExplanation; kwrgs...)
 end
 
 """
-    generate_samples(e::EnergySampler, n::Int, y::Int; niter::Int=100)
-
-Generates `n` samples from `EnergySampler` for conditioning value `y`.
-"""
-function generate_samples(
-    e::EnergySampler, n::Int, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...
-)
-
-    # Generate samples through persistent contrastive divergence (PCD):
-    f(x) = logits(e.model, x)
-    rule = e.opt
-    xsamples = PCD(
-        e.sampler, f, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...
+    train!(
+        e::EnergySampler,
+        y::Int;
+        niter::Int=20,
+        ntransitions::Int=100,
+        kwargs...,
     )
 
-    return xsamples
+Trains the `EnergySampler` for conditioning value `y`. Specifically, this entails running PCD for `niter` iterations and `ntransitions` transitions to build a buffer of samples. The buffer is used for posterior sampling.
+"""
+function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...)
+
+    # Generate samples through persistent contrastive divergence (PCD):
+    rule = e.opt
+
+    # Run PCD:
+    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...)
+
+    return e
 end
 
 """
-    generate_samples!(e::EnergySampler, n::Int, y::Int; niter::Int=100)
+    generate_posterior_samples(
+        e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
+    )
 
-Generates `n` samples from `EnergySampler` for conditioning value `y`. Assigns samples and conditioning value to `EnergySampler`.
+Uses the replay buffer to generate `n` samples from the posterior distribution.
 """
-function generate_samples!(e::EnergySampler, n::Int, y::Int; kwargs...)
-    if isnothing(e.buffer)
-        e.buffer = generate_samples(e, n, y; kwargs...)
-    else
-        e.buffer = cat(e.buffer, generate_samples(e, n, y; kwargs...); dims=ndims(e.buffer))
-    end
-    return e.yidx = y
+function generate_posterior_samples(
+    e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
+)
+    X = e.sampler(e.model, e.opt; n_samples=n, niter=niter, kwargs...)
+    return X
 end
 
 """
@@ -128,13 +130,13 @@ end
 
 Overloads the `rand` method to randomly draw `n` samples from `EnergySampler`.
 """
-function Base.rand(sampler::EnergySampler, n::Int=100; from_buffer=true, niter::Int=100)
+function Base.rand(sampler::EnergySampler, n::Int=100; from_buffer=true, niter::Int=500)
     ntotal = size(sampler.buffer, 2)
     idx = rand(1:ntotal, n)
     if from_buffer
         X = sampler.buffer[:, idx]
     else
-        X = generate_samples(sampler, n, sampler.yidx; niter=niter)
+        X = generate_posterior_samples(sampler, n; niter=niter)
     end
     return X
 end
@@ -182,6 +184,7 @@ function distance_from_posterior(
     ntransitions::Int=100,
     prob_buffer::AbstractFloat=0.95,
     nsamples::Int=50,
+    niter_final::Int=500,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,
@@ -207,6 +210,7 @@ function distance_from_posterior(
                 ntransitions=ntransitions,
                 prob_buffer=prob_buffer,
                 nsamples=nsamples,
+                niter_final=niter_final,
                 kwargs...,
             )
         end

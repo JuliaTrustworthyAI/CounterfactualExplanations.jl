@@ -36,6 +36,13 @@ function Model(model, type::AbstractModelType; likelihood::Symbol=:classificatio
 end
 
 """
+    (model::AbstractModel)(X::AbstractArray)
+
+When called on data `x`, logits are returned.
+"""
+(model::AbstractModel)(X::AbstractArray) = logits(model, X)
+
+"""
     logits(M::Model, X::AbstractArray)
 
 Returns the logits of the model.

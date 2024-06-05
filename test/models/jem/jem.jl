@@ -3,7 +3,7 @@ using CounterfactualExplanations.Models
 using Flux
 using JointEnergyModels
 using MLJFlux
-using TaijaBase.Samplers: PCD
+using TaijaBase.Samplers: PCD, SGLD, ImproperSGLD
 using TaijaData
 
 @testset "JEM" begin
@@ -34,6 +34,12 @@ using TaijaData
     # Search:
     generator = GenericGenerator()
     ce = generate_counterfactual(x, target, data, M, generator)
+
+    # Faithfulness:
+    Evaluation.faithfulness(ce; λ=0.1, niter_final=1000, n_samples=M.model.batch_size)
+    plot(ce; zoom=-1)
+    X̂ = ce.search[:energy_sampler].buffer
+    scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)
 
     # Plot: 
     jem = M.model.jem
@@ -70,15 +76,22 @@ using TaijaData
         )
         push!(plts, plt)
     end
-    p1 = plot(plts...; layout=(1, size(y, 1)), size=(size(y, 1) * 500, 400), plot_title="Pre-trained")
+    p1 = plot(
+        plts...;
+        layout=(1, size(y, 1)),
+        size=(size(y, 1) * 500, 400),
+        plot_title="Pre-trained",
+    )
 
     # From scratch:
     smpler = deepcopy(jem.sampler)
     smpler.buffer = Float32.(rand(smpler.𝒟x, smpler.input_size..., smpler.batch_size))
-    PCD(smpler, jem.chain, jem.sampling_rule; niter=30, ntransitions=100, y=target)
+    rule = jem.sampling_rule
+    niter = 250
+    PCD(smpler, jem.chain, rule; niter=30, ntransitions=100, y=target)
     plts = []
     for target in 1:size(y, 1)
-        X̂ = smpler(jem.chain, jem.sampling_rule; y=target, n_samples=batch_size, niter=1000)
+        X̂ = smpler(jem.chain, rule; y=target, n_samples=batch_size, niter=niter)
         ex = extrema(hcat(X, X̂); dims=2)
         xlims = ex[1]
         ylims = ex[2]
@@ -106,9 +119,13 @@ using TaijaData
         )
         push!(plts, plt)
     end
-    p2 = plot(plts...; layout=(1, size(y, 1)), size=(size(y, 1) * 500, 400), plot_title="From scratch")
+    p2 = plot(
+        plts...;
+        layout=(1, size(y, 1)),
+        size=(size(y, 1) * 500, 400),
+        plot_title="From scratch",
+    )
     plot(p1, p2; size=(1000, 600), layout=(2, 1), plot_title="Pre-trained vs. From scratch")
-
 
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
