@@ -30,8 +30,10 @@ function (M::Models.Model)(
     n = CounterfactualExplanations.DataPreprocessing.outdim(data)
     𝒟y = Categorical(ones(n) ./ n)
     𝒟x = Normal()
-    input_dim = size(data.X,1)
-    sampler = JointEnergyModels.ConditionalSampler(𝒟x, 𝒟y; input_size=(input_dim,), batch_size=50)
+    input_dim = size(data.X, 1)
+    sampler = JointEnergyModels.ConditionalSampler(
+        𝒟x, 𝒟y; input_size=(input_dim,), batch_size=50
+    )
     model = JointEnergyModels.JointEnergyClassifier(sampler; kwargs...)
     M = CounterfactualExplanations.JEM(model; likelihood=data.likelihood)
     return M

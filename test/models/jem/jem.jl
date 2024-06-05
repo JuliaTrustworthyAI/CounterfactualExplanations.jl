@@ -6,13 +6,11 @@ using MLJFlux
 using TaijaData
 
 @testset "JEM" begin
-    n_obs = 1000
+    nobs = 1000
     batch_size = Int(round(nobs / 10))
     epochs = 100
     n_hidden = 16
-    X, y =
-        TaijaData.load_circles(nobs) |>
-        x -> (Float32.(x[1]), x[2]) 
+    X, y = TaijaData.load_circles(nobs) |> x -> (Float32.(x[1]), x[2])
     data = CounterfactualData(X, y)
     M = Models.fit_model(
         data,

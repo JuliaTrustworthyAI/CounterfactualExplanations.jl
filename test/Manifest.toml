@@ -2,7 +2,7 @@
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "9701ee4003c74edaae21c4bbe5f977d68140884e"
+project_hash = "c497af50a13379dc114e6f315ed64e169d585e5c"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -527,9 +527,9 @@ weakdeps = ["StaticArrays"]
 
 [[deps.Functors]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "d3e63d9fa13f8eaa2f06f64949e2afc593ff52c2"
+git-tree-sha1 = "8a66c07630d6428eaab3506a0eabfcf4a9edea05"
 uuid = "d9f16b24-f501-4c13-a1f2-28368ffc5196"
-version = "0.4.10"
+version = "0.4.11"
 
 [[deps.Future]]
 deps = ["Random"]
@@ -683,6 +683,12 @@ version = "1.14.0"
 
     [deps.JSON3.weakdeps]
     ArrowTypes = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+
+[[deps.JointEnergyModels]]
+deps = ["CategoricalArrays", "ChainRulesCore", "ComputationalResources", "Distributions", "Flux", "MLJFlux", "MLJModelInterface", "MLUtils", "ProgressMeter", "Random", "Reexport", "StatsBase", "Tables", "TaijaBase", "Zygote"]
+git-tree-sha1 = "2d22be4f49c3c2a8fd2ca9956ae968422efb9715"
+uuid = "48c56d24-211d-4463-bbc0-7a701b291131"
+version = "0.1.4"
 
 [[deps.JuliaVariables]]
 deps = ["MLStyle", "NameResolution"]
@@ -1454,10 +1460,10 @@ uuid = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 version = "1.11.1"
 
 [[deps.TaijaBase]]
-deps = ["CategoricalArrays", "Distributions", "Flux", "MLUtils", "StatsBase", "Tables"]
-git-tree-sha1 = "b7749e700c7a20c9450e0912774d57c35a8efa85"
+deps = ["CategoricalArrays", "Distributions", "Flux", "MLUtils", "Optimisers", "StatsBase", "Tables"]
+git-tree-sha1 = "116f77acfc1a46af8d34d1a9af797fb31e73d7e9"
 uuid = "10284c91-9f28-4c9a-abbf-ee43576dfff6"
-version = "1.1.0"
+version = "1.1.1"
 
 [[deps.TaijaData]]
 deps = ["CSV", "CounterfactualExplanations", "DataAPI", "DataFrames", "Flux", "LazyArtifacts", "MLDatasets", "MLJBase", "MLJModels", "Random", "StatsBase"]

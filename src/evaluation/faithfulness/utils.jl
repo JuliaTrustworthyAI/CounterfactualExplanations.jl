@@ -4,7 +4,7 @@ using ChainRulesCore: ChainRulesCore
 using Distributions
 using Flux
 using TaijaBase: Samplers
-using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule
+using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule, PCD
 
 """
     (model::AbstractModel)(x)
@@ -41,8 +41,12 @@ function EnergySampler(
     data::CounterfactualData,
     y::Any;
     opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
-    niter::Int=20000,
-    nsamples::Int=100,
+    niter::Int=20,
+    batch_size::Int=50,
+    ntransitions::Int=100,
+    prob_buffer::AbstractFloat=0.95,
+    nsamples::Int=50,
+    kwargs...,
 )
     @assert y ∈ data.y_levels || y ∈ 1:length(data.y_levels)
 
@@ -52,14 +56,18 @@ function EnergySampler(
     𝒟x = prior_sampling_space(data)
     𝒟y = Categorical(ones(K) ./ K)
     # Sampler:
-    sampler = ConditionalSampler(𝒟x, 𝒟y; input_size=input_size, prob_buffer=0.95)
+    sampler = ConditionalSampler(
+        𝒟x, 𝒟y; input_size=input_size, prob_buffer=prob_buffer, batch_size=batch_size
+    )
     yidx = get_target_index(data.y_levels, y)
 
     # Initiate:
     energy_sampler = EnergySampler(model, data, sampler, opt, nothing, yidx)
 
-    # Generate conditional:
-    generate_samples!(energy_sampler, nsamples, yidx; niter=niter)
+    # Generate conditional samples for the conditioning value `y` and store in buffer:
+    generate_samples!(
+        energy_sampler, nsamples, yidx; niter=niter, ntransitions=ntransitions, kwargs...
+    )
 
     return energy_sampler
 end
@@ -87,12 +95,16 @@ end
 
 Generates `n` samples from `EnergySampler` for conditioning value `y`.
 """
-function generate_samples(e::EnergySampler, n::Int, y::Int; niter::Int=100)
+function generate_samples(
+    e::EnergySampler, n::Int, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...
+)
 
-    # Generate samples:
+    # Generate samples through persistent contrastive divergence (PCD):
     f(x) = logits(e.model, x)
     rule = e.opt
-    xsamples = e.sampler(f, rule; niter=niter, n_samples=n, y=y)
+    xsamples = PCD(
+        e.sampler, f, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...
+    )
 
     return xsamples
 end
@@ -102,13 +114,11 @@ end
 
 Generates `n` samples from `EnergySampler` for conditioning value `y`. Assigns samples and conditioning value to `EnergySampler`.
 """
-function generate_samples!(e::EnergySampler, n::Int, y::Int; niter::Int=100)
+function generate_samples!(e::EnergySampler, n::Int, y::Int; kwargs...)
     if isnothing(e.buffer)
-        e.buffer = generate_samples(e, n, y; niter=niter)
+        e.buffer = generate_samples(e, n, y; kwargs...)
     else
-        e.buffer = cat(
-            e.buffer, generate_samples(e, n, y; niter=niter); dims=ndims(e.buffer)
-        )
+        e.buffer = cat(e.buffer, generate_samples(e, n, y; kwargs...); dims=ndims(e.buffer))
     end
     return e.yidx = y
 end
@@ -167,8 +177,11 @@ Computes the distance from the counterfactual to generated conditional samples.
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
-    n::Int=50,
-    niter=500,
+    niter::Int=1000,
+    batch_size::Int=50,
+    ntransitions::Int=100,
+    prob_buffer::AbstractFloat=0.95,
+    nsamples::Int=50,
     from_buffer=true,
     agg=mean,
     choose_lowest_energy=true,
@@ -179,7 +192,7 @@ function distance_from_posterior(
     kwargs...,
 )
     _loss = 0.0
-    nmin = minimum([nmin, n])
+    nmin = minimum([nmin, nsamples])
 
     @assert choose_lowest_energy ⊻ choose_random || !choose_lowest_energy && !choose_random "Must choose either lowest energy or random samples or neither."
 
@@ -187,7 +200,15 @@ function distance_from_posterior(
     ChainRulesCore.ignore_derivatives() do
         _dict = ce.search
         if !(:energy_sampler ∈ collect(keys(_dict)))
-            _dict[:energy_sampler] = EnergySampler(ce; niter=niter, nsamples=n, kwargs...)
+            _dict[:energy_sampler] = EnergySampler(
+                ce;
+                niter=niter,
+                batch_size=batch_size,
+                ntransitions=ntransitions,
+                prob_buffer=prob_buffer,
+                nsamples=nsamples,
+                kwargs...,
+            )
         end
         eng_sampler = _dict[:energy_sampler]
         if choose_lowest_energy
@@ -195,7 +216,7 @@ function distance_from_posterior(
             xmin = get_lowest_energy_sample(eng_sampler; n=nmin)
             push!(conditional_samples, xmin)
         elseif choose_random
-            push!(conditional_samples, rand(eng_sampler, n; from_buffer=from_buffer))
+            push!(conditional_samples, rand(eng_sampler, nsamples; from_buffer=from_buffer))
         else
             push!(conditional_samples, eng_sampler.buffer)
         end
@@ -204,7 +225,7 @@ function distance_from_posterior(
     _loss = map(eachcol(conditional_samples[1])) do xsample
         distance(ce; from=xsample, agg=agg, p=p)
     end
-    _loss = reduce((x, y) -> x + y, _loss) / n       # aggregate over samples
+    _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 
     if return_conditionals
         return conditional_samples[1]
