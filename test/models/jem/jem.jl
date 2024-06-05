@@ -37,7 +37,9 @@ using TaijaData
     ce = generate_counterfactual(x, target, data, M, generator)
 
     # Faithfulness:
-    faith = Evaluation.faithfulness(ce; λ=0.1, niter_final=100, n_samples=M.model.batch_size)
+    faith = Evaluation.faithfulness(
+        ce; λ=0.1, niter_final=100, n_samples=M.model.batch_size
+    )
     plot(ce; zoom=-1)
     X̂ = ce.search[:energy_sampler].posterior
     scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)

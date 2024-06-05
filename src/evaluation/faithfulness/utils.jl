@@ -138,7 +138,15 @@ function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, 
     rule = e.opt
 
     # Run PCD:
-    PCD(e.sampler, e.model, ImproperSGLD(); niter=niter, ntransitions=ntransitions, y=nothing, kwargs...)
+    PCD(
+        e.sampler,
+        e.model,
+        ImproperSGLD();
+        niter=niter,
+        ntransitions=ntransitions,
+        y=nothing,
+        kwargs...,
+    )
 
     return e
 end
@@ -316,7 +324,10 @@ function distance_from_posterior(
             xmin = get_lowest_energy_sample(eng_sampler; n=nmin)
             push!(conditional_samples, xmin)
         elseif choose_random
-            push!(conditional_samples, rand(eng_sampler, nsamples; from_posterior=from_posterior))
+            push!(
+                conditional_samples,
+                rand(eng_sampler, nsamples; from_posterior=from_posterior),
+            )
         else
             push!(conditional_samples, eng_sampler.posterior)
         end
