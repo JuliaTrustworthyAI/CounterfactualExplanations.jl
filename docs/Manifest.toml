@@ -88,9 +88,9 @@ version = "3.5.1+1"
 
 [[deps.ArrayInterface]]
 deps = ["Adapt", "LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "133a240faec6e074e07c31ee75619c90544179cf"
+git-tree-sha1 = "ed2ec3c9b483842ae59cd273834e5b46206d6dda"
 uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.10.0"
+version = "7.11.0"
 
     [deps.ArrayInterface.extensions]
     ArrayInterfaceBandedMatricesExt = "BandedMatrices"
@@ -3031,9 +3031,9 @@ version = "1.11.1"
 
 [[deps.TaijaBase]]
 deps = ["CategoricalArrays", "Distributions", "Flux", "MLUtils", "Optimisers", "StatsBase", "Tables"]
-git-tree-sha1 = "116f77acfc1a46af8d34d1a9af797fb31e73d7e9"
+git-tree-sha1 = "8e8e91140ce2a97bfaa8680287e0038b16c6dc0e"
 uuid = "10284c91-9f28-4c9a-abbf-ee43576dfff6"
-version = "1.1.1"
+version = "1.2.0"
 
 [[deps.TaijaData]]
 deps = ["CSV", "CounterfactualExplanations", "DataAPI", "DataFrames", "Flux", "LazyArtifacts", "MLDatasets", "MLJBase", "MLJModels", "Random", "StatsBase"]
@@ -3114,9 +3114,9 @@ version = "0.1.1"
 
 [[deps.TidierDB]]
 deps = ["AWS", "Arrow", "Chain", "ClickHouse", "DataFrames", "Documenter", "DuckDB", "GoogleCloud", "JSON3", "LibPQ", "MacroTools", "MySQL", "ODBC", "Reexport", "SQLite"]
-git-tree-sha1 = "e72b0ef3ad496ac6ef8004b94b2fb92f79ad43a5"
+git-tree-sha1 = "3fc8b3a00699f80a238b51496fb14bd14022502c"
 uuid = "86993f9b-bbba-4084-97c5-ee15961ad48b"
-version = "0.1.4"
+version = "0.1.5"
 
 [[deps.TidierData]]
 deps = ["Chain", "Cleaner", "DataFrames", "MacroTools", "Reexport", "ShiftedArrays", "Statistics", "StatsBase"]
@@ -3143,9 +3143,10 @@ uuid = "337ecbd1-5042-4e2a-ae6f-ca776f97570a"
 version = "0.7.6"
 
 [[deps.TidierStrings]]
-git-tree-sha1 = "1fac8c8243b8b690187f1cbe361e3776973e97bb"
+deps = ["StringEncodings"]
+git-tree-sha1 = "eb0691f3ef8a60e4b49f13ad3b9f1e9be8e2f863"
 uuid = "248e6834-d0f8-40ef-8fbb-8e711d883e9c"
-version = "0.2.1"
+version = "0.2.2"
 
 [[deps.TidierText]]
 deps = ["DataFrames", "Languages", "MacroTools", "Reexport", "StatsBase"]

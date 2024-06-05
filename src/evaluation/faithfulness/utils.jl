@@ -12,7 +12,7 @@ mutable struct EnergySampler
     data::CounterfactualData
     sampler::ConditionalSampler
     opt::AbstractSamplingRule
-    buffer::Union{Nothing,AbstractArray}
+    posterior::Union{Nothing,AbstractArray}
     yidx::Union{Nothing,Any}
 end
 
@@ -21,12 +21,35 @@ end
         model::AbstractModel,
         data::CounterfactualData,
         y::Any;
-        opt::AbstractSamplingRule=ImproperSGLD(),
-        niter::Int=100,
-        nsamples::Int=1000
+        opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
+        niter::Int=20,
+        batch_size::Int=50,
+        ntransitions::Int=100,
+        prob_buffer::AbstractFloat=0.95,
+        nsamples::Int=50,
+        niter_final::Int=500,
+        kwargs...,
     )
 
-Constructor for `EnergySampler` that takes a `model`, `data` and conditioning value `y` as inputs.
+Constructor for `EnergySampler`, which is used to sample from the posterior distribution of the model conditioned on `y`.
+
+# Arguments
+
+- `model::AbstractModel`: The model to be used for sampling.
+- `data::CounterfactualData`: The data to be used for sampling.
+- `y::Any`: The conditioning value.
+- `opt::AbstractSamplingRule=ImproperSGLD()`: The sampling rule to be used.
+- `niter::Int=100`: The number of iterations for training the sampler through PCD.
+- `batch_size::Int=50`: The batch size for training the sampler.
+- `ntransitions::Int=100`: The number of transitions for training the sampler. In each transition, the sampler is updated with a mini-batch of data. Data is either drawn from the replay buffer or reinitialized from the prior.
+- `prob_buffer::AbstractFloat=0.95`: The probability of drawing samples from the replay buffer.
+- `nsamples::Int=50`: The number of samples to include in the final empirical posterior distribution.
+- `niter_final::Int=500`: The number of iterations for generating samples from the posterior distribution.
+- `kwargs...`: Additional keyword arguments to be passed on to the sampler and PCD.
+
+# Returns
+
+- `EnergySampler`: An instance of `EnergySampler`.
 """
 function EnergySampler(
     model::AbstractModel,
@@ -66,18 +89,15 @@ function EnergySampler(
     Xpost = generate_posterior_samples(
         energy_sampler, nsamples; niter=niter_final, kwargs...
     )
-    energy_sampler.buffer = Xpost
+    energy_sampler.posterior = Xpost
 
     return energy_sampler
 end
 
 """
-    EnergySampler(
-        ce::CounterfactualExplanation;
-        kwrgs...
-    )
+    EnergySampler(ce::CounterfactualExplanation; kwrgs...)
 
-Constructor for `EnergySampler` that takes a `CounterfactualExplanation` as input. The underlying model, data and `target` are used for the `EnergySampler`, where `target` is the conditioning value of `y`.
+Overloads the `EnergySampler` constructor to accept a `CounterfactualExplanation` object.
 """
 function EnergySampler(ce::CounterfactualExplanation; kwrgs...)
 
@@ -99,6 +119,18 @@ end
     )
 
 Trains the `EnergySampler` for conditioning value `y`. Specifically, this entails running PCD for `niter` iterations and `ntransitions` transitions to build a buffer of samples. The buffer is used for posterior sampling.
+
+# Arguments
+
+- `e::EnergySampler`: The `EnergySampler` object to be trained.
+- `y::Int`: The conditioning value.
+- `niter::Int=20`: The number of iterations for training the sampler through PCD.
+- `ntransitions::Int=100`: The number of transitions for training the sampler. In each transition, the sampler is updated with a mini-batch of data. Data is either drawn from the replay buffer or reinitialized from the prior.
+- `kwargs...`: Additional keyword arguments to be passed on to the sampler and PCD.
+
+# Returns
+
+- `EnergySampler`: The trained `EnergySampler`.
 """
 function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...)
 
@@ -116,7 +148,18 @@ end
         e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
     )
 
-Uses the replay buffer to generate `n` samples from the posterior distribution.
+Uses the replay buffer to generate `n` samples from the posterior distribution. Specifically, this entails running a single chain of the sampler for `niter` iterations. Typically, the number of iterations will be larger than during PCD training.
+
+# Arguments
+
+- `e::EnergySampler`: The `EnergySampler` object to be used for sampling.
+- `n::Int=1000`: The number of samples to generate.
+- `niter::Int=500`: The number of iterations for generating samples from the posterior distribution.
+- `kwargs...`: Additional keyword arguments to be passed on to the sampler.
+
+# Returns
+
+- `AbstractArray`: The generated samples.
 """
 function generate_posterior_samples(
     e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
@@ -128,13 +171,24 @@ end
 """
     Base.rand(sampler::EnergySampler, n::Int=100; retrain=false)
 
-Overloads the `rand` method to randomly draw `n` samples from `EnergySampler`.
+Overloads the `rand` method to randomly draw `n` samples from `EnergySampler`. If `from_posterior` is `true`, the samples are drawn from the posterior distribution. Otherwise, the samples are generated from the model conditioned on the target value using a single chain (see [`generate_posterior_samples`](@ref)).
+
+# Arguments
+
+- `sampler::EnergySampler`: The `EnergySampler` object to be used for sampling.
+- `n::Int=100`: The number of samples to draw.
+- `from_posterior::Bool=true`: Whether to draw samples from the posterior distribution.
+- `niter::Int=500`: The number of iterations for generating samples through Monte Carlo sampling (single chain).
+
+# Returns
+
+- `AbstractArray`: The samples.
 """
-function Base.rand(sampler::EnergySampler, n::Int=100; from_buffer=true, niter::Int=500)
-    ntotal = size(sampler.buffer, 2)
+function Base.rand(sampler::EnergySampler, n::Int=100; from_posterior=true, niter::Int=500)
+    ntotal = size(sampler.posterior, 2)
     idx = rand(1:ntotal, n)
-    if from_buffer
-        X = sampler.buffer[:, idx]
+    if from_posterior
+        X = sampler.posterior[:, idx]
     else
         X = generate_posterior_samples(sampler, n; niter=niter)
     end
@@ -145,9 +199,18 @@ end
     get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
 
 Chooses the samples with the lowest energy (i.e. highest probability) from `EnergySampler`.
+
+# Arguments
+
+- `sampler::EnergySampler`: The `EnergySampler` object to be used for sampling.
+- `n::Int=5`: The number of samples to choose.
+
+# Returns
+
+- `AbstractArray`: The samples with the lowest energy.
 """
 function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
-    X = sampler.buffer
+    X = sampler.posterior
     model = sampler.model
     y = sampler.yidx
     x = selectdim(
@@ -161,7 +224,16 @@ end
 """
     prior_sampling_space(data::CounterfactualData; n_std=3)
 
-Define the prior sampling space for the data.
+Defines the prior sampling space for the data. The space is defined as a uniform distribution with bounds defined by the mean and standard deviation of the data. The bounds are extended by `n_std` standard deviations.
+
+# Arguments
+
+- `data::CounterfactualData`: The data to be used for defining the prior sampling space.
+- `n_std::Int=3`: The number of standard deviations to extend the bounds.
+
+# Returns
+
+- `Uniform`: The uniform distribution defining the prior sampling space.
 """
 function prior_sampling_space(data::CounterfactualData; n_std=3)
     X = data.X
@@ -175,7 +247,29 @@ end
 """
     distance_from_posterior(ce::AbstractCounterfactualExplanation)
 
-Computes the distance from the counterfactual to generated conditional samples.
+Computes the distance from the counterfactual to generated conditional samples. The distance is computed as the mean distance from the counterfactual to the samples drawn from the posterior distribution of the model. 
+
+# Arguments
+
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+- `niter::Int=50`: The number of iterations for training the sampler through PCD.
+- `batch_size::Int=50`: The batch size for training the sampler.
+- `ntransitions::Int=100`: The number of transitions for training the sampler. In each transition, the sampler is updated with a mini-batch of data. Data is either drawn from the replay buffer or reinitialized from the prior.
+- `prob_buffer::AbstractFloat=0.95`: The probability of drawing samples from the replay buffer.
+- `nsamples::Int=50`: The number of samples to include in the final empirical posterior distribution.
+- `niter_final::Int=500`: The number of iterations for generating samples from the posterior distribution.
+- `from_posterior::Bool=true`: Whether to draw samples from the posterior distribution.
+- `agg`: The aggregation function to use for computing the distance.
+- `choose_lowest_energy::Bool=true`: Whether to choose the samples with the lowest energy.
+- `choose_random::Bool=false`: Whether to choose random samples.
+- `nmin::Int=25`: The minimum number of samples to choose.
+- `return_conditionals::Bool=false`: Whether to return the conditional samples.
+- `p::Int=1`: The norm to use for computing the distance.
+- `kwargs...`: Additional keyword arguments to be passed on to the sampler and PCD.
+
+# Returns
+
+- `AbstractFloat`: The distance from the counterfactual to the samples.
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
@@ -185,7 +279,7 @@ function distance_from_posterior(
     prob_buffer::AbstractFloat=0.95,
     nsamples::Int=50,
     niter_final::Int=500,
-    from_buffer=true,
+    from_posterior=true,
     agg=mean,
     choose_lowest_energy=true,
     choose_random=false,
@@ -216,13 +310,13 @@ function distance_from_posterior(
         end
         eng_sampler = _dict[:energy_sampler]
         if choose_lowest_energy
-            nmin = minimum([nmin, size(eng_sampler.buffer)[end]])
+            nmin = minimum([nmin, size(eng_sampler.posterior)[end]])
             xmin = get_lowest_energy_sample(eng_sampler; n=nmin)
             push!(conditional_samples, xmin)
         elseif choose_random
-            push!(conditional_samples, rand(eng_sampler, nsamples; from_buffer=from_buffer))
+            push!(conditional_samples, rand(eng_sampler, nsamples; from_posterior=from_posterior))
         else
-            push!(conditional_samples, eng_sampler.buffer)
+            push!(conditional_samples, eng_sampler.posterior)
         end
     end
 

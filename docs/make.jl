@@ -56,6 +56,9 @@ makedocs(;
                 "PROBE" => "explanation/generators/probe.md",
                 "REVISE" => "explanation/generators/revise.md",
             ],
+            "Evaluation" => [
+                "Overview" => "explanation/evaluation/overview.md",
+            ],
             "Optimisers" => [
                 "Overview" => "explanation/optimisers/overview.md",
                 "JSMA" => "explanation/optimisers/jsma.md",
