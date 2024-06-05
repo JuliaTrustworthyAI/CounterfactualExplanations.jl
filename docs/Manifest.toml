@@ -2,7 +2,7 @@
 
 julia_version = "1.10.3"
 manifest_format = "2.0"
-project_hash = "5a165e4e4cae5d241c872e5e5abab7ed2e29dd53"
+project_hash = "adbed4d5515f7902adc0eb739996acac0112ea9d"
 
 [[deps.ANSIColoredPrinters]]
 git-tree-sha1 = "574baf8110975760d391c710b6341da1afa48d8c"
@@ -1511,6 +1511,12 @@ weakdeps = ["ArrowTypes"]
 
     [deps.JSON3.extensions]
     JSON3ArrowExt = ["ArrowTypes"]
+
+[[deps.JointEnergyModels]]
+deps = ["CategoricalArrays", "ChainRulesCore", "ComputationalResources", "Distributions", "Flux", "MLJFlux", "MLJModelInterface", "MLUtils", "ProgressMeter", "Random", "Reexport", "StatsBase", "Tables", "TaijaBase", "Zygote"]
+git-tree-sha1 = "2d22be4f49c3c2a8fd2ca9956ae968422efb9715"
+uuid = "48c56d24-211d-4463-bbc0-7a701b291131"
+version = "0.1.4"
 
 [[deps.JpegTurbo]]
 deps = ["CEnum", "FileIO", "ImageCore", "JpegTurbo_jll", "TOML"]

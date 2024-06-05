@@ -10,3 +10,52 @@ eval(setup_docs)
 
 # Faithfulness
 
+```{julia}
+using CounterfactualExplanations
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.Models
+using Flux
+using JointEnergyModels
+using MLJFlux
+using TaijaBase.Samplers: PCD, SGLD, ImproperSGLD
+using TaijaData
+
+nobs = 1000
+X, y = TaijaData.load_blobs(nobs; cluster_std=0.1, center_box=(-1. => 1.))
+data = CounterfactualData(X, y)
+n_hidden = 32
+_batch_size = Int(round(nobs/10))
+epochs = 100
+M = Models.fit_model(
+    data,:JEM;
+    builder=MLJFlux.MLP(
+        hidden=(n_hidden, n_hidden, n_hidden), 
+        σ=Flux.swish
+    ),
+    batch_size=_batch_size,
+    finaliser=Flux.softmax,
+    loss=Flux.Losses.crossentropy,
+    jem_training_params=(
+        α=[1.0,1.0,1e-1],
+        verbosity=10,
+    ),
+    epochs=epochs,
+    sampling_steps=30,
+)
+
+# Select a factual instance:
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Search:
+generator = GenericGenerator(opt=Descent(0.01))
+ce = generate_counterfactual(x, target, data, M, generator)
+
+# Faithfulness:
+faith = Evaluation.faithfulness(ce; λ=0.1, niter_final=100, n_samples=100, batch_size=50, niter=30)
+plot(ce; zoom=-1)
+X̂ = ce.search[:energy_sampler].posterior
+scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)
+```

@@ -138,7 +138,7 @@ function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, 
     rule = e.opt
 
     # Run PCD:
-    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...)
+    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=nothing, kwargs...)
 
     return e
 end
@@ -164,7 +164,7 @@ Uses the replay buffer to generate `n` samples from the posterior distribution. 
 function generate_posterior_samples(
     e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
 )
-    X = e.sampler(e.model, e.opt; n_samples=n, niter=niter, kwargs...)
+    X = e.sampler(e.model, e.opt; n_samples=n, niter=niter, y=e.yidx, kwargs...)
     return X
 end
 
@@ -277,6 +277,7 @@ function distance_from_posterior(
     batch_size::Int=50,
     ntransitions::Int=100,
     prob_buffer::AbstractFloat=0.95,
+    opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
     nsamples::Int=50,
     niter_final::Int=500,
     from_posterior=true,
@@ -305,6 +306,7 @@ function distance_from_posterior(
                 prob_buffer=prob_buffer,
                 nsamples=nsamples,
                 niter_final=niter_final,
+                opt=opt,
                 kwargs...,
             )
         end
