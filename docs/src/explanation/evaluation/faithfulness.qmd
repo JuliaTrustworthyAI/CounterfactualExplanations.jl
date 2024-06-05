@@ -89,7 +89,7 @@ generator = GenericGenerator(opt=Descent(0.01))
 ce = generate_counterfactual(x, target, data, M, generator)
 
 # Faithfulness:
-faith = Evaluation.faithfulness(ce; λ=0.1, niter_final=1000, n_samples=100, batch_size=50, niter=30)
+faith = Evaluation.faithfulness(ce; λ=0.1, niter_final=100000, n_samples=100, batch_size=50, niter=30, opt=SGLD())
 plot(ce; zoom=-1)
 X̂ = ce.search[:energy_sampler].posterior
 scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)

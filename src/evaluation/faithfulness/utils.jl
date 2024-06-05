@@ -138,7 +138,7 @@ function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, 
     rule = e.opt
 
     # Run PCD:
-    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=nothing, kwargs...)
+    PCD(e.sampler, e.model, ImproperSGLD(); niter=niter, ntransitions=ntransitions, y=nothing, kwargs...)
 
     return e
 end
