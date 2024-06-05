@@ -59,3 +59,38 @@ plot(ce; zoom=-1)
 X̂ = ce.search[:energy_sampler].posterior
 scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)
 ```
+
+```{julia}
+using CounterfactualExplanations
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.Models
+using Flux
+using JointEnergyModels
+using MLJFlux
+using TaijaBase.Samplers: PCD, SGLD, ImproperSGLD
+using TaijaData
+
+nobs = 1000
+X, y = TaijaData.load_circles(nobs)
+data = CounterfactualData(X, y)
+n_hidden = 32
+_batch_size = Int(round(nobs/10))
+epochs = 100
+M = Models.fit_model(data,:JEM)
+
+# Select a factual instance:
+target = 1
+factual = 0
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Search:
+generator = GenericGenerator(opt=Descent(0.01))
+ce = generate_counterfactual(x, target, data, M, generator)
+
+# Faithfulness:
+faith = Evaluation.faithfulness(ce; λ=0.1, niter_final=1000, n_samples=100, batch_size=50, niter=30)
+plot(ce; zoom=-1)
+X̂ = ce.search[:energy_sampler].posterior
+scatter!(X̂[1, :], X̂[2, :]; label="Posterior Samples", shape=:star5, ms=10)
+```
