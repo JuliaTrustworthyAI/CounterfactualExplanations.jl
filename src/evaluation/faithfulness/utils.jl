@@ -9,7 +9,6 @@ using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSampli
 "Base type that stores information relevant to energy-based posterior sampling from `AbstractModel`."
 mutable struct EnergySampler
     model::AbstractModel
-    data::CounterfactualData
     sampler::ConditionalSampler
     opt::AbstractSamplingRule
     posterior::Union{Nothing,AbstractArray}
@@ -19,7 +18,6 @@ end
 """
     EnergySampler(
         model::AbstractModel,
-        data::CounterfactualData,
         y::Any;
         opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
         niter::Int=20,
@@ -53,8 +51,10 @@ Constructor for `EnergySampler`, which is used to sample from the posterior dist
 """
 function EnergySampler(
     model::AbstractModel,
-    data::CounterfactualData,
-    y::Any;
+    𝒟x::Distribution,
+    𝒟y::Distribution,
+    input_size::Dims,
+    yidx::Int;
     opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
     niter::Int=20,
     batch_size::Int=50,
@@ -64,26 +64,17 @@ function EnergySampler(
     niter_final::Int=500,
     kwargs...,
 )
-    @assert y ∈ data.y_levels || y ∈ 1:length(data.y_levels)
-
-    K = length(data.y_levels)
-    input_size = size(selectdim(data.X, ndims(data.X), 1))
-
-    # Prior distribution:
-    𝒟x = prior_sampling_space(data)
-    𝒟y = Categorical(ones(K) ./ K)
 
     # Sampler:
     sampler = ConditionalSampler(
         𝒟x, 𝒟y; input_size=input_size, prob_buffer=prob_buffer, batch_size=batch_size
     )
-    yidx = get_target_index(data.y_levels, y)
 
     # Initiate:
-    energy_sampler = EnergySampler(model, data, sampler, opt, nothing, yidx)
+    energy_sampler = EnergySampler(model, sampler, opt, nothing, yidx)
 
     # Train:
-    train!(energy_sampler, yidx; niter=niter, ntransitions=ntransitions, kwargs...)
+    fit!(energy_sampler, yidx; niter=niter, ntransitions=ntransitions, kwargs...)
 
     # Construct posterior samples:
     Xpost = generate_posterior_samples(
@@ -95,6 +86,47 @@ function EnergySampler(
 end
 
 """
+    define_prior(
+        data::CounterfactualData;
+        𝒟x::Union{Nothing,Distribution}=nothing,
+        𝒟y::Union{Nothing,Distribution}=nothing,
+        n_std::Int=3,
+    )
+
+Defines the prior for the data. The space is defined as a uniform distribution with bounds defined by the mean and standard deviation of the data. The bounds are extended by `n_std` standard deviations.
+
+# Arguments
+
+- `data::CounterfactualData`: The data to be used for defining the prior sampling space.
+- `n_std::Int=3`: The number of standard deviations to extend the bounds.
+
+# Returns
+
+- `Uniform`: The uniform distribution defining the prior sampling space.
+"""
+function define_prior(
+    data::CounterfactualData;
+    𝒟x::Union{Nothing,Distribution}=nothing,
+    𝒟y::Union{Nothing,Distribution}=nothing,
+    n_std::Int=3,
+)
+
+    # Input space:
+    X = data.X
+    centers = mean(X; dims=2)
+    stds = std(X; dims=2)
+    lower_bound = minimum(centers .- n_std .* stds)[1]
+    upper_bound = maximum(centers .+ n_std .* stds)[1]
+    𝒟x = isnothing(𝒟x) ? Uniform(lower_bound, upper_bound) : 𝒟x
+
+    # Output space:
+    K = length(data.y_levels)
+    𝒟y = isnothing(𝒟y) ? Categorical(ones(K) ./ K) : 𝒟y
+
+    return 𝒟x, 𝒟y
+end
+
+"""
     EnergySampler(ce::CounterfactualExplanation; kwrgs...)
 
 Overloads the `EnergySampler` constructor to accept a `CounterfactualExplanation` object.
@@ -103,14 +135,23 @@ function EnergySampler(ce::CounterfactualExplanation; kwrgs...)
 
     # Setup:
     model = ce.M
-    data = ce.data
-    y = ce.target
 
-    return EnergySampler(model, data, y; kwrgs...)
+    # Target index:
+    y = ce.target
+    yidx = get_target_index(ce.data.y_levels, y)
+
+    # Input size:
+    input_size = size(selectdim(ce.data.X, ndims(ce.data.X), 1))
+
+    # Define prior:
+    𝒟x, 𝒟y, = define_prior(ce.data)
+
+    # Construct:
+    return EnergySampler(model, 𝒟x, 𝒟y, input_size, yidx; kwrgs...)
 end
 
 """
-    train!(
+    fit!(
         e::EnergySampler,
         y::Int;
         niter::Int=20,
@@ -118,7 +159,7 @@ end
         kwargs...,
     )
 
-Trains the `EnergySampler` for conditioning value `y`. Specifically, this entails running PCD for `niter` iterations and `ntransitions` transitions to build a buffer of samples. The buffer is used for posterior sampling.
+Fits the `EnergySampler` to the underlying model for conditioning value `y`. Specifically, this entails running PCD for `niter` iterations and `ntransitions` transitions to build a buffer of samples. The buffer is used for posterior sampling.
 
 # Arguments
 
@@ -132,21 +173,21 @@ Trains the `EnergySampler` for conditioning value `y`. Specifically, this entail
 
 - `EnergySampler`: The trained `EnergySampler`.
 """
-function train!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...)
+function fit!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...)
 
-    # Generate samples through persistent contrastive divergence (PCD):
-    rule = e.opt
-
-    # Run PCD:
+    # Run PCD with improper SGLD:
     PCD(
         e.sampler,
         e.model,
         ImproperSGLD();
         niter=niter,
         ntransitions=ntransitions,
-        y=nothing,
+        y=y,
         kwargs...,
     )
+
+    # Set probabibility of drawing from buffer to 1 for posterior sampling:
+    e.sampler.prob_buffer = 1.0
 
     return e
 end
@@ -227,29 +268,6 @@ function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
         Samplers.energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n)),
     )
     return x
-end
-
-"""
-    prior_sampling_space(data::CounterfactualData; n_std=3)
-
-Defines the prior sampling space for the data. The space is defined as a uniform distribution with bounds defined by the mean and standard deviation of the data. The bounds are extended by `n_std` standard deviations.
-
-# Arguments
-
-- `data::CounterfactualData`: The data to be used for defining the prior sampling space.
-- `n_std::Int=3`: The number of standard deviations to extend the bounds.
-
-# Returns
-
-- `Uniform`: The uniform distribution defining the prior sampling space.
-"""
-function prior_sampling_space(data::CounterfactualData; n_std=3)
-    X = data.X
-    centers = mean(X; dims=2)
-    stds = std(X; dims=2)
-    lower_bound = minimum(centers .- n_std .* stds)[1]
-    upper_bound = maximum(centers .+ n_std .* stds)[1]
-    return Uniform(lower_bound, upper_bound)
 end
 
 """
