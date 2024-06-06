@@ -189,6 +189,10 @@ function fit!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kw
     # Set probabibility of drawing from buffer to 1 for posterior sampling:
     e.sampler.prob_buffer = 1.0
 
+    # Remove burn-in samples:
+    nburnin = Int(round(0.8 * size(e.sampler.buffer, 2)))
+    e.sampler.buffer = e.sampler.buffer[:, nburnin:end]
+
     return e
 end
 
