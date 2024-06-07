@@ -58,6 +58,7 @@ function train(
 )
 
     # Prepare data:
+    X, y = (data.X, data.y)
     data = data_loader(data; batchsize=args.batchsize)
 
     # Multi-class case:
@@ -74,7 +75,7 @@ function train(
     Flux.testmode!(model)
 
     # Store the trained model:
-    M.fitresult = model
+    M.fitresult = Fitresult(model, Dict())
 
     return M
 end

@@ -17,6 +17,37 @@ mutable struct Model <: AbstractModel
 end
 
 """
+    Fitresult
+
+A struct to hold the results of fitting a model.
+
+# Fields
+
+- `fitresult`: The result of fitting the model to the data. This object should be callable on new data.
+- `other::Dict`: A dictionary to hold any other relevant information.
+"""
+mutable struct Fitresult
+    fitresult
+    other::Dict
+end
+
+"""
+    (fitresult::Fitresult)()
+
+    
+"""
+(fitresult::Fitresult)() = fitresult.fitresult
+
+"""
+    (fitresult::Fitresult)(newdata::AbstractArray)
+
+When called on new data, the `Fitresult` object returns the result of calling the fitresult on new data.
+"""
+function (fitresult::Fitresult)(newdata::AbstractArray; kwargs...)
+    return fitresult.fitresult(newdata; kwargs...)
+end
+
+"""
     Model(type::AbstractModelType; likelihood::Symbol=:classification_binary)
 
 Outer constructor for `Model` where the atomic model is not yet defined.

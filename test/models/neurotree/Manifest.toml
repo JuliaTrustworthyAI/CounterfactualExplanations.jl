@@ -1,6 +1,6 @@
 # This file is machine-generated - editing it directly is not advised
 
-julia_version = "1.10.2"
+julia_version = "1.10.3"
 manifest_format = "2.0"
 project_hash = "0bba42a96a9532c7ff053bd59c8cc324bccd6325"
 
@@ -284,7 +284,7 @@ weakdeps = ["Dates", "LinearAlgebra"]
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
-version = "1.1.0+0"
+version = "1.1.1+0"
 
 [[deps.CompositionsBase]]
 git-tree-sha1 = "802bb88cd69dfd1509f6670416bd4434015693ad"
@@ -332,15 +332,17 @@ version = "0.1.3"
 deps = ["CategoricalArrays", "ChainRulesCore", "DataFrames", "Distributions", "Flux", "LazyArtifacts", "LinearAlgebra", "Logging", "MLJBase", "MLJDecisionTreeInterface", "MLUtils", "MultivariateStats", "PackageExtensionCompat", "ProgressMeter", "Random", "Serialization", "Statistics", "StatsBase", "Tables", "TaijaBase", "UUIDs"]
 path = "../../.."
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-version = "1.1.6"
+version = "1.2.0"
 
     [deps.CounterfactualExplanations.extensions]
     DecisionTreeExt = "DecisionTree"
+    JEMExt = "JointEnergyModels"
     LaplaceReduxExt = "LaplaceRedux"
     NeuroTreeExt = "NeuroTreeModels"
 
     [deps.CounterfactualExplanations.weakdeps]
     DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+    JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
     LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
     NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 

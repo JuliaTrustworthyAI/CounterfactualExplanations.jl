@@ -61,7 +61,7 @@ function Models.train(
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
     Flux.testmode!(mach.fitresult.chain)
-    M.fitresult = mach.fitresult
+    M.fitresult = Models.Fitresult(mach.fitresult, Dict())
     return M
 end
 

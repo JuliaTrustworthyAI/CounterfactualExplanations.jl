@@ -26,18 +26,6 @@ Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 TaijaBase = "10284c91-9f28-4c9a-abbf-ee43576dfff6"
 UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
-[weakdeps]
-DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
-JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
-LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
-NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
-
-[extensions]
-DecisionTreeExt = "DecisionTree"
-JEMExt = "JointEnergyModels"
-LaplaceReduxExt = "LaplaceRedux"
-NeuroTreeExt = "NeuroTreeModels"
-
 [compat]
 Aqua = "0.8"
 CategoricalArrays = "0.10"
@@ -49,8 +37,8 @@ Flux = "0.12, 0.13, 0.14"
 JointEnergyModels = "0.1.3"
 LaplaceRedux = "0.1.4, 0.2, 1.0"
 LazyArtifacts = "1"
-LinearAlgebra = "1.6, 1.7, 1.8, 1.9, 1.10"
-Logging = "1.6, 1.7, 1.8, 1.9, 1.10"
+LinearAlgebra = "1.6, 1.10"
+Logging = "1.6, 1.10"
 MLJBase = "0.21, 1"
 MLJDecisionTreeInterface = "0.4.0"
 MLUtils = "0.2, 0.3, 0.4"
@@ -58,15 +46,21 @@ MultivariateStats = "0.9, 0.10"
 NeuroTreeModels = "1.1.3"
 PackageExtensionCompat = "1"
 ProgressMeter = "1"
-Random = "1.6, 1.7, 1.8, 1.9, 1.10"
-Serialization = "1.6, 1.7, 1.8, 1.9, 1.10"
+Random = "1.6, 1.10"
+Serialization = "1.6, 1.10"
 Statistics = "1"
 StatsBase = "0.33, 0.34"
 Tables = "1"
 TaijaBase = "1"
-Test = "1.6, 1.7, 1.8, 1.9, 1.10"
-UUIDs = "1.6, 1.7, 1.8, 1.9, 1.10"
-julia = "1.6, 1.7, 1.8, 1.9, 1.10"
+Test = "1.6, 1.10"
+UUIDs = "1.6, 1.10"
+julia = "1.6, 1.10"
+
+[extensions]
+DecisionTreeExt = "DecisionTree"
+JEMExt = "JointEnergyModels"
+LaplaceReduxExt = "LaplaceRedux"
+NeuroTreeExt = "NeuroTreeModels"
 
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
@@ -78,3 +72,9 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
 test = ["Aqua", "DecisionTree", "JointEnergyModels", "LaplaceRedux", "NeuroTreeModels", "Test"]
+
+[weakdeps]
+DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
+LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
+NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"

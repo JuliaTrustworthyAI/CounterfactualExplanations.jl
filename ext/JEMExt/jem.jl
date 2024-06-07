@@ -66,7 +66,7 @@ function Models.train(
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
     Flux.testmode!(mach.fitresult[1])
-    M.fitresult = mach.fitresult
+    M.fitresult = Models.Fitresult(mach.fitresult, Dict())
     return M
 end
 
@@ -88,7 +88,7 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.JEM, X::AbstractArray
 )
-    nn = M.fitresult[1][1]
+    nn = M.fitresult()[1][1]
     return nn(X)
 end
 

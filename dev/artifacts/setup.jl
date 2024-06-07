@@ -6,7 +6,6 @@ setup = quote
     using CounterfactualExplanations
     using CounterfactualExplanations.Models
     using Flux
-    using Images
     using MLDatasets
     using TaijaData
 

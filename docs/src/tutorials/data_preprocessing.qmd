@@ -263,18 +263,18 @@ The resulting counterfactual path is shown in the chart below. Since only the fi
 plot(ce)
 ```
 
-<!-- ## Domain constraints
+## Domain constraints
 
 In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of $0.5$ for our two features.
 
-```{.julia}
+```{julia}
 counterfactual_data.mutability = [:both, :both]
 counterfactual_data.domain = [(0,0) for var in counterfactual_data.features_continuous]
 ```
 
 This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.
 
-```{.julia}
+```{julia}
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
-``` -->
+```

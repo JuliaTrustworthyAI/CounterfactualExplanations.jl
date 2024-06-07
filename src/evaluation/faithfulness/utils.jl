@@ -161,6 +161,10 @@ end
 
 Fits the `EnergySampler` to the underlying model for conditioning value `y`. Specifically, this entails running PCD for `niter` iterations and `ntransitions` transitions to build a buffer of samples. The buffer is used for posterior sampling.
 
+# Note
+
+For fitting the sampler, `ImproperSGLD` is used as the default sampling rule. The rule is defined as `α = 2 * std(e.sampler.𝒟x)` and `σ = 0.005 * α`.
+
 # Arguments
 
 - `e::EnergySampler`: The `EnergySampler` object to be trained.
@@ -175,23 +179,17 @@ Fits the `EnergySampler` to the underlying model for conditioning value `y`. Spe
 """
 function fit!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kwargs...)
 
+    # Set up sampling rule:
+    α = (2 / std(Uniform())) * std(e.sampler.𝒟x)
+    σ = 0.005 * α
+    rule = ImproperSGLD(α, σ)
+    println(rule)
+
     # Run PCD with improper SGLD:
-    PCD(
-        e.sampler,
-        e.model,
-        ImproperSGLD();
-        niter=niter,
-        ntransitions=ntransitions,
-        y=y,
-        kwargs...,
-    )
+    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...)
 
     # Set probabibility of drawing from buffer to 1 for posterior sampling:
     e.sampler.prob_buffer = 1.0
-
-    # Remove burn-in samples:
-    nburnin = Int(round(0.8 * size(e.sampler.buffer, 2)))
-    e.sampler.buffer = e.sampler.buffer[:, nburnin:end]
 
     return e
 end
