@@ -6,7 +6,7 @@ CurrentModule = CounterfactualExplanation
 
 # Tutorials
 
-In this section, you will find a series of tutorials that should help you gain a basic understanding of Conformal Prediction and how to apply it in Julia using this package.
+In this section, you will find a series of tutorials that should help you gain a basic understanding of Counterfactual Explanations and how to apply it in Julia using this package.
 
 > Tutorials are lessons that take the reader by the hand through a series of steps to complete a project of some kind. Tutorials are learning-oriented.
 >

@@ -38,8 +38,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens.fitresult())
 ```
 
 ### Generative Model
@@ -85,8 +85,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"fashion_mnist_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"fashion_mnist_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"fashion_mnist_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"fashion_mnist_ensemble.jls"),M_ens.fitresult())
 ```
 
 ### Generative Model
@@ -132,8 +132,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"cifar_10_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"cifar_10_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"cifar_10_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"cifar_10_ensemble.jls"),M_ens.fitresult())
 ```
 
 ### Generative Model

@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Changed
 
 - The `fitresult` field of `Model` now takes a concrete `Fitresult` type, for which some basic methods have been defined. This mutable struct has a field called `other` that accepts a dictionary `Dict` that can be filled with additional objects. [#454]
+- Regenerated pre-trained model artifacts. [#454]
+- Updated the tutorial on "Handling Data". [#454]
 
 ### Removed
 
