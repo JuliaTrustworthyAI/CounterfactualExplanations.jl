@@ -131,6 +131,8 @@ M = Models.fit_model(data,:JEM)
 ```
 
 ```{julia}
+Random.seed!(123)
+
 # Select a factual instance:
 target = 0
 factual = 1

@@ -55,7 +55,7 @@ function EnergySampler(
     𝒟y::Distribution,
     input_size::Dims,
     yidx::Int;
-    opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
+    opt::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
     ntransitions::Int=100,
@@ -70,8 +70,14 @@ function EnergySampler(
         𝒟x, 𝒟y; input_size=input_size, prob_buffer=prob_buffer, batch_size=batch_size
     )
 
+    # Optimizer:
+    if isnothing(opt)
+        α = (2 / std(Uniform())) * std(𝒟x)
+        opt = SGLD(a=α, b=10.0, γ=0.99)
+    end
+
     # Initiate:
-    energy_sampler = EnergySampler(model, sampler, opt, nothing, yidx)
+    energy_sampler = EnergySampler(model, sampler, opt, [], yidx)
 
     # Train:
     fit!(energy_sampler, yidx; niter=niter, ntransitions=ntransitions, kwargs...)
@@ -214,7 +220,10 @@ Uses the replay buffer to generate `n` samples from the posterior distribution. 
 function generate_posterior_samples(
     e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
 )
+    bs = e.sampler.batch_size
+    e.sampler.batch_size = 1
     X = e.sampler(e.model, e.opt; n_samples=n, niter=niter, y=e.yidx, kwargs...)
+    e.sampler.batch_size = bs
     return X
 end
 
@@ -324,11 +333,11 @@ function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
     niter::Int=30,
     batch_size::Int=50,
-    ntransitions::Int=100,
+    ntransitions::Int=10,
     prob_buffer::AbstractFloat=0.95,
-    opt::AbstractSamplingRule=SGLD(),
+    opt::Union{Nothing,AbstractSamplingRule}=nothing,
     nsamples::Int=100,
-    niter_final::Int=10,
+    niter_final::Int=1000,
     from_posterior=true,
     agg=mean,
     choose_lowest_energy=false,
