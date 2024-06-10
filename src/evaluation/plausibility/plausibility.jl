@@ -31,7 +31,6 @@ function plausibility(
     if isnothing(K)
         K = maximum([1000, size(ce.search[:potential_neighbours], 2)])
     end
-    println(K)
     Δ = fun(ce; K=K, kwrgs...)
     return exp_decay(Δ, λ)
 end

@@ -183,7 +183,6 @@ function fit!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kw
     α = (2 / std(Uniform())) * std(e.sampler.𝒟x)
     σ = 0.005 * α
     rule = ImproperSGLD(α, σ)
-    println(rule)
 
     # Run PCD with improper SGLD:
     PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...)
@@ -273,6 +272,30 @@ function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
 end
 
 """
+    get_sampler!(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Gets the `EnergySampler` object from the counterfactual explanation. If the sampler is not found, it is constructed and stored in the counterfactual explanation object.
+"""
+function get_sampler!(ce::AbstractCounterfactualExplanation; kwargs...)
+
+    # Get full dictionary:
+    get!(ce.search, :energy_sampler) do 
+        get!(ce.M.fitresult.other, :energy_sampler) do 
+            Dict()
+        end
+    end
+
+    # Get sampler at target index:
+    y = ce.target
+    get!(ce.search[:energy_sampler], y) do
+        get!(ce.M.fitresult.other[:energy_sampler], y) do
+            EnergySampler(ce; kwargs...)
+        end
+    end
+
+end
+
+"""
     distance_from_posterior(ce::AbstractCounterfactualExplanation)
 
 Computes the distance from the counterfactual to generated conditional samples. The distance is computed as the mean distance from the counterfactual to the samples drawn from the posterior distribution of the model. 
@@ -306,10 +329,10 @@ function distance_from_posterior(
     prob_buffer::AbstractFloat=0.95,
     opt::AbstractSamplingRule=SGLD(),
     nsamples::Int=100,
-    niter_final::Int=10000,
+    niter_final::Int=10,
     from_posterior=true,
     agg=mean,
-    choose_lowest_energy=true,
+    choose_lowest_energy=false,
     choose_random=false,
     nmin::Int=25,
     p::Int=1,
@@ -321,22 +344,17 @@ function distance_from_posterior(
     @assert choose_lowest_energy ⊻ choose_random || !choose_lowest_energy && !choose_random "Must choose either lowest energy or random samples or neither."
 
     # Get energy sampler from model:
-    M = ce.M
-    smpler = get!(ce.search, :energy_sampler) do
-        get!(M.fitresult.other, :energy_sampler) do
-            EnergySampler(
-                ce;
-                niter=niter,
-                batch_size=batch_size,
-                ntransitions=ntransitions,
-                prob_buffer=prob_buffer,
-                nsamples=nsamples,
-                niter_final=niter_final,
-                opt=opt,
-                kwargs...,
-            )
-        end
-    end
+    smpler = get_sampler!(
+        ce;
+        niter=niter,
+        batch_size=batch_size,
+        ntransitions=ntransitions,
+        prob_buffer=prob_buffer,
+        opt=opt,
+        nsamples=nsamples,
+        niter_final=niter_final,
+        kwargs...,
+    )
 
     # Get conditional samples from posterior:
     conditional_samples = []
@@ -356,7 +374,7 @@ function distance_from_posterior(
 
     # Compute distance:
     _loss = map(eachcol(conditional_samples[1])) do xsample
-        distance(ce; from=xsample, agg=agg, p=p)
+        distance(ce; from=xsample, agg=agg, p=p) / 2std(xsample)
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 

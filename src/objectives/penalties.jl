@@ -171,7 +171,7 @@ end
         ce::AbstractCounterfactualExplanation;
         agg=mean,
         reg_strength=0.1,
-        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=(0.1, 1),
         kwargs...,
     )
 
@@ -181,7 +181,7 @@ function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
     reg_strength=0.1,
-    decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+    decay::Union{Nothing,AbstractFloat}=0.005,
     kwargs...,
 )
     ℒ = 0
@@ -199,10 +199,7 @@ function energy_constraint(
     # Decay:
     ϕ = 1.0
     if !isnothing(decay)
-        iter = total_steps(ce)
-        if iter % decay[2] == 0
-            ϕ = exp(-decay[1] * total_steps(ce))
-        end
+        ϕ = exp(-decay[1] * (total_steps(ce) + 1))
     end
 
     # Total loss:

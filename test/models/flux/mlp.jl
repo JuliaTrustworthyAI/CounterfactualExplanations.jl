@@ -1,16 +1,18 @@
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using CounterfactualExplanations.Models: build_mlp
+using CounterfactualExplanations.Convergence: GeneratorConditionsConvergence
 using Flux
 using Flux: Chain
 using TaijaData
 
 @testset "MLP" begin
     @testset "Generate counterfactual" begin
+        nobs = 1000
         data =
-            TaijaData.load_linearly_separable() |>
+            TaijaData.load_overlapping(nobs) |>
             x -> (Float32.(x[1]), x[2]) |> x -> CounterfactualData(x...)
-        M = Models.fit_model(data, :DeepEnsemble)
+        M = Models.fit_model(data, :Linear)
 
         # Select a factual instance:
         target = 2
@@ -19,8 +21,9 @@ using TaijaData
         x = select_factual(data, chosen)
 
         # Search:
-        generator = ECCoGenerator()
-        ce = generate_counterfactual(x, target, data, M, generator)
+        conv = GeneratorConditionsConvergence()
+        generator = GenericGenerator()
+        ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
         @test typeof(ce) <: CounterfactualExplanation
         @test CounterfactualExplanations.counterfactual_label(ce) == [target]
     end
