@@ -279,8 +279,8 @@ Gets the `EnergySampler` object from the counterfactual explanation. If the samp
 function get_sampler!(ce::AbstractCounterfactualExplanation; kwargs...)
 
     # Get full dictionary:
-    get!(ce.search, :energy_sampler) do 
-        get!(ce.M.fitresult.other, :energy_sampler) do 
+    get!(ce.search, :energy_sampler) do
+        get!(ce.M.fitresult.other, :energy_sampler) do
             Dict()
         end
     end
@@ -292,7 +292,6 @@ function get_sampler!(ce::AbstractCounterfactualExplanation; kwargs...)
             EnergySampler(ce; kwargs...)
         end
     end
-
 end
 
 """

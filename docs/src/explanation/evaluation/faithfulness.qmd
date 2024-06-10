@@ -132,8 +132,8 @@ M = Models.fit_model(data,:JEM)
 
 ```{julia}
 # Select a factual instance:
-target = 1
-factual = 0
+target = 0
+factual = 1
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
