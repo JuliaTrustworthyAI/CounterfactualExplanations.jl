@@ -134,8 +134,8 @@ M = Models.fit_model(data,:JEM)
 Random.seed!(123)
 
 # Select a factual instance:
-target = 0
-factual = 1
+target = 1
+factual = 0
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 

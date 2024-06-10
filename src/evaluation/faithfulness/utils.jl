@@ -73,7 +73,7 @@ function EnergySampler(
     # Optimizer:
     if isnothing(opt)
         α = (2 / std(Uniform())) * std(𝒟x)
-        opt = SGLD(a=α, b=10.0, γ=0.99)
+        opt = SGLD(a=α, b=1.0, γ=0.9)
     end
 
     # Initiate:
@@ -189,9 +189,10 @@ function fit!(e::EnergySampler, y::Int; niter::Int=20, ntransitions::Int=100, kw
     α = (2 / std(Uniform())) * std(e.sampler.𝒟x)
     σ = 0.005 * α
     rule = ImproperSGLD(α, σ)
+    rule = e.opt
 
     # Run PCD with improper SGLD:
-    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, kwargs...)
+    PCD(e.sampler, e.model, rule; niter=niter, ntransitions=ntransitions, y=y, clip_grads=nothing, kwargs...)
 
     # Set probabibility of drawing from buffer to 1 for posterior sampling:
     e.sampler.prob_buffer = 1.0
@@ -222,7 +223,9 @@ function generate_posterior_samples(
 )
     bs = e.sampler.batch_size
     e.sampler.batch_size = 1
-    X = e.sampler(e.model, e.opt; n_samples=n, niter=niter, y=e.yidx, kwargs...)
+    X = e.sampler(
+        e.model, e.opt; n_samples=n, niter=niter, y=e.yidx, clip_grads=nothing, kwargs...
+    )
     e.sampler.batch_size = bs
     return X
 end
@@ -333,10 +336,10 @@ function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
     niter::Int=30,
     batch_size::Int=50,
-    ntransitions::Int=10,
+    ntransitions::Int=1,
     prob_buffer::AbstractFloat=0.95,
     opt::Union{Nothing,AbstractSamplingRule}=nothing,
-    nsamples::Int=100,
+    nsamples::Int=250,
     niter_final::Int=1000,
     from_posterior=true,
     agg=mean,
