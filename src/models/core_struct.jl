@@ -138,7 +138,7 @@ julia> using TaijaData
 julia> data = CounterfactualData(load_linearly_separable()...);
 
 julia> M = fit_model(data, Linear())
-CounterfactualExplanations.Models.Model(Chain(Dense(2 => 2)), :classification_multi, Chain(Dense(2 => 2)), Linear())
+CounterfactualExplanations.Models.Model(Chain(Dense(2 => 2)), :classification_multi, CounterfactualExplanations.Models.Fitresult(Chain(Dense(2 => 2)), Dict{Any, Any}()), Linear())
 ```
 """
 function fit_model(

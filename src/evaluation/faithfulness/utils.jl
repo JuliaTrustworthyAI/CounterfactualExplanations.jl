@@ -291,7 +291,6 @@ Computes the distance from the counterfactual to generated conditional samples. 
 - `choose_lowest_energy::Bool=true`: Whether to choose the samples with the lowest energy.
 - `choose_random::Bool=false`: Whether to choose random samples.
 - `nmin::Int=25`: The minimum number of samples to choose.
-- `return_conditionals::Bool=false`: Whether to return the conditional samples.
 - `p::Int=1`: The norm to use for computing the distance.
 - `kwargs...`: Additional keyword arguments to be passed on to the sampler and PCD.
 
@@ -301,19 +300,18 @@ Computes the distance from the counterfactual to generated conditional samples. 
 """
 function distance_from_posterior(
     ce::AbstractCounterfactualExplanation;
-    niter::Int=50,
+    niter::Int=30,
     batch_size::Int=50,
     ntransitions::Int=100,
     prob_buffer::AbstractFloat=0.95,
-    opt::AbstractSamplingRule=ImproperSGLD(2.0, 0.01),
-    nsamples::Int=50,
-    niter_final::Int=500,
+    opt::AbstractSamplingRule=SGLD(),
+    nsamples::Int=100,
+    niter_final::Int=10000,
     from_posterior=true,
     agg=mean,
     choose_lowest_energy=true,
     choose_random=false,
     nmin::Int=25,
-    return_conditionals=false,
     p::Int=1,
     kwargs...,
 )
@@ -322,11 +320,11 @@ function distance_from_posterior(
 
     @assert choose_lowest_energy ⊻ choose_random || !choose_lowest_energy && !choose_random "Must choose either lowest energy or random samples or neither."
 
-    conditional_samples = []
-    ChainRulesCore.ignore_derivatives() do
-        _dict = ce.search
-        if !(:energy_sampler ∈ collect(keys(_dict)))
-            _dict[:energy_sampler] = EnergySampler(
+    # Get energy sampler from model:
+    M = ce.M
+    smpler = get!(ce.search, :energy_sampler) do
+        get!(M.fitresult.other, :energy_sampler) do
+            EnergySampler(
                 ce;
                 niter=niter,
                 batch_size=batch_size,
@@ -338,28 +336,29 @@ function distance_from_posterior(
                 kwargs...,
             )
         end
-        eng_sampler = _dict[:energy_sampler]
+    end
+
+    # Get conditional samples from posterior:
+    conditional_samples = []
+    ChainRulesCore.ignore_derivatives() do
         if choose_lowest_energy
-            nmin = minimum([nmin, size(eng_sampler.posterior)[end]])
-            xmin = get_lowest_energy_sample(eng_sampler; n=nmin)
+            nmin = minimum([nmin, size(smpler.posterior)[end]])
+            xmin = get_lowest_energy_sample(smpler; n=nmin)
             push!(conditional_samples, xmin)
         elseif choose_random
             push!(
-                conditional_samples,
-                rand(eng_sampler, nsamples; from_posterior=from_posterior),
+                conditional_samples, rand(smpler, nsamples; from_posterior=from_posterior)
             )
         else
-            push!(conditional_samples, eng_sampler.posterior)
+            push!(conditional_samples, smpler.posterior)
         end
     end
 
+    # Compute distance:
     _loss = map(eachcol(conditional_samples[1])) do xsample
         distance(ce; from=xsample, agg=agg, p=p)
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 
-    if return_conditionals
-        return conditional_samples[1]
-    end
     return _loss
 end

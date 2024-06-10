@@ -19,7 +19,7 @@ using TaijaData
         x = select_factual(data, chosen)
 
         # Search:
-        generator = GenericGenerator()
+        generator = ECCoGenerator()
         ce = generate_counterfactual(x, target, data, M, generator)
         @test typeof(ce) <: CounterfactualExplanation
         @test CounterfactualExplanations.counterfactual_label(ce) == [target]
