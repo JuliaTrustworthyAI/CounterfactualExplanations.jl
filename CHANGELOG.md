@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Added out-of-the-box support for training joint energy models (JEM). [#454]
 - Added new evaluation metric to measure faithfulness of counterfactual explanations as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). [#454]
 - A tutorial in the documentation ("Explanation" section) explaining the faithfulness metric in detail. [#454]
 - Added support for an energy constraint as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). This is the first step towards adding functionality for ECCCo. [#387] 

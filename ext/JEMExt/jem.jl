@@ -7,16 +7,31 @@ using TaijaBase: TaijaBase
 
 """
     CounterfactualExplanations.JEM(
-        model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_binary
+        model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_multi
     )
 
 Outer constructor for a neural network with Laplace Approximation from `LaplaceRedux.jl`.
 """
 function CounterfactualExplanations.JEM(
-    model::JointEnergyModels.JointEnergyClassifier;
-    likelihood::Symbol=:classification_binary,
+    model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_multi
 )
     return Models.Model(model, CounterfactualExplanations.JEM(); likelihood=likelihood)
+end
+
+"""
+    Models.Model(model, type::CounterfactualExplanations.JEM; likelihood::Symbol=:classification_multi)
+
+Overloaded constructor for Flux models.
+"""
+function Models.Model(
+    model, type::CounterfactualExplanations.JEM; likelihood::Symbol=:classification_multi
+)
+    if typeof(model) <: Array
+        @.(Flux.testmode!(model))
+    else
+        Flux.testmode!(model)
+    end
+    return Models.Model(model, likelihood, Models.Fitresult((model,), Dict()), type)
 end
 
 """
@@ -25,14 +40,17 @@ end
 Constructs a differentiable tree-based model for the given data.
 """
 function (M::Models.Model)(
-    data::CounterfactualData, type::CounterfactualExplanations.JEM; kwargs...
+    data::CounterfactualData,
+    type::CounterfactualExplanations.JEM;
+    sampling_batchsize=50,
+    kwargs...,
 )
     n = CounterfactualExplanations.DataPreprocessing.outdim(data)
     𝒟y = Categorical(ones(n) ./ n)
     𝒟x = Normal()
     input_dim = size(data.X, 1)
     sampler = JointEnergyModels.ConditionalSampler(
-        𝒟x, 𝒟y; input_size=(input_dim,), batch_size=50
+        𝒟x, 𝒟y; input_size=(input_dim,), batch_size=sampling_batchsize
     )
     model = JointEnergyModels.JointEnergyClassifier(sampler; kwargs...)
     M = CounterfactualExplanations.JEM(model; likelihood=data.likelihood)

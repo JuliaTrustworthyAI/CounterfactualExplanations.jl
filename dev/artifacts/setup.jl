@@ -6,7 +6,9 @@ setup = quote
     using CounterfactualExplanations
     using CounterfactualExplanations.Models
     using Flux
+    using JointEnergyModels
     using MLDatasets
+    using MLJFlux
     using TaijaData
 
     # Utils

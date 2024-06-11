@@ -14,7 +14,7 @@ using CounterfactualExplanations.Models
 using Flux
 using JointEnergyModels
 using MLJFlux
-using TaijaBase.Samplers: PCD, SGLD, ImproperSGLD
+using TaijaBase.Samplers: PMC, SGLD, ImproperSGLD
 using TaijaData
 ```
 
@@ -22,13 +22,15 @@ using TaijaData
 
 ## Synthetic Data
 
-### Simple Linear Model
+### Deep Ensemble
 
 ```{julia}
 nobs = 1000
-X, y = TaijaData.load_linearly_separable(nobs)
+X, y = TaijaData.load_blobs(nobs; cluster_std=0.1, center_box=(-1. => 1.))
 data = CounterfactualData(X, y)
-M = Models.fit_model(data,:Linear)
+flux_training_params.n_epochs = 1
+M = Models.fit_model(data,:DeepEnsemble)
+CounterfactualExplanations.reset!(flux_training_params)
 ```
 
 ```{julia}
@@ -46,27 +48,32 @@ conv = MaxIterConvergence()
 generator = GenericGenerator(opt=opt)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
-p1 = plot(ce; zoom=-10)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
+p1 = plot(ce, zoom=-1)
+scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
+_lim = maximum(abs.(X̂))
+xlims, ylims = (-_lim, _lim), (-_lim, _lim)
+p3 = plot(ce; xlims=xlims, ylims=ylims)
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
 
 # Search:
 generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
-p2 = plot(ce; zoom=-10)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
+p2 = plot(ce, zoom=-1)
+scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))")
+_lim = maximum(abs.(X̂))
+xlims, ylims = (-_lim, _lim), (-_lim, _lim)
+p4 = plot(ce; xlims=xlims, ylims=ylims)
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))")
 
-plot(p1, p2; size=(1000, 400))
+plot(p1, p2, p3, p4; size=(1000, 800))
 ```
 
 ### Joint Energy Model
 
 ```{julia}
-nobs = 1000
-X, y = TaijaData.load_blobs(nobs; cluster_std=0.1, center_box=(-1. => 1.))
-data = CounterfactualData(X, y)
 n_hidden = 16
 _batch_size = Int(round(nobs/10))
 epochs = 100
@@ -96,44 +103,47 @@ chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Adam(0.1)
-conv = MaxIterConvergence()
+opt = Adam(0.01)
+conv = GeneratorConditionsConvergence()
 
 # Generic Generator:
-generator = GenericGenerator(opt=opt)
+λ₁ = 0.3
+generator = GenericGenerator(opt=opt, λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 p1 = plot(ce; zoom=-1)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
-scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
+scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))", color=3, alpha=0.1)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
+λ₂ = 0.5
+generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 p2 = plot(ce; zoom=-1)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
-scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))")
+scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))", color=3, alpha=0.1)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 plot(p1, p2; size=(1000, 400))
 ```
 
-### More Complex Data
+## MNIST
 
 ```{julia}
-nobs = 1000
-X, y = TaijaData.load_circles(nobs)
-data = CounterfactualData(X, y)
-n_hidden = 32
-_batch_size = Int(round(nobs/10))
-epochs = 100
-M = Models.fit_model(data,:JEM)
+X, y = TaijaData.load_mnist()
+data = CounterfactualData(X, y; domain=(-1., 1.))
+
+using CounterfactualExplanations.Models: load_mnist_model
+using CounterfactualExplanations: JEM
+M = load_mnist_model(JEM())
 ```
 
 ```{julia}
 # Select a factual instance:
-target = 0
-factual = 1
+target = 9
+factual = 4
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
@@ -144,18 +154,12 @@ conv = MaxIterConvergence()
 # Generic Generator:
 generator = GenericGenerator(opt=opt)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce)
-p1 = plot(ce; zoom=-1)
-X̂ = ce.search[:energy_sampler][ce.target].posterior
-scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
+faith = Evaluation.faithfulness(ce; nsamples=100)
+X̂ = ce.search[:energy_sampler][ce.target].posterior |> x -> clamp.(x, -1., 1.)
 
 # Search:
 generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce)
-p2 = plot(ce; zoom=-1)
-X̂ = ce.search[:energy_sampler][ce.target].posterior
-scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))")
-
-plot(p1, p2; size=(1000, 400))
+faith = Evaluation.faithfulness(ce; nsamples=100)
+X̂ = ce.search[:energy_sampler][ce.target].posterior |> x -> clamp.(x, -1., 1.)
 ```

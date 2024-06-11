@@ -68,7 +68,7 @@ function EnergySampler(
     opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
-    prob_buffer::AbstractFloat=0.95,
+    prob_buffer::AbstractFloat=0.0,
     kwargs...,
 )
 
@@ -88,7 +88,14 @@ function EnergySampler(
 
     # Warm-up sampler:
     if ntransitions > 0
-        warmup!(energy_sampler, yidx; opt=opt_warmup, niter=niter, ntransitions=ntransitions, kwargs...)
+        warmup!(
+            energy_sampler,
+            yidx;
+            opt=opt_warmup,
+            niter=niter,
+            ntransitions=ntransitions,
+            kwargs...,
+        )
     end
 
     # Construct posterior samples:
@@ -224,14 +231,14 @@ end
 
 """
     generate_posterior_samples(
-        e::EnergySampler, n::Int=1000; niter::Int=500, kwargs...
+        e::EnergySampler, n::Int=1000; niter::Int=1000, kwargs...
     )
 
-Uses the replay buffer to generate `n` samples from the posterior distribution. Specifically, this entails running a single chain of the sampler for `niter` iterations. Typically, the number of iterations will be larger than during PMC training.
+Generates `n` samples from the posterior distribution of the model conditioned on the target value `y`. The samples are generated through (Persistent) Monte Carlo sampling using the `EnergySampler` object. If the replay buffer is not empty, the initial samples are drawn from the buffer. 
 
-# Note
+Note that by default the batch size of the sampler is set to `round(Int, n / 100)` by default for sampling. This is to ensure that the samples are drawn independently from the posterior distribution. It also helps to avoid vanishing gradients. 
 
-Note that by default the batch size of the sampler is set to `round(Int, n / 100)` by default for sampling. This is to ensure that the samples are drawn independently from the posterior distribution. It also helps to avoid vanishing gradients.
+The chain is run persistently until `n` samples are generated. The number of transitions is set to `ceil(Int, n / batch_size)`. Once the chain is run, the last `n` samples are form the replay buffer are returned.
 
 # Arguments
 
@@ -246,33 +253,33 @@ Note that by default the batch size of the sampler is set to `round(Int, n / 100
 - `AbstractArray`: The generated samples.
 """
 function generate_posterior_samples(
-    e::EnergySampler, n::Int=100; batch_size=round(Int, n / 100), niter::Int=1000, kwargs...
+    e::EnergySampler, n::Int=1000; batch_size=round(Int, n / 10), niter::Int=1000, kwargs...
 )
 
     # Store batch size:
     bs = e.sampler.batch_size
 
     # Specify batch size for sampling:
-    batch_size = maximum([1,batch_size])
-    dl = Flux.DataLoader((1:n,), batchsize=batch_size)
+    batch_size = maximum([1, batch_size])            # ensure batch size is at least 1
+    e.sampler.batch_size = batch_size               # set batch size for sampling
+    ntransitions = ceil(Int, n / batch_size) + 1    # number of transitions to generate n samples
 
-    # Generate samples:
-    X = []
-    for (i,) in dl
-        n_samples = length(i)
-        e.sampler.batch_size = n_samples
-        x = e.sampler(
-            e.model,
-            e.opt;
-            n_samples=n_samples,
-            niter=niter,
-            y=e.yidx,
-            clip_grads=nothing,
-            kwargs...,
-        )
-        push!(X, x)
-    end
-    X = hcat(X...)
+    # Adjust buffer size if necessary:
+    e.sampler.max_len = maximum([e.sampler.max_len, n])
+
+    # Generate samples through (Persistent) Monte Carlo sampling:
+    X = PMC(
+        e.sampler,
+        e.model,
+        e.opt;
+        ntransitions=ntransitions,
+        niter=niter,
+        y=e.yidx,
+        clip_grads=nothing,
+        kwargs...,
+    )[
+        :, 1:n
+    ]
 
     # Reset batch size:
     e.sampler.batch_size = bs
@@ -341,11 +348,7 @@ function distance_from_posterior(
     @assert choose_lowest_energy ⊻ choose_random || !choose_lowest_energy && !choose_random "Must choose either lowest energy or random samples or neither."
 
     # Get energy sampler from model:
-    smpler = get_sampler!(
-        ce;
-        nsamples=nsamples,
-        kwargs...,
-    )
+    smpler = get_sampler!(ce; nsamples=nsamples, kwargs...)
 
     # Get conditional samples from posterior:
     conditional_samples = []
@@ -364,8 +367,10 @@ function distance_from_posterior(
     end
 
     # Compute distance:
+    normalizing_constant = 2mean(std(conditional_samples[1]; dims=2))
     _loss = map(eachcol(conditional_samples[1])) do xsample
-        distance(ce; from=xsample, agg=agg, p=p) / 2std(xsample)
+        d = distance(ce; from=xsample, agg=agg, p=p)
+        d / normalizing_constant
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 

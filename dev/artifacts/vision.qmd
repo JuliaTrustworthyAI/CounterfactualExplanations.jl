@@ -24,6 +24,7 @@ input_dim, n_obs = size(X)
 ### Classifiers
 
 ```{julia}
+# MLP and Deep Ensemble
 flux_training_params.batchsize = Int(round(n_obs/10))
 flux_training_params.verbose = true
 M = fit_model(counterfactual_data, :MLP, n_hidden=32)
@@ -40,6 +41,41 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 ```{julia}
 Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M.fitresult())
 Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens.fitresult())
+```
+
+```{julia}
+# Joint Energy Model
+n_obs = 10000           # undersample to speed up training
+data = counterfactual_data = CounterfactualData(TaijaData.load_mnist(n_obs)...)
+data.domain = (-1.0, 1.0)
+n_hidden = 32
+α = [1.0, 1.0, 1e-1]
+sampling_batchsize = 50
+bs = 128
+sampling_steps = 25
+epochs = 100
+M = Models.fit_model(
+    data,:JEM;
+    builder=MLJFlux.MLP(
+        hidden=(n_hidden,), 
+        σ=Flux.relu
+    ),
+    batch_size=bs,
+    finaliser=Flux.softmax,
+    loss=Flux.Losses.crossentropy,
+    jem_training_params=(
+        α=α,
+        verbosity=epochs,
+    ),
+    epochs=epochs,
+    sampling_steps=sampling_steps,
+    sampling_batchsize=sampling_batchsize,
+)
+```
+
+```{julia}
+println("JEM test score (F1): $(model_evaluation(M, test_data))")
+Serialization.serialize(joinpath(model_path,"mnist_jem.jls"),M.fitresult())
 ```
 
 ### Generative Model

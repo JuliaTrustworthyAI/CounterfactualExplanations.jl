@@ -106,6 +106,15 @@ function (type::AbstractModelType)(data::CounterfactualData; kwargs...)
 end
 
 """
+    (type::AbstractModelType)(model; likelihood::Symbol=:classification_binary)
+
+Wrap model `type` around the pre-trained model `model`.
+"""
+function (type::AbstractModelType)(model; likelihood::Symbol=:classification_binary)
+    return Model(model, type; likelihood=likelihood)
+end
+
+"""
     train(M::Model, data::CounterfactualData)
 
 Trains the model `M` on the data in `data`.
