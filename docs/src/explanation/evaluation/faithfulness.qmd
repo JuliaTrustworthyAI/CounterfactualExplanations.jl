@@ -46,7 +46,7 @@ conv = MaxIterConvergence()
 generator = GenericGenerator(opt=opt)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
-p1 = plot(ce; zoom=-1)
+p1 = plot(ce; zoom=-10)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
 
@@ -54,7 +54,7 @@ scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="
 generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
-p2 = plot(ce; zoom=-1)
+p2 = plot(ce; zoom=-10)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="ECCo Generator ($(round(faith, digits=5)))")
 
@@ -131,11 +131,9 @@ M = Models.fit_model(data,:JEM)
 ```
 
 ```{julia}
-Random.seed!(123)
-
 # Select a factual instance:
-target = 1
-factual = 0
+target = 0
+factual = 1
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
