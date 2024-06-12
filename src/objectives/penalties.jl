@@ -180,11 +180,12 @@ Computes the energy constraint for the counterfactual explanation as in Altmeyer
 function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
-    reg_strength=0.1,
-    decay::Union{Nothing,AbstractFloat}=0.005,
+    reg_strength::AbstractFloat=0.0,
+    decay::Union{Nothing,AbstractFloat}=nothing,
     kwargs...,
 )
     ℒ = 0
+    ϕ = 1.0
     x′ = CounterfactualExplanations.decode_state(ce)     # current state
 
     t = get_target_index(ce.data.y_levels, ce.target)
@@ -193,17 +194,23 @@ function energy_constraint(
     # Generative loss:
     gen_loss = energy.(ce.M, xs, t) |> agg
 
-    # Regularization loss:
-    reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
-
     # Decay:
-    ϕ = 1.0
     if !isnothing(decay)
-        ϕ = exp(-decay[1] * (total_steps(ce) + 1))
+        ϕ *= exp(-decay[1] * (total_steps(ce) + 1))
+        println("ϕ: $ϕ")
     end
 
-    # Total loss:
-    ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
+    if reg_strength == 0.0
+        ℒ = ϕ * gen_loss
+    else
+        # Regularization loss:
+        reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
+
+        # Total loss:
+        ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
+    end
+
+    println("Energy constraint: $ℒ")
 
     return ℒ
 end

@@ -25,8 +25,8 @@ using TaijaData
 ### Deep Ensemble
 
 ```{julia}
-nobs = 1000
-X, y = TaijaData.load_blobs(nobs; cluster_std=0.1, center_box=(-1. => 1.))
+n_obs = 1000
+X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. => 1.))
 data = CounterfactualData(X, y)
 flux_training_params.n_epochs = 1
 M = Models.fit_model(data,:DeepEnsemble)
@@ -42,7 +42,7 @@ x = select_factual(data, chosen)
 
 # Search parameters:
 opt = Adam(0.1)
-conv = MaxIterConvergence()
+conv = GeneratorConditionsConvergence()
 
 # Generic Generator:
 generator = GenericGenerator(opt=opt)
@@ -57,7 +57,7 @@ p3 = plot(ce; xlims=xlims, ylims=ylims)
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="Generic Generator ($(round(faith, digits=5)))")
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
+generator = ECCoGenerator(opt=opt; λ=[0.1, 1.0])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
@@ -75,7 +75,7 @@ plot(p1, p2, p3, p4; size=(1000, 800))
 
 ```{julia}
 n_hidden = 16
-_batch_size = Int(round(nobs/10))
+_batch_size = Int(round(n_obs/10))
 epochs = 100
 M = Models.fit_model(
     data,:JEM;
@@ -117,7 +117,7 @@ scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="
 scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 # Search:
-λ₂ = 0.5
+λ₂ = 1.0
 generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
@@ -133,33 +133,45 @@ plot(p1, p2; size=(1000, 400))
 
 ```{julia}
 X, y = TaijaData.load_mnist()
-data = CounterfactualData(X, y; domain=(-1., 1.))
+data = CounterfactualData(X, y)
 
 using CounterfactualExplanations.Models: load_mnist_model
 using CounterfactualExplanations: JEM
-M = load_mnist_model(JEM())
+# M = load_mnist_model(JEM())
+M = load_mnist_model(MLP())
 ```
 
 ```{julia}
 # Select a factual instance:
-target = 9
-factual = 4
+target = 5
+factual = 9
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Adam(0.1)
-conv = MaxIterConvergence()
+opt = Descent(0.05)
+conv = GeneratorConditionsConvergence(decision_threshold = 0.9, max_iter=100)
 
-# Generic Generator:
-generator = GenericGenerator(opt=opt)
-ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce; nsamples=100)
-X̂ = ce.search[:energy_sampler][ce.target].posterior |> x -> clamp.(x, -1., 1.)
+# # Generic Generator:
+# generator = GenericGenerator(opt=opt)
+# ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
+# faith = Evaluation.faithfulness(ce; nsamples=100)
+# X̂ = ce.search[:energy_sampler][ce.target].posterior 
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.0, 1.0])
+generator = ECCoGenerator(opt=opt; λ=[0.1, 1.0], dim_reduction=true)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce; nsamples=100)
-X̂ = ce.search[:energy_sampler][ce.target].posterior |> x -> clamp.(x, -1., 1.)
+faith = Evaluation.faithfulness(ce; nsamples=10, niter_final=10000)
+plaus = Evaluation.plausibility(ce)
+X̂ = ce.search[:energy_sampler][ce.target].posterior 
+img = convert2image(MNIST, reshape(ce.x′, 28, 28))
+factual = convert2image(MNIST, reshape(x, 28, 28))
+imgs = eachcol(X̂) |>
+    X -> reshape.(X, 28, 28) |>
+    X -> convert2image.(MNIST, X) |>
+    X -> mosaicview(X, nrow=10)
+p1 = plot(factual; title="Factual")
+p2 = plot(img, title="$(round(target_probs(ce)[1], digits=5))")
+plot(p1, p2; size=(500, 200))
 ```
+

@@ -64,7 +64,7 @@ function EnergySampler(
     nsamples::Int=100,
     niter_final::Int=1000,
     batch_size_final::Int=round(Int, nsamples / 100),
-    ntransitions::Int=0,
+    nwarmup::Int=0,
     opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
@@ -80,6 +80,7 @@ function EnergySampler(
     # Optimizer:
     if isnothing(opt)
         α = (2 / std(Uniform())) * std(𝒟x)
+        println(α)
         opt = SGLD(; a=α, b=1.0, γ=0.9)
     end
 
@@ -87,7 +88,10 @@ function EnergySampler(
     energy_sampler = EnergySampler(model, sampler, opt, [], yidx)
 
     # Warm-up sampler:
-    if ntransitions > 0
+    if nwarmup > 0
+        @info "Warming up sampler..."
+        ntransitions = round(Int, nwarmup / batch_size)
+        println(ntransitions)
         warmup!(
             energy_sampler,
             yidx;
@@ -99,6 +103,7 @@ function EnergySampler(
     end
 
     # Construct posterior samples:
+    @info "Generating posterior samples..."
     Xpost = generate_posterior_samples(
         energy_sampler, nsamples; batch_size=batch_size_final, niter=niter_final, kwargs...
     )

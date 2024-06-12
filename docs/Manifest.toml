@@ -3037,7 +3037,7 @@ version = "1.11.1"
 
 [[deps.TaijaBase]]
 deps = ["CategoricalArrays", "Distributions", "Flux", "MLUtils", "Optimisers", "StatsBase", "Tables"]
-git-tree-sha1 = "1c80c4472c6ab6e8c9fa544a22d907295b388dd0"
+path = "../../TaijaBase.jl"
 uuid = "10284c91-9f28-4c9a-abbf-ee43576dfff6"
 version = "1.2.2"
 
