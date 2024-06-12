@@ -47,7 +47,7 @@ Constructor for `EnergySampler`, which is used to sample from the posterior dist
 - `opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing`: The sampling rule to be used for warm-up. By default, `ImproperSGLD` is used with `α = (2 / std(Uniform()) * std(𝒟x)` and `γ = 0.005α`.
 - `niter::Int=100`: The number of iterations for training the sampler through PMC.
 - `batch_size::Int=50`: The batch size for training the sampler.
-- `prob_buffer::AbstractFloat=0.95`: The probability of drawing samples from the replay buffer.
+- `prob_buffer::AbstractFloat=0.5`: The probability of drawing samples from the replay buffer. Smaller values will result in more samples being drawn from the prior and typically lead to better mixing and diversity in the samples.
 - `kwargs...`: Additional keyword arguments to be passed on to the sampler and PMC.
 
 # Returns
@@ -68,7 +68,7 @@ function EnergySampler(
     opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
-    prob_buffer::AbstractFloat=0.95,
+    prob_buffer::AbstractFloat=0.5,
     kwargs...,
 )
 
@@ -80,8 +80,11 @@ function EnergySampler(
     # Optimizer:
     if isnothing(opt)
         α = (2 / std(Uniform())) * std(𝒟x)
+        b = round(Int, niter_final / 100)
         println(α)
-        opt = SGLD(; a=α, b=1.0, γ=0.9)
+        println(b)
+
+        opt = SGLD(; a=α, b=b, γ=0.9)
     end
 
     # Initiate:

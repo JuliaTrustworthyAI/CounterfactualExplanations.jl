@@ -49,11 +49,11 @@ n_obs = 10000           # undersample to speed up training
 data = counterfactual_data = CounterfactualData(TaijaData.load_mnist(n_obs)...)
 data.domain = (-1.0, 1.0)
 n_hidden = 32
-α = [1.0, 1.0, 1e-1]
-sampling_batchsize = 50
-bs = 128
+α = [1.0, 1.0, 5e-2]
+sampling_batchsize = 10
+bs = 64
 sampling_steps = 25
-epochs = 100
+epochs = 10
 M = Models.fit_model(
     data,:JEM;
     builder=MLJFlux.MLP(
