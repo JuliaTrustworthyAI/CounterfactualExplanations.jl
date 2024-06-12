@@ -68,7 +68,7 @@ function EnergySampler(
     opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
-    prob_buffer::AbstractFloat=0.0,
+    prob_buffer::AbstractFloat=0.95,
     kwargs...,
 )
 
