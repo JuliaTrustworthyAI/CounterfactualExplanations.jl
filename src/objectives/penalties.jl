@@ -1,3 +1,5 @@
+using CounterfactualExplanations: polynomial_decay
+using CounterfactualExplanations.Convergence
 using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
 using Statistics: mean
@@ -181,24 +183,24 @@ function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
     reg_strength::AbstractFloat=0.0,
-    decay::Union{Nothing,AbstractFloat}=0.0,
+    decay::AbstractFloat=0.9,
     kwargs...,
 )
-    ℒ = 0
-    ϕ = 1.0
-    x′ = CounterfactualExplanations.decode_state(ce)     # current state
 
+    # Setup:
+    ℒ = 0
+    x′ = CounterfactualExplanations.decode_state(ce)     # current state
     t = get_target_index(ce.data.y_levels, ce.target)
     xs = eachslice(x′; dims=ndims(x′))
 
+    # Multiplier ϕ for the energy constraint:
+    max_steps = Convergence.max_iter(ce.convergence)
+    b = round(Int, max_steps / 20)
+    a = 1.0 / ce.generator.opt.eta
+    ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
+
     # Generative loss:
     gen_loss = energy.(ce.M, xs, t) |> agg
-
-    # Decay:
-    if !isnothing(decay)
-        ϕ *= exp(-decay[1] * (total_steps(ce) + 1))
-        println("ϕ: $ϕ")
-    end
 
     if reg_strength == 0.0
         ℒ = ϕ * gen_loss
@@ -210,6 +212,7 @@ function energy_constraint(
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
     end
 
+    println("ϕ: $ϕ")    
     println("Energy constraint: $ℒ")
 
     return ℒ

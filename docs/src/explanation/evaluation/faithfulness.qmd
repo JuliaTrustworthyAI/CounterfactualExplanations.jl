@@ -59,7 +59,7 @@ scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="
 scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.1, 0.3])
+generator = ECCoGenerator(opt=opt; λ=[0.1, 0.5])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
@@ -107,11 +107,11 @@ chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Adam(0.01)
-conv = GeneratorConditionsConvergence()
+opt = RMSProp(0.01)
+conv = MaxIterConvergence(100)
 
 # Generic Generator:
-λ₁ = 0.1
+λ₁ = 0.5
 generator = GenericGenerator(opt=opt, λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
@@ -146,14 +146,14 @@ M = load_mnist_model(JEM())
 # M = load_mnist_model(MLP())
 
 # Select a factual instance:
-target = 3
+target = 7
 factual = 9
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Descent(0.05)
-conv = GeneratorConditionsConvergence(decision_threshold = 0.9, max_iter=100)
+opt = RMSProp(0.1)
+conv = GeneratorConditionsConvergence(decision_threshold = 0.9, max_iter=200)
 
 # # Generic Generator:
 # generator = GenericGenerator(opt=opt)
@@ -162,7 +162,7 @@ conv = GeneratorConditionsConvergence(decision_threshold = 0.9, max_iter=100)
 # X̂ = ce.search[:energy_sampler][ce.target].posterior 
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.1, 0.5])
+generator = ECCoGenerator(opt=opt; λ=[0.1, 0.5], dim_reduction=true)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
 factual = convert2image(MNIST, reshape(x, 28, 28))
@@ -170,7 +170,6 @@ p1 = plot(factual; title="Factual")
 p2 = plot(img, title="$(round(target_probs(ce)[1], digits=5))")
 plt = plot(p1, p2; size=(500, 200))
 display(plt)
-display(ce.x′)
 
 # faith = Evaluation.faithfulness(ce; nsamples=10, niter_final=10000)
 # plaus = Evaluation.plausibility(ce)

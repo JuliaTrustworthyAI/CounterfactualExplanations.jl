@@ -81,8 +81,6 @@ function EnergySampler(
     if isnothing(opt)
         α = (2 / std(Uniform())) * std(𝒟x)
         b = round(Int, niter_final / 100)
-        println(α)
-        println(b)
 
         opt = SGLD(; a=α, b=b, γ=0.9)
     end
