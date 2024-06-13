@@ -172,12 +172,24 @@ end
     energy_constraint(
         ce::AbstractCounterfactualExplanation;
         agg=mean,
-        reg_strength=0.1,
-        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=(0.1, 1),
+        reg_strength::AbstractFloat=0.0,
+        decay::AbstractFloat=0.9,
         kwargs...,
     )
 
-Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
+Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5. The energy constraint is a regularization term that penalizes the energy of the counterfactuals. The energy is computed as the negative logit of the target class.
+
+# Arguments
+
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation.
+- `agg::Function=mean`: The aggregation function (only applicable in case `num_counterfactuals > 1`). Default is `mean`.
+- `reg_strength::AbstractFloat=0.0`: The regularization strength.
+- `decay::AbstractFloat=0.9`: The decay rate for the polynomial decay function (defaults to 0.9). Parameter `a` is set to `1.0 / ce.generator.opt.eta`, such that the initial step size is equal to 1.0, not accounting for `b`. Parameter `b` is set to `round(Int, max_steps / 20)`, where `max_steps` is the maximum number of iterations.
+- `kwargs...`: Additional keyword arguments.
+
+# Returns
+
+- `ℒ::AbstractFloat`: The energy constraint.
 """
 function energy_constraint(
     ce::AbstractCounterfactualExplanation;
@@ -211,9 +223,6 @@ function energy_constraint(
         # Total loss:
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
     end
-
-    println("ϕ: $ϕ")    
-    println("Energy constraint: $ℒ")
 
     return ℒ
 end
