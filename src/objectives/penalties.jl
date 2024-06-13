@@ -180,8 +180,8 @@ Computes the energy constraint for the counterfactual explanation as in Altmeyer
 function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
-    reg_strength::AbstractFloat=0.01,
-    decay::Union{Nothing,AbstractFloat}=nothing,
+    reg_strength::AbstractFloat=0.0,
+    decay::Union{Nothing,AbstractFloat}=0.0,
     kwargs...,
 )
     ℒ = 0

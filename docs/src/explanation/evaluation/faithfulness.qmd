@@ -136,6 +136,7 @@ plot(p1, p2; size=(1000, 400))
 ## MNIST
 
 ```{julia}
+# Random.seed!(2024)
 X, y = TaijaData.load_mnist()
 data = CounterfactualData(X, y)
 
@@ -145,7 +146,7 @@ M = load_mnist_model(JEM())
 # M = load_mnist_model(MLP())
 
 # Select a factual instance:
-target = 8
+target = 3
 factual = 9
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
@@ -161,22 +162,23 @@ conv = GeneratorConditionsConvergence(decision_threshold = 0.9, max_iter=100)
 # X̂ = ce.search[:energy_sampler][ce.target].posterior 
 
 # Search:
-generator = ECCoGenerator(opt=opt; λ=[0.1, 0.5], dim_reduction=true)
+generator = ECCoGenerator(opt=opt; λ=[0.1, 0.5])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-# opt = SGLD(10.0, 100, 0.9)
-opt = nothing
-faith = Evaluation.faithfulness(ce; nsamples=10, niter_final=10000, opt=opt)
-plaus = Evaluation.plausibility(ce)
-X̂ = ce.search[:energy_sampler][ce.target].posterior 
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
 factual = convert2image(MNIST, reshape(x, 28, 28))
-imgs = eachcol(X̂) |>
-    X -> reshape.(X, 28, 28) |>
-    X -> convert2image.(MNIST, X) |>
-    X -> mosaicview(X, nrow=10)
 p1 = plot(factual; title="Factual")
 p2 = plot(img, title="$(round(target_probs(ce)[1], digits=5))")
 plt = plot(p1, p2; size=(500, 200))
-imgs
+display(plt)
+display(ce.x′)
+
+# faith = Evaluation.faithfulness(ce; nsamples=10, niter_final=10000)
+# plaus = Evaluation.plausibility(ce)
+# X̂ = ce.search[:energy_sampler][ce.target].posterior 
+# imgs = eachcol(X̂) |>
+#     X -> reshape.(X, 28, 28) |>
+#     X -> convert2image.(MNIST, X) |>
+#     X -> mosaicview(X, nrow=10)
+# imgs
 ```
 
