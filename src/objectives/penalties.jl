@@ -193,7 +193,7 @@ Computes the energy constraint for the counterfactual explanation as in Altmeyer
 function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
-    reg_strength::AbstractFloat=0.0,
+    reg_strength::AbstractFloat=1e-3,
     decay::AbstractFloat=0.9,
     kwargs...,
 )
@@ -223,7 +223,5 @@ function energy_constraint(
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
     end
 
-    println("ϕ:", ϕ)
-    println("Energy constraint: ", ℒ)
     return ℒ
 end

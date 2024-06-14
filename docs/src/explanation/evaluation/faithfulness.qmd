@@ -121,7 +121,7 @@ scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="
 scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 # Search:
-generator = ECCoGenerator(opt=opt, λ=[0.005,1.0])
+generator = ECCoGenerator(opt=opt; λ=[0.1, 1.0])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
@@ -151,14 +151,16 @@ M = load_mnist_model(JEM())
 # M = load_mnist_model(MLP())
 
 # Select a factual instance:
-target = 4
-factual = 9
+target = 3
+factual = 8
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = RMSProp(0.1)
+opt = Adam(0.05)
 conv = GeneratorConditionsConvergence(decision_threshold = 0.9)
+λ₁ = 0.01
+λ₂ = 2.0
 
 # Factual:
 factual = convert2image(MNIST, reshape(x, 28, 28))
@@ -166,7 +168,7 @@ p1 = plot(factual; title="Factual", axis=([], false))
 
 # Generic Generator:
 @info "Generic Generator"
-generator = GenericGenerator(opt=opt)
+generator = GenericGenerator(opt=opt; λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
 println("Faithfulness: $(round(faith, digits=5))")
@@ -177,7 +179,7 @@ p2 = plot(img, title="Generic: p(y=$target)=$(round(target_probs(ce)[1], digits=
 
 # Search:
 @info "ECCo Generator"
-generator = ECCoGenerator(opt=opt, λ=[0.005,1.0])
+generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
 println("Faithfulness: $(round(faith, digits=5))")

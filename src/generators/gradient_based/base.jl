@@ -48,7 +48,7 @@ function GradientBasedGenerator(;
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
     dim_reduction::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.RMSProp(),
+    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
     generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."
