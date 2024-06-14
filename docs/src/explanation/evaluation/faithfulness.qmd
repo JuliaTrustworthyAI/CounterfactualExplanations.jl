@@ -157,10 +157,10 @@ chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Adam(0.05)
-conv = GeneratorConditionsConvergence(decision_threshold = 0.9)
+opt = Adam(0.01)
+conv = MaxIterConvergence(100)
 λ₁ = 0.01
-λ₂ = 2.0
+λ₂ = 1.0
 
 # Factual:
 factual = convert2image(MNIST, reshape(x, 28, 28))
