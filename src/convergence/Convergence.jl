@@ -63,7 +63,7 @@ end
 Returns the maximum number of iterations specified.
 """
 function max_iter(conv::AbstractConvergence)
-    conv.max_iter
+    return conv.max_iter
 end
 
 export convergence_catalogue

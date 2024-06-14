@@ -1,5 +1,4 @@
 using CounterfactualExplanations: polynomial_decay
-using CounterfactualExplanations.Convergence
 using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
 using Statistics: mean
@@ -206,9 +205,9 @@ function energy_constraint(
     xs = eachslice(x′; dims=ndims(x′))
 
     # Multiplier ϕ for the energy constraint:
-    max_steps = Convergence.max_iter(ce.convergence)
-    b = round(Int, max_steps / 20)
-    a = 1.0 / ce.generator.opt.eta
+    max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
+    b = round(Int, max_steps / 25)
+    a = b / 10
     ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
     # Generative loss:
@@ -224,5 +223,7 @@ function energy_constraint(
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
     end
 
+    println("ϕ:", ϕ)
+    println("Energy constraint: ", ℒ)
     return ℒ
 end

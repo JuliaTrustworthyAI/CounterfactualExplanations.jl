@@ -18,7 +18,8 @@ function plausibility(
     ce::CounterfactualExplanation,
     fun::typeof(Objectives.distance_from_target);
     K=nothing,
-    λ::AbstractFloat=0.5,
+    λ::AbstractFloat=0.9,
+    normalize::Bool=true,
     kwrgs...,
 )
     # If the potential neighbours have not been computed, do so:
@@ -32,5 +33,8 @@ function plausibility(
         K = maximum([1000, size(ce.search[:potential_neighbours], 2)])
     end
     Δ = fun(ce; K=K, kwrgs...)
+    if normalize
+        Δ = Δ / size(ce.x, 1)
+    end
     return exp_decay(Δ, λ)
 end

@@ -68,7 +68,7 @@ function EnergySampler(
     opt_warmup::Union{Nothing,AbstractSamplingRule}=nothing,
     niter::Int=20,
     batch_size::Int=50,
-    prob_buffer::AbstractFloat=0.5,
+    prob_buffer::AbstractFloat=0.0,
     kwargs...,
 )
 
@@ -136,7 +136,7 @@ function define_prior(
     data::CounterfactualData;
     𝒟x::Union{Nothing,Distribution}=nothing,
     𝒟y::Union{Nothing,Distribution}=nothing,
-    n_std::Int=3,
+    n_std::Int=2,
 )
 
     # Input space:
@@ -373,10 +373,8 @@ function distance_from_posterior(
     end
 
     # Compute distance:
-    normalizing_constant = 2mean(std(conditional_samples[1]; dims=2))
     _loss = map(eachcol(conditional_samples[1])) do xsample
-        d = distance(ce; from=xsample, agg=agg, p=p)
-        d / normalizing_constant
+        distance(ce; from=xsample, agg=agg, p=p)
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 

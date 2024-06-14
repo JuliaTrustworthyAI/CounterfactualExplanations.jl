@@ -19,9 +19,13 @@ Computes the faithfulness of a counterfactual explanation based on the distance 
 function faithfulness(
     ce::CounterfactualExplanation,
     fun::typeof(distance_from_posterior);
-    λ::AbstractFloat=0.5,
+    λ::AbstractFloat=0.9,
+    normalize::Bool=true,
     kwrgs...,
 )
     Δ = fun(ce; kwrgs...)
+    if normalize
+        Δ = Δ / size(ce.x, 1)
+    end
     return exp_decay(Δ, λ)
 end

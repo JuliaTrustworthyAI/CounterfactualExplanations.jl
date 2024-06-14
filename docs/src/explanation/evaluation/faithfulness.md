@@ -1,8 +1,10 @@
-```@meta
+
+
+``` @meta
 CurrentModule = CounterfactualExplanations 
 ```
 
-```{julia}
+``` julia
 include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 
@@ -22,9 +24,11 @@ using TaijaData
 
 ## Synthetic Data
 
+- ☐ Joint Energy Model
+
 ### Joint Energy Model
 
-```{julia}
+``` julia
 n_obs = 1000
 X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. => 1.))
 data = CounterfactualData(X, y)
@@ -50,7 +54,7 @@ M = Models.fit_model(
 )
 ```
 
-```{julia}
+``` julia
 # Select a factual instance:
 target = 2
 factual = 1
@@ -86,7 +90,7 @@ plot(p1, p2; size=(1000, 400))
 
 ### Deep Ensemble
 
-```{julia}
+``` julia
 n_obs = 1000
 X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. => 1.))
 data = CounterfactualData(X, y)
@@ -95,7 +99,7 @@ M = Models.fit_model(data,:DeepEnsemble)
 CounterfactualExplanations.reset!(flux_training_params)
 ```
 
-```{julia}
+``` julia
 # Select a factual instance:
 target = 2
 factual = 1
@@ -121,7 +125,7 @@ scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title="
 scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20, color=4)
 
 # Search:
-generator = ECCoGenerator(opt=opt, λ=[0.005,1.0])
+generator = ECCoGenerator(opt=opt)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
@@ -139,7 +143,7 @@ plot(p1, p2, p3, p4; size=(1000, 800))
 
 ## MNIST
 
-```{julia}
+``` julia
 _nrow = 3
 Random.seed!(42)
 X, y = TaijaData.load_mnist()
@@ -151,13 +155,13 @@ M = load_mnist_model(JEM())
 # M = load_mnist_model(MLP())
 
 # Select a factual instance:
-target = 4
-factual = 9
+target = 3
+factual = 8
 chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = RMSProp(0.1)
+opt = RMSProp(0.01)
 conv = GeneratorConditionsConvergence(decision_threshold = 0.9)
 
 # Factual:
@@ -177,7 +181,7 @@ p2 = plot(img, title="Generic: p(y=$target)=$(round(target_probs(ce)[1], digits=
 
 # Search:
 @info "ECCo Generator"
-generator = ECCoGenerator(opt=opt, λ=[0.005,1.0])
+generator = ECCoGenerator(opt=opt)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
 println("Faithfulness: $(round(faith, digits=5))")
@@ -195,6 +199,4 @@ imgs = eachcol(X̂) |>
     X -> convert2image.(MNIST, X) |>
     X -> mosaicview(X, nrow=_nrow)
 imgs
-plt
 ```
-

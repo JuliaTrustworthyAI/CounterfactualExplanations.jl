@@ -111,6 +111,7 @@ function generate_counterfactual(
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !terminated(ce)
+        @info "Iteration: $(ce.search[:iteration_count])"
         update!(ce)
         if !isnothing(timer)
             yield()

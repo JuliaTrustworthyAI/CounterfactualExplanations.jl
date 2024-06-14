@@ -182,6 +182,6 @@ Computes the polynomial decay function as in Welling et al. (2011): https://www.
 function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     if decay <= 0.5 || decay > 1.0
         @warn "Decay rate should be in the range (0.5, 1.0]. See Welling et al. (2011) for more information: https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf."
-    end 
+    end
     return a * (b + t)^(-decay)
 end
