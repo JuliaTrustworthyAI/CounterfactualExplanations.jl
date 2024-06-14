@@ -4,9 +4,6 @@ abstract type AbstractCounterfactualExplanation end
 "Base type for models."
 abstract type AbstractModel end
 
-"Alias for `AbstractModel` (deprecated)."
-const AbstractFittedModel = AbstractModel
-
 "Treat `AbstractModel` as scalar when broadcasting."
 Base.broadcastable(model::AbstractModel) = Ref(model)
 

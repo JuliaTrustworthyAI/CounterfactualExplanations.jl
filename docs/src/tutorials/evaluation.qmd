@@ -14,7 +14,7 @@ include("$(pwd())/docs/setup_docs.jl")
 eval(setup_docs)
 ```
 
-# Performance Evaluation
+``# [Evaluation](@id evaluation)``{=commonmark}
 
 Now that we know how to generate counterfactual explanations in Julia, you may have a few follow-up questions: How do I know if the counterfactual search has been successful? How good is my counterfactual explanation? What does 'good' even mean in this context? In this tutorial, we will see how counterfactual explanations can be evaluated with respect to their performance.
 

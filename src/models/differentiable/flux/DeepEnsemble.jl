@@ -16,7 +16,7 @@ end
 Overloads the `logits` function for deep ensembles.
 """
 function logits(M::Model, type::DeepEnsemble, X::AbstractArray)
-    return sum(map(nn -> nn(X), M.fitresult)) / length(M.fitresult)
+    return sum(map(nn -> nn(X), M.fitresult())) / length(M.fitresult())
 end
 
 """
@@ -26,9 +26,9 @@ Overloads the `probs` function for deep ensembles.
 """
 function probs(M::Model, type::DeepEnsemble, X::AbstractArray)
     if M.likelihood == :classification_binary
-        output = sum(map(nn -> Flux.σ.(nn(X)), M.fitresult)) / length(M.fitresult)
+        output = sum(map(nn -> Flux.σ.(nn(X)), M.fitresult())) / length(M.fitresult())
     elseif M.likelihood == :classification_multi
-        output = sum(map(nn -> Flux.softmax(nn(X)), M.fitresult)) / length(M.fitresult)
+        output = sum(map(nn -> Flux.softmax(nn(X)), M.fitresult())) / length(M.fitresult())
     end
     return output
 end
@@ -43,6 +43,7 @@ function train(
 )
 
     # Prepare data:
+    X, y = (data.X, data.y)
     data = data_loader(data; batchsize=args.batchsize)
 
     # Multi-class case:
@@ -80,7 +81,7 @@ function train(
         count += 1
     end
 
-    M.fitresult = ensemble
+    M.fitresult = Fitresult(ensemble, Dict())
 
     return M
 end

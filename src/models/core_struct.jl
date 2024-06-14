@@ -17,6 +17,37 @@ mutable struct Model <: AbstractModel
 end
 
 """
+    Fitresult
+
+A struct to hold the results of fitting a model.
+
+# Fields
+
+- `fitresult`: The result of fitting the model to the data. This object should be callable on new data.
+- `other::Dict`: A dictionary to hold any other relevant information.
+"""
+mutable struct Fitresult
+    fitresult
+    other::Dict
+end
+
+"""
+    (fitresult::Fitresult)()
+
+    
+"""
+(fitresult::Fitresult)() = fitresult.fitresult
+
+"""
+    (fitresult::Fitresult)(newdata::AbstractArray)
+
+When called on new data, the `Fitresult` object returns the result of calling the fitresult on new data.
+"""
+function (fitresult::Fitresult)(newdata::AbstractArray; kwargs...)
+    return fitresult.fitresult(newdata; kwargs...)
+end
+
+"""
     Model(type::AbstractModelType; likelihood::Symbol=:classification_binary)
 
 Outer constructor for `Model` where the atomic model is not yet defined.
@@ -34,6 +65,13 @@ Outer constructor for `Model` where the atomic model is defined and assumed to b
 function Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
     return Model(model, likelihood, model, type)
 end
+
+"""
+    (model::AbstractModel)(X::AbstractArray)
+
+When called on data `x`, logits are returned.
+"""
+(model::AbstractModel)(X::AbstractArray) = logits(model, X)
 
 """
     logits(M::Model, X::AbstractArray)
@@ -65,6 +103,15 @@ Wrap model `type` around the data in `data`. This is a convenience function to a
 """
 function (type::AbstractModelType)(data::CounterfactualData; kwargs...)
     return Model(type; likelihood=data.likelihood)(data; kwargs...)
+end
+
+"""
+    (type::AbstractModelType)(model; likelihood::Symbol=:classification_binary)
+
+Wrap model `type` around the pre-trained model `model`.
+"""
+function (type::AbstractModelType)(model; likelihood::Symbol=:classification_binary)
+    return Model(model, type; likelihood=likelihood)
 end
 
 """
@@ -100,7 +147,7 @@ julia> using TaijaData
 julia> data = CounterfactualData(load_linearly_separable()...);
 
 julia> M = fit_model(data, Linear())
-CounterfactualExplanations.Models.Model(Chain(Dense(2 => 2)), :classification_multi, Chain(Dense(2 => 2)), Linear())
+CounterfactualExplanations.Models.Model(Chain(Dense(2 => 2)), :classification_multi, CounterfactualExplanations.Models.Fitresult(Chain(Dense(2 => 2)), Dict{Any, Any}()), Linear())
 ```
 """
 function fit_model(

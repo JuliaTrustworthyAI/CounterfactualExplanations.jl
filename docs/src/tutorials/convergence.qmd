@@ -30,7 +30,7 @@ generator = GenericGenerator(λ=0.01)
 
 ## Convergence in terms of gradients
 
-As gradients approach zero, the conditions defined by the search objective and hence the generator are satisfied. We therefore refere to this type of convergece criterium as [`GeneratorConditionsConvergence`](@ref)
+As gradients approach zero, the conditions defined by the search objective and hence the generator are satisfied. We therefore refer to this type of convergece criterium as [`GeneratorConditionsConvergence`](@ref).
 
 ```{julia}
 conv = GeneratorConditionsConvergence(gradient_tol=0.01, max_iter=1000)

@@ -9,6 +9,7 @@ using Statistics
 
 include("benchmark.jl")
 include("evaluate.jl")
+include("utils.jl")
 include("measures.jl")
 
 export Benchmark, benchmark, evaluate, default_measures

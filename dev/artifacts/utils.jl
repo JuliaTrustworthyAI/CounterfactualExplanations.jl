@@ -90,6 +90,8 @@ function generate_artifacts(
     if deploy
         tarball_hash = archive_artifact(hash, joinpath(tempdir, "$(artifact_name).tar.gz"))
 
+        println("Artifact hash: $hash")
+
         # Calculate tarball url
         tarball_url = "https://github.com/$(deploy_repo)/releases/download/$(tag)/$(artifact_name).tar.gz"
 

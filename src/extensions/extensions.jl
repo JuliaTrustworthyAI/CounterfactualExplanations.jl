@@ -8,3 +8,4 @@ using CounterfactualExplanations.Models
 include("DecisionTreeExt.jl")
 include("LaplaceReduxExt.jl")
 include("NeuroTreeExt.jl")
+include("JEMExt.jl")

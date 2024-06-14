@@ -57,6 +57,15 @@ function get_convergence_type(convergence::Symbol, y_levels::AbstractVector)
     )
 end
 
+"""
+    max_iter(conv::AbstractConvergence)
+
+Returns the maximum number of iterations specified.
+"""
+function max_iter(conv::AbstractConvergence)
+    return conv.max_iter
+end
+
 export convergence_catalogue
 export converged
 export get_convergence_type

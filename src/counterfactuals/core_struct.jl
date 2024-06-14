@@ -54,7 +54,9 @@ function CounterfactualExplanation(
     if generator.dim_reduction &&
         !(typeof(data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction)
         @info "No pre-trained dimensionality reduction model found. Training default PCA."
-        data.input_encoder = DataPreprocessing.fit_transformer(data, MultivariateStats.PCA)
+        data.input_encoder = DataPreprocessing.fit_transformer(
+            data, MultivariateStats.PCA; maxoutdim=28
+        )
     end
 
     # Factual and target:

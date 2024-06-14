@@ -1,5 +1,8 @@
 using Statistics: Statistics
 
+include("faithfulness/faithfulness.jl")
+include("plausibility/plausibility.jl")
+
 """
     validity(ce::CounterfactualExplanation; γ=0.5)
 

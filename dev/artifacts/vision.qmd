@@ -24,6 +24,7 @@ input_dim, n_obs = size(X)
 ### Classifiers
 
 ```{julia}
+# MLP and Deep Ensemble
 flux_training_params.batchsize = Int(round(n_obs/10))
 flux_training_params.verbose = true
 M = fit_model(counterfactual_data, :MLP, n_hidden=32)
@@ -38,8 +39,43 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data))")
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"mnist_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"mnist_ensemble.jls"),M_ens.fitresult())
+```
+
+```{julia}
+# Joint Energy Model
+n_obs = 10000           # undersample to speed up training
+data = counterfactual_data = CounterfactualData(TaijaData.load_mnist(n_obs)...)
+data.domain = (-1.0, 1.0)
+n_hidden = 32
+α = [1.0, 1.0, 1e-2]
+sampling_batchsize = 10
+bs = 128
+sampling_steps = 25
+epochs = 100
+M = Models.fit_model(
+    data,:JEM;
+    builder=MLJFlux.MLP(
+        hidden=(n_hidden,), 
+        σ=Flux.relu
+    ),
+    batch_size=bs,
+    finaliser=Flux.softmax,
+    loss=Flux.Losses.crossentropy,
+    jem_training_params=(
+        α=α,
+        verbosity=epochs,
+    ),
+    epochs=epochs,
+    sampling_steps=sampling_steps,
+    sampling_batchsize=sampling_batchsize,
+)
+```
+
+```{julia}
+println("JEM test score (F1): $(model_evaluation(M, test_data))")
+Serialization.serialize(joinpath(model_path,"mnist_jem.jls"),M.fitresult())
 ```
 
 ### Generative Model
@@ -53,62 +89,10 @@ Serialization.serialize(joinpath(model_path,"mnist_vae_strong.jls"),vae)
 ```
 
 ```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-images = []
-rec_images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 28,28) |>
-            x̂ -> convert2image(MNIST, x̂)
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |> 
-            x -> reshape(x, 28,28) |>
-            x -> convert2image(MNIST, x)
-        push!(images, x)
-        push!(rec_images, x̂)
-        j += 1
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "mnist_vae_strong.png"))
-```
-
-```{julia}
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=5)
 flux_training_params.verbose = true
 train!(vae, X)
 Serialization.serialize(joinpath(model_path,"mnist_vae_weak.jls"),vae)
-```
-
-```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-images = []
-rec_images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 28,28) |>
-            x̂ -> convert2image(MNIST, x̂)
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |> 
-            x -> reshape(x, 28,28) |>
-            x -> convert2image(MNIST, x)
-        push!(images, x)
-        push!(rec_images, x̂)
-        j += 1
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "mnist_vae_weak.png"))
 ```
 
 ## FashionMNIST 
@@ -118,22 +102,6 @@ counterfactual_data = CounterfactualData(TaijaData.load_fashion_mnist()...)
 X = counterfactual_data.X
 y = counterfactual_data.output_encoder.y  
 input_dim, n_obs = size(X)
-```
-
-```{julia}
-images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |> 
-            x -> reshape(x, 28,28) |>
-            x -> convert2image(FashionMNIST, x)
-        push!(images, x)
-        j += 1
-    end
-end
-mosaic(images..., ncol=10) |> display
 ```
 
 ### Classifiers
@@ -153,8 +121,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"fashion_mnist_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"fashion_mnist_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"fashion_mnist_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"fashion_mnist_ensemble.jls"),M_ens.fitresult())
 ```
 
 ### Generative Model
@@ -168,52 +136,10 @@ Serialization.serialize(joinpath(model_path,"fashion_mnist_vae_strong.jls"),vae)
 ```
 
 ```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-rec_images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 28,28) |>
-            x̂ -> convert2image(FashionMNIST, x̂)
-        push!(rec_images, x̂)
-        j += 1
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "fashion_mnist_vae_strong.png"))
-```
-
-```{julia}
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
 flux_training_params.verbose = true
 train!(vae, X)
 Serialization.serialize(joinpath(model_path,"fashion_mnist_vae_weak.jls"),vae)
-```
-
-```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-rec_images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 28,28) |>
-            x̂ -> convert2image(FashionMNIST, x̂)
-        push!(rec_images, x̂)
-        j += 1
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "fashion_mnist_vae_weak.png"))
 ```
 
 ## CIFAR 10
@@ -223,23 +149,6 @@ counterfactual_data = CounterfactualData(TaijaData.load_cifar_10()...)
 X = counterfactual_data.X
 y = counterfactual_data.output_encoder.y  
 input_dim, n_obs = size(X)
-```
-
-```{julia}
-images = []
-
-for i in 0:9
-    for j in 0:9
-        x = X[:,rand(findall(y .== i))]
-
-        x = clamp.((x .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x -> reshape(x, 32, 32, 3) |>
-            x -> convert2image(CIFAR10, x)
-        push!(images, x)
-    end
-end
-
-mosaic(images..., ncol=10) |> display
 ```
 
 ### Classifiers
@@ -259,8 +168,8 @@ println("Deep Ensemble test score (F1): $(model_evaluation(M_ens, test_data)[1])
 ```
 
 ```{julia}
-Serialization.serialize(joinpath(model_path,"cifar_10_mlp.jls"),M.fitresult)
-Serialization.serialize(joinpath(model_path,"cifar_10_ensemble.jls"),M_ens.fitresult)
+Serialization.serialize(joinpath(model_path,"cifar_10_mlp.jls"),M.fitresult())
+Serialization.serialize(joinpath(model_path,"cifar_10_ensemble.jls"),M_ens.fitresult())
 ```
 
 ### Generative Model
@@ -270,54 +179,15 @@ using CounterfactualExplanations.GenerativeModels: VAE, train!
 
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.0001, latent_dim=32, hidden_dim=64)
 flux_training_params.verbose = true
-train!(vae, X, y)
+train!(vae, X)
 Serialization.serialize(joinpath(model_path,"cifar_10_vae_strong.jls"),vae)
-```
-
-```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-rec_images = []
-for i in 0:9
-    j = 0
-    while j < 10
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 32, 32, 3) |>
-            x̂ -> convert2image(CIFAR10, x̂)
-        push!(rec_images, x̂)
-        j += 1
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "cifar_10_vae_strong.png"))
 ```
 
 ```{julia}
 vae = VAE(input_dim; nll=Flux.Losses.mse, epochs=100, λ=0.05, latent_dim=2, hidden_dim=10)
 flux_training_params.verbose = true
-train!(vae, X, y)
+train!(vae, X)
 Serialization.serialize(joinpath(model_path,"cifar_10_vae_weak.jls"),vae)
-```
-```{julia}
-using CounterfactualExplanations.GenerativeModels: reconstruct
-rec_images = []
-for i in 0:9
-    for j in 0:9
-        x = X[:,rand(findall(y .== i))]
-        x̂ = reconstruct(vae, x)[1] |> 
-            x̂ -> clamp.((x̂ .+ 1.0) ./ 2.0, 0.0, 1.0) |>
-            x̂ -> reshape(x̂, 32, 32, 3) |>
-            x̂ -> convert2image(CIFAR10, x̂)
-        push!(rec_images, x̂)
-    end
-end
-p1 = plot(mosaic(images..., ncol=10), title="Images")
-p2 = plot(mosaic(rec_images..., ncol=10), title="Reconstructions")
-plt = plot(p1, p2, axis=false, size=(800,375))
-savefig(plt, joinpath(www_path, "cifar_10_vae_weak.png"))
 ```
 
 ## Generate Artifacts
