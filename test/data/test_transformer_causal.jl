@@ -27,7 +27,7 @@ end
 # make variable names a bit easier to read
 variables = map(x->replace(x,"_"=>" "), names(df))
 
-est_g, score = ges(df, penalty=1.0, parallel=true)
+est_g, score = ges(df; penalty=1.0, parallel=true)
 
 est_dag= pdag2dag!(est_g)
 
