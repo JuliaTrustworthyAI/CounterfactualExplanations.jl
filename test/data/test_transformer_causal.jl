@@ -31,6 +31,7 @@ est_g, score = ges(df; penalty=1.0, parallel=true)
 
 est_dag= pdag2dag!(est_g)
 
+display(CI.estimate_equations(df, est_dag))
 
 display(CI.estimate_equations(df,est_dag))
 
