@@ -19,7 +19,7 @@ const InputTransformer = Union{
     StatsBase.AbstractDataTransform,
     MultivariateStats.AbstractDimensionalityReduction,
     GenerativeModels.AbstractGenerativeModel,
-    CI.SCM
+    CI.SCM,
 }
 
 """
