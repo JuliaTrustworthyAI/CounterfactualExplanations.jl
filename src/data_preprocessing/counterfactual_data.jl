@@ -1,4 +1,4 @@
-using MLJBase: MLJBase, Continuous, Finite 
+using MLJBase: MLJBase, Continuous, Finite
 using StatsBase: StatsBase, ZScoreTransform
 using Tables: Tables
 
