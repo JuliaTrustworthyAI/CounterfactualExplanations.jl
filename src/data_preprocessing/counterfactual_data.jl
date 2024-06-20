@@ -31,7 +31,7 @@ const TypedInputTransformer = Union{
     Type{<:StatsBase.AbstractDataTransform},
     Type{<:MultivariateStats.AbstractDimensionalityReduction},
     Type{<:GenerativeModels.AbstractGenerativeModel},
-    Type{<:CI.SCM}
+    Type{<:CI.SCM},
 }
 
 """
