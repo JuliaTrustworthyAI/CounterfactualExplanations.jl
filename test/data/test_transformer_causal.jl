@@ -21,7 +21,7 @@ df = DataFrame(CSV.File(HTTP.get(url).body))
 # for now, pcalg and fcialg only accepts Float variables...
 # this should change soon hopefully
 for name in names(df)
-	df[!, name] = convert(Array{Float64,1}, df[!,name])
+    df[!, name] = convert(Array{Float64,1}, df[!, name])
 end
 
 # make variable names a bit easier to read
