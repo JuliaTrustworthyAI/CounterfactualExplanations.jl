@@ -1,3 +1,5 @@
+import CausalInference as CI
+
 """
     fit_transformer!(
         data::CounterfactualData,
@@ -93,4 +95,26 @@ function fit_transformer(
     X = data.X
     dt = GenerativeModels._fit(input_encoder, X; kwargs...)
     return dt
+end
+
+
+"""
+    fit_transformer(
+        data::CounterfactualData,
+        input_encoder::Type{<:CI.SCM};
+        kwargs...,
+    )
+
+Fit a transformer to the data for a `SCM` object.
+"""
+function fit_transformer(
+    data::CounterfactualData,
+    input_encoder::Type{<:CI.SCM};
+    kwargs...,
+)
+    t = Tables.table(data.X)
+    est_g, score = CI.ges(t, penalty=1.0, parallel=true)
+    est_dag= CI.pdag2dag!(est_g)
+    scm = CI.estimate_equations(t, est_dag)
+    return scm
 end
