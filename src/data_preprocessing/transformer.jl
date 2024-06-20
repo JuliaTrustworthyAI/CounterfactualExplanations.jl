@@ -97,7 +97,6 @@ function fit_transformer(
     return dt
 end
 
-
 """
     fit_transformer(
         data::CounterfactualData,
