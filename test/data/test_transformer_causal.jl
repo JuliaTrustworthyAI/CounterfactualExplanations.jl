@@ -34,9 +34,6 @@ est_dag= pdag2dag!(est_g)
 display(CI.estimate_equations(df, est_dag))
 display(CI.estimate_equations(df, est_dag))
 display(CI.estimate_equations(df, est_dag))
-display(CI.estimate_equations(df,est_dag))
-
-
-data= CounterfactualData(Tables.matrix(df),[0,1,1,2,1,1,1,1])
+data = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1, 1, 1, 1])
 
 fit_transformer!(data, CI.SCM)
