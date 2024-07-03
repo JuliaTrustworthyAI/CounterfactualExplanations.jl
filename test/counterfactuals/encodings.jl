@@ -32,7 +32,7 @@ import CausalInference as CI
             @test typeof(ce) <: CounterfactualExplanation
         end
         @testset "Structural Causal Model" begin
-            N = 2000 
+            N = 2000
             x = randn(N)
             v = x + randn(N) * 0.25
             w = x + randn(N) * 0.25
