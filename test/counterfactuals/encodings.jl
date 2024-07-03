@@ -3,6 +3,7 @@ using CounterfactualExplanations.Models: load_mnist_mlp
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
 using TaijaData: load_mnist
+using Tables
 using CausalInference
 import CausalInference as CI
 
