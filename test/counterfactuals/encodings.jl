@@ -34,11 +34,11 @@ import CausalInference as CI
         @testset "Structural Causal Model" begin
             N = 2000 
             x = randn(N)
-            v = x + randn(N)*0.25
-            w = x + randn(N)*0.25
-            z = v + w + randn(N)*0.25
-            s = z + randn(N)*0.25
-            
+            v = x + randn(N) * 0.25
+            w = x + randn(N) * 0.25
+            z = v + w + randn(N) * 0.25
+            s = z + randn(N) * 0.25
+
             df = (x=x, v=v, w=w, z=z, s=s)
             
             data_scm= CounterfactualData(Tables.matrix(df),[0,1,1,2,1,1,1,1])
