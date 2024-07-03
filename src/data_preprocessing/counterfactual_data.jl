@@ -1,4 +1,4 @@
-using MLJBase: MLJBase, Continuous, Finite 
+using MLJBase: MLJBase, Continuous, Finite
 using StatsBase: StatsBase, ZScoreTransform
 using Tables: Tables
 
@@ -19,7 +19,7 @@ const InputTransformer = Union{
     StatsBase.AbstractDataTransform,
     MultivariateStats.AbstractDimensionalityReduction,
     GenerativeModels.AbstractGenerativeModel,
-    CI.SCM
+    CI.SCM,
 }
 
 """
@@ -31,7 +31,7 @@ const TypedInputTransformer = Union{
     Type{<:StatsBase.AbstractDataTransform},
     Type{<:MultivariateStats.AbstractDimensionalityReduction},
     Type{<:GenerativeModels.AbstractGenerativeModel},
-    Type{<:CI.SCM}
+    Type{<:CI.SCM},
 }
 
 """
