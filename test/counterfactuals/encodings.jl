@@ -43,7 +43,7 @@ import CausalInference as CI
             
             data_scm= CounterfactualData(Tables.matrix(df),[0,1,1,2,1,1,1,1])
 
-            data_scm.input_encoder= fit_transformer!(data, CI.SCM)
+            data_scm = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1, 1, 1, 1])
 
             data_scm.input_encoder = fit_transformer!(data, CI.SCM)
 
