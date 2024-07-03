@@ -3,6 +3,8 @@ using CounterfactualExplanations.Models: load_mnist_mlp
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
 using TaijaData: load_mnist
+using CausalInference
+import CausalInference as CI
 
 @testset "encodings.jl" begin
     @testset "Standardize" begin
@@ -27,6 +29,23 @@ using TaijaData: load_mnist
             x = select_factual(dt_pca, chosen)
             ce = generate_counterfactual(x, target, dt_pca, M, generator)
             @test typeof(ce) <: CounterfactualExplanation
+        end
+        @testset "Structural Causal Model" begin
+            N = 2000 
+            x = randn(N)
+            v = x + randn(N)*0.25
+            w = x + randn(N)*0.25
+            z = v + w + randn(N)*0.25
+            s = z + randn(N)*0.25
+            
+            df = (x=x, v=v, w=w, z=z, s=s)
+            
+            data_scm= CounterfactualData(Tables.matrix(df),[0,1,1,2,1,1,1,1])
+
+            data_scm.input_encoder= fit_transformer!(data, CI.SCM)
+
+            @test typeof(data_scm.input_encoder) <: InputTransformer
+
         end
     end
 end
