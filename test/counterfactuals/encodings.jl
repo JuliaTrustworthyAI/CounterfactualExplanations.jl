@@ -45,7 +45,7 @@ import CausalInference as CI
 
             data_scm.input_encoder= fit_transformer!(data, CI.SCM)
 
-            @test typeof(data_scm.input_encoder) <: InputTransformer
+            data_scm.input_encoder = fit_transformer!(data, CI.SCM)
 
             @test typeof(data_scm.input_encoder) <: InputTransformer
         end
