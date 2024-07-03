@@ -40,8 +40,6 @@ import CausalInference as CI
             s = z + randn(N) * 0.25
 
             df = (x=x, v=v, w=w, z=z, s=s)
-            
-            data_scm= CounterfactualData(Tables.matrix(df),[0,1,1,2,1,1,1,1])
 
             data_scm = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1, 1, 1, 1])
 
