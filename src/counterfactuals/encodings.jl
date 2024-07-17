@@ -99,6 +99,23 @@ function decode_array(
 end
 
 """
+    decode_array(dt::CI.SCM, x::AbstractArray)
+
+Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
+"""
+function decode_array(
+    data::CounterfactualData,
+    dt::CI.SCM,
+    x::AbstractArray,
+)
+
+    # Apply g(x), as in, either causal parents or identity:
+    x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
+
+    return x
+end
+
+"""
 function encode_state(
     ce::CounterfactualExplanation, 
     x::Union{AbstractArray,Nothing} = nothing,
