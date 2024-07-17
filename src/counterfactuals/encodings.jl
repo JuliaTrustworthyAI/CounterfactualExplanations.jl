@@ -112,7 +112,10 @@ function decode_array(
     # Apply g(x), as in, either causal parents or identity:
     x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
 
-    return x
+    # x₁ = x₁ + u₁
+    # x₂ = βx₁ + u₂
+
+    return x # return intervened features
 end
 
 """
