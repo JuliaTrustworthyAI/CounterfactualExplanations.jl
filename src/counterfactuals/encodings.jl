@@ -45,10 +45,19 @@ end
 Helper function to encode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
 function encode_array(
-    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+    data::CounterfactualData,
+    dt::GenerativeModels.AbstractGenerativeModel,
+    x::AbstractArray,
 )
     return GenerativeModels.encode(dt, x)
 end
+
+"""
+    encode_array(data::CounterfactualData, dt::CI.SCM, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::CI.SCM`. This is a no-op.
+"""
+encode_array(data::CounterfactualData, dt::CI.SCM, x::AbstractArray) = x
 
 """
     decode_array(dt::Nothing, x::AbstractArray)
@@ -93,13 +102,19 @@ end
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
 function decode_array(
-    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
+    data::CounterfactualData,
+    dt::GenerativeModels.AbstractGenerativeModel,
+    x::AbstractArray,
 )
     return GenerativeModels.decode(dt, x)
 end
 
 """
-    decode_array(dt::CI.SCM, x::AbstractArray)
+    decode_array(
+        data::CounterfactualData,
+        dt::CI.SCM,
+        x::AbstractArray,
+    )
 
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
