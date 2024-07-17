@@ -115,6 +115,14 @@ function decode_array(
     # x₁ = x₁ + u₁
     # x₂ = βx₁ + u₂
 
+    # Possible solution to avoid IF statement:
+    idx = transformable_features(data)      # this needs to be overloaded to get features with causal parents
+    ignore_derivatives() do
+        s = x[idx, :]                       # take the subset of features with causal parents
+        s = run_causal_effects(dt, s)       # apply causal effect
+        x[idx, :] = s                       # store changes
+    end
+
     return x # return intervened features
 end
 
