@@ -1,6 +1,8 @@
 using ChainRulesCore: ignore_derivatives
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
+using CausalInference: CausalInference
+using Graphs
 
 """
     encode_array(dt::Nothing, x::AbstractArray)
@@ -53,11 +55,11 @@ function encode_array(
 end
 
 """
-    encode_array(data::CounterfactualData, dt::CI.SCM, x::AbstractArray)
+    encode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray)
 
-Helper function to encode an array `x` using a data transform `dt::CI.SCM`. This is a no-op.
+Helper function to encode an array `x` using a data transform `dt::CausalInference.SCM`. This is a no-op.
 """
-encode_array(data::CounterfactualData, dt::CI.SCM, x::AbstractArray) = x
+encode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray) = x
 
 """
     decode_array(dt::Nothing, x::AbstractArray)
@@ -110,9 +112,48 @@ function decode_array(
 end
 
 """
+    run_causal_effects(
+        scm::CausalInference.SCM,
+        x::AbstractArray,
+        idxs::AbstractArray
+    )
+
+Apply the causal effects defined in a structural causal model (SCM) to an array `x`.
+"""
+function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray, idxs::AbstractArray)
+
+    g = scm.dag
+
+    for node in idxs
+        if node > length(scm.coefficients)
+            continue
+        end
+        
+        coef = scm.coefficients[node]
+        preds = inneighbors(g, node)
+        
+        if length(preds) > 0
+            X = vcat(x[preds, :], ones(1, size(x, 2)))
+
+            if size(coef, 1) == size(X, 1)
+                x[node, :] = coef' * X  # Matrix multiplication
+            else
+                println("Dimension mismatch: Cannot multiply coef and X.")
+            end
+        else
+            println("No parents, using only intercept term.")
+            x[node, :] .= coef[end]
+        end
+        
+        println("Updated x for node $node: ", x[node, :])
+    end
+    return x
+end
+
+"""
     decode_array(
         data::CounterfactualData,
-        dt::CI.SCM,
+        dt::CausalInference.SCM,
         x::AbstractArray,
     )
 
@@ -120,24 +161,24 @@ Helper function to decode an array `x` using a data transform `dt::GenerativeMod
 """
 function decode_array(
     data::CounterfactualData,
-    dt::CI.SCM,
+    dt::CausalInference.SCM,
     x::AbstractArray,
 )
 
     # Apply g(x), as in, either causal parents or identity:
-    x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
+    #x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
 
     # x₁ = x₁ + u₁
     # x₂ = βx₁ + u₂
 
     # Possible solution to avoid IF statement:
-    idx = transformable_features(data)      # this needs to be overloaded to get features with causal parents
+    idxs = transformable_features(data, CausalInference.SCM)      # get features with causal parents
+    z=[]
     ignore_derivatives() do
-        s = x[idx, :]                       # take the subset of features with causal parents
-        s = run_causal_effects(dt, s)       # apply causal effect
-        x[idx, :] = s                       # store changes
+        _z = run_causal_effects(dt, x, idxs)       # apply causal effect
+        push!(z,_z)
     end
-
+    x= z[1]
     return x # return intervened features
 end
 
@@ -226,3 +267,4 @@ function decode_state!(
 
     return ce
 end
+

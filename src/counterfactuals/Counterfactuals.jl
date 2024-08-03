@@ -22,3 +22,5 @@ include("search.jl")
 include("termination.jl")
 include("utils.jl")
 include("vectorised.jl")
+
+export decode_array

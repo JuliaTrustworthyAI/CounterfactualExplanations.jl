@@ -1,11 +1,12 @@
 using CounterfactualExplanations.DataPreprocessing: fit_transformer
 using CounterfactualExplanations.Models: load_mnist_mlp
+using CounterfactualExplanations: decode_array
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
 using TaijaData: load_mnist
 using Tables
-using CausalInference
-import CausalInference as CI
+using CausalInference: CausalInference
+
 
 @testset "encodings.jl" begin
     @testset "Standardize" begin
@@ -41,11 +42,28 @@ import CausalInference as CI
 
             df = (x=x, v=v, w=w, z=z, s=s)
 
-            data_scm = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1, 1, 1, 1])
+            data_scm = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1])
 
-            data_scm.input_encoder = fit_transformer!(data, CI.SCM)
+            data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
 
-            @test typeof(data_scm.input_encoder) <: InputTransformer
+            x_factual = select_factual(data_scm,1)
+
+            x_decoded= decode_array(
+                data_scm,
+                data_scm.input_encoder,
+                x_factual,
+            )
+
+            @test typeof(x_decoded) <: AbstractArray
+        end
+        @testset "SCM generate" begin
+            
+            dt_standardize = deepcopy(counterfactual_data)
+            dt_standardize.input_encoder = fit_transformer(
+                dt_standardize, StatsBase.ZScoreTransform
+            )
+            ce = generate_counterfactual(x, target, dt_standardize, M, generator)
+            @test typeof(ce) <: CounterfactualExplanation
         end
     end
 end

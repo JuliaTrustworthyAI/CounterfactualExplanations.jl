@@ -1,4 +1,4 @@
-import CausalInference as CI
+using CausalInference: CausalInference
 
 """
     fit_transformer!(
@@ -100,16 +100,16 @@ end
 """
     fit_transformer(
         data::CounterfactualData,
-        input_encoder::Type{<:CI.SCM};
+        input_encoder::Type{<:CausalInference.SCM};
         kwargs...,
     )
 
 Fit a transformer to the data for a `SCM` object.
 """
-function fit_transformer(data::CounterfactualData, input_encoder::Type{<:CI.SCM}; kwargs...)
+function fit_transformer(data::CounterfactualData, input_encoder::Type{<:CausalInference.SCM}; kwargs...)
     t = Tables.table(data.X)
-    est_g, score = CI.ges(t; penalty=1.0, parallel=true)
-    est_dag = CI.pdag2dag!(est_g)
-    scm = CI.estimate_equations(t, est_dag)
+    est_g, score = CausalInference.ges(t; penalty=1.0, parallel=true)
+    est_dag = CausalInference.pdag2dag!(est_g)
+    scm = CausalInference.estimate_equations(t, est_dag)
     return scm
 end
