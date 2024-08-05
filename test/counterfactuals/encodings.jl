@@ -57,12 +57,30 @@ using CausalInference: CausalInference
             @test typeof(x_decoded) <: AbstractArray
         end
         @testset "SCM generate" begin
+            N = 2000
+            x = randn(N)
+            v = x + randn(N) * 0.25
+            w = x + randn(N) * 0.25
+            z = v + w + randn(N) * 0.25
+            s = z + randn(N) * 0.25
+
+            df = (x=x, v=v, w=w, z=z, s=s)
+
+            counterfactual_data_scm = CounterfactualData(Tables.matrix(df), [0, 1, 1, 2, 1])
+
+            M = fit_model(counterfactual_data_scm, :Linear)
+            target = 2
+            factual = 1
+            chosen = rand(findall(predict_label(M, counterfactual_data_scm) .== factual))
+            x = select_factual(counterfactual_data_scm, chosen)
             
-            dt_standardize = deepcopy(counterfactual_data)
-            dt_standardize.input_encoder = fit_transformer(
-                dt_standardize, StatsBase.ZScoreTransform
-            )
-            ce = generate_counterfactual(x, target, dt_standardize, M, generator)
+
+            data_scm = deepcopy(counterfactual_data_scm)
+            data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
+
+            generator = GenericGenerator()
+
+            ce = generate_counterfactual(x, target, data_scm, M, generator)
             @test typeof(ce) <: CounterfactualExplanation
         end
     end
