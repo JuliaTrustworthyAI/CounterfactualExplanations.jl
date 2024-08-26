@@ -107,7 +107,7 @@ end
 Fit a transformer to the data for a `SCM` object.
 """
 function fit_transformer(data::CounterfactualData, input_encoder::Type{<:CausalInference.SCM}; kwargs...)
-    t = Tables.table(data.X)
+    t = Tables.table(transpose(data.X))
     est_g, score = CausalInference.ges(t; penalty=1.0, parallel=true)
     est_dag = CausalInference.pdag2dag!(est_g)
     scm = CausalInference.estimate_equations(t, est_dag)

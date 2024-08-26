@@ -120,35 +120,43 @@ end
 
 Apply the causal effects defined in a structural causal model (SCM) to an array `x`.
 """
+# function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray, idxs::AbstractArray)
+
+#     g = scm.dag
+
+#     for node in idxs
+#         if node > length(scm.coefficients)
+#             continue
+#         end
+        
+#         coef = scm.coefficients[node]
+#         preds = inneighbors(g, node)
+        
+#         if length(preds) > 0
+#             X = vcat(x[preds, :], ones(1, size(x, 2)))
+
+#             if size(coef, 1) == size(X, 1)
+#                 x[node, :] = coef' * X  # Matrix multiplication
+#             else
+#                 println("Dimension mismatch: Cannot multiply coef and X.")
+#             end
+#         else
+#             println("No parents, using only intercept term.")
+#             x[node, :] .= coef[end] 
+#         end
+        
+#         println("Updated x for node $node: ", x[node, :])
+#     end
+#     return x
+# end
 function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray, idxs::AbstractArray)
-
-    g = scm.dag
-
-    for node in idxs
-        if node > length(scm.coefficients)
-            continue
-        end
-        
-        coef = scm.coefficients[node]
-        preds = inneighbors(g, node)
-        
-        if length(preds) > 0
-            X = vcat(x[preds, :], ones(1, size(x, 2)))
-
-            if size(coef, 1) == size(X, 1)
-                x[node, :] = coef' * X  # Matrix multiplication
-            else
-                println("Dimension mismatch: Cannot multiply coef and X.")
-            end
-        else
-            println("No parents, using only intercept term.")
-            x[node, :] .= coef[end]
-        end
-        
-        println("Updated x for node $node: ", x[node, :])
-    end
-    return x
+    # Perform the matrix multiplication on the selected rows and include the bias term
+    println("size x: " , size(x))
+    println("size x: " , size(scm.CausalEffectsMatrix))    
+    
+    return scm.CausalEffectsMatrix[idxs, 1:end-1] * x + scm.CausalEffectsMatrix[idxs, end]
 end
+
 
 """
     decode_array(
@@ -159,6 +167,29 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
+# function decode_array(
+#     data::CounterfactualData,
+#     dt::CausalInference.SCM,
+#     x::AbstractArray,
+# )
+
+#     # Apply g(x), as in, either causal parents or identity:
+#     #x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
+
+#     # x₁ = x₁ + u₁
+#     # x₂ = βx₁ + u₂
+
+#     # Possible solution to avoid IF statement:
+#     idxs = transformable_features(data, CausalInference.SCM)      # get features with causal parents
+#     z=[]
+#     ignore_derivatives() do
+#         _z = run_causal_effects(dt, x, idxs)       # apply causal effect
+#         push!(z,_z)
+#     end
+#     x= z[1]
+#     return x # return intervened features
+# end
+
 function decode_array(
     data::CounterfactualData,
     dt::CausalInference.SCM,
@@ -173,13 +204,8 @@ function decode_array(
 
     # Possible solution to avoid IF statement:
     idxs = transformable_features(data, CausalInference.SCM)      # get features with causal parents
-    z=[]
-    ignore_derivatives() do
-        _z = run_causal_effects(dt, x, idxs)       # apply causal effect
-        push!(z,_z)
-    end
-    x= z[1]
-    return x # return intervened features
+    x[idxs]= run_causal_effects(dt, x, idxs)
+    return x
 end
 
 """
