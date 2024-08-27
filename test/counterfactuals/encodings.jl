@@ -32,7 +32,7 @@ using CausalInference: CausalInference
             ce = generate_counterfactual(x, target, dt_pca, M, generator)
             @test typeof(ce) <: CounterfactualExplanation
         end
-        @testset "Structural Causal Model" begin
+        @testset "Structural Causal Model decode" begin
             N = 2000
             x = randn(N)
             v = x + randn(N) * 0.25
@@ -87,9 +87,8 @@ using CausalInference: CausalInference
 
             generator = GenericGenerator()
 
-            ce = generate_counterfactual(x, target, data_scm, M, generator)
+            ce = generate_counterfactual(x, target, data_scm, M, generator, initialization=:identity)
             println("ce: ",ce)
-            plot(ce)
             @test typeof(ce) <: CounterfactualExplanation
         end
     end

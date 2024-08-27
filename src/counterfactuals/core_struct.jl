@@ -1,5 +1,6 @@
 using ..GenerativeModels: GenerativeModels
 using MultivariateStats: MultivariateStats
+using CausalInference
 
 """
 A struct that collects all information relevant to a specific counterfactual explanation for a single individual.
@@ -111,7 +112,12 @@ function initialize!(ce::CounterfactualExplanation)
     end
 
     # Initialization:
-    adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
+    if !isa(ce.data.input_encoder,CausalInference.SCM)
+        adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
+    else
+        adjust_shape!(ce) |> encode_state! |> initialize_state!
+    end
+    
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
