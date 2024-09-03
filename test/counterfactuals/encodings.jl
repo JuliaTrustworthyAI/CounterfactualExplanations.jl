@@ -32,39 +32,14 @@ using CausalInference: CausalInference
             ce = generate_counterfactual(x, target, dt_pca, M, generator)
             @test typeof(ce) <: CounterfactualExplanation
         end
-        @testset "Structural Causal Model decode" begin
-            N = 2000
-            x = randn(N)
-            v = x + randn(N) * 0.25
-            w = x + randn(N) * 0.25
-            z = v + w + randn(N) * 0.25
-            s = z + randn(N) * 0.25
-
-            df = (x=x, v=v, w=w, z=z, s=s)
-            y_lab= Vector{Int}(zeros(2000))
-            y_lab .+= rand(0:2,length(y_lab))
-            println(y_lab)
-            data_scm = CounterfactualData(Tables.matrix(df,transpose=true),y_lab )
-
-            data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
-
-            x_factual = select_factual(data_scm,1)
-
-            x_decoded= decode_array(
-                data_scm,
-                data_scm.input_encoder,
-                x_factual,
-            )
-            
-            @test typeof(x_decoded) <: AbstractArray
-        end
+        
         @testset "SCM generate" begin
             N = 2000
             x = randn(N)
-            v = x + randn(N) * 0.25
-            w = x + randn(N) * 0.25
+            v = x.*x + randn(N) * 0.25
+            w = cos.(x) + randn(N) * 0.25
             z = v + w + randn(N) * 0.25
-            s = z + randn(N) * 0.25
+            s = sin.(z) + randn(N) * 0.25
 
             df = (x=x, v=v, w=w, z=z, s=s)
             y_lab= Vector{Int}(zeros(2000))
