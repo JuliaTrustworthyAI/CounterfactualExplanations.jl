@@ -36,7 +36,6 @@ function propose_state(
     ce::AbstractCounterfactualExplanation,
 )
     grads = ∇(generator, ce) # gradient
-    println("grads: ",grads)
     new_s′ = deepcopy(ce.s′)
     Flux.Optimise.update!(generator.opt, new_s′, grads)
     return new_s′

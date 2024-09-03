@@ -32,7 +32,7 @@ using CausalInference: CausalInference
             ce = generate_counterfactual(x, target, dt_pca, M, generator)
             @test typeof(ce) <: CounterfactualExplanation
         end
-        
+
         @testset "SCM generate" begin
             N = 2000
             x = randn(N)
@@ -44,18 +44,14 @@ using CausalInference: CausalInference
             df = (x=x, v=v, w=w, z=z, s=s)
             y_lab= Vector{Int}(zeros(2000))
             y_lab .+= rand(0:2,length(y_lab))
-            println(y_lab)
             counterfactual_data_scm = CounterfactualData(Tables.matrix(df,transpose=true),y_lab )
 
             M = fit_model(counterfactual_data_scm, :Linear)
-            println(predict_label(M, counterfactual_data_scm))
             target = 2
             factual = 1
             chosen = rand(findall(predict_label(M, counterfactual_data_scm) .== factual))
-            println("chosen: ",chosen)
             x = select_factual(counterfactual_data_scm, chosen)
             
-            println(size(x),x)
 
             data_scm = deepcopy(counterfactual_data_scm)
             data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
@@ -63,7 +59,6 @@ using CausalInference: CausalInference
             generator = GenericGenerator()
 
             ce = generate_counterfactual(x, target, data_scm, M, generator, initialization=:identity)
-            println("ce: ",ce)
             @test typeof(ce) <: CounterfactualExplanation
         end
     end
