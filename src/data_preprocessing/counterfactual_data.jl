@@ -293,7 +293,7 @@ function transformable_features(
     counterfactual_data::CounterfactualData, input_encoder::Type{CausalInference.SCM}
 )
     # Find all nodes that have causal parents
-    g= counterfactual_data.input_encoder.dag
-    child_causal_nodes = [v for v in vertices(g) if indegree(g,v)>=1] 
+    g = counterfactual_data.input_encoder.dag
+    child_causal_nodes = [v for v in vertices(g) if indegree(g, v) >= 1]
     return child_causal_nodes
 end
