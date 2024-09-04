@@ -135,11 +135,7 @@ end
 
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
-function decode_array(
-    data::CounterfactualData,
-    dt::CausalInference.SCM,
-    x::AbstractArray,
-)
+function decode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray)
 
     # Apply g(x), as in, either causal parents or identity:
     #x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
