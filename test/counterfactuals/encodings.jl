@@ -35,7 +35,7 @@ using CausalInference: CausalInference
         @testset "SCM generate" begin
             N = 2000
             x = randn(N)
-            v = x.*x + randn(N) * 0.25
+            v = x .* x + randn(N) * 0.25
             w = cos.(x) + randn(N) * 0.25
             z = v + w + randn(N) * 0.25
             s = sin.(z) + randn(N) * 0.25
