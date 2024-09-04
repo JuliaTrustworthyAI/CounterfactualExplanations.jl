@@ -125,7 +125,6 @@ function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray)
     # try both approaches, split in sum || concatenate 1 in x
 end
 
-
 """
     decode_array(
         data::CounterfactualData,
