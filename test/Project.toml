@@ -20,7 +20,7 @@ Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-Tables = "bd369af6-aec1-5ad0-b16a-14a3c9e3c2d9"
+Tables = "bd369af6-aec1-5ad0-b16a-f7cc5008161c"
 TaijaData = "9d524318-b4e6-4a65-86d2-b2b72d07866c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
