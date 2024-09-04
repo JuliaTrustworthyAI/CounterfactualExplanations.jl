@@ -58,7 +58,9 @@ using CausalInference: CausalInference
 
             generator = GenericGenerator()
 
-            ce = generate_counterfactual(x, target, data_scm, M, generator, initialization=:identity)
+            ce = generate_counterfactual(
+                x, target, data_scm, M, generator; initialization=:identity
+            )
             @test typeof(ce) <: CounterfactualExplanation
         end
     end
