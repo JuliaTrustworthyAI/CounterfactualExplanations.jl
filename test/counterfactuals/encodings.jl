@@ -7,7 +7,6 @@ using TaijaData: load_mnist
 using Tables
 using CausalInference: CausalInference
 
-
 @testset "encodings.jl" begin
     @testset "Standardize" begin
         dt_standardize = deepcopy(counterfactual_data)
