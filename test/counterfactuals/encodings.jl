@@ -41,9 +41,11 @@ using CausalInference: CausalInference
             s = sin.(z) + randn(N) * 0.25
 
             df = (x=x, v=v, w=w, z=z, s=s)
-            y_lab= Vector{Int}(zeros(2000))
-            y_lab .+= rand(0:2,length(y_lab))
-            counterfactual_data_scm = CounterfactualData(Tables.matrix(df,transpose=true),y_lab )
+            y_lab = Vector{Int}(zeros(2000))
+            y_lab .+= rand(0:2, length(y_lab))
+            counterfactual_data_scm = CounterfactualData(
+                Tables.matrix(df; transpose=true), y_lab
+            )
 
             M = fit_model(counterfactual_data_scm, :Linear)
             target = 2
