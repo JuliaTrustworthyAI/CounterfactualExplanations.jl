@@ -208,7 +208,6 @@ function decode_state(
     # Unpack:
     s′ = isnothing(x) ? deepcopy(ce.s′) : x
     data = ce.data
-    dt = data.input_encoder
     # Inverse-transform features:
     s′ = decode_array(data, dt, s′)
 
