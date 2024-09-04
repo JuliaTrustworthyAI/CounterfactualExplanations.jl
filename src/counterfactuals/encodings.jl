@@ -47,9 +47,7 @@ end
 Helper function to encode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
 function encode_array(
-    data::CounterfactualData,
-    dt::GenerativeModels.AbstractGenerativeModel,
-    x::AbstractArray,
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
 )
     return GenerativeModels.encode(dt, x)
 end
