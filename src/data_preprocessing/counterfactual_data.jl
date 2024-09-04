@@ -297,4 +297,3 @@ function transformable_features(
     child_causal_nodes = [v for v in vertices(g) if indegree(g,v)>=1] 
     return child_causal_nodes
 end
-
