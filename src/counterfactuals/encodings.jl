@@ -229,4 +229,3 @@ function decode_state!(
     ce.x′ = decode_state(ce, x)
 
     return ce
-
