@@ -104,9 +104,7 @@ end
 Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
 """
 function decode_array(
-    data::CounterfactualData,
-    dt::GenerativeModels.AbstractGenerativeModel,
-    x::AbstractArray,
+    data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
 )
     return GenerativeModels.decode(dt, x)
 end
