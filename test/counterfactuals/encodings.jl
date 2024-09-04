@@ -52,7 +52,6 @@ using CausalInference: CausalInference
             factual = 1
             chosen = rand(findall(predict_label(M, counterfactual_data_scm) .== factual))
             x = select_factual(counterfactual_data_scm, chosen)
-            
 
             data_scm = deepcopy(counterfactual_data_scm)
             data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
