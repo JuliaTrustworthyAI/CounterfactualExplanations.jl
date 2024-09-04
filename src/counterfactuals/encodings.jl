@@ -120,7 +120,7 @@ Apply the causal effects defined in a structural causal model (SCM) to an array 
 function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray)
     # Perform the matrix multiplication on the selected rows and include the bias term
 
-    return scm.causal_effects[:,1:end-1] * x + scm.causal_effects[:,end] # bias
+    return scm.causal_effects[:, 1:(end - 1)] * x + scm.causal_effects[:, end] # bias
 
     # try both approaches, split in sum || concatenate 1 in x
 end
