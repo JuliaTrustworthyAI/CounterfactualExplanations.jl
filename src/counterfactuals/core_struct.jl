@@ -112,7 +112,7 @@ function initialize!(ce::CounterfactualExplanation)
     end
 
     # Initialization:
-    if !isa(ce.data.input_encoder,CausalInference.SCM)
+    if !isa(ce.data.input_encoder, CausalInference.SCM)
         adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
     else
         adjust_shape!(ce) |> encode_state! |> initialize_state!
