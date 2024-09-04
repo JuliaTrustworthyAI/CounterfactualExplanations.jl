@@ -123,7 +123,6 @@ function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray)
     return scm.causal_effects[:, 1:(end - 1)] * x + scm.causal_effects[:, end] # bias
 
     # try both approaches, split in sum || concatenate 1 in x
-end
 
 """
     decode_array(
