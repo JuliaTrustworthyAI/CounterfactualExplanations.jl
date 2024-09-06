@@ -16,5 +16,6 @@ include("data_contraints.jl")
 
 export CounterfactualData
 export select_factual, apply_domain_constraints, OutputEncoder, transformable_features
+export fit_transformer, fit_transformer!
 
 end

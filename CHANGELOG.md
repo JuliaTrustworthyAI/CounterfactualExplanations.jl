@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.3.0] - 2024-05-23
+
+### Added
+
+- Added support for gradient-based causal algorithm-recourse (MNIT) as described in Karimi et al. ([2020](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=umI56k0AAAAJ&sortby=pubdate&citation_for_view=umI56k0AAAAJ:kNdYIx-mwKoC)). This incorporates an input encoder that is based on a Structural Causal Model  [#457] 
+
 ## Version [1.2.0] - 2024-05-23
 
 ### Added
