@@ -1,0 +1,28 @@
+# When Causal meets Recourse
+
+2024-09-03
+
+# `MINTGenerator`
+
+In this tutorial, we introduce the MINTGenerator, a counterfactual generator based on the Recourse through Minimal
+Intervention (MINT) method proposed by Karimi, Schölkopf, and Valera (2021).
+
+## Description
+
+The MINTGenerator incorporates causal reeasoning in algorithm recourse to achieve minimal interventions when generating a counterfactual explanation. In this sense, the main ideia is that just perturbating a black box model without taking into account the causal relations in the data can guide to misleading recommendations. Here we now shift to a perspective where every action/pertubation is an intervetion in the causal graph of the problem, thus the change is not made just in the intervened upon variable, but also in its childs in the causal structure. The generator utilizes a Structural Causal Model(SCM) to encode the variables in a way that causal effects are propagated and uses a generic gradient-based generator to create the search path, that is, any gradient-base generator (ECCo, REVISE, Watcher, …) can be used with the MNIT SCM encoder to generate counterfactual samples in latent space for minimal intervetions algorithm recourse.
+
+The MNIT algorithm minimizes a loss function that combines the causal constraints of the SCM and the distance between the generated counterfactual and the original input. Since we want a gradient-based generator, we need to pass the constrained optimizaiton problem into an unconstrained one and we do this by using the Lagrangian. Initially, as defined in Karimi, Schölkopf, and Valera (2021), we aim to aim to find the minimal cost set of actions $A$ (in the form of structural interventions) that results in a counterfactual instance yielding the favorable output from $h$,
+
+$$ A^* \in \arg\min_A \text{cost}(A; \mathbf{x}_F) $$
+
+, optimizing this loss function iteratively, the CLUEGenerator generates counterfactuals that are similar to the original observation but assigned low uncertainty.
+
+The formula for predictive entropy is as follow:
+
+``` math
+\begin{aligned}
+H(y^*|x^*, D) &= - \sum_{k=1}^{K} p(y^*=c_k|x^*, D) \log p(y^*=c_k|x^*, D)
+\end{aligned}
+```
+
+Karimi, Amir-Hossein, Bernhard Schölkopf, and Isabel Valera. 2021. “Algorithmic Recourse: From Counterfactual Explanations to Interventions.” In *Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency*, 353–62. FAccT ’21. New York, NY, USA: Association for Computing Machinery. <https://doi.org/10.1145/3442188.3445899>.
