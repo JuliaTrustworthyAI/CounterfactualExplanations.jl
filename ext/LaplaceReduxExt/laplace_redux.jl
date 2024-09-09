@@ -93,7 +93,7 @@ Predicts the logit scores for the input data `X` using the model `M`.
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.LaplaceReduxModel, X::AbstractArray
 )
-    return M.fitresult(X; predict_proba=false)
+    return predict(M.fitresult, X; predict_proba=false)
 end
 
 """
@@ -103,4 +103,4 @@ Predicts the probabilities of the classes for the input data `X` using the model
 """
 Models.probs(
     M::Models.Model, type::CounterfactualExplanations.LaplaceReduxModel, X::AbstractArray
-) = M.fitresult(X; predict_proba=true)
+) = predict(M.fitresult, X; predict_proba=true)
