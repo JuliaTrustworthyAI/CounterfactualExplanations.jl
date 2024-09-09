@@ -147,8 +147,8 @@ data = CounterfactualData(X, y)
 
 using CounterfactualExplanations.Models: load_mnist_model
 using CounterfactualExplanations: JEM
-M = load_mnist_model(JEM())
-# M = load_mnist_model(MLP())
+# M = load_mnist_model(JEM())
+M = load_mnist_model(MLP())
 
 # Select a factual instance:
 target = 3
@@ -159,8 +159,8 @@ x = select_factual(data, chosen)
 # Search parameters:
 opt = Adam(0.01)
 conv = MaxIterConvergence(100)
-λ₁ = 0.01
-λ₂ = 1.0
+λ₁ = 0.0
+λ₂ = 0.5
 
 # Factual:
 factual = convert2image(MNIST, reshape(x, 28, 28))
@@ -170,9 +170,9 @@ p1 = plot(factual; title="Factual", axis=([], false))
 @info "Generic Generator"
 generator = GenericGenerator(opt=opt; λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
+faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000, λ=0.1)
 println("Faithfulness: $(round(faith, digits=5))")
-plaus = Evaluation.plausibility(ce)
+plaus = Evaluation.plausibility(ce; λ=0.1)
 println("Plausibility: $(round(plaus, digits=5))")
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
 p2 = plot(img, title="Generic: p(y=$target)=$(round(target_probs(ce)[1], digits=5))", axis=([], false))
@@ -181,9 +181,9 @@ p2 = plot(img, title="Generic: p(y=$target)=$(round(target_probs(ce)[1], digits=
 @info "ECCo Generator"
 generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
-faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
+faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000, λ=0.1)
 println("Faithfulness: $(round(faith, digits=5))")
-plaus = Evaluation.plausibility(ce)
+plaus = Evaluation.plausibility(ce; λ=0.1)
 println("Plausibility: $(round(plaus, digits=5))")
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
 p3 = plot(img, title="ECCo: p(y=$target)=$(round(target_probs(ce)[1], digits=5))", axis=([], false))
