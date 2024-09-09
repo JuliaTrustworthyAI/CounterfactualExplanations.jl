@@ -766,9 +766,9 @@ version = "1.14.0"
 
 [[deps.JointEnergyModels]]
 deps = ["CategoricalArrays", "ChainRulesCore", "ComputationalResources", "Distributions", "EnergySamplers", "Flux", "MLJFlux", "MLJModelInterface", "MLUtils", "Optimisers", "ProgressMeter", "Random", "Reexport", "StatsBase", "Tables", "TaijaBase", "Zygote"]
-git-tree-sha1 = "d978d31cdb13e248ceb06c1d649fc1e7e031d41f"
+git-tree-sha1 = "dc413ab90e359ea0a32b10f63187e152e2ed24ba"
 uuid = "48c56d24-211d-4463-bbc0-7a701b291131"
-version = "0.1.6"
+version = "0.1.7"
 
 [[deps.JuliaVariables]]
 deps = ["MLStyle", "NameResolution"]
