@@ -74,7 +74,7 @@ Base.@deprecate FluxEnsemble(data::CounterfactualData) DeepEnsemble()(
     data::CounterfactualData
 )
 
-Base.@deprecate train!(vae, X, y) GenerativeModels.train!(vae, X)
+Base.@deprecate train!(vae, X, y) GenerativeModels.train!(vae, X) false
 
 Base.@deprecate load_mnist_mlp() Models.load_mnist_model(MLP())
 
