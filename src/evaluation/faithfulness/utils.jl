@@ -2,9 +2,9 @@ using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using ChainRulesCore: ChainRulesCore
 using Distributions
+using EnergySamplers
+using EnergySamplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule, PMC
 using Flux
-using TaijaBase: Samplers
-using TaijaBase.Samplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule, PMC
 
 "Base type that stores information relevant to energy-based posterior sampling from `AbstractModel`."
 mutable struct EnergySampler
@@ -429,7 +429,9 @@ function get_lowest_energy_sample(sampler::EnergySampler; n::Int=5)
     x = selectdim(
         X,
         ndims(X),
-        Samplers.energy(sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n)),
+        EnergySamplers.energy(
+            sampler.sampler, model, X, y; agg=x -> partialsortperm(x, 1:n)
+        ),
     )
     return x
 end

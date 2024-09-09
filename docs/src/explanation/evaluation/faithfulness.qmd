@@ -14,7 +14,7 @@ using CounterfactualExplanations.Models
 using Flux
 using JointEnergyModels
 using MLJFlux
-using TaijaBase.Samplers: PMC, SGLD, ImproperSGLD
+using EnergySamplers: PMC, SGLD, ImproperSGLD
 using TaijaData
 ```
 

@@ -1,6 +1,8 @@
 using ChainRulesCore: ignore_derivatives
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
+using CausalInference: CausalInference
+using Graphs
 
 """
     encode_array(dt::Nothing, x::AbstractArray)
@@ -51,6 +53,13 @@ function encode_array(
 end
 
 """
+    encode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray)
+
+Helper function to encode an array `x` using a data transform `dt::CausalInference.SCM`. This is a no-op.
+"""
+encode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray) = x
+
+"""
     decode_array(dt::Nothing, x::AbstractArray)
 
 Helper function to decode an array `x` using a data transform `dt::Nothing`. This is a no-op.
@@ -96,6 +105,46 @@ function decode_array(
     data::CounterfactualData, dt::GenerativeModels.AbstractGenerativeModel, x::AbstractArray
 )
     return GenerativeModels.decode(dt, x)
+end
+
+"""
+    run_causal_effects(
+        scm::CausalInference.SCM,
+        x::AbstractArray,
+        idxs::AbstractArray
+    )
+
+Apply the causal effects defined in a structural causal model (SCM) to an array `x`.
+"""
+
+function run_causal_effects(scm::CausalInference.SCM, x::AbstractArray)
+    # Perform the matrix multiplication on the selected rows and include the bias term
+
+    return scm.causal_effects[:, 1:(end - 1)] * x + scm.causal_effects[:, end] # bias
+
+    # try both approaches, split in sum || concatenate 1 in x
+end
+
+"""
+    decode_array(
+        data::CounterfactualData,
+        dt::CausalInference.SCM,
+        x::AbstractArray,
+    )
+
+Helper function to decode an array `x` using a data transform `dt::GenerativeModels.AbstractGenerativeModel`.
+"""
+function decode_array(data::CounterfactualData, dt::CausalInference.SCM, x::AbstractArray)
+
+    # Apply g(x), as in, either causal parents or identity:
+    #x = run_causal_effects(dt, x) # IF no causal parents, THEN identity function, ELSE apply causal effect
+
+    # x₁ = x₁ + u₁
+    # x₂ = βx₁ + u₂
+
+    # Possible solution to avoid IF statement:
+    #idxs = transformable_features(data, CausalInference.SCM)      # get features with causal parents
+    return run_causal_effects(dt, x)
 end
 
 """

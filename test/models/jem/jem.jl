@@ -4,7 +4,7 @@ using CounterfactualExplanations.Models
 using Flux
 using JointEnergyModels
 using MLJFlux
-using TaijaBase.Samplers: PCD, SGLD, ImproperSGLD
+using EnergySamplers: PCD, SGLD, ImproperSGLD
 using TaijaData
 
 @testset "JEM" begin
