@@ -17,9 +17,7 @@ end
 Computes the faithfulness of a counterfactual explanation based on the cosine similarity between the counterfactual and samples drawn from the model posterior through SGLD (see [`distance_from_posterior`](@ref)).
 """
 function faithfulness(
-    ce::CounterfactualExplanation,
-    fun::typeof(distance_from_posterior);
-    kwrgs...,
+    ce::CounterfactualExplanation, fun::typeof(distance_from_posterior); kwrgs...
 )
     Δ = fun(ce; kwrgs...)
     return -Δ
