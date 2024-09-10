@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Added tests for new evaluation metrics and JEM extension. [#471]
 - Added support for gradient-based causal algorithm-recourse (MNIT) as described in Karimi et al. ([2020](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=umI56k0AAAAJ&sortby=pubdate&citation_for_view=umI56k0AAAAJ:kNdYIx-mwKoC)). This incorporates an input encoder that is based on a Structural Causal Model  [#457] 
 - Added out-of-the-box support for training joint energy models (JEM). [#454]
 - Added new evaluation metric to measure faithfulness of counterfactual explanations as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). [#454]

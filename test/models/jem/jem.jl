@@ -4,7 +4,7 @@ using CounterfactualExplanations.Models
 using Flux
 using JointEnergyModels
 using MLJFlux
-using EnergySamplers: PCD, SGLD, ImproperSGLD
+using EnergySamplers: PMC, SGLD, ImproperSGLD
 using TaijaData
 
 @testset "JEM" begin
@@ -91,7 +91,7 @@ using TaijaData
     smpler.buffer = Float32.(rand(smpler.𝒟x, smpler.input_size..., smpler.batch_size))
     rule = jem.sampling_rule
     niter = 250
-    PCD(smpler, jem.chain, rule; niter=30, ntransitions=100, y=target)
+    PMC(smpler, jem.chain, rule; niter=30, ntransitions=100, y=target)
     plts = []
     for target in 1:size(y, 1)
         X̂ = smpler(jem.chain, rule; y=target, n_samples=batch_size, niter=niter)
