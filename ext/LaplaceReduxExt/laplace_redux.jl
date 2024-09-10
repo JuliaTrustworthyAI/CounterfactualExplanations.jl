@@ -80,7 +80,7 @@ function Models.train(
 
     # Update model
     M.model = la
-    M.fitresult = la
+    M.fitresult = Models.Fitresult(la, Dict())
 
     return M
 end
@@ -93,7 +93,7 @@ Predicts the logit scores for the input data `X` using the model `M`.
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.LaplaceReduxModel, X::AbstractArray
 )
-    return LaplaceRedux.predict(M.fitresult, X; predict_proba=false)
+    return LaplaceRedux.predict(M.fitresult(), X; predict_proba=false)
 end
 
 """
@@ -103,4 +103,4 @@ Predicts the probabilities of the classes for the input data `X` using the model
 """
 Models.probs(
     M::Models.Model, type::CounterfactualExplanations.LaplaceReduxModel, X::AbstractArray
-) = LaplaceRedux.predict(M.fitresult, X)
+) = LaplaceRedux.predict(M.fitresult(), X; predict_proba=true)

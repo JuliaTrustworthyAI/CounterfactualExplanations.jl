@@ -1,3 +1,4 @@
+using CounterfactualExplanations: polynomial_decay
 using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
 using Statistics: mean
@@ -88,13 +89,53 @@ end
         K::Int=50
     )
 
-Computes the distance of the counterfactual from a point in the target main.
+Computes the distance of the counterfactual from samples in the target main. If `choose_randomly` is `true`, the function will randomly sample `K` neighbours from the target manifold. Otherwise, it will compute the pairwise distances and select the `K` closest neighbours.
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation.
+- `K::Int=50`: The number of neighbours to sample.
+- `choose_randomly::Bool=true`: Whether to sample neighbours randomly.
+- `kwrgs...`: Additional keyword arguments for the distance function.
+
+# Returns
+- `Δ::AbstractFloat`: The distance from the counterfactual to the target manifold.
 """
-function distance_from_target(ce::AbstractCounterfactualExplanation; K::Int=50, kwrgs...)
-    ids = rand(1:size(ce.search[:potential_neighbours], 2), K)
-    neighbours = ce.search[:potential_neighbours][:, ids]
-    centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
-    Δ = distance(ce; from=centroid, kwrgs...)
+function distance_from_target(
+    ce::AbstractCounterfactualExplanation;
+    K::Int=50,
+    choose_randomly::Bool=false,
+    cosine::Bool=false,
+    kwrgs...,
+)
+
+    # Get potential neighbours:
+    ys = ce.search[:potential_neighbours]
+    if K > size(ys, 2)
+        @warn "`K` is larger than the number of potential neighbours. Future warnings will be suppressed." maxlog =
+            1
+    end
+
+    # Get K samples from potential neighbours:
+    if choose_randomly
+        # Choose K random samples:
+        ids = rand(1:size(ys, 2), K)
+    else
+        # Get K closest neighbours:
+        Δ = []
+        ChainRulesCore.ignore_derivatives() do
+            δ = map(eachcol(ys)) do y
+                distance(ce; from=y, kwrgs...)
+            end
+            push!(Δ, δ)
+        end
+        ids = sortperm(Δ[1])[1:K]
+    end
+
+    neighbours = ys[:, ids]
+
+    # Compute distance:
+    Δ = distance(ce; from=neighbours, cosine=cosine, kwrgs...) / size(neighbours, 2)
+
     return Δ
 end
 
@@ -138,43 +179,57 @@ end
     energy_constraint(
         ce::AbstractCounterfactualExplanation;
         agg=mean,
-        reg_strength=0.1,
-        decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+        reg_strength::AbstractFloat=0.0,
+        decay::AbstractFloat=0.9,
         kwargs...,
     )
 
-Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5.
+Computes the energy constraint for the counterfactual explanation as in Altmeyer et al. (2024): https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5. The energy constraint is a regularization term that penalizes the energy of the counterfactuals. The energy is computed as the negative logit of the target class.
+
+# Arguments
+
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation.
+- `agg::Function=mean`: The aggregation function (only applicable in case `num_counterfactuals > 1`). Default is `mean`.
+- `reg_strength::AbstractFloat=0.0`: The regularization strength.
+- `decay::AbstractFloat=0.9`: The decay rate for the polynomial decay function (defaults to 0.9). Parameter `a` is set to `1.0 / ce.generator.opt.eta`, such that the initial step size is equal to 1.0, not accounting for `b`. Parameter `b` is set to `round(Int, max_steps / 20)`, where `max_steps` is the maximum number of iterations.
+- `kwargs...`: Additional keyword arguments.
+
+# Returns
+
+- `ℒ::AbstractFloat`: The energy constraint.
 """
 function energy_constraint(
     ce::AbstractCounterfactualExplanation;
     agg=mean,
-    reg_strength=0.1,
-    decay::Union{Nothing,Tuple{<:AbstractFloat,<:Int}}=nothing,
+    reg_strength::AbstractFloat=1e-3,
+    decay::AbstractFloat=0.9,
     kwargs...,
 )
+
+    # Setup:
     ℒ = 0
     x′ = CounterfactualExplanations.decode_state(ce)     # current state
-
     t = get_target_index(ce.data.y_levels, ce.target)
     xs = eachslice(x′; dims=ndims(x′))
+
+    # Multiplier ϕ for the energy constraint:
+    max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
+    b = round(Int, max_steps / 25)
+    a = b / 10
+    ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
     # Generative loss:
     gen_loss = energy.(ce.M, xs, t) |> agg
 
-    # Regularization loss:
-    reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
+    if reg_strength == 0.0
+        ℒ = ϕ * gen_loss
+    else
+        # Regularization loss:
+        reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
 
-    # Decay:
-    ϕ = 1.0
-    if !isnothing(decay)
-        iter = total_steps(ce)
-        if iter % decay[2] == 0
-            ϕ = exp(-decay[1] * total_steps(ce))
-        end
+        # Total loss:
+        ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
     end
-
-    # Total loss:
-    ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
 
     return ℒ
 end

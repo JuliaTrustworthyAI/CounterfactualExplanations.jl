@@ -4,7 +4,7 @@
 CurrentModule = CounterfactualExplanations 
 ```
 
-# Performance Evaluation
+# [Evaluation](@id evaluation)
 
 Now that we know how to generate counterfactual explanations in Julia, you may have a few follow-up questions: How do I know if the counterfactual search has been successful? How good is my counterfactual explanation? What does ‘good’ even mean in this context? In this tutorial, we will see how counterfactual explanations can be evaluated with respect to their performance.
 
@@ -32,7 +32,7 @@ evaluate(ce; measure=distance)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [3.2273161]
+     [3.2160978]
 
 By default, `distance` computes the L2 (Euclidean) distance.
 
@@ -59,9 +59,9 @@ evaluate(ce; measure=distance_measures)
 
     4-element Vector{Vector{Float32}}:
      [2.0]
-     [3.2273161]
-     [2.7737978]
-     [2.7285953]
+     [3.2160978]
+     [2.782144]
+     [2.7413368]
 
 If no `measure` is specified, the `evaluate` method will return all default measures,
 
@@ -71,7 +71,7 @@ evaluate(ce)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[3.2273161]
+     Float32[3.2160978]
      [0.0]
 
 which include:
@@ -97,7 +97,7 @@ evaluate(ces)
 
     3-element Vector{Vector}:
      [1.0]
-     Float32[3.1955845]
+     Float32[3.2186122]
      [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 By default, each evaluation measure is aggregated across all counterfactual explanations. To return individual measures for each counterfactual explanation you can specify `report_each=true`
@@ -108,7 +108,7 @@ evaluate(ces; report_each=true)
 
     3-element Vector{Vector}:
      BitVector[[1, 1, 1, 1, 1]]
-     Vector{Float32}[[3.3671722, 3.1028512, 3.2829392, 3.0728922, 3.1520686]]
+     Vector{Float32}[[3.2230358, 3.1825113, 3.2527277, 3.2267833, 3.208004]]
      [[0.0, 0.0, 0.0, 0.0, 0.0]]
 
 ## Custom Measures
@@ -121,7 +121,7 @@ evaluate(ce; measure=my_measure)
 ```
 
     1-element Vector{Vector{Float32}}:
-     [0.41711217]
+     [0.40882105]
 
 ## Tidy Output
 
@@ -134,7 +134,7 @@ evaluate(ces; output_format=:Dict, report_each=true)
     Dict{Symbol, Vector} with 3 entries:
       :validity   => BitVector[[1, 1, 1, 1, 1]]
       :redundancy => [[0.0, 0.0, 0.0, 0.0, 0.0]]
-      :distance   => Vector{Float32}[[3.36717, 3.10285, 3.28294, 3.07289, 3.15207]]
+      :distance   => Vector{Float32}[[3.22304, 3.18251, 3.25273, 3.22678, 3.208]]
 
 Secondly, to return the output as a data frame, specify `output_format=:DataFrame`.
 
@@ -161,12 +161,12 @@ evaluation = evaluate.(ces)
 ```
 
     5-element Vector{Vector{Vector}}:
-     [[1.0], Float32[3.351181], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
-     [[1.0], Float32[2.6405892], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
-     [[1.0], Float32[2.935012], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
-     [[1.0], Float32[3.5348382], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
-     [[1.0], Float32[3.9373996], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[0.8], Float32[3.2487042], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[0.8], Float32[4.185718], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[4.0083566], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[1.0], Float32[2.9578466], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
+     [[0.8], Float32[2.6089585], [[0.0, 0.0, 0.0, 0.0, 0.0]]]
 
-    Vector{Vector}[[[1.0], Float32[3.351181], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[2.6405892], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[2.935012], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[3.5348382], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[3.9373996], [[0.0, 0.0, 0.0, 0.0, 0.0]]]]
+    Vector{Vector}[[[0.8], Float32[3.2487042], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[0.8], Float32[4.185718], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[4.0083566], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[1.0], Float32[2.9578466], [[0.0, 0.0, 0.0, 0.0, 0.0]]], [[0.8], Float32[2.6089585], [[0.0, 0.0, 0.0, 0.0, 0.0]]]]
 
 This leads us to our next topic: Performance Benchmarks.

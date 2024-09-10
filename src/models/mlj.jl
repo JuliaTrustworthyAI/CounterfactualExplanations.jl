@@ -21,7 +21,7 @@ function train(M::Model, type::MLJModelType, data::CounterfactualData)
     X = Tables.table(X)
     mach = MLJBase.machine(M.model, X, y)
     MLJBase.fit!(mach)
-    M.fitresult = mach.fitresult
+    M.fitresult = Fitresult(mach.fitresult, Dict())
     return M
 end
 
@@ -44,7 +44,7 @@ function probs(M::Model, type::MLJModelType, X::AbstractArray)
     end
     X = Tables.table(X')
     X = MLJBase.reformat(M.model, X)[1]
-    output = MLJBase.predict(M.model, M.fitresult, X)
+    output = MLJBase.predict(M.model, M.fitresult(), X)
     p = MLJBase.pdf(output, MLJBase.classes(output))'
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))

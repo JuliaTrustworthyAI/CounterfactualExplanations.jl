@@ -136,7 +136,7 @@ If the input is a decision tree, the method returns the decision tree itself ins
 - `classifiers::AbstractArray`: An array of individual classifiers in the forest.
 """
 function get_individual_classifiers(M::Models.Model)
-    fitted_params = MLJBase.fitted_params(M.model, M.fitresult)
+    fitted_params = MLJBase.fitted_params(M.model, M.fitresult())
     if M.model isa MLJDecisionTreeInterface.DecisionTreeClassifier
         return [fitted_params.tree.node]
     end

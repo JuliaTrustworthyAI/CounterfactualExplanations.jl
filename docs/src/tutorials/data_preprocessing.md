@@ -50,10 +50,8 @@ counterfactual_data.y
 Similarly, a transformer used to scale continuous input features is automatically fitted:
 
 ``` julia
-counterfactual_data.dt
+counterfactual_data.input_encoder
 ```
-
-    ZScoreTransform{Float64, Vector{Float64}}(4, 2, [5.843333333333335, 3.0540000000000007, 3.7586666666666693, 1.1986666666666672], [0.8280661279778629, 0.4335943113621737, 1.7644204199522617, 0.7631607417008414])
 
 ## Categorical Features
 
@@ -207,8 +205,8 @@ x = select_factual(counterfactual_data, chosen)
 ```
 
     5×1 Matrix{Float32}:
-     -2.9433472
-      0.5782963
+     -3.879591
+      1.7199689
       0.0
       0.0
       1.0
@@ -223,7 +221,7 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 ```
 
     CounterfactualExplanation
-    Convergence: ✅ after 7 steps.
+    Convergence: ✅ after 1 steps.
 
 The search yields the following counterfactual:
 
@@ -232,13 +230,13 @@ x′ = counterfactual(ce)
 ```
 
     5-element Vector{Float32}:
-     1.1222683
-     0.7145791
-     0.0
-     0.0
-     1.0
+     -3.89187
+      0.25591564
+      1.0
+      0.0
+      0.0
 
-It belongs to group Z.
+It belongs to group X.
 
 This is intuitive because by construction the categorical variable is most likely to take that value when `y` is equal to the target outcome.
 
@@ -271,14 +269,19 @@ plot(ce)
 ```
 
 ![](data_preprocessing_files/figure-commonmark/fig-mutability-output-1.svg)
-<!-- ## Domain constraints
-&#10;In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose an upper bound of $0.5$ for our two features.
-&#10;```{.julia}
+
+## Domain constraints
+
+In some cases, we may also want to constrain the domain of some feature. For example, age as a feature is constrained to a range from 0 to some upper bound corresponding perhaps to the average life expectancy of humans. Below, for example, we impose a lower bound of $0.5$ for our two features.
+
+``` julia
 counterfactual_data.mutability = [:both, :both]
-counterfactual_data.domain = [(0,0) for var in counterfactual_data.features_continuous]
+counterfactual_data.domain = [(0.5,Inf) for var in counterfactual_data.features_continuous]
 ```
-&#10;This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.
-&#10;```{.julia}
+
+This results in the counterfactual path shown below: since features are not allowed to be perturbed beyond the upper bound, the resulting counterfactual falls just short of the threshold probability $\gamma$.
+
+``` julia
 ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 plot(ce)
-``` -->
+```

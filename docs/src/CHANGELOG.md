@@ -6,10 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.1.6] - 2024-05-16
+## Version [1.2.0] - 2024-09-10
+
+### Added
+
+- Added support for gradient-based causal algorithm-recourse (MNIT) as described in Karimi et al. ([2020](https://scholar.google.com/citations?view_op=view_citation&hl=en&user=umI56k0AAAAJ&sortby=pubdate&citation_for_view=umI56k0AAAAJ:kNdYIx-mwKoC)). This incorporates an input encoder that is based on a Structural Causal Model  [#457] 
+- Added out-of-the-box support for training joint energy models (JEM). [#454]
+- Added new evaluation metric to measure faithfulness of counterfactual explanations as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). [#454]
+- A tutorial in the documentation ("Explanation" section) explaining the faithfulness metric in detail. [#454]
+- Added support for an energy constraint as in Altmeyer et al. ([2024](https://scholar.google.com/scholar?cluster=3697701546144846732&hl=en&as_sdt=0,5)). This is the first step towards adding functionality for ECCCo. [#387] 
+  
+### Changed
+
+- The `fitresult` field of `Model` now takes a concrete `Fitresult` type, for which some basic methods have been defined. This mutable struct has a field called `other` that accepts a dictionary `Dict` that can be filled with additional objects. [#454]
+- Regenerated pre-trained model artifacts. [#454]
+- Updated the tutorial on "Handling Data". [#454]
 
 ### Removed
 
+- Removed bug in `find_potential_neighbours` method. [#454]
+
+## Version [1.1.6] - 2024-05-19
+
+### Removed
+
+- Removed the call to the `Iris` function in the test suite because of HTTPs issues. [#452]
 - Removed the `mlj_models_catalogue` because it served no obvious purpose. In the future, we may instead add meta information to the `all_models_catalogue`. [#444]
 
 ### Added
@@ -19,6 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
+- No longer exporting many of the deprecated functions. [#452]
+- Updated pre-trained model artifacts. [#444]
 - Some function signatures have been deprecated, e.g. `NeuroTreeModel` to `NeuroTree`, `LaplaceReduxModel` to `LaplaceNN`. [#444]
 - Support for `DecisionTree.jl` models and the `FeatureTweakGenerator` have been moved to an extension (`DecisionTreeExt`). [#444]
 - Updates to NeuroTreeModels extensions to incorporate breaking changes to package. [#444]

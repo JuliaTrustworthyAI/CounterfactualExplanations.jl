@@ -56,12 +56,15 @@ makedocs(;
                 "PROBE" => "explanation/generators/probe.md",
                 "REVISE" => "explanation/generators/revise.md",
             ],
+            "Evaluation" => [
+                "Overview" => "explanation/evaluation/overview.md",
+                "Plausibility and Faithfulness" => "explanation/evaluation/faithfulness.md",
+            ],
             "Optimisers" => [
                 "Overview" => "explanation/optimisers/overview.md",
                 "JSMA" => "explanation/optimisers/jsma.md",
             ],
             "Categorical Features" => "explanation/categorical.md",
-            # "Loss functions" => "explanation/loss.md",
         ],
         "🫡 How-To ..." => [
             "Overview" => "how_to_guides/index.md",
