@@ -126,12 +126,12 @@ function distance_from_target(
             δ = map(eachcol(ys)) do y
                 distance(ce; from=y, kwrgs...)
             end
-            push!(Δ,δ)
+            push!(Δ, δ)
         end
         ids = sortperm(Δ[1])[1:K]
     end
 
-    neighbours = ys[:,ids]
+    neighbours = ys[:, ids]
 
     # Compute distance:
     Δ = distance(ce; from=neighbours, cosine=cosine, kwrgs...) / size(neighbours, 2)

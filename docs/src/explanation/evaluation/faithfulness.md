@@ -81,7 +81,7 @@ generator = GenericGenerator(opt=opt, λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, num_counterfactuals=5)
 faith = Evaluation.faithfulness(ce)
 plaus = Evaluation.plausibility(ce)
-p1 = plot(ce; zoom=-1)
+p1 = plot(ce; zoom=-1, target=target)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
 title = "Generic Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))"
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title=title, color=3, alpha=0.1)
@@ -93,7 +93,7 @@ generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, num_counterfactuals=5)
 faith = Evaluation.faithfulness(ce)
 plaus = Evaluation.plausibility(ce)
-p2 = plot(ce; zoom=-1)
+p2 = plot(ce; zoom=-1, target=target)
 X̂ = ce.search[:energy_sampler][ce.target].posterior
 title = "ECCo Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))"
 scatter!(X̂[1, :], X̂[2, :]; label="X|y=$target", shape=:star5, ms=10, title=title, color=3, alpha=0.1)
@@ -102,11 +102,7 @@ scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20
 plot(p1, p2; size=(1000, 400), topmargin=5mm)
 ```
 
-    [ Info: Generating posterior samples...
-    [ Info: No target label supplied, using first.
-    [ Info: No target label supplied, using first.
-
-![](faithfulness_files/figure-commonmark/cell-5-output-2.svg)
+![](faithfulness_files/figure-commonmark/cell-5-output-1.svg)
 
 ### Current Limitations
 
@@ -169,14 +165,13 @@ scatter!(ce.x′[1,:], ce.x′[2,:]; label="Counterfactual", shape=:star1, ms=20
 plot(p1, p2, p3, p4; size=(1000, 800), topmargin=5mm)
 ```
 
-    [ Info: Generating posterior samples...
-
-![](faithfulness_files/figure-commonmark/cell-7-output-2.svg)
+![](faithfulness_files/figure-commonmark/cell-7-output-1.svg)
 
 Looking at a different domain like images demonstrates another limitation of the sample-based metrics. Below we generate counterfactuals for turning an 8 into a 3 using our two generators from above for a simple MNIST (LeCun 1998) classifier. Looking at the figure below, arguably the [`ECCoGenerator`](@ref) generates a more plausible counterfactual in this case. Unfortunately, according to the sample-based plausibility metric, this is not the case.
 
 ``` julia
 _nrow = 3
+
 Random.seed!(42)
 X, y = TaijaData.load_mnist()
 data = CounterfactualData(X, y)
@@ -192,51 +187,37 @@ chosen = rand(findall(predict_label(M, data) .== factual))
 x = select_factual(data, chosen)
 
 # Search parameters:
-opt = Adam(0.01)
-conv = MaxIterConvergence(100)
+opt = Adam(0.1)
+conv = GeneratorConditionsConvergence()
 λ₁ = 0.0
 λ₂ = 0.5
 
 # Factual:
 factual = convert2image(MNIST, reshape(x, 28, 28))
-p1 = plot(factual; title="Factual", axis=([], false))
+p1 = plot(factual; title="\nFactual", axis=([], false))
 
 # Generic Generator:
-@info "Generic Generator"
 generator = GenericGenerator(opt=opt; λ=λ₁)
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
-println("Faithfulness: $(round(faith, digits=5))")
 plaus = Evaluation.plausibility(ce)
-println("Plausibility: $(round(plaus, digits=5))")
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
-title = "Generic Generator"
+title = "Generic Generator\nplaus.: $(round(plaus, digits=2))\nfaith.: $(round(faith, digits=2))"
 p2 = plot(img, title=title, axis=([], false))
 
 # Search:
-@info "ECCo Generator"
 generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
 ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
 faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
-println("Faithfulness: $(round(faith, digits=5))")
 plaus = Evaluation.plausibility(ce)
-println("Plausibility: $(round(plaus, digits=5))")
 img = convert2image(MNIST, reshape(ce.x′, 28, 28))
-title = "ECCo Generator"
+title = "ECCo Generator\nplaus.: $(round(plaus, digits=2))\nfaith.: $(round(faith, digits=2))"
 p3 = plot(img, title=title, axis=([], false))
 
-plot(p1, p2, p3; size=(750, 200), layout=(1, 3), topmarging=5mm)
+plot(p1, p2, p3; size=(600, 200), layout=(1, 3), topmargin=15mm)
 ```
 
-    [ Info: Generic Generator
-    [ Info: Generating posterior samples...
-    Faithfulness: -1885.0256
-    Plausibility: -358.9031
-    [ Info: ECCo Generator
-    Faithfulness: -1713.2183
-    Plausibility: -737.6995
-
-![](faithfulness_files/figure-commonmark/cell-8-output-2.svg)
+![](faithfulness_files/figure-commonmark/cell-8-output-1.svg)
 
 ## References
 
