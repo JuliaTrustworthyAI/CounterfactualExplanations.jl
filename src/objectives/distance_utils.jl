@@ -1,7 +1,13 @@
 using Flux: Flux
 
 """
-    distance(ce::AbstractCounterfactualExplanation, p::Real=2)
+    distance(
+        ce::AbstractCounterfactualExplanation;
+        from::Union{Nothing,AbstractArray}=nothing,
+        agg=mean,
+        p::Real=1,
+        weights::Union{Nothing,AbstractArray}=nothing,
+    )
 
 Computes the distance of the counterfactual to the original factual.
 """
@@ -11,11 +17,21 @@ function distance(
     agg=mean,
     p::Real=1,
     weights::Union{Nothing,AbstractArray}=nothing,
+    cosine::Bool=false,
 )
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
     x′ = CounterfactualExplanations.decode_state(ce)
+
+    # Cosine:
+    if cosine
+        xs = eachslice(x′; dims=ndims(x′))
+        δs = map(x′ -> cos_dist(x′, from), xs)
+        Δ = agg(δs)
+        return Δ
+    end
+
     if ce.num_counterfactuals == 1
         return LinearAlgebra.norm(x′ .- from, p)
     else
@@ -28,4 +44,14 @@ function distance(
         end
         return Δ
     end
+end
+
+"""
+    cos_dist(x,y)
+
+Computes the cosine distance between two vectors.
+"""
+function cos_dist(x, y)
+    cos_sim = (x'y / (norm(x) * norm(y)))[1]
+    return 1 - cos_sim
 end

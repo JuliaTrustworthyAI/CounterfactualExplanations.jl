@@ -319,7 +319,7 @@ end
 """
     distance_from_posterior(ce::AbstractCounterfactualExplanation)
 
-Computes the distance from the counterfactual to generated conditional samples. The distance is computed as the mean distance from the counterfactual to the samples drawn from the posterior distribution of the model. 
+Computes the distance from the counterfactual to generated conditional samples. The distance is computed as the mean distance from the counterfactual to the samples drawn from the posterior distribution of the model. By default, the cosine distance is used.
 
 # Arguments
 
@@ -331,6 +331,7 @@ Computes the distance from the counterfactual to generated conditional samples. 
 - `choose_random::Bool=false`: Whether to choose random samples.
 - `nmin::Int=25`: The minimum number of samples to choose.
 - `p::Int=1`: The norm to use for computing the distance.
+- `cosine::Bool=true`: Whether to use the cosine distance.
 - `kwargs...`: Additional keyword arguments to be passed on to the [`EnergySampler`](@ref).
 
 # Returns
@@ -346,6 +347,7 @@ function distance_from_posterior(
     choose_random=false,
     nmin::Int=25,
     p::Int=1,
+    cosine::Bool=false,
     kwargs...,
 )
     _loss = 0.0
@@ -374,7 +376,7 @@ function distance_from_posterior(
 
     # Compute distance:
     _loss = map(eachcol(conditional_samples[1])) do xsample
-        distance(ce; from=xsample, agg=agg, p=p)
+        distance(ce; from=xsample, agg=agg, p=p, cosine=cosine)
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 

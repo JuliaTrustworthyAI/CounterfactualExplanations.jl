@@ -101,7 +101,7 @@ Computes the distance of the counterfactual from samples in the target main. If 
 - `Δ::AbstractFloat`: The distance from the counterfactual to the target manifold.
 """
 function distance_from_target(
-    ce::AbstractCounterfactualExplanation; K::Int=50, choose_randomly::Bool=true, kwrgs...
+    ce::AbstractCounterfactualExplanation; K::Int=50, choose_randomly::Bool=true, cosine::Bool=false, kwrgs...
 )
 
     # Get potential neighbours:
@@ -126,8 +126,7 @@ function distance_from_target(
     end
 
     neighbours = ys[:, ids]
-    centroid = Statistics.mean(neighbours; dims=ndims(neighbours))
-    Δ = distance(ce; from=centroid, kwrgs...)
+    Δ = Statistics.mean([distance(ce; from=y, cosine=cosine, kwrgs...) for y in eachcol(neighbours)])
     return Δ
 end
 
