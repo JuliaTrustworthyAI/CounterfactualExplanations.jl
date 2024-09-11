@@ -1,9 +1,3 @@
-@info "Activating local environment"
-using Pkg
-Pkg.activate("models/neurotree/")
-Pkg.resolve()
-Pkg.instantiate()
-
 using CounterfactualExplanations
 using CounterfactualExplanations.Models
 using Flux
