@@ -33,8 +33,3 @@ using TaijaData
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end
-
-@info "Deactivating local environment"
-Pkg.activate(".")
-Pkg.resolve()
-Pkg.instantiate()
