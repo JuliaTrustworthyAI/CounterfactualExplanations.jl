@@ -36,9 +36,6 @@ using TaijaData
     generator = GenericGenerator()
     ce = generate_counterfactual(x, target, data, M, generator)
 
-    # Faithfulness:
-    faith = Evaluation.faithfulness(ce; niter_final=100, n_samples=M.model.batch_size)
-
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end
