@@ -111,7 +111,7 @@ function generate_counterfactual(
     # Search:
     timer = isnothing(timeout) ? nothing : Timer(timeout)
     while !terminated(ce)
-        update!(ce)
+        CounterfactualExplanations.update!(ce)
         if !isnothing(timer)
             yield()
             if !isopen(timer)

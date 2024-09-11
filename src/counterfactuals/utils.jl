@@ -1,10 +1,10 @@
 """
-    output_dim(ce::CounterfactualExplanation)
+    outdim(ce::CounterfactualExplanation)
 
 A convenience method that returns the output dimension of the predictive model.
 """
-function output_dim(ce::CounterfactualExplanation)
-    return size(Models.probs(ce.M, ce.x))[1]
+function outdim(ce::CounterfactualExplanation)
+    return CounterfactualExplanations.DataPreprocessing.outdim(ce.data)
 end
 
 """
@@ -77,12 +77,12 @@ end
 
 Finds potential neighbors for the selected factual data point.
 """
-function find_potential_neighbours(ce::AbstractCounterfactualExplanation)
+function find_potential_neighbours(ce::AbstractCounterfactualExplanation, n::Int=1000)
     nobs = size(ce.data.X, 2)
-    data = DataPreprocessing.subsample(ce.data, minimum([nobs, 1000]))
+    data = DataPreprocessing.subsample(ce.data, minimum([nobs, n]))
     ids = findall(Models.predict_label(ce.M, data) .== ce.target)
-    n_candidates = minimum([size(ce.data.y, 2), 1000])
-    candidates = DataPreprocessing.select_factual(ce.data, rand(ids, n_candidates))
+    n_candidates = minimum([size(ce.data.y, 2), n])
+    candidates = DataPreprocessing.select_factual(data, rand(ids, n_candidates))
     potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
     return potential_neighbours
 end

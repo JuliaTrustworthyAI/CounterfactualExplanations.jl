@@ -22,7 +22,7 @@ function Model(model, type::AbstractFluxNN; likelihood::Symbol=:classification_b
     else
         Flux.testmode!(model)
     end
-    return Model(model, likelihood, model, type)
+    return Model(model, likelihood, Fitresult(model, Dict()), type)
 end
 
 """
@@ -58,6 +58,7 @@ function train(
 )
 
     # Prepare data:
+    X, y = (data.X, data.y)
     data = data_loader(data; batchsize=args.batchsize)
 
     # Multi-class case:
@@ -74,7 +75,7 @@ function train(
     Flux.testmode!(model)
 
     # Store the trained model:
-    M.fitresult = model
+    M.fitresult = Fitresult(model, Dict())
 
     return M
 end

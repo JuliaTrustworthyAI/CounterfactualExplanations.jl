@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "1.3.0"
+version = "1.4.0"
 
 [deps]
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
@@ -9,6 +9,7 @@ CausalInference = "8e462317-f959-576b-b3c1-403f26cec956"
 ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+EnergySamplers = "f446124b-5d5e-4171-a6dd-a1d99768d3ce"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
 Graphs = "86223c79-3864-5bf0-83f7-82e725a168b6"
 LazyArtifacts = "4af54fe1-eca0-43a8-85a7-787d91b784e3"
@@ -30,11 +31,13 @@ UUIDs = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
 [weakdeps]
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 
 [extensions]
 DecisionTreeExt = "DecisionTree"
+JEMExt = "JointEnergyModels"
 LaplaceReduxExt = "LaplaceRedux"
 NeuroTreeExt = "NeuroTreeModels"
 
@@ -46,8 +49,10 @@ ChainRulesCore = "1.15"
 DataFrames = "1"
 DecisionTree = "0.12.3, 0.12.4"
 Distributions = "0.25.97"
+EnergySamplers = "1.0"
 Flux = "0.12, 0.13, 0.14"
 Graphs = "1.11.1"
+JointEnergyModels = "0.1.7"
 LaplaceRedux = "0.1.4, 0.2, 1.0"
 LazyArtifacts = "1"
 LinearAlgebra = "1.10"
@@ -72,9 +77,10 @@ julia = "1.10"
 [extras]
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 DecisionTree = "7806a523-6efd-50cb-b5f6-3fa6f1930dbb"
+JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DecisionTree", "LaplaceRedux", "NeuroTreeModels", "Test"]
+test = ["Aqua", "DecisionTree", "JointEnergyModels", "LaplaceRedux", "NeuroTreeModels", "Test"]
