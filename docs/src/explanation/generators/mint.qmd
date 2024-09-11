@@ -55,7 +55,7 @@ where $I$ is the set of intervened upon variables, $f_i$ is the function that ge
 
 ## Usage
 
-As we already stated, the MINT generator is not yet implemented as a custom type in the package. However, the MINT algorithm can be implemented using the generic generator and the SCM encoder. The following code snippet shows how to use the MINT algorithm to generate counterfactuals using any gradient-based generator:
+As we already stated, the MINT generator is not yet implemented as a custom type in the package. However, the MINT algorithm can be implemented using the generic generator and the SCM encoder, that we implement using `CausalInference.jl` package. The following code snippet shows how to use the MINT algorithm to generate counterfactuals using any gradient-based generator:
 
 ```{julia}
 #| output: true
