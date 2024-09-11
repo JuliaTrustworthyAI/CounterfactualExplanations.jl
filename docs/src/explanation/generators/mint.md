@@ -25,6 +25,28 @@ A^* \in \arg\min_A \text{cost}(A; \mathbf{x}_F)\\
 \end{aligned}
 ```
 
+where $\mathbf{x}_F$ is the original input, $\mathbf{x}_{SCF}$ is the counterfactual instance, and $h$ is the black-box model. We use the $\mathbf{x}_{SCF}$ terminology because the counterfactual is derived from the SCM,
+
+``` math
+\begin{equation}
+
+x_{SCF_i} = 
+\begin{cases}
+x_{F_i} + \delta_i, & \text{if } i \in I \\
+x_{F_i} + f_i(\text{pa}_{SCF_i}) - f_i(\text{pa}_{F_i}), & \text{if } i \notin I  \; \; \text{,}
+\end{cases} 
+
+\end{equation}
+```
+
+where $I$ is the set of intervened upon variables, $f_i$ is the function that generates the value of the variable $i$ given its parents, and $\text{pa}_{SCF_i}$ and $\text{pa}_{F_i}$ are the parents of the variable $i$ in the counterfactual and original instance, respectively. This closed formula for the decision variable $\mathbf{x}_{SCF}$ is what makes possible to use a gradient-based generator, since the lagrangian is differentiable,
+
+``` math
+\begin{equation}
+\mathcal{L_{\texttt{MINT}}}(\mathbf{x}_{SCF}) = \lambda \text{cost}(\mathbf{x}_{SCF}; \mathbf{x}_F) + \text{yloss}(\mathbf{x}_{SCF},y^*) \; \; \text{,}
+\end{equation}
+```
+
 ## Usage
 
 ## References
