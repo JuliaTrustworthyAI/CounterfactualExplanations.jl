@@ -55,6 +55,7 @@ makedocs(;
                 "GrowingSpheres" => "explanation/generators/growing_spheres.md",
                 "PROBE" => "explanation/generators/probe.md",
                 "REVISE" => "explanation/generators/revise.md",
+                "MINT" => "explanation/generators/mint.md",
             ],
             "Evaluation" => [
                 "Overview" => "explanation/evaluation/overview.md",

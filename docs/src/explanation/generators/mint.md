@@ -10,7 +10,7 @@ In this tutorial, we introduce the MINT generator, a counterfactual generator ba
 Intervention (MINT) method proposed by Karimi, Schölkopf, and Valera (2021).
 
 !!! note
-    There is currently no custom type for this generator, because we anticipate changes to the API for composable generators. This tutorial explains how counterfactuals can nonetheless be generated consistently with the framework proposed by @karimi2021algorithmic
+    There is currently no custom type for this generator, because we anticipate changes to the API for composable generators. This tutorial explains how counterfactuals can nonetheless be generated consistently with the MINT framework.
 
 ## Description
 
@@ -80,7 +80,8 @@ ce = generate_counterfactual(x, 2, data_scm, M, GenericGenerator(); initializati
     CounterfactualExplanation
     Convergence: ❌ after 100 steps.
 
-*Note: The above documentation is based on the information provided in the MINT paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
+!!! note
+    The above documentation is based on the information provided in the MINT paper. Please refer to the original paper for more detailed explanations and implementation specifics.
 
 ## References
 
