@@ -1,9 +1,0 @@
-[deps]
-CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
-MLJBase = "a7f614a8-145f-11e9-1d2a-a57a1082229d"
-NeuroTreeModels = "1db4e0a5-a364-4b0c-897c-2bd5a4a3a1f2"
-TaijaData = "9d524318-b4e6-4a65-86d2-b2b72d07866c"
-
-[compat]
-NeuroTreeModels = "1.1.3"

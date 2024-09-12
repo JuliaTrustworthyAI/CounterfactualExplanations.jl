@@ -1,6 +1,7 @@
 [deps]
 BSON = "fbb218c0-5317-5bc6-957e-2ee96dd4b1f0"
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CausalInference = "8e462317-f959-576b-b3c1-403f26cec956"
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 Changelog = "5217a498-cd5d-4ec6-b8c2-9b85a09b6e3e"
 CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"

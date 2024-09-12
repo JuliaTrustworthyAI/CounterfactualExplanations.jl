@@ -1,8 +1,8 @@
----
-engine: julia
-julia: 
-  exeflags: ["--project=../"]
----
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
 
 ```@meta
 CurrentModule = CounterfactualExplanations 
@@ -59,7 +59,11 @@ As we already stated, the MINT generator is not yet implemented as a custom type
 
 ```{julia}
 #| output: true
-using CounterfactualExplanations, CausalInference
+
+using CausalInference
+using CounterfactualExplanations
+using CounterfactualExplanations.DataPreprocessing: fit_transformer
+
 N = 2000
 df = (
     x = randn(N), 

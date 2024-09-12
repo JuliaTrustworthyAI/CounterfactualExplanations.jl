@@ -3,15 +3,10 @@ include("pretrained.jl")
 include("flux/mlp.jl")
 
 # Extensions:
-if VERSION >= v"1.9"
-    # Extension currently only works with Julia 1.9 and above (https://github.com/Evovest/NeuroTreeModels.jl/pull/7)
-    include("neurotree/neurotree.jl")
-end
-if VERSION >= v"1.7"
-    # Extension currently only works with Julia 1.7.
-    include("laplace_redux/laplace_redux.jl")
-end
+include("laplace_redux/laplace_redux.jl")
 include("decision_tree/decision_tree.jl")
+include("jem/jem.jl")
+include("neurotree/neurotree.jl")
 
 include("utils.jl")
 

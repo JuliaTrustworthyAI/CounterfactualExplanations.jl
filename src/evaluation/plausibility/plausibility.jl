@@ -8,7 +8,7 @@ end
     plausibility(
         ce::CounterfactualExplanation,
         fun::typeof(Objectives.distance_from_target);
-        λ::AbstractFloat=1.0,
+        K=nothing,
         kwrgs...,
     )
 
@@ -26,10 +26,12 @@ function plausibility(
         :potential_neighbours,
         CounterfactualExplanations.find_potential_neighbours(ce),
     )
-    # Compute the distance from the target:
+
     if isnothing(K)
-        K = maximum([1000, size(ce.search[:potential_neighbours], 2)])
+        K = minimum([1000, size(ce.search[:potential_neighbours], 2)])
     end
+
+    # Compute the distance from the target:
     Δ = fun(ce; K=K, kwrgs...)
     return -Δ
 end

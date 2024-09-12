@@ -103,7 +103,7 @@ Computes the distance of the counterfactual from samples in the target main. If 
 function distance_from_target(
     ce::AbstractCounterfactualExplanation;
     K::Int=50,
-    choose_randomly::Bool=false,
+    choose_random::Bool=false,
     cosine::Bool=false,
     kwrgs...,
 )
@@ -116,7 +116,7 @@ function distance_from_target(
     end
 
     # Get K samples from potential neighbours:
-    if choose_randomly
+    if choose_random
         # Choose K random samples:
         ids = rand(1:size(ys, 2), K)
     else

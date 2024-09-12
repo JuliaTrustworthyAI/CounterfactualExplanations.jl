@@ -92,7 +92,6 @@ function EnergySampler(
     if nwarmup > 0
         @info "Warming up sampler..."
         ntransitions = round(Int, nwarmup / batch_size)
-        println(ntransitions)
         warmup!(
             energy_sampler,
             yidx;

@@ -49,6 +49,18 @@ generators = Dict(
     @test typeof(evaluate.(ces; output_format=:Dict, report_each=true)) <: Vector{<:Dict}
     @test typeof(evaluate.(ces; output_format=:DataFrame, report_each=true)) <:
         Vector{<:DataFrame}
+
+    # Faithfulness and plausibility:
+    faith = Evaluation.faithfulness(ce)
+    faith = Evaluation.faithfulness(ce; choose_lowest_energy=true)
+    faith = Evaluation.faithfulness(ce; choose_random=true)
+    faith = Evaluation.faithfulness(ce; cosine=true)
+    delete!(ce.search, :energy_sampler)
+    delete!(ce.M.fitresult.other, :energy_sampler)
+    faith = Evaluation.faithfulness(ce; nwarmup=100)
+    plaus = Evaluation.plausibility(ce)
+    plaus = Evaluation.plausibility(ce; choose_random=true)
+    @test true
 end
 
 @testset "Benchmarking" begin

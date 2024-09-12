@@ -49,6 +49,39 @@ where $I$ is the set of intervened upon variables, $f_i$ is the function that ge
 
 ## Usage
 
+As we already stated, the MINT generator is not yet implemented as a custom type in the package. However, the MINT algorithm can be implemented using the generic generator and the SCM encoder, that we implement using `CausalInference.jl` package. The following code snippet shows how to use the MINT algorithm to generate counterfactuals using any gradient-based generator:
+
+``` julia
+using CausalInference
+using CounterfactualExplanations
+using CounterfactualExplanations.DataPreprocessing: fit_transformer
+
+N = 2000
+df = (
+    x = randn(N), 
+    v = randn(N) .^ 2 + randn(N) * 0.25, 
+    w = cos.(randn(N)) + randn(N) * 0.25, 
+    z = randn(N) .^ 2 + cos.(randn(N)) + randn(N) * 0.25 + randn(N) * 0.25, 
+    s = sin.(randn(N) .^ 2 + cos.(randn(N)) + randn(N) * 0.25 + randn(N) * 0.25) + randn(N) * 0.25
+)
+y_lab = rand(0:2, N)
+counterfactual_data_scm = CounterfactualData(Tables.matrix(df; transpose=true), y_lab)
+
+M = fit_model(counterfactual_data_scm, :Linear)
+chosen = rand(findall(predict_label(M, counterfactual_data_scm) .== 1))
+x = select_factual(counterfactual_data_scm, chosen)
+
+data_scm = deepcopy(counterfactual_data_scm)
+data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
+
+ce = generate_counterfactual(x, 2, data_scm, M, GenericGenerator(); initialization=:identity)
+```
+
+    CounterfactualExplanation
+    Convergence: ❌ after 100 steps.
+
+*Note: The above documentation is based on the information provided in the MINT paper. Please refer to the original paper for more detailed explanations and implementation specifics.*
+
 ## References
 
 Karimi, Amir-Hossein, Bernhard Schölkopf, and Isabel Valera. 2021. “Algorithmic Recourse: From Counterfactual Explanations to Interventions.” In *Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency*, 353–62.
