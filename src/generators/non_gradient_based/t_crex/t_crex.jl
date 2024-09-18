@@ -10,3 +10,5 @@ function TCRExGenerator(ρ::AbstractFloat=0.2, τ::AbstractFloat=0.9; forest::Bo
 end
 
 function grow_surrogate end
+
+function extract_rules end

@@ -17,6 +17,19 @@ mutable struct Model <: AbstractModel
 end
 
 """
+    (::Type{T})(
+        model; fitresult=nothing, likelihood::Symbol=:classification_binary
+    )
+
+Generic constructor for subtypes of `AbstractModelType`. 
+"""
+function (::Type{T})(
+    model; fitresult=nothing, likelihood::Symbol=:classification_binary
+) where {T<:AbstractModelType}
+    return Models.Model(model, T(); fitresult=fitresult, likelihood=likelihood)
+end
+
+"""
     Fitresult
 
 A struct to hold the results of fitting a model.
@@ -62,8 +75,9 @@ end
 
 Outer constructor for `Model` where the atomic model is defined and assumed to be pre-trained.
 """
-function Model(model, type::AbstractModelType; likelihood::Symbol=:classification_binary)
-    return Model(model, likelihood, model, type)
+function Model(model, type::AbstractModelType; fitresult=nothing, likelihood::Symbol=:classification_binary)
+    fitresult = isnothing(fitresult) ? model : Fitresult(fitresult, Dict())
+    return Model(model, likelihood, fitresult, type)
 end
 
 """

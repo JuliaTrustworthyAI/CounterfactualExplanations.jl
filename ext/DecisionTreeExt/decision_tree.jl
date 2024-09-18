@@ -14,10 +14,10 @@ const AtomicDecisionTree = Union{
 Outer constructor for a decision trees.
 """
 function CounterfactualExplanations.DecisionTreeModel(
-    model::AtomicDecisionTree; likelihood::Symbol=:classification_binary
+    model::AtomicDecisionTree; fitresult=nothing, likelihood::Symbol=:classification_binary
 )
     return Models.Model(
-        model, CounterfactualExplanations.DecisionTreeModel(); likelihood=likelihood
+        model, CounterfactualExplanations.DecisionTreeModel(); fitresult=fitresult, likelihood=likelihood
     )
 end
 
@@ -28,7 +28,7 @@ end
         kwargs...,
     )
     
-Constructs a decision tree for the given data.
+Constructs a decision tree for the given data. This method is used internally when a decision-tree model is constructed to be trained from scratch (i.e. no pre-trained model is supplied by the user).
 """
 function (M::Models.Model)(
     data::CounterfactualData, type::CounterfactualExplanations.DecisionTreeModel; kwargs...

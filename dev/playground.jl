@@ -16,3 +16,7 @@ x = select_factual(data, chosen)
 # Search:
 generator = Generators.GenericGenerator()
 ce = generate_counterfactual(x, target, data, M, generator)
+
+# Surrogate:
+generator = Generators.TCRExGenerator(0.02)
+tree, fitresult = Generators.grow_surrogate(generator, ce)

@@ -24,8 +24,12 @@ function Generators.grow_surrogate(
         )
     end
     mach = machine(tree, Xtab, ŷ) |> MLJBase.fit!
-    tree = fitted_params(mach).tree
 
     # Return surrogate:
-    return tree
+    return mach.model, mach.fitresult
+end
+
+function Generators.extract_rules(
+    generator::Generators.TCRExGenerator, ce::AbstractCounterfactualExplanation
+)
 end
