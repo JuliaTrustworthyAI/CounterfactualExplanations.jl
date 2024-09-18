@@ -32,8 +32,10 @@ function Generators.grow_surrogate(
 end
 
 function Generators.extract_rules(root::DT.Root)
-    conditions = fill([-Inf,Inf],root.n_feat)
-    return Generators.extract_rules(root.node, conditions)
+    conditions = [[-Inf,Inf] for i in 1:root.n_feat]
+    conditions = Generators.extract_rules(root.node, conditions)
+    conditions = [tuple.(rule...) for rule in conditions]
+    return conditions
 end
 
 function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
