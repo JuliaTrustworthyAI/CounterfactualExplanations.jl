@@ -29,8 +29,18 @@ function rule_feasibility(rule, X)
     return checks / size(X, 2)
 end
 
+"""
+    rule_feasibility(rule, ce::CounterfactualExplanation)
+
+Overloads the `rule_feasibility` function for [`CounterfactualExplanation`](@ref) objects.
+"""
 rule_feasibility(rule, ce::CounterfactualExplanation) = rule_feasibility(rule, ce.data.X)
 
+"""
+    rule_accuracy(rule, X, fx, target)
+
+Computes the accuracy of the rule on the data `X` for predicted outputs `fx` and the `target`. Accuracy is defined as the fraction of points contained by the rule, for which predicted values match the target. $DOC_TCREx
+"""
 function rule_accuracy(rule, X, fx, target)
     ingroup = 0
     checks = 0
