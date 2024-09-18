@@ -62,8 +62,3 @@ function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::Abst
     end
 
 end
-
-
-
-function rule_acc()
-end

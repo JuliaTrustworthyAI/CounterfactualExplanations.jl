@@ -56,3 +56,30 @@ function rule_accuracy(rule, X, fx, target)
     end
     return checks / ingroup
 end
+
+"""
+    issubrule(rule, otherrule)
+
+Checks if the `rule` hyperrectangle is a subset of the `otherrule` hyperrectangle. $DOC_TCREx
+"""
+function issubrule(rule, otherrule)
+    return all([y[1] <= x[1] && x[2] <= y[2] for (x, y) in zip(rule, otherrule)])
+end
+
+function max_valid(rules, X, fx, target, τ)
+
+    # Consider only rules that meet accuracy threshold:
+    candidate_rules = findall(rule_accuracy.(rules, (X,), (fx,), (target,)) .>= τ) |>
+        idx -> rules[idx]
+
+    max_valid_rules = []
+
+    for (i,rule) in enumerate(candidate_rules)
+        other_rules = candidate_rules[setdiff(eachindex(candidate_rules),i)]
+        if all([!issubrule(rule, otherrule) for otherrule in other_rules])
+            push!(max_valid_rules, rule)
+        end
+    end
+
+    return max_valid_rules
+end
