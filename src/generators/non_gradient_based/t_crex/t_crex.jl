@@ -66,6 +66,11 @@ function issubrule(rule, otherrule)
     return all([y[1] <= x[1] && x[2] <= y[2] for (x, y) in zip(rule, otherrule)])
 end
 
+"""
+    max_valid(rules, X, fx, target, τ)
+
+Returns the maximal-valid rules for a given `target` and accuracy threshold `τ`. $DOC_TCREx
+"""
 function max_valid(rules, X, fx, target, τ)
 
     # Consider only rules that meet accuracy threshold:
@@ -82,4 +87,16 @@ function max_valid(rules, X, fx, target, τ)
     end
 
     return max_valid_rules
+end
+
+function partition_bounds(rules, dim::Int)
+    lb = [-Inf]
+    ub = [Inf]
+    for rule in rules
+        lb_dim = rule[dim][1]
+        ub_dim = rule[dim][2]
+        lb_dim in lb || push!(lb, lb_dim)
+        ub_dim in ub || push!(ub, ub_dim)
+    end
+    return lb, ub
 end
