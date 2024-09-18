@@ -12,3 +12,14 @@ end
 function grow_surrogate end
 
 function extract_rules end
+
+function rule_acc(rule, ce::CounterfactualExplanation)
+    X = ce.data.X
+    checks = 0
+    for x in eachcol(X)
+        for (lb,ub) in rule
+            checks += lb <= x < ub 
+        end
+    end
+    return checks / size(X, 2)
+end

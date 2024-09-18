@@ -4,7 +4,7 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models: predict_label
 
 function Generators.grow_surrogate(
-    generator::Generators.TCRExGenerator, ce::AbstractCounterfactualExplanation
+    generator::Generators.TCRExGenerator, ce::AbstractCounterfactualExplanation; kwrgs...
 )
     # Data:
     X = ce.data.X |> permutedims                        # training samples
@@ -16,11 +16,13 @@ function Generators.grow_surrogate(
     min_samples = round(Int, min_fraction * size(X, 2))
     if !generator.forest
         tree = MLJDecisionTreeInterface.DecisionTreeClassifier(;
-            min_samples_split=min_samples
+            min_samples_split=min_samples,
+            kwrgs...
         )
     else
         tree = MLJDecisionTreeInterface.RandomForestClassifier(;
-            min_samples_split=min_samples
+            min_samples_split=min_samples,
+            kwrgs...
         )
     end
     mach = machine(tree, Xtab, ŷ) |> MLJBase.fit!
@@ -30,7 +32,7 @@ function Generators.grow_surrogate(
 end
 
 function Generators.extract_rules(root::DT.Root)
-    conditions = [[-Inf,Inf] for i in 1:root.n_feat]
+    conditions = fill([-Inf,Inf],root.n_feat)
     return Generators.extract_rules(root.node, conditions)
 end
 
@@ -56,4 +58,10 @@ function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::Abst
 
         return conditions
     end
+
+end
+
+
+
+function rule_acc()
 end
