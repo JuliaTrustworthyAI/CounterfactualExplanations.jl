@@ -8,7 +8,7 @@ using TaijaPlotting
 
 # Counteractual data and model:
 n = 3000
-data = CounterfactualData(load_moons(n; noise=0.4)...)
+data = CounterfactualData(load_moons(n; noise=0.25)...)
 X = data.X
 M = fit_model(data, :MLP)
 fx = predict_label(M, data)
@@ -23,7 +23,7 @@ ce = generate_counterfactual(x, target, data, M, generator)
 
 # T-CREx ###################################################################
 ρ = 0.02
-τ = 0.8
+τ = 0.9
 generator = Generators.TCRExGenerator(ρ)
 
 # (a) ##############################
@@ -46,6 +46,8 @@ acc_target = Generators.rule_accuracy.(R, (X,), (fx,), (target,))
 
 # (b) ##############################
 R_max = Generators.max_valid(R, X, fx, target, τ)
+feas_max = Generators.rule_feasibility.(R_max, (X,))
+acc_max = Generators.rule_accuracy.(R_max, (X,), (fx,), (target,))
 plt = plot(data; ms=3, markerstrokewidth=0, size=(500, 500))
 rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
 for (i, rule) in enumerate(R_max)
@@ -53,6 +55,13 @@ for (i, rule) in enumerate(R_max)
     minimum([rule[2][2], maximum(X[2, :])])
     lbx, lby = maximum([rule[1][1], minimum(X[1, :])]),
     maximum([rule[2][1], minimum(X[2, :])])
-    plot!(plt, rectangle(ubx,uby,lbx,lby), opacity=.5, color=i+2, label="R$i")
+    _feas = round(feas_max[i]; digits=2)
+    _n = Int(round(feas_max[i] * n; digits=2))
+    _acc = round(acc_max[i]; digits=2)
+    @info "Rectangle R$i with feasibility $(_feas) (n≈$(_n)) and accuracy $(_acc)"
+    lab = "R$i (ρ̂=$(_feas), τ̂=$(_acc))"
+    plot!(plt, rectangle(ubx-lbx,uby-lby,lbx,lby), opacity=.5, color=i+2, label=lab)
 end
 plt
+
+# (c) ##############################
