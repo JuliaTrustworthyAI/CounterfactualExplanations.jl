@@ -76,6 +76,7 @@ for (i, (lbx, ubx)) in enumerate(zip(lbsx, ubsx))
         lby = maximum([lby, minimum(X[2, :])])
         ubx = minimum([ubx, maximum(X[1, :])])
         uby = minimum([uby, maximum(X[2, :])])
+        idx = (i - 1) * length(zip(lbsy, ubsy)) + j
         plot!(
             plt,
             rectangle(ubx - lbx, uby - lby, lbx, lby);

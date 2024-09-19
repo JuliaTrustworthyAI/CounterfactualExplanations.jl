@@ -89,6 +89,11 @@ function max_valid(rules, X, fx, target, τ)
     return max_valid_rules
 end
 
+"""
+    partition_bounds(rules, dim::Int)
+
+Computes the set of (unique) bounds for each rule in `rules` along the `dim`-th dimension. $DOC_TCREx
+"""
 function partition_bounds(rules, dim::Int)
     lb = [-Inf]
     ub = [Inf]
@@ -99,4 +104,16 @@ function partition_bounds(rules, dim::Int)
         push!(ub, ub_dim)
     end
     return lb, ub
+end
+
+"""
+    induced_grid(rules)
+
+Computes the induced grid of the given rules. $DOC_TCREx.
+"""
+function induced_grid(rules)
+    D = length(rules[1])
+    return Base.Iterators.product(
+        [Generators.partition_bounds(rules, d) |> x -> zip(x[1], x[2]) for d in 1:D]...
+    ) |> unique
 end
