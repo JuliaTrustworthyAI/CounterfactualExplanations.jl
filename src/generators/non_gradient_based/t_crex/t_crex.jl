@@ -95,8 +95,8 @@ function partition_bounds(rules, dim::Int)
     for rule in rules
         lb_dim = rule[dim][1]
         ub_dim = rule[dim][2]
-        lb_dim in lb || push!(lb, lb_dim)
-        ub_dim in ub || push!(ub, ub_dim)
+        push!(lb, lb_dim)
+        push!(ub, ub_dim)
     end
     return lb, ub
 end

@@ -65,3 +65,25 @@ end
 plt
 
 # (c) ##############################
+lbsx, ubsx = Generators.partition_bounds(R_max, 1)
+lbsy, ubsy = Generators.partition_bounds(R_max, 2)
+
+for (i, (lbx, ubx)) in enumerate(zip(lbsx, ubsx))
+    @info "X bounds $i"
+    for (j, (lby, uby)) in enumerate(zip(lbsy, ubsy))
+        @info "Y bounds $j"
+        lbx = maximum([lbx, minimum(X[1, :])])
+        lby = maximum([lby, minimum(X[2, :])])
+        ubx = minimum([ubx, maximum(X[1, :])])
+        uby = minimum([uby, maximum(X[2, :])])
+        plot!(
+            plt,
+            rectangle(ubx - lbx, uby - lby, lbx, lby);
+            fillcolor="white",
+            fillalpha=0.0,
+            label=nothing,
+            lw=2,
+        )
+    end
+end
+plt
