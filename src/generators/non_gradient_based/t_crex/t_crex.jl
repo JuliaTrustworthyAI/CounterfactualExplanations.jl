@@ -97,15 +97,14 @@ end
 Computes the set of (unique) bounds for each rule in `rules` along the `dim`-th dimension. $DOC_TCREx
 """
 function partition_bounds(rules, dim::Int)
-    lb = [-Inf]
-    ub = [Inf]
+    bounds = [-Inf, Inf]
     for rule in rules
         lb_dim = rule[dim][1]
         ub_dim = rule[dim][2]
-        push!(lb, lb_dim)
-        push!(ub, ub_dim)
+        lb_dim ∈ bounds || push!(bounds, lb_dim)
+        ub_dim ∈ bounds || push!(bounds, ub_dim)
     end
-    return lb, ub
+    return bounds |> sort
 end
 
 """
@@ -115,9 +114,17 @@ Computes the induced grid of the given rules. $DOC_TCREx.
 """
 function induced_grid(rules)
     D = length(rules[1])
-    return Base.Iterators.product(
-        [Generators.partition_bounds(rules, d) |> x -> zip(x[1], x[2]) for d in 1:D]...
-    ) |> unique
+
+    # Extract bounds for each dimension
+    bounds_per_dim = [Generators.partition_bounds(rules, d) for d in 1:D]
+
+    # For each dimension, take consecutive pairs of bounds
+    consecutive_bounds_per_dim = [
+        zip(bounds[1:(end - 1)], bounds[2:end]) for bounds in bounds_per_dim
+    ]
+
+    # Cartesian product
+    return Base.Iterators.product(consecutive_bounds_per_dim...) |> unique
 end
 
 """
@@ -135,13 +142,16 @@ function rule_contains(rule, X)
 end
 
 @doc raw"""
-    prototype(rule, X)
+    prototype(rule, X; pick_arbitrary::Bool=true)
 
-Picks an arbitrary point ``x^C \in X`` (i.e. prototype) from the subet of ``X`` that is contained by rule ``R_i``. $DOC_TCREx
+Picks an arbitrary point ``x^C \in X`` (i.e. prototype) from the subet of ``X`` that is contained by rule ``R_i``. If `pick_arbitrary` is set to false, the prototype is instead computed as the average across all samples. $DOC_TCREx
 """
-function prototype(rule, X)
-    # x = rule_contains(rule, X) |> X -> X[:,rand(1:size(X,2))]
-    x = rule_contains(rule, X) |> X -> mean(X, dims=2)
+function prototype(rule, X; pick_arbitrary::Bool=true)
+    if pick_arbitrary
+        x = rule_contains(rule, X) |> X -> X[:,rand(1:size(X,2))]
+    else
+        x = rule_contains(rule, X) |> X -> mean(X, dims=2)
+    end
     return x
 end
 

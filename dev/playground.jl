@@ -79,8 +79,8 @@ function plot_grid!(p)
         plot!(
             p,
             rectangle(ubx - lbx, uby - lby, lbx, lby);
-            fillcolor="white",
-            fillalpha=0.0,
+            fillcolor="black",
+            fillalpha=0.1,
             label=nothing,
             lw=2,
         )
@@ -90,8 +90,10 @@ plot_grid!(p2)
 p2
 
 # (d) ##############################
-xs = Generators.prototype.(_grid, (X,))
+xs = Generators.prototype.(_grid, (X,); pick_arbitrary=false)
 Rᶜ = Generators.cre.((R_max,), xs, (X,); return_index=true) 
 p3 = deepcopy(p2)
 scatter!(p3, eachrow(hcat(xs...))..., ms=10, label=nothing, color=Rᶜ.+2)
 p3
+
+# (e) #############################
