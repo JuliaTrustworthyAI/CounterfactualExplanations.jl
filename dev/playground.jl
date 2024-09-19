@@ -49,6 +49,7 @@ R_max = Generators.max_valid(R, X, fx, target, τ)
 feas_max = Generators.rule_feasibility.(R_max, (X,))
 acc_max = Generators.rule_accuracy.(R_max, (X,), (fx,), (target,))
 plt = plot(data; ms=3, markerstrokewidth=0, size=(500, 500))
+p1 = deepcopy(plt)
 rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
 for (i, rule) in enumerate(R_max)
     ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
@@ -60,25 +61,23 @@ for (i, rule) in enumerate(R_max)
     _acc = round(acc_max[i]; digits=2)
     @info "Rectangle R$i with feasibility $(_feas) (n≈$(_n)) and accuracy $(_acc)"
     lab = "R$i (ρ̂=$(_feas), τ̂=$(_acc))"
-    plot!(plt, rectangle(ubx-lbx,uby-lby,lbx,lby), opacity=.5, color=i+2, label=lab)
+    plot!(p1, rectangle(ubx-lbx,uby-lby,lbx,lby), opacity=.5, color=i+2, label=lab)
 end
-plt
+p1
 
 # (c) ##############################
-lbsx, ubsx = Generators.partition_bounds(R_max, 1)
-lbsy, ubsy = Generators.partition_bounds(R_max, 2)
-
-for (i, (lbx, ubx)) in enumerate(zip(lbsx, ubsx))
-    @info "X bounds $i"
-    for (j, (lby, uby)) in enumerate(zip(lbsy, ubsy))
-        @info "Y bounds $j"
+_grid = Generators.induced_grid(R_max)
+p2 = deepcopy(p1)
+function plot_grid!(p)
+    for (i, (bounds_x, bounds_y)) in enumerate(_grid)
+        lbx, ubx = bounds_x
+        lby, uby  = bounds_y
         lbx = maximum([lbx, minimum(X[1, :])])
         lby = maximum([lby, minimum(X[2, :])])
         ubx = minimum([ubx, maximum(X[1, :])])
         uby = minimum([uby, maximum(X[2, :])])
-        idx = (i - 1) * length(zip(lbsy, ubsy)) + j
         plot!(
-            plt,
+            p,
             rectangle(ubx - lbx, uby - lby, lbx, lby);
             fillcolor="white",
             fillalpha=0.0,
@@ -87,4 +86,12 @@ for (i, (lbx, ubx)) in enumerate(zip(lbsx, ubsx))
         )
     end
 end
-plt
+plot_grid!(p2)
+p2
+
+# (d) ##############################
+xs = Generators.prototype.(_grid, (X,))
+Rᶜ = Generators.cre.((R_max,), xs, (X,); return_index=true) 
+p3 = deepcopy(p2)
+scatter!(p3, eachrow(hcat(xs...))..., ms=10, label=nothing, color=Rᶜ.+2)
+p3
