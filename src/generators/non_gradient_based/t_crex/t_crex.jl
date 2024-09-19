@@ -1,3 +1,5 @@
+using StatsBase
+
 "T-CREx counterfactual generator class."
 mutable struct TCRExGenerator <: AbstractNonGradientBasedGenerator 
     ρ::AbstractFloat
@@ -138,7 +140,9 @@ end
 Picks an arbitrary point ``x^C \in X`` (i.e. prototype) from the subet of ``X`` that is contained by rule ``R_i``. $DOC_TCREx
 """
 function prototype(rule, X)
-    return rule_contains(rule, X) |> X -> X[:,rand(1:size(X,2))]
+    # x = rule_contains(rule, X) |> X -> X[:,rand(1:size(X,2))]
+    x = rule_contains(rule, X) |> X -> mean(X, dims=2)
+    return x
 end
 
 """
