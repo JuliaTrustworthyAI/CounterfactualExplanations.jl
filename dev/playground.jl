@@ -97,3 +97,5 @@ scatter!(p3, eachrow(hcat(xs...))..., ms=10, label=nothing, color=Rᶜ.+2)
 p3
 
 # (e) #############################
+bounds = Generators.partition_bounds(R_max)
+tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)

@@ -1,3 +1,4 @@
+using CounterfactualExplanations
 using StatsBase
 
 "T-CREx counterfactual generator class."
@@ -30,13 +31,6 @@ function rule_feasibility(rule, X)
     end
     return checks / size(X, 2)
 end
-
-"""
-    rule_feasibility(rule, ce::CounterfactualExplanation)
-
-Overloads the `rule_feasibility` function for [`CounterfactualExplanation`](@ref) objects.
-"""
-rule_feasibility(rule, ce::CounterfactualExplanation) = rule_feasibility(rule, ce.data.X)
 
 """
     rule_accuracy(rule, X, fx, target)
@@ -108,15 +102,24 @@ function partition_bounds(rules, dim::Int)
 end
 
 """
+    partition_bounds(rules)
+
+Computes the set of (unique) bounds for each rule in `rules` and all dimensions. $DOC_TCREx
+"""
+function partition_bounds(rules)
+    D = length(rules[1])
+    return [partition_bounds(rules, d) for d in 1:D]
+end
+
+"""
     induced_grid(rules)
 
 Computes the induced grid of the given rules. $DOC_TCREx.
 """
 function induced_grid(rules)
-    D = length(rules[1])
 
     # Extract bounds for each dimension
-    bounds_per_dim = [Generators.partition_bounds(rules, d) for d in 1:D]
+    bounds_per_dim = partition_bounds(rules)
 
     # For each dimension, take consecutive pairs of bounds
     consecutive_bounds_per_dim = [
@@ -141,10 +144,10 @@ function rule_contains(rule, X)
     return X[:, contained]
 end
 
-@doc raw"""
+"""
     prototype(rule, X; pick_arbitrary::Bool=true)
 
-Picks an arbitrary point ``x^C \in X`` (i.e. prototype) from the subet of ``X`` that is contained by rule ``R_i``. If `pick_arbitrary` is set to false, the prototype is instead computed as the average across all samples. $DOC_TCREx
+Picks an arbitrary point ``x^C \\in X`` (i.e. prototype) from the subet of ``X`` that is contained by rule ``R_i``. If `pick_arbitrary` is set to false, the prototype is instead computed as the average across all samples. $DOC_TCREx
 """
 function prototype(rule, X; pick_arbitrary::Bool=true)
     if pick_arbitrary
@@ -176,7 +179,7 @@ end
 """
     cre(rules, x, X)
 
-Computes the counterfactual rule explanations (CRE) for a given point ``x`` and a set of ``rules``, where the ``rules`` correspond to the set of maximal-valid rules for some given target.  $DOC_TCREx
+Computes the counterfactual rule explanations (CRE) for a given point ``x`` and a set of ``rules``, where the ``rules`` correspond to the set of maximal-valid rules for some given target. $DOC_TCREx
 """
 function cre(rules, x, X; return_index::Bool=false)
     idx = [rule_cost(rule, x, X) for rule in rules] |> argmin
@@ -185,4 +188,23 @@ function cre(rules, x, X; return_index::Bool=false)
     else
         return rules[idx]
     end
+end
+
+include("tree.jl")
+
+"""
+    classify_prototypes(prototypes, rule_assignments, bounds)
+
+Builds the second tree model using the given `prototypes` as inputs and their corresponding `rule_assignments` as labels. Split thresholds are restricted to the `bounds`, which can be computed using [`partition_bounds(rules)`](@ref). $DOC_TCREx
+"""
+function classify_prototypes(prototypes, rule_assignments, bounds)
+    # Data:
+    X = prototypes
+    y = rule_assignments
+
+    # Grow tree/forest:
+    tree = _build_tree(X, y, Inf, 0, bounds)
+
+    # Return surrogate:
+    return tree
 end
