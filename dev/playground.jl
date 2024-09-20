@@ -97,7 +97,7 @@ p3 = deepcopy(p2)
 scatter!(p3, eachrow(hcat(xs...))..., ms=10, label=nothing, color=Rᶜ.+2)
 p3
 
-# (e) #############################
+# (e) - (f) ########################
 bounds = Generators.partition_bounds(R_max)
 tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
 R_final, labels = Generators.extract_leaf_rules(tree) 
@@ -116,3 +116,5 @@ for (i, rule) in enumerate(R_final)
     )
 end
 p4
+
+# (g) ##############################
