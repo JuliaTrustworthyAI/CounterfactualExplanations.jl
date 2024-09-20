@@ -110,8 +110,7 @@ for (i, rule) in enumerate(R_final)
     plot!(
         p4,
         rectangle(ubx - lbx, uby - lby, lbx, lby);
-        opacity=0.5,
-        color=Rᶜ[i]+2,
+        fillalpha=0.0,
         label=nothing,
     )
 end
