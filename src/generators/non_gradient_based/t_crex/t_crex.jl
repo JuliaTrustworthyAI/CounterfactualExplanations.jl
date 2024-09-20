@@ -16,6 +16,8 @@ function grow_surrogate end
 
 function extract_rules end
 
+function extract_leaf_rules end
+
 const DOC_TCREx = "For details see Bewley et al. ([2024](https://arxiv.org/abs/2405.18875))."
 
 """

@@ -100,7 +100,7 @@ p3
 # (e) #############################
 bounds = Generators.partition_bounds(R_max)
 tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
-R_final = Generators.extract_rules(tree) 
+R_final, labels = Generators.extract_leaf_rules(tree) 
 p4 = deepcopy(plt)
 for (i, rule) in enumerate(R_final)
     ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
@@ -110,8 +110,9 @@ for (i, rule) in enumerate(R_final)
     plot!(
         p4,
         rectangle(ubx - lbx, uby - lby, lbx, lby);
-        fillalpha=0.0,
+        fillalpha=0.5,
         label=nothing,
+        color=labels[i] + 2
     )
 end
 p4

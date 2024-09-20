@@ -63,6 +63,71 @@ function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::Abst
 
 end
 
+function Generators.extract_leaf_rules(root::DT.Root)
+    conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
+    decisions = [nothing]
+    conditions, decisions = Generators.extract_leaf_rules(root.node, conditions, decisions)
+    _keep = .![isnothing.(decision)[1] for decision in decisions]
+    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions[_keep]] 
+    decisions = [decision[1] for decision in decisions[_keep]]
+    return conditions, decisions
+end
+
+function Generators.extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray)
+    if typeof(node) <: DT.Leaf
+        # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
+        return [], []
+    else
+
+        left_conditions = deepcopy(conditions)              # left branch: feature <= threshold
+        right_conditions = deepcopy(conditions)            # right branch: feature > threshold
+        left_decisions = deepcopy(decisions)
+        right_decisions = deepcopy(decisions)
+
+        # Get split feature and value:
+        split_feature = node.featid
+        threshold = node.featval
+        left_conditions[split_feature][2] = threshold       # upper bound
+        if typeof(node.left) <: DT.Leaf
+            left_decisions = [node.left.majority]
+        end
+
+        left_hyperrectangles, later_left_decisions = Generators.extract_leaf_rules(
+            node.left, left_conditions, left_decisions
+        )
+
+        # Get split feature and value:
+        split_feature = node.featid
+        threshold = node.featval
+        right_conditions[split_feature][1]  = threshold        # lower bound
+        if typeof(node.right) <: DT.Leaf
+            right_decisions = [node.right.majority]
+        end
+
+        right_hyperrectangles, later_right_decisions = Generators.extract_leaf_rules(
+            node.right, right_conditions, right_decisions
+        )
+
+        # Return the union of the two hyperrectangles:
+        conditions = vcat(
+            [left_conditions],
+            left_hyperrectangles,
+            [right_conditions],
+            right_hyperrectangles,
+        )
+
+        decisions = vcat(
+            [left_decisions],
+            later_left_decisions,
+            [right_decisions],
+            later_right_decisions,
+        )
+
+        return conditions, decisions
+
+    end
+end
+
 function Generators.wrap_decision_tree(node::Generators.TreeNode)
     if Generators.is_leaf(node)
         return DT.Leaf(node.prediction, node.values)
