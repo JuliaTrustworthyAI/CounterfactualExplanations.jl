@@ -1,11 +1,11 @@
 # Define a basic node structure for the decision tree
-struct TreeNode
+struct TreeNode{S, T}
     feature::Int           # The feature index to split on
-    threshold::Float64     # The threshold to split on
-    left::Union{TreeNode,Nothing}   # Left child (if any)
-    right::Union{TreeNode,Nothing}  # Right child (if any)
-    prediction::Union{Nothing,Int}  # Class label for leaf node
-    values::Union{Nothing,Vector{Int}}      # The sample labels for leaf node
+    threshold::S     # The threshold to split on
+    left::Union{TreeNode{S,T},Nothing}   # Left child (if any)
+    right::Union{TreeNode{S,T},Nothing}  # Right child (if any)
+    prediction::Union{Nothing,T}  # Class label for leaf node
+    values::Union{Nothing,Vector{T}}      # The sample labels for leaf node
 end
 
 function wrap_decision_tree end
@@ -48,11 +48,21 @@ end
 # Function to build the decision tree recursively
 function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
-    allowed_thresholds = [bounds[.!isinf.(bounds)] for bounds in allowed_thresholds]
+    allowed_thresholds = [
+        bounds[.!isinf.(bounds)] |> x -> convert.(eltype(X), x) for
+        bounds in allowed_thresholds
+    ]
 
     # If all samples are of the same class, create a leaf node
     if length(unique(y)) == 1 || current_depth == max_depth
-        return TreeNode(-1, -1, nothing, nothing, unique(y)[1], y)
+        return TreeNode(
+            -1,
+            convert(eltype(X), -1.0),
+            nothing,
+            nothing,
+            unique(y)[1],
+            y,
+        )
     end
 
     # Track the best feature and threshold for splitting
@@ -89,15 +99,30 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
     # If no valid split was found, return a leaf node
     if best_feature == -1
-        return TreeNode(-1, -1, nothing, nothing, unique(y)[1], y)
+        return TreeNode(
+            -1,
+            convert(eltype(X), -1.0),
+            nothing,
+            nothing,
+            unique(y)[1],
+            y,
+        )
     end
 
     # Recursively build the left and right subtrees
     left_node = _build_tree(
-        best_left_X, best_left_y, max_depth, current_depth + 1, allowed_thresholds
+        best_left_X,
+        best_left_y,
+        max_depth,
+        current_depth + 1,
+        allowed_thresholds,
     )
     right_node = _build_tree(
-        best_right_X, best_right_y, max_depth, current_depth + 1, allowed_thresholds
+        best_right_X,
+        best_right_y,
+        max_depth,
+        current_depth + 1,
+        allowed_thresholds,
     )
 
     # Return the current node (internal node)

@@ -118,3 +118,7 @@ end
 p4
 
 # (g) ##############################
+optimal_rule = apply_tree(tree, vec(x))
+p5 = deepcopy(p2)
+scatter!(p5, [x[1]], [x[2]], ms=10, color=2+optimal_rule, label="Local CE (move to R$optimal_rule)")
+p5
