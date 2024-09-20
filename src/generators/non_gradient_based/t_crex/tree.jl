@@ -1,5 +1,3 @@
-# Custom Decision Tree Classifier in Julia
-
 # Define a basic node structure for the decision tree
 struct TreeNode
     feature::Int           # The feature index to split on
@@ -7,7 +5,10 @@ struct TreeNode
     left::Union{TreeNode,Nothing}   # Left child (if any)
     right::Union{TreeNode,Nothing}  # Right child (if any)
     prediction::Union{Nothing,Int}  # Class label for leaf node
+    values::Union{Nothing,Vector{Int}}      # The sample labels for leaf node
 end
+
+function wrap_decision_tree end
 
 # Function to check if a node is a leaf node
 is_leaf(node::TreeNode) = !isnothing(node.prediction)
@@ -51,7 +52,7 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
     # If all samples are of the same class, create a leaf node
     if length(unique(y)) == 1 || current_depth == max_depth
-        return TreeNode(-1, -1, nothing, nothing, unique(y)[1])
+        return TreeNode(-1, -1, nothing, nothing, unique(y)[1], y)
     end
 
     # Track the best feature and threshold for splitting
@@ -88,7 +89,7 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
     # If no valid split was found, return a leaf node
     if best_feature == -1
-        return TreeNode(-1, -1, nothing, nothing, unique(y)[1])
+        return TreeNode(-1, -1, nothing, nothing, unique(y)[1], y)
     end
 
     # Recursively build the left and right subtrees
@@ -100,7 +101,7 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
     )
 
     # Return the current node (internal node)
-    return TreeNode(best_feature, best_threshold, left_node, right_node, nothing)
+    return TreeNode(best_feature, best_threshold, left_node, right_node, nothing, nothing)
 end
 
 

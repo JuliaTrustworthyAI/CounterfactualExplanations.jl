@@ -1,3 +1,4 @@
+using Pkg; Pkg.activate("dev/")
 using CounterfactualExplanations
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
@@ -99,3 +100,19 @@ p3
 # (e) #############################
 bounds = Generators.partition_bounds(R_max)
 tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
+R_final = Generators.extract_rules(tree) 
+p4 = deepcopy(plt)
+for (i, rule) in enumerate(R_final)
+    ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
+    minimum([rule[2][2], maximum(X[2, :])])
+    lbx, lby = maximum([rule[1][1], minimum(X[1, :])]),
+    maximum([rule[2][1], minimum(X[2, :])])
+    plot!(
+        p4,
+        rectangle(ubx - lbx, uby - lby, lbx, lby);
+        opacity=0.5,
+        color=Rᶜ[i]+2,
+        label=nothing,
+    )
+end
+p4

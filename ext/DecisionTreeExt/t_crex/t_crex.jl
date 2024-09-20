@@ -62,3 +62,42 @@ function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::Abst
     end
 
 end
+
+function Generators.wrap_decision_tree(node::Generators.TreeNode)
+    if Generators.is_leaf(node)
+        return DT.Leaf(node.prediction, node.values)
+    else
+        return DT.Node(node.feature, node.threshold, Generators.wrap_decision_tree(node.left), Generators.wrap_decision_tree(node.right))
+    end
+end
+
+function Generators.wrap_decision_tree(node::Generators.TreeNode, X, y, niter=3)
+
+    # Turn into DT.Node
+    node = Generators.wrap_decision_tree(node)
+    X = X[:, :] |> x -> convert.(typeof(node.featval), x)
+    featim = DT.permutation_importance(
+        node, y, X, (model, y, X) -> DT.accuracy(y, DT.apply_tree(model, X)), niter
+    )
+    
+    return DT.Root(node, length(featim.mean), featim.mean)
+end
+
+"""
+    Generators.classify_prototypes(prototypes, rule_assignments, bounds)
+
+Builds the second tree model using the given `prototypes` as inputs and their corresponding `rule_assignments` as labels. Split thresholds are restricted to the `bounds`, which can be computed using [`partition_bounds(rules)`](@ref). $(Generators.DOC_TCREx)
+"""
+function Generators.classify_prototypes(prototypes, rule_assignments, bounds)
+    # Data:
+    X = prototypes
+    y = rule_assignments
+
+    # Grow tree/forest:
+    tree =
+        Generators._build_tree(X, y, Inf, 0, bounds) |>
+        tree -> Generators.wrap_decision_tree(tree, X, y)
+
+    # Return surrogate:
+    return tree
+end

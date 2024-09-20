@@ -192,19 +192,4 @@ end
 
 include("tree.jl")
 
-"""
-    classify_prototypes(prototypes, rule_assignments, bounds)
-
-Builds the second tree model using the given `prototypes` as inputs and their corresponding `rule_assignments` as labels. Split thresholds are restricted to the `bounds`, which can be computed using [`partition_bounds(rules)`](@ref). $DOC_TCREx
-"""
-function classify_prototypes(prototypes, rule_assignments, bounds)
-    # Data:
-    X = prototypes
-    y = rule_assignments
-
-    # Grow tree/forest:
-    tree = _build_tree(X, y, Inf, 0, bounds)
-
-    # Return surrogate:
-    return tree
-end
+function classify_prototypes end
