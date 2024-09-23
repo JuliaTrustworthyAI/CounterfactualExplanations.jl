@@ -1,3 +1,50 @@
+@Article{chickering2003optimal,
+  author     = {Chickering, David Maxwell},
+  title      = {Optimal structure identification with greedy search},
+  doi        = {10.1162/153244303321897717},
+  issn       = {1532-4435},
+  number     = {null},
+  pages      = {507–554},
+  url        = {https://doi.org/10.1162/153244303321897717},
+  volume     = {3},
+  abstract   = {In this paper we prove the so-called "Meek Conjecture". In particular, we show that if a DAG H is an independence map of another DAG G, then there exists a finite sequence of edge additions and covered edge reversals in G such that (1) after each edge modification H remains an independence map of G and (2) after all modifications G =H. As shown by Meek (1997), this result has an important consequence for Bayesian approaches to learning Bayesian networks from data: in the limit of large sample size, there exists a two-phase greedy search algorithm that---when applied to a particular sparsely-connected search space---provably identifies a perfect map of the generative distribution if that perfect map is a DAG. We provide a new implementation of the search space, using equivalence classes as states, for which all operators used in the greedy search can be scored efficiently using local functions of the nodes in the domain. Finally, using both synthetic and real-world datasets, we demonstrate that the two-phase greedy approach leads to good solutions when learning with finite sample sizes.},
+  issue_date = {3/1/2003},
+  journal    = {J. Mach. Learn. Res.},
+  month      = {mar},
+  numpages   = {48},
+  publisher  = {JMLR.org},
+  year       = {2003},
+}
+
+@InProceedings{karimi2021algorithmic,
+  author    = {Karimi, Amir-Hossein and Sch\"{o}lkopf, Bernhard and Valera, Isabel},
+  booktitle = {Proceedings of the 2021 ACM Conference on Fairness, Accountability, and Transparency},
+  title     = {Algorithmic Recourse: from Counterfactual Explanations to Interventions},
+  doi       = {10.1145/3442188.3445899},
+  isbn      = {9781450383097},
+  location  = {Virtual Event, Canada},
+  pages     = {353–362},
+  publisher = {Association for Computing Machinery},
+  series    = {FAccT '21},
+  url       = {https://doi.org/10.1145/3442188.3445899},
+  abstract  = {As machine learning is increasingly used to inform consequential decision-making (e.g., pre-trial bail and loan approval), it becomes important to explain how the system arrived at its decision, and also suggest actions to achieve a favorable decision. Counterfactual explanations -"how the world would have (had) to be different for a desirable outcome to occur"- aim to satisfy these criteria. Existing works have primarily focused on designing algorithms to obtain counterfactual explanations for a wide range of settings. However, it has largely been overlooked that ultimately, one of the main objectives is to allow people to act rather than just understand. In layman's terms, counterfactual explanations inform an individual where they need to get to, but not how to get there. In this work, we rely on causal reasoning to caution against the use of counterfactual explanations as a recommendable set of actions for recourse. Instead, we propose a shift of paradigm from recourse via nearest counterfactual explanations to recourse through minimal interventions, shifting the focus from explanations to interventions.},
+  address   = {New York, NY, USA},
+  keywords  = {algorithmic recourse, causal inference, consequential recommendations, contrastive explanations, counterfactual explanations, explainable artificial intelligence, minimal interventions},
+  numpages  = {10},
+  year      = {2021},
+}
+
+@Book{pearl2009book,
+author = {Pearl, Judea},
+title = {Causality: Models, Reasoning and Inference},
+year = {2009},
+isbn = {052189560X},
+publisher = {Cambridge University Press},
+address = {USA},
+edition = {2nd},
+abstract = {Written by one of the preeminent researchers in the field, this book provides a comprehensive exposition of modern analysis of causation. It shows how causality has grown from a nebulous concept into a mathematical theory with significant applications in the fields of statistics, artificial intelligence, economics, philosophy, cognitive science, and the health and social sciences. Judea Pearl presents and unifies the probabilistic, manipulative, counterfactual, and structural approaches to causation and devises simple mathematical tools for studying the relationships between causal connections and statistical associations. The book will open the way for including causal analysis in the standard curricula of statistics, artificial intelligence, business, epidemiology, social sciences, and economics. Students in these fields will find natural models, simple inferential procedures, and precise mathematical definitions of causal concepts that traditional texts have evaded or made unduly complicated. The first edition of Causality has led to a paradigmatic change in the way that causality is treated in statistics, philosophy, computer science, social science, and economics. Cited in more than 3,000 scientific publications, it continues to liberate scientists from the traditional molds of statistical thinking. In this revised edition, Judea Pearl elucidates thorny issues, answers readers' questions, and offers a panoramic view of recent advances in this field of research. Causality will be of interests to students and professionals in a wide variety of fields. Anyone who wishes to elucidate meaningful relationships from data, predict effects of actions and policies, assess explanations of reported events, or form theories of causal understanding and causal speech will find this book stimulating and invaluable.}
+}
+
 @TechReport{xu2022conformal,
   author      = {Xu, Chen and Xie, Yao},
   date        = {2022-06},
@@ -1484,16 +1531,6 @@
   eprint        = {2010.04050},
   archiveprefix = {arXiv},
   primaryclass  = {cs.LG},
-  year          = {2021},
-}
-
-@InProceedings{karimi2021algorithmic,
-  author        = {Karimi, Amir-Hossein and Sch{\"o}lkopf, Bernhard and Valera, Isabel},
-  booktitle     = {Proceedings of the 2021 {{ACM Conference}} on {{Fairness}}, {{Accountability}}, and {{Transparency}}},
-  title         = {Algorithmic Recourse: From Counterfactual Explanations to Interventions},
-  pages         = {353--362},
-  date-added    = {2022-12-13 12:58:01 +0100},
-  date-modified = {2022-12-13 12:58:01 +0100},
   year          = {2021},
 }
 
@@ -3405,12 +3442,6 @@
   year          = {2024},
 }
 
-@Article{zagorac2024study,
-  author = {Zagorac, Ivor},
-  title  = {A Study on Counterfactual Explanations: Investigating the impact of inter-class distance and data imbalance},
-  year   = {2024},
-}
-
 @Misc{kelly2021directly,
   author        = {Jacob Kelly and Richard Zemel and Will Grathwohl},
   title         = {Directly Training Joint Energy-Based Models for Conditional Synthesis and Calibrated Prediction of Multi-Attribute Data},
@@ -3421,15 +3452,14 @@
   year          = {2021},
 }
 
-@Book{pearl2009book,
-  author    = {Pearl, Judea},
-  title     = {Causality: Models, Reasoning and Inference},
-  edition   = {2nd},
-  isbn      = {052189560X},
-  publisher = {Cambridge University Press},
-  abstract  = {Written by one of the preeminent researchers in the field, this book provides a comprehensive exposition of modern analysis of causation. It shows how causality has grown from a nebulous concept into a mathematical theory with significant applications in the fields of statistics, artificial intelligence, economics, philosophy, cognitive science, and the health and social sciences. Judea Pearl presents and unifies the probabilistic, manipulative, counterfactual, and structural approaches to causation and devises simple mathematical tools for studying the relationships between causal connections and statistical associations. The book will open the way for including causal analysis in the standard curricula of statistics, artificial intelligence, business, epidemiology, social sciences, and economics. Students in these fields will find natural models, simple inferential procedures, and precise mathematical definitions of causal concepts that traditional texts have evaded or made unduly complicated. The first edition of Causality has led to a paradigmatic change in the way that causality is treated in statistics, philosophy, computer science, social science, and economics. Cited in more than 3,000 scientific publications, it continues to liberate scientists from the traditional molds of statistical thinking. In this revised edition, Judea Pearl elucidates thorny issues, answers readers' questions, and offers a panoramic view of recent advances in this field of research. Causality will be of interests to students and professionals in a wide variety of fields. Anyone who wishes to elucidate meaningful relationships from data, predict effects of actions and policies, assess explanations of reported events, or form theories of causal understanding and causal speech will find this book stimulating and invaluable.},
-  address   = {USA},
-  year      = {2009},
+@Misc{bewley2024counterfactual,
+  author        = {Tom Bewley and Salim I. Amoukou and Saumitra Mishra and Daniele Magazzeni and Manuela Veloso},
+  title         = {Counterfactual Metarules for Local and Global Recourse},
+  eprint        = {2405.18875},
+  url           = {https://arxiv.org/abs/2405.18875},
+  archiveprefix = {arXiv},
+  primaryclass  = {cs.AI},
+  year          = {2024},
 }
 
 @Comment{jabref-meta: databaseType:biblatex;}

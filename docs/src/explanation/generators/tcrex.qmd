@@ -1,0 +1,21 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# T-CREx Generator
+
+The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual].
+
+```{=commonmark}
+!!! warning "Breaking Changes Expected"
+    Work on this feature is still in its very early stages and breaking changes should be expected. 
+```
+
+## Example from the paper
+
