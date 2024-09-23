@@ -18,6 +18,15 @@ struct CRE <: AbstractCounterfactualExplanation
     M::Models.AbstractModel
     generator::Generators.AbstractGenerator
     rules::Vector{Rule}
-    meta_rules::Vector{Rule}
-    search::Union{Dict,Nothing}
+    meta_rules::Union{Nothing,Vector{Rule}}
+    other::Union{Dict,Nothing}
+end
+
+"""
+    (cre::CRE)(x::AbstractArray)
+
+Generates a local counterfactual point explanation for `x` using the `generator`.
+"""
+function (cre::CRE)(x::AbstractArray)
+    return cre(x::AbstractArray, cre.generator)
 end

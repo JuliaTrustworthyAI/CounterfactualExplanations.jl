@@ -2,8 +2,20 @@ using CounterfactualExplanations: CRE, Rule
 using CounterfactualExplanations.DataPreprocessing
 using CounterfactualExplanations.Models
 
+const DOC_TCREx = "For details see Bewley et al. ([2024](https://arxiv.org/abs/2405.18875))."
+
 include("utils.jl")
 
+"""
+    (generator::Generators.TCRExGenerator)(
+        target::RawTargetType,
+        data::DataPreprocessing.CounterfactualData,
+        M::Models.AbstractModel
+    )
+
+Applies the [`TCRExGenerator`](@ref) to a given `target` and `data` using the
+`M` model. $DOC_TCREx
+"""
 function (generator::Generators.TCRExGenerator)(
     target::RawTargetType,
     data::DataPreprocessing.CounterfactualData,
@@ -45,9 +57,15 @@ function (generator::Generators.TCRExGenerator)(
         generator,
         Rule.(R_max),
         Rule.(R_final),
-        nothing,
+        Dict(:tree => tree),
     )
 
     return output
     
+end
+
+function (cre::CRE)(x::AbstractArray, generator::Generators.TCRExGenerator)
+    tree = cre.other[:tree]
+    optimal_rule = apply_tree(tree, vec(x))
+    return optimal_rule, cre.meta_rules[optimal_rule]
 end

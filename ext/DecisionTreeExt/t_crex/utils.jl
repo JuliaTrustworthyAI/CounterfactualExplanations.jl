@@ -3,8 +3,6 @@ using DecisionTree
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models: predict_label
 
-const DOC_TCREx = "For details see Bewley et al. ([2024](https://arxiv.org/abs/2405.18875))."
-
 function grow_surrogate(
     generator::Generators.TCRExGenerator,
     data::CounterfactualData,
