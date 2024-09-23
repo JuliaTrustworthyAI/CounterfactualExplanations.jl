@@ -1,4 +1,5 @@
-using Pkg; Pkg.activate("dev/")
+using Pkg;
+Pkg.activate("dev/");
 using CounterfactualExplanations
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models
@@ -51,7 +52,7 @@ feas_max = Generators.rule_feasibility.(R_max, (X,))
 acc_max = Generators.rule_accuracy.(R_max, (X,), (fx,), (target,))
 plt = plot(data; ms=3, markerstrokewidth=0, size=(500, 500))
 p1 = deepcopy(plt)
-rectangle(w, h, x, y) = Shape(x .+ [0,w,w,0], y .+ [0,0,h,h])
+rectangle(w, h, x, y) = Shape(x .+ [0, w, w, 0], y .+ [0, 0, h, h])
 for (i, rule) in enumerate(R_max)
     ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
     minimum([rule[2][2], maximum(X[2, :])])
@@ -62,7 +63,9 @@ for (i, rule) in enumerate(R_max)
     _acc = round(acc_max[i]; digits=2)
     @info "Rectangle R$i with feasibility $(_feas) (n≈$(_n)) and accuracy $(_acc)"
     lab = "R$i (ρ̂=$(_feas), τ̂=$(_acc))"
-    plot!(p1, rectangle(ubx-lbx,uby-lby,lbx,lby), opacity=.5, color=i+2, label=lab)
+    plot!(
+        p1, rectangle(ubx - lbx, uby - lby, lbx, lby); opacity=0.5, color=i + 2, label=lab
+    )
 end
 p1
 
@@ -72,7 +75,7 @@ p2 = deepcopy(p1)
 function plot_grid!(p)
     for (i, (bounds_x, bounds_y)) in enumerate(_grid)
         lbx, ubx = bounds_x
-        lby, uby  = bounds_y
+        lby, uby = bounds_y
         lbx = maximum([lbx, minimum(X[1, :])])
         lby = maximum([lby, minimum(X[2, :])])
         ubx = minimum([ubx, maximum(X[1, :])])
@@ -92,15 +95,15 @@ p2
 
 # (d) ##############################
 xs = Generators.prototype.(_grid, (X,); pick_arbitrary=false)
-Rᶜ = Generators.cre.((R_max,), xs, (X,); return_index=true) 
+Rᶜ = Generators.cre.((R_max,), xs, (X,); return_index=true)
 p3 = deepcopy(p2)
-scatter!(p3, eachrow(hcat(xs...))..., ms=10, label=nothing, color=Rᶜ.+2)
+scatter!(p3, eachrow(hcat(xs...))...; ms=10, label=nothing, color=Rᶜ .+ 2)
 p3
 
 # (e) - (f) ########################
 bounds = Generators.partition_bounds(R_max)
 tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
-R_final, labels = Generators.extract_leaf_rules(tree) 
+R_final, labels = Generators.extract_leaf_rules(tree)
 p4 = deepcopy(plt)
 for (i, rule) in enumerate(R_final)
     ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
@@ -112,7 +115,7 @@ for (i, rule) in enumerate(R_final)
         rectangle(ubx - lbx, uby - lby, lbx, lby);
         fillalpha=0.5,
         label=nothing,
-        color=labels[i] + 2
+        color=labels[i] + 2,
     )
 end
 p4
@@ -120,5 +123,12 @@ p4
 # (g) ##############################
 optimal_rule = apply_tree(tree, vec(x))
 p5 = deepcopy(p2)
-scatter!(p5, [x[1]], [x[2]], ms=10, color=2+optimal_rule, label="Local CE (move to R$optimal_rule)")
+scatter!(
+    p5,
+    [x[1]],
+    [x[2]];
+    ms=10,
+    color=2 + optimal_rule,
+    label="Local CE (move to R$optimal_rule)",
+)
 p5

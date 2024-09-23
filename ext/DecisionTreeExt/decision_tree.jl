@@ -17,7 +17,10 @@ function CounterfactualExplanations.DecisionTreeModel(
     model::AtomicDecisionTree; fitresult=nothing, likelihood::Symbol=:classification_binary
 )
     return Models.Model(
-        model, CounterfactualExplanations.DecisionTreeModel(); fitresult=fitresult, likelihood=likelihood
+        model,
+        CounterfactualExplanations.DecisionTreeModel();
+        fitresult=fitresult,
+        likelihood=likelihood,
     )
 end
 

@@ -1,5 +1,5 @@
 # Define a basic node structure for the decision tree
-struct TreeNode{S, T}
+struct TreeNode{S,T}
     feature::Int           # The feature index to split on
     threshold::S     # The threshold to split on
     left::Union{TreeNode{S,T},Nothing}   # Left child (if any)
@@ -44,10 +44,8 @@ function split_data(X, y, feature, threshold)
     return left_X, left_y, right_X, right_y
 end
 
-
 # Function to build the decision tree recursively
 function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
-
     allowed_thresholds = [
         bounds[.!isinf.(bounds)] |> x -> convert.(eltype(X), x) for
         bounds in allowed_thresholds
@@ -55,14 +53,7 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
     # If all samples are of the same class, create a leaf node
     if length(unique(y)) == 1 || current_depth == max_depth
-        return TreeNode(
-            -1,
-            convert(eltype(X), -1.0),
-            nothing,
-            nothing,
-            unique(y)[1],
-            y,
-        )
+        return TreeNode(-1, convert(eltype(X), -1.0), nothing, nothing, unique(y)[1], y)
     end
 
     # Track the best feature and threshold for splitting
@@ -99,36 +90,20 @@ function _build_tree(X, y, max_depth, current_depth, allowed_thresholds)
 
     # If no valid split was found, return a leaf node
     if best_feature == -1
-        return TreeNode(
-            -1,
-            convert(eltype(X), -1.0),
-            nothing,
-            nothing,
-            unique(y)[1],
-            y,
-        )
+        return TreeNode(-1, convert(eltype(X), -1.0), nothing, nothing, unique(y)[1], y)
     end
 
     # Recursively build the left and right subtrees
     left_node = _build_tree(
-        best_left_X,
-        best_left_y,
-        max_depth,
-        current_depth + 1,
-        allowed_thresholds,
+        best_left_X, best_left_y, max_depth, current_depth + 1, allowed_thresholds
     )
     right_node = _build_tree(
-        best_right_X,
-        best_right_y,
-        max_depth,
-        current_depth + 1,
-        allowed_thresholds,
+        best_right_X, best_right_y, max_depth, current_depth + 1, allowed_thresholds
     )
 
     # Return the current node (internal node)
     return TreeNode(best_feature, best_threshold, left_node, right_node, nothing, nothing)
 end
-
 
 # Function to predict a single instance using the decision tree
 function predict_tree(node::TreeNode, x::AbstractVector)

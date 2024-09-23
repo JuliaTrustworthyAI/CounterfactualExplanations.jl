@@ -19,7 +19,7 @@ Applies the [`TCRExGenerator`](@ref) to a given `target` and `data` using the
 function (generator::Generators.TCRExGenerator)(
     target::RawTargetType,
     data::DataPreprocessing.CounterfactualData,
-    M::Models.AbstractModel
+    M::Models.AbstractModel,
 )
 
     # Setup:    
@@ -32,14 +32,14 @@ function (generator::Generators.TCRExGenerator)(
     model, fitresult = grow_surrogate(generator, data, M)
 
     # Extract rules:
-    R = extract_rules(fitresult[1]) 
+    R = extract_rules(fitresult[1])
 
     # (b) ##############################
     R_max = max_valid(R, X, fx, target, generator.τ)
 
     # (c) ##############################
     _grid = induced_grid(R_max)
-    
+
     # (d) ##############################
     xs = prototype.(_grid, (X,); pick_arbitrary=false)
     Rᶜ = cre.((R_max,), xs, (X,); return_index=true)
@@ -51,17 +51,10 @@ function (generator::Generators.TCRExGenerator)(
 
     # Construct CRE:
     output = CRE(
-        target,
-        data,
-        M,
-        generator,
-        Rule.(R_max),
-        Rule.(R_final),
-        Dict(:tree => tree),
+        target, data, M, generator, Rule.(R_max), Rule.(R_final), Dict(:tree => tree)
     )
 
     return output
-    
 end
 
 function (cre::CRE)(x::AbstractArray, generator::Generators.TCRExGenerator)

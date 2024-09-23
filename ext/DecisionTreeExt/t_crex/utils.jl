@@ -4,10 +4,8 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models: predict_label
 
 function grow_surrogate(
-    generator::Generators.TCRExGenerator,
-    data::CounterfactualData,
-    M::AbstractModel
-)   
+    generator::Generators.TCRExGenerator, data::CounterfactualData, M::AbstractModel
+)
     # Data:
     X = data.X |> permutedims                           # training samples
     Xtab = MLJBase.table(X)
@@ -32,14 +30,13 @@ function grow_surrogate(
 end
 
 function extract_rules(root::DT.Root)
-    conditions = [[-Inf,Inf] for i in 1:root.n_feat]
+    conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
     conditions = extract_rules(root.node, conditions)
     conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions]
     return conditions
 end
 
 function extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
-
     if typeof(node) <: DT.Leaf
         # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
         return []
@@ -56,11 +53,15 @@ function extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
         right_conditions[split_feature][1] = threshold      # lower bound
         right_hyperrectangles = extract_rules(node.right, right_conditions)
 
-        conditions = vcat([left_conditions], left_hyperrectangles, [right_conditions], right_hyperrectangles)
+        conditions = vcat(
+            [left_conditions],
+            left_hyperrectangles,
+            [right_conditions],
+            right_hyperrectangles,
+        )
 
         return conditions
     end
-
 end
 
 function extract_leaf_rules(root::DT.Root)
@@ -68,17 +69,18 @@ function extract_leaf_rules(root::DT.Root)
     decisions = [nothing]
     conditions, decisions = extract_leaf_rules(root.node, conditions, decisions)
     _keep = .![isnothing.(decision)[1] for decision in decisions]
-    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions[_keep]] 
+    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions[_keep]]
     decisions = [decision[1] for decision in decisions[_keep]]
     return conditions, decisions
 end
 
-function extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray)
+function extract_leaf_rules(
+    node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray
+)
     if typeof(node) <: DT.Leaf
         # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
         return [], []
     else
-
         left_conditions = deepcopy(conditions)              # left branch: feature <= threshold
         right_conditions = deepcopy(conditions)            # right branch: feature > threshold
         left_decisions = deepcopy(decisions)
@@ -99,7 +101,7 @@ function extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractAr
         # Get split feature and value:
         split_feature = node.featid
         threshold = node.featval
-        right_conditions[split_feature][1]  = threshold        # lower bound
+        right_conditions[split_feature][1] = threshold        # lower bound
         if typeof(node.right) <: DT.Leaf
             right_decisions = [node.right.majority]
         end
@@ -117,14 +119,10 @@ function extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractAr
         )
 
         decisions = vcat(
-            [left_decisions],
-            later_left_decisions,
-            [right_decisions],
-            later_right_decisions,
+            [left_decisions], later_left_decisions, [right_decisions], later_right_decisions
         )
 
         return conditions, decisions
-
     end
 end
 
@@ -134,7 +132,12 @@ function wrap_decision_tree(node::TreeNode)
     if is_leaf(node)
         return DT.Leaf(node.prediction, node.values)
     else
-        return DT.Node(node.feature, node.threshold, wrap_decision_tree(node.left), wrap_decision_tree(node.right))
+        return DT.Node(
+            node.feature,
+            node.threshold,
+            wrap_decision_tree(node.left),
+            wrap_decision_tree(node.right),
+        )
     end
 end
 
@@ -146,7 +149,7 @@ function wrap_decision_tree(node::TreeNode, X, y, niter=3)
     featim = DT.permutation_importance(
         node, y, X, (model, y, X) -> DT.accuracy(y, DT.apply_tree(model, X)), niter
     )
-    
+
     return DT.Root(node, length(featim.mean), featim.mean)
 end
 
@@ -334,7 +337,7 @@ function classify_prototypes(prototypes, rule_assignments, bounds)
     @assert length(unique(y)) > 1 "Only one rule identified."
 
     # Grow tree/forest:
-    tree = _build_tree(X, y, Inf, 0, bounds) 
+    tree = _build_tree(X, y, Inf, 0, bounds)
     tree = wrap_decision_tree(tree, X, y)
 
     # Return surrogate:

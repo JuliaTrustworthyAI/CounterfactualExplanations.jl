@@ -2,7 +2,7 @@ using CounterfactualExplanations
 using StatsBase
 
 "T-CREx counterfactual generator class."
-mutable struct TCRExGenerator <: AbstractNonGradientBasedGenerator 
+mutable struct TCRExGenerator <: AbstractNonGradientBasedGenerator
     ρ::AbstractFloat
     τ::AbstractFloat
     forest::Bool
