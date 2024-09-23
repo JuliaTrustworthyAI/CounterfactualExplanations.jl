@@ -1,3 +1,5 @@
+using MLJDecisionTreeInterface
+
 abstract type AbstractDecisionTree <: Models.MLJModelType end
 
 """
