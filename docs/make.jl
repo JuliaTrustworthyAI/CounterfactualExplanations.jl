@@ -56,6 +56,7 @@ makedocs(;
                 "PROBE" => "explanation/generators/probe.md",
                 "REVISE" => "explanation/generators/revise.md",
                 "MINT" => "explanation/generators/mint.md",
+                "T-CREx" => "explanation/generators/tcrex.md",
             ],
             "Evaluation" => [
                 "Overview" => "explanation/evaluation/overview.md",
