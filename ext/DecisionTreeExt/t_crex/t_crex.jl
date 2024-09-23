@@ -1,168 +1,53 @@
-using CategoricalArrays
-using DecisionTree
-using CounterfactualExplanations.Generators
-using CounterfactualExplanations.Models: predict_label
+using CounterfactualExplanations: CRE, Rule
+using CounterfactualExplanations.DataPreprocessing
+using CounterfactualExplanations.Models
 
-function Generators.grow_surrogate(
-    generator::Generators.TCRExGenerator, ce::AbstractCounterfactualExplanation; kwrgs...
+include("utils.jl")
+
+function (generator::Generators.TCRExGenerator)(
+    target::RawTargetType,
+    data::DataPreprocessing.CounterfactualData,
+    M::Models.AbstractModel
 )
-    # Data:
-    X = ce.data.X |> permutedims                        # training samples
-    Xtab = MLJBase.table(X)
-    ŷ = predict_label(ce.M, ce.data) |> categorical     # predicted outputs
 
-    # Grow tree/forest:
-    min_fraction = generator.ρ
-    min_samples = round(Int, min_fraction * size(X, 1))
-    if !generator.forest
-        tree = MLJDecisionTreeInterface.DecisionTreeClassifier(;
-            min_samples_leaf=min_samples,
-            kwrgs...
-        )
-    else
-        tree = MLJDecisionTreeInterface.RandomForestClassifier(;
-            min_samples_leaf=min_samples,
-            kwrgs...
-        )
-    end
-    mach = machine(tree, Xtab, ŷ) |> MLJBase.fit!
+    # Setup:    
+    X = data.X
+    fx = predict_label(M, data)
 
-    # Return surrogate:
-    return mach.model, mach.fitresult
-end
+    # (a) ##############################
 
-function Generators.extract_rules(root::DT.Root)
-    conditions = [[-Inf,Inf] for i in 1:root.n_feat]
-    conditions = Generators.extract_rules(root.node, conditions)
-    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions]
-    return conditions
-end
+    # Surrogate:
+    model, fitresult = grow_surrogate(generator, data, M)
 
-function Generators.extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
+    # Extract rules:
+    R = extract_rules(fitresult[1]) 
 
-    if typeof(node) <: DT.Leaf
-        # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
-        return []
-    else
-        # Get split feature and value:
-        split_feature = node.featid
-        threshold = node.featval
+    # (b) ##############################
+    R_max = max_valid(R, X, fx, target, generator.τ)
 
-        left_conditions = deepcopy(conditions)              # left branch: feature <= threshold
-        left_conditions[split_feature][2] = threshold       # upper bound
-        left_hyperrectangles = Generators.extract_rules(node.left, left_conditions)
-
-        right_conditions = deepcopy(conditions)             # right branch: feature > threshold
-        right_conditions[split_feature][1] = threshold      # lower bound
-        right_hyperrectangles = Generators.extract_rules(node.right, right_conditions)
-
-        conditions = vcat([left_conditions], left_hyperrectangles, [right_conditions], right_hyperrectangles)
-
-        return conditions
-    end
-
-end
-
-function Generators.extract_leaf_rules(root::DT.Root)
-    conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
-    decisions = [nothing]
-    conditions, decisions = Generators.extract_leaf_rules(root.node, conditions, decisions)
-    _keep = .![isnothing.(decision)[1] for decision in decisions]
-    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions[_keep]] 
-    decisions = [decision[1] for decision in decisions[_keep]]
-    return conditions, decisions
-end
-
-function Generators.extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray)
-    if typeof(node) <: DT.Leaf
-        # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
-        return [], []
-    else
-
-        left_conditions = deepcopy(conditions)              # left branch: feature <= threshold
-        right_conditions = deepcopy(conditions)            # right branch: feature > threshold
-        left_decisions = deepcopy(decisions)
-        right_decisions = deepcopy(decisions)
-
-        # Get split feature and value:
-        split_feature = node.featid
-        threshold = node.featval
-        left_conditions[split_feature][2] = threshold       # upper bound
-        if typeof(node.left) <: DT.Leaf
-            left_decisions = [node.left.majority]
-        end
-
-        left_hyperrectangles, later_left_decisions = Generators.extract_leaf_rules(
-            node.left, left_conditions, left_decisions
-        )
-
-        # Get split feature and value:
-        split_feature = node.featid
-        threshold = node.featval
-        right_conditions[split_feature][1]  = threshold        # lower bound
-        if typeof(node.right) <: DT.Leaf
-            right_decisions = [node.right.majority]
-        end
-
-        right_hyperrectangles, later_right_decisions = Generators.extract_leaf_rules(
-            node.right, right_conditions, right_decisions
-        )
-
-        # Return the union of the two hyperrectangles:
-        conditions = vcat(
-            [left_conditions],
-            left_hyperrectangles,
-            [right_conditions],
-            right_hyperrectangles,
-        )
-
-        decisions = vcat(
-            [left_decisions],
-            later_left_decisions,
-            [right_decisions],
-            later_right_decisions,
-        )
-
-        return conditions, decisions
-
-    end
-end
-
-function Generators.wrap_decision_tree(node::Generators.TreeNode)
-    if Generators.is_leaf(node)
-        return DT.Leaf(node.prediction, node.values)
-    else
-        return DT.Node(node.feature, node.threshold, Generators.wrap_decision_tree(node.left), Generators.wrap_decision_tree(node.right))
-    end
-end
-
-function Generators.wrap_decision_tree(node::Generators.TreeNode, X, y, niter=3)
-
-    # Turn into DT.Node
-    node = Generators.wrap_decision_tree(node)
-    X = X[:, :] |> x -> convert.(typeof(node.featval), x)
-    featim = DT.permutation_importance(
-        node, y, X, (model, y, X) -> DT.accuracy(y, DT.apply_tree(model, X)), niter
-    )
+    # (c) ##############################
+    _grid = induced_grid(R_max)
     
-    return DT.Root(node, length(featim.mean), featim.mean)
-end
+    # (d) ##############################
+    xs = prototype.(_grid, (X,); pick_arbitrary=false)
+    Rᶜ = cre.((R_max,), xs, (X,); return_index=true)
 
-"""
-    Generators.classify_prototypes(prototypes, rule_assignments, bounds)
+    # (e) - (f) ########################
+    bounds = partition_bounds(R_max)
+    tree = classify_prototypes(hcat(xs...)', Rᶜ, bounds)
+    R_final, labels = extract_leaf_rules(tree)
 
-Builds the second tree model using the given `prototypes` as inputs and their corresponding `rule_assignments` as labels. Split thresholds are restricted to the `bounds`, which can be computed using [`partition_bounds(rules)`](@ref). $(Generators.DOC_TCREx)
-"""
-function Generators.classify_prototypes(prototypes, rule_assignments, bounds)
-    # Data:
-    X = prototypes
-    y = rule_assignments
+    # Construct CRE:
+    output = CRE(
+        target,
+        data,
+        M,
+        generator,
+        Rule.(R_max),
+        Rule.(R_final),
+        nothing,
+    )
 
-    # Grow tree/forest:
-    tree =
-        Generators._build_tree(X, y, Inf, 0, bounds) |>
-        tree -> Generators.wrap_decision_tree(tree, X, y)
-
-    # Return surrogate:
-    return tree
+    return output
+    
 end

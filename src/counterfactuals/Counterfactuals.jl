@@ -10,6 +10,7 @@ using MultivariateStats
 using Statistics: Statistics
 using StatsBase
 
+# Counterfactual Point Explanations:
 include("core_struct.jl")
 include("encodings.jl")
 include("generate_counterfactual.jl")
@@ -22,3 +23,6 @@ include("search.jl")
 include("termination.jl")
 include("utils.jl")
 include("vectorised.jl")
+
+# Counterfactual Rule Explanations:
+include("CRE.jl")
