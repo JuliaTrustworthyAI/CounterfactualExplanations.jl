@@ -3,6 +3,7 @@ include("feature_tweak.jl")
 include("full_runs.jl")
 include("probe.jl")
 include("growing_spheres.jl")
+include("tcrex.jl")
 include("categorical_data.jl")
 include("optimizers.jl")
 

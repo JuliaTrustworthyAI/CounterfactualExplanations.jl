@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.3.0] - 2024-09-16
+
+### Added
+
+- Added basic support for the T-CREx counterfactual generator. [#473]
+
 ## Version [1.2.0] - 2024-09-10
 
 ### Added
