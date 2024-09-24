@@ -1,0 +1,71 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+## Package Architecture
+
+The diagram below provides an overview of the package architecture. It is built around two core modules that are designed to be as extensible as possible through dispatch: 1) `Models` is concerned with making any arbitrary model compatible with the package; 2) `Generators` is used to implement arbitrary counterfactual search algorithms.^[We have made an effort to keep the code base a flexible and extensible as possible, but cannot guarantee at this point that any counterfactual generator can be implemented without further adaptation.] 
+
+The core function of the package, [`generate_counterfactual`](@ref), uses an instance of type [`AbstractModel`](@ref) produced by the `Models` module and an instance of type [`AbstractGenerator`](@ref) produced by the `Generators` module.
+
+Metapackages from the [Taija](https://github.com/JuliaTrustworthyAI) ecosystem provide additional functionality such as datasets, language interoperability, parallelization, and plotting. The `CounterfactualExplanations` package is designed to be used in conjunction with these metapackages, but can also be used as a standalone package.
+
+```{mermaid}
+%%| fig-width: 6.5
+%%| echo: false
+
+flowchart TB
+
+    classDef taija fill:#b5c6ff,stroke:#333,color:#fff;
+    classDef module fill:#cb3c33,stroke:#333,color:#fff,stroke-width:4px;
+    classDef struct fill:#389826,stroke:#333,color:#fff;
+    classDef funct fill:#9558b2,stroke:#333,color:#fff;
+
+    %% Taija
+    interop(["TaijaInteroperability.jl"])
+    data(["TaijaData.jl"])
+    parallel(["TaijaParallel.jl"])
+    plotting(["TaijaPlotting.jl"])
+
+    %% Modules
+    data_pre(["DataPreprocessing"])
+    models(["Models"])
+    obj(["Objectives"])
+    generators(["Generators"])
+    eval(["Evaluation"])
+
+    %% Structs
+    c_data["CounterfactualData"]
+    model["<:AbstractModel"]
+    generator["<:AbstractGenerator"]
+    ce["CounterfactualExplanation"]
+
+    %% Functions
+    generate_counterfactual{{"generate_counterfactual"}}
+    evaluate{{"evaluate"}}
+    plot{{"plot"}}
+
+    class interop,data,parallel,plotting taija;
+    class vae,c_data,model,generator,ce struct;
+    class data_pre,models,generators,eval,obj module;
+    class generate_counterfactual,evaluate,plot funct;
+
+    %% Graph
+    data -. data .-> c_data
+    data_pre ===o c_data
+    interop -.-> model
+    models ===o model
+    generators & obj ===o generator
+    c_data & model & generator ===> generate_counterfactual
+    generate_counterfactual ===o ce
+    eval ===> evaluate
+    ce ===o evaluate & plot
+    parallel -.-> generate_counterfactual & evaluate
+    plotting -.-> plot
+```
