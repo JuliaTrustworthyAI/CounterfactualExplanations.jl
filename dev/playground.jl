@@ -26,7 +26,7 @@ ce = generate_counterfactual(x, target, data, M, generator)
 # T-CREx ###################################################################
 ρ = 0.5
 τ = 0.9
-generator = Generators.TCRExGenerator(ρ=ρ, τ=τ)
+generator = Generators.TCRExGenerator(; ρ=ρ, τ=τ)
 
 DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
 

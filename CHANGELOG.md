@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.3.0] - 2024-09-16
 
+### Changed
+
+- Fixed bug in `NeuroTreeExt` extensions. [#475]
+
 ### Added
 
 - Added basic support for the T-CREx counterfactual generator. [#473]
