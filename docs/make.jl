@@ -12,6 +12,12 @@ Changelog.generate(
     repo="juliatrustworthyai/CounterfactualExplanations.jl",
 )
 
+# Load weak deps for extensions
+using DecisionTree
+using JointEnergyModels
+using LaplaceRedux
+using NeuroTreeModels
+
 makedocs(;
     doctest=false,
     modules=[CounterfactualExplanations],

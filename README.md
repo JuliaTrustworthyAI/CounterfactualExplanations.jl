@@ -22,7 +22,7 @@ There is also a corresponding paper, [*Explaining Black-Box Models through Count
       volume = {1},
       number = {1},
       pages = {130},
-      author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. s. Liem},
+      author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. S. Liem},
       title = {Explaining Black-Box Models through Counterfactuals},
       journal = {Proceedings of the JuliaCon Conferences}
     }
@@ -62,13 +62,50 @@ Counterfactual Explanations have a few properties that are desirable in the cont
 - Clear link to Algorithmic Recourse and Causal Inference.
 - Less susceptible to adversarial attacks than LIME and SHAP.
 
+### Simple Usage Example
+
+To get started, try out this simple usage example with synthetic data:
+
+``` julia
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Plots
+using TaijaData
+using TaijaPlotting
+
+# Data and Model:
+data = load_linearly_separable()
+counterfactual_data = CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+
+# Choose factual:
+target = 2
+factual = 1
+chosen = findall(predict_label(M, counterfactual_data) .== factual) |>
+  rand
+x = select_factual(counterfactual_data, chosen)
+
+# Generate counterfactuals
+generator = WachterGenerator()
+ce = generate_counterfactual(
+  x,                      # factual
+  target,                 # target
+  counterfactual_data,    # data
+  M,                      # model
+  generator               # counterfactual generator
+)
+plot(ce)
+```
+
+![](README_files/figure-commonmark/cell-3-output-1.svg)
+
 ### Example: Give Me Some Credit
 
 Consider the following real-world scenario: a retail bank is using a black-box model trained on their clients’ credit history to decide whether they will provide credit to new applicants. To simulate this scenario, we have pre-trained a binary classifier on the publicly available Give Me Some Credit dataset that ships with this package (Kaggle 2011).
 
 The figure below shows counterfactuals for 10 randomly chosen individuals that would have been denied credit initially.
 
-![](README_files/figure-commonmark/cell-5-output-1.svg)
+![](README_files/figure-commonmark/cell-6-output-1.svg)
 
 ### Example: MNIST
 
@@ -86,7 +123,7 @@ generator = GradientBasedGenerator()
 end
 ```
 
-![](README_files/figure-commonmark/cell-10-output-1.svg)
+![](README_files/figure-commonmark/cell-11-output-1.svg)
 
 ## 🔍 Usage example
 
@@ -125,7 +162,7 @@ ce = generate_counterfactual(
 
 The plot below shows the resulting counterfactual path:
 
-![](README_files/figure-commonmark/cell-15-output-1.svg)
+![](README_files/figure-commonmark/cell-16-output-1.svg)
 
 ## ☑️ Implemented Counterfactual Generators
 
@@ -134,13 +171,16 @@ Currently, the following counterfactual generators are implemented:
 - ClaPROAR (Altmeyer et al. 2023)
 - CLUE (Antorán et al. 2020)
 - DiCE (Mothilal, Sharma, and Tan 2020)
+- ECCCo (Altmeyer et al. 2024)
 - FeatureTweak (Tolomei et al. 2017)
 - Generic
 - GravitationalGenerator (Altmeyer et al. 2023)
 - Greedy (Schut et al. 2021)
 - GrowingSpheres (Laugel et al. 2017)
+- MINT (Karimi et al. 2020) (**causal CE**)
 - PROBE (Pawelczyk et al. 2023)
 - REVISE (Joshi et al. 2019)
+- T-CREx (Bewley et al. 2024) (**global CE**)
 - Wachter (Wachter, Mittelstadt, and Russell 2017)
 
 ## 🎯 Goals and limitations
@@ -199,11 +239,17 @@ If you want to use this codebase, please consider citing the corresponding paper
 
 Altmeyer, Patrick, Giovan Angela, Aleksander Buszydlik, Karol Dobiczek, Arie van Deursen, and Cynthia CS Liem. 2023. “Endogenous Macrodynamics in Algorithmic Recourse.” In *2023 IEEE Conference on Secure and Trustworthy Machine Learning (SaTML)*, 418–31. IEEE.
 
+Altmeyer, Patrick, Mojtaba Farmanbar, Arie van Deursen, and Cynthia CS Liem. 2024. “Faithful Model Explanations Through Energy-Constrained Conformal Counterfactuals.” In *Proceedings of the AAAI Conference on Artificial Intelligence*, 38:10829–37. 10.
+
 Antorán, Javier, Umang Bhatt, Tameem Adel, Adrian Weller, and José Miguel Hernández-Lobato. 2020. “Getting a Clue: A Method for Explaining Uncertainty Estimates.” <https://arxiv.org/abs/2006.06848>.
+
+Bewley, Tom, Salim I. Amoukou, Saumitra Mishra, Daniele Magazzeni, and Manuela Veloso. 2024. “Counterfactual Metarules for Local and Global Recourse.” <https://arxiv.org/abs/2405.18875>.
 
 Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep Ghosh. 2019. “Towards Realistic Individual Recourse and Actionable Explanations in Black-Box Decision Making Systems.” <https://arxiv.org/abs/1907.09615>.
 
 Kaggle. 2011. “Give Me Some Credit, Improve on the State of the Art in Credit Scoring by Predicting the Probability That Somebody Will Experience Financial Distress in the Next Two Years.” https://www.kaggle.com/c/GiveMeSomeCredit; Kaggle. <https://www.kaggle.com/c/GiveMeSomeCredit>.
+
+Karimi, Amir-Hossein, Julius Von Kügelgen, Bernhard Schölkopf, and Isabel Valera. 2020. “Algorithmic Recourse Under Imperfect Causal Knowledge: A Probabilistic Approach.” <https://arxiv.org/abs/2006.06831>.
 
 Laugel, Thibault, Marie-Jeanne Lesot, Christophe Marsala, Xavier Renard, and Marcin Detyniecki. 2017. “Inverse Classification for Comparison-Based Interpretability in Machine Learning.” <https://arxiv.org/abs/1712.08443>.
 

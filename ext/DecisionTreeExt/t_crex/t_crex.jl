@@ -13,7 +13,7 @@ include("utils.jl")
         M::Models.AbstractModel
     )
 
-Applies the [`TCRExGenerator`](@ref) to a given `target` and `data` using the
+Applies the [`Generators.TCRExGenerator`](@ref) to a given `target` and `data` using the
 `M` model. $DOC_TCREx
 """
 function (generator::Generators.TCRExGenerator)(

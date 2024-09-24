@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Added basic support for the T-CREx counterfactual generator. [#473]
+- Added docstrings for package extensions to documentation. [#475]
 
 ## Version [1.2.0] - 2024-09-10
 

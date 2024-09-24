@@ -117,7 +117,7 @@ end
         X::AbstractArray,
     )
 
-Overloads the [probs](@ref) method for NeuroTree models.
+Overloads the [Models.probs](@ref) method for NeuroTree models.
 """
 function Models.probs(
     M::Models.Model, type::CounterfactualExplanations.JEM, X::AbstractArray
