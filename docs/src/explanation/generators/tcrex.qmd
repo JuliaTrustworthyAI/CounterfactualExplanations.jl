@@ -10,7 +10,7 @@ eval(setup_docs)
 
 # T-CREx Generator
 
-The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual].
+The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual, @bewley2024counterfactual-icml].
 
 ```{=commonmark}
 !!! warning "Breaking Changes Expected"
@@ -60,9 +60,9 @@ The CRE can be applied to our factual `x` to derive a (local) counterfactual poi
 idx, optimal_rule = cre(x)              # counterfactual point explanation (local)
 ```
 
-## Worked Example from @bewley2024counterfactual
+## Worked Example from @bewley2024counterfactual-icml
 
-To make better sense of this, we will now go through the worked example presented in @bewley2024counterfactual. For this purpose, we need to make the functions of the `DecisionTreeExt` extension available.
+To make better sense of this, we will now go through the worked example presented in @bewley2024counterfactual-icml. For this purpose, we need to make the functions of the `DecisionTreeExt` extension available.
 
 ```{=commonmark}
 !!! warning "Private API"
@@ -75,7 +75,7 @@ DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
 
 ### (a) Tree-based surrogate model 
 
-In the first step, we train a tree-based surrogate model based on the data and the black-box model `M`. Specifically, the surrogate model is trained on pairs of observed input data and the labels predicted by the black-box model: $\{(x, M(x))\}_{1\leq i \leq n}$. Following @bewley2024counterfactual, we impose a minimum number of samples per leaf to ensure counterfactual *feasibility* (also often referred to as *plausibility*). This number is computed under the hood and based on the `generator.ρ` field of the `TCRExGenerator`, which can be used to specify the minimum fraction of all samples that is contained by any given rule. 
+In the first step, we train a tree-based surrogate model based on the data and the black-box model `M`. Specifically, the surrogate model is trained on pairs of observed input data and the labels predicted by the black-box model: $\{(x, M(x))\}_{1\leq i \leq n}$. Following @bewley2024counterfactual-icml, we impose a minimum number of samples per leaf to ensure counterfactual *feasibility* (also often referred to as *plausibility*). This number is computed under the hood and based on the `generator.ρ` field of the `TCRExGenerator`, which can be used to specify the minimum fraction of all samples that is contained by any given rule. 
 
 ```{julia}
 #| output: true
@@ -186,7 +186,7 @@ p3
 
 ### (e) - (f) Global CE representation
 
-Based on the prototypes and their corresponding rule assignments, we fit a CART classification tree with restricted feature thresholds. Specificically, features thresholds are restricted to the partition bounds induced by the set of maximal-valid rules as in @bewley2024counterfactual. The figure below shows the resulting global CE representation (i.e. the metarules).
+Based on the prototypes and their corresponding rule assignments, we fit a CART classification tree with restricted feature thresholds. Specificically, features thresholds are restricted to the partition bounds induced by the set of maximal-valid rules as in @bewley2024counterfactual-icml. The figure below shows the resulting global CE representation (i.e. the metarules).
 
 ```{julia}
 #| output: true
