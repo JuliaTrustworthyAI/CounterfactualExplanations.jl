@@ -17,6 +17,10 @@ using TaijaData
         batchsize=10,
     )
 
+    # Predictions:
+    yhat = logits(M, data.X)        # matrix
+    yhat = logits(M, data.X[:, 1])  # vector
+
     # Select a factual instance:
     target = 2
     factual = 1
