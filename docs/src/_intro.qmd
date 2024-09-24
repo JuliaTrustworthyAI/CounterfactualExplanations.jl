@@ -32,7 +32,7 @@ There is also a corresponding paper, [*Explaining Black-Box Models through Count
   volume = {1},
   number = {1},
   pages = {130},
-  author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. s. Liem},
+  author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. S. Liem},
   title = {Explaining Black-Box Models through Counterfactuals},
   journal = {Proceedings of the JuliaCon Conferences}
 }
@@ -72,6 +72,43 @@ Counterfactual Explanations have a few properties that are desirable in the cont
 -   No need for (reasonably) interpretable features as opposed to LIME and SHAP.
 -   Clear link to Algorithmic Recourse and Causal Inference.
 -   Less susceptible to adversarial attacks than LIME and SHAP.
+
+### Simple Usage Example
+
+To get started, try out this simple usage example with synthetic data:
+
+```{julia}
+#| output: true
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Plots
+using TaijaData
+using TaijaPlotting
+
+# Data and Model:
+data = load_linearly_separable()
+counterfactual_data = CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+
+# Choose factual:
+target = 2
+factual = 1
+chosen = findall(predict_label(M, counterfactual_data) .== factual) |>
+  rand
+x = select_factual(counterfactual_data, chosen)
+
+# Generate counterfactuals
+generator = WachterGenerator()
+ce = generate_counterfactual(
+  x,                      # factual
+  target,                 # target
+  counterfactual_data,    # data
+  M,                      # model
+  generator               # counterfactual generator
+)
+plot(ce)
+```
 
 ### Example: Give Me Some Credit
 
@@ -114,7 +151,7 @@ x1 = :income   # Amount of given credit
 x2 = :age
 
 # Generator:
-generator = GravitationalGenerator(
+generator = GenericGenerator(
     opt = Descent(0.1)
 )
 ```
@@ -139,9 +176,6 @@ Markdown.parse(
 counterfactuals = generate_counterfactual(
   x, target_class, counterfactual_data, M, generator;
   initialization = :identity,
-  convergence = Convergence.GeneratorConditionsConvergence(
-    decision_threshold=0.975
-  )
 )
 
 # Plotting:
@@ -344,10 +378,10 @@ Currently, the following counterfactual generators are implemented:
 -   GravitationalGenerator [@altmeyer2023endogenous]
 -   Greedy [@schut2021generating]
 -   GrowingSpheres [@laugel2017inverse]
--   MINT [@karimi2020algorithmic] (causal CE)
+-   MINT [@karimi2020algorithmic] (**causal CE**)
 -   PROBE [@pawelczyk2022probabilistically]
 -   REVISE [@joshi2019realistic]
--   T-CREx [@bewley2024counterfactual] (global CE)
+-   T-CREx [@bewley2024counterfactual] (**global CE**)
 -   Wachter [@wachter2017counterfactual]
 
 ## 🎯 Goals and limitations

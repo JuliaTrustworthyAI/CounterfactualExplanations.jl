@@ -18,7 +18,7 @@ In other words, you come here because you want to take a very close look at the 
 
 ``` @contents
 Pages = ["reference.md"]
-Depth = 2
+Depth = 2:3
 ```
 
 ## Exported functions
@@ -52,3 +52,15 @@ Modules = [
 ]
 Public = false
 ```
+
+## Extensions
+
+``` @autodocs
+Modules = [
+    Base.get_extension(CounterfactualExplanations, :DecisionTreeExt),
+    Base.get_extension(CounterfactualExplanations, :JEMExt),
+    Base.get_extension(CounterfactualExplanations, :LaplaceReduxExt),
+    Base.get_extension(CounterfactualExplanations, :NeuroTreeExt),
+]
+```
+

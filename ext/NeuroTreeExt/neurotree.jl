@@ -83,6 +83,7 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
+    X = X[:, :]
     return M.fitresult(X)
 end
 
@@ -98,8 +99,5 @@ Overloads the [probs](@ref) method for NeuroTree models.
 function Models.probs(
     M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
-    if ndims(X) == 1
-        X = X[:, :]      # account for 1-dimensional inputs
-    end
     return softmax(logits(M, X))
 end

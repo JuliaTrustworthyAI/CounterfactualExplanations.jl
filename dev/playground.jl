@@ -24,32 +24,36 @@ generator = Generators.GenericGenerator()
 ce = generate_counterfactual(x, target, data, M, generator)
 
 # T-CREx ###################################################################
-ρ = 0.02
+ρ = 0.5
 τ = 0.9
-generator = Generators.TCRExGenerator(ρ)
+generator = Generators.TCRExGenerator(; ρ=ρ, τ=τ)
+
+DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
 
 # (a) ##############################
 
 # Surrogate:
-model, fitresult = Generators.grow_surrogate(generator, ce)
+model, fitresult = DTExt.grow_surrogate(generator, ce.data, ce.M)
 M_sur = CounterfactualExplanations.DecisionTreeModel(model; fitresult=fitresult)
 plot(M_sur, data; ms=3, markerstrokewidth=0, size=(500, 500), colorbar=false)
 
 # Extract rules:
-R = Generators.extract_rules(fitresult[1])
+R = DTExt.extract_rules(fitresult[1])
+println("Expected: ", length(fitresult[1]) * 2 - 1)
+println("Observed: ", length(R))
 print_tree(fitresult[1])
 
 # Compute feasibility and accuracy:
-feas = Generators.rule_feasibility.(R, (X,))
+feas = DTExt.rule_feasibility.(R, (X,))
 @assert minimum(feas) >= ρ
-acc_factual = Generators.rule_accuracy.(R, (X,), (fx,), (factual,))
-acc_target = Generators.rule_accuracy.(R, (X,), (fx,), (target,))
+acc_factual = DTExt.rule_accuracy.(R, (X,), (fx,), (factual,))
+acc_target = DTExt.rule_accuracy.(R, (X,), (fx,), (target,))
 @assert all(acc_target .+ acc_factual .== 1.0)
 
 # (b) ##############################
-R_max = Generators.max_valid(R, X, fx, target, τ)
-feas_max = Generators.rule_feasibility.(R_max, (X,))
-acc_max = Generators.rule_accuracy.(R_max, (X,), (fx,), (target,))
+R_max = DTExt.max_valid(R, X, fx, target, τ)
+feas_max = DTExt.rule_feasibility.(R_max, (X,))
+acc_max = DTExt.rule_accuracy.(R_max, (X,), (fx,), (target,))
 plt = plot(data; ms=3, markerstrokewidth=0, size=(500, 500))
 p1 = deepcopy(plt)
 rectangle(w, h, x, y) = Shape(x .+ [0, w, w, 0], y .+ [0, 0, h, h])
@@ -70,7 +74,7 @@ end
 p1
 
 # (c) ##############################
-_grid = Generators.induced_grid(R_max)
+_grid = DTExt.induced_grid(R_max)
 p2 = deepcopy(p1)
 function plot_grid!(p)
     for (i, (bounds_x, bounds_y)) in enumerate(_grid)
@@ -94,16 +98,16 @@ plot_grid!(p2)
 p2
 
 # (d) ##############################
-xs = Generators.prototype.(_grid, (X,); pick_arbitrary=false)
-Rᶜ = Generators.cre.((R_max,), xs, (X,); return_index=true)
+xs = DTExt.prototype.(_grid, (X,); pick_arbitrary=false)
+Rᶜ = DTExt.cre.((R_max,), xs, (X,); return_index=true)
 p3 = deepcopy(p2)
 scatter!(p3, eachrow(hcat(xs...))...; ms=10, label=nothing, color=Rᶜ .+ 2)
 p3
 
 # (e) - (f) ########################
-bounds = Generators.partition_bounds(R_max)
-tree = Generators.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
-R_final, labels = Generators.extract_leaf_rules(tree)
+bounds = DTExt.partition_bounds(R_max)
+tree = DTExt.classify_prototypes(hcat(xs...)', Rᶜ, bounds)
+R_final, labels = DTExt.extract_leaf_rules(tree)
 p4 = deepcopy(plt)
 for (i, rule) in enumerate(R_final)
     ubx, uby = minimum([rule[1][2], maximum(X[1, :])]),
