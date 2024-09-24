@@ -6,7 +6,7 @@ CurrentModule = CounterfactualExplanations
 
 # T-CREx Generator
 
-The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) (Bewley et al. 2024).
+The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) Bewley, I. Amoukou, et al. (2024).
 
 !!! warning "Breaking Changes Expected"
     Work on this feature is still in its very early stages and breaking changes should be expected. The introduction of this new generator introduces new concepts such as global counterfactual explanations that are not explained anywhere else in this documentation. If you want to use this generator, please make sure you are familiar with the related literature. 
@@ -54,9 +54,9 @@ The CRE can be applied to our factual `x` to derive a (local) counterfactual poi
 idx, optimal_rule = cre(x)              # counterfactual point explanation (local)
 ```
 
-## Worked Example from Bewley et al. (2024)
+## Worked Example from Bewley, I. Amoukou, et al. (2024)
 
-To make better sense of this, we will now go through the worked example presented in Bewley et al. (2024). For this purpose, we need to make the functions of the `DecisionTreeExt` extension available.
+To make better sense of this, we will now go through the worked example presented in Bewley, I. Amoukou, et al. (2024). For this purpose, we need to make the functions of the `DecisionTreeExt` extension available.
 
 !!! warning "Private API"
     Please note that of the `DecisionTreeExt` extension is loaded here purely for demonstrative purposes. You should not load the extension like this in your own work.
@@ -67,7 +67,7 @@ DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
 
 ### (a) Tree-based surrogate model
 
-In the first step, we train a tree-based surrogate model based on the data and the black-box model `M`. Specifically, the surrogate model is trained on pairs of observed input data and the labels predicted by the black-box model: $\{(x, M(x))\}_{1\leq i \leq n}$. Following Bewley et al. (2024), we impose a minimum number of samples per leaf to ensure counterfactual *feasibility* (also often referred to as *plausibility*). This number is computed under the hood and based on the `generator.ρ` field of the `TCRExGenerator`, which can be used to specify the minimum fraction of all samples that is contained by any given rule.
+In the first step, we train a tree-based surrogate model based on the data and the black-box model `M`. Specifically, the surrogate model is trained on pairs of observed input data and the labels predicted by the black-box model: $\{(x, M(x))\}_{1\leq i \leq n}$. Following Bewley, I. Amoukou, et al. (2024), we impose a minimum number of samples per leaf to ensure counterfactual *feasibility* (also often referred to as *plausibility*). This number is computed under the hood and based on the `generator.ρ` field of the `TCRExGenerator`, which can be used to specify the minimum fraction of all samples that is contained by any given rule.
 
 ``` julia
 # Surrogate:
@@ -168,7 +168,7 @@ p3
 
 ### (e) - (f) Global CE representation
 
-Based on the prototypes and their corresponding rule assignments, we fit a CART classification tree with restricted feature thresholds. Specificically, features thresholds are restricted to the partition bounds induced by the set of maximal-valid rules as in Bewley et al. (2024). The figure below shows the resulting global CE representation (i.e. the metarules).
+Based on the prototypes and their corresponding rule assignments, we fit a CART classification tree with restricted feature thresholds. Specificically, features thresholds are restricted to the partition bounds induced by the set of maximal-valid rules as in Bewley, I. Amoukou, et al. (2024). The figure below shows the resulting global CE representation (i.e. the metarules).
 
 ``` julia
 bounds = DTExt.partition_bounds(R_max)
@@ -209,3 +209,5 @@ p5
 ## References
 
 Bewley, Tom, Salim I. Amoukou, Saumitra Mishra, Daniele Magazzeni, and Manuela Veloso. 2024. “Counterfactual Metarules for Local and Global Recourse.” <https://arxiv.org/abs/2405.18875>.
+
+Bewley, Tom, Salim I. Amoukou, Saumitra Mishra, Daniele Magazzeni, and Manuela Veloso. 2024. “Counterfactual Metarules for Local and Global Recourse.” In *Proceedings of the 41st International Conference on Machine Learning*, edited by Ruslan Salakhutdinov, Zico Kolter, Katherine Heller, Adrian Weller, Nuria Oliver, Jonathan Scarlett, and Felix Berkenkamp, 235:3707–24. Proceedings of Machine Learning Research. PMLR. <https://proceedings.mlr.press/v235/bewley24a.html>.

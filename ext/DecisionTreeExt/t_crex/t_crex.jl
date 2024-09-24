@@ -2,7 +2,7 @@ using CounterfactualExplanations: CRE, Rule
 using CounterfactualExplanations.DataPreprocessing
 using CounterfactualExplanations.Models
 
-const DOC_TCREx = "For details see Bewley et al. ([2024](https://arxiv.org/abs/2405.18875))."
+const DOC_TCREx = "For details see Bewley et al. (2024) [[arXiv](https://arxiv.org/abs/2405.18875), [PMLR](https://proceedings.mlr.press/v235/bewley24a.html)]."
 
 include("utils.jl")
 
