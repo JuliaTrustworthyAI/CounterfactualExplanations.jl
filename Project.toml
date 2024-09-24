@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
-authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl>"]
-version = "1.3.0"
+authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl> and contributors"]
+version = "1.3.1"
 
 [deps]
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"

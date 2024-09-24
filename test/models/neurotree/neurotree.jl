@@ -18,8 +18,9 @@ using TaijaData
     )
 
     # Predictions:
-    yhat = logits(M, data.X)        # matrix
-    yhat = logits(M, data.X[:, 1])  # vector
+    yhat = logits(M, data.X)                    # matrix
+    yhat = logits(M, data.X[:, 1])              # vector
+    yhat = logits(M, Float64.(data.X[:, 1]))    # vector with different eltype
 
     # Select a factual instance:
     target = 2
