@@ -8,9 +8,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.3.2] - 2024-09-24
 
+### Added 
+
+- Added support for using a random forest as a surrogate model for the T-CREx generator. 
+
 ### Changed
 
-- Include citation linking to ICML paper in T-CREx documentation and docstrings.  
+- Improved the T-CREx documentation further by bringing example even closer to the example in the paper. 
+- Include citation linking to ICML paper in T-CREx documentation and docstrings. [#480]
 
 ## Version [1.3.1] - 2024-09-24
 

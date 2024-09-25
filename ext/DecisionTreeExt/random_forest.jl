@@ -12,10 +12,15 @@ const AtomicRandomForest = Union{
 Outer constructor for random forests.
 """
 function CounterfactualExplanations.RandomForestModel(
-    model::AtomicRandomForest; likelihood::Symbol=:classification_binary
+    model::AtomicRandomForest;
+    fitresult=nothing,
+    likelihood::Symbol=:classification_binary,
 )
     return Models.Model(
-        model, CounterfactualExplanations.RandomForestModel(); likelihood=likelihood
+        model,
+        CounterfactualExplanations.RandomForestModel();
+        fitresult=fitresult,
+        likelihood=likelihood,
     )
 end
 

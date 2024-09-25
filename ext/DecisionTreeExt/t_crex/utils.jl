@@ -3,6 +3,13 @@ using DecisionTree
 using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models: predict_label
 
+"""
+    grow_surrogate(
+        generator::Generators.TCRExGenerator, X::AbstractArray, ŷ::AbstractArray
+    )
+
+Grows the tree-based surrogate model for the [`Generators.TCRExGenerator`](@ref). $DOC_TCREx
+"""
 function grow_surrogate(
     generator::Generators.TCRExGenerator, X::AbstractArray, ŷ::AbstractArray
 )
@@ -26,6 +33,13 @@ function grow_surrogate(
     return mach.model, mach.fitresult
 end
 
+"""
+    grow_surrogate(
+        generator::Generators.TCRExGenerator, data::CounterfactualData, M::AbstractModel
+    )
+
+Overloads the `grow_surrogate` function to accept a `CounterfactualData` and a `AbstractModel` to grow a surrogate model. See [`grow_surrogate(generator::Generators.TCRExGenerator, X::AbstractArray, ŷ::AbstractArray)`](@ref).
+"""
 function grow_surrogate(
     generator::Generators.TCRExGenerator, data::CounterfactualData, M::AbstractModel
 )
@@ -37,6 +51,11 @@ function grow_surrogate(
     return grow_surrogate(generator, X, ŷ)
 end
 
+"""
+    extract_rules(root::DT.Root)
+
+Extracts decision rules (i.e. hyperrectangles) from a decision tree (`root`). For a decision tree with ``L`` leaves this results in ``2L-1`` hyperrectangles. The rules are returned as a vector of vectors of 2-element tuples, where each tuple stores the lower and upper bound imposed by the given rule for a given feature. $DOC_TCREx
+"""
 function extract_rules(root::DT.Root)
     conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
     conditions = vcat([conditions], extract_rules(root.node, conditions))
@@ -44,6 +63,11 @@ function extract_rules(root::DT.Root)
     return conditions
 end
 
+"""
+    extract_rules(node::DT.Node, conditions::AbstractArray)
+
+See [`extract_rules(root::DT.Root)`](@ref).
+"""
 function extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
     if typeof(node) <: DT.Leaf
         # If it's a leaf node, return the accumulated conditions (a hyperrectangle)
@@ -72,6 +96,21 @@ function extract_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray)
     end
 end
 
+function extract_rules(ensemble::DT.Ensemble)
+    conditions = [[-Inf, Inf] for i in 1:(ensemble.n_feat)]
+    conditions = [extract_rules(node, conditions) for node in ensemble.trees] |>
+        x -> reduce(vcat, x) |>
+        x -> vcat([conditions], x) |>
+        unique
+    conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions]
+    return conditions
+end
+
+"""
+    extract_leaf_rules(root::DT.Root)
+
+Extracts leaf decision rules (i.e. hyperrectangles) from a decision tree (`root`). For a decision tree with ``L`` leaves this results in ``L`` hyperrectangles. The rules are returned as a vector of tuples containing 2-element tuples, where each 2-element tuple stores the lower and upper bound imposed by the given rule for a given feature. $DOC_TCREx
+"""
 function extract_leaf_rules(root::DT.Root)
     conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
     decisions = [nothing]
@@ -82,6 +121,11 @@ function extract_leaf_rules(root::DT.Root)
     return conditions, decisions
 end
 
+"""
+    extract_leaf_rules(node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray)
+
+See [`extract_leaf_rules(root::DT.Root)`](@ref) for details.
+"""
 function extract_leaf_rules(
     node::Union{DT.Leaf,DT.Node}, conditions::AbstractArray, decisions::AbstractArray
 )
@@ -136,6 +180,11 @@ end
 
 include("tree.jl")
 
+"""
+    wrap_decision_tree(node::TreeNode)
+
+See [`wrap_decision_tree(node::TreeNode, X, y)`](@ref).
+"""
 function wrap_decision_tree(node::TreeNode)
     if is_leaf(node)
         return DT.Leaf(node.prediction, node.values)
@@ -149,6 +198,11 @@ function wrap_decision_tree(node::TreeNode)
     end
 end
 
+"""
+    wrap_decision_tree(node::TreeNode, X, y)
+
+Turns a custom decision tree into a `DecisionTree.Root` object from the DecisionTree.jl package.
+"""
 function wrap_decision_tree(node::TreeNode, X, y, niter=3)
 
     # Turn into DT.Node
