@@ -98,10 +98,8 @@ end
 
 function extract_rules(ensemble::DT.Ensemble)
     conditions = [[-Inf, Inf] for i in 1:(ensemble.n_feat)]
-    conditions = [extract_rules(node, conditions) for node in ensemble.trees] |>
-        x -> reduce(vcat, x) |>
-        x -> vcat([conditions], x) |>
-        unique
+    conditions =
+        [extract_rules(node, conditions) for node in ensemble.trees] |> x -> reduce(vcat, x) |> x -> vcat([conditions], x) |> unique
     conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions]
     return conditions
 end
