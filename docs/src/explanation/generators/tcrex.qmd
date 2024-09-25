@@ -10,7 +10,7 @@ eval(setup_docs)
 
 # T-CREx Generator
 
-The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual; @bewley2024counterfactual-icml].
+The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual-icml].
 
 ```{=commonmark}
 !!! warning "Breaking Changes Expected"
