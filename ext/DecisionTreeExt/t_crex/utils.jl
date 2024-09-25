@@ -4,12 +4,8 @@ using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Models: predict_label
 
 function grow_surrogate(
-    generator::Generators.TCRExGenerator, data::CounterfactualData, M::AbstractModel
+    generator::Generators.TCRExGenerator, X::AbstractArray, ŷ::AbstractArray
 )
-    # Data:
-    X = data.X |> permutedims                           # training samples
-    Xtab = MLJBase.table(X)
-    ŷ = predict_label(M, data) |> categorical     # predicted outputs
 
     # Grow tree/forest:
     min_fraction = generator.ρ
@@ -23,15 +19,27 @@ function grow_surrogate(
             min_samples_leaf=min_samples
         )
     end
+    Xtab = MLJBase.table(X)
     mach = machine(tree, Xtab, ŷ) |> MLJBase.fit!
 
     # Return surrogate:
     return mach.model, mach.fitresult
 end
 
+function grow_surrogate(
+    generator::Generators.TCRExGenerator, data::CounterfactualData, M::AbstractModel
+)
+    # Data:
+    X = data.X |> permutedims                           # training samples
+    ŷ = predict_label(M, data) |> categorical     # predicted outputs
+
+    # Return surrogate:
+    return grow_surrogate(generator, X, ŷ)
+end
+
 function extract_rules(root::DT.Root)
     conditions = [[-Inf, Inf] for i in 1:(root.n_feat)]
-    conditions = extract_rules(root.node, conditions)
+    conditions = vcat([conditions], extract_rules(root.node, conditions))
     conditions = [[tuple.(bounds...) for bounds in rule] for rule in conditions]
     return conditions
 end
