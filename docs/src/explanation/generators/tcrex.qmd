@@ -12,10 +12,25 @@ eval(setup_docs)
 
 The T-CREx is a novel model-agnostic counterfactual generator that can be used to generate local and global Counterfactual Rule Explanations (CREx) [@bewley2024counterfactual-icml].
 
+::: {.content-visible when-format="html"}
+
+::: {.callout-warning}
+
+## Breaking Changes Expected
+
+Work on this feature is still in its very early stages and breaking changes should be expected. The introduction of this new generator introduces new concepts such as global counterfactual explanations that are not explained anywhere else in this documentation. If you want to use this generator, please make sure you are familiar with the related literature.
+:::
+
+:::
+
+::: {.content-visible when-format="commonmark"}
+
 ```{=commonmark}
 !!! warning "Breaking Changes Expected"
     Work on this feature is still in its very early stages and breaking changes should be expected. The introduction of this new generator introduces new concepts such as global counterfactual explanations that are not explained anywhere else in this documentation. If you want to use this generator, please make sure you are familiar with the related literature. 
 ```
+
+:::
 
 ## Usage
 
@@ -82,10 +97,26 @@ idx, optimal_rule = cre(x)              # counterfactual point explanation (loca
 
 To make better sense of this, we will now go through the worked example presented in @bewley2024counterfactual-icml. For this purpose, we need to make the functions of the `DecisionTreeExt` extension available.
 
+::: {.content-visible when-format="html"}
+
+::: {.callout-warning}
+
+## Private API
+
+Please note that of the `DecisionTreeExt` extension is loaded here purely for demonstrative purposes. You should not load the extension like this in your own work.
+
+:::
+
+:::
+
+::: {.content-visible when-format="commonmark"}
+
 ```{=commonmark}
 !!! warning "Private API"
     Please note that of the `DecisionTreeExt` extension is loaded here purely for demonstrative purposes. You should not load the extension like this in your own work.
 ```
+
+:::
 
 ```{julia}
 DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
@@ -95,10 +126,26 @@ DTExt = Base.get_extension(CounterfactualExplanations, :DecisionTreeExt)
 
 In the first step, we train a tree-based surrogate model based on the data and the black-box model `M`. Specifically, the surrogate model is trained on pairs of observed input data and the labels predicted by the black-box model: $\{(x, M(x))\}_{1\leq i \leq n}$. 
 
+::: {.content-visible when-format="html"}
+
+::: {.callout-note}
+
+## Oracle Black-Box
+
+As in the paper, we assume here that the black-box model is an oracle with perfect accuracy. This is done purely to stay as close as possible to the example in the paper.
+
+:::
+
+:::
+
+::: {.content-visible when-format="commonmark"}
+
 ```{=commonmark}
 !!! note "Oracle Black-Box"
     As in the paper, we assume here that the black-box model is an oracle with perfect accuracy. This is done purely to stay as close as possible to the example in the paper.
 ```
+
+:::
 
 Following @bewley2024counterfactual-icml, we impose a minimum number of samples per leaf to ensure counterfactual *feasibility* (also often referred to as *plausibility*). This number is computed under the hood and based on the `generator.ρ` field of the `TCRExGenerator`, which can be used to specify the minimum fraction of all samples that is contained by any given rule. 
 
