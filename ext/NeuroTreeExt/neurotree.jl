@@ -83,7 +83,7 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
-    X = convert(Matrix{Float32}, X)
+    X = convert(Matrix{Float32}, X[:,:])
     return M.fitresult(X)
 end
 
