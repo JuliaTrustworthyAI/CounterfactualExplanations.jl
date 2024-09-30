@@ -1,0 +1,67 @@
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# `ClaPROARGenerator`
+
+The `ClaPROARGenerator` was introduced in @altmeyer2023endogenous.
+
+## Description
+
+The acronym **Clap** stands for **classifier-preserving**. The approach is loosely inspired by ROAR [@upadhyay2021robust]. @altmeyer2023endogenous propose to explicitly penalize the loss incurred by the classifer when evaluated on the counterfactual $x^\prime$ at given parameter values. Formally, we have
+
+``` math
+\begin{aligned}
+\text{extcost}(f(\mathbf{s}^\prime)) = l(M(f(\mathbf{s}^\prime)),y^\prime)
+\end{aligned}
+```
+
+for each counterfactual $k$ where $l$ denotes the loss function used to train $M$. This approach is based on the intuition that (endogenous) model shifts will be triggered by counterfactuals that increase classifier loss [@altmeyer2023endogenous].
+
+## Usage
+
+The approach can be used in our package as follows:
+
+```{julia}
+#| output: true
+generator = ClaPROARGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+### Comparison to `GenericGenerator`
+
+The figure below compares the outcome for the `GenericGenerator` and the `ClaPROARGenerator`.
+
+```{julia}
+#| echo: false
+opt = Flux.Descent(0.1)
+```
+
+```{julia}
+#| output: true
+#| echo: false
+# Generators:
+generators = Dict(
+    "Generic" => GenericGenerator(opt = opt),
+    "ClaPROAR" => ClaPROARGenerator(opt = opt, λ=[0.0,1.0]),
+)
+
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; convergence=conv) for (name, gen) in generators])
+# Plots:
+plts = []
+for (name,ce) ∈ counterfactuals
+    plt = plot(ce; title=name, colorbar=false, ticks = false, legend=false, zoom=0)
+    plts = vcat(plts..., plt)
+end
+plot(plts..., size=(200*length(generators),200), layout=(1,length(generators)))
+```
+
+## References
