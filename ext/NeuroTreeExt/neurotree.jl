@@ -83,7 +83,7 @@ logits = Models.logits(M, x) # calculates the logit scores for each output class
 function Models.logits(
     M::Models.Model, type::CounterfactualExplanations.NeuroTreeModel, X::AbstractArray
 )
-    X = X[:, :] |> x -> convert.(eltype(Flux.params(M.fitresult().chain)[1]), x)
+    X = convert(Matrix{Float32}, X)
     return M.fitresult(X)
 end
 
