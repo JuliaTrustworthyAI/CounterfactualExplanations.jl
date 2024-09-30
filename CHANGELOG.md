@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.3.3] - 2024-09-30
 
+### Changed
 
+- Fixed a remaining bug in `NeuroTreeExt` extensions. [#475]
 
 ## Version [1.3.2] - 2024-09-24
 
