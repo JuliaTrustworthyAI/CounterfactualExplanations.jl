@@ -80,7 +80,7 @@ Finds potential neighbors for the selected factual data point.
 function find_potential_neighbours(ce::AbstractCounterfactualExplanation, n::Int=1000)
     nobs = size(ce.data.X, 2)
     data = DataPreprocessing.subsample(ce.data, minimum([nobs, n]))
-    ids = findall(Models.predict_label(ce.M, data) .== ce.target)
+    ids = findall(data.output_encoder.labels .== ce.target)
     n_candidates = minimum([size(ce.data.y, 2), n])
     candidates = DataPreprocessing.select_factual(data, rand(ids, n_candidates))
     potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
