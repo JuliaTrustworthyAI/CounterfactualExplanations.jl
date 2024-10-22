@@ -11,7 +11,7 @@ x = select_factual(counterfactual_data, chosen)
 # Search:
 generator = GenericGenerator()
 
-if VERSION >= v"1.10" && !Sys.iswindows()
+if VERSION >= v"1" && !Sys.iswindows()
     t = @benchmark generate_counterfactual(x, target, counterfactual_data, M, generator) samples =
         1000
     expected_allocs = 6000
