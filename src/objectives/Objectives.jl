@@ -17,6 +17,7 @@ export logitbinarycrossentropy, logitcrossentropy, mse, predictive_entropy
 export losses_catalogue
 export distance, distance_mad, distance_l0, distance_l1, distance_l2, distance_linf
 export ddp_diversity
+export EnergyDifferential
 export penalties_catalogue
 
 const losses_catalogue = Dict(
@@ -32,6 +33,8 @@ const penalties_catalogue = Dict(
     :distance_l2 => distance_l2,
     :distance_linf => distance_linf,
     :ddp_diversity => ddp_diversity,
+    :energy_constraint => energy_constraint,
+    :energy_differential => EnergyDifferential(),
 )
 
 end

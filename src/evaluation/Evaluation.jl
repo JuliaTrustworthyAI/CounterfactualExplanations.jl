@@ -13,6 +13,7 @@ include("measures.jl")
 
 export Benchmark, benchmark, evaluate, default_measures
 export validity, redundancy
+export plausibility, faithfulness
 
 "The default evaluation measures."
 const default_measures = [

@@ -1,7 +1,7 @@
 using CounterfactualExplanations.Objectives
 
 function plausibility(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return plausibility(ce, Objectives.distance_from_target; kwrgs...)
+    return plausibility(ce, Objectives.EnergyDifferential(); kwrgs...)
 end
 
 """
@@ -33,5 +33,24 @@ function plausibility(
 
     # Compute the distance from the target:
     Δ = fun(ce; K=K, kwrgs...)
+    return -Δ
+end
+
+"""
+    plausibility(
+        ce::CounterfactualExplanation,
+        fun::typeof(Objectives.distance_from_target);
+        K=nothing,
+        kwrgs...,
+    )
+
+Computes the plausibility of a counterfactual explanation based on the cosine similarity between the counterfactual and samples drawn from the target distribution.
+"""
+function plausibility(
+    ce::CounterfactualExplanation,
+    fun::Objectives.EnergyDifferential;
+    kwrgs...,
+)
+    Δ = fun(ce)
     return -Δ
 end

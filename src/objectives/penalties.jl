@@ -1,7 +1,11 @@
 using CounterfactualExplanations: polynomial_decay
+using CounterfactualExplanations.Models
+using EnergySamplers: EnergySamplers
 using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
 using Statistics: mean
+
+abstract type AbstractPenalty end
 
 """
     distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
@@ -232,4 +236,44 @@ function energy_constraint(
     end
 
     return ℒ
+end
+
+struct EnergyDifferential <: AbstractPenalty
+    K::Int
+    agg::Function
+end
+
+EnergyDifferential(;K::Int=50, agg::Function=mean) = EnergyDifferential(K, agg)
+    
+function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
+
+    # If the potential neighbours have not been computed, do so:
+    get!(
+        ce.search,
+        :potential_neighbours,
+        CounterfactualExplanations.find_potential_neighbours(ce, pen.K),
+    )
+
+    # Get potential neighbours:
+    ys = ce.search[:potential_neighbours]
+    if pen.K > size(ys, 2)
+        @warn "`K` is larger than the number of potential neighbours. Future warnings will be suppressed." maxlog =
+            1
+    end
+
+    # Get counterfactual:
+    x′ = CounterfactualExplanations.decode_state(ce)     # current state
+    xs = eachslice(x′; dims=ndims(x′))
+
+    # Compute energy differential:
+    Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), ce.target))
+
+    return Δ
+
+end
+
+function EnergySamplers.energy_differential(M::AbstractModel, xgen, xsampled, y::Int)
+    typeof(M.type) <: Models.AbstractFluxNN || throw(NotImplementedModel(M))
+    f = M.fitresult.fitresult
+    return EnergySamplers.energy_differential(f, xgen, xsampled, y)
 end

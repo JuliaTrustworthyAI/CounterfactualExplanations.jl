@@ -26,6 +26,10 @@ export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayT
 export OutputEncoder
 export get_target_index
 
+# Error messages:
+include("errors.jl")
+export NotImplementedModel
+
 ### Data 
 # 𝒟 = {(x,y)}ₙ
 ###
