@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.3.4] - 2024-10-22
+
+### Changed
+
+- Fixed a bug in the `find_potential_neighbours` method. 
+
 ## Version [1.3.3] - 2024-09-30
 
 ### Changed
