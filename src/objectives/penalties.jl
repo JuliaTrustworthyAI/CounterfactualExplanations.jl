@@ -214,7 +214,7 @@ function energy_constraint(
 
     # Multiplier ϕ for the energy constraint:
     max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
-    b = round(Int, max_steps / 25)
+    b = round(max_steps / 25)
     a = b / 10
     ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
