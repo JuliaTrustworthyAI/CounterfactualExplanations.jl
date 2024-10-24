@@ -1,0 +1,38 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# `GenericGenerator`
+
+We use the term **generic** to relate to the basic counterfactual generator proposed by @wachter2017counterfactual with $L1$-norm regularization. There is also a variant of this generator that uses the distance metric proposed in @wachter2017counterfactual, which we call `WachterGenerator`.
+
+## Description
+
+As the term indicates, this approach is simple: it forms the baseline approach for gradient-based counterfactual generators. @wachter2017counterfactual were among the first to realise that 
+
+> [...] explanations can, in principle, be offered without opening the “black box.”
+>
+> --- @wachter2017counterfactual
+
+Gradient descent is performed directly in the feature space. Concerning the cost heuristic, the authors choose to penalize the distance of counterfactuals from the factual value. This is based on the intuitive notion that larger feature perturbations require greater effort.
+
+## Usage
+
+The approach can be used in our package as follows:
+
+```{julia}
+#| output: true
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+
+
+## References
