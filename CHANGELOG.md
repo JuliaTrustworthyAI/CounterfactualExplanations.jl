@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.3.4] - 2024-10-22
+## Version [1.3.5] 
+
+### Changed
+
+- Domain constraints that are applicable universally to all features can now be passed as a single tuple to `CounterfactualData`. 
+
+## Version [1.3.4] - 2024-10-23
 
 ### Changed
 
