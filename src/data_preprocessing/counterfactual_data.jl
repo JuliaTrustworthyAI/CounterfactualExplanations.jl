@@ -96,7 +96,8 @@ mutable struct CounterfactualData
         # Domain:
         if isa(domain, Tuple)
             # If domain is a tuple then it must be the same length as the number of (continuous) features:
-            domain_length = isnothing(features_continuous) ? size(X, 1) : length(features_continuous) 
+            domain_length =
+                isnothing(features_continuous) ? size(X, 1) : length(features_continuous)
             domain = fill(domain, domain_length)
         end
 

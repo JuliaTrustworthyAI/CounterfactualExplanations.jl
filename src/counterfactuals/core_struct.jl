@@ -22,7 +22,7 @@ end
 
 # Aliases
 const CE = CounterfactualExplanation
-function Base.getproperty(ce::CE, sym::Symbol) 
+function Base.getproperty(ce::CE, sym::Symbol)
     sym = sym === :x ? :factual : sym
     sym = sym === :s′ ? :counterfactual_state : sym
     sym = sym === :x′ ? :counterfactual : sym

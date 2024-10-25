@@ -243,8 +243,8 @@ struct EnergyDifferential <: AbstractPenalty
     agg::Function
 end
 
-EnergyDifferential(;K::Int=50, agg::Function=mean) = EnergyDifferential(K, agg)
-    
+EnergyDifferential(; K::Int=50, agg::Function=mean) = EnergyDifferential(K, agg)
+
 function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
 
     # If the potential neighbours have not been computed, do so:
@@ -269,7 +269,6 @@ function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
     Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), ce.target))
 
     return Δ
-
 end
 
 function EnergySamplers.energy_differential(M::AbstractModel, xgen, xsampled, y::Int)

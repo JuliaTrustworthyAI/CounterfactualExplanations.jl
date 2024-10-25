@@ -47,9 +47,7 @@ end
 Computes the plausibility of a counterfactual explanation based on the cosine similarity between the counterfactual and samples drawn from the target distribution.
 """
 function plausibility(
-    ce::CounterfactualExplanation,
-    fun::Objectives.EnergyDifferential;
-    kwrgs...,
+    ce::CounterfactualExplanation, fun::Objectives.EnergyDifferential; kwrgs...
 )
     Δ = fun(ce)
     return -Δ

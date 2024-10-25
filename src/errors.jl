@@ -1,5 +1,7 @@
-struct NotImplementedModel <: Exception 
+struct NotImplementedModel <: Exception
     M::AbstractModel
 end
 
-Base.showerror(io::IO, e::NotImplementedModel) = print(io, "Method not implemented for model type ", e.M)
+function Base.showerror(io::IO, e::NotImplementedModel)
+    return print(io, "Method not implemented for model type ", e.M)
+end
