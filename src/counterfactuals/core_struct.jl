@@ -6,11 +6,11 @@ using CausalInference
 A struct that collects all information relevant to a specific counterfactual explanation for a single individual.
 """
 mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
-    x::AbstractArray
+    factual::AbstractArray
     target::RawTargetType
     target_encoded::EncodedTargetType
-    s′::AbstractArray
-    x′::AbstractArray
+    counterfactual_state::AbstractArray
+    counterfactual::AbstractArray
     data::DataPreprocessing.CounterfactualData
     M::Models.AbstractModel
     generator::Generators.AbstractGenerator
@@ -18,6 +18,21 @@ mutable struct CounterfactualExplanation <: AbstractCounterfactualExplanation
     convergence::AbstractConvergence
     num_counterfactuals::Int
     initialization::Symbol
+end
+
+# Aliases
+const CE = CounterfactualExplanation
+function Base.getproperty(ce::CE, sym::Symbol) 
+    sym = sym === :x ? :factual : sym
+    sym = sym === :s′ ? :counterfactual_state : sym
+    sym = sym === :x′ ? :counterfactual : sym
+    return Base.getfield(ce, sym)
+end
+function Base.setproperty!(ce::CE, sym::Symbol, val)
+    sym = sym === :x ? :factual : sym
+    sym = sym === :s′ ? :counterfactual_state : sym
+    sym = sym === :x′ ? :counterfactual : sym
+    return Base.setfield!(ce, sym, val)
 end
 
 """
