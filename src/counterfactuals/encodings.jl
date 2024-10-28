@@ -215,7 +215,9 @@ function decode_state(
     counterfactual_state = decode_array(data, dt, counterfactual_state)
 
     # Categorical:
-    counterfactual_state = DataPreprocessing.reconstruct_cat_encoding(data, counterfactual_state)
+    counterfactual_state = DataPreprocessing.reconstruct_cat_encoding(
+        data, counterfactual_state
+    )
 
     return counterfactual_state
 end

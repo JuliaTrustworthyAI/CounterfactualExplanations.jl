@@ -38,5 +38,4 @@ include("setup.jl")
     @testset "Deprecations" begin
         include("other/deprecations.jl")
     end
-
 end

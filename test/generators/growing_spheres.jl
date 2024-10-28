@@ -40,7 +40,9 @@ using Random
                                     x, target, counterfactual_data, M, generator;
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
-                                    M, counterfactual_data, counterfactual.counterfactual_state
+                                    M,
+                                    counterfactual_data,
+                                    counterfactual.counterfactual_state,
                                 )[1] == target
 
                                 @test CounterfactualExplanations.terminated(counterfactual)

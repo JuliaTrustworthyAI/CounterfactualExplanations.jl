@@ -119,7 +119,9 @@ for (key, generator_) in generators
                                         counterfactual
                                     )
                                     if counterfactual.generator.latent_space == false
-                                        @test isapprox(counterfactual.factual, cf; atol=1e-6)
+                                        @test isapprox(
+                                            counterfactual.factual, cf; atol=1e-6
+                                        )
                                         @test Convergence.converged(
                                             counterfactual.convergence, counterfactual
                                         )

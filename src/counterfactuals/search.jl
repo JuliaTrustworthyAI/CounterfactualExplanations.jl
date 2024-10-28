@@ -15,7 +15,8 @@ function update!(ce::CounterfactualExplanation)
     ce.counterfactual = decode_state(ce)                                    # decoded counterfactual state
     apply_domain_constraints!(ce)                               # apply domain constraints
     _times_changed = reshape(
-        decode_state(ce, Δcounterfactual_state) .!= 0, size(ce.search[:times_changed_features])
+        decode_state(ce, Δcounterfactual_state) .!= 0,
+        size(ce.search[:times_changed_features]),
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     ce.search[:iteration_count] += 1                            # update iteration counter   
@@ -31,7 +32,9 @@ end
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(ce::CounterfactualExplanation, Δcounterfactual_state::AbstractArray)
+function apply_mutability(
+    ce::CounterfactualExplanation, Δcounterfactual_state::AbstractArray
+)
     if typeof(ce.data.input_encoder) <: GenerativeModels.AbstractGenerativeModel ||
         typeof(ce.data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
@@ -49,7 +52,9 @@ function apply_mutability(ce::CounterfactualExplanation, Δcounterfactual_state:
     cases = (both=both, increase=increase, decrease=decrease, none=none)
 
     # Apply:
-    Δcounterfactual_state = map((case, s) -> getfield(cases, case)(s), mutability, Δcounterfactual_state)
+    Δcounterfactual_state = map(
+        (case, s) -> getfield(cases, case)(s), mutability, Δcounterfactual_state
+    )
 
     return Δcounterfactual_state
 end

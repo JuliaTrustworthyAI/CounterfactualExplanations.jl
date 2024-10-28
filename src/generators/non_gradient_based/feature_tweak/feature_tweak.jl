@@ -16,15 +16,14 @@ According to the paper by Tolomei et al., another recommended choice for the pen
 The L0-norm simply minimizes the number of features that are changed through the tweak.
 
 # Arguments
-- `penalty::Union{Nothing,Function,Vector{Function}}`: The penalty function to use for the generator. Defaults to `distance_l2`.
+- `penalty::Penalty`: The penalty function to use for the generator. Defaults to `distance_l2`.
 - `ϵ::AbstractFloat`: The tolerance value for the feature tweaks. Described at length in Tolomei et al. (https://arxiv.org/pdf/1706.06691.pdf). Defaults to 0.1.
 
 # Returns
 - `generator::FeatureTweakGenerator`: A non-gradient-based generator that can be used to generate counterfactuals using the feature tweak method.
 """
 function FeatureTweakGenerator(;
-    penalty::Union{Nothing,Function,Vector{Function}}=Objectives.distance_l2,
-    ϵ::AbstractFloat=0.1,
+    penalty::Penalty=Objectives.distance_l2, ϵ::AbstractFloat=0.1
 )
     return FeatureTweakGenerator(penalty, ϵ, false, false)
 end

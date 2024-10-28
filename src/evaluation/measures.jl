@@ -31,7 +31,8 @@ Computes the feature redundancy: that is, the number of features that remain unc
 function redundancy(ce::CounterfactualExplanation; agg=Statistics.mean, tol=1e-5)
     cf = CounterfactualExplanations.counterfactual(ce)
     redundant_x = [
-        agg(sum(abs.(x .- ce.factual) .< tol) / size(x, 1)) for x in eachslice(cf; dims=ndims(cf))
+        agg(sum(abs.(x .- ce.factual) .< tol) / size(x, 1)) for
+        x in eachslice(cf; dims=ndims(cf))
     ]
     redundant_x = length(redundant_x) == 1 ? redundant_x[1] : redundant_x
     return redundant_x

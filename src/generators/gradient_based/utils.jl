@@ -17,9 +17,14 @@ function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     Δcounterfactual_state = ∇(generator, ce)
-    Δcounterfactual_state = CounterfactualExplanations.apply_mutability(ce, Δcounterfactual_state)
+    Δcounterfactual_state = CounterfactualExplanations.apply_mutability(
+        ce, Δcounterfactual_state
+    )
     τ = ce.convergence.gradient_tol
-    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δcounterfactual_state; dims=ndims(Δcounterfactual_state)))
+    satisfied = map(
+        x -> all(abs.(x) .< τ),
+        eachslice(Δcounterfactual_state; dims=ndims(Δcounterfactual_state)),
+    )
     success_rate = sum(satisfied) / ce.num_counterfactuals
     status = success_rate > ce.convergence.min_success_rate
     return status

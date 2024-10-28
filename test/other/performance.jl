@@ -12,8 +12,7 @@ x = select_factual(data, chosen)
 generator = GenericGenerator()
 
 if VERSION >= v"1" && !Sys.iswindows()
-    t = @benchmark generate_counterfactual(x, target, data, M, generator) samples =
-        1000
+    t = @benchmark generate_counterfactual(x, target, data, M, generator) samples = 1000
     expected_allocs = 6000
     @test t.allocs <= expected_allocs
 end
