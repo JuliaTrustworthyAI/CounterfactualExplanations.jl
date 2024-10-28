@@ -6,14 +6,14 @@ The default method to generate feature perturbations for gradient-based generato
 function generate_perturbations(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    s′ = deepcopy(ce.s′)
-    new_s′ = propose_state(generator, ce)
-    Δs′ = new_s′ - s′
-    Δs′ = _replace_nans(Δs′)
-    Δs′ = convert.(eltype(ce.x), Δs′)
-    Δs′ *= ce.num_counterfactuals       # rescale to account for number of counterfactuals
+    counterfactual_state = deepcopy(ce.counterfactual_state)
+    new_counterfactual_state = propose_state(generator, ce)
+    Δcounterfactual_state = new_counterfactual_state - counterfactual_state
+    Δcounterfactual_state = _replace_nans(Δcounterfactual_state)
+    Δcounterfactual_state = convert.(eltype(ce.factual), Δcounterfactual_state)
+    Δcounterfactual_state *= ce.num_counterfactuals       # rescale to account for number of counterfactuals
 
-    return Δs′
+    return Δcounterfactual_state
 end
 
 function propose_state(
@@ -36,7 +36,7 @@ function propose_state(
     ce::AbstractCounterfactualExplanation,
 )
     grads = ∇(generator, ce) # gradient
-    new_s′ = deepcopy(ce.s′)
-    Flux.Optimise.update!(generator.opt, new_s′, grads)
-    return new_s′
+    new_counterfactual_state = deepcopy(ce.counterfactual_state)
+    Flux.Optimise.update!(generator.opt, new_counterfactual_state, grads)
+    return new_counterfactual_state
 end

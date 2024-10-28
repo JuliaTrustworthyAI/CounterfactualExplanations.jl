@@ -29,9 +29,10 @@ end
 Computes the feature redundancy: that is, the number of features that remain unchanged from their original, factual values.
 """
 function redundancy(ce::CounterfactualExplanation; agg=Statistics.mean, tol=1e-5)
-    x′ = CounterfactualExplanations.counterfactual(ce)
+    cf = CounterfactualExplanations.counterfactual(ce)
     redundant_x = [
-        agg(sum(abs.(x .- ce.x) .< tol) / size(x, 1)) for x in eachslice(x′; dims=ndims(x′))
+        agg(sum(abs.(x .- ce.factual) .< tol) / size(x, 1)) for
+        x in eachslice(cf; dims=ndims(cf))
     ]
     redundant_x = length(redundant_x) == 1 ? redundant_x[1] : redundant_x
     return redundant_x

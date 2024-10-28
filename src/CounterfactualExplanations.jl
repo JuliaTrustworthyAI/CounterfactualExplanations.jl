@@ -19,12 +19,17 @@ export AbstractCounterfactualExplanation
 export AbstractModel
 export AbstractGenerator
 export AbstractConvergence
+export AbstractPenalty, PenaltyOrFun
 
 # Global constants:
 include("global_utils.jl")
 export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
 export OutputEncoder
 export get_target_index
+
+# Error messages:
+include("errors.jl")
+export NotImplementedModel
 
 ### Data 
 # 𝒟 = {(x,y)}ₙ

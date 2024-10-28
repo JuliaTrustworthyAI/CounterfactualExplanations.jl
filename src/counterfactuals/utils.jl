@@ -47,8 +47,8 @@ end
 A convenience method that adjusts the dimensions of `x`.
 """
 function adjust_shape(ce::CounterfactualExplanation, x::AbstractArray)
-    s′ = repeat(x; outer=(1, ce.num_counterfactuals))
-    return s′
+    counterfactual_state = repeat(x; outer=(1, ce.num_counterfactuals))
+    return counterfactual_state
 end
 
 """
@@ -59,9 +59,9 @@ A convenience method that adjusts the dimensions of the counterfactual state and
 function adjust_shape!(ce::CounterfactualExplanation)
 
     # Dimensionality:
-    x = deepcopy(ce.x)
-    s′ = adjust_shape(ce, x)      # augment to account for specified number of counterfactuals
-    ce.s′ = s′
+    x = deepcopy(ce.factual)
+    counterfactual_state = adjust_shape(ce, x)      # augment to account for specified number of counterfactuals
+    ce.counterfactual_state = counterfactual_state
     target_encoded = ce.target_encoded
     ce.target_encoded = adjust_shape(ce, target_encoded)
 

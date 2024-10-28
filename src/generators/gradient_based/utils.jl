@@ -1,10 +1,10 @@
 """
-    _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
+    _replace_nans(Δcounterfactual_state::AbstractArray, old_new::Pair=(NaN => 0))
 
 Helper function to deal with exploding gradients. This is only a temporary fix and will be improved.
 """
-function _replace_nans(Δs′::AbstractArray, old_new::Pair=(NaN => 0))
-    return replace(Δs′, old_new)
+function _replace_nans(Δcounterfactual_state::AbstractArray, old_new::Pair=(NaN => 0))
+    return replace(Δcounterfactual_state, old_new)
 end
 
 """
@@ -16,10 +16,15 @@ By default, gradient-based search is considered to have converged as soon as the
 function conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    Δs′ = ∇(generator, ce)
-    Δs′ = CounterfactualExplanations.apply_mutability(ce, Δs′)
+    Δcounterfactual_state = ∇(generator, ce)
+    Δcounterfactual_state = CounterfactualExplanations.apply_mutability(
+        ce, Δcounterfactual_state
+    )
     τ = ce.convergence.gradient_tol
-    satisfied = map(x -> all(abs.(x) .< τ), eachslice(Δs′; dims=ndims(Δs′)))
+    satisfied = map(
+        x -> all(abs.(x) .< τ),
+        eachslice(Δcounterfactual_state; dims=ndims(Δcounterfactual_state)),
+    )
     success_rate = sum(satisfied) / ce.num_counterfactuals
     status = success_rate > ce.convergence.min_success_rate
     return status

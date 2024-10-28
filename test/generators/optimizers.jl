@@ -23,7 +23,7 @@ x = select_factual(counterfactual_data, chosen)
             mutability = [:both, :none]
             counterfactual_data.mutability = mutability
             ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
-            @test isapprox(ce.x[2], x[2]; atol=1e-5)
+            @test isapprox(ce.factual[2], x[2]; atol=1e-5)
         end
     end
 end

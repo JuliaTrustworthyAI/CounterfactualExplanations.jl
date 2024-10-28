@@ -34,8 +34,8 @@ function generate_counterfactual(
     Generators.growing_spheres_generation!(ce)
     Generators.feature_selection!(ce)
 
-    # growing spheres does not support encodings, thus x′ is just s′
-    ce.x′ = ce.s′
+    # growing spheres does not support encodings, thus counterfactual is just counterfactual_state
+    ce.counterfactual = ce.counterfactual_state
 
     return ce
 end

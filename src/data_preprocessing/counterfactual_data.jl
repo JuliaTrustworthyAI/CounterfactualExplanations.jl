@@ -51,7 +51,7 @@ mutable struct CounterfactualData
     y::EncodedOutputArrayType
     likelihood::Symbol
     mutability::Union{Vector{Symbol},Nothing}
-    domain::Union{Any,Nothing}
+    domain::Union{Any,Tuple,Vector{<:Tuple}}
     features_categorical::Union{Vector{Vector{Int}},Nothing}
     features_continuous::Union{Vector{Int},Nothing}
     input_encoder::Union{Nothing,InputTransformer}
@@ -93,6 +93,13 @@ mutable struct CounterfactualData
         # Likelihood:
         available_likelihoods = [:classification_binary, :classification_multi]
         @assert likelihood ∈ available_likelihoods "Specified likelihood not available. Needs to be one of: $(available_likelihoods)."
+        # Domain:
+        if isa(domain, Tuple)
+            # If domain is a tuple then it must be the same length as the number of (continuous) features:
+            domain_length =
+                isnothing(features_continuous) ? size(X, 1) : length(features_continuous)
+            domain = fill(domain, domain_length)
+        end
 
         if all(conditions)
             new(

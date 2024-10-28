@@ -12,7 +12,7 @@ It assumes that `Zygote.jl` has gradient access.
 function ∂ℓ(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    return Flux.gradient(ce -> ℓ(generator, ce), ce)[1][:s′]
+    return Flux.gradient(ce -> ℓ(generator, ce), ce)[1][:counterfactual_state]
 end
 
 """
@@ -29,7 +29,7 @@ function ∂h(
     if isnothing(generator.penalty)
         return 0.0
     else
-        _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:s′]
+        _grad = Flux.gradient(ce -> h(generator, ce), ce)[1][:counterfactual_state]
         return _grad
     end
 end

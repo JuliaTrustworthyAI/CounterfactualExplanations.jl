@@ -40,7 +40,9 @@ using Random
                                     x, target, counterfactual_data, M, generator;
                                 )
                                 @test CounterfactualExplanations.Models.predict_label(
-                                    M, counterfactual_data, counterfactual.s′
+                                    M,
+                                    counterfactual_data,
+                                    counterfactual.counterfactual_state,
                                 )[1] == target
 
                                 @test CounterfactualExplanations.terminated(counterfactual)
@@ -57,9 +59,9 @@ using Random
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
                                     x, target, counterfactual_data, M, generator;
                                 )
-                                x′ = counterfactual.x′
+                                cf = counterfactual.counterfactual
                                 if counterfactual.generator.latent_space == false
-                                    @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                    @test isapprox(counterfactual.factual, cf; atol=1e-6)
                                 end
                                 @test CounterfactualExplanations.terminated(counterfactual)
                             end
