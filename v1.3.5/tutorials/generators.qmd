@@ -1,0 +1,168 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Handling Generators
+
+Generating Counterfactual Explanations can be seen as a generative modelling task because it involves generating samples in the input space: $x \sim \mathcal{X}$. In this tutorial, we will introduce how Counterfactual `GradientBasedGenerator`s are used. They are discussed in more detail in the explanatory section of the documentation.
+
+## Composable Generators 
+
+```{=commonmark}
+!!! warning "Breaking Changes Expected"
+    Work on this feature is still in its very early stages and breaking changes should be expected. 
+```
+
+One of the key objectives for this package is **Composability**. It turns out that many of the various counterfactual generators that have been proposed in the literature, essentially do the same thing: they optimize an objective function. Formally we have,
+
+$$
+\begin{aligned}
+\mathbf{s}^\prime &= \arg \min_{\mathbf{s}^\prime \in \mathcal{S}} \left\{  {\text{yloss}(M(f(\mathbf{s}^\prime)),y^*)}+ \lambda {\text{cost}(f(\mathbf{s}^\prime)) }  \right\} 
+\end{aligned} 
+$$ {#eq-general}
+
+where $\text{yloss}$ denotes the main loss function and $\text{cost}$ is a penalty term [@altmeyer2023endogenous]. 
+
+Without going into further detail here, the important thing to mention is that @eq-general very closely describes how counterfactual search is actually implemented in the package. In other words, all off-the-shelf generators currently implemented work with that same objective. They just vary in the way that penalties are defined, for example. This gives rise to an interesting idea: 
+
+> Why not compose generators that combine ideas from different off-the-shelf generators?
+
+The [`GradientBasedGenerator`](@ref) class provides a straightforward way to do this, without requiring users to build custom `GradientBasedGenerator`s from scratch. It can be instantiated as follows:
+
+```{julia}
+generator = GradientBasedGenerator()
+```
+
+By default, this creates a `generator` that simply performs gradient descent without any penalties. To modify the behaviour of the `generator`, you can define the counterfactual search objective function using the [`@objective`](@ref) macro:
+
+```{julia}
+@objective(generator, logitbinarycrossentropy + 0.1distance_l2 + 1.0ddp_diversity)
+```
+
+Here we have essentially created a version of the [`DiCEGenerator`](@ref):
+
+```{julia}
+#| output: true
+
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator; num_counterfactuals=5)
+plot(ce)
+```
+
+Multiple macros can be chained using `Chains.jl` making it easy to create entirely new flavours of counterfactual generators. The following generator, for example, combines ideas from DiCE [@mothilal2020explaining] and REVISE [@joshi2019realistic]:
+
+```{julia}
+@chain generator begin
+    @objective logitcrossentropy + 1.0ddp_diversity     # DiCE (Mothilal et al. 2020)
+    @with_optimiser Flux.Adam(0.1)                      
+    @search_latent_space                                # REVISE (Joshi et al. 2019)
+end
+```
+
+```{julia}
+#| echo: false
+using CounterfactualExplanations.Models: load_mnist_ensemble, load_mnist_vae
+counterfactual_data = CounterfactualData(load_mnist()...)
+X, y = counterfactual_data.X, counterfactual_data.y
+input_dim, n_obs = size(counterfactual_data.X)
+M = load_mnist_ensemble()
+vae = load_mnist_vae()
+counterfactual_data.input_encoder = vae # assign generative model
+```
+
+```{julia}
+#| echo: false
+
+Random.seed!(2023)
+factual_label = 0
+x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
+target = 8
+factual = predict_label(M, counterfactual_data, x)[1]
+ce = generate_counterfactual(
+    x, target, counterfactual_data, M, generator; 
+    num_counterfactuals=5, convergence=DecisionThresholdConvergence(decision_threshold=0.9)
+)
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+Markdown.parse(
+  """
+  Let's take this generator to our MNIST dataset and generate a counterfactual explanation for turning a $(factual) into a $(target). 
+  """
+)
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+# Factual:
+image_size = 300
+p1 = plot(
+    convert2image(MNIST, reshape(x,28,28)),
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="Factual"
+)
+
+plts = []
+for i in 1:ce.num_counterfactuals
+    target_prob = round(target_probs(ce)[i][1],digits=2)
+    ŷ = CounterfactualExplanations.counterfactual_label(ce)[i]
+    plt = plot(
+        convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce)[:,i],28,28)),
+        axis=nothing, 
+        size=(image_size, image_size),
+        title="CE$i"
+    )
+    push!(plts, plt)
+end
+plt = plot(p1,plts...;size=(image_size * 6,image_size), layout=(1,6))
+display(plt)
+```
+
+## Off-the-Shelf Generators 
+
+Off-the-shelf generators are just default recipes for counterfactual generators. Currently, the following off-the-shelf counterfactual generators are implemented in the package:
+
+```{julia}
+#| output: true
+
+generator_catalogue
+```
+
+```{julia}
+#| echo: false
+
+# Counteractual data and model:
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+```
+
+To specify the type of generator you want to use, you can simply instantiate it:
+
+```{julia}
+#| output: true
+
+# Search:
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```
+
+We generally make an effort to follow the literature as closely as possible when implementing off-the-shelf generators. 
+
+## References

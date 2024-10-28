@@ -1,0 +1,105 @@
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# `GravitationalGenerator`
+
+The `GravitationalGenerator` was introduced in @altmeyer2023endogenous. It is named so because it generates counterfactuals that gravitate towards some sensible point in the target domain.
+
+## Description
+
+@altmeyer2023endogenous extend the general framework as follows,
+
+``` math
+\begin{aligned}
+\mathbf{s}^\prime &= \arg \min_{\mathbf{s}^\prime \in \mathcal{S}} \{ {\text{yloss}(M(f(\mathbf{s}^\prime)),y^*)} \\ &+ \lambda_1 {\text{cost}(f(\mathbf{s}^\prime))} + \lambda_2 {\text{extcost}(f(\mathbf{s}^\prime))} \}  
+\end{aligned} 
+```
+
+where $\text{cost}(f(\mathbf{s}^\prime))$ denotes the proxy for costs faced by the individual. "The newly introduced term $\text{extcost}(f(\mathbf{s}^\prime))$ is meant to capture and address external costs incurred by the collective of individuals in response to changes in $\mathbf{s}^\prime$." [@altmeyer2023endogenous]
+
+For the `GravitationalGenerator` we have,
+
+``` math
+\begin{aligned}
+\text{extcost}(f(\mathbf{s}^\prime)) = \text{dist}(f(\mathbf{s}^\prime),\bar{x}^*)  
+\end{aligned}
+```
+
+where $\bar{x}$ is some sensible point in the target domain, for example, the subsample average $\bar{x}^*=\text{mean}(x)$, $x \in \mathcal{D}_1$.
+
+There is a tradeoff then, between the distance of counterfactuals from their factual value and the chosen point in the target domain. The chart below illustrates how the counterfactual outcome changes as the penalty $\lambda_2$ on the distance to the point in the target domain is increased from left to right (holding the other penalty term constant).
+
+```{julia}
+#| echo: false
+#| output: true
+
+Λ₂ = [0.0, 0.1, 0.25]
+ces = []
+generators = []
+conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
+for λ₂ ∈ Λ₂  
+    λ = [0.1, λ₂]
+    generator = GravitationalGenerator(λ=λ)
+    generators = vcat(generators..., generator)
+    ces = vcat(
+      ces...,
+      generate_counterfactual(
+            x, target, counterfactual_data, M, generator; 
+            convergence=conv
+      )
+    )
+end
+
+plts = []
+for i ∈ 1:length(Λ₂)
+    λ₂ = Λ₂[i]
+    ce = ces[i]  
+    plt = plot(ce, title="λ₂=$(λ₂)")
+    plts = vcat(plts..., plt)
+end
+display(plot(plts..., size=(1200,250), layout=(1,3)))
+```
+
+## Usage
+
+The approach can be used in our package as follows:
+
+```{julia}
+#| output: true
+generator = GravitationalGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+display(plot(ce))
+```
+
+### Comparison to `GenericGenerator`
+
+The figure below compares the outcome for the `GenericGenerator` and the `GravitationalGenerator`.
+
+```{julia}
+#| output: true
+#| echo: false
+# Generators:
+generators = Dict(
+    "Generic" => GenericGenerator(),
+    "Gravitational" => GravitationalGenerator(λ=[0.1,0.5])
+)
+
+
+counterfactuals = Dict([name => generate_counterfactual(x, target, counterfactual_data, M, gen; convergence=conv) for (name, gen) in generators])
+# Plots:
+plts = []
+for (name,ce) ∈ counterfactuals
+    plt = plot(ce; title=name, colorbar=false, ticks = false, legend=false, zoom=0)
+    plts = vcat(plts..., plt)
+end
+plot(plts..., size=(400,200), layout=(1,2))
+```
+
+## References
