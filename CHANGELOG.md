@@ -10,13 +10,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed
 
-- Domain constraints that are applicable universally to all features can now be passed as a single tuple to `CounterfactualData`. 
+- Changed fieldnames of core struct (`ce::CounterfactualExplanations`) to more clears and intuitive names. Old names can still be used to access fields (added as aliases). [#488]
+- Domain constraints that are applicable universally to all features can now be passed as a single tuple to `CounterfactualData`. [#488]
+- Updated EnergySamplers.jl dependency. [#488]
 
 ## Version [1.3.4] - 2024-10-23
 
 ### Changed
 
-- Fixed a bug in the `find_potential_neighbours` method. 
+- Fixed a bug in the `find_potential_neighbours` method. [#487]
 
 ## Version [1.3.3] - 2024-09-30
 
