@@ -22,25 +22,25 @@ function distance(
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
-    x′ = CounterfactualExplanations.decode_state(ce)
+    cf = CounterfactualExplanations.decode_state(ce)
 
     # Cosine:
     if cosine
-        xs = eachslice(x′; dims=ndims(x′))
-        δs = map(x′ -> cos_dist(x′, from), xs)
+        xs = eachslice(cf; dims=ndims(cf))
+        δs = map(cf -> cos_dist(cf, from), xs)
         Δ = agg(δs)
         return Δ
     end
 
     if ce.num_counterfactuals == 1
-        return LinearAlgebra.norm(x′ .- from, p)
+        return LinearAlgebra.norm(cf .- from, p)
     else
-        xs = eachslice(x′; dims=ndims(x′))                      # slices along the last dimension (i.e. the number of counterfactuals)
+        xs = eachslice(cf; dims=ndims(cf))                      # slices along the last dimension (i.e. the number of counterfactuals)
         if isnothing(weights)
-            Δ = agg(map(x′ -> LinearAlgebra.norm(x′ .- from, p), xs))            # aggregate across counterfactuals
+            Δ = agg(map(cf -> LinearAlgebra.norm(cf .- from, p), xs))            # aggregate across counterfactuals
         else
             @assert length(weights) == size(first(xs), ndims(first(xs))) "The length of the weights vector must match the number of features."
-            Δ = agg(map(x′ -> (LinearAlgebra.norm.(x′ .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
+            Δ = agg(map(cf -> (LinearAlgebra.norm.(cf .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
         end
         return Δ
     end

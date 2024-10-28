@@ -56,7 +56,7 @@ for (key, generator_) in generators
                                     @test counterfactual.generator.latent_space
                                 end
                                 @test counterfactual.target == target
-                                @test counterfactual.x == x &&
+                                @test counterfactual.factual == x &&
                                     CounterfactualExplanations.factual(counterfactual) ==
                                       x
                                 @test CounterfactualExplanations.factual_label(
@@ -115,11 +115,11 @@ for (key, generator_) in generators
                                         ),
                                         initialization=:identity,
                                     )
-                                    x′ = CounterfactualExplanations.decode_state(
+                                    cf = CounterfactualExplanations.decode_state(
                                         counterfactual
                                     )
                                     if counterfactual.generator.latent_space == false
-                                        @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                        @test isapprox(counterfactual.factual, cf; atol=1e-6)
                                         @test Convergence.converged(
                                             counterfactual.convergence, counterfactual
                                         )

@@ -1,6 +1,6 @@
 "Feature Tweak counterfactual generator class."
 mutable struct FeatureTweakGenerator <: AbstractNonGradientBasedGenerator
-    penalty::Union{Nothing,Function,Vector{Function}}
+    penalty::Penalty
     ϵ::Union{Nothing,AbstractFloat}
     latent_space::Bool
     dim_reduction::Bool

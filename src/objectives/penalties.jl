@@ -77,7 +77,7 @@ Evaluates how diverse the counterfactuals are using a Determinantal Point Proces
 function ddp_diversity(
     ce::AbstractCounterfactualExplanation; perturbation_size=1e-3, agg=det
 )
-    X = ce.s′
+    X = ce.counterfactual_state
     xs = eachslice(X; dims=ndims(X))
     K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
     K += LinearAlgebra.Diagonal(
@@ -212,9 +212,9 @@ function energy_constraint(
 
     # Setup:
     ℒ = 0
-    x′ = CounterfactualExplanations.decode_state(ce)     # current state
+    cf = CounterfactualExplanations.decode_state(ce)     # current state
     t = get_target_index(ce.data.y_levels, ce.target)
-    xs = eachslice(x′; dims=ndims(x′))
+    xs = eachslice(cf; dims=ndims(cf))
 
     # Multiplier ϕ for the energy constraint:
     max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
@@ -262,8 +262,8 @@ function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
     end
 
     # Get counterfactual:
-    x′ = CounterfactualExplanations.decode_state(ce)     # current state
-    xs = eachslice(x′; dims=ndims(x′))
+    cf = CounterfactualExplanations.decode_state(ce)     # current state
+    xs = eachslice(cf; dims=ndims(cf))
 
     # Compute energy differential:
     Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), ce.target))

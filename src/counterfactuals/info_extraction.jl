@@ -4,7 +4,7 @@
 A convenience method to retrieve the factual `x`.
 """
 function factual(ce::CounterfactualExplanation)
-    return ce.x
+    return ce.factual
 end
 
 """
@@ -13,7 +13,7 @@ end
 A convenience method to compute the class probabilities of the factual.
 """
 function factual_probability(ce::CounterfactualExplanation)
-    return Models.probs(ce.M, ce.x)
+    return Models.probs(ce.M, ce.factual)
 end
 
 """
@@ -34,7 +34,7 @@ end
 A convenience method that returns the counterfactual.
 """
 function counterfactual(ce::CounterfactualExplanation)
-    return ce.x′
+    return ce.counterfactual
 end
 
 """

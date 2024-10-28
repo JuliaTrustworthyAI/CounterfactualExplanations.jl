@@ -165,14 +165,14 @@ function encode_state(
 )
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(ce.s′) : x
+    counterfactual_state = isnothing(x) ? deepcopy(ce.counterfactual_state) : x
     data = ce.data
     dt = data.input_encoder
 
     # Transform features:
-    s′ = encode_array(data, dt, s′)
+    counterfactual_state = encode_array(data, dt, counterfactual_state)
 
-    return s′
+    return counterfactual_state
 end
 
 """
@@ -183,7 +183,7 @@ In-place version of `encode_state`.
 function encode_state!(
     ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
-    ce.s′ = encode_state(ce, x)
+    ce.counterfactual_state = encode_state(ce, x)
 
     return ce
 end
@@ -207,17 +207,17 @@ function decode_state(
 )
 
     # Unpack:
-    s′ = isnothing(x) ? deepcopy(ce.s′) : x
+    counterfactual_state = isnothing(x) ? deepcopy(ce.counterfactual_state) : x
     data = ce.data
     dt = data.input_encoder
 
     # Inverse-transform features:
-    s′ = decode_array(data, dt, s′)
+    counterfactual_state = decode_array(data, dt, counterfactual_state)
 
     # Categorical:
-    s′ = DataPreprocessing.reconstruct_cat_encoding(data, s′)
+    counterfactual_state = DataPreprocessing.reconstruct_cat_encoding(data, counterfactual_state)
 
-    return s′
+    return counterfactual_state
 end
 
 """
@@ -228,7 +228,7 @@ In-place version of `decode_state`.
 function decode_state!(
     ce::CounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
 )
-    ce.x′ = decode_state(ce, x)
+    ce.counterfactual = decode_state(ce, x)
 
     return ce
 end

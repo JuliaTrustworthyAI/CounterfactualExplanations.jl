@@ -25,4 +25,11 @@ using CounterfactualExplanations.Objectives: distance_mad
         ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
         @test typeof(ce) <: CounterfactualExplanation
     end
+
+    @testset "Field aliases" begin
+        ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+        @test ce.factual == ce.x
+        @test ce.counterfactual == ce.x′
+        @test ce.counterfactual_state == ce.s′
+    end
 end

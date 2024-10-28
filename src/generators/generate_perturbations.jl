@@ -8,11 +8,11 @@ The default method to generate feature perturbations for any generator.
 function generate_perturbations(
     generator::AbstractGenerator, ce::AbstractCounterfactualExplanation
 )
-    s′ = deepcopy(ce.s′)
-    new_s′ = propose_state(generator, ce)
-    Δs′ = new_s′ - s′
-    Δs′ = _replace_nans(Δs′)
-    Δs′ = convert.(eltype(ce.x), Δs′)
+    counterfactual_state = deepcopy(ce.counterfactual_state)
+    new_counterfactual_state = propose_state(generator, ce)
+    Δcounterfactual_state = new_counterfactual_state - counterfactual_state
+    Δcounterfactual_state = _replace_nans(Δcounterfactual_state)
+    Δcounterfactual_state = convert.(eltype(ce.factual), Δcounterfactual_state)
 
-    return Δs′
+    return Δcounterfactual_state
 end

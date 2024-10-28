@@ -32,7 +32,7 @@
 
                         @testset "Predetermined outputs" begin
                             @test counterfactual.target == target
-                            @test counterfactual.x == x
+                            @test counterfactual.factual == x
                             @test CounterfactualExplanations.factual(counterfactual) == x
                             @test CounterfactualExplanations.factual_label(
                                 counterfactual
@@ -65,9 +65,9 @@
                                 counterfactual = CounterfactualExplanations.generate_counterfactual(
                                     x, target, data, M, generator; initialization=:identity
                                 )
-                                x′ = CounterfactualExplanations.decode_state(counterfactual)
+                                cf = CounterfactualExplanations.decode_state(counterfactual)
                                 if counterfactual.generator.latent_space == false
-                                    @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                    @test isapprox(counterfactual.factual, cf; atol=1e-6)
                                     @test CounterfactualExplanations.terminated(
                                         counterfactual
                                     )

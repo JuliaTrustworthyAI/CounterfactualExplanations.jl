@@ -43,7 +43,7 @@ if VERSION >= v"1.8"
                                 @test counterfactual.generator.latent_space
                             end
                             @test counterfactual.target == target
-                            @test counterfactual.x == x &&
+                            @test counterfactual.factual == x &&
                                 CounterfactualExplanations.factual(counterfactual) == x
                             @test CounterfactualExplanations.factual_label(
                                 counterfactual
@@ -95,8 +95,8 @@ if VERSION >= v"1.8"
                                     ),
                                     initialization=:identity,
                                 )
-                                x′ = CounterfactualExplanations.decode_state(counterfactual)
-                                @test isapprox(counterfactual.x, x′; atol=1e-6)
+                                cf = CounterfactualExplanations.decode_state(counterfactual)
+                                @test isapprox(counterfactual.factual, cf; atol=1e-6)
                                 @test Convergence.converged(
                                     counterfactual.convergence, counterfactual
                                 )

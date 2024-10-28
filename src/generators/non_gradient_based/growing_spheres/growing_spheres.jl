@@ -38,7 +38,7 @@ The algorithm iteratively generates counterfactual candidates and predicts their
 function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     generator = ce.generator
     model = ce.M
-    factual = ce.x
+    factual = ce.factual
     counterfactual_data = ce.data
     target = [ce.target]
     max_iter = 1000
@@ -51,7 +51,7 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
     counterfactual_candidates = hyper_sphere_coordinates(n, factual, 0.0, η)
 
     if (factual == target)
-        ce.s′ = factual
+        ce.counterfactual_state = factual
         return nothing
     end
 
@@ -107,14 +107,14 @@ function growing_spheres_generation!(ce::AbstractCounterfactualExplanation)
         push!(ce.search[:path], reshape(counterfactual_candidates[:, i], :, 1))
     end
 
-    ce.s′ = counterfactual_candidates[:, counterfactual]
+    ce.counterfactual_state = counterfactual_candidates[:, counterfactual]
     return nothing
 end
 
 """
     feature_selection!(ce::AbstractCounterfactualExplanation)
 
-Perform feature selection to find the dimension with the closest (but not equal) values between the `ce.x` (factual) and `ce.s′` (counterfactual) arrays.
+Perform feature selection to find the dimension with the closest (but not equal) values between the `ce.factual` (factual) and `ce.counterfactual_state` (counterfactual) arrays.
 
 # Arguments
 - `ce::AbstractCounterfactualExplanation`: An instance of the `AbstractCounterfactualExplanation` type representing the counterfactual explanation.
@@ -122,17 +122,17 @@ Perform feature selection to find the dimension with the closest (but not equal)
 # Returns
 - `nothing`
 
-The function iteratively modifies the `ce.s′` counterfactual array by updating its elements to match the corresponding elements in the `ce.x` factual array, one dimension at a time, until the predicted label of the modified `ce.s′` matches the predicted label of the `ce.x` array.
+The function iteratively modifies the `ce.counterfactual_state` counterfactual array by updating its elements to match the corresponding elements in the `ce.factual` factual array, one dimension at a time, until the predicted label of the modified `ce.counterfactual_state` matches the predicted label of the `ce.factual` array.
 """
 function feature_selection!(ce::AbstractCounterfactualExplanation)
     model = ce.M
     counterfactual_data = ce.data
-    factual = ce.x
+    factual = ce.factual
     target = [ce.target]
 
     # Assign the initial counterfactual to both counterfactual′ and counterfactual″
-    counterfactual′ = ce.s′
-    counterfactual″ = ce.s′
+    counterfactual′ = ce.counterfactual_state
+    counterfactual″ = ce.counterfactual_state
 
     factual_class = CounterfactualExplanations.Models.predict_label(
         model, counterfactual_data, factual
@@ -154,7 +154,7 @@ function feature_selection!(ce::AbstractCounterfactualExplanation)
         push!(ce.search[:path], reshape(counterfactual″, :, 1))
     end
 
-    ce.s′ = counterfactual″
+    ce.counterfactual_state = counterfactual″
     return nothing
 end
 

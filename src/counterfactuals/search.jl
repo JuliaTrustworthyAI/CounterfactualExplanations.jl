@@ -6,38 +6,38 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 function update!(ce::CounterfactualExplanation)
 
     # Generate peturbations:
-    Δs′ = Generators.generate_perturbations(ce.generator, ce)
-    Δs′ = apply_mutability(ce, Δs′)         # mutability constraints
-    s′ = ce.s′ + Δs′                        # new proposed state
+    Δcounterfactual_state = Generators.generate_perturbations(ce.generator, ce)
+    Δcounterfactual_state = apply_mutability(ce, Δcounterfactual_state)         # mutability constraints
+    counterfactual_state = ce.counterfactual_state + Δcounterfactual_state                        # new proposed state
 
     # Updates:
-    ce.s′ = s′                                                  # update counterfactual
-    ce.x′ = decode_state(ce)                                    # decoded counterfactual state
+    ce.counterfactual_state = counterfactual_state                                                  # update counterfactual
+    ce.counterfactual = decode_state(ce)                                    # decoded counterfactual state
     apply_domain_constraints!(ce)                               # apply domain constraints
     _times_changed = reshape(
-        decode_state(ce, Δs′) .!= 0, size(ce.search[:times_changed_features])
+        decode_state(ce, Δcounterfactual_state) .!= 0, size(ce.search[:times_changed_features])
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     ce.search[:iteration_count] += 1                            # update iteration counter   
-    ce.search[:path] = [ce.search[:path]..., ce.s′]
+    ce.search[:path] = [ce.search[:path]..., ce.counterfactual_state]
     return terminated(ce)
 end
 
 """
     apply_mutability(
         ce::CounterfactualExplanation,
-        Δs′::AbstractArray,
+        Δcounterfactual_state::AbstractArray,
     )
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
+function apply_mutability(ce::CounterfactualExplanation, Δcounterfactual_state::AbstractArray)
     if typeof(ce.data.input_encoder) <: GenerativeModels.AbstractGenerativeModel ||
         typeof(ce.data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
-        return Δs′
+        return Δcounterfactual_state
     end
 
     mutability = ce.search[:mutability]
@@ -49,9 +49,9 @@ function apply_mutability(ce::CounterfactualExplanation, Δs′::AbstractArray)
     cases = (both=both, increase=increase, decrease=decrease, none=none)
 
     # Apply:
-    Δs′ = map((case, s) -> getfield(cases, case)(s), mutability, Δs′)
+    Δcounterfactual_state = map((case, s) -> getfield(cases, case)(s), mutability, Δcounterfactual_state)
 
-    return Δs′
+    return Δcounterfactual_state
 end
 
 """
@@ -60,6 +60,6 @@ end
 Wrapper function that applies underlying domain constraints.
 """
 function apply_domain_constraints!(ce::CounterfactualExplanation)
-    ce.x′ = apply_domain_constraints(ce.data, ce.x′)            # apply domain constraints in feature space
-    return ce.s′ = encode_state(ce, ce.x′)                             # re-encode counterfactual state
+    ce.counterfactual = apply_domain_constraints(ce.data, ce.counterfactual)            # apply domain constraints in feature space
+    return ce.counterfactual_state = encode_state(ce, ce.counterfactual)                             # re-encode counterfactual state
 end
