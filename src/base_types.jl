@@ -18,3 +18,8 @@ abstract type AbstractConvergence end
 
 "An abstract type for penalty functions."
 abstract type AbstractPenalty end
+
+"Treat `AbstractPenalty` as scalar when broadcasting."
+Base.broadcastable(pen::AbstractPenalty) = Ref(pen)
+
+const PenaltyOrFun = Union{Function,AbstractPenalty}

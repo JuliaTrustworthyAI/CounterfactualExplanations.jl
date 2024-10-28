@@ -5,10 +5,8 @@ An abstract type that serves as the base type for gradient-based counterfactual 
 """
 abstract type AbstractGradientBasedGenerator <: AbstractGenerator end
 
-const PenaltyOrFun = Union{Function,AbstractPenalty}
-
 "Type union for acceptable argument types for the `penalty` field of `GradientBasedGenerator`."
-const Penalty = Union{Nothing,PenaltyOrFun,Vector{PenaltyOrFun},Vector{<:Tuple}}
+const Penalty = Union{Nothing,<:PenaltyOrFun,Vector{<:PenaltyOrFun},Vector{<:Tuple}}
 
 "Base class for gradient-based counterfactual generators."
 mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator

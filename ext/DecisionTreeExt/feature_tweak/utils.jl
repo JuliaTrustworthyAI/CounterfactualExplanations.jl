@@ -11,7 +11,7 @@ Calculates the penalty for the proposed feature tweak.
 """
 function calculate_delta(ce::AbstractCounterfactualExplanation)
     penalty = ce.generator.penalty
-    penalty_functions = penalty isa Function ? [penalty] : penalty
+    penalty_functions = penalty isa PenaltyOrFun ? [penalty] : penalty
     delta = sum([p(ce) for p in penalty_functions])
     return delta
 end

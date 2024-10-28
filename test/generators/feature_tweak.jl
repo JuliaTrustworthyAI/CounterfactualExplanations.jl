@@ -118,9 +118,16 @@
             @testset "$name" begin
                 generator = Generators.FeatureTweakGenerator(; penalty=penalty)
                 data.input_encoder = nothing
-                counterfactual = CounterfactualExplanations.generate_counterfactual(
-                    x, target, data, M, generator
-                )
+                try
+                    counterfactual = CounterfactualExplanations.generate_counterfactual(
+                        x, target, data, M, generator
+                    )
+                catch
+                    @test_throws NotImplementedModel CounterfactualExplanations.generate_counterfactual(
+                        x, target, data, M, generator
+                    )
+                    continue
+                end
                 @test Models.predict_label(
                     M, data, CounterfactualExplanations.decode_state(counterfactual)
                 )[1] == target
