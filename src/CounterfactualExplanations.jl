@@ -19,6 +19,7 @@ export AbstractCounterfactualExplanation
 export AbstractModel
 export AbstractGenerator
 export AbstractConvergence
+export AbstractPenalty
 
 # Global constants:
 include("global_utils.jl")

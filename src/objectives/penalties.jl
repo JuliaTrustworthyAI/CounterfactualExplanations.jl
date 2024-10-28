@@ -5,8 +5,6 @@ using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
 using Statistics: mean
 
-abstract type AbstractPenalty end
-
 """
     distance_mad(ce::AbstractCounterfactualExplanation; agg=mean)
 
