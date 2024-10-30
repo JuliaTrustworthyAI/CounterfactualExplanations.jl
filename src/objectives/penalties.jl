@@ -294,5 +294,5 @@ function hinge_loss(ce::AbstractCounterfactualExplanation)
             1
         ce.convergence = InvalidationRateConvergence()
     end
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)     
+    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
 end

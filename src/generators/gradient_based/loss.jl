@@ -46,10 +46,10 @@ If the counterfactual is being generated using Probe, the hinge loss is added to
 """
 function ∇(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
     grad_loss = ∂ℓ(generator, ce)
-    println("Loss:")
-    display(grad_loss)
+    # println("Loss:")
+    # display(grad_loss)
     grad_pen = ∂h(generator, ce)
-    println("Penality:")
-    display(grad_pen)
+    # println("Penality:")
+    # display(grad_pen)
     return grad_loss .+ grad_pen
 end
