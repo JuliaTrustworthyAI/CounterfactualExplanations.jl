@@ -16,7 +16,7 @@ By default, gradient-based search is considered to have converged as soon as the
 function Convergence.conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
-    if !hasfield(ce.convergence, :gradient_tol)
+    if !hasfield(typeof(ce.convergence), :gradient_tol)
         # Temporary fix due to the fact that `ProbeGenerator` relies on `InvalidationRateConvergence`.
         @warn "Checking for generator conditions convergence is not implemented for this generator type. Return `false`." maxlog =
             1
