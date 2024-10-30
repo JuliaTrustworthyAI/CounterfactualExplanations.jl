@@ -8,6 +8,7 @@ using ..GenerativeModels
 using Flux
 using LinearAlgebra
 using ..Models
+using ..Convergence
 using ..Objectives
 using Statistics: Statistics
 using DataFrames: DataFrames

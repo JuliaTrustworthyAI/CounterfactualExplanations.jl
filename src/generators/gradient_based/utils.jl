@@ -8,12 +8,12 @@ function _replace_nans(Δcounterfactual_state::AbstractArray, old_new::Pair=(NaN
 end
 
 """
-    conditions_satisfied(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
+    Convergence.conditions_satisfied(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
 The default method to check if the all conditions for convergence of the counterfactual search have been satisified for gradient-based generators.
 By default, gradient-based search is considered to have converged as soon as the proposed feature changes for all features are smaller than one percent of its standard deviation.
 """
-function conditions_satisfied(
+function Convergence.conditions_satisfied(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     Δcounterfactual_state = ∇(generator, ce)

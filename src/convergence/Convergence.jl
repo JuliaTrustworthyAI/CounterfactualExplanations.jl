@@ -4,7 +4,6 @@ using Distributions
 using Flux
 using LinearAlgebra
 using ..CounterfactualExplanations
-using ..Generators
 using ..Models
 
 include("decision_threshold.jl")

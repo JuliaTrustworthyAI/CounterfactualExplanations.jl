@@ -55,6 +55,10 @@ export flux_training_params
 export probs, logits
 export standard_models_catalogue, all_models_catalogue, model_evaluation, predict_label
 
+# Convergence
+include("convergence/Convergence.jl")
+using .Convergence
+
 ### Objectives
 # ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
 ###
@@ -81,9 +85,6 @@ export WachterGenerator
 export generator_catalogue
 export generate_perturbations, conditions_satisfied
 export @objective
-
-include("convergence/Convergence.jl")
-using .Convergence
 
 ### CounterfactualExplanation
 # argmin 
