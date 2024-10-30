@@ -18,7 +18,8 @@ function Convergence.conditions_satisfied(
 )
     if !hasfield(ce.convergence, :gradient_tol)
         # Temporary fix due to the fact that `ProbeGenerator` relies on `InvalidationRateConvergence`.
-        @warn "Checking for generator conditions convergence is not implemented for this generator type. Return `false`." maxlog=1
+        @warn "Checking for generator conditions convergence is not implemented for this generator type. Return `false`." maxlog =
+            1
         return false
     end
     Δcounterfactual_state = ∇(generator, ce)
