@@ -288,6 +288,11 @@ Calculates the hinge loss of a counterfactual explanation with `InvalidationRate
 The hinge loss of the counterfactual explanation.
 """
 function hinge_loss(ce::AbstractCounterfactualExplanation)
-    @assert ce.convergence isa InvalidationRateConvergence
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
+    typeof(ce.M.type) <: Models.AbstractFluxNN || throw(NotImplementedModel(ce.M))
+    if !(ce.convergence isa InvalidationRateConvergence)
+        @warn "The hinge loss is only defined for `InvalidationRateConvergence`s. Setting convergence to default `InvalidationRateConvergence`." maxlog =
+            1
+        ce.convergence = InvalidationRateConvergence()
+    end
+    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)     
 end

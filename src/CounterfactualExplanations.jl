@@ -58,6 +58,7 @@ export standard_models_catalogue, all_models_catalogue, model_evaluation, predic
 # Convergence
 include("convergence/Convergence.jl")
 using .Convergence
+export conditions_satisfied
 
 ### Objectives
 # ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
@@ -83,7 +84,7 @@ export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
 export generator_catalogue
-export generate_perturbations, conditions_satisfied
+export generate_perturbations
 export @objective
 
 ### CounterfactualExplanation

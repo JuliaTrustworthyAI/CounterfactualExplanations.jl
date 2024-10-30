@@ -1,3 +1,4 @@
+using ChainRulesCore: ignore_derivatives
 using Distributions: Distributions
 using Flux: Flux
 using LinearAlgebra: LinearAlgebra
@@ -40,26 +41,19 @@ Calculates the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    index_target = findfirst(map(x -> x == ce.target, ce.data.y_levels))
-    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-    grad = []
-    for i in 1:length(ce.counterfactual_state)
-        push!(
-            grad,
-            Flux.gradient(
-                () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[i],
-                Flux.params(ce.counterfactual_state),
-            )[ce.counterfactual_state],
-        )
+    z = []
+    ignore_derivatives() do
+        index_target = get_target_index(ce.data.y_levels, ce.target)
+        f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+        grad = Flux.gradient(
+            () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target],
+            Flux.params(ce.counterfactual_state),
+        )[ce.counterfactual_state]
+        gradᵀ = LinearAlgebra.transpose(grad)
+        denominator = sqrt(gradᵀ * UniformScaling(ce.convergence.variance) * grad)[1]
+        normalized_gradient = f_loss / denominator
+        push!(z, normalized_gradient)
     end
-    gradᵀ = LinearAlgebra.transpose(grad)
-
-    identity_matrix = LinearAlgebra.Matrix{Float32}(
-        LinearAlgebra.I, length(grad), length(grad)
-    )
-    denominator = sqrt(gradᵀ * ce.convergence.variance * identity_matrix * grad)[1]
-
-    normalized_gradient = f_loss / denominator
-    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
+    ϕ = Distributions.cdf(Distributions.Normal(0, 1), z[1])
     return 1 - ϕ
 end

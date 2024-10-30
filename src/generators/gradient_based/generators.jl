@@ -60,12 +60,11 @@ end
 
 "Constructor for `ProbeGenerator`."
 function ProbeGenerator(;
-    λ::AbstractFloat=0.1,
+    λ::Vector{<:AbstractFloat}=[0.1, 1.0],
     loss::Symbol=:logitbinarycrossentropy,
     penalty=[Objectives.distance_l1, Objectives.hinge_loss],
     kwargs...,
 )
-    @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end
