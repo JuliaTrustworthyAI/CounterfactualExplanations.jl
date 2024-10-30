@@ -49,8 +49,7 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
             () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target],
             Flux.params(ce.counterfactual_state),
         )[ce.counterfactual_state]
-        gradᵀ = LinearAlgebra.transpose(grad)
-        denominator = sqrt(gradᵀ * UniformScaling(ce.convergence.variance) * grad)[1]
+        denominator = sqrt(ce.convergence.variance) * norm(grad)
         normalized_gradient = f_loss / denominator
         push!(z, normalized_gradient)
     end
