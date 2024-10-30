@@ -1,3 +1,5 @@
+using CounterfactualExplanations.Convergence
+
 @testset "ProbeGenerator" begin
     @testset "Default arguments" begin
         generator = Generators.ProbeGenerator()
@@ -36,9 +38,7 @@ end
                 max_iter=1000, invalidation_rate=0.1
             ),
         )
-        loss = Generators.hinge_loss(
-            linear_counterfactual.convergence, linear_counterfactual
-        )
+        loss = Objective.hinge_loss(linear_counterfactual)
         rate = Convergence.invalidation_rate(linear_counterfactual)
         @test rate <= 0.1
         @test loss <= 0.9

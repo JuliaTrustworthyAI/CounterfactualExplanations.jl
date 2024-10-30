@@ -62,7 +62,7 @@ end
 function ProbeGenerator(;
     λ::AbstractFloat=0.1,
     loss::Symbol=:logitbinarycrossentropy,
-    penalty=Objectives.distance_l1,
+    penalty=[Objectives.distance_l1, Objectives.hinge_loss],
     kwargs...,
 )
     @assert haskey(losses_catalogue, loss) "Loss function not found in catalogue."

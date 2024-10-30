@@ -63,21 +63,3 @@ function invalidation_rate(ce::AbstractCounterfactualExplanation)
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
 end
-
-"""
-    hinge_loss(convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation)
-
-Calculates the hinge loss of a counterfactual explanation.
-
-# Arguments
-- `convergence::InvalidationRateConvergence`: The convergence criterion to use.
-- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the hinge loss for.
-
-# Returns
-The hinge loss of the counterfactual explanation.
-"""
-function hinge_loss(
-    convergence::InvalidationRateConvergence, ce::AbstractCounterfactualExplanation
-)
-    return max(0, invalidation_rate(ce) - convergence.invalidation_rate)
-end

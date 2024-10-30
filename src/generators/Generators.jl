@@ -34,7 +34,6 @@ export generate_perturbations, conditions_satisfied
 export GradientBasedGenerator
 export @objective, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
-export hinge_loss
 export predictive_entropy
 export ProbeGenerator
 

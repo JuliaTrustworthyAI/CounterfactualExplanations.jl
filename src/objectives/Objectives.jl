@@ -18,6 +18,7 @@ export losses_catalogue
 export distance, distance_mad, distance_l0, distance_l1, distance_l2, distance_linf
 export ddp_diversity
 export EnergyDifferential
+export hinge_loss
 export penalties_catalogue
 
 const losses_catalogue = Dict(
@@ -35,6 +36,7 @@ const penalties_catalogue = Dict(
     :ddp_diversity => ddp_diversity,
     :energy_constraint => energy_constraint,
     :energy_differential => EnergyDifferential(),
+    :hinge_loss => hinge_loss,
 )
 
 end
