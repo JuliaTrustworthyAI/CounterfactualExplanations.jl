@@ -61,5 +61,5 @@ end
 This function is overloaded in the `Generators` module to check whether the counterfactual search has converged with respect to generator conditions.
 """
 function conditions_satisfied(gen::AbstractGenerator, ce::AbstractCounterfactualExplanation)
-    true
+    return true
 end

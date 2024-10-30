@@ -45,5 +45,5 @@ It simply computes the weighted sum over partial derivates. It assumes that `Zyg
 If the counterfactual is being generated using Probe, the hinge loss is added to the gradient.
 """
 function ∇(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
-    return ∂ℓ(generator, ce) .+ ∂h(generator, ce) 
+    return ∂ℓ(generator, ce) .+ ∂h(generator, ce)
 end
