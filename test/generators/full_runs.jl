@@ -85,7 +85,8 @@ for (key, generator_) in generators
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
-                                    if counterfactual.convergence isa Convergence.DecisionThresholdConvergence
+                                    if counterfactual.convergence isa
+                                        Convergence.DecisionThresholdConvergence
                                         # Accounting for fact that currently, PROBE always get InvalidationRateConvergence.
                                         @test !Convergence.converged(
                                             counterfactual.convergence, counterfactual
