@@ -65,6 +65,7 @@ function ProbeGenerator(;
     penalty=[Objectives.distance_l1, Objectives.hinge_loss],
     kwargs...,
 )
+    @warn "The `ProbeGenerator` is currenlty not working adequately. In particular, gradients are not computed with respect to the Hinge loss term proposed in the paper. It is still possible, however, to use this generator to achieve a desired invalidation rate. See issue [#376](https://github.com/JuliaTrustworthyAI/CounterfactualExplanations.jl/issues/376) for details."
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end
