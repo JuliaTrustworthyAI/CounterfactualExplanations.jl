@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Added a warning message to the `ProbeGenerator` pointing to the issues with with current implementation.
+- Added links to papers to all docstrings for generators. 
 
 ## Version [1.3.5] - 2024-10-28
 
