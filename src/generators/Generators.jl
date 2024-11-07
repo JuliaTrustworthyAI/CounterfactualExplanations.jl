@@ -8,6 +8,7 @@ using ..GenerativeModels
 using Flux
 using LinearAlgebra
 using ..Models
+using ..Convergence
 using ..Objectives
 using Statistics: Statistics
 using DataFrames: DataFrames
@@ -30,11 +31,10 @@ export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
 export generator_catalogue
-export generate_perturbations, conditions_satisfied
+export generate_perturbations
 export GradientBasedGenerator
 export @objective, @with_optimiser, @search_feature_space, @search_latent_space
 export JSMADescent
-export hinge_loss
 export predictive_entropy
 export ProbeGenerator
 

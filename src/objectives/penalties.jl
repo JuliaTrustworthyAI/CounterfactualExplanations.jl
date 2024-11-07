@@ -1,5 +1,6 @@
 using CounterfactualExplanations: polynomial_decay
 using CounterfactualExplanations.Models
+using CounterfactualExplanations.Convergence
 using EnergySamplers: EnergySamplers
 using LinearAlgebra: LinearAlgebra, det, norm
 using Random: Random
@@ -273,4 +274,25 @@ function EnergySamplers.energy_differential(M::AbstractModel, xgen, xsampled, y:
     typeof(M.type) <: Models.AbstractFluxNN || throw(NotImplementedModel(M))
     f = M.fitresult.fitresult
     return EnergySamplers.energy_differential(f, xgen, xsampled, y)
+end
+
+"""
+    hinge_loss(ce::AbstractCounterfactualExplanation)
+
+Calculates the hinge loss of a counterfactual explanation with `InvalidationRateConvergence`.
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation to calculate the hinge loss for.
+
+# Returns
+The hinge loss of the counterfactual explanation.
+"""
+function hinge_loss(ce::AbstractCounterfactualExplanation)
+    typeof(ce.M.type) <: Models.AbstractFluxNN || throw(NotImplementedModel(ce.M))
+    if !(ce.convergence isa InvalidationRateConvergence)
+        @warn "The hinge loss is only defined for `InvalidationRateConvergence`s. Setting convergence to default `InvalidationRateConvergence`." maxlog =
+            1
+        ce.convergence = InvalidationRateConvergence()
+    end
+    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
 end

@@ -52,5 +52,14 @@ function converged(
     ce::AbstractCounterfactualExplanation,
     x::Union{AbstractArray,Nothing}=nothing,
 )
-    return threshold_reached(ce, x) && Generators.conditions_satisfied(ce.generator, ce)
+    return threshold_reached(ce, x) && conditions_satisfied(ce.generator, ce)
+end
+
+"""
+    conditions_satisfied(gen::AbstractGenerator, ce::AbstractCounterfactualExplanation)
+
+This function is overloaded in the `Generators` module to check whether the counterfactual search has converged with respect to generator conditions.
+"""
+function conditions_satisfied(gen::AbstractGenerator, ce::AbstractCounterfactualExplanation)
+    return true
 end

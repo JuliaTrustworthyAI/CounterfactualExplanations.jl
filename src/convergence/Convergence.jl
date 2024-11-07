@@ -4,7 +4,6 @@ using Distributions
 using Flux
 using LinearAlgebra
 using ..CounterfactualExplanations
-using ..Generators
 using ..Models
 
 include("decision_threshold.jl")
@@ -69,11 +68,12 @@ end
 export convergence_catalogue
 export converged
 export get_convergence_type
-export hinge_loss, invalidation_rate
+export invalidation_rate
 export threshold_reached
 export DecisionThresholdConvergence
 export GeneratorConditionsConvergence
 export InvalidationRateConvergence
 export MaxIterConvergence
+export conditions_satisfied
 
 end

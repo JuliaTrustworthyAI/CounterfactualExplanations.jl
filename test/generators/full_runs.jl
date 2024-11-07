@@ -85,15 +85,19 @@ for (key, generator_) in generators
                                     )
                                     using CounterfactualExplanations:
                                         counterfactual_probability
-                                    @test !Convergence.converged(
-                                        counterfactual.convergence, counterfactual
-                                    ) ||
-                                        CounterfactualExplanations.target_probs(
-                                        counterfactual
-                                    )[1] >= γ # either not converged or threshold reached
-                                    @test !Convergence.converged(
-                                        counterfactual.convergence, counterfactual
-                                    ) || length(path(counterfactual)) <= max_iter
+                                    if counterfactual.convergence isa
+                                        Convergence.DecisionThresholdConvergence
+                                        # Accounting for fact that currently, PROBE always get InvalidationRateConvergence.
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) ||
+                                            CounterfactualExplanations.target_probs(
+                                            counterfactual
+                                        )[1] >= γ # either not converged or threshold reached
+                                        @test !Convergence.converged(
+                                            counterfactual.convergence, counterfactual
+                                        ) || length(path(counterfactual)) <= max_iter
+                                    end
                                 end
 
                                 @testset "Trivial case (already in target class)" begin
