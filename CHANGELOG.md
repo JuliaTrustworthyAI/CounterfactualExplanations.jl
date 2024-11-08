@@ -10,12 +10,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed 
 
-- Slight changes to the implementation of `ProbeGenerator` (no longer calling a redundant `hinge_loss` function for all other generators). 
+- Addressed bug in `train_test_split` function. [#497]
+- Slight changes to the implementation of `ProbeGenerator` (no longer calling a redundant `hinge_loss` function for all other generators). [#492]
 
 ### Added
 
-- Added a warning message to the `ProbeGenerator` pointing to the issues with with current implementation.
-- Added links to papers to all docstrings for generators. 
+- Added a warning message to the `ProbeGenerator` pointing to the issues with with current implementation. [#492]
+- Added links to papers to all docstrings for generators. [#492]
 
 ## Version [1.3.5] - 2024-10-28
 

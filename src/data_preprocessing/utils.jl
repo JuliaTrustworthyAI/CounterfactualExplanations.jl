@@ -45,7 +45,7 @@ function train_test_split(data::CounterfactualData; test_size=0.2, keep_class_ra
         class_samples = [
             sample(
                 findall(vec(y .== cls)),
-                Int(floor(test_size * cls_ratio * n_per_class));
+                Int(floor(test_size * cls_ratio * N));
                 replace=false,
             ) for (cls, cls_ratio) in zip(classes_, class_ratios)
         ]
