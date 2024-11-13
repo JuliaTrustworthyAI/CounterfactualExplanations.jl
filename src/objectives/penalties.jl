@@ -265,7 +265,8 @@ function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
     xs = eachslice(cf; dims=ndims(cf))
 
     # Compute energy differential:
-    Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), ce.target))
+    target = get_target_index(ce.data.y_levels, ce.target)
+    Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), target))
 
     return Δ
 end
