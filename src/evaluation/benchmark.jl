@@ -278,12 +278,12 @@ function benchmark(
         for (mod_name, M) in models
             # Individuals need to be chosen separately for each model:
             chosen = Vector{Int}()
+            yhat = CounterfactualExplanations.predict_label(M, test_data)
             for i in 1:n_individuals
                 # For each individual and specified factual label, randomly choose index of a factual observation:
                 chosen_ind = rand(
                     findall(
-                        CounterfactualExplanations.predict_label(M, test_data) .==
-                        factual[i],
+                        yhat .== factual[i],
                     ),
                 )[1]
                 push!(chosen, chosen_ind)
