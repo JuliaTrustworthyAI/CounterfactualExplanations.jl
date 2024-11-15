@@ -66,6 +66,15 @@ function distance_linf(ce::AbstractCounterfactualExplanation; kwrgs...)
 end
 
 """
+    distance_cosine(ce::AbstractCounterfactualExplanation)
+
+Computes the distance of the counterfactual to the original factual using cosine similarity. See also: [`cos_dist`](@ref).
+"""
+function distance_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; cosine=true, kwrgs...)
+end
+
+"""
     ddp_diversity(
         ce::AbstractCounterfactualExplanation;
         perturbation_size=1e-5
@@ -141,6 +150,20 @@ function distance_from_target(
 
     return Δ
 end
+
+"""
+    distance_from_target_cosine(ce::AbstractCounterfactualExplanation;kwrgs...)
+
+Compute the distance from a counterfactual to the target manifold using cosine similarity. See also: [`cos_dist`](@ref).
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+- `kwrgs...`: Additional keyword arguments for the distance function.
+"""
+function distance_from_target_cosine(ce::AbstractCounterfactualExplanation;kwrgs...)
+    return distance_from_target(ce; cosine=true, kwrgs...)
+end
+
 
 """
     function model_loss_penalty(

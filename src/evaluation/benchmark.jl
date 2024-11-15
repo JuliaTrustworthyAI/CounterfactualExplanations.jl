@@ -176,17 +176,25 @@ end
 """
     benchmark(
         data::CounterfactualData;
+        test_data::Union{Nothing,CounterfactualData}=nothing,
         models::Dict{<:Any,<:Any}=standard_models_catalogue,
         generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures,
         n_individuals::Int=5,
+        n_runs::Int=1,
         suppress_training::Bool=false,
         factual::Union{Nothing,RawTargetType}=nothing,
         target::Union{Nothing,RawTargetType}=nothing,
         store_ce::Bool=false,
         parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+        dataname::Union{Nothing,Symbol,String}=nothing,
+        verbose::Bool=true,
+        vertical_splits::Union{Nothing,Int}=nothing,
+        storage_path::String=tempdir(),
         kwrgs...,
     )
+
+## Benchmarking Procedure
 
 Runs the benchmarking exercise as follows:
 
