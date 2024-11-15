@@ -310,16 +310,6 @@ function benchmark(
 
         # For each grid:
         for (i, grid) in enumerate(grids)
-            # Info:
-            if split_vertically
-                @info "Split $i of $(length(grids)) for run $run."
-                output_path = joinpath(path_for_run, "output_$i.jls")
-                if isfile(output_path)
-                    bmk = Serialization.deserialize(output_path)
-                    push!(bmks, bmk)
-                    continue
-                end
-            end
 
             # Vectorize the grid:
             xs = [x[1] for x in grid]
@@ -327,6 +317,17 @@ function benchmark(
             Ms = [x[3][2] for x in grid]
             gens = [x[4][2] for x in grid]
             sample_ids = [x[5] for x in grid]
+
+            # Info:
+            if split_vertically
+                @info "Split $i of $(length(grids)) for run $run. Each grid has $(length(targets)) samples."
+                output_path = joinpath(path_for_run, "output_$i.jls")
+                if isfile(output_path)
+                    bmk = Serialization.deserialize(output_path)
+                    push!(bmks, bmk)
+                    continue
+                end
+            end
 
             # Generate counterfactuals; in parallel if so specified
             ces = parallelize(
