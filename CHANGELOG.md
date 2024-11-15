@@ -6,7 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.3.6]
+## Version [1.3.7]
+
+### Added
+
+- Added additional aliases for penalties including `distance_cosine`. 
+
+## Version [1.3.6] - 2024-11-08
 
 ### Changed 
 
