@@ -453,13 +453,14 @@ function get_benchmark_files(storage_path::String)
         # Get folders:
         run_folder = joinpath(storage_path, file)
         !isdir(run_folder) && continue
-        !contains("run_", splitpath(run_folder)[end]) && continue
+        !contains(splitpath(run_folder)[end], "run_") && continue
 
         # Get files:
         run_files = []
         for file in readdir(run_folder)
-            if contains("output_", splitpath(file)[end])
-                push!(run_files, file)
+            if contains(splitpath(file)[end], "output_")
+                fname = joinpath(run_folder, file)
+                push!(run_files, fname)
             end
         end
 
