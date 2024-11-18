@@ -300,6 +300,9 @@ function benchmark(
             @info "Run $run of $n_runs."
         end
 
+        # Create a directory for this run:
+        path_for_run = mkpath(joinpath(storage_path, "run_$run"))
+
         # Grid setup:
         grid = []
         for (mod_name, M) in models
@@ -327,9 +330,9 @@ function benchmark(
             end
         end
 
+        # Split grid vertically into `vertical_splits` parts:
         if split_vertically
             # Split grid vertically:
-            path_for_run = mkpath(joinpath(storage_path, "run_$run"))
             grids = partition(grid, Int(ceil(length(grid) / vertical_splits)))
         else
             grids = [grid]
@@ -405,6 +408,9 @@ function benchmark(
                 Serialization.serialize(output_path, bmk)
             end
             push!(bmks, bmk)
+            
+            # Save benchmark to file:
+            Serialization.serialize(joinpath(path_for_run,"benchmark.jls"), bmk)
         end
     end
 
