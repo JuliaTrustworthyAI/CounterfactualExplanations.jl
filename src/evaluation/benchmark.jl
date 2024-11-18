@@ -353,8 +353,11 @@ function benchmark(
                 @info "Split $i of $(length(grids)) for run $run. Each grid has $(length(targets)) samples."
                 output_path = joinpath(path_for_run, "output_$i.jls")
                 if isfile(output_path)
-                    bmk = Serialization.deserialize(output_path)
-                    push!(bmks, bmk)
+                    # If final output is supposed to be concatenated, deserialize:
+                    if concatenate_output
+                        bmk = Serialization.deserialize(output_path)
+                        push!(bmks, bmk)
+                    end
                     continue
                 end
             end
