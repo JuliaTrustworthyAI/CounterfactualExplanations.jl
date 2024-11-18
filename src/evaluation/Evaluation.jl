@@ -17,6 +17,7 @@ export plausibility
 export plausibility_energy_differential, plausibility_cosine, plausibility_distance_from_target
 export faithfulness
 export plausibility_measures, default_measures, distance_measures, all_measures
+export concatenate_benchmarks
 
 "Available plausibility measures."
 const plausibility_measures = [

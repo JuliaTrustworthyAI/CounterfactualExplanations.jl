@@ -425,3 +425,35 @@ function benchmark(
         return bmks
     end
 end
+
+"""
+    concatenate_benchmarks(storage_path::String)
+
+Concatenates all benchmarks stored in `storage_path` into a single benchmark.
+"""
+function concatenate_benchmarks(storage_path::String)
+    # No results:
+    if length(storage_path) == 0
+        @warn "No interim results found"
+        return nothing
+    end
+
+    # Load from storage path:
+    bmks = []
+    for file in readdir(storage_path)
+        # Get folders:
+        fname = joinpath(storage_path, file)
+        !isdir(fname) && continue
+        # Get benchmark file:
+        fname = joinpath(fname, "benchmark.jls")
+        !isfile(fname) && continue
+        # Load benchmark:
+        bmk = Serialization.deserialize(joinpath(fname, "benchmark.jls"))
+        push!(bmks, bmk)
+    end
+
+    # Concatenate results:
+    bmk = vcat(bmks...)
+
+    return bmk
+end
