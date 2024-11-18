@@ -448,7 +448,7 @@ function concatenate_benchmarks(storage_path::String)
         fname = joinpath(fname, "benchmark.jls")
         !isfile(fname) && continue
         # Load benchmark:
-        bmk = Serialization.deserialize(joinpath(fname, "benchmark.jls"))
+        bmk = Serialization.deserialize(fname)
         push!(bmks, bmk)
     end
 
