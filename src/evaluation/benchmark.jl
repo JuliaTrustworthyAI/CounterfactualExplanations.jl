@@ -249,7 +249,7 @@ function benchmark(
     verbose::Bool=true,
     vertical_splits::Union{Nothing,Int}=nothing,
     storage_path::String=tempdir(),
-    collect_output::Bool=true,
+    concatenate_output::Bool=true,
     kwrgs...,
 )
 
@@ -408,14 +408,14 @@ function benchmark(
                 Serialization.serialize(output_path, bmk)
             end
             push!(bmks, bmk)
-            
+
             # Save benchmark to file:
             Serialization.serialize(joinpath(path_for_run,"benchmark.jls"), bmk)
         end
     end
 
     # Collect and return output:
-    if collect_output
+    if concatenate_output
         bmk = reduce(vcat, bmks)
         return bmk
     else
