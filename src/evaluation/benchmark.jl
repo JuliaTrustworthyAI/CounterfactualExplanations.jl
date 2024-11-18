@@ -411,9 +411,6 @@ function benchmark(
                 Serialization.serialize(output_path, bmk)
             end
             push!(bmks, bmk)
-
-            # Save benchmark to file:
-            Serialization.serialize(joinpath(path_for_run,"benchmark.jls"), bmk)
         end
     end
 
@@ -454,13 +451,20 @@ function get_benchmark_files(storage_path::String)
     bmk_files = []
     for file in readdir(storage_path)
         # Get folders:
-        fname = joinpath(storage_path, file)
-        !isdir(fname) && continue
-        # Get benchmark file:
-        fname = joinpath(fname, "benchmark.jls")
-        !isfile(fname) && continue
+        run_folder = joinpath(storage_path, file)
+        !isdir(run_folder) && continue
+        !contains("run_", splitpath(run_folder)[end]) && continue
+
+        # Get files:
+        run_files = []
+        for file in readdir(run_folder)
+            if contains("output_", splitpath(file)[end])
+                push!(run_files, file)
+            end
+        end
+
         # Add to list:
-        push!(bmk_files, fname)
+        push!(bmk_files, run_files...)
     end
 
     return bmk_files
