@@ -194,6 +194,32 @@ end
         kwrgs...,
     )
 
+Benchmark a set of counterfactuals for a given data set and additional inputs.
+
+# Arguments
+
+- `data::CounterfactualData`: The dataset containing the factual and target labels.
+- `test_data::Union{Nothing,CounterfactualData}`: Optional test data for evaluation. Defaults to `nothing`, in which case `data` is used for evaluation. 
+- `models::Dict{<:Any,<:Any}`: A dictionary of model objects keyed by their names. Defaults to `standard_models_catalogue`.
+- `generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}`: Optional dictionary of generator functions keyed by their names. Defaults to `nothing`, in which case the whole [`generator_catalogue`](@ref) is used. 
+- `measure::Union{Function,Vector{Function}}`: The measure(s) to evaluate the counterfactuals against. Defaults to `default_measures`.
+- `n_individuals::Int=5`: Number of individuals to generate for each model and generator. 
+- `n_runs::Int=1`: Number of runs for each model and generator.
+- `suppress_training::Bool=false`: Whether to suppress training of models during benchmarking. This is useful if models have already been trained.
+- `factual::Union{Nothing,RawTargetType}`: Optional factual label. Defaults to `nothing`, in which case factual labels are randomly sampled from the dataset.
+- `target::Union{Nothing,RawTargetType}`: Optional target label. Defaults to `nothing`, in which case target labels are randomly sampled from the dataset.
+- `store_ce::Bool=false`: Whether to store the [`CounterfactualExplanation`](@ref) objects for each counterfactual.
+- `parallelizer::Union{Nothing,AbstractParallelizer}=nothing`: Parallelization strategy for generating and evaluating counterfactuals.
+- `dataname::Union{Nothing,Symbol,String}=nothing`: Name of the dataset. Defaults to `nothing`.
+- `verbose::Bool=true`: Whether to print verbose output during benchmarking.
+- `vertical_splits::Union{Nothing,Int}=nothing`: Number of vertical splits for generating counterfactuals. Defaults to `nothing`. This can useful, if it is necessary to reduce peak memory usage, by decreasing the number of counterfactuals generated at once. Higher values lead to smaller batches and hence smaller peak load, but lower degrees of parallelization.
+- `storage_path::String=tempdir()`: Path where interim results will be stored. Defaults to `tempdir()`.
+- `concatenate_output::Bool=true`: Whether to collect output from each run and concatenate them into a single output file.
+
+# Returns
+
+- A dictionary containing the benchmark results, including mean and standard deviation of the measures across all runs.
+
 ## Benchmarking Procedure
 
 Runs the benchmarking exercise as follows:
@@ -223,6 +249,7 @@ function benchmark(
     verbose::Bool=true,
     vertical_splits::Union{Nothing,Int}=nothing,
     storage_path::String=tempdir(),
+    collect_output::Bool=true,
     kwrgs...,
 )
 
@@ -381,7 +408,11 @@ function benchmark(
         end
     end
 
-    bmk = reduce(vcat, bmks)
-
-    return bmk
+    # Collect and return output:
+    if collect_output
+        bmk = reduce(vcat, bmks)
+        return bmk
+    else
+        return bmks
+    end
 end
