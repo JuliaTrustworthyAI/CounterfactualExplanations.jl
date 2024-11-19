@@ -36,6 +36,13 @@ OutputID(identifier::DefaultOutputIdentifier) = ""
 
 global _output_id::String = ""
 
+"And explicit output identifier that takes the string value of `id`. "
+struct ExplicitOutputIdentifier <: AbstractOutputIdentifier 
+    id::String
+end
+
+OutputID(identifier::ExplicitOutputIdentifier) = identifier.id
+
 get_global_output_id() = _output_id
 
 """

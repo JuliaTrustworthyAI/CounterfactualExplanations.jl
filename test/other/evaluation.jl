@@ -112,4 +112,6 @@ end
     global_serializer(NullSerializer())
     @test _serialization_state == false
     @test get_global_output_id() == ""
+    global_output_identifier(ExplicitOutputIdentifier("myid"))
+    @test get_global_output_id() == "myid"
 end
