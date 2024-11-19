@@ -25,3 +25,25 @@ function global_serializer(serializer::AbstractSerializer)
     global _serialization_state = SerializationState(serializer)
     return _serialization_state
 end
+
+"Abstract type for output identifiers."
+abstract type AbstractOutputIdentifier end
+
+"Default output identifier (no specific ID)."
+struct DefaultOutputIdentifier <: AbstractOutputIdentifier end
+
+OutputID(identifier::DefaultOutputIdentifier) = ""
+
+global _output_id::String = ""
+
+get_global_output_id() = _output_id
+
+"""
+    global_output_identifier(identifier::AbstractOutputIdentifier)
+
+Set the global output identifier to `identifier` and return its string representation. The global output identifier is used by default for all serialization operations.
+"""
+function global_output_identifier(identifier::AbstractOutputIdentifier)
+    global _output_id = OutputID(identifier)
+    return _output_id
+end

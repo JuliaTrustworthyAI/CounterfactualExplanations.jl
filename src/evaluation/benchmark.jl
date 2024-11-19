@@ -351,7 +351,8 @@ function benchmark(
             # Info:
             if split_vertically
                 @info "Split $i of $(length(grids)) for run $run. Each grid has $(length(targets)) samples."
-                output_path = joinpath(path_for_run, "output_$i.jls")
+                id = get_global_output_id()
+                output_path = joinpath(path_for_run, "output_$(i)_$(id).jls")
                 if isfile(output_path)
                     # If final output is supposed to be concatenated, deserialize:
                     if concatenate_output && _serialization_state

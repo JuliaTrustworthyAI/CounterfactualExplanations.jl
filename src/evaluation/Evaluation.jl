@@ -13,6 +13,7 @@ include("evaluate.jl")
 include("measures.jl")
 
 export global_serializer, Serializer, NullSerializer, _serialization_state
+export global_output_identifier, DefaultOutputIdentifier, _output_id, get_global_output_id
 export Benchmark, benchmark, evaluate, default_measures
 export validity, redundancy
 export plausibility
