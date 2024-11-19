@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.3.7]
+## Version [1.4.0]
 
 ### Added
 
@@ -15,6 +15,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added a `concatenate_benchmarks(storage_path::String)` function that can be used to concatenate multiple benchmark results into a single file.
 - Added functionality to set global serialization state. This is useful for suppressing serialization on non-root ranks in parallel computations.
 - Added functionality to explicitly specify what transformation of the `CounterfactualExplanation` object should be stored in evaluation data frames.
+
+### Changed
+
+- `Benchmark` objects now have an additional field `counterfactuals` to store a `DataFrame` containing the sample ID column `:sample` and then counterfactuals `:ce`. 
 
 ## Version [1.3.6] - 2024-11-08
 

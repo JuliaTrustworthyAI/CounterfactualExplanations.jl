@@ -8,6 +8,20 @@ using UUIDs: UUIDs
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark
     evaluation::DataFrames.DataFrame
+    counterfactuals::Union{Nothing,DataFrames.DataFrame}
+end
+
+"""
+    Benchmark(evaluation::DataFrames.DataFrame; counterfactuals=nothing)
+
+Constructs a `Benchmark` from an evaluation `DataFrame`.
+"""
+function Benchmark(evaluation::DataFrames.DataFrame; counterfactuals=nothing)
+    if "ce" ∈ names(evaluation)
+        counterfactuals = unique(select(evaluation, :sample, :ce))
+        select!(evaluation, Not(:ce))
+    end
+    return Benchmark(evaluation, counterfactuals)
 end
 
 """
@@ -39,12 +53,30 @@ function Base.vcat(
     idcol_name="dataset",
 )
     @assert isnothing(ids) || length(ids) == 2
+    @assert typeof(bmk1.counterfactuals) == typeof(bmk2.counterfactuals) "Don't know how to concatenate benchmarks with different types of counterfactuals."
+
+    # Add an identifier column to each benchmark if ids are provided
     if !isnothing(ids)
         bmk1.evaluation[!, idcol_name] .= ids[1]
         bmk2.evaluation[!, idcol_name] .= ids[2]
+        if typeof(bmk1.counterfactuals) == DataFrames.DataFrame
+            bmk1.counterfactuals[!, idcol_name] .= ids[1]
+            bmk2.counterfactuals[!, idcol_name] .= ids[2]
+        end
     end
+
+    # Concatenate the evaluation measures
     evaluation = vcat(bmk1.evaluation, bmk2.evaluation)
-    bmk = Benchmark(evaluation)
+
+    # Concatenate the counterfactuals if they exist
+    if !isnothing(bmk1.counterfactuals)
+        counterfactuals = vcat(bmk1.counterfactuals, bmk2.counterfactuals)
+    else
+        counterfactuals = nothing
+    end
+
+    # Create a new Benchmark object
+    bmk = Benchmark(evaluation, counterfactuals)
     return bmk
 end
 
@@ -435,7 +467,7 @@ function concatenate_benchmarks(storage_path::String)
     end
     bmk_files = get_benchmark_files(storage_path)
     bmks = Serialization.deserialize.(bmk_files) 
-    bmks = vcat(bmks...)
+    bmks = reduce(vcat, bmks)
     return bmks
 end
 
