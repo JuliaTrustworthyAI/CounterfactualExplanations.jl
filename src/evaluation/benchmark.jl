@@ -354,7 +354,7 @@ function benchmark(
                 output_path = joinpath(path_for_run, "output_$i.jls")
                 if isfile(output_path)
                     # If final output is supposed to be concatenated, deserialize:
-                    if concatenate_output
+                    if concatenate_output && _serialization_state
                         bmk = Serialization.deserialize(output_path)
                         push!(bmks, bmk)
                     end
@@ -407,7 +407,7 @@ function benchmark(
                 output_format=:DataFrame,
             )
             bmk = Benchmark(reduce(vcat, evaluations))
-            if split_vertically
+            if split_vertically && _serialization_state
                 Serialization.serialize(output_path, bmk)
             end
             push!(bmks, bmk)
@@ -429,6 +429,9 @@ end
 Concatenates all benchmarks stored in `storage_path` into a single benchmark.
 """
 function concatenate_benchmarks(storage_path::String)
+    if !_serialization_state
+        return nothing
+    end
     bmk_files = get_benchmark_files(storage_path)
     bmks = Serialization.deserialize.(bmk_files) 
     bmks = vcat(bmks...)

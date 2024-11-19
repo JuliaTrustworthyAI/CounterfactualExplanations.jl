@@ -105,3 +105,10 @@ end
         @test typeof(bmk) <: Benchmark
     end
 end
+
+@testset "Serialization" begin
+    global_serializer(Serializer())
+    @test _serialization_state == true
+    global_serializer(NullSerializer())
+    @test _serialization_state == false
+end

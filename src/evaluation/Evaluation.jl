@@ -7,10 +7,12 @@ using ..Models
 using LinearAlgebra: LinearAlgebra
 using Statistics
 
+include("serialization.jl")
 include("benchmark.jl")
 include("evaluate.jl")
 include("measures.jl")
 
+export global_serializer, Serializer, NullSerializer, _serialization_state
 export Benchmark, benchmark, evaluate, default_measures
 export validity, redundancy
 export plausibility
