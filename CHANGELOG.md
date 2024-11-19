@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Added `concatenate_output::Bool=true` keyword argument to `benchmark` function. This allows users to suppress concatenation of output in benchmarking (`concatenate_output=false`), which can be useful when memory usage is critical.
 - Added a `concatenate_benchmarks(storage_path::String)` function that can be used to concatenate multiple benchmark results into a single file.
 - Added functionality to set global serialization state. This is useful for suppressing serialization on non-root ranks in parallel computations.
+- Added functionality to explicitly specify what transformation of the `CounterfactualExplanation` object should be stored in evaluation data frames.
 
 ## Version [1.3.6] - 2024-11-08
 
