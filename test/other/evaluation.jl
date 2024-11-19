@@ -111,7 +111,18 @@ end
     @test _serialization_state == true
     global_serializer(NullSerializer())
     @test _serialization_state == false
-    @test get_global_output_id() == ""
     global_output_identifier(ExplicitOutputIdentifier("myid"))
     @test get_global_output_id() == "myid"
+    global_output_identifier(DefaultOutputIdentifier())
+    @test get_global_output_id() == ""
+end
+
+@testset "CE transform" begin
+    @test_throws AssertionError ExplicitCETransformer(logits)
+    transformer = ExplicitCETransformer(CounterfactualExplanations.counterfactual)
+    global_ce_transform(transformer)
+    @test get_global_ce_transform() == transformer.fun
+    global_ce_transform(IdentityTransformer())
+    x = 1
+    @test get_global_ce_transform()(x) == x     # identity function
 end

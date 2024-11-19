@@ -15,6 +15,7 @@ include("measures.jl")
 export global_serializer, Serializer, NullSerializer, _serialization_state
 export global_output_identifier, DefaultOutputIdentifier, _output_id, get_global_output_id
 export ExplicitOutputIdentifier
+export get_global_ce_transform, global_ce_transform, IdentityTransformer, ExplicitCETransformer
 export Benchmark, benchmark, evaluate, default_measures
 export validity, redundancy
 export plausibility
