@@ -44,7 +44,7 @@ NeuroTreeExt = "NeuroTreeModels"
 [compat]
 Aqua = "0.8"
 CategoricalArrays = "0.10"
-CausalInference = "0.17.0"
+CausalInference = "0.17.0, 0.18"
 ChainRulesCore = "1.15"
 DataFrames = "1"
 DecisionTree = "0.12.3, 0.12.4"
