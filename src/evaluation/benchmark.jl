@@ -413,6 +413,8 @@ function benchmark(
                 kwrgs...,
             )
 
+            @info "Done generating $i of $(length(grids)) for run $run."
+
             # Meta Data:
             meta_data = map(eachindex(ces)) do i
                 # Meta Data:
@@ -430,6 +432,8 @@ function benchmark(
                 end
                 return _dict
             end
+
+            @info "Evaluating counterfactuals..."
 
             # Evaluate counterfactuals; in parallel if so specified
             evaluations = parallelize(
