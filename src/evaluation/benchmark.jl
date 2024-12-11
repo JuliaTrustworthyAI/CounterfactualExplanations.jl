@@ -365,8 +365,11 @@ function benchmark(
         # Split grid vertically into `vertical_splits` parts:
         if split_vertically
             # Split grid vertically:
-            npart = maximum([Int(ceil(length(grid) / vertical_splits)),1])
-            grids = partition(grid, npart)
+            npart = maximum([Int(ceil(length(grid) / vertical_splits)),vertical_splits])
+            if npart > length(grid)
+                grids = fill(grid, npart)       # this is necessary to ensure equal division across processes when using MPI.
+            else
+                grids = partition(grid, npart)
         else
             grids = [grid]
         end
