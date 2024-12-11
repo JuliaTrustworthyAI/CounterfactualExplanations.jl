@@ -370,6 +370,7 @@ function benchmark(
                 grids = fill(grid, npart)       # this is necessary to ensure equal division across processes when using MPI.
             else
                 grids = partition(grid, npart)
+            end
         else
             grids = [grid]
         end
