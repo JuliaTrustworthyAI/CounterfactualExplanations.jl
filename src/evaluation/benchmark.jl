@@ -448,6 +448,11 @@ function benchmark(
                 store_ce=store_ce,
                 output_format=:DataFrame,
             )
+            @info "Total of $(length(evaluations)) evaluations completed."
+            @info "Filtering and reducing evaluations..."
+            evaluations = filter(!isempty, evaluations)
+            @info "Total of $(length(evaluations)) evaluations completed after filtering."
+
             bmk = Benchmark(reduce(vcat, evaluations))
             if split_vertically && _serialization_state
                 Serialization.serialize(output_path, bmk)
