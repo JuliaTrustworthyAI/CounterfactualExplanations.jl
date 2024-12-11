@@ -365,7 +365,8 @@ function benchmark(
         # Split grid vertically into `vertical_splits` parts:
         if split_vertically
             # Split grid vertically:
-            grids = partition(grid, Int(ceil(length(grid) / vertical_splits)))
+            npart = maximum([Int(ceil(length(grid) / vertical_splits)),1])
+            grids = partition(grid, npart)
         else
             grids = [grid]
         end
