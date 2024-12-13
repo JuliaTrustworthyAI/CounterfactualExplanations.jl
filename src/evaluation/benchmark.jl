@@ -413,10 +413,6 @@ function benchmark(
                 kwrgs...,
             )
 
-            @info "Done generating $i of $(length(grids)) for run $run."
-            @info "Number of counterfactuals: $(length(ces))"
-            @info "Length of grid: $(length(grid))"
-
             # Meta Data:
             meta_data = map(eachindex(ces)) do i
                 # Meta Data:
