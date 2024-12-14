@@ -362,7 +362,7 @@ function benchmark(
             end
         end
 
-        @info "Length of grid: $(length(grid))"
+        @debug "Length of grid: $(length(grid))"
 
         # Split grid vertically into `vertical_splits` parts:
         npart = maximum([Int(ceil(length(grid) / vertical_splits)), vertical_splits])
@@ -373,7 +373,7 @@ function benchmark(
             grids = [grid]
         end
 
-        @info "Length of grids: $(length(grids))"
+        @debug "Length of grids: $(length(grids))"
 
         # For each grid:
         for (i, grid) in enumerate(grids)
