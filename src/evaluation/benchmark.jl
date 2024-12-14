@@ -413,6 +413,12 @@ function benchmark(
                 kwrgs...,
             )
 
+            # Free up memory:
+            xs = nothing
+            targets = nothing
+            Ms = nothing
+            gens = nothing
+
             # Meta Data:
             meta_data = map(eachindex(ces)) do i
                 # Meta Data:
@@ -431,8 +437,6 @@ function benchmark(
                 return _dict
             end
 
-            @info "Evaluating counterfactuals..."
-
             # Evaluate counterfactuals; in parallel if so specified
             evaluations = parallelize(
                 parallelizer,
@@ -446,10 +450,8 @@ function benchmark(
                 store_ce=store_ce,
                 output_format=:DataFrame,
             )
-            @info "Total of $(length(evaluations)) evaluations completed."
-            @info "Filtering and reducing evaluations..."
-            evaluations = filter(!isempty, evaluations)
-            @info "Total of $(length(evaluations)) evaluations completed after filtering."
+
+            meta_data = nothing
 
             bmk = Benchmark(reduce(vcat, evaluations))
             if split_vertically && _serialization_state
