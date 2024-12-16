@@ -365,14 +365,13 @@ function benchmark(
         @debug "Length of grid: $(length(grid))"
 
         # Split grid vertically into `vertical_splits` parts:
-        npart = minimum([length(grid), vertical_splits])
-        @debug "Number of partitions: $npart"
-        if split_vertically && npart <= length(grid)
-            # Split grid vertically:
-            grids = partition(grid, npart)
-        else
-            grids = [grid]
+        if split_vertically 
+            npart = maximum([Int(ceil(length(grid) / vertical_splits)), 1])
+        else 
+            npart = length(grid)
         end
+        @debug "Number of elements per partition: $npart"
+        grids = partition(grid, npart)
 
         @debug "Length of grids: $(length(grids))"
 
