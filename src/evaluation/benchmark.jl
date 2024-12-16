@@ -244,7 +244,7 @@ Benchmark a set of counterfactuals for a given data set and additional inputs.
 - `parallelizer::Union{Nothing,AbstractParallelizer}=nothing`: Parallelization strategy for generating and evaluating counterfactuals.
 - `dataname::Union{Nothing,Symbol,String}=nothing`: Name of the dataset. Defaults to `nothing`.
 - `verbose::Bool=true`: Whether to print verbose output during benchmarking.
-- `vertical_splits::Union{Nothing,Int}=nothing`: Number of vertical splits for generating counterfactuals. Defaults to `nothing`. This can useful, if it is necessary to reduce peak memory usage, by decreasing the number of counterfactuals generated at once. Higher values lead to smaller batches and hence smaller peak load, but lower degrees of parallelization.
+- `vertical_splits::Union{Nothing,Int}=nothing`: Number of elements per vertical split for generating counterfactuals. Defaults to `nothing`. This can useful, if it is necessary to reduce peak memory usage, by decreasing the number of counterfactuals generated at once. Lower values lead to smaller batches and hence smaller peak load.
 - `storage_path::String=tempdir()`: Path where interim results will be stored. Defaults to `tempdir()`.
 - `concatenate_output::Bool=true`: Whether to collect output from each run and concatenate them into a single output file.
 
@@ -262,7 +262,7 @@ Runs the benchmarking exercise as follows:
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(xs::Union{AbstractArray,Base.Iterators.Zip})`](@ref).
 5. Finally, concatenate the results.
 
-If `vertical_splits` is specified to an integer, the computations are split vertically into `vertical_splits` chunks. In this case, the results are stored in a temporary directory and concatenated afterwards. 
+If `vertical_splits` is specified to an integer, the computations are split vertically into chunks of `vertical_splits` each. In this case, the results are stored in a temporary directory and concatenated afterwards. 
 """
 function benchmark(
     data::CounterfactualData;
@@ -364,9 +364,9 @@ function benchmark(
 
         @debug "Length of grid: $(length(grid))"
 
-        # Split grid vertically into `vertical_splits` parts:
+        # Split grid vertically into groups of `vertical_splits` elements:
         if split_vertically 
-            npart = maximum([Int(ceil(length(grid) / vertical_splits)), 1])
+            npart = minimum([length(grid), vertical_splits])
         else 
             npart = length(grid)
         end
