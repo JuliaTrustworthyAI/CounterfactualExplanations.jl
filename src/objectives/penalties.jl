@@ -121,11 +121,13 @@ function distance_from_target(
 )
 
     # Get potential neighbours:
-    get!(
-        ce.search,
-        :potential_neighbours,
-        CounterfactualExplanations.find_potential_neighbours(ce, K),
-    )
+    ChainRulesCore.ignore_derivatives() do
+        get!(
+            ce.search,
+            :potential_neighbours,
+            CounterfactualExplanations.find_potential_neighbours(ce, K),
+        )
+    end
 
     ys = ce.search[:potential_neighbours]
     if K > size(ys, 2)

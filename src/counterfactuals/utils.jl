@@ -96,4 +96,5 @@ end
 
 Overloads the function for [`CounterfactualExplanation`](@ref) to use the counterfactual data's labels if no data is provided.
 """
-find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000) = find_potential_neighbours(ce, ce.data, n)
+find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000) =
+    find_potential_neighbours(ce, ce.data, n)
