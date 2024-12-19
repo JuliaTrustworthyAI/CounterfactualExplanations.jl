@@ -38,12 +38,7 @@ using CounterfactualExplanations.Objectives: distance_mad
         flat_ce = flatten(ce)
         @test flat_ce isa FlattenedCE
         target_encoded(flat_ce)
-        _ce = unflatten(
-            flat_ce,
-            ce.data,
-            ce.M,
-            ce.generator
-        )
+        _ce = unflatten(flat_ce, ce.data, ce.M, ce.generator)
         @test _ce isa CounterfactualExplanation
     end
 end
