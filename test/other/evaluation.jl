@@ -101,7 +101,7 @@ end
             bmk = benchmark(
                 dataset; models=models, generators=generators, measure=distance_measures
             )
-            Serialization.serialize(joinpath(storage_dir,"run_1","output_$(i).jls"), bmk)
+            Serialization.serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
             push!(bmks, bmk)
         end
 
