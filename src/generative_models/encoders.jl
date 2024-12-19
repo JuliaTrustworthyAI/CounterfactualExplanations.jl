@@ -11,7 +11,7 @@ struct Encoder
     μ::Any
     logσ::Any
 end
-Flux.@functor Encoder
+Flux.@layer Encoder
 
 function Encoder(input_dim::Int, latent_dim::Int, hidden_dim::Int; activation=sigmoid)
     return Encoder(

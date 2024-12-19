@@ -58,7 +58,7 @@ function VAE(input_dim; kws...)
     return VAE(encoder, decoder, args, false)
 end
 
-Flux.@functor VAE
+Flux.@layer VAE
 
 function Flux.trainable(generative_model::VAE)
     return (encoder=generative_model.encoder, decoder=generative_model.decoder)

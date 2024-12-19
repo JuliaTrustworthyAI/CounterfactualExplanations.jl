@@ -377,7 +377,6 @@ Currently, the following counterfactual generators are implemented:
 -   Generic
 -   GravitationalGenerator [@altmeyer2023endogenous]
 -   Greedy [@schut2021generating]
--   GrowingSpheres [@laugel2017inverse]
 -   MINT [@karimi2020algorithmic] (**causal CE**)
 -   PROBE [@pawelczyk2022probabilistically]
 -   REVISE [@joshi2019realistic]
