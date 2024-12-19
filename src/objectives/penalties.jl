@@ -124,7 +124,7 @@ function distance_from_target(
     get!(
         ce.search,
         :potential_neighbours,
-        CounterfactualExplanations.find_potential_neighbours(ce),
+        CounterfactualExplanations.find_potential_neighbours(ce, K),
     )
 
     ys = ce.search[:potential_neighbours]

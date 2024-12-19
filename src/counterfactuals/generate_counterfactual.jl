@@ -9,6 +9,7 @@
         initialization::Symbol=:add_perturbation,
         convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
         timeout::Union{Nothing,Real}=nothing,
+        return_flattened::Bool=false,
     )
 
 The core function that is used to run counterfactual search for a given factual `x`, target, counterfactual data, model and generator. Keywords can be used to specify the desired threshold for the predicted target class probability and the maximum number of iterations.
@@ -24,6 +25,7 @@ The core function that is used to run counterfactual search for a given factual 
 - `initialization::Symbol=:add_perturbation`: Initialization method. By default, the initialization is done by adding a small random perturbation to the factual to achieve more robustness.
 - `convergence::Union{AbstractConvergence,Symbol}=:decision_threshold`: Convergence criterion. By default, the convergence is based on the decision threshold. Possible values are `:decision_threshold`, `:max_iter`, `:generator_conditions` or a conrete convergence object (e.g. [`DecisionThresholdConvergence`](@ref)). 
 - `timeout::Union{Nothing,Int}=nothing`: Timeout in seconds.
+- `return_flattened::Bool`: If true, the flattened CE is returned instead of a CE object.
 
 # Examples
 
