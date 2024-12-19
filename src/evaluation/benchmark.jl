@@ -171,8 +171,13 @@ function benchmark(
         Ms,
         gens;
         verbose=verbose,
+        return_flattened=true,
         kwrgs...,
     )
+
+    # Unflatten for evaluation:
+    @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+    ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
 
     # Meta Data:
     meta_data = map(eachindex(ces)) do i
@@ -203,6 +208,26 @@ function benchmark(
     bmk = Benchmark(reduce(vcat, evaluations))
 
     return bmk
+end
+
+function unflatten_for_eval(
+    ces::Vector{FlattenedCE},
+    data::CounterfactualData,
+    Ms,
+    gens,
+    kwrgs
+)
+    unflatten_kwrgs = (;)
+    initialization = get(kwrgs, :initialization, nothing)
+    if !isnothing(initialization)
+        unflatten_kwrgs = merge(unflatten_kwrgs, (:initialization => initialization,))
+    end
+    convergence = get(kwrgs, :convergence, nothing)
+    if !isnothing(convergence)
+        unflatten_kwrgs = merge(unflatten_kwrgs, (:convergence => convergence,))
+    end
+    ces = unflatten.(ces, (data,), Ms, gens; unflatten_kwrgs...)
+    return ces
 end
 
 """
@@ -410,9 +435,14 @@ function benchmark(
                 Ms,
                 gens;
                 verbose=verbose,
+                return_flattened=true,
                 kwrgs...,
             )
 
+            # Unflatten for evaluation:
+            @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+            ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
+            
             # Free up memory:
             xs = nothing
             targets = nothing

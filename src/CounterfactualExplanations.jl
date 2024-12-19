@@ -80,7 +80,6 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
-export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
@@ -96,7 +95,7 @@ export CounterfactualExplanation
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
 export animate_path
-export flatten
+export flatten, unflatten, FlattenedCE
 
 include("evaluation/Evaluation.jl")
 using .Evaluation

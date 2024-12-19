@@ -26,7 +26,6 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
-export GrowingSpheresGenerator
 export REVISEGenerator
 export WachterGenerator
 export FeatureTweakGenerator
@@ -63,7 +62,6 @@ generator_catalogue = Dict(
     :generic => Generators.GenericGenerator,
     :gravitational => Generators.GravitationalGenerator,
     :greedy => Generators.GreedyGenerator,
-    :growing_spheres => Generators.GrowingSpheresGenerator,
     :revise => Generators.REVISEGenerator,
     :dice => Generators.DiCEGenerator,
     :wachter => Generators.WachterGenerator,

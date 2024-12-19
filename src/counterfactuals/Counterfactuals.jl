@@ -14,7 +14,6 @@ using StatsBase
 include("core_struct.jl")
 include("encodings.jl")
 include("generate_counterfactual.jl")
-include("growing_spheres.jl")
 include("info_extraction.jl")
 include("initialisation.jl")
 include("path_tracking.jl")

@@ -22,3 +22,23 @@ Calling the `ce::CounterfactualExplanation` object results in a [`FlattenedCE`](
 Alias for `(ce::CounterfactualExplanation)()`. Converts a `CounterfactualExplanation` to its flattened form.
 """
 flatten(ce::CounterfactualExplanation) = ce()
+
+function unflatten(
+    flat_ce::FlattenedCE,
+    data::CounterfactualData,
+    M::Models.AbstractModel,
+    generator::Generators.AbstractGenerator;
+    initialization::Symbol=:add_perturbation,
+    convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
+)::CounterfactualExplanation
+    CounterfactualExplanation(
+        flat_ce.factual,
+        flat_ce.target,
+        data,
+        M,
+        generator;
+        initialization=initialization,
+        convergence=convergence,
+        num_counterfactuals=size(flat_ce.counterfactual, 2),
+    )
+end

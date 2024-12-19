@@ -85,6 +85,9 @@ function generate_counterfactual(
     timeout::Union{Nothing,Real}=nothing,
     return_flattened::Bool=false
 )
+
+    output(ce::CounterfactualExplanation) = return_flattened ? flatten(ce) : ce
+
     # Initialize:
     ce = CounterfactualExplanation(
         x,
@@ -100,13 +103,13 @@ function generate_counterfactual(
     # Check for redundancy (assess if already converged with respect to factual):
     if Convergence.converged(ce.convergence, ce, ce.factual)
         @info "Factual already in target class and probability exceeds threshold."
-        return ce
+        return output(ce)
     end
 
     # Check for incompatibility:
     if Generators.incompatible(ce.generator, ce)
         @info "Generator is incompatible with other specifications for the counterfactual explanation (e.g. the model). See warnings for details. No search completed."
-        return ce
+        return output(ce)
     end
 
     # Search:
@@ -123,12 +126,7 @@ function generate_counterfactual(
     end
 
     # Return full or flattened explanation:
-    output = if return_flattened
-        ce
-    else
-        ce()
-    end
-    return output
+    return output(ce)
 end
 
 """
