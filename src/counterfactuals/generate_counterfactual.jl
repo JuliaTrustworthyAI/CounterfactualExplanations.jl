@@ -90,25 +90,30 @@ function generate_counterfactual(
     output(ce::CounterfactualExplanation) = return_flattened ? flatten(ce) : ce
 
     # Initialize:
-    ce = CounterfactualExplanation(
+    ce = FlattenedCE(
         x,
-        target,
-        data,
-        M,
-        generator;
-        num_counterfactuals=num_counterfactuals,
-        initialization=initialization,
-        convergence=convergence,
+        target
     )
 
+    # ce = CounterfactualExplanation(
+    #     x,
+    #     target,
+    #     data,
+    #     M,
+    #     generator;
+    #     num_counterfactuals=num_counterfactuals,
+    #     initialization=initialization,
+    #     convergence=convergence,
+    # )
+
     # Check for redundancy (assess if already converged with respect to factual):
-    if Convergence.converged(ce.convergence, ce, ce.factual)
+    if Convergence.converged(convergence, ce, ce.factual)
         @info "Factual already in target class and probability exceeds threshold."
         return output(ce)
     end
 
     # Check for incompatibility:
-    if Generators.incompatible(ce.generator, ce)
+    if Generators.incompatible(generator, M, data)
         @info "Generator is incompatible with other specifications for the counterfactual explanation (e.g. the model). See warnings for details. No search completed."
         return output(ce)
     end

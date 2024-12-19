@@ -1,13 +1,21 @@
 """
-    Generators.incompatible(gen::FeatureTweakGenerator, ce::CounterfactualExplanation)
+    Generators.incompatible(
+        gen::FeatureTweakGenerator,
+        M::Models.AbstractModel,
+        data::CounterfactualData,
+    )
 
 Overloads the `incompatible` function for the `FeatureTweakGenerator`.
 """
-function Generators.incompatible(gen::FeatureTweakGenerator, ce::CounterfactualExplanation)
+function Generators.incompatible(
+    gen::FeatureTweakGenerator,
+    M::Models.AbstractModel,
+    data::CounterfactualData,
+)
     incomp = false
     # Model compatibility
-    if hasfield(typeof(ce.M), :type)
-        mod = typeof(ce.M.type) <: CounterfactualExplanations.AbstractDecisionTree
+    if hasfield(typeof(M), :type)
+        mod = typeof(M.type) <: CounterfactualExplanations.AbstractDecisionTree
     else
         # For legacy models that will be removed in the future
         mod = true
@@ -17,7 +25,7 @@ function Generators.incompatible(gen::FeatureTweakGenerator, ce::CounterfactualE
         incomp = true
     end
     # Feature encodings
-    enc = !isnothing(ce.data.input_encoder)
+    enc = !isnothing(data.input_encoder)
     if enc
         @warn "The `FeatureTweakGenerator` is incompatible with feature encodings."
         incomp = true

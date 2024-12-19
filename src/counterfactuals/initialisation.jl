@@ -45,3 +45,12 @@ function initialize_state!(ce::CounterfactualExplanation)
 
     return ce
 end
+
+"""
+    Generators.incompatible(ce::CounterfactualExplanation)
+
+Overloads the `Generators.incompatible` function to check if the generator and model are incompatible with the data. This is useful for ensuring that the generator can generate counterfactuals for the given data.
+"""
+function Generators.incompatible(ce::CounterfactualExplanation)
+    return Generators.incompatible(ce.generator, ce.model, ce.data)
+end

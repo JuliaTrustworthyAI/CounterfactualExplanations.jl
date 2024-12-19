@@ -68,3 +68,12 @@ function apply_domain_constraints!(ce::CounterfactualExplanation)
     ce.counterfactual = apply_domain_constraints(ce.data, ce.counterfactual)            # apply domain constraints in feature space
     return ce.counterfactual_state = encode_state(ce, ce.counterfactual)                             # re-encode counterfactual state
 end
+
+"""
+    converged(ce::CounterfactualExplanation)
+
+Returns `true` if the counterfactual explanation has converged.
+"""
+function converged(ce::CounterfactualExplanation)
+    return converged(ce.convergence, ce)
+end

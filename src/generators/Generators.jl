@@ -71,11 +71,11 @@ generator_catalogue = Dict(
 )
 
 """
-    incompatible(AbstractGenerator, AbstractCounterfactualExplanation)
+    incompatible(gen::AbstractGenerator, M::AbstractModel, data::CounterfactualData)
 
 Checks if the generator is incompatible with any of the additional specifications for the counterfactual explanations. By default, generators are assumed to be compatible.
 """
-function incompatible(AbstractGenerator, AbstractCounterfactualExplanation)
+function incompatible(gen::AbstractGenerator, M::AbstractModel, data::CounterfactualData)
     return false
 end
 

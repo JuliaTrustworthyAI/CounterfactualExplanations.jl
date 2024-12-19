@@ -10,6 +10,15 @@ struct FlattenedCE <: AbstractCounterfactualExplanation
 end
 
 """
+    FlattenedCE(factual::AbstractArray, target::RawTargetType)
+
+If called on a `factual` and `target`, this outer constructor creates a `FlattenedCE` instance with the given `factual` and `target`, and `counterfactual` set to the `factual`.
+"""
+function FlattenedCE(factual::AbstractArray, target::RawTargetType)
+    FlattenedCE(factual, target, factual)
+end
+
+"""
     (ce::CounterfactualExplanation)()::FlattenedCE
 
 Calling the `ce::CounterfactualExplanation` object results in a [`FlattenedCE`](@ref) instance, which is the flattened version of the original.

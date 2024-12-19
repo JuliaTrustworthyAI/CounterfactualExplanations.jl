@@ -59,7 +59,7 @@ export fit_model
 # Convergence
 include("convergence/Convergence.jl")
 using .Convergence
-export conditions_satisfied
+export conditions_satisfied, converged
 
 ### Objectives
 # ℓ( ℳ[𝒟](xᵢ) , target ) + λ cost(xᵢ)
