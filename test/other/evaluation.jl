@@ -1,7 +1,7 @@
 using CounterfactualExplanations.Evaluation:
     Benchmark, evaluate, validity, distance_measures, concatenate_benchmarks
 using CounterfactualExplanations.Objectives: distance
-using Serialization
+using Serialization: serialize
 using TaijaData: load_moons, load_circles
 
 # Dataset
@@ -61,6 +61,9 @@ generators = Dict(
     faith = Evaluation.faithfulness(ce; nwarmup=100)
     plaus = Evaluation.plausibility(ce)
     plaus = Evaluation.plausibility(ce; choose_random=true)
+    plaus = Evaluation.plausibility_distance_from_target(ce)
+    plaus = Evaluation.plausibility_cosine(ce)
+    plaus = Evaluation.plausibility_energy_differential(ce)
     @test true
 end
 
@@ -101,7 +104,7 @@ end
             bmk = benchmark(
                 dataset; models=models, generators=generators, measure=distance_measures
             )
-            Serialization.serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
+            serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
             push!(bmks, bmk)
         end
 
