@@ -99,8 +99,6 @@ export flatten, unflatten, FlattenedCE
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
-export ExplicitCETransformer, IdentityTransformer, global_ce_transform
-export NullSerializer, global_serializer
 
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")
