@@ -97,11 +97,11 @@ end
         using CounterfactualExplanations.Evaluation: distance_measures
         bmks = []
         storage_dir = tempdir()
-        for (dataname, dataset) in datasets
+        for (i, (dataname, dataset)) in enumerate(datasets)
             bmk = benchmark(
                 dataset; models=models, generators=generators, measure=distance_measures
             )
-            Serialization.serialize(storage_dir, bmk)
+            Serialization.serialize(joinpath(storage_dir,"run_1","output_$(i).jls"), bmk)
             push!(bmks, bmk)
         end
 

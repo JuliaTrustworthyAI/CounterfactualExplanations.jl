@@ -96,6 +96,7 @@ export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
 export animate_path
 export flatten, unflatten, FlattenedCE
+export target_encoded
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
