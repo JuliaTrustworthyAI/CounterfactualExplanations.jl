@@ -160,10 +160,9 @@ Compute the distance from a counterfactual to the target manifold using cosine s
 - `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 - `kwrgs...`: Additional keyword arguments for the distance function.
 """
-function distance_from_target_cosine(ce::AbstractCounterfactualExplanation;kwrgs...)
+function distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
     return distance_from_target(ce; cosine=true, kwrgs...)
 end
-
 
 """
     function model_loss_penalty(

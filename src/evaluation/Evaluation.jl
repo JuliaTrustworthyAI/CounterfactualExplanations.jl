@@ -15,11 +15,13 @@ include("measures.jl")
 export global_serializer, Serializer, NullSerializer, _serialization_state
 export global_output_identifier, DefaultOutputIdentifier, _output_id, get_global_output_id
 export ExplicitOutputIdentifier
-export get_global_ce_transform, global_ce_transform, IdentityTransformer, ExplicitCETransformer
+export get_global_ce_transform,
+    global_ce_transform, IdentityTransformer, ExplicitCETransformer
 export Benchmark, benchmark, evaluate, default_measures
 export validity, redundancy
 export plausibility
-export plausibility_energy_differential, plausibility_cosine, plausibility_distance_from_target
+export plausibility_energy_differential,
+    plausibility_cosine, plausibility_distance_from_target
 export faithfulness
 export plausibility_measures, default_measures, distance_measures, all_measures
 export concatenate_benchmarks
@@ -44,7 +46,7 @@ const distance_measures = [
 
 "All measures."
 const all_measures = [
-    validity, 
+    validity,
     redundancy,
     collect(values(CounterfactualExplanations.Objectives.penalties_catalogue))...,
     plausibility_measures...,

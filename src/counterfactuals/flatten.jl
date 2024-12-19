@@ -14,7 +14,8 @@ end
 
 Calling the `ce::CounterfactualExplanation` object results in a [`FlattenedCE`](@ref) instance, which is the flattened version of the original.
 """
-(ce::CounterfactualExplanation)()::FlattenedCE = FlattenedCE(ce.factual, ce.target, ce.counterfactual)
+(ce::CounterfactualExplanation)()::FlattenedCE =
+    FlattenedCE(ce.factual, ce.target, ce.counterfactual)
 
 """
     flatten(ce::CounterfactualExplanation)
@@ -31,7 +32,7 @@ function unflatten(
     initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )::CounterfactualExplanation
-    CounterfactualExplanation(
+    return CounterfactualExplanation(
         flat_ce.factual,
         flat_ce.target,
         data,

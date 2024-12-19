@@ -211,11 +211,7 @@ function benchmark(
 end
 
 function unflatten_for_eval(
-    ces::Vector{FlattenedCE},
-    data::CounterfactualData,
-    Ms,
-    gens,
-    kwrgs
+    ces::Vector{FlattenedCE}, data::CounterfactualData, Ms, gens, kwrgs
 )
     unflatten_kwrgs = (;)
     initialization = get(kwrgs, :initialization, nothing)
@@ -368,11 +364,7 @@ function benchmark(
             yhat = CounterfactualExplanations.predict_label(M, test_data)
             for i in 1:n_individuals
                 # For each individual and specified factual label, randomly choose index of a factual observation:
-                chosen_ind = rand(
-                    findall(
-                        yhat .== factual[i],
-                    ),
-                )[1]
+                chosen_ind = rand(findall(yhat .== factual[i]))[1]
                 push!(chosen, chosen_ind)
             end
             xs = CounterfactualExplanations.select_factual(test_data, chosen)
@@ -390,9 +382,9 @@ function benchmark(
         @debug "Length of grid: $(length(grid))"
 
         # Split grid vertically into groups of `vertical_splits` elements:
-        if split_vertically 
+        if split_vertically
             npart = minimum([length(grid), vertical_splits])
-        else 
+        else
             npart = length(grid)
         end
         @debug "Number of elements per partition: $npart"
@@ -442,7 +434,7 @@ function benchmark(
             # Unflatten for evaluation:
             @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
             ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
-            
+
             # Free up memory:
             xs = nothing
             targets = nothing
@@ -510,7 +502,7 @@ function concatenate_benchmarks(storage_path::String)
         return nothing
     end
     bmk_files = get_benchmark_files(storage_path)
-    bmks = Serialization.deserialize.(bmk_files) 
+    bmks = Serialization.deserialize.(bmk_files)
     bmks = reduce(vcat, bmks)
     return bmks
 end
@@ -521,7 +513,7 @@ end
 Returns a list of all benchmark files stored in `storage_path`.
 """
 function get_benchmark_files(storage_path::String)
-     # No results:
+    # No results:
     if length(storage_path) == 0
         @warn "No interim results found"
         return nothing

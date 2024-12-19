@@ -21,7 +21,7 @@ struct ExplicitCETransformer <: AbstractCETransformer
     fun::Function
     function ExplicitCETransformer(fun::Function)
         @assert hasmethod(fun, Tuple{CounterfactualExplanation}) "Measure function must have a method for `CounterfactualExplanation`"
-        new(fun)
+        return new(fun)
     end
 end
 

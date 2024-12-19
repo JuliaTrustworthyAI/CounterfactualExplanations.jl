@@ -1,6 +1,11 @@
 using TaijaData: load_moons, load_circles
 using CounterfactualExplanations.Evaluation:
-    Benchmark, evaluate, validity, distance_measures
+    Benchmark,
+    evaluate,
+    validity,
+    distance_measures,
+    ExplicitCETransformer,
+    global_serializer
 using CounterfactualExplanations.Objectives: distance
 
 # Dataset

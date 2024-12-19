@@ -103,7 +103,7 @@ mutable struct CounterfactualData
 
         if all(conditions)
             new(
-                view(X,:,:),
+                view(X, :, :),
                 y,
                 likelihood,
                 mutability,
