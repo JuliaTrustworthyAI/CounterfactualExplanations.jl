@@ -91,7 +91,7 @@ export @objective
 # argmin 
 ###
 include("counterfactuals/Counterfactuals.jl")
-export CounterfactualExplanation
+export CounterfactualExplanation, FlattenedCE
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
 export animate_path
