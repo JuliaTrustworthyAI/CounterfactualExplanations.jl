@@ -1,7 +1,12 @@
-using TaijaData: load_moons, load_circles
 using CounterfactualExplanations.Evaluation:
-    Benchmark, evaluate, validity, distance_measures
+    Benchmark,
+    evaluate,
+    validity,
+    distance_measures,
+    concatenate_benchmarks
 using CounterfactualExplanations.Objectives: distance
+using Serialization
+using TaijaData: load_moons, load_circles
 
 # Dataset
 data = TaijaData.load_overlapping()
@@ -95,12 +100,17 @@ end
 
         using CounterfactualExplanations.Evaluation: distance_measures
         bmks = []
+        storage_dir = tempdir()
         for (dataname, dataset) in datasets
             bmk = benchmark(
                 dataset; models=models, generators=generators, measure=distance_measures
             )
+            Serialization.serialize(storage_dir, bmk)
             push!(bmks, bmk)
         end
+
+        _bmks = concatenate_benchmarks(storage_dir)
+
         bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
         @test typeof(bmk) <: Benchmark
     end
