@@ -1,9 +1,5 @@
 using CounterfactualExplanations.Evaluation:
-    Benchmark,
-    evaluate,
-    validity,
-    distance_measures,
-    concatenate_benchmarks
+    Benchmark, evaluate, validity, distance_measures, concatenate_benchmarks
 using CounterfactualExplanations.Objectives: distance
 using Serialization
 using TaijaData: load_moons, load_circles
