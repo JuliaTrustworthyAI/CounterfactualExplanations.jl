@@ -1,7 +1,7 @@
 module Convergence
 
 using Distributions
-using Flux
+using Flux: Flux
 using LinearAlgebra
 using ..CounterfactualExplanations
 using ..Models

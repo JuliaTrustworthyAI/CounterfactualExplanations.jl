@@ -6,7 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.3.6]
+## Version [1.4.0]
+
+### Added
+
+- Adds new `FlattenedCE` struct and conversion function `flatten(ce::CounterfactualExplanation)::FlattenedCE` for flattening a CounterfactualExplanation object. In the short term, this can be useful for compact storage or transmission of explanations. In the long term, we may consider using the flattened representation as much as possible to optimize performance. [#502]
+- Also added `unflatten` function to convert a `FlattenedCE` object back to its original `CounterfactualExplanation` form. This is used in benchmarking, where flattened objects are used in the first parallelization (generating counterfactuals) and full objects are used for evaluation. This is a temporary solution until we address the fact that downstream `Evaluation` functions currently expect the full `CounterfactualExplanation` form. [#502]
+- Added additional aliases for penalties including `distance_cosine`. 
+- Added `concatenate_output::Bool=true` keyword argument to `benchmark` function. This allows users to suppress concatenation of output in benchmarking (`concatenate_output=false`), which can be useful when memory usage is critical.
+- Added a `concatenate_benchmarks(storage_path::String)` function that can be used to concatenate multiple benchmark results into a single file.
+- Added functionality to set global serialization state. This is useful for suppressing serialization on non-root ranks in parallel computations.
+- Added functionality to explicitly specify what transformation of the `CounterfactualExplanation` object should be stored in evaluation data frames.
+
+### Changed
+
+- `Benchmark` objects now have an additional field `counterfactuals` to store a `DataFrame` containing the sample ID column `:sample` and then counterfactuals `:ce`. 
+
+## Version [1.3.6] - 2024-11-08
 
 ### Changed 
 

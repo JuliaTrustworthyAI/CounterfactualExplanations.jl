@@ -1,4 +1,4 @@
-using Flux
+using Flux: Flux
 
 """
     initialize_state(ce::CounterfactualExplanation)

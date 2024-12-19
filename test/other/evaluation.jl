@@ -1,7 +1,8 @@
-using TaijaData: load_moons, load_circles
 using CounterfactualExplanations.Evaluation:
-    Benchmark, evaluate, validity, distance_measures
+    Benchmark, evaluate, validity, distance_measures, concatenate_benchmarks
 using CounterfactualExplanations.Objectives: distance
+using Serialization: serialize
+using TaijaData: load_moons, load_circles
 
 # Dataset
 data = TaijaData.load_overlapping()
@@ -60,6 +61,9 @@ generators = Dict(
     faith = Evaluation.faithfulness(ce; nwarmup=100)
     plaus = Evaluation.plausibility(ce)
     plaus = Evaluation.plausibility(ce; choose_random=true)
+    plaus = Evaluation.plausibility_distance_from_target(ce)
+    plaus = Evaluation.plausibility_cosine(ce)
+    plaus = Evaluation.plausibility_energy_differential(ce)
     @test true
 end
 
@@ -95,13 +99,39 @@ end
 
         using CounterfactualExplanations.Evaluation: distance_measures
         bmks = []
-        for (dataname, dataset) in datasets
+        storage_dir = tempdir()
+        for (i, (dataname, dataset)) in enumerate(datasets)
             bmk = benchmark(
                 dataset; models=models, generators=generators, measure=distance_measures
             )
+            serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
             push!(bmks, bmk)
         end
+
+        _bmks = concatenate_benchmarks(storage_dir)
+
         bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
         @test typeof(bmk) <: Benchmark
     end
+end
+
+@testset "Serialization" begin
+    global_serializer(Serializer())
+    @test _serialization_state == true
+    global_serializer(NullSerializer())
+    @test _serialization_state == false
+    global_output_identifier(ExplicitOutputIdentifier("myid"))
+    @test get_global_output_id() == "myid"
+    global_output_identifier(DefaultOutputIdentifier())
+    @test get_global_output_id() == ""
+end
+
+@testset "CE transform" begin
+    @test_throws AssertionError ExplicitCETransformer(logits)
+    transformer = ExplicitCETransformer(CounterfactualExplanations.counterfactual)
+    global_ce_transform(transformer)
+    @test get_global_ce_transform() == transformer.fun
+    global_ce_transform(IdentityTransformer())
+    x = 1
+    @test get_global_ce_transform()(x) == x     # identity function
 end

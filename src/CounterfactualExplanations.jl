@@ -7,7 +7,7 @@ function __init__()
 end
 
 # Dependencies:
-using Flux
+using Flux: Flux
 using TaijaBase: TaijaBase
 
 # Setup:
@@ -54,6 +54,7 @@ export Linear, MLP, DeepEnsemble
 export flux_training_params
 export probs, logits
 export standard_models_catalogue, all_models_catalogue, model_evaluation, predict_label
+export fit_model
 
 # Convergence
 include("convergence/Convergence.jl")
@@ -79,7 +80,6 @@ export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
-export GrowingSpheresGenerator
 export REVISEGenerator
 export DiCEGenerator
 export WachterGenerator
@@ -91,10 +91,12 @@ export @objective
 # argmin 
 ###
 include("counterfactuals/Counterfactuals.jl")
-export CounterfactualExplanation
+export CounterfactualExplanation, FlattenedCE
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
 export animate_path
+export flatten, unflatten, FlattenedCE
+export target_encoded
 
 include("evaluation/Evaluation.jl")
 using .Evaluation

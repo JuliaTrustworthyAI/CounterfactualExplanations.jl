@@ -4,7 +4,7 @@ using ChainRulesCore: ChainRulesCore
 using Distributions
 using EnergySamplers
 using EnergySamplers: SGLD, ImproperSGLD, ConditionalSampler, AbstractSamplingRule, PMC
-using Flux
+using Flux: Flux
 
 "Base type that stores information relevant to energy-based posterior sampling from `AbstractModel`."
 mutable struct EnergySampler

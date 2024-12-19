@@ -32,4 +32,13 @@ using CounterfactualExplanations.Objectives: distance_mad
         @test ce.counterfactual == ce.x′
         @test ce.counterfactual_state == ce.s′
     end
+
+    @testset "Flattening" begin
+        ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+        flat_ce = CounterfactualExplanations.flatten(ce)
+        @test flat_ce isa FlattenedCE
+        target_encoded(flat_ce, ce.data)
+        _ce = unflatten(flat_ce, ce.data, ce.M, ce.generator)
+        @test _ce isa CounterfactualExplanation
+    end
 end

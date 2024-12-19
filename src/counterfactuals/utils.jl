@@ -73,16 +73,28 @@ function adjust_shape!(ce::CounterfactualExplanation)
 end
 
 """
-    find_potential_neighbors(ce::AbstractCounterfactualExplanation)
+    find_potential_neighbours(
+        ce::AbstractCounterfactualExplanation, data::CounterfactualData, n::Int=1000
+    )
 
 Finds potential neighbors for the selected factual data point.
 """
-function find_potential_neighbours(ce::AbstractCounterfactualExplanation, n::Int=1000)
-    nobs = size(ce.data.X, 2)
-    data = DataPreprocessing.subsample(ce.data, minimum([nobs, n]))
+function find_potential_neighbours(
+    ce::AbstractCounterfactualExplanation, data::CounterfactualData, n::Int=1000
+)
+    nobs = size(data.X, 2)
+    data = DataPreprocessing.subsample(data, minimum([nobs, n]))
     ids = findall(data.output_encoder.labels .== ce.target)
-    n_candidates = minimum([size(ce.data.y, 2), n])
+    n_candidates = minimum([size(data.y, 2), n])
     candidates = DataPreprocessing.select_factual(data, rand(ids, n_candidates))
     potential_neighbours = reduce(hcat, map(x -> x[1], collect(candidates)))
     return potential_neighbours
 end
+
+"""
+    find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000)
+
+Overloads the function for [`CounterfactualExplanation`](@ref) to use the counterfactual data's labels if no data is provided.
+"""
+find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000) =
+    find_potential_neighbours(ce, ce.data, n)

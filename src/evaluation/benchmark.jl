@@ -8,6 +8,20 @@ using UUIDs: UUIDs
 "A container for benchmarks of counterfactual explanations. Instead of subtyping `DataFrame`, it contains a `DataFrame` of evaluation measures (see [this discussion](https://discourse.julialang.org/t/creating-an-abstractdataframe-subtype/36451/6?u=pat-alt) for why we don't subtype `DataFrame` directly)."
 struct Benchmark
     evaluation::DataFrames.DataFrame
+    counterfactuals::Union{Nothing,DataFrames.DataFrame}
+end
+
+"""
+    Benchmark(evaluation::DataFrames.DataFrame; counterfactuals=nothing)
+
+Constructs a `Benchmark` from an evaluation `DataFrame`.
+"""
+function Benchmark(evaluation::DataFrames.DataFrame; counterfactuals=nothing)
+    if "ce" ∈ names(evaluation)
+        counterfactuals = unique(select(evaluation, :sample, :ce))
+        select!(evaluation, Not(:ce))
+    end
+    return Benchmark(evaluation, counterfactuals)
 end
 
 """
@@ -39,12 +53,30 @@ function Base.vcat(
     idcol_name="dataset",
 )
     @assert isnothing(ids) || length(ids) == 2
+    @assert typeof(bmk1.counterfactuals) == typeof(bmk2.counterfactuals) "Don't know how to concatenate benchmarks with different types of counterfactuals."
+
+    # Add an identifier column to each benchmark if ids are provided
     if !isnothing(ids)
         bmk1.evaluation[!, idcol_name] .= ids[1]
         bmk2.evaluation[!, idcol_name] .= ids[2]
+        if typeof(bmk1.counterfactuals) == DataFrames.DataFrame
+            bmk1.counterfactuals[!, idcol_name] .= ids[1]
+            bmk2.counterfactuals[!, idcol_name] .= ids[2]
+        end
     end
+
+    # Concatenate the evaluation measures
     evaluation = vcat(bmk1.evaluation, bmk2.evaluation)
-    bmk = Benchmark(evaluation)
+
+    # Concatenate the counterfactuals if they exist
+    if !isnothing(bmk1.counterfactuals)
+        counterfactuals = vcat(bmk1.counterfactuals, bmk2.counterfactuals)
+    else
+        counterfactuals = nothing
+    end
+
+    # Create a new Benchmark object
+    bmk = Benchmark(evaluation, counterfactuals)
     return bmk
 end
 
@@ -139,8 +171,13 @@ function benchmark(
         Ms,
         gens;
         verbose=verbose,
+        return_flattened=true,
         kwrgs...,
     )
+
+    # Unflatten for evaluation:
+    @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+    ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
 
     # Meta Data:
     meta_data = map(eachindex(ces)) do i
@@ -173,20 +210,70 @@ function benchmark(
     return bmk
 end
 
+function unflatten_for_eval(
+    ces::Vector{FlattenedCE}, data::CounterfactualData, Ms, gens, kwrgs
+)
+    unflatten_kwrgs = (;)
+    initialization = get(kwrgs, :initialization, nothing)
+    if !isnothing(initialization)
+        unflatten_kwrgs = merge(unflatten_kwrgs, (:initialization => initialization,))
+    end
+    convergence = get(kwrgs, :convergence, nothing)
+    if !isnothing(convergence)
+        unflatten_kwrgs = merge(unflatten_kwrgs, (:convergence => convergence,))
+    end
+    ces = unflatten.(ces, (data,), Ms, gens; unflatten_kwrgs...)
+    return ces
+end
+
 """
     benchmark(
         data::CounterfactualData;
+        test_data::Union{Nothing,CounterfactualData}=nothing,
         models::Dict{<:Any,<:Any}=standard_models_catalogue,
         generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}=nothing,
         measure::Union{Function,Vector{Function}}=default_measures,
         n_individuals::Int=5,
+        n_runs::Int=1,
         suppress_training::Bool=false,
         factual::Union{Nothing,RawTargetType}=nothing,
         target::Union{Nothing,RawTargetType}=nothing,
         store_ce::Bool=false,
         parallelizer::Union{Nothing,AbstractParallelizer}=nothing,
+        dataname::Union{Nothing,Symbol,String}=nothing,
+        verbose::Bool=true,
+        vertical_splits::Union{Nothing,Int}=nothing,
+        storage_path::String=tempdir(),
         kwrgs...,
     )
+
+Benchmark a set of counterfactuals for a given data set and additional inputs.
+
+# Arguments
+
+- `data::CounterfactualData`: The dataset containing the factual and target labels.
+- `test_data::Union{Nothing,CounterfactualData}`: Optional test data for evaluation. Defaults to `nothing`, in which case `data` is used for evaluation. 
+- `models::Dict{<:Any,<:Any}`: A dictionary of model objects keyed by their names. Defaults to `standard_models_catalogue`.
+- `generators::Union{Nothing,Dict{<:Any,<:AbstractGenerator}}`: Optional dictionary of generator functions keyed by their names. Defaults to `nothing`, in which case the whole [`generator_catalogue`](@ref) is used. 
+- `measure::Union{Function,Vector{Function}}`: The measure(s) to evaluate the counterfactuals against. Defaults to `default_measures`.
+- `n_individuals::Int=5`: Number of individuals to generate for each model and generator. 
+- `n_runs::Int=1`: Number of runs for each model and generator.
+- `suppress_training::Bool=false`: Whether to suppress training of models during benchmarking. This is useful if models have already been trained.
+- `factual::Union{Nothing,RawTargetType}`: Optional factual label. Defaults to `nothing`, in which case factual labels are randomly sampled from the dataset.
+- `target::Union{Nothing,RawTargetType}`: Optional target label. Defaults to `nothing`, in which case target labels are randomly sampled from the dataset.
+- `store_ce::Bool=false`: Whether to store the [`CounterfactualExplanation`](@ref) objects for each counterfactual.
+- `parallelizer::Union{Nothing,AbstractParallelizer}=nothing`: Parallelization strategy for generating and evaluating counterfactuals.
+- `dataname::Union{Nothing,Symbol,String}=nothing`: Name of the dataset. Defaults to `nothing`.
+- `verbose::Bool=true`: Whether to print verbose output during benchmarking.
+- `vertical_splits::Union{Nothing,Int}=nothing`: Number of elements per vertical split for generating counterfactuals. Defaults to `nothing`. This can useful, if it is necessary to reduce peak memory usage, by decreasing the number of counterfactuals generated at once. Lower values lead to smaller batches and hence smaller peak load.
+- `storage_path::String=tempdir()`: Path where interim results will be stored. Defaults to `tempdir()`.
+- `concatenate_output::Bool=true`: Whether to collect output from each run and concatenate them into a single output file.
+
+# Returns
+
+- A dictionary containing the benchmark results, including mean and standard deviation of the measures across all runs.
+
+## Benchmarking Procedure
 
 Runs the benchmarking exercise as follows:
 
@@ -196,7 +283,7 @@ Runs the benchmarking exercise as follows:
 4. For each model separately choose `n_individuals` randomly from the non-target (`factual`) class. For each generator create a benchmark as in [`benchmark(xs::Union{AbstractArray,Base.Iterators.Zip})`](@ref).
 5. Finally, concatenate the results.
 
-If `vertical_splits` is specified to an integer, the computations are split vertically into `vertical_splits` chunks. In this case, the results are stored in a temporary directory and concatenated afterwards. 
+If `vertical_splits` is specified to an integer, the computations are split vertically into chunks of `vertical_splits` each. In this case, the results are stored in a temporary directory and concatenated afterwards. 
 """
 function benchmark(
     data::CounterfactualData;
@@ -215,6 +302,7 @@ function benchmark(
     verbose::Bool=true,
     vertical_splits::Union{Nothing,Int}=nothing,
     storage_path::String=tempdir(),
+    concatenate_output::Bool=true,
     kwrgs...,
 )
 
@@ -265,19 +353,18 @@ function benchmark(
             @info "Run $run of $n_runs."
         end
 
+        # Create a directory for this run:
+        path_for_run = mkpath(joinpath(storage_path, "run_$run"))
+
         # Grid setup:
         grid = []
         for (mod_name, M) in models
             # Individuals need to be chosen separately for each model:
             chosen = Vector{Int}()
+            yhat = CounterfactualExplanations.predict_label(M, test_data)
             for i in 1:n_individuals
                 # For each individual and specified factual label, randomly choose index of a factual observation:
-                chosen_ind = rand(
-                    findall(
-                        CounterfactualExplanations.predict_label(M, test_data) .==
-                        factual[i],
-                    ),
-                )[1]
+                chosen_ind = rand(findall(yhat .== factual[i]))[1]
                 push!(chosen, chosen_ind)
             end
             xs = CounterfactualExplanations.select_factual(test_data, chosen)
@@ -292,26 +379,21 @@ function benchmark(
             end
         end
 
+        @debug "Length of grid: $(length(grid))"
+
+        # Split grid vertically into groups of `vertical_splits` elements:
         if split_vertically
-            # Split grid vertically:
-            path_for_run = mkpath(joinpath(storage_path, "run_$run"))
-            grids = partition(grid, Int(ceil(length(grid) / vertical_splits)))
+            npart = minimum([length(grid), vertical_splits])
         else
-            grids = [grid]
+            npart = length(grid)
         end
+        @debug "Number of elements per partition: $npart"
+        grids = partition(grid, npart)
+
+        @debug "Length of grids: $(length(grids))"
 
         # For each grid:
         for (i, grid) in enumerate(grids)
-            # Info:
-            if split_vertically
-                @info "Split $i of $(length(grids)) for run $run."
-                output_path = joinpath(path_for_run, "output_$i.jls")
-                if isfile(output_path)
-                    bmk = Serialization.deserialize(output_path)
-                    push!(bmks, bmk)
-                    continue
-                end
-            end
 
             # Vectorize the grid:
             xs = [x[1] for x in grid]
@@ -319,6 +401,21 @@ function benchmark(
             Ms = [x[3][2] for x in grid]
             gens = [x[4][2] for x in grid]
             sample_ids = [x[5] for x in grid]
+
+            # Info:
+            if split_vertically
+                @info "Split $i of $(length(grids)) for run $run. Each grid has $(length(targets)) samples."
+                id = get_global_output_id()
+                output_path = joinpath(path_for_run, "output_$(i)_$(id).jls")
+                if isfile(output_path)
+                    # If final output is supposed to be concatenated, deserialize:
+                    if concatenate_output && _serialization_state
+                        bmk = Serialization.deserialize(output_path)
+                        push!(bmks, bmk)
+                    end
+                    continue
+                end
+            end
 
             # Generate counterfactuals; in parallel if so specified
             ces = parallelize(
@@ -330,8 +427,19 @@ function benchmark(
                 Ms,
                 gens;
                 verbose=verbose,
+                return_flattened=true,
                 kwrgs...,
             )
+
+            # Unflatten for evaluation:
+            @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+            ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
+
+            # Free up memory:
+            xs = nothing
+            targets = nothing
+            Ms = nothing
+            gens = nothing
 
             # Meta Data:
             meta_data = map(eachindex(ces)) do i
@@ -364,15 +472,73 @@ function benchmark(
                 store_ce=store_ce,
                 output_format=:DataFrame,
             )
+
+            meta_data = nothing
+
             bmk = Benchmark(reduce(vcat, evaluations))
-            if split_vertically
+            if split_vertically && _serialization_state
                 Serialization.serialize(output_path, bmk)
             end
             push!(bmks, bmk)
         end
     end
 
-    bmk = reduce(vcat, bmks)
+    # Collect and return output:
+    if concatenate_output
+        bmk = reduce(vcat, bmks)
+        return bmk
+    else
+        return bmks
+    end
+end
 
-    return bmk
+"""
+    concatenate_benchmarks(storage_path::String)
+
+Concatenates all benchmarks stored in `storage_path` into a single benchmark.
+"""
+function concatenate_benchmarks(storage_path::String)
+    if !_serialization_state
+        return nothing
+    end
+    bmk_files = get_benchmark_files(storage_path)
+    bmks = Serialization.deserialize.(bmk_files)
+    bmks = reduce(vcat, bmks)
+    return bmks
+end
+
+"""
+    get_benchmark_files(storage_path::String)
+
+Returns a list of all benchmark files stored in `storage_path`.
+"""
+function get_benchmark_files(storage_path::String)
+    # No results:
+    if length(storage_path) == 0
+        @warn "No interim results found"
+        return nothing
+    end
+
+    # Load from storage path:
+    bmk_files = []
+    for file in readdir(storage_path)
+        # Get folders:
+        run_folder = joinpath(storage_path, file)
+        !isdir(run_folder) && continue
+        !contains(splitpath(run_folder)[end], "run_") && continue
+
+        # Get files:
+        run_files = []
+        for file in readdir(run_folder)
+            if contains(splitpath(file)[end], "output_")
+                fname = joinpath(run_folder, file)
+                push!(run_files, fname)
+            end
+        end
+
+        # Add to list:
+        push!(bmk_files, run_files...)
+    end
+
+    return bmk_files
 end

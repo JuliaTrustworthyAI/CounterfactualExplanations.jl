@@ -66,6 +66,15 @@ function distance_linf(ce::AbstractCounterfactualExplanation; kwrgs...)
 end
 
 """
+    distance_cosine(ce::AbstractCounterfactualExplanation)
+
+Computes the distance of the counterfactual to the original factual using cosine similarity. See also: [`cos_dist`](@ref).
+"""
+function distance_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(ce; cosine=true, kwrgs...)
+end
+
+"""
     ddp_diversity(
         ce::AbstractCounterfactualExplanation;
         perturbation_size=1e-5
@@ -112,6 +121,14 @@ function distance_from_target(
 )
 
     # Get potential neighbours:
+    ChainRulesCore.ignore_derivatives() do
+        get!(
+            ce.search,
+            :potential_neighbours,
+            CounterfactualExplanations.find_potential_neighbours(ce, K),
+        )
+    end
+
     ys = ce.search[:potential_neighbours]
     if K > size(ys, 2)
         @warn "`K` is larger than the number of potential neighbours. Future warnings will be suppressed." maxlog =
@@ -140,6 +157,19 @@ function distance_from_target(
     Δ = distance(ce; from=neighbours, cosine=cosine, kwrgs...) / size(neighbours, 2)
 
     return Δ
+end
+
+"""
+    distance_from_target_cosine(ce::AbstractCounterfactualExplanation;kwrgs...)
+
+Compute the distance from a counterfactual to the target manifold using cosine similarity. See also: [`cos_dist`](@ref).
+
+# Arguments
+- `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
+- `kwrgs...`: Additional keyword arguments for the distance function.
+"""
+function distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance_from_target(ce; cosine=true, kwrgs...)
 end
 
 """
@@ -265,7 +295,8 @@ function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
     xs = eachslice(cf; dims=ndims(cf))
 
     # Compute energy differential:
-    Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), ce.target))
+    target = get_target_index(ce.data.y_levels, ce.target)
+    Δ = pen.agg(EnergySamplers.energy_differential.(ce.M, xs, (ys,), target))
 
     return Δ
 end

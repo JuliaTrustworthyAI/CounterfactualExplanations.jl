@@ -47,7 +47,7 @@ Stores data and metadata for counterfactual explanations.
 """
 
 mutable struct CounterfactualData
-    X::AbstractMatrix
+    X::AbstractArray
     y::EncodedOutputArrayType
     likelihood::Symbol
     mutability::Union{Vector{Symbol},Nothing}
@@ -103,7 +103,7 @@ mutable struct CounterfactualData
 
         if all(conditions)
             new(
-                X,
+                view(X, :, :),
                 y,
                 likelihood,
                 mutability,

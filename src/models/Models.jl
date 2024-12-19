@@ -3,7 +3,7 @@ module Models
 using ..CounterfactualExplanations
 using ..DataPreprocessing
 using DataFrames: DataFrames
-using Flux
+using Flux: Flux
 using LazyArtifacts: LazyArtifacts
 using MLJBase: MLJBase
 using MLUtils
