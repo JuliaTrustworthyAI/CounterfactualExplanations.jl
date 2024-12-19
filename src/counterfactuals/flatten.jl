@@ -49,7 +49,7 @@ function unflatten(
         generator;
         initialization=initialization,
         convergence=convergence,
-        num_counterfactuals=size(flat_ce.counterfactual, 2),
+        num_counterfactuals=num_counterfactuals(flat_ce),
     )
 end
 
@@ -61,3 +61,10 @@ Returns the encoded representation of `flat_ce.target`.
 function target_encoded(flat_ce::FlattenedCE, data::CounterfactualData)
     return data.output_encoder(flat_ce.target; y_levels=data.y_levels)
 end
+
+"""
+    num_counterfactuals(flat_ce::FlattenedCE)
+
+Returns the number of counterfactuals generated for `flat_ce` as implied by the data.
+"""
+num_counterfactuals(flat_ce::FlattenedCE) = size(flat_ce.counterfactual, 2)

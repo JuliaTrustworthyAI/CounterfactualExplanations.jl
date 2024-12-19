@@ -47,6 +47,16 @@ function get_convergence_type(convergence::Symbol, y_levels::AbstractVector)
     )
 end
 
+function converged(
+    convergence::Symbol,
+    ce::AbstractCounterfactualExplanation,
+    y_levels::AbstractVector,
+    x::Union{AbstractArray,Nothing}=nothing,
+)
+    conv = get_convergence_type(convergence, y_levels)
+    return converged(conv, ce, x)
+end
+
 """
     max_iter(conv::AbstractConvergence)
 

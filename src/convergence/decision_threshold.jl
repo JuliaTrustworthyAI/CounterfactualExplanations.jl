@@ -42,18 +42,24 @@ function converged(
     ce::AbstractCounterfactualExplanation,
     x::Union{AbstractArray,Nothing}=nothing,
 )
-    return threshold_reached(ce, x)
+    return threshold_reached(convergence, ce, x)
 end
 
 """
-    threshold_reached(ce::AbstractCounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing)
+    threshold_reached(
+        convergence::AbstractConvergence,
+        ce::AbstractCounterfactualExplanation,
+        x::Union{AbstractArray,Nothing}=nothing,
+    )
 
 Determines if the predefined threshold for the target class probability has been reached.
 """
 function threshold_reached(
-    ce::AbstractCounterfactualExplanation, x::Union{AbstractArray,Nothing}=nothing
+    convergence::AbstractConvergence,
+    ce::AbstractCounterfactualExplanation,
+    x::Union{AbstractArray,Nothing}=nothing,
 )
-    γ = ce.convergence.decision_threshold
-    success_rate = sum(target_probs(ce, x) .>= γ) / ce.num_counterfactuals
+    γ = convergence.decision_threshold
+    success_rate = sum(target_probs(ce, x) .>= γ) / num_counterfactuals(ce)
     return success_rate > ce.convergence.min_success_rate
 end
