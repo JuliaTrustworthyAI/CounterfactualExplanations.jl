@@ -7,7 +7,7 @@ function __init__()
 end
 
 # Dependencies:
-using Flux
+using Flux: Flux
 using TaijaBase: TaijaBase
 
 # Setup:
@@ -54,6 +54,7 @@ export Linear, MLP, DeepEnsemble
 export flux_training_params
 export probs, logits
 export standard_models_catalogue, all_models_catalogue, model_evaluation, predict_label
+export fit_model
 
 # Convergence
 include("convergence/Convergence.jl")
@@ -95,9 +96,12 @@ export CounterfactualExplanation
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
 export animate_path
+export flatten
 
 include("evaluation/Evaluation.jl")
 using .Evaluation
+export ExplicitCETransformer, IdentityTransformer, global_ce_transform
+export NullSerializer, global_serializer
 
 # Expose necessary functions from extensions:
 include("extensions/extensions.jl")

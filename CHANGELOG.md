@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- Adds new `FlattenedCE` struct and conversion function `flatten(ce::CounterfactualExplanation)::FlattenedCE` for flattening a CounterfactualExplanation object. In the short term, this can be useful for compact storage or transmission of explanations. In the long term, we may consider using the flattened representation as much as possible to optimize performance. [#502]
 - Added additional aliases for penalties including `distance_cosine`. 
 - Added `concatenate_output::Bool=true` keyword argument to `benchmark` function. This allows users to suppress concatenation of output in benchmarking (`concatenate_output=false`), which can be useful when memory usage is critical.
 - Added a `concatenate_benchmarks(storage_path::String)` function that can be used to concatenate multiple benchmark results into a single file.

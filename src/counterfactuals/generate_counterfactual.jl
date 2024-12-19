@@ -83,6 +83,7 @@ function generate_counterfactual(
     initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
     timeout::Union{Nothing,Real}=nothing,
+    return_flattened::Bool=false
 )
     # Initialize:
     ce = CounterfactualExplanation(
@@ -120,7 +121,14 @@ function generate_counterfactual(
             end
         end
     end
-    return ce
+
+    # Return full or flattened explanation:
+    output = if return_flattened
+        ce
+    else
+        ce()
+    end
+    return output
 end
 
 """

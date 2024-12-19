@@ -1,7 +1,7 @@
 module GenerativeModels
 
 using CounterfactualExplanations
-using Flux
+using Flux: Flux
 using ProgressMeter: ProgressMeter
 using Random
 using Statistics: Statistics

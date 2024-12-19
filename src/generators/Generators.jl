@@ -5,7 +5,7 @@ module Generators
 
 using ..CounterfactualExplanations
 using ..GenerativeModels
-using Flux
+using Flux: Flux
 using LinearAlgebra
 using ..Models
 using ..Convergence

@@ -4,7 +4,7 @@ using .GenerativeModels
 using .Generators
 using .Models
 using ChainRulesCore: ChainRulesCore
-using Flux
+using Flux: Flux
 using MLUtils: MLUtils
 using MultivariateStats
 using Statistics: Statistics
@@ -23,6 +23,7 @@ include("search.jl")
 include("termination.jl")
 include("utils.jl")
 include("vectorised.jl")
+include("flatten.jl")
 
 # Counterfactual Rule Explanations:
 include("CRE.jl")
