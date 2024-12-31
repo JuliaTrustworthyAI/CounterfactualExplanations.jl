@@ -176,7 +176,8 @@ function benchmark(
     )
 
     # Unflatten for evaluation:
-    @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+    @assert all(typeof.(ces) .== FlattenedCE) "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+    ces = convert(Vector{FlattenedCE}, ces)
     ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
 
     # Meta Data:
@@ -432,7 +433,8 @@ function benchmark(
             )
 
             # Unflatten for evaluation:
-            @assert typeof(ces) == Vector{FlattenedCE} "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+            @assert all(typeof.(ces) .== FlattenedCE) "Expecting a vector of `FlattenedCE`. Did you accidentally set `return_flattened=false`?"
+            ces = convert(Vector{FlattenedCE}, ces)
             ces = unflatten_for_eval(ces, data, Ms, gens, kwrgs)
 
             # Free up memory:
