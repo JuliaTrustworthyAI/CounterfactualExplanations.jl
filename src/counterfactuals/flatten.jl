@@ -6,7 +6,9 @@ A flattened representation of a `CounterfactualExplanation`, containing only the
 struct FlattenedCE <: AbstractCounterfactualExplanation
     factual::AbstractArray
     target::RawTargetType
+    counterfactual_state::AbstractArray
     counterfactual::AbstractArray
+    search::Dict
 end
 
 """
@@ -14,15 +16,22 @@ end
 
 Calling the `ce::CounterfactualExplanation` object results in a [`FlattenedCE`](@ref) instance, which is the flattened version of the original.
 """
-(ce::CounterfactualExplanation)()::FlattenedCE =
-    FlattenedCE(ce.factual, ce.target, ce.counterfactual)
+function (ce::CounterfactualExplanation)(; store_path::Bool=false)::FlattenedCE
+    search_dict = ce.search
+    if !store_path
+        search_dict[:path] = nothing
+    end
+    return FlattenedCE(
+        ce.factual, ce.target, ce.counterfactual_state, ce.counterfactual, search_dict
+    )
+end
 
 """
     flatten(ce::CounterfactualExplanation)
 
 Alias for `(ce::CounterfactualExplanation)()`. Converts a `CounterfactualExplanation` to its flattened form.
 """
-flatten(ce::CounterfactualExplanation) = ce()
+flatten(ce::CounterfactualExplanation; kwrgs...) = ce(; kwrgs...)
 
 function unflatten(
     flat_ce::FlattenedCE,
@@ -32,16 +41,22 @@ function unflatten(
     initialization::Symbol=:add_perturbation,
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
 )::CounterfactualExplanation
-    return CounterfactualExplanation(
+    ce = CounterfactualExplanation(
         flat_ce.factual,
         flat_ce.target,
+        target_encoded(flat_ce, data),
+        flat_ce.counterfactual_state,
+        flat_ce.counterfactual,
         data,
         M,
-        generator;
-        initialization=initialization,
-        convergence=convergence,
-        num_counterfactuals=size(flat_ce.counterfactual, 2),
+        generator,
+        flat_ce.search,
+        get_convergence_type(convergence, data.y_levels),
+        size(flat_ce.counterfactual, 2),
+        initialization,
     )
+    adjust_shape!(ce)
+    return ce
 end
 
 """
