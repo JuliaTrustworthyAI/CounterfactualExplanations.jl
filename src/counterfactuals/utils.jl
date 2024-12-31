@@ -59,8 +59,7 @@ A convenience method that adjusts the dimensions of the counterfactual state and
 function adjust_shape!(ce::CounterfactualExplanation)
 
     # Dimensionality:
-    x = deepcopy(ce.factual)
-    counterfactual_state = adjust_shape(ce, x)      # augment to account for specified number of counterfactuals
+    counterfactual_state = adjust_shape(ce, ce.counterfactual)      # augment to account for specified number of counterfactuals
     ce.counterfactual_state = counterfactual_state
     target_encoded = ce.target_encoded
     ce.target_encoded = adjust_shape(ce, target_encoded)

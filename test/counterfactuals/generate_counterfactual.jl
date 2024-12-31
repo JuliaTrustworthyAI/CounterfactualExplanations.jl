@@ -38,7 +38,23 @@ using CounterfactualExplanations.Objectives: distance_mad
         flat_ce = CounterfactualExplanations.flatten(ce)
         @test flat_ce isa FlattenedCE
         target_encoded(flat_ce, ce.data)
-        _ce = unflatten(flat_ce, ce.data, ce.M, ce.generator)
-        @test _ce isa CounterfactualExplanation
+        
+
+        @testset "Unflattened" begin
+            _ce = unflatten(flat_ce, ce.data, ce.M, ce.generator)
+            @test _ce isa CounterfactualExplanation
+            @test converged(ce) == converged(_ce)
+            @test ce.x′ == _ce.x′
+            @test ce.s′ == _ce.s′
+            @test ce.factual == _ce.factual
+            @test ce.counterfactual == _ce.counterfactual
+            @test ce.target == _ce.target
+            @test ce.data == _ce.data
+            @test ce.M == _ce.M
+            @test ce.generator == _ce.generator
+            @test ce.counterfactual_state == _ce.counterfactual_state
+            @test ce.target_encoded == _ce.target_encoded
+            @test converged(ce) == converged(_ce)
+        end
     end
 end

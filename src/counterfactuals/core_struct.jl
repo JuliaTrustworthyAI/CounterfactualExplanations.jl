@@ -88,7 +88,7 @@ function CounterfactualExplanation(
         x,
         data,
         M,
-        deepcopy(generator),
+        generator,
         nothing,
         convergence,
         num_counterfactuals,
