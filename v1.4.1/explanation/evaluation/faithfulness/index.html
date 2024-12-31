@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Plausibility and Faithfulness · CounterfactualExplanations.jl</title><meta name="title" content="Plausibility and Faithfulness · CounterfactualExplanations.jl"/><meta property="og:title" content="Plausibility and Faithfulness · CounterfactualExplanations.jl"/><meta property="twitter:title" content="Plausibility and Faithfulness · CounterfactualExplanations.jl"/><meta name="description" content="Documentation for CounterfactualExplanations.jl."/><meta property="og:description" content="Documentation for CounterfactualExplanations.jl."/><meta property="twitter:description" content="Documentation for CounterfactualExplanations.jl."/><meta property="og:url" content="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable/explanation/evaluation/faithfulness/"/><meta property="twitter:url" content="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable/explanation/evaluation/faithfulness/"/><link rel="canonical" href="https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable/explanation/evaluation/faithfulness/"/><script data-outdated-warner src="../../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../search_index.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img src="../../../assets/logo.svg" alt="CounterfactualExplanations.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">CounterfactualExplanations.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../../">🏠 Home</a></li><li><span class="tocitem">🫣 Tutorials</span><ul><li><a class="tocitem" href="../../../tutorials/">Overview</a></li><li><a class="tocitem" href="../../../tutorials/simple_example/">Simple Example</a></li><li><a class="tocitem" href="../../../tutorials/whistle_stop/">Whiste-Stop Tour</a></li><li><a class="tocitem" href="../../../tutorials/data_preprocessing/">Handling Data</a></li><li><a class="tocitem" href="../../../tutorials/data_catalogue/">Data Catalogue</a></li><li><a class="tocitem" href="../../../tutorials/models/">Handling Models</a></li><li><a class="tocitem" href="../../../tutorials/model_catalogue/">Model Catalogue</a></li><li><a class="tocitem" href="../../../tutorials/generators/">Handling Generators</a></li><li><a class="tocitem" href="../../../tutorials/evaluation/">Evaluating Explanations</a></li><li><a class="tocitem" href="../../../tutorials/benchmarking/">Benchmarking Explanations</a></li><li><a class="tocitem" href="../../../tutorials/parallelization/">Parallelization</a></li><li><a class="tocitem" href="../../../tutorials/convergence/">Convergence</a></li></ul></li><li><span class="tocitem">🤓 Explanation</span><ul><li><a class="tocitem" href="../../">Overview</a></li><li><a class="tocitem" href="../../architecture/">Package Architecture</a></li><li><input class="collapse-toggle" id="menuitem-3-3" type="checkbox"/><label class="tocitem" for="menuitem-3-3"><span class="docs-label">Generators</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../generators/overview/">Overview</a></li><li><a class="tocitem" href="../../generators/generic/">Generic</a></li><li><a class="tocitem" href="../../generators/clap_roar/">ClaPROAR</a></li><li><a class="tocitem" href="../../generators/clue/">CLUE</a></li><li><a class="tocitem" href="../../generators/dice/">DiCE</a></li><li><a class="tocitem" href="../../generators/feature_tweak/">FeatureTweak</a></li><li><a class="tocitem" href="../../generators/gravitational/">Gravitational</a></li><li><a class="tocitem" href="../../generators/greedy/">Greedy</a></li><li><a class="tocitem" href="../../generators/probe/">PROBE</a></li><li><a class="tocitem" href="../../generators/revise/">REVISE</a></li><li><a class="tocitem" href="../../generators/mint/">MINT</a></li><li><a class="tocitem" href="../../generators/tcrex/">T-CREx</a></li></ul></li><li><input class="collapse-toggle" id="menuitem-3-4" type="checkbox" checked/><label class="tocitem" for="menuitem-3-4"><span class="docs-label">Evaluation</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../overview/">Overview</a></li><li class="is-active"><a class="tocitem" href>Plausibility and Faithfulness</a><ul class="internal"><li><a class="tocitem" href="#Sample-Based-Metrics"><span>Sample-Based Metrics</span></a></li><li><a class="tocitem" href="#References"><span>References</span></a></li></ul></li></ul></li><li><input class="collapse-toggle" id="menuitem-3-5" type="checkbox"/><label class="tocitem" for="menuitem-3-5"><span class="docs-label">Optimisers</span><i class="docs-chevron"></i></label><ul class="collapsed"><li><a class="tocitem" href="../../optimisers/overview/">Overview</a></li><li><a class="tocitem" href="../../optimisers/jsma/">JSMA</a></li></ul></li><li><a class="tocitem" href="../../categorical/">Categorical Features</a></li></ul></li><li><span class="tocitem">🫡 How-To ...</span><ul><li><a class="tocitem" href="../../../how_to_guides/">Overview</a></li><li><a class="tocitem" href="../../../how_to_guides/custom_generators/">... add custom generators</a></li><li><a class="tocitem" href="../../../how_to_guides/custom_models/">... add custom models</a></li></ul></li><li><span class="tocitem">⛓️ Extensions</span><ul><li><a class="tocitem" href="../../../extensions/">Overview</a></li><li><a class="tocitem" href="../../../extensions/neurotree/">NeuroTrees</a></li><li><a class="tocitem" href="../../../extensions/laplace_redux/">LaplaceRedux</a></li></ul></li><li><a class="tocitem" href="../../../reference/">🧐 Reference</a></li><li><a class="tocitem" href="../../../contribute/">🛠 Contribute</a></li><li><a class="tocitem" href="../../../assets/resources/">📚 Additional Resources</a></li><li><a class="tocitem" href="../../../release-notes/">Release Notes</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">🤓 Explanation</a></li><li><a class="is-disabled">Evaluation</a></li><li class="is-active"><a href>Plausibility and Faithfulness</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Plausibility and Faithfulness</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/juliatrustworthyai/CounterfactualExplanations.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/blob/main/docs/src/explanation/evaluation/faithfulness.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Faithfulness-and-Plausibility"><a class="docs-heading-anchor" href="#Faithfulness-and-Plausibility">Faithfulness and Plausibility</a><a id="Faithfulness-and-Plausibility-1"></a><a class="docs-heading-anchor-permalink" href="#Faithfulness-and-Plausibility" title="Permalink"></a></h1><div class="admonition is-warning"><header class="admonition-header">Warning</header><div class="admonition-body"><p>The implementation of our faithfulness and plausibility metrics is based on our AAAI 2024 <a href="https://arxiv.org/abs/2312.10648">paper</a>. There is no consensus on the best way to measure faithfulness and plausibility and we are still conducting research on this. This tutorial is therefore also a work in progress. Current limitations are discussed below.</p></div></div><p>We begin by loading some dependencies:</p><pre><code class="language-julia hljs"># Packages
+using CounterfactualExplanations
+using CounterfactualExplanations.Evaluation
+using CounterfactualExplanations.Convergence
+using CounterfactualExplanations.Models
+using Flux
+using JointEnergyModels
+using MLJFlux
+using EnergySamplers: PMC, SGLD, ImproperSGLD
+using TaijaData</code></pre><h2 id="Sample-Based-Metrics"><a class="docs-heading-anchor" href="#Sample-Based-Metrics">Sample-Based Metrics</a><a id="Sample-Based-Metrics-1"></a><a class="docs-heading-anchor-permalink" href="#Sample-Based-Metrics" title="Permalink"></a></h2><p>In Altmeyer et al. (2024), we defined two sample-based metrics for plausibility and faithfulness. The metrics rely on the premise of comparing the counterfactual to samples drawn from some target distribution. To assess plausibility, we compare the counterfactual to samples drawn from the training data that fall into the target class. To assess faithfulness, we compare the counterfactual to samples drawn from the model posterior conditional through Stochastic Gradient Langevin Dynamics (SGLD). For details specific to posterior sampling, please consult our documentation Taija’s <a href="https://juliatrustworthyai.github.io/EnergySamplers.jl/v1.0/">EnergySamplers.jl</a>. For broader details on this topic, please consult Altmeyer et al. (2024).</p><h3 id="Simple-Example"><a class="docs-heading-anchor" href="#Simple-Example">Simple Example</a><a id="Simple-Example-1"></a><a class="docs-heading-anchor-permalink" href="#Simple-Example" title="Permalink"></a></h3><p>Below we generate a simple synthetic dataset with two output classes, both Gaussian clusters with different centers. We then train a joint energy-based model (JEM) using Taija’s <a href="https://github.com/JuliaTrustworthyAI/JointEnergyModels.jl">JointEnergyModels.jl</a> package to both discriminate between output classes and generate inputs.</p><pre><code class="language-julia hljs">n_obs = 1000
+X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. =&gt; 1.))
+data = CounterfactualData(X, y)
+
+n_hidden = 16
+_batch_size = Int(round(n_obs/10))
+epochs = 100
+M = Models.fit_model(
+    data,:JEM;
+    builder=MLJFlux.MLP(
+        hidden=(n_hidden, n_hidden, n_hidden), 
+        σ=Flux.swish
+    ),
+    batch_size=_batch_size,
+    finaliser=Flux.softmax,
+    loss=Flux.Losses.crossentropy,
+    jem_training_params=(
+        α=[1.0,1.0,1e-1],
+        verbosity=10,
+    ),
+    epochs=epochs,
+    sampling_steps=30,
+)</code></pre><p>Next, we generate counterfactuals for a randomly drawn sampler using two different generators: firstly, the <a href="../../generators/generic/#GenericGenerator"><code>GenericGenerator</code></a> and, secondly, the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a>. The latter was proposed in Altmeyer et al. (2024) to generate faithful counterfactuals by constraining their energy with respect to the model. In both cases, we generate multiple counterfactuals for the same factual. Each time the search is initialized by adding a small random perturbation to the features following (Slack et al. 2021). For both generators, we then compute the average plausibility and faithfulness of the generated counterfactuals as defined above and plot the counterfactual paths in the figure below. The estimated values for the plausibility and faithfulness are shown in the plot titles and indicate that the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a> performs better in both regards.</p><p>To better understand why the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a> generates more faithful counterfactuals, we have also plotted samples drawn from the model posterior <span>$p_{\theta}(X|y=1)$</span> in green: these largely overlap with training data in the target distribution, which indicates that the JEM has succeeded on both tasks—discriminating and generating—for this simple data set. The energy constraint of the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a> ensures that counterfactuals remain anchored by the learned model posterior conditional distribution. As demonstrated in Altmeyer et al. (2024), faithful counterfactuals will also be plausible if the underlying model has learned plausible explanations for the data as in this case. For the <a href="../../generators/generic/#GenericGenerator"><code>GenericGenerator</code></a>, counterfactuals end up outside of that target distribution, because the distance penalty pulls counterfactuals back to their original starting values.</p><pre><code class="language-julia hljs">using Measures
+
+# Select a factual instance:
+target = 1
+factual = 2
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Search parameters:
+opt = Adam(0.005)
+conv = GeneratorConditionsConvergence()
+
+# Generic Generator:
+λ₁ = 0.1
+generator = GenericGenerator(opt=opt, λ=λ₁)
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, num_counterfactuals=5)
+faith = Evaluation.faithfulness(ce)
+plaus = Evaluation.plausibility(ce)
+p1 = plot(ce; zoom=-1, target=target)
+X̂ = ce.search[:energy_sampler][ce.target].posterior
+title = &quot;Generic Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))&quot;
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.1)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+
+# Search:
+λ₂ = 1.0
+generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, num_counterfactuals=5)
+faith = Evaluation.faithfulness(ce)
+plaus = Evaluation.plausibility(ce)
+p2 = plot(ce; zoom=-1, target=target)
+X̂ = ce.search[:energy_sampler][ce.target].posterior
+title = &quot;ECCo Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))&quot;
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.1)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+
+plot(p1, p2; size=(1000, 400), topmargin=5mm)</code></pre><p><img src="../faithfulness_files/figure-commonmark/cell-5-output-1.svg" alt/></p><h3 id="Current-Limitations"><a class="docs-heading-anchor" href="#Current-Limitations">Current Limitations</a><a id="Current-Limitations-1"></a><a class="docs-heading-anchor-permalink" href="#Current-Limitations" title="Permalink"></a></h3><p>But things do not always turn out this well. Our next example demonstrates an important shortcoming of the framework proposed in Altmeyer et al. (2024). Instead of training a JEM, we now train a simpler, purely discriminative model:</p><pre><code class="language-julia hljs">n_obs = 1000
+X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. =&gt; 1.))
+data = CounterfactualData(X, y)
+flux_training_params.n_epochs = 1
+M = Models.fit_model(data,:DeepEnsemble)
+CounterfactualExplanations.reset!(flux_training_params)</code></pre><p>Next, we repeat the same process above for generating counterfactuals. This time we can observe in the figure below that the <a href="../../generators/generic/#GenericGenerator"><code>GenericGenerator</code></a> produces much more plausible though apparently less faithful counterfactuals than the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a>. Looking at the top row only, it is not obvious why the counterfactual produced by the <a href="../../generators/generic/#GenericGenerator"><code>GenericGenerator</code></a> should be considered as less faithful to the model: conditional samples drawn from <span>$p_{\theta}(X|y=1)$</span> through SGLD are just scattered all across the target domain on the expected side of the decision boundary. When zooming out (bottom row), it becomes clear that the learned posterior conditional is far away from the observed training data in the target class. Our definition and measure of faithfulness is in that sense very strict, quite possibly too strict in some cases.</p><pre><code class="language-julia hljs"># Select a factual instance:
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Search parameters:
+opt = Adam(0.1)
+conv = GeneratorConditionsConvergence()
+
+# Generic Generator:
+generator = GenericGenerator(opt=opt)
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
+plaus = Evaluation.plausibility(ce)
+faith = Evaluation.faithfulness(ce)
+X̂ = ce.search[:energy_sampler][ce.target].posterior
+title = &quot;Generic Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))&quot;
+p1 = plot(ce, zoom=-1, target=target)
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.2)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+_lim = maximum(abs.(X̂))
+xlims, ylims = (-_lim, _lim), (-_lim, _lim)
+p3 = plot(ce; xlims=xlims, ylims=ylims, target=target)
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.2)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+
+# Search:
+generator = ECCoGenerator(opt=opt; λ=[0.1, 1.0])
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
+plaus = Evaluation.plausibility(ce)
+faith = Evaluation.faithfulness(ce)
+X̂ = ce.search[:energy_sampler][ce.target].posterior
+title = &quot;ECCo Generator\nplaus.: $(round(plaus, digits=2)); faith.: $(round(faith, digits=2))&quot;
+p2 = plot(ce, zoom=-1, target=target)
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.2)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+_lim = maximum(abs.(X̂))
+xlims, ylims = (-_lim, _lim), (-_lim, _lim)
+p4 = plot(ce; xlims=xlims, ylims=ylims, target=target)
+scatter!(X̂[1, :], X̂[2, :]; label=&quot;X|y=$target&quot;, shape=:star5, ms=10, title=title, color=3, alpha=0.2)
+scatter!(ce.x′[1,:], ce.x′[2,:]; label=&quot;Counterfactual&quot;, shape=:star1, ms=20, color=4)
+
+plot(p1, p2, p3, p4; size=(1000, 800), topmargin=5mm)</code></pre><p><img src="../faithfulness_files/figure-commonmark/cell-7-output-1.svg" alt/></p><p>Looking at a different domain like images demonstrates another limitation of the sample-based metrics. Below we generate counterfactuals for turning an 8 into a 3 using our two generators from above for a simple MNIST (LeCun 1998) classifier. Looking at the figure below, arguably the <a href="../../../reference/#CounterfactualExplanations.Generators.ECCoGenerator-Tuple{}"><code>ECCoGenerator</code></a> generates a more plausible counterfactual in this case. Unfortunately, according to the sample-based plausibility metric, this is not the case.</p><pre><code class="language-julia hljs">_nrow = 3
+
+Random.seed!(42)
+X, y = TaijaData.load_mnist()
+data = CounterfactualData(X, y)
+
+using CounterfactualExplanations.Models: load_mnist_model
+using CounterfactualExplanations: JEM
+M = load_mnist_model(MLP())
+
+# Select a factual instance:
+target = 3
+factual = 8
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Search parameters:
+opt = Adam(0.1)
+conv = GeneratorConditionsConvergence()
+λ₁ = 0.0
+λ₂ = 0.5
+
+# Factual:
+factual = convert2image(MNIST, reshape(x, 28, 28))
+p1 = plot(factual; title=&quot;\nFactual&quot;, axis=([], false))
+
+# Generic Generator:
+generator = GenericGenerator(opt=opt; λ=λ₁)
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
+faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
+plaus = Evaluation.plausibility(ce)
+img = convert2image(MNIST, reshape(ce.x′, 28, 28))
+title = &quot;Generic Generator\nplaus.: $(round(plaus, digits=2))\nfaith.: $(round(faith, digits=2))&quot;
+p2 = plot(img, title=title, axis=([], false))
+
+# Search:
+generator = ECCoGenerator(opt=opt; λ=[λ₁, λ₂])
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv, initialization=:identity)
+faith = Evaluation.faithfulness(ce; nsamples=_nrow^2, niter_final=10000)
+plaus = Evaluation.plausibility(ce)
+img = convert2image(MNIST, reshape(ce.x′, 28, 28))
+title = &quot;ECCo Generator\nplaus.: $(round(plaus, digits=2))\nfaith.: $(round(faith, digits=2))&quot;
+p3 = plot(img, title=title, axis=([], false))
+
+plot(p1, p2, p3; size=(600, 200), layout=(1, 3), topmargin=15mm)</code></pre><p><img src="../faithfulness_files/figure-commonmark/cell-8-output-1.svg" alt/></p><h2 id="References"><a class="docs-heading-anchor" href="#References">References</a><a id="References-1"></a><a class="docs-heading-anchor-permalink" href="#References" title="Permalink"></a></h2><p>Altmeyer, Patrick, Mojtaba Farmanbar, Arie van Deursen, and Cynthia CS Liem. 2024. “Faithful Model Explanations Through Energy-Constrained Conformal Counterfactuals.” In <em>Proceedings of the AAAI Conference on Artificial Intelligence</em>, 38:10829–37. 10.</p><p>LeCun, Yann. 1998. “The MNIST Database of Handwritten Digits.” http://yann.lecun.com/exdb/mnist/.</p><p>Slack, Dylan, Anna Hilgard, Himabindu Lakkaraju, and Sameer Singh. 2021. “Counterfactual Explanations Can Be Manipulated.” <em>Advances in Neural Information Processing Systems</em> 34.</p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../overview/">« Overview</a><a class="docs-footer-nextpage" href="../../optimisers/overview/">Overview »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.8.0 on <span class="colophon-date" title="Tuesday 31 December 2024 10:11">Tuesday 31 December 2024</span>. Using Julia version 1.11.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
