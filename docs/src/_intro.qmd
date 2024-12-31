@@ -115,6 +115,8 @@ plot(ce)
 ```{julia}
 #| echo: false
 
+Random.seed!(2024)
+
 # Data and Model:
 data = TaijaData.load_gmsc(10000)
 counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(data...)

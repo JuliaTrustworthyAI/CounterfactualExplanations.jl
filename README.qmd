@@ -9,7 +9,9 @@ crossref:
   tbl-prefix: Table
 bibliography: https://raw.githubusercontent.com/pat-alt/bib/main/bib.bib
 output: asis
-jupyter: julia-1.10
+engine: julia
+julia: 
+  exeflags: ["--project=docs/"]
 execute: 
   freeze: auto
   eval: true

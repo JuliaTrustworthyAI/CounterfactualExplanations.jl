@@ -34,7 +34,7 @@ setup_docs = quote
 
     # Setup:
     theme(:wong)
-    Random.seed!(2022)
+    Random.seed!(2025)
     synthetic = TaijaData.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
