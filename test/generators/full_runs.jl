@@ -8,7 +8,7 @@
 for (key, generator_) in generators
     name = uppercasefirst(string(key))
 
-    # Feature Tweak and Growing Spheres will be tested separately
+    # Feature Tweak will be tested separately
     if generator_() isa Generators.FeatureTweakGenerator
         continue
     end

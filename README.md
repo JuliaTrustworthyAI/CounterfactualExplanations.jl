@@ -97,7 +97,9 @@ ce = generate_counterfactual(
 plot(ce)
 ```
 
-![](README_files/figure-commonmark/cell-3-output-1.svg)
+    [ Info: No target label supplied, using first.
+
+![](README_files/figure-commonmark/cell-3-output-2.svg)
 
 ### Example: Give Me Some Credit
 
@@ -148,7 +150,7 @@ To this end, we specify a counterfactual generator of our choice:
 generator = DiCEGenerator(λ=[0.1,0.3])
 ```
 
-Here, we have chosen to use the `GradientBasedGenerator` to move the individual from its factual label 1 to the target label 2.
+Here, we have chosen to use the `CounterfactualExplanations.Generators.GradientBasedGenerator` to move the individual from its factual label 1 to the target label 2.
 
 With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
 
@@ -162,7 +164,9 @@ ce = generate_counterfactual(
 
 The plot below shows the resulting counterfactual path:
 
-![](README_files/figure-commonmark/cell-16-output-1.svg)
+    [ Info: No target label supplied, using first.
+
+![](README_files/figure-commonmark/cell-16-output-2.svg)
 
 ## ☑️ Implemented Counterfactual Generators
 
@@ -176,7 +180,6 @@ Currently, the following counterfactual generators are implemented:
 - Generic
 - GravitationalGenerator (Altmeyer et al. 2023)
 - Greedy (Schut et al. 2021)
-- GrowingSpheres (Laugel et al. 2017)
 - MINT (Karimi et al. 2020) (**causal CE**)
 - PROBE (Pawelczyk et al. 2023)
 - REVISE (Joshi et al. 2019)
@@ -250,8 +253,6 @@ Joshi, Shalmali, Oluwasanmi Koyejo, Warut Vijitbenjaronk, Been Kim, and Joydeep 
 Kaggle. 2011. “Give Me Some Credit, Improve on the State of the Art in Credit Scoring by Predicting the Probability That Somebody Will Experience Financial Distress in the Next Two Years.” https://www.kaggle.com/c/GiveMeSomeCredit; Kaggle. <https://www.kaggle.com/c/GiveMeSomeCredit>.
 
 Karimi, Amir-Hossein, Julius Von Kügelgen, Bernhard Schölkopf, and Isabel Valera. 2020. “Algorithmic Recourse Under Imperfect Causal Knowledge: A Probabilistic Approach.” <https://arxiv.org/abs/2006.06831>.
-
-Laugel, Thibault, Marie-Jeanne Lesot, Christophe Marsala, Xavier Renard, and Marcin Detyniecki. 2017. “Inverse Classification for Comparison-Based Interpretability in Machine Learning.” <https://arxiv.org/abs/1712.08443>.
 
 Mothilal, Ramaravind K, Amit Sharma, and Chenhao Tan. 2020. “Explaining Machine Learning Classifiers Through Diverse Counterfactual Explanations.” In *Proceedings of the 2020 Conference on Fairness, Accountability, and Transparency*, 607–17. <https://doi.org/10.1145/3351095.3372850>.
 
