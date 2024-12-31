@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.4.2] - 2024-12-31
 
+### Changed
 
+- Slight change to `FlattenedCE` and `unflatten` to ensure that basic functionality remains intact. [#505]
 
 ## Version [1.4.1] - 2024-12-19
 
