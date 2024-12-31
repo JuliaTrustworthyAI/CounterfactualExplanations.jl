@@ -21,7 +21,9 @@ function (ce::CounterfactualExplanation)(; store_path::Bool=false)::FlattenedCE
     if !store_path
         search_dict[:path] = nothing
     end
-    return FlattenedCE(ce.factual, ce.target, ce.counterfactual_state, ce.counterfactual, search_dict)
+    return FlattenedCE(
+        ce.factual, ce.target, ce.counterfactual_state, ce.counterfactual, search_dict
+    )
 end
 
 """
@@ -49,7 +51,7 @@ function unflatten(
         M,
         generator,
         flat_ce.search,
-        get_convergence_type(convergence,data.y_levels),
+        get_convergence_type(convergence, data.y_levels),
         size(flat_ce.counterfactual, 2),
         initialization,
     )
