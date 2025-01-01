@@ -3,6 +3,7 @@ using CounterfactualExplanations.Evaluation:
 using CounterfactualExplanations.Objectives: distance
 using Serialization: serialize
 using TaijaData: load_moons, load_circles
+using TaijaParallel: ThreadsParallelizer
 
 # Dataset
 data = TaijaData.load_overlapping()
@@ -69,6 +70,17 @@ end
 
 @testset "Benchmarking" begin
     bmk = Evaluation.benchmark(counterfactual_data; convergence=:generator_conditions)
+
+    @testset "Parallelization" begin
+        @testset "Threads" begin
+            parallelizer = ThreadsParallelizer()
+            bmk = benchmark(
+                counterfactual_data;
+                convergence=:generator_conditions,
+                parallelizer=parallelizer,
+            )
+        end
+    end
 
     @testset "Basics" begin
         @test typeof(bmk()) <: DataFrame
