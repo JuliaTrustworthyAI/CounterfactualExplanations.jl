@@ -80,7 +80,6 @@ end
                 parallelizer=parallelizer,
             )
         end
-
     end
 
     @testset "Basics" begin
