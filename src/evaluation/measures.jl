@@ -6,10 +6,10 @@ include("plausibility/plausibility.jl")
 """
     validity(ce::CounterfactualExplanation; γ=0.5)
 
-Checks of the counterfactual search has been successful with respect to the probability threshold `γ`. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
+Checks of the counterfactual search has been successful in that the predicted label corresponds to the specified target. In case multiple counterfactuals were generated, the function returns the proportion of successful counterfactuals.
 """
 function validity(ce::CounterfactualExplanation; agg=Statistics.mean, γ=0.5)
-    val = agg(CounterfactualExplanations.target_probs(ce) .>= γ)
+    val = agg(CounterfactualExplanations.counterfactual_label(ce) .== ce.target)
     val = val isa LinearAlgebra.AbstractMatrix ? vec(val) : val
     return val
 end
