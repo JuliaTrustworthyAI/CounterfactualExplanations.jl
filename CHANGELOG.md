@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.4.2] - 2025-01-02
+
+### Changed
+
+- Small change to `validity` function: validity is now defined simply as the predicted label corresponding to the target label, independent of the predicted probability. [#508]
+
 ## Version [1.4.2] - 2024-12-31
 
 ### Changed
