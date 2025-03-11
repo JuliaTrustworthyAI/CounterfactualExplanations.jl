@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed 
 
+- Removed a bug in `reconstruct_cat_encoding` that turned the `counterfactual_state` object from a matrix into a vector.
 - Added option to provide additional keyword arguments to `validity_strict(ce::CounterfactualExplanation; kwrgs...)`.
 - Small bug fix for `validity` function.
 - Improved `find_potential_neighbours` method.
