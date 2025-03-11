@@ -233,7 +233,6 @@ function reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::Ab
         return x
     end
 
-    x = vec(x)
     map(features_categorical) do cat_group_index
         if length(cat_group_index) > 1
             x[cat_group_index] = Int.(x[cat_group_index] .== maximum(x[cat_group_index]))

@@ -219,6 +219,8 @@ function decode_state(
         data, counterfactual_state
     )
 
+    @assert isa(counterfactual_state,Matrix)
+
     return counterfactual_state
 end
 
