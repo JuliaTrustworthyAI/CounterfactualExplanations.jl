@@ -252,7 +252,6 @@ function energy_constraint(
     ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
     # Generative loss:
-    println(first(xs))
     gen_loss = energy.(ce.M, xs, t) |> agg
 
     if reg_strength == 0.0
