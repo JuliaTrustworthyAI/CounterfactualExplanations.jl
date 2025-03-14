@@ -98,7 +98,7 @@ function to_dataframe(
         measure_names = []
         for (i,x) in enumerate(computed_measures)
             m = fill(measure[i], length(x[1]))
-            mname = length(x[1]) > 1 ? ["$(measure_name(measure[i]))_$j" for j in 1:length(x[1])] : [measure_name(measure[i])]
+            mname = length(x[1]) > 1 ? ["$(measure_name(measure[i]))_outid:$j" for j in 1:length(x[1])] : [measure_name(measure[i])]
             push!(new_measure, m...)
             push!(new_vals, x[1]...)
             push!(measure_names, mname...)
@@ -125,6 +125,14 @@ function to_dataframe(
     end
     DataFrames.select!(evaluation, :num_counterfactual, :)
     return evaluation
+end
+
+function get_outid(varname::String)
+    if contains(varname, "outid:")
+        return parse(Int,varname[end])
+    else
+        return 1
+    end
 end
 
 """
