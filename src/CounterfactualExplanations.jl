@@ -98,6 +98,7 @@ include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation, FlattenedCE
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
+export num_counterfactuals
 export animate_path
 export flatten, unflatten, FlattenedCE
 export target_encoded

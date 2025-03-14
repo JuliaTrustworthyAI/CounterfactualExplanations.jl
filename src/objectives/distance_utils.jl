@@ -18,11 +18,18 @@ function distance(
     p::Real=1,
     weights::Union{Nothing,AbstractArray}=nothing,
     cosine::Bool=false,
+    d::Union{Nothing,Vector{Int}}=nothing,
 )
     if isnothing(from)
         from = CounterfactualExplanations.factual(ce)
     end
     cf = CounterfactualExplanations.decode_state(ce)
+    if !isnothing(d)
+        # Select subset of features:
+        selector = Flux.onehotbatch(d, 1:size(cf, 1))
+        from = from'selector |> permutedims
+        cf = cf'selector |> permutedims
+    end
 
     # Cosine:
     if cosine
@@ -32,7 +39,7 @@ function distance(
         return Δ
     end
 
-    if ce.num_counterfactuals == 1
+    if num_counterfactuals(ce) == 1
         return LinearAlgebra.norm(cf .- from, p)
     else
         xs = eachslice(cf; dims=ndims(cf))                      # slices along the last dimension (i.e. the number of counterfactuals)

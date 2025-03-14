@@ -67,3 +67,12 @@ Returns the encoded representation of `flat_ce.target`.
 function target_encoded(flat_ce::FlattenedCE, data::CounterfactualData)
     return data.output_encoder(flat_ce.target; y_levels=data.y_levels)
 end
+
+"""
+    num_counterfactuals(flat_ce::FlattenedCE)
+
+Extends the `num_counterfactuals` method to `FlattenedCE`.
+"""
+function num_counterfactuals(flat_ce::FlattenedCE)
+    return size(flat_ce.counterfactual_state, ndims(flat_ce.counterfactual_state))
+end

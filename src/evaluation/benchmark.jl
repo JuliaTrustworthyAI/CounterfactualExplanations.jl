@@ -566,7 +566,8 @@ A helper function to determine if counterfactual explanations should be stored b
 """
 function needs_ce(store_ce::Bool, measure::Union{Function,Vector{<:Function}})
     if !store_ce && includes_divergence_metric(measure)
-        @warn "Divergence metric detected. Will temporarily store counterfactual explanations, which can lead to increased memory usage." maxlog=1
+        @warn "Divergence metric detected. Will temporarily store counterfactual explanations, which can lead to increased memory usage." maxlog =
+            1
     end
     return store_ce || includes_divergence_metric(measure)
 end

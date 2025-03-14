@@ -45,3 +45,19 @@ function redundancy(ce::CounterfactualExplanation; agg=Statistics.mean, tol=1e-5
     redundant_x = length(redundant_x) == 1 ? redundant_x[1] : redundant_x
     return redundant_x
 end
+
+"""
+    feature_sensitivity(
+        ce::AbstractCounterfactualExplanation, d::Union{Int,Vector{Int}}=[1]; kwrgs...
+    )
+
+Return the sensitivity to feature(s) `d` in terms of absolute changes associated with the counterfactual. Any keyword arguments accepted by [`distance`](@ref) can be passed to `kwrgs...`.
+"""
+function feature_sensitivity(
+    ce::AbstractCounterfactualExplanation, d::Union{Int,Vector{Int}}=[1]; kwrgs...
+)
+    if isa(d, Int)
+        d = [d]
+    end
+    return [distance(ce; d=[d], kwrgs...) for d in d]
+end

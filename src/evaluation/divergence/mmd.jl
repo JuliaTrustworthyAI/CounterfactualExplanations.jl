@@ -51,7 +51,13 @@ end
 
 Computes the MMD between two datasets `x` and `y`, along with a p-value based on a null distribution of MMD values (unless `m.compute_p=nothing`) for a random subset of the data (of sample size `n`). The p-value is computed using a permutation test.
 """
-function (m::MMD)(x::AbstractArray, y::AbstractArray, n::Int; rng::AbstractRNG=Random.default_rng(), kwrgs...)
+function (m::MMD)(
+    x::AbstractArray,
+    y::AbstractArray,
+    n::Int;
+    rng::AbstractRNG=Random.default_rng(),
+    kwrgs...,
+)
     return m(samplecolumns(rng, x, n), samplecolumns(rng, y, n); kwrgs...)
 end
 

@@ -36,7 +36,7 @@ function (metric::AbstractDivergenceMetric)(
     ces::Vector{<:AbstractCounterfactualExplanation},
     data::CounterfactualData,
     n::Int;
-    rng::AbstractRNG = Random.default_rng(),
+    rng::AbstractRNG=Random.default_rng(),
     kwrgs...,
 )
 

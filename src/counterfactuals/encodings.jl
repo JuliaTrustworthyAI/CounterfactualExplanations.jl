@@ -219,7 +219,7 @@ function decode_state(
         data, counterfactual_state
     )
 
-    @assert isa(counterfactual_state,Matrix)
+    @assert isa(counterfactual_state, Matrix)
 
     return counterfactual_state
 end
@@ -236,3 +236,5 @@ function decode_state!(
 
     return ce
 end
+
+decode_state(ce::AbstractCounterfactualExplanation) = ce.counterfactual
