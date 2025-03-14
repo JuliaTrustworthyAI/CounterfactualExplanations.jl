@@ -90,10 +90,29 @@ function to_dataframe(
     store_ce::Bool,
     ce::CounterfactualExplanation,
 )
+
+    if any((x -> length(x[1]) > 1 && length(x[1]) != num_counterfactuals(ce)).(computed_measures)) && report_each 
+        @assert num_counterfactuals(ce) == 1 "Combining measures that produce output of different lengths with `num_counterfactuals`>1 is not currently implemented."
+        new_measure = []
+        new_vals = []
+        measure_names = []
+        for (i,x) in enumerate(computed_measures)
+            m = fill(measure[i], length(x[1]))
+            mname = length(x[1]) > 1 ? ["$(measure_name(measure[i]))_$j" for j in 1:length(x[1])] : [measure_name(measure[i])]
+            push!(new_measure, m...)
+            push!(new_vals, x[1]...)
+            push!(measure_names, mname...)
+        end
+        measure = new_measure
+        computed_measures = [[x] for x in new_vals]
+    else
+        measure_names = measure_name.(measure)
+    end
+
     evaluation = DataFrames.DataFrame(
         Dict(
             m => report_each ? val[1] : val for
-            (m, val) in zip(measure_name.(measure), computed_measures)
+            (m, val) in zip(Symbol.(measure_names), computed_measures)
         ),
     )
     evaluation.num_counterfactual = 1:nrow(evaluation)
