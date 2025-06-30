@@ -146,7 +146,7 @@ counterfactual_data = CounterfactualData(X,y')
 function CounterfactualData(
     X::AbstractMatrix,
     y::RawOutputArrayType;
-    mutability::Union{Vector{Symbol},Nothing}=nothing,
+    mutability::Union{Tuple{Vararg{Pair{Int,Symbol}}},Vector{Symbol},Nothing}=nothing,
     domain::Union{Any,Nothing}=nothing,
     features_categorical::Union{Vector{Vector{Int}},Nothing}=nothing,
     features_continuous::Union{Vector{Int},Nothing}=nothing,
@@ -174,7 +174,7 @@ function CounterfactualData(
         X,
         y,
         likelihood,
-        mutability,
+        nothing,
         domain,
         features_categorical,
         features_continuous,
@@ -182,6 +182,9 @@ function CounterfactualData(
         y_levels,
         output_encoder,
     )
+
+    # Mutability:
+    counterfactual_data.mutability = mutability_constraints(counterfactual_data, mutability)
 
     # Data transformations:
     if transformable_features(counterfactual_data) !=
