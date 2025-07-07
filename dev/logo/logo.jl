@@ -66,8 +66,8 @@ function get_data(
     yrange = range(ylims[1] - _zoom, ylims[2] + _zoom; length=n_range)
     target_idx = get_target_index(counterfactual_data.y_levels, target)
     yhat = [
-        predict_proba(M, counterfactual_data, [x, y])[target_idx] for x in xrange,
-        y in yrange
+        predict_proba(M, counterfactual_data, [x, y])[target_idx] for
+        x in xrange, y in yrange
     ]
     db_points = findall(0.0 .< yhat .- 0.5 .< 0.1)
     db_points = map(p -> [xrange[p[1]], yrange[p[2]]], db_points)

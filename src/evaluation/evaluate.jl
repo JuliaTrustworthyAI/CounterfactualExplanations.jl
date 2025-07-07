@@ -54,9 +54,11 @@ end
 
 For abstract divergence metrics, returns a vector of NaN values.
 """
-compute_measure(
+function compute_measure(
     ce::CounterfactualExplanation, measure::AbstractDivergenceMetric, agg::Function
-) = [NaN]
+)
+    [NaN]
+end
 
 """
     evaluate_dict(ce::CounterfactualExplanation, measure::Vector{Function}, agg::Function)
@@ -90,15 +92,22 @@ function to_dataframe(
     store_ce::Bool,
     ce::CounterfactualExplanation,
 )
-
-    if any((x -> length(x[1]) > 1 && length(x[1]) != num_counterfactuals(ce)).(computed_measures)) && report_each 
+    if any(
+        (x -> length(x[1]) > 1 && length(x[1]) != num_counterfactuals(ce)).(
+            computed_measures
+        ),
+    ) && report_each
         @assert num_counterfactuals(ce) == 1 "Combining measures that produce output of different lengths with `num_counterfactuals`>1 is not currently implemented."
         new_measure = []
         new_vals = []
         measure_names = []
-        for (i,x) in enumerate(computed_measures)
+        for (i, x) in enumerate(computed_measures)
             m = fill(measure[i], length(x[1]))
-            mname = length(x[1]) > 1 ? ["$(measure_name(measure[i]))_outid:$j" for j in 1:length(x[1])] : [measure_name(measure[i])]
+            mname = if length(x[1]) > 1
+                ["$(measure_name(measure[i]))_outid:$j" for j in 1:length(x[1])]
+            else
+                [measure_name(measure[i])]
+            end
             push!(new_measure, m...)
             push!(new_vals, x[1]...)
             push!(measure_names, mname...)
@@ -129,7 +138,7 @@ end
 
 function get_outid(varname::String)
     if contains(varname, "outid:")
-        return parse(Int,varname[end])
+        return parse(Int, varname[end])
     else
         return 1
     end
