@@ -47,6 +47,7 @@ include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
 export CounterfactualData,
     select_factual, apply_domain_constraints, OutputEncoder, transformable_features
+export mutability_constraints, mutability_constraints!
 
 ### Models 
 # ℳ[𝒟] : x ↦ y

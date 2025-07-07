@@ -68,4 +68,10 @@ using CounterfactualExplanations.Objectives: distance_mad
         )
         @test ce.search[:greeting] == "Hi there!"
     end
+
+    @test "Mutability constraints" begin
+        mutability_constraints!(counterfactual_data, [1])
+        ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+        @test typeof(ce) <: CounterfactualExplanation
+    end
 end

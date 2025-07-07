@@ -126,7 +126,7 @@ function preprocess_data_for_mlj(data::CounterfactualData)
 end
 
 """
-    convert_to_1d(y::Matrix, y_levels::AbstractArray)
+    convert_to_1d(y::AbstractMatrix, y_levels::AbstractArray)
 
 Helper function to convert a one-hot encoded matrix to a vector of labels.
 This is necessary because MLJ models require the labels to be represented as a vector,
@@ -139,7 +139,7 @@ but the synthetic datasets in this package hold the labels in one-hot encoded fo
 # Returns
 - `labels`: A vector of labels.
 """
-function convert_to_1d(y::Matrix, y_levels::AbstractArray)
+function convert_to_1d(y::AbstractMatrix, y_levels::AbstractArray)
     # Number of rows in the onehot_encoded matrix corresponds to the number of data points
     num_data_points = size(y, 2)
 

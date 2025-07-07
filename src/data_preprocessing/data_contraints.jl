@@ -55,6 +55,15 @@ end
 
 mutability_constraints(counterfactual_data::CounterfactualData, mutability::Tuple{Vararg{Pair{Int, Symbol}}}) = mutability_constraints(counterfactual_data, mutability...)
 
+"""
+    mutability_constraints!(counterfactual_data::CounterfactualData, mutability)
+
+Applies provided mutability constraints in-place to existing data.
+"""
+function mutability_constraints!(counterfactual_data::CounterfactualData, mutability)
+    counterfactual_data.mutability = mutability_constraints(counterfactual_data, mutability)
+    return counterfactual_data.mutability
+end
 
 """
     apply_domain_constraints(counterfactual_data::CounterfactualData, x::AbstractArray) 

@@ -586,7 +586,7 @@ function compute_divergence(
     end
     df = innerjoin(bmk.evaluation, bmk.counterfactuals; on=:sample)
     div_metrics = String.(measure_name.(measure)[isa.(measure, AbstractDivergenceMetric)])
-    gdf = groupby(df, [:variable, :generator, :model, :target, :factual])
+    gdf = groupby(df, [:variable, :generator, :model, :target, :factual, :run])
     final_df = DataFrame()
     for _df in gdf
         if !(unique(_df.variable)[1] in div_metrics)
