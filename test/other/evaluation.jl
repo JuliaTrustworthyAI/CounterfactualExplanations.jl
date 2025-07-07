@@ -189,7 +189,7 @@ end
         mmd_generic = mmd(ces, counterfactual_data, n_individuals)
 
         bmk =
-            benchmark(ces; measure=[validity, MMD()]) |>
+            benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
             bmk -> compute_divergence(
                 bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
             )
