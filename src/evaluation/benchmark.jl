@@ -361,7 +361,7 @@ function benchmark(
         # Grid setup:
         grid = []
         for (mod_name, M) in models
-            # Individuals need to be chosen separately for each model:
+            # Individuals need to be chosen separately for each model, because different models predict different factual/target classes for different samples.
             chosen = Vector{Int}()
             yhat = CounterfactualExplanations.predict_label(M, test_data)
             for i in 1:n_individuals
