@@ -3,7 +3,6 @@ Pkg.activate("dev");
 
 using Colors
 using CounterfactualExplanations
-using CounterfactualExplanations.Data
 using CounterfactualExplanations.Models
 using Distributions
 using EasyFit
@@ -12,6 +11,7 @@ using LinearAlgebra
 using Luxor
 using MLJBase
 using StatsBase: sample
+using TaijaData
 using Random
 
 julia_colors = Dict(
@@ -80,7 +80,8 @@ function get_data(
 
     # Counterfactual:
     T = isnothing(n_steps) ? 100 : n_steps
-    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; T=T)
+    conv = CounterfactualExplanations.Convergence.MaxIterConvergence(T)
+    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; convergence=conv)
 
     return x, y, M, ce, db_points
 end
@@ -107,6 +108,7 @@ function logo_picture(;
     border_stroke_size=db_stroke_size,
     n_steps=nothing,
     smooth=4,
+    draw_frame=true,  # New parameter
 )
 
     # Setup
@@ -115,7 +117,7 @@ function logo_picture(;
     Random.seed!(seed)
 
     # Background 
-    if bg
+    if bg && draw_frame  # Only draw frame if draw_frame is true
         circle(O, frame_size//2, :clip)
         setcolor(bg_color)
         box(Point(0, 0), frame_size, frame_size; action=:fill)
@@ -173,15 +175,21 @@ function logo_picture(;
 end
 
 function draw_small_logo(
-    filename="docs/src/assets/logo.svg", width=500; bg_color="transparent", kwrgs...
+    filename="docs/src/assets/logo.svg"; 
+    width=500, 
+    height=nothing,  # New parameter for custom height
+    bg_color="transparent", 
+    kwrgs...
 )
-    frame_size = width
-    Drawing(frame_size, frame_size, filename)
+    frame_width = width
+    frame_height = isnothing(height) ? width : height  # Use width if height not specified
+    
+    Drawing(frame_width, frame_height, filename)
     if !isnothing(bg_color)
         background(bg_color)
     end
     origin()
-    logo_picture(; kwrgs...)
+    logo_picture(; frame_size=frame_width, kwrgs...)
     finish()
     return preview()
 end
@@ -222,17 +230,27 @@ function draw_wide_logo(
     font_fill=bg_color,
     font_color=Luxor.julia_blue,
     bg_color="transparent",
+    include_logo=true,  
+    heigh_scale=2.4,
     picture_kwargs...,
 )
 
     # Setup:
-    height = Int(round(font_size * 2.4))
+    height = Int(round(font_size * heigh_scale))
     fontsize(font_size)
     fontface(font_family)
     strs = split(_pkg_name)
     text_col_width = Int(round(maximum(map(str -> textextents(str)[3], strs)) * 1.05))
-    width = Int(round(height + text_col_width))
-    cw = [height, text_col_width]
+    
+    # Adjust width based on whether logo is included
+    if include_logo
+        width = Int(round(height + text_col_width))
+        cw = [height, text_col_width]
+    else
+        width = text_col_width
+        cw = [text_col_width]
+    end
+    
     cells = Luxor.Table(height, cw)
     ms = Int(round(height / 10))
     db_stroke_size = Int(round(height / 50))
@@ -241,24 +259,28 @@ function draw_wide_logo(
     origin()
     background(bg_color)
 
-    # Picture:
-    @layer begin
-        Luxor.translate(cells[1])
-        logo_picture(;
-            frame_size=height,
-            margin=0.1,
-            ms=ms,
-            db_stroke_size=db_stroke_size,
-            picture_kwargs...,
-        )
+    # Picture (only if include_logo is true):
+    if include_logo
+        @layer begin
+            Luxor.translate(cells[1])
+            logo_picture(;
+                frame_size=height,
+                margin=0.1,
+                ms=ms,
+                db_stroke_size=db_stroke_size,
+                picture_kwargs...,
+            )
+        end
     end
 
     # Text:
     @layer begin
-        Luxor.translate(cells[2])
+        # Translate to appropriate cell (1 if no logo, 2 if logo included)
+        cell_idx = include_logo ? 2 : 1
+        Luxor.translate(cells[cell_idx])
         fontsize(font_size)
         fontface(font_family)
-        tiles = Tiler(cells.colwidths[2], height, length(strs), 1)
+        tiles = Tiler(cells.colwidths[cell_idx], height, length(strs), 1)
         for (pos, n) in tiles
             @layer begin
                 Luxor.translate(pos)
@@ -285,8 +307,13 @@ picture_kwargs = (
     cluster_std=0.1,
     clip_border=true,
     m_alpha=0.2,
-    generator=GravitationalGenerator(; decision_threshold=0.95, opt=Descent(0.005)),
+    generator=GravitationalGenerator(; opt=Descent(0.005)),
 )
 
 draw_small_logo(; picture_kwargs...)
 draw_wide_logo(; picture_kwargs...)
+
+# Thesis cover art:
+draw_wide_logo("text.png"; picture_kwargs..., font_size=300, include_logo=false)
+draw_small_logo("logo.png", 2000; picture_kwargs..., seed=123, ms=100)
+draw_small_logo("logo_wide.png"; width=2000, height=350, draw_frame=false, bg_color="transparent", picture_kwargs..., ms=20, ndots=70, seed=280393, db_stroke_size=10)
