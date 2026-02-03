@@ -53,6 +53,16 @@ function distance(
 end
 
 """
+    distance(ce::AbstractCounterfactualExplanation)
+
+Overloads method to be applied directly to `ce`
+"""
+function distance(ce::AbstractCounterfactualExplanation)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance(cf, ce)
+end
+
+"""
     cos_dist(x,y)
 
 Computes the cosine distance between two vectors.

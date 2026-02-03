@@ -100,7 +100,7 @@ Computes the plausibility of a counterfactual explanation based on the cosine si
 function plausibility(
     ce::CounterfactualExplanation, fun::Objectives.EnergyDifferential; kwrgs...
 )
-    Δ = fun(ce)
+    Δ = fun(CounterfactualExplanations.decode_state(ce), ce)
     return -Δ
 end
 

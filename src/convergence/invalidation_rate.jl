@@ -50,7 +50,7 @@ function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualEx
 
         # Create closure
         function f(x)
-            logits(ce.M, CounterfactualExplanations.decode_state(ce, x))
+            return logits(ce.M, CounterfactualExplanations.decode_state(ce, x))[index_target]
         end
 
         # Compute gradient:

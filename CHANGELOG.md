@@ -15,7 +15,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed 
 
-- Moved from Flux.jl for autodiff to DifferentiationInterface.jl. Not all backends working for basic examples, but considerable speedup for ForwardDiff compared to Zygote. 
+- Moved from Flux.jl for autodiff to DifferentiationInterface.jl. Not all backends working for basic examples, but considerable speedup for ForwardDiff compared to Zygote. The following backends work for generic generator:
+  - Zygote.jl
+  - ForwardDiff.jl
+  - PolyesterForwardDiff.jl
+  - GTPSA.jl
+  - FiniteDiff.jl
+  - Symbolics.jl
 - Avoid aggregating divergence metrics across runs.
 - Changed the way mutability constraints can be supplied: users can now supply a tuple of pairs of feature indices and there corresponding constraints.
 - Removed a bug in `reconstruct_cat_encoding` that turned the `counterfactual_state` object from a matrix into a vector.
