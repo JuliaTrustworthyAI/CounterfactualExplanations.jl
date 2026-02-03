@@ -1,5 +1,6 @@
 using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
 import DifferentiationInterface as DI
+using FiniteDiff: FiniteDiff
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
 using Zygote: Zygote
@@ -188,7 +189,7 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     return a * (b + t)^(-decay)
 end
 
-global _ad_backend = DI.AutoZygote()
+global _ad_backend = DI.AutoFiniteDiff()
 
 """
     get_global_ad_backend()
@@ -211,5 +212,5 @@ Set the global automatic differentiation backend.
 - `backend`: The new backend to set, which must be an instance of `DI.AbstractBackend`.
 """
 function set_global_ad_backend(backend)
-    global _ad_backend = backend
+    return global _ad_backend = backend
 end
