@@ -188,7 +188,7 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     return a * (b + t)^(-decay)
 end
 
-global _ad_backend = DI.AutoZygote() 
+global _ad_backend = DI.AutoZygote()
 
 """
     get_global_ad_backend()
@@ -213,4 +213,3 @@ Set the global automatic differentiation backend.
 function set_global_ad_backend(backend)
     global _ad_backend = backend
 end
-
