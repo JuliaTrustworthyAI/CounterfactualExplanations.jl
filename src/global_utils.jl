@@ -203,14 +203,14 @@ function get_global_ad_backend()
 end
 
 """
-    set_global_ad_backend(backend::DI.AbstractBackend)
+    set_global_ad_backend(backend)
 
 Set the global automatic differentiation backend.
 
 # Arguments
 - `backend`: The new backend to set, which must be an instance of `DI.AbstractBackend`.
 """
-function set_global_ad_backend(backend::DI.AbstractBackend)
+function set_global_ad_backend(backend)
     global _ad_backend = backend
 end
 
