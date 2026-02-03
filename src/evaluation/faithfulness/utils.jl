@@ -374,8 +374,9 @@ function distance_from_posterior(
     end
 
     # Compute distance:
+    cf = CounterfactualExplanations.decode_state(ce)
     _loss = map(eachcol(conditional_samples[1])) do xsample
-        distance(ce; from=xsample, agg=agg, p=p, cosine=cosine)
+        distance(cf, ce; from=xsample, agg=agg, p=p, cosine=cosine)
     end
     _loss = reduce((x, y) -> x + y, _loss) / nsamples       # aggregate over samples
 

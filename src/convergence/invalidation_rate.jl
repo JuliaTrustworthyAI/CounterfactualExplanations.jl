@@ -42,6 +42,7 @@ The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualExplanation)
     z = []
+    generator = ce.generator
     ignore_derivatives() do
         index_target = get_target_index(ce.data.y_levels, ce.target)
         f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
