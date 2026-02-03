@@ -137,5 +137,9 @@ function initialize!(ce::CounterfactualExplanation)
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
+
+    # Generator loss:
+    ce.generator.loss = guess_loss(ce)
+
     return ce
 end

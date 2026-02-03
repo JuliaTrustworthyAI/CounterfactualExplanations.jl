@@ -1,29 +1,46 @@
-using Flux: Flux
+import DifferentiationInterface as DI
+using Zygote: Zygote
 
 """
-    ∂ℓ(
+    grad_loss(
         generator::AbstractGradientBasedGenerator,
-        ce::AbstractCounterfactualExplanation,
+        ce::AbstractCounterfactualExplanation
     )
 
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators.
-It assumes that `Zygote.jl` has gradient access.
 """
-function ∂ℓ(
-    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
+function grad_loss(
+    generator::AbstractGradientBasedGenerator, 
+    ce::AbstractCounterfactualExplanation;
+    backend = DI.AutoZygote()
 )
-    return Flux.gradient(ce -> ℓ(generator, ce), ce)[1][:counterfactual_state]
+
+    # Get linear predictions:
+    ce_state = ce.counterfactual_state
+
+    # Get target outcome:
+    y = ce.target_encoded
+
+    # Create closure
+    function loss_wrt_state(x)
+        generator.loss(logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y)
+    end
+
+    # Compute gradient:
+    g = DI.gradient(loss_wrt_state, backend, ce_state)
+
+    return g 
 end
 
 """
-    ∂h(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
+    grad_pen(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
 
 The default method to compute the gradient of the complexity penalty at the current counterfactual state for gradient-based generators.
 It assumes that `Zygote.jl` has gradient access. 
 
 If the penalty is not provided, it returns 0.0. By default, Zygote never works out the gradient for constants and instead returns 'nothing', so we need to add a manual step to override this behaviour. See here: https://discourse.julialang.org/t/zygote-gradient/26715.
 """
-function ∂h(
+function grad_pen(
     generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
 )
     if isnothing(generator.penalty)
@@ -35,7 +52,7 @@ function ∂h(
 end
 
 """
-    ∇(
+    grad_search_opt(
         generator::AbstractGradientBasedGenerator,
         ce::AbstractCounterfactualExplanation,
     )
@@ -44,12 +61,14 @@ The default method to compute the gradient of the counterfactual search objectiv
 It simply computes the weighted sum over partial derivates. It assumes that `Zygote.jl` has gradient access.
 If the counterfactual is being generated using Probe, the hinge loss is added to the gradient.
 """
-function ∇(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation)
-    grad_loss = ∂ℓ(generator, ce)
+function grad_search_opt(
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation
+)
+    _grad_loss = grad_loss(generator, ce)
     # println("Loss:")
     # display(grad_loss)
-    grad_pen = ∂h(generator, ce)
+    _grad_pen = grad_pen(generator, ce)
     # println("Penality:")
     # display(grad_pen)
-    return grad_loss .+ grad_pen
+    return _grad_loss .+ _grad_pen
 end

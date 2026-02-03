@@ -8,12 +8,12 @@ function generate_perturbations(
 )
     counterfactual_state = deepcopy(ce.counterfactual_state)
     new_counterfactual_state = propose_state(generator, ce)
-    Δcounterfactual_state = new_counterfactual_state - counterfactual_state
-    Δcounterfactual_state = _replace_nans(Δcounterfactual_state)
-    Δcounterfactual_state = convert.(eltype(ce.factual), Δcounterfactual_state)
-    Δcounterfactual_state *= ce.num_counterfactuals       # rescale to account for number of counterfactuals
+    grad_ce_state = new_counterfactual_state - counterfactual_state
+    grad_ce_state = _replace_nans(grad_ce_state)
+    grad_ce_state = convert.(eltype(ce.factual), grad_ce_state)
+    grad_ce_state *= ce.num_counterfactuals       # rescale to account for number of counterfactuals
 
-    return Δcounterfactual_state
+    return grad_ce_state
 end
 
 function propose_state(
@@ -35,7 +35,7 @@ function propose_state(
     generator::AbstractGradientBasedGenerator,
     ce::AbstractCounterfactualExplanation,
 )
-    grads = ∇(generator, ce) # gradient
+    grads = grad_search_opt(generator, ce) # gradient
     new_counterfactual_state = deepcopy(ce.counterfactual_state)
     Flux.Optimise.update!(generator.opt, new_counterfactual_state, grads)
     return new_counterfactual_state
