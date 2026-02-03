@@ -42,18 +42,19 @@ The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualExplanation)
     z = []
-    generator = ce.generator
+
     ignore_derivatives() do
         index_target = get_target_index(ce.data.y_levels, ce.target)
         f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+        y = ce.target_encoded
 
         # Create closure
-        function loss_wrt_state(x)
-            generator.loss(logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y)
+        function f(x)
+            logits(ce.M, CounterfactualExplanations.decode_state(ce, x))
         end
 
         # Compute gradient:
-        grad = DI.gradient(loss_wrt_state, get_global_ad_backend(), ce_state)
+        grad = DI.gradient(f, get_global_ad_backend(), ce_state)
         denominator = sqrt(ce.convergence.variance) * norm(grad)
         normalized_gradient = f_loss / denominator
         push!(z, normalized_gradient)

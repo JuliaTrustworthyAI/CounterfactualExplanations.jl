@@ -39,6 +39,7 @@ end
         ce = generate_counterfactual(x, target, counterfactual_data, M_tree, generator)
 
         # EnergyDifferential:
-        @test_throws NotImplementedModel EnergyDifferential()(ce)
+        cf = CounterfactualExplanations.decode_state(ce)
+        @test_throws NotImplementedModel EnergyDifferential()(cf, ce)
     end
 end
