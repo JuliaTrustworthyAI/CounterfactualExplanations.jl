@@ -2,6 +2,7 @@ module Objectives
 
 using ..CounterfactualExplanations
 using Flux: Flux
+using Flux.Losses
 using ChainRulesCore: ChainRulesCore
 using LinearAlgebra
 using Statistics
