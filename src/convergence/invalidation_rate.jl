@@ -1,6 +1,6 @@
 using ChainRulesCore: ignore_derivatives
 using Distributions: Distributions
-using Flux: Flux
+import DifferentiationInterface as DI
 using LinearAlgebra: LinearAlgebra
 
 Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
@@ -40,15 +40,19 @@ Calculates the invalidation rate of a counterfactual explanation.
 # Returns
 The invalidation rate of the counterfactual explanation.
 """
-function invalidation_rate(ce::AbstractCounterfactualExplanation)
+function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualExplanation)
     z = []
     ignore_derivatives() do
         index_target = get_target_index(ce.data.y_levels, ce.target)
         f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-        grad = Flux.gradient(
-            () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target],
-            Flux.params(ce.counterfactual_state),
-        )[ce.counterfactual_state]
+
+        # Create closure
+        function loss_wrt_state(x)
+            generator.loss(logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y)
+        end
+
+            # Compute gradient:
+        grad = DI.gradient(loss_wrt_state, get_global_ad_backend(), ce_state) 
         denominator = sqrt(ce.convergence.variance) * norm(grad)
         normalized_gradient = f_loss / denominator
         push!(z, normalized_gradient)
