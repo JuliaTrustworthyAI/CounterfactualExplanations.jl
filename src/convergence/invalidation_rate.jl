@@ -51,8 +51,8 @@ function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualEx
             generator.loss(logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y)
         end
 
-            # Compute gradient:
-        grad = DI.gradient(loss_wrt_state, get_global_ad_backend(), ce_state) 
+        # Compute gradient:
+        grad = DI.gradient(loss_wrt_state, get_global_ad_backend(), ce_state)
         denominator = sqrt(ce.convergence.variance) * norm(grad)
         normalized_gradient = f_loss / denominator
         push!(z, normalized_gradient)

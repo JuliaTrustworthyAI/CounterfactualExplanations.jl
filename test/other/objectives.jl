@@ -23,7 +23,8 @@ end
 
 @testset "Penalties" begin
     for (pname, pfun) in Objectives.penalties_catalogue
-        @test pfun(ce) isa AbstractFloat
+        cf = CounterfactualExplanations.decode_state(ce)
+        @test pfun(cf, ce) isa AbstractFloat
     end
 
     @testset "EnergyDifferential" begin

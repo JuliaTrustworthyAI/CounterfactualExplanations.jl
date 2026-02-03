@@ -16,14 +16,16 @@ Computes the distance of the counterfactual to the original factual.
 function distance(
     cf::AbstractArray,
     ce::AbstractCounterfactualExplanation;
+    from::Union{AbstractArray, Nothing},
     agg=mean,
     p::Real=1,
     weights::Union{Nothing,AbstractArray}=nothing,
     cosine::Bool=false,
     d::Union{Nothing,Vector{Int}}=nothing,
 )
-
-    from = ce.factual
+    if isnothing(from)
+        from = ce.factual
+    end
 
     if !isnothing(d)
         # Select subset of features:
@@ -48,7 +50,6 @@ function distance(
         dist = agg(map(cf -> (LinearAlgebra.norm.(cf .- from, p)'weights)[1], xs))   # aggregate across counterfactuals
     end
     return dist
- 
 end
 
 """

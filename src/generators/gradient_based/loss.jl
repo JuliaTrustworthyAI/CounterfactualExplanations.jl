@@ -42,10 +42,10 @@ It assumes that `Zygote.jl` has gradient access.
 If the penalty is not provided, it returns 0.0. By default, Zygote never works out the gradient for constants and instead returns 'nothing', so we need to add a manual step to override this behaviour. See here: https://discourse.julialang.org/t/zygote-gradient/26715.
 """
 function grad_pen(
-    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation;
+    generator::AbstractGradientBasedGenerator,
+    ce::AbstractCounterfactualExplanation;
     backend=get_global_ad_backend(),
 )
-
     if isnothing(generator.penalty)
         return 0.0
     else
@@ -55,10 +55,13 @@ function grad_pen(
 
         # Create closure
         function pen_wrt_state(x)
-            sum(generator.λ .* [fun(CounterfactualExplanations.decode_state(ce, x), ce) for fun in pen])
+            sum(
+                generator.λ .*
+                [fun(CounterfactualExplanations.decode_state(ce, x), ce) for fun in pen],
+            )
         end
 
-         # Compute gradient:
+        # Compute gradient:
         g = DI.gradient(pen_wrt_state, backend, ce_state)
 
         return g

@@ -13,10 +13,10 @@ This is the distance measure proposed by Wachter et al. (2017).
 """
 function distance_mad(
     cf::AbstractArray,
-    ce::AbstractCounterfactualExplanation; 
-    agg=Statistics.mean, 
-    noise=1e-5, 
-    kwrgs...
+    ce::AbstractCounterfactualExplanation;
+    agg=Statistics.mean,
+    noise=1e-5,
+    kwrgs...,
 )
     X = ce.data.X
     mad = []
@@ -88,9 +88,9 @@ Evaluates how diverse the counterfactuals are using a Determinantal Point Proces
 """
 function ddp_diversity(
     cf::AbstractArray,
-    ce::AbstractCounterfactualExplanation; 
-    perturbation_size=1e-3, 
-    agg=det
+    ce::AbstractCounterfactualExplanation;
+    perturbation_size=1e-3,
+    agg=det,
 )
     X = cf
     xs = eachslice(X; dims=ndims(X))
@@ -152,7 +152,7 @@ function distance_from_target(
         Δ = []
         ChainRulesCore.ignore_derivatives() do
             δ = map(eachcol(ys)) do y
-                distance(ce; from=y, kwrgs...)
+                distance(cf, ce; from=y, kwrgs...)
             end
             push!(Δ, δ)
         end
@@ -176,7 +176,9 @@ Compute the distance from a counterfactual to the target manifold using cosine s
 - `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 - `kwrgs...`: Additional keyword arguments for the distance function.
 """
-function distance_from_target_cosine(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+function distance_from_target_cosine(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...
+)
     return distance_from_target(cf, ce; cosine=true, kwrgs...)
 end
 
@@ -188,7 +190,9 @@ end
 
 Additional penalty for ClaPROARGenerator.
 """
-function model_loss_penalty(cf::AbstractArray, ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
+function model_loss_penalty(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; agg=Statistics.mean
+)
     x_ = cf
     M = ce.M
     model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
