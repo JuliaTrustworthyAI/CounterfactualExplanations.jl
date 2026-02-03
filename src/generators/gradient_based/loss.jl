@@ -1,5 +1,4 @@
 import DifferentiationInterface as DI
-using Zygote: Zygote
 
 """
     grad_loss(
@@ -12,7 +11,7 @@ The default method to compute the gradient of the loss function at the current c
 function grad_loss(
     generator::AbstractGradientBasedGenerator,
     ce::AbstractCounterfactualExplanation;
-    backend=DI.AutoZygote(),
+    backend=get_global_ad_backend(),
 )
 
     # Get linear predictions:

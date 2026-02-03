@@ -2,13 +2,13 @@ module Objectives
 
 using ..CounterfactualExplanations
 using Flux: Flux
-using Flux.Losses: Losses, logitbinarycrossentropy, logitcrossentropy
 using ChainRulesCore: ChainRulesCore
 using LinearAlgebra
 using Statistics
 using Random
 
 include("distance_utils.jl")
+include("loss_functions.jl")
 include("penalties.jl")
 include("traits.jl")
 
@@ -41,19 +41,4 @@ const penalties_catalogue = Dict(
     :hinge_loss => hinge_loss,
 )
 
-end
-
-"""
-    predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
-
-Computes the predictive entropy of the counterfactuals.
-Explained in https://arxiv.org/abs/1406.2541.
-"""
-function predictive_entropy(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
-    model = ce.M
-    counterfactual_data = ce.data
-    X = CounterfactualExplanations.decode_state(ce)
-    p = CounterfactualExplanations.Models.predict_proba(model, counterfactual_data, X)
-    output = -agg(sum(@.(p * log(p)); dims=2))
-    return output
 end
