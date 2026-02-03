@@ -10,9 +10,8 @@ using CounterfactualExplanations.Objectives
     end
 
     @testset "Custom arguments" begin
-        generator = Generators.ProbeGenerator(; λ=[0.5, 0.5], loss=:mse)
+        generator = Generators.ProbeGenerator(; λ=[0.5, 0.5])
         @test generator.λ == [0.5, 0.5]
-        @test generator.loss == Flux.Losses.mse
     end
 end
 

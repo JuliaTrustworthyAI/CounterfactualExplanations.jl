@@ -24,7 +24,9 @@ function grad_loss(
 
     # Create closure
     function loss_wrt_state(x)
-        generator.loss(logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y)
+        return generator.loss(
+            logits(ce.M, CounterfactualExplanations.decode_state(ce, x)), y
+        )
     end
 
     # Compute gradient:
@@ -55,10 +57,14 @@ function grad_pen(
 
         # Create closure
         function pen_wrt_state(x)
-            sum(
-                generator.λ .*
-                [fun(CounterfactualExplanations.decode_state(ce, x), ce) for fun in pen],
-            )
+            cf = CounterfactualExplanations.decode_state(ce, x)
+            if pen isa Vector{<:Tuple}
+                # Keyword arguments supplied:
+                sum(generator.λ .* [fun(cf, ce; kwargs...) for (fun, kwargs) in pen])
+            else
+                # No keyword arguments supplied:
+                sum(generator.λ .* [fun(cf, ce) for fun in pen])
+            end
         end
 
         # Compute gradient:

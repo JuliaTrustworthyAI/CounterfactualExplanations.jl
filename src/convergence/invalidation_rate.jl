@@ -62,3 +62,13 @@ function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualEx
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), z[1])
     return 1 - ϕ
 end
+
+"""
+    invalidation_rate(ce::AbstractCounterfactualExplanation)
+
+Single-argument method for convenience.
+"""
+function invalidation_rate(ce::AbstractCounterfactualExplanation)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return invalidation_rate(cf, ce)
+end
