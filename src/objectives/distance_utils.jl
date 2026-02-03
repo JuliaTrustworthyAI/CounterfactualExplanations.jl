@@ -16,7 +16,7 @@ Computes the distance of the counterfactual to the original factual.
 function distance(
     cf::AbstractArray,
     ce::AbstractCounterfactualExplanation;
-    from::Union{AbstractArray, Nothing},
+    from::Union{AbstractArray,Nothing}=nothing,
     agg=mean,
     p::Real=1,
     weights::Union{Nothing,AbstractArray}=nothing,
