@@ -32,7 +32,8 @@ function plausibility(
     end
 
     # Compute the distance from the target:
-    Δ = fun(ce; K=K, kwrgs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    Δ = fun(cf, ce; K=K, kwrgs...)
     return -Δ
 end
 

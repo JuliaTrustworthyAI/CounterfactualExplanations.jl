@@ -338,3 +338,132 @@ function hinge_loss(cf::AbstractArray, ce::AbstractCounterfactualExplanation)
     end
     return max(0, invalidation_rate(cf, ce) - ce.convergence.invalidation_rate)
 end
+
+# Single argument methods:
+# Single-argument convenience methods that compute cf from ce
+
+"""
+    distance_mad(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_mad(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_mad(cf, ce; kwargs...)
+end
+
+"""
+    distance_l0(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l0(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l0(cf, ce; kwargs...)
+end
+
+"""
+    distance_l1(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l1(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l1(cf, ce; kwargs...)
+end
+
+"""
+    distance_l2(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l2(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l2(cf, ce; kwargs...)
+end
+
+"""
+    distance_linf(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_linf(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_linf(cf, ce; kwargs...)
+end
+
+"""
+    distance_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_cosine(cf, ce; kwargs...)
+end
+
+"""
+    ddp_diversity(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function ddp_diversity(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return ddp_diversity(cf, ce; kwargs...)
+end
+
+"""
+    distance_from_target(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_from_target(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_from_target(cf, ce; kwargs...)
+end
+
+"""
+    distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_from_target_cosine(cf, ce; kwargs...)
+end
+
+"""
+    model_loss_penalty(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function model_loss_penalty(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return model_loss_penalty(cf, ce; kwargs...)
+end
+
+"""
+    energy_constraint(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function energy_constraint(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return energy_constraint(cf, ce; kwargs...)
+end
+
+"""
+    hinge_loss(ce::AbstractCounterfactualExplanation)
+
+Convenience method that computes cf from ce.
+"""
+function hinge_loss(ce::AbstractCounterfactualExplanation)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return hinge_loss(cf, ce)
+end
+
+# Note: EnergyDifferential is a callable struct, so the single-argument method is:
+function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return pen(cf, ce)
+end

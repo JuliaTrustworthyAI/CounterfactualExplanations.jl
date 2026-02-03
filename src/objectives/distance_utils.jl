@@ -53,13 +53,13 @@ function distance(
 end
 
 """
-    distance(ce::AbstractCounterfactualExplanation)
+    distance(ce::AbstractCounterfactualExplanation; kwrgs...)
 
 Overloads method to be applied directly to `ce`
 """
-function distance(ce::AbstractCounterfactualExplanation)
+function distance(ce::AbstractCounterfactualExplanation; kwrgs...)
     cf = CounterfactualExplanations.decode_state(ce)
-    return distance(cf, ce)
+    return distance(cf, ce; kwrgs...)
 end
 
 """
