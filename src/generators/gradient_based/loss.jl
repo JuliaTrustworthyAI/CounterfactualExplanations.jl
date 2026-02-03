@@ -10,9 +10,9 @@ using Zygote: Zygote
 The default method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators.
 """
 function grad_loss(
-    generator::AbstractGradientBasedGenerator, 
+    generator::AbstractGradientBasedGenerator,
     ce::AbstractCounterfactualExplanation;
-    backend = DI.AutoZygote()
+    backend=DI.AutoZygote(),
 )
 
     # Get linear predictions:
@@ -29,7 +29,7 @@ function grad_loss(
     # Compute gradient:
     g = DI.gradient(loss_wrt_state, backend, ce_state)
 
-    return g 
+    return g
 end
 
 """
