@@ -1,6 +1,8 @@
 using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
+import DifferentiationInterface as DI
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
+using Zygote: Zygote
 
 # Abstract Base Types:
 """
@@ -157,7 +159,7 @@ end
 
 The default training parameter for `FluxModels` etc.
 """
-const flux_training_params = FluxModelParams()
+global flux_training_params = FluxModelParams()
 
 """
     reset!(flux_training_params::FluxModelParams)
@@ -185,3 +187,30 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     end
     return a * (b + t)^(-decay)
 end
+
+global _ad_backend = DI.AutoZygote() 
+
+"""
+    get_global_ad_backend()
+
+Get the currently set automatic differentiation backend.
+
+# Returns
+- The global automatic differentiation backend as an instance of `DI.AutoZygote`.
+"""
+function get_global_ad_backend()
+    return _ad_backend
+end
+
+"""
+    set_global_ad_backend(backend::DI.AbstractBackend)
+
+Set the global automatic differentiation backend.
+
+# Arguments
+- `backend`: The new backend to set, which must be an instance of `DI.AbstractBackend`.
+"""
+function set_global_ad_backend(backend::DI.AbstractBackend)
+    global _ad_backend = backend
+end
+

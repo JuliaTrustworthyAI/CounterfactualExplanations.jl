@@ -30,6 +30,7 @@ include("global_utils.jl")
 export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
 export OutputEncoder
 export get_target_index
+export get_global_ad_backend, set_global_ad_backend
 
 # Error messages:
 include("errors.jl")

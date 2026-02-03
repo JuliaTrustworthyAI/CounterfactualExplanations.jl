@@ -139,7 +139,7 @@ function initialize!(ce::CounterfactualExplanation)
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
 
     # Generator loss:
-    if hasfield(ce.generator, :loss)
+    if hasfield(typeof(ce.generator), :loss)
         ce.generator.loss = guess_loss(ce)
     end
 
