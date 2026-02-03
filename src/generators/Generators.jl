@@ -38,7 +38,6 @@ export predictive_entropy
 export ProbeGenerator
 
 include("macros.jl")
-include("loss.jl")
 include("complexity.jl")
 include("generate_perturbations.jl")
 
@@ -86,9 +85,11 @@ Computes the total loss of a counterfactual explanation with respect to the sear
 """
 function total_loss(ce::AbstractCounterfactualExplanation)
     if hasfield(typeof(ce.generator), :loss)
-        lossfun(ce.generator, ce) + h(ce.generator, ce)
+        yhat = logits(ce.M, decode_state(ce))
+        y = ce.target_encoded
+        return ce.generator.loss(yhat, y) + h(ce.generator, ce)
     else
-        nothing
+        return nothing
     end
 end
 

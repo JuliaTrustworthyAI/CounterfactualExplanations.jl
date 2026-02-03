@@ -2,18 +2,17 @@ module Objectives
 
 using ..CounterfactualExplanations
 using Flux: Flux
-using Flux.Losses: Losses, logitbinarycrossentropy, logitcrossentropy, mse
+using Flux.Losses: Losses, logitbinarycrossentropy, logitcrossentropy
 using ChainRulesCore: ChainRulesCore
 using LinearAlgebra
 using Statistics
 using Random
 
 include("distance_utils.jl")
-include("loss_functions.jl")
 include("penalties.jl")
 include("traits.jl")
 
-export logitbinarycrossentropy, logitcrossentropy, mse, predictive_entropy
+export logitbinarycrossentropy, logitcrossentropy, predictive_entropy
 export losses_catalogue
 export distance, distance_mad, distance_l0, distance_l1, distance_l2, distance_linf
 export distance_cosine, distance_from_target, distance_from_target_cosine
@@ -25,7 +24,6 @@ export penalties_catalogue
 const losses_catalogue = Dict(
     :logitbinarycrossentropy => logitbinarycrossentropy,
     :logitcrossentropy => logitcrossentropy,
-    :mse => mse,
 )
 
 const penalties_catalogue = Dict(
