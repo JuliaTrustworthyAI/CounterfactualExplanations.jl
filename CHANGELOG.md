@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## Version [1.5.0] - 2026-02-03
 
+### Removed
+
+- Removed tests for LaplaceRedux.jl. Support is broken because it uses the old Flux.jl API (see https://github.com/JuliaTrustworthyAI/LaplaceRedux.jl/issues/145).
+
 ### Added
 
 - Added a new evaluation measure `feature_sensitivity(ce::AbstractCounterfactualExplanation)` that can be used to compute the proposed absolute changes for features.

@@ -3,7 +3,7 @@ include("pretrained.jl")
 include("flux/mlp.jl")
 
 # Extensions:
-include("laplace_redux/laplace_redux.jl")
+# include("laplace_redux/laplace_redux.jl")
 include("decision_tree/decision_tree.jl")
 include("jem/jem.jl")
 include("neurotree/neurotree.jl")

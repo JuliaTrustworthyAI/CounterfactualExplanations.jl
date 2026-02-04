@@ -81,13 +81,15 @@ using .Generators
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export DiCEGenerator
 export ECCoGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export ProbeGenerator
 export REVISEGenerator
-export DiCEGenerator
+export TCRExGenerator
 export WachterGenerator
 export generator_catalogue
 export generate_perturbations

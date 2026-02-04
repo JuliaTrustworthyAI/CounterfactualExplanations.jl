@@ -11,9 +11,7 @@ The da require"cmp.utils.feedkeys".run(262)
 efault method to compute the gradient of the loss function at the current counterfactual state for gradient-based generators.
 """
 function grad_loss(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation;
-    backend=get_global_ad_backend(),
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation;
 )
 
     # Get counterfactual state: 
@@ -21,6 +19,9 @@ function grad_loss(
 
     # Get target outcome:
     y = ce.target_encoded
+
+    # Get AD backend:
+    backend = CounterfactualExplanations.choose_ad_backend(generator.loss)
 
     # Create closure
     function loss_wrt_state(x)
@@ -44,9 +45,7 @@ It assumes that `Zygote.jl` has gradient access.
 If the penalty is not provided, it returns 0.0. By default, Zygote never works out the gradient for constants and instead returns 'nothing', so we need to add a manual step to override this behaviour. See here: https://discourse.julialang.org/t/zygote-gradient/26715.
 """
 function grad_pen(
-    generator::AbstractGradientBasedGenerator,
-    ce::AbstractCounterfactualExplanation;
-    backend=get_global_ad_backend(),
+    generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation;
 )
     if isnothing(generator.penalty)
         return 0.0
@@ -54,6 +53,9 @@ function grad_pen(
         # Get counterfactual state: 
         ce_state = ce.counterfactual_state
         pen = ifelse(generator.penalty isa Function, [generator.penalty], generator.penalty)
+
+        # Get AD backend:
+        backend = CounterfactualExplanations.choose_ad_backend(generator)
 
         # Create closure
         function pen_wrt_state(x)

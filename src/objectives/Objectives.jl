@@ -21,6 +21,7 @@ export ddp_diversity
 export EnergyDifferential
 export hinge_loss
 export penalties_catalogue
+export choose_ad_backend
 
 const losses_catalogue = Dict(
     :logitbinarycrossentropy => logitbinarycrossentropy,
