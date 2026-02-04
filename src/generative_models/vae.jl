@@ -1,4 +1,5 @@
 using Flux: Flux, Adam, cpu, gpu
+using Optimisers: Optimisers
 using ProgressMeter: Progress, next!
 using Statistics: mean
 
@@ -82,7 +83,7 @@ function model_loss(generative_model::VAE, λ, x, device)
     # Negative log-likelihood: - log(p(x|z))
     nll_x_z = -generative_model.params.nll(z, x; agg=sum) / len
     # Weight regularization:
-    reg = λ * sum(x -> sum(x .^ 2), Flux.params(generative_model.decoder))
+    reg = λ * sum(x -> sum(x .^ 2), Flux.trainable(generative_model.decoder))
 
     elbo = -nll_x_z + kl_q_p + reg
 
@@ -99,9 +100,6 @@ function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
     # load data
     loader = get_data(X, args.batch_size)
 
-    # parameters
-    ps = Flux.params(generative_model)
-
     # Verbosity
     if flux_training_params.verbose
         @info "Begin training VAE"
@@ -110,17 +108,20 @@ function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
         )
     end
 
+    # Optimiser state using new explicit API:
+    opt_state = Flux.setup(args.opt, generative_model)
+
     # training
     for epoch in 1:(args.epochs)
         avg_loss = []
         for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
+            x_device = args.device(x)
+            loss, grads = Flux.withgradient(generative_model) do m
+                model_loss(m, args.λ, x_device, args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
+            Flux.update!(opt_state, generative_model, grads[1])
         end
 
         avg_loss = mean(avg_loss)
@@ -144,9 +145,6 @@ function train!(generative_model::VAE, X::AbstractArray; kws...)
     # load data
     loader = get_data(X, args.batch_size)
 
-    # parameters
-    ps = Flux.params(generative_model)
-
     # Verbosity
     if flux_training_params.verbose
         @info "Begin training VAE"
@@ -155,17 +153,20 @@ function train!(generative_model::VAE, X::AbstractArray; kws...)
         )
     end
 
+    # Optimiser state using new explicit API:
+    opt_state = Flux.setup(args.opt, generative_model)
+
     # training
     for epoch in 1:(args.epochs)
         avg_loss = []
         for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
+            x_device = args.device(x)
+            loss, grads = Flux.withgradient(generative_model) do m
+                model_loss(m, args.λ, x_device, args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
+            Flux.update!(opt_state, generative_model, grads[1])
         end
 
         avg_loss = mean(avg_loss)
@@ -187,29 +188,29 @@ function retrain!(generative_model::VAE, X::AbstractArray; n_epochs=10)
     # load data
     loader = get_data(X, args.batch_size)
 
-    # parameters
-    ps = Flux.params(generative_model)
-
     # Verbosity
     if flux_training_params.verbose
-        @info "Begin training VAE"
+        @info "Begin retraining VAE"
         p_epoch = Progress(
-            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
+            n_epochs; desc="Progress on epochs:", showspeed=true, color=:green
         )
     end
+
+    # Optimiser state using new explicit API:
+    opt_state = Flux.setup(args.opt, generative_model)
 
     # training
     train_steps = 0
     for epoch in 1:n_epochs
         avg_loss = []
         for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
+            x_device = args.device(x)
+            loss, grads = Flux.withgradient(generative_model) do m
+                model_loss(m, args.λ, x_device, args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
+            Flux.update!(opt_state, generative_model, grads[1])
 
             train_steps += 1
         end
