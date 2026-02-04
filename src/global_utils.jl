@@ -1,8 +1,8 @@
 using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
 import DifferentiationInterface as DI
 using Flux: Flux
-using ForwardDiff: ForwardDiff
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
+using Zygote: Zygote
 
 # Abstract Base Types:
 """
@@ -188,7 +188,7 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     return a * (b + t)^(-decay)
 end
 
-global _ad_backend = DI.AutoForwardDiff()
+global _ad_backend = DI.AutoZygote()
 
 """
     get_global_ad_backend()
