@@ -9,7 +9,7 @@ using Test
 using DataFrames
 using DecisionTree
 using Flux
-using LaplaceRedux
+# using LaplaceRedux
 using LinearAlgebra
 using MLDatasets
 using MLJBase

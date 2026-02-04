@@ -76,10 +76,10 @@ function choose_ad_backend(gen::AbstractGenerator)
     # Check if any penalty requires a special AD backend
     if any(needs_special_backend.(penalty))
         @assert length(unique(choose_ad_backend.(penalty))) <= 2 "You have specified two or more penalties that require mutually exclusive AD backends."
-        
+
         # Filter penalties that need special backends
         penalty = penalty[findall(needs_special_backend.(penalty))]
-        
+
         # Choose the unique backend among those required by the filtered penalties
         return choose_ad_backend.(penalty) |> x -> unique(x)[1]
     else
