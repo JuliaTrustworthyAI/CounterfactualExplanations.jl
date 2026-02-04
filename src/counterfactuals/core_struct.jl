@@ -140,7 +140,9 @@ function initialize!(ce::CounterfactualExplanation)
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
 
     # Update using new Optimisers.jl API
-    ce.search[:opt_state] = Optimisers.setup(ce.generator.opt, ce.counterfactual_state)
+    if hasfield(typeof(ce.generator), :opt)
+        ce.search[:opt_state] = Optimisers.setup(ce.generator.opt, ce.counterfactual_state)
+    end
 
     # Generator loss:
     if hasfield(typeof(ce.generator), :loss)

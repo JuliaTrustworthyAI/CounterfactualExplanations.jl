@@ -339,7 +339,6 @@ function hinge_loss(cf::AbstractArray, ce::AbstractCounterfactualExplanation)
     return max(0, invalidation_rate(cf, ce) - ce.convergence.invalidation_rate)
 end
 
-# Single argument methods:
 # Single-argument convenience methods that compute cf from ce
 
 """
