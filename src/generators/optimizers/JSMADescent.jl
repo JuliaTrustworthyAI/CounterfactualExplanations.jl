@@ -1,9 +1,10 @@
+using Optimisers: Optimisers
+
 "An optimisation rule that can be used to implement a Jacobian-based Saliency Map Attack."
-struct JSMADescent <: Flux.Optimise.AbstractOptimiser
+struct JSMADescent <: Optimisers.AbstractRule
     eta::AbstractFloat
     n::Int
     mutability::Union{Nothing,AbstractArray}
-    state::IdDict
 end
 
 "Outer constructor for the [`JSMADescent`](@ref) rule."
@@ -20,10 +21,16 @@ function JSMADescent(;
     elseif !isnothing(η) && isnothing(n)
         n = Int(maximum([1, 1 / η]))
     end
-    return JSMADescent(η, n, mutability, IdDict())
+    return JSMADescent(η, n, mutability)
 end
 
-function Flux.Optimise.apply!(o::JSMADescent, x, Δ)
+# Initialize state - just return zeros array
+function Optimisers.init(o::JSMADescent, x::AbstractArray)
+    return zeros(size(x))
+end
+
+# Apply the optimization rule
+function Optimisers.apply!(o::JSMADescent, times_changed, x, Δ)
 
     # Mutability:
     if !isnothing(o.mutability)
@@ -31,7 +38,6 @@ function Flux.Optimise.apply!(o::JSMADescent, x, Δ)
     end
 
     # Times changed:
-    times_changed = get!(o.state, :times_changed, zeros(size(x)))
     Δ[times_changed .== o.n] .= 0
 
     # Helper function to choose most salient:
@@ -50,11 +56,14 @@ function Flux.Optimise.apply!(o::JSMADescent, x, Δ)
 
     # Updating:
     Δ = mapslices(x -> choose_most_salient(x), Δ; dims=(1, 2)) # choose most salient feature
-    o.state[:times_changed] .+= Δ .!= 0.0
-    o.state[:times_changed] = mapslices(
-        x -> all(x .== o.n) ? zeros(size(x)) : x, o.state[:times_changed]; dims=(1, 2)
+
+    # Update times_changed
+    new_times_changed = times_changed .+ (Δ .!= 0.0)
+    new_times_changed = mapslices(
+        x -> all(x .== o.n) ? zeros(size(x)) : x, new_times_changed; dims=(1, 2)
     )
+
     Δ = o.eta / size(x, 3) .* Δ
 
-    return Δ
+    return new_times_changed, Δ
 end

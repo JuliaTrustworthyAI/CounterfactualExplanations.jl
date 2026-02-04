@@ -21,6 +21,7 @@ function propose_state(
 )
     return propose_state(Models.Differentiability(ce.M), generator, ce)
 end
+
 """
     propose_state(
         ::Models.IsDifferentiable,
@@ -36,7 +37,9 @@ function propose_state(
     ce::AbstractCounterfactualExplanation,
 )
     grads = grad_search_opt(generator, ce) # gradient
-    new_counterfactual_state = deepcopy(ce.counterfactual_state)
-    Flux.Optimise.update!(generator.opt, new_counterfactual_state, grads)
+    opt_state = ce.search[:opt_state]
+    opt_state, new_counterfactual_state = Optimisers.update(
+        opt_state, ce.counterfactual_state, grads
+    )
     return new_counterfactual_state
 end

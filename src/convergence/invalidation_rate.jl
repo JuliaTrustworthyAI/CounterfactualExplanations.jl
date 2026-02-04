@@ -41,25 +41,20 @@ Calculates the invalidation rate of a counterfactual explanation.
 The invalidation rate of the counterfactual explanation.
 """
 function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualExplanation)
-    z = []
+    index_target = get_target_index(ce.data.y_levels, ce.target)
+    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+    y = ce.target_encoded
 
-    ignore_derivatives() do
-        index_target = get_target_index(ce.data.y_levels, ce.target)
-        f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-        y = ce.target_encoded
-
-        # Create closure
-        function f(x)
-            return logits(ce.M, CounterfactualExplanations.decode_state(ce, x))[index_target]
-        end
-
-        # Compute gradient:
-        grad = DI.gradient(f, get_global_ad_backend(), ce_state)
-        denominator = sqrt(ce.convergence.variance) * norm(grad)
-        normalized_gradient = f_loss / denominator
-        push!(z, normalized_gradient)
+    # Create closure
+    function f(x)
+        return logits(ce.M, CounterfactualExplanations.decode_state(ce, x))[index_target]
     end
-    ϕ = Distributions.cdf(Distributions.Normal(0, 1), z[1])
+
+    # Compute gradient:
+    grad = DI.gradient(f, get_global_ad_backend(), ce_state)
+    denominator = sqrt(ce.convergence.variance) * norm(grad)
+    normalized_gradient = f_loss / denominator
+    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
 end
 

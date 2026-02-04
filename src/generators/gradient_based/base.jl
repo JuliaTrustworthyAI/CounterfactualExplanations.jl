@@ -1,3 +1,5 @@
+using Optimisers: Optimisers
+
 """
 	AbstractGradientBasedGenerator
 
@@ -15,7 +17,7 @@ mutable struct GradientBasedGenerator <: AbstractGradientBasedGenerator
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}
     latent_space::Bool
     dim_reduction::Bool
-    opt::Flux.Optimise.AbstractOptimiser
+    opt::Optimisers.AbstractRule
     generative_model_params::NamedTuple
 end
 
@@ -25,7 +27,7 @@ end
 		penalty::Penalty=nothing,
 		λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing,
 		latent_space::Bool::false,
-		opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+		opt::Optimisers.AbstractRule=Optimisers.Descent(),
         generative_model_params::NamedTuple=(;),
 	)
 
@@ -36,7 +38,7 @@ Default outer constructor for `GradientBasedGenerator`.
 - `penalty::Penalty=nothing`: A penalty function for the generator to penalize counterfactuals too far from the original point.
 - `λ::Union{Nothing,AbstractFloat,Vector{AbstractFloat}}=nothing`: The weight of the penalty function.
 - `latent_space::Bool=false`: Whether to use the latent space of a generative model to generate counterfactuals.
-- `opt::Flux.Optimise.AbstractOptimiser=Flux.Descent()`: The optimizer to use for the generator.
+- `opt::Optimisers.AbstractRule=Optimisers.Descent()`: The optimizer to use for the generator.
 - `generative_model_params::NamedTuple`: The parameters of the generative model associated with the generator.
 
 # Returns
@@ -48,7 +50,7 @@ function GradientBasedGenerator(;
     λ::Union{Nothing,AbstractFloat,Vector{<:AbstractFloat}}=nothing,
     latent_space::Bool=false,
     dim_reduction::Bool=false,
-    opt::Flux.Optimise.AbstractOptimiser=Flux.Descent(),
+    opt::Optimisers.AbstractRule=Optimisers.Descent(),
     generative_model_params::NamedTuple=(;),
 )
     @assert !(isnothing(λ) && !isnothing(penalty)) "Penalty function(s) provided but no penalty weight(s) provided."

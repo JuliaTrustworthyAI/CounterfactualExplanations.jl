@@ -1,6 +1,7 @@
+using CausalInference
 using ..GenerativeModels: GenerativeModels
 using MultivariateStats: MultivariateStats
-using CausalInference
+using Optimisers: Optimisers
 
 """
 A struct that collects all information relevant to a specific counterfactual explanation for a single individual.
@@ -137,6 +138,9 @@ function initialize!(ce::CounterfactualExplanation)
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))
+
+    # Update using new Optimisers.jl API
+    ce.search[:opt_state] = Optimisers.setup(ce.generator.opt, ce.counterfactual_state)
 
     # Generator loss:
     if hasfield(typeof(ce.generator), :loss)
