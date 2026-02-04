@@ -1,3 +1,5 @@
+import DifferentiationInterface as DI
+
 "A base type for a style of process."
 abstract type PenaltyRequirements end
 
@@ -22,7 +24,7 @@ needs_neighbours(::NeedsNeighbours, x) = true
 Check if a generator needs access to neighbors in the target class.
 """
 function needs_neighbours(gen::AbstractGenerator)
-    hasfield(typeof(gen), :penalty) ? any(needs_neighbours.(gen.penalty)) : false
+    return hasfield(typeof(gen), :penalty) ? any(needs_neighbours.(gen.penalty)) : false
 end
 
 """
@@ -31,3 +33,14 @@ end
 Check if a counterfactual explanation needs access to neighbors in the target class.
 """
 needs_neighbours(ce::AbstractCounterfactualExplanation) = needs_neighbours(ce.generator)
+
+"A base type for AD backend requirements"
+abstract type ADRequirements end
+
+struct NoADRequirements <: ADRequirements end
+
+struct NeedsZygote <: ADRequirements end
+
+choose_ad_backend(x::T) where {T} = choose_ad_backend(ADRequirements(T), x)
+choose_ad_backend(::NoADRequirements, x) = get_global_ad_backend()
+choose_ad_backend(::NeedsZygote, x) = DI.AutoZygote()
