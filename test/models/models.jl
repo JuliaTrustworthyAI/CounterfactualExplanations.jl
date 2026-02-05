@@ -6,7 +6,7 @@ include("flux/mlp.jl")
 include("laplace_redux/laplace_redux.jl")
 include("decision_tree/decision_tree.jl")
 include("jem/jem.jl")
-include("neurotree/neurotree.jl")
+# include("neurotree/neurotree.jl")
 
 include("utils.jl")
 
