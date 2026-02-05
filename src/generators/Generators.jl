@@ -27,6 +27,7 @@ export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
 export REVISEGenerator
+export TCRExGenerator
 export WachterGenerator
 export FeatureTweakGenerator
 export generator_catalogue
