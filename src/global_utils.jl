@@ -1,4 +1,4 @@
-using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
+using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector, CategoricalValue
 import DifferentiationInterface as DI
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
@@ -10,7 +10,7 @@ using Zygote: Zygote
 
 A type union for the allowed types for the `target` variable.
 """
-const RawTargetType = Union{Int,AbstractFloat,String,Symbol}
+const RawTargetType = Union{Int,AbstractFloat,String,Symbol,CategoricalValue}
 
 """
     EncodedTargetType
