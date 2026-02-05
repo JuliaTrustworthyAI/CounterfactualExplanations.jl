@@ -85,3 +85,7 @@ Base.@deprecate ∂ℓ(generator, ce) grad_loss(generator, ce)
 Base.@deprecate ∂h(generator, ce) grad_pen(generator, ce)
 
 Base.@deprecate ∇(generator, ce) grad_search_opt(generator, ce)
+
+Base.@deprecate GenerativeModels.retrain!(vae, X; n_epochs) GenerativeModels.train!(
+    vae, X; n_epochs, kws...
+) false
