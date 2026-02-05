@@ -3,7 +3,7 @@ include("pretrained.jl")
 include("flux/mlp.jl")
 
 # Extensions:
-# include("laplace_redux/laplace_redux.jl")
+include("laplace_redux/laplace_redux.jl")
 include("decision_tree/decision_tree.jl")
 include("jem/jem.jl")
 include("neurotree/neurotree.jl")
@@ -76,9 +76,9 @@ end
             end
 
             # Test the LaplaceReduxModel
-            # model = Models.fit_model(
-            #     value[:data], CounterfactualExplanations.LaplaceReduxModel()
-            # )
+            model = Models.fit_model(
+                value[:data], CounterfactualExplanations.LaplaceReduxModel()
+            )
 
             @testset "Verify correctness of likelihood field for LaplaceRedux" begin
                 @test model.likelihood == :classification_multi

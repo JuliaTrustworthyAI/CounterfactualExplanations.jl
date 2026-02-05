@@ -10,7 +10,7 @@ using TaijaBase: TaijaBase
         model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_multi
     )
 
-Outer constructor for a neural network with Laplace Approximation from `LaplaceRedux.jl`.
+Outer constructor for a neural network with JointEnergyClassifier from `JointEnergyModels.jl`.
 """
 function CounterfactualExplanations.JEM(
     model::JointEnergyModels.JointEnergyClassifier; likelihood::Symbol=:classification_multi
