@@ -1,4 +1,4 @@
-using MLJModels: OneHotEncoder
+using MLJTransforms: OneHotEncoder
 using StatsBase: sample, Weights
 
 @testset "Categorical data" begin

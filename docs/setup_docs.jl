@@ -20,7 +20,7 @@ setup_docs = quote
     using MLDatasets
     using MLDatasets: convert2image
     using MLJBase
-    using MLJModels: OneHotEncoder
+    using MLJTransforms: OneHotEncoder
     using Plots
     using Random
     using StatsBase
