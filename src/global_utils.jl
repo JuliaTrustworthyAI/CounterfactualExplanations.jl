@@ -1,6 +1,7 @@
 using CategoricalArrays:
     CategoricalArrays, CategoricalArray, CategoricalVector, CategoricalValue
 import DifferentiationInterface as DI
+using ForwardDiff: ForwardDiff
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
 using Zygote: Zygote
