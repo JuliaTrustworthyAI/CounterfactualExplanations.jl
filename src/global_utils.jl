@@ -1,4 +1,5 @@
-using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector, CategoricalValue
+using CategoricalArrays:
+    CategoricalArrays, CategoricalArray, CategoricalVector, CategoricalValue
 import DifferentiationInterface as DI
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
