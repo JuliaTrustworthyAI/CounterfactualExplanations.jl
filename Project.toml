@@ -1,7 +1,7 @@
 name = "CounterfactualExplanations"
 uuid = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
 authors = ["Patrick Altmeyer <p.altmeyer@tudelft.nl> and contributors"]
-version = "1.5.0"
+version = "1.4.6"
 
 [deps]
 CategoricalArrays = "324d7699-5711-5eae-9e2f-1d82baa6b597"
@@ -47,7 +47,7 @@ LaplaceReduxExt = "LaplaceRedux"
 [compat]
 Aqua = "0.8"
 CategoricalArrays = "0.10, 1"
-CausalInference = "0.17, 0.18, 0.19"
+CausalInference = "0.19.2"
 ChainRulesCore = "1.15"
 DataFrames = "1"
 DecisionTree = "0.12.3, 0.12.4"
@@ -88,4 +88,4 @@ JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Aqua", "DecisionTree", "JointEnergyModels", "LaplaceRedux", "Test"]
+test = ["Aqua", "DecisionTree", "JointEnergyModels", "Test"]

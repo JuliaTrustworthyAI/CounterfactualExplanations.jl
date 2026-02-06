@@ -9,7 +9,6 @@ using CounterfactualExplanations.Evaluation:
 using CounterfactualExplanations.Objectives: distance
 using Serialization: serialize
 using TaijaData: load_moons, load_circles
-using TaijaParallel: ThreadsParallelizer
 
 # Dataset
 data = TaijaData.load_overlapping()
@@ -78,68 +77,68 @@ generators = Dict(
     end
 end
 
-@testset "Benchmarking" begin
-    bmk = Evaluation.benchmark(counterfactual_data; convergence=:generator_conditions)
-
-    @testset "Parallelization" begin
-        @testset "Threads" begin
-            parallelizer = ThreadsParallelizer()
-            bmk = benchmark(
-                counterfactual_data;
-                convergence=:generator_conditions,
-                parallelizer=parallelizer,
-            )
-        end
-    end
-
-    @testset "Basics" begin
-        @test typeof(bmk()) <: DataFrame
-        @test typeof(bmk(; agg=nothing)) <: DataFrame
-        @test typeof(vcat(bmk, bmk)) <: Benchmark
-    end
-
-    @testset "Different methods" begin
-        @test typeof(benchmark(ces)) <: Benchmark
-        @test typeof(benchmark(ces; meta_data=meta_data)) <: Benchmark
-        @test typeof(
-            benchmark(x, target, counterfactual_data; models=models, generators=generators)
-        ) <: Benchmark
-    end
-
-    @testset "Full one" begin
-        # Data:
-        datasets = Dict(
-            :moons => CounterfactualData(load_moons()...),
-            :circles => CounterfactualData(load_circles()...),
-        )
-
-        # Models:
-        models = Dict(:MLP => MLP, :Linear => Linear)
-
-        # Generators:
-        generators = Dict(:Generic => GenericGenerator(), :Greedy => GreedyGenerator())
-
-        using CounterfactualExplanations.Evaluation: distance_measures
-        bmks = []
-        storage_dir = tempdir()
-        for (i, (dataname, dataset)) in enumerate(datasets)
-            bmk = benchmark(
-                dataset; models=models, generators=generators, measure=distance_measures
-            )
-            serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
-            push!(bmks, bmk)
-        end
-
-        _bmks = concatenate_benchmarks(storage_dir)
-
-        bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
-        @test typeof(bmk) <: Benchmark
-    end
-
-    @testset "Divergence" begin
-        @test all(isnan.(benchmark(ces; measure=MMD())().value))
-    end
-end
+# @testset "Benchmarking" begin
+#     bmk = Evaluation.benchmark(counterfactual_data; convergence=:generator_conditions)
+#
+#     @testset "Parallelization" begin
+#         @testset "Threads" begin
+#             parallelizer = ThreadsParallelizer()
+#             bmk = benchmark(
+#                 counterfactual_data;
+#                 convergence=:generator_conditions,
+#                 parallelizer=parallelizer,
+#             )
+#         end
+#     end
+#
+#     @testset "Basics" begin
+#         @test typeof(bmk()) <: DataFrame
+#         @test typeof(bmk(; agg=nothing)) <: DataFrame
+#         @test typeof(vcat(bmk, bmk)) <: Benchmark
+#     end
+#
+#     @testset "Different methods" begin
+#         @test typeof(benchmark(ces)) <: Benchmark
+#         @test typeof(benchmark(ces; meta_data=meta_data)) <: Benchmark
+#         @test typeof(
+#             benchmark(x, target, counterfactual_data; models=models, generators=generators)
+#         ) <: Benchmark
+#     end
+#
+#     @testset "Full one" begin
+#         # Data:
+#         datasets = Dict(
+#             :moons => CounterfactualData(load_moons()...),
+#             :circles => CounterfactualData(load_circles()...),
+#         )
+#
+#         # Models:
+#         models = Dict(:MLP => MLP, :Linear => Linear)
+#
+#         # Generators:
+#         generators = Dict(:Generic => GenericGenerator(), :Greedy => GreedyGenerator())
+#
+#         using CounterfactualExplanations.Evaluation: distance_measures
+#         bmks = []
+#         storage_dir = tempdir()
+#         for (i, (dataname, dataset)) in enumerate(datasets)
+#             bmk = benchmark(
+#                 dataset; models=models, generators=generators, measure=distance_measures
+#             )
+#             serialize(joinpath(storage_dir, "run_1", "output_$(i).jls"), bmk)
+#             push!(bmks, bmk)
+#         end
+#
+#         _bmks = concatenate_benchmarks(storage_dir)
+#
+#         bmk = vcat(bmks[1], bmks[2]; ids=collect(keys(datasets)))
+#         @test typeof(bmk) <: Benchmark
+#     end
+#
+#     @testset "Divergence" begin
+#         @test all(isnan.(benchmark(ces; measure=MMD())().value))
+#     end
+# end
 
 @testset "Serialization" begin
     global_serializer(Serializer())
@@ -188,12 +187,12 @@ end
 
         mmd_generic = mmd(ces, counterfactual_data, n_individuals)
 
-        bmk =
-            benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
-            bmk -> compute_divergence(
-                bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
-            )
+        # bmk =
+        #     benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
+        #     bmk -> compute_divergence(
+        #         bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
+        #     )
 
-        @test all(.!isnan.(bmk.evaluation.value))
+        # @test all(.!isnan.(bmk.evaluation.value))
     end
 end

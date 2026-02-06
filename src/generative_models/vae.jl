@@ -127,7 +127,7 @@ function train!(
             end
 
             avg_loss = vcat(avg_loss, loss)
-            Flux.Optimise.update!(state, generative_model, back[1])
+            Flux.update!(state, generative_model, back[1])
         end
 
         avg_loss = mean(avg_loss)

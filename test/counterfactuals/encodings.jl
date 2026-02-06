@@ -1,5 +1,5 @@
 using CounterfactualExplanations.DataPreprocessing: fit_transformer
-using CounterfactualExplanations.Models: load_mnist_mlp
+using CounterfactualExplanations.Models: load_mnist_model
 using CounterfactualExplanations: decode_array
 using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
@@ -23,7 +23,7 @@ using CausalInference: CausalInference
             dt_pca.input_encoder = fit_transformer(
                 dt_pca, MultivariateStats.PCA; maxoutdim=16
             )
-            M = load_mnist_mlp()
+            M = load_mnist_model(MLP())
             target = 9
             factual = 7
             chosen = rand(findall(predict_label(M, dt_pca) .== factual))

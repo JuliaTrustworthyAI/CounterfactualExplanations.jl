@@ -81,7 +81,7 @@ Constructor for `ProbeGenerator`. $DOC_Probe
 
 ## Warning
 
-$DOC_Probe_warn
+$DOC_Probe
 """
 function ProbeGenerator(;
     λ::Vector{<:AbstractFloat}=[0.1, 1.0],
@@ -89,7 +89,6 @@ function ProbeGenerator(;
     penalty=[Objectives.distance_l1, Objectives.hinge_loss],
     kwargs...,
 )
-    @warn DOC_Probe_warn
     user_loss = Objectives.losses_catalogue[loss]
     return GradientBasedGenerator(; loss=user_loss, penalty=penalty, λ=λ, kwargs...)
 end

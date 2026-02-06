@@ -13,7 +13,6 @@ using Flux
 using LinearAlgebra
 using MLDatasets
 using MLJBase
-using MLJDecisionTreeInterface
 using Printf
 using MLUtils
 using Random

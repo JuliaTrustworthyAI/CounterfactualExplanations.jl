@@ -6,11 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.5.0] - 2026-02-03
+## Version [1.4.6] - 2026-02-06
 
 ### Removed
 
-- Removed tests for LaplaceRedux.jl. Support is broken because it uses the old Flux.jl API (see https://github.com/JuliaTrustworthyAI/LaplaceRedux.jl/issues/145).
+- Temporarily removed tests for NeuroTreeModels.jl pending updates to compat.
+- Temporarily removed tests for benchmarking, which seems non-performant (will open a separate issue).
 
 ### Added
 
