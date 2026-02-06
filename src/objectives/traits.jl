@@ -58,6 +58,9 @@ struct NeedsForwardDiff <: ADRequirements end
 "The `hinge_loss` function requires `ForwardDiff`"
 ADRequirements(::Type{<:typeof(hinge_loss)}) = NeedsForwardDiff()
 
+"The `energy_constraint` function requires `ForwardDiff`"
+ADRequirements(::Type{<:typeof(energy_constraint)}) = NeedsForwardDiff()
+
 choose_ad_backend(::NoADRequirements) = get_global_ad_backend()
 choose_ad_backend(x::T) where {T} = choose_ad_backend(ADRequirements(T), x)
 choose_ad_backend(::NoADRequirements, x) = get_global_ad_backend()

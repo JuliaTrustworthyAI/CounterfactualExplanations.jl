@@ -253,9 +253,7 @@ function energy_constraint(
 )
 
     # Setup:
-    ℒ = 0
     t = get_target_index(ce.data.y_levels, ce.target)
-    xs = eachslice(cf; dims=ndims(cf))
 
     # Multiplier ϕ for the energy constraint:
     max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
@@ -263,14 +261,24 @@ function energy_constraint(
     a = b / 10
     ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
+    # Reshape to 2D: (features, samples)
+    n_samples = size(cf, ndims(cf))
+    cf_2d = reshape(cf, :, n_samples)
+
+    # Compute energies using a loop (more AD-stable than comprehension)
+    energies = map(1:n_samples) do j
+        x = @view cf_2d[:, j]
+        energy(ce.M, x, t)
+    end
+
     # Generative loss:
-    gen_loss = energy.(ce.M, xs, t) |> agg
+    gen_loss = agg(energies)
 
     if reg_strength == 0.0
         ℒ = ϕ * gen_loss
     else
         # Regularization loss:
-        reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
+        reg_loss = agg(norm(energies)^2)
 
         # Total loss:
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
