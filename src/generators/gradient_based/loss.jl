@@ -21,7 +21,7 @@ function grad_loss(
     y = ce.target_encoded
 
     # Get AD backend:
-    backend = CounterfactualExplanations.choose_ad_backend(generator.loss)
+    backend = CounterfactualExplanations.choose_ad_backend(ce)
 
     # Create closure
     function loss_wrt_state(x)
@@ -55,7 +55,7 @@ function grad_pen(
         pen = ifelse(generator.penalty isa Function, [generator.penalty], generator.penalty)
 
         # Get AD backend:
-        backend = CounterfactualExplanations.choose_ad_backend(generator)
+        backend = CounterfactualExplanations.choose_ad_backend(ce)
 
         # Create closure
         function pen_wrt_state(x)

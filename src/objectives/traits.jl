@@ -70,6 +70,9 @@ needs_special_backend(x::T) where {T} = needs_special_backend(ADRequirements(T),
 needs_special_backend(::NoADRequirements, x) = false
 needs_special_backend(::NeedsForwardDiff, x) = true
 
+"Chooses the appropriate AD backend for the given model type"
+choose_ad_backend(mod::Model) = choose_ad_backend(mod.type)
+
 """
     choose_ad_backend(gen::AbstractGenerator)
 
@@ -98,4 +101,68 @@ function choose_ad_backend(gen::AbstractGenerator)
         # If no special backend is needed, use the default AD backend
         return choose_ad_backend(NoADRequirements())
     end
+end
+
+"""
+    choose_ad_backend(backends::Vararg{<:Any})
+
+Select a single automatic differentiation backend from multiple provided backends.
+
+# Arguments
+- `backends::Vararg{<:Any}`: Variable number of AD backend instances (e.g., `AutoZygote()`, `AutoEnzyme()`).
+
+# Returns
+- `AutoZygote()` if all provided backends are `AutoZygote` instances.
+- The single non-`AutoZygote` backend if exactly one is provided among `AutoZygote` instances.
+
+# Throws
+- `AssertionError` if more than one non-`AutoZygote` backend is provided.
+
+# Examples
+
+```julia
+choose_ad_backend(AutoZygote(), AutoZygote())  # Returns AutoZygote()
+choose_ad_backend(AutoZygote(), AutoEnzyme())  # Returns AutoEnzyme()
+choose_ad_backend(AutoZygote(), AutoEnzyme(), AutoForwardDiff())  # Throws AssertionError
+```
+"""
+function choose_ad_backend(backends::Vararg{<:Any})
+    # Filter out non-default backends
+    non_default = filter(b -> b != get_global_ad_backend(), backends) |> unique
+
+    # Assert only one non-Zygote backend
+    @assert length(non_default) <= 1 "Only one non-default backend is allowed, got $(length(non_default))"
+
+    # Return non-default backend if it exists, otherwise return default
+    if isempty(non_default)
+        return get_global_ad_backend()
+    else
+        return first(non_default)
+    end
+end
+
+"""
+    choose_ad_backend(ce::CounterfactualExplanation)
+
+Select a compatible automatic differentiation backend for a counterfactual explanation.
+
+Determines the AD backend by querying the backends of the model and generator within the
+counterfactual explanation, then reconciling them into a single compatible backend.
+
+# Arguments
+- `ce::CounterfactualExplanation`: A counterfactual explanation object containing a model (`M`) and a generator.
+
+# Returns
+- A single AD backend compatible with both the model and generator.
+
+# Throws
+- `AssertionError` if the model and generator use incompatible non-`AutoZygote` backends.
+
+# See Also
+- [`choose_ad_backend(backends::Vararg)`](@ref)
+"""
+function choose_ad_backend(ce::AbstractCounterfactualExplanation)
+    bkd_mod = choose_ad_backend(ce.M)
+    bkd_gen = choose_ad_backend(ce.generator)
+    return choose_ad_backend(bkd_mod, bkd_gen)
 end
