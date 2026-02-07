@@ -85,6 +85,11 @@ function choose_ad_backend(gen::AbstractGenerator)
         return choose_ad_backend(NoADRequirements())
     end
 
+    # No penalty supplied:
+    if isnothing(gen.penalty)
+        return choose_ad_backend(NoADRequirements())
+    end
+
     # Flatten the penalty to ensure it's a single object or array of penalties
     penalty = CounterfactualExplanations.flatten_penalty(gen.penalty)
 
