@@ -19,7 +19,8 @@ using CausalInference: CausalInference
 
     if VERSION >= v"1.8"
         @testset "Dimensionality Reduction" begin
-            dt_pca = CounterfactualData(load_mnist(1000)...)
+            dt = CounterfactualData(load_mnist(1000)...)
+            dt_pca = deepcopy(dt)
             dt_pca.input_encoder = fit_transformer(
                 dt_pca, MultivariateStats.PCA; maxoutdim=16
             )

@@ -25,6 +25,7 @@ function distance(
 )
     if isnothing(from)
         from = ce.factual
+        from = CounterfactualExplanations.encode_state(ce, from)
     end
 
     if !isnothing(d)

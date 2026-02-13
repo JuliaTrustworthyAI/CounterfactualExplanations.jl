@@ -102,6 +102,8 @@ function grad_pen(
     # Compute gradient:
     g = DI.gradient(pen_wrt_state, prep, backend, ce_state, DI.Constant(ce))
 
+    g = isnothing(g) ? 0.0 : g
+
     return g
 end
 

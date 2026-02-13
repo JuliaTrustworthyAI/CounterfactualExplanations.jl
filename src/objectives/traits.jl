@@ -170,7 +170,7 @@ function choose_ad_backend(ce::AbstractCounterfactualExplanation)
     n_features = CounterfactualExplanations.DataPreprocessing.input_dim(ce.data)
 
     # ForwardDiff is faster for small problems
-    if n_features < 10
+    if n_features < 100
         bkd = DI.AutoForwardDiff()
     else
         bkd = DI.AutoZygote()
