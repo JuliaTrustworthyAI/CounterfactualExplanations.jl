@@ -41,17 +41,30 @@ function apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Abstract
     end
 
     mutability = ce.search[:mutability]
-    # Helper functions:
-    both(x) = x
-    increase(x) = ifelse(x < 0.0, 0.0, x)
-    decrease(x) = ifelse(x > 0.0, 0.0, x)
-    none(x) = 0.0
-    cases = (both=both, increase=increase, decrease=decrease, none=none)
 
-    # Apply:
-    grad_ce_state = map((case, s) -> getfield(cases, case)(s), mutability, grad_ce_state)
+    # Create output array with same type as input (critical for type stability)
+    result = similar(grad_ce_state)
 
-    return grad_ce_state
+    # Apply mutability constraints element-wise
+    @inbounds for i in eachindex(mutability, grad_ce_state)
+        case = mutability[i]
+        val = grad_ce_state[i]
+
+        # Use if-else instead of getfield for type stability
+        result[i] = if case === :both
+            val
+        elseif case === :increase
+            val < 0 ? zero(val) : val
+        elseif case === :decrease
+            val > 0 ? zero(val) : val
+        elseif case === :none
+            zero(val)
+        else
+            val  # fallback
+        end
+    end
+
+    return result
 end
 
 """

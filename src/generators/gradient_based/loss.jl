@@ -28,7 +28,7 @@ function grad_loss(
     prep = get!(
         ce.search,
         :prep_loss,
-        DI.prepare_gradient(loss_wrt_state, backend, ce_state, DI.Constant(ce)),
+        DI.prepare_gradient(loss_wrt_state, backend, similar(ce_state), DI.Constant(ce)),
     )
 
     # Compute gradient:
@@ -96,7 +96,7 @@ function grad_pen(
     prep = get!(
         ce.search,
         :prep_pen,
-        DI.prepare_gradient(pen_wrt_state, backend, ce_state, DI.Constant(ce)),
+        DI.prepare_gradient(pen_wrt_state, backend, similar(ce_state), DI.Constant(ce)),
     )
 
     # Compute gradient:
