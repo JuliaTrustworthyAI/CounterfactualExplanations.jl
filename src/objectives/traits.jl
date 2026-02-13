@@ -131,7 +131,7 @@ choose_ad_backend(AutoZygote(), AutoEnzyme())  # Returns AutoEnzyme()
 choose_ad_backend(AutoZygote(), AutoEnzyme(), AutoForwardDiff())  # Throws AssertionError
 ```
 """
-function choose_ad_backend(backends::Vararg{<:Any}; default_bkd=get_global_ad_backend())
+function choose_ad_backend(backends::Vararg{<:Any}; default_bkd=DI.AutoZygote())
     # Filter out non-default backends
     non_default = filter(b -> b != default_bkd, backends) |> unique
 
@@ -170,7 +170,7 @@ function choose_ad_backend(ce::AbstractCounterfactualExplanation)
     n_features = CounterfactualExplanations.DataPreprocessing.input_dim(ce.data)
 
     # ForwardDiff is faster for small problems
-    if n_features < 100
+    if n_features < 1000
         bkd = DI.AutoForwardDiff()
     else
         bkd = DI.AutoZygote()
