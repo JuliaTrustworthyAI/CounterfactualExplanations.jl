@@ -57,7 +57,7 @@ function pen_wrt_state(
     x::AbstractArray, pen::Vector{<:Tuple}, ce::AbstractCounterfactualExplanation
 )
     total = zero(eltype(ce.generator.λ))
-    @inbounds for i in eachindex(pen, ce.generator.λ)
+    @inbounds for i in 1:length(pen)
         fun, kwargs = pen[i]
         total += ce.generator.λ[i] * fun(x, ce; kwargs...)
     end
