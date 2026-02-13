@@ -86,7 +86,7 @@ Computes the total loss of a counterfactual explanation with respect to the sear
 """
 function total_loss(ce::AbstractCounterfactualExplanation)
     if hasfield(typeof(ce.generator), :loss)
-        yhat = logits(ce.M, decode_state(ce))
+        yhat = logits(ce.M, CounterfactualExplanations.decode_state(ce))
         y = ce.target_encoded
         return ce.generator.loss(yhat, y) + h(ce.generator, ce)
     else

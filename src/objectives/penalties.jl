@@ -466,7 +466,7 @@ end
 
 Convenience method that computes cf from ce.
 """
-function hinge_loss(ce::AbstractCounterfactualExplanation)
+function hinge_loss(ce::AbstractCounterfactualExplanation; kwrgs...)
     cf = CounterfactualExplanations.decode_state(ce)
     return hinge_loss(cf, ce)
 end

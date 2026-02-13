@@ -3,9 +3,12 @@ using CounterfactualExplanations.Evaluation:
     Benchmark,
     evaluate,
     validity,
+    validity_strict,
     distance_measures,
     concatenate_benchmarks,
-    compute_divergence
+    compute_divergence,
+    feature_sensitivity
+using CounterfactualExplanations.Generators
 using CounterfactualExplanations.Objectives
 using Serialization: serialize
 using TaijaData: load_moons, load_circles
@@ -47,19 +50,25 @@ generators = Dict(
 )
 
 @testset "Evaluation" begin
+    @test Generators.total_loss(ce) isa AbstractFloat
     @test typeof(evaluate(ce; measure=validity)) <: Vector
+    @test typeof(evaluate(ce; measure=validity_strict)) <: Vector
+    @test typeof(evaluate(ce; measure=feature_sensitivity)) <: Vector
     @test typeof(evaluate(ce; measure=distance)) <: Vector
     @test typeof(evaluate(ce; measure=distance_measures)) <: Vector
     @test typeof(
         evaluate(
             ce;
             measure=[
+                Objectives.distance_mad,
                 Objectives.distance_cosine,
                 Objectives.distance_from_target,
                 Objectives.distance_from_target_cosine,
+                Objectives.ddp_diversity,
                 Objectives.model_loss_penalty,
                 Objectives.energy_constraint,
                 Objectives.EnergyDifferential(),
+                Objectives.hinge_loss,
             ],
         ),
     ) <: Vector
