@@ -169,16 +169,9 @@ counterfactual explanation, then reconciling them into a single compatible backe
 function choose_ad_backend(ce::AbstractCounterfactualExplanation)
     n_features = CounterfactualExplanations.DataPreprocessing.input_dim(ce.data)
 
-    # ForwardDiff is faster for small problems
-    if n_features < 1000
-        bkd = DI.AutoForwardDiff()
-    else
-        bkd = DI.AutoZygote()
-    end
-
     # Check for model/generator requirments:
     bkd_mod = choose_ad_backend(ce.M)
     bkd_gen = choose_ad_backend(ce.generator)
 
-    return choose_ad_backend(bkd, bkd_mod, bkd_gen)
+    return choose_ad_backend(bkd_mod, bkd_gen)
 end

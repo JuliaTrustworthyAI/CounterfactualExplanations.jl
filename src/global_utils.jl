@@ -190,7 +190,7 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
     return a * (b + t)^(-decay)
 end
 
-global _ad_backend = DI.AutoForwardDiff()
+global _ad_backend = DI.AutoZygote()
 
 """
     get_global_ad_backend()

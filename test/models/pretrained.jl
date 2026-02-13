@@ -17,6 +17,7 @@ if VERSION >= v"1.8"
             # The name of the dataset the model was trained on
             dataset_name = string(key)
             @testset "$dataset_name" begin
+                @info dataset_name
                 for (name, M) in value[:models]
                     name = string(name)
                     @testset "$name" begin
