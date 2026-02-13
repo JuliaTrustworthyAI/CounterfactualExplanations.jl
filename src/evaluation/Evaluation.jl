@@ -50,6 +50,7 @@ const distance_measures = [
     CounterfactualExplanations.Objectives.distance_l1,
     CounterfactualExplanations.Objectives.distance_l2,
     CounterfactualExplanations.Objectives.distance_linf,
+    CounterfactualExplanations.Objectives.distance_cosine,
 ]
 
 "All measures."

@@ -6,7 +6,7 @@ using CounterfactualExplanations.Evaluation:
     distance_measures,
     concatenate_benchmarks,
     compute_divergence
-using CounterfactualExplanations.Objectives: distance
+using CounterfactualExplanations.Objectives
 using Serialization: serialize
 using TaijaData: load_moons, load_circles
 
@@ -50,6 +50,19 @@ generators = Dict(
     @test typeof(evaluate(ce; measure=validity)) <: Vector
     @test typeof(evaluate(ce; measure=distance)) <: Vector
     @test typeof(evaluate(ce; measure=distance_measures)) <: Vector
+    @test typeof(
+        evaluate(
+            ce;
+            measure=[
+                Objectives.distance_cosine,
+                Objectives.distance_from_target,
+                Objectives.distance_from_target_cosine,
+                Objectives.model_loss_penalty,
+                Objectives.energy_constraint,
+                Objectives.EnergyDifferential(),
+            ],
+        ),
+    ) <: Vector
     @test typeof(evaluate(ce)) <: Vector
     @test typeof(evaluate.(ces)) <: Vector
     @test typeof(evaluate.(ces; report_each=true)) <: Vector
@@ -82,7 +95,7 @@ end
 
     @testset "Parallelization" begin
         @testset "Threads" begin
-            parallelizer = nothing 
+            parallelizer = nothing
             bmk = benchmark(
                 counterfactual_data;
                 convergence=:generator_conditions,
@@ -187,12 +200,12 @@ end
 
         mmd_generic = mmd(ces, counterfactual_data, n_individuals)
 
-        # bmk =
-        #     benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
-        #     bmk -> compute_divergence(
-        #         bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
-        #     )
+        bmk =
+            benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
+            bmk -> compute_divergence(
+                bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
+            )
 
-        # @test all(.!isnan.(bmk.evaluation.value))
+        @test all(.!isnan.(bmk.evaluation.value))
     end
 end

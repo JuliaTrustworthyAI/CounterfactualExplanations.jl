@@ -294,7 +294,9 @@ end
 
 EnergyDifferential(; K::Int=50, agg::Function=mean) = EnergyDifferential(K, agg)
 
-function (pen::EnergyDifferential)(cf::AbstractArray, ce::AbstractCounterfactualExplanation)
+function (pen::EnergyDifferential)(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...
+)
 
     # If the potential neighbours have not been computed, do so:
     get!(
@@ -470,7 +472,7 @@ function hinge_loss(ce::AbstractCounterfactualExplanation)
 end
 
 # Note: EnergyDifferential is a callable struct, so the single-argument method is:
-function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
+function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation; kwrgs...)
     cf = CounterfactualExplanations.decode_state(ce)
     return pen(cf, ce)
 end
