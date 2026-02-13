@@ -131,16 +131,16 @@ choose_ad_backend(AutoZygote(), AutoEnzyme())  # Returns AutoEnzyme()
 choose_ad_backend(AutoZygote(), AutoEnzyme(), AutoForwardDiff())  # Throws AssertionError
 ```
 """
-function choose_ad_backend(backends::Vararg{<:Any})
+function choose_ad_backend(backends::Vararg{<:Any}; default_bkd=get_global_ad_backend())
     # Filter out non-default backends
-    non_default = filter(b -> b != get_global_ad_backend(), backends) |> unique
+    non_default = filter(b -> b != default_bkd, backends) |> unique
 
     # Assert only one non-Zygote backend
     @assert length(non_default) <= 1 "Only one non-default backend is allowed, got $(length(non_default))"
 
     # Return non-default backend if it exists, otherwise return default
     if isempty(non_default)
-        return get_global_ad_backend()
+        return default_bkd
     else
         return first(non_default)
     end
@@ -167,7 +167,18 @@ counterfactual explanation, then reconciling them into a single compatible backe
 - [`choose_ad_backend(backends::Vararg)`](@ref)
 """
 function choose_ad_backend(ce::AbstractCounterfactualExplanation)
+    n_features = CounterfactualExplanations.DataPreprocessing.input_dim(ce.data)
+
+    # ForwardDiff is faster for small problems
+    if n_features < 10
+        bkd = DI.AutoForwardDiff()
+    else
+        bkd = DI.AutoZygote()
+    end
+
+    # Check for model/generator requirments:
     bkd_mod = choose_ad_backend(ce.M)
     bkd_gen = choose_ad_backend(ce.generator)
-    return choose_ad_backend(bkd_mod, bkd_gen)
+
+    return choose_ad_backend(bkd, bkd_mod, bkd_gen)
 end
