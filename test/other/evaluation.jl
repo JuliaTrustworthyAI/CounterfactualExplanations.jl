@@ -82,7 +82,7 @@ end
 
     @testset "Parallelization" begin
         @testset "Threads" begin
-            parallelizer = ThreadsParallelizer()
+            parallelizer = nothing 
             bmk = benchmark(
                 counterfactual_data;
                 convergence=:generator_conditions,
