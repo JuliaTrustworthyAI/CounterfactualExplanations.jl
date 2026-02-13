@@ -19,6 +19,8 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
     for (lname, lfun) in Objectives.losses_catalogue
         @test lfun(ce) isa AbstractFloat
     end
+    @test predictive_entropy(ce) isa AbstractFloat
+
 end
 
 @testset "Penalties" begin
