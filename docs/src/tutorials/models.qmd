@@ -18,6 +18,11 @@ We will train a simple binary classifier in `Flux.jl` on the popular Moons datas
 
 ```{julia}
 #| output: true
+using CounterfactualExplanations
+using CounterfactualExplanations.DataPreprocessing
+using TaijaData
+using TaijaPlotting
+
 n = 500
 data = TaijaData.load_moons(n)
 counterfactual_data = DataPreprocessing.CounterfactualData(data...)

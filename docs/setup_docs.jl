@@ -27,7 +27,6 @@ setup_docs = quote
     using Tables
     using TaijaData
     using TaijaPlotting: animate_path
-    using TaijaInteroperability
     using TaijaData
 
     # Setup:
