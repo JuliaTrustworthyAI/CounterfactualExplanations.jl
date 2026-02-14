@@ -16,7 +16,7 @@ Changelog.generate(
 using DecisionTree
 using JointEnergyModels
 using LaplaceRedux
-using NeuroTreeModels
+# using NeuroTreeModels
 
 makedocs(;
     doctest=false,
