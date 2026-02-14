@@ -56,4 +56,22 @@ using CounterfactualExplanations.Objectives: distance_mad
             @test converged(ce) == converged(_ce)
         end
     end
+
+    @testset "Callback" begin
+        ce = generate_counterfactual(
+            x,
+            target,
+            counterfactual_data,
+            M,
+            generator;
+            callback=(x -> x.search[:greeting] = "Hi there!"),
+        )
+        @test ce.search[:greeting] == "Hi there!"
+    end
+
+    @testset "Mutability constraints" begin
+        mutability_constraints!(counterfactual_data, [1])
+        ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+        @test typeof(ce) <: CounterfactualExplanation
+    end
 end

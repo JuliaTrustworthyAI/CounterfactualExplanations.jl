@@ -28,3 +28,7 @@ abstract type AbstractPenalty <: AbstractMeasure end
 Base.broadcastable(pen::AbstractPenalty) = Ref(pen)
 
 const PenaltyOrFun = Union{Function,AbstractPenalty}
+
+flatten_penalty(pen::PenaltyOrFun) = [pen]
+flatten_penalty(pen::Vector{<:PenaltyOrFun}) = pen
+flatten_penalty(pen::Vector{<:Tuple}) = [p[1] for p in pen]

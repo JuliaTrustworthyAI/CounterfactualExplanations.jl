@@ -1,5 +1,6 @@
 using Base.Iterators
 using DataFrames: DataFrames
+using Random
 using Serialization: Serialization
 using Statistics: mean
 using TaijaBase: AbstractParallelizer, vectorize_collection, parallelize
@@ -360,7 +361,7 @@ function benchmark(
         # Grid setup:
         grid = []
         for (mod_name, M) in models
-            # Individuals need to be chosen separately for each model:
+            # Individuals need to be chosen separately for each model, because different models predict different factual/target classes for different samples.
             chosen = Vector{Int}()
             yhat = CounterfactualExplanations.predict_label(M, test_data)
             for i in 1:n_individuals
@@ -565,13 +566,18 @@ A helper function to determine if counterfactual explanations should be stored b
 """
 function needs_ce(store_ce::Bool, measure::Union{Function,Vector{<:Function}})
     if !store_ce && includes_divergence_metric(measure)
-        @warn "Divergence metric detected. Will temporarily store counterfactual explanations, which can lead to increased memory usage."
+        @warn "Divergence metric detected. Will temporarily store counterfactual explanations, which can lead to increased memory usage." maxlog =
+            1
     end
     return store_ce || includes_divergence_metric(measure)
 end
 
 function compute_divergence(
-    bmk::Benchmark, measure::Union{Function,Vector{<:Function}}, data::CounterfactualData
+    bmk::Benchmark,
+    measure::Union{Function,Vector{<:Function}},
+    data::CounterfactualData;
+    nsamples::Union{Nothing,Int}=nothing,
+    rng::AbstractRNG=Random.default_rng(),
 )
     @assert !isnothing(bmk.counterfactuals) "Cannot compute divergence without counterfactuals. Set `store_ce=true` when running the benchmark."
     if !includes_divergence_metric(measure)
@@ -580,7 +586,13 @@ function compute_divergence(
     end
     df = innerjoin(bmk.evaluation, bmk.counterfactuals; on=:sample)
     div_metrics = String.(measure_name.(measure)[isa.(measure, AbstractDivergenceMetric)])
-    gdf = groupby(df, [:variable, :generator, :model, :target, :factual])
+
+    byvars = [:variable, :generator, :model, :target, :factual]
+    if "run" in names(df)
+        push!(byvars, :run)
+    end
+
+    gdf = groupby(df, byvars)
     final_df = DataFrame()
     for _df in gdf
         if !(unique(_df.variable)[1] in div_metrics)
@@ -590,7 +602,11 @@ function compute_divergence(
             ces =
                 collect(_df.ce) |>
                 ces -> [convert(AbstractCounterfactualExplanation, ce) for ce in ces]
-            val, pval = metric(ces, data)
+            if isnothing(nsamples)
+                val, pval = metric(ces, data)
+            else
+                val, pval = metric(ces, data, nsamples; rng=rng)
+            end
             _df.value .= val
             _df.pval .= pval
         end

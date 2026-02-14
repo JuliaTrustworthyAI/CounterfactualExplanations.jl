@@ -17,7 +17,9 @@ include("max_iter.jl")
 Returns `true` if the counterfactual explanation has converged.
 """
 function converged(ce::AbstractCounterfactualExplanation)
-    return converged(ce.convergence, ce)
+    _conv = converged(ce.convergence, ce)
+    ce.search[:converged] = _conv
+    return _conv
 end
 
 """

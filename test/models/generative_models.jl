@@ -13,9 +13,9 @@ ce = CounterfactualExplanations.generate_counterfactual(
     x, target, counterfactual_data, M, generator
 )
 
-using CounterfactualExplanations.GenerativeModels: train!, retrain!, VAE
+using CounterfactualExplanations.GenerativeModels: train!, VAE
 generative_model = VAE(size(X, 1))
 train!(generative_model, X)
-retrain!(generative_model, X)
+train!(generative_model, X; n_epochs=10)
 
 @test true

@@ -101,6 +101,8 @@ end
 
 Predicts the probabilities of the classes for the input data `X` using the model `M`.
 """
-Models.probs(
+function Models.probs(
     M::Models.Model, type::CounterfactualExplanations.LaplaceReduxModel, X::AbstractArray
-) = LaplaceRedux.predict(M.fitresult(), X; predict_proba=true)
+)
+    LaplaceRedux.predict(M.fitresult(), X; predict_proba=true)
+end

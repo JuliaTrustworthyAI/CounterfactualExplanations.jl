@@ -1,6 +1,6 @@
 # A lot of things salvaged from from IPMeasures: https://github.com/aicenter/IPMeasures.jl/blob/master/src/mmd.jl
 using KernelFunctions
-using Random: shuffle
+using Random
 
 export MMD, mmd_null_dist, mmd_significance
 
@@ -51,9 +51,14 @@ end
 
 Computes the MMD between two datasets `x` and `y`, along with a p-value based on a null distribution of MMD values (unless `m.compute_p=nothing`) for a random subset of the data (of sample size `n`). The p-value is computed using a permutation test.
 """
-function (m::MMD)(x::AbstractArray, y::AbstractArray, n::Int; kwrgs...)
-    n = minimum([size(x, 2), n])
-    return m(samplecolumns(x, n), samplecolumns(y, n); kwrgs...)
+function (m::MMD)(
+    x::AbstractArray,
+    y::AbstractArray,
+    n::Int;
+    rng::AbstractRNG=Random.default_rng(),
+    kwrgs...,
+)
+    return m(samplecolumns(rng, x, n), samplecolumns(rng, y, n); kwrgs...)
 end
 
 """
@@ -100,10 +105,12 @@ function mmd_significance(mmd::Number, mmd_null_dist::AbstractArray)
 end
 
 """
-    samplecolumns(x::AbstractMatrix, n::Int)
+    samplecolumns([rng::AbstractRNG], x::AbstractMatrix, n::Int)
 
 Sample `n` columns from a matrix. Returns `x` if the matrix has less than `n` columns.
 """
-function samplecolumns(x::AbstractMatrix, n::Int)
-    return (size(x, 2) > n) ? x[:, sample(1:size(x, 2), n; replace=false)] : x
+function samplecolumns(rng::AbstractRNG, x::AbstractMatrix, n::Int)
+    return (size(x, 2) > n) ? x[:, sample(rng, 1:size(x, 2), n; replace=false)] : x
 end
+
+samplecolumns(x::AbstractMatrix, n::Int) = samplecolumns(Random.default_rng(), x, n)

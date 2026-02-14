@@ -81,8 +81,7 @@ Finds potential neighbors for the selected factual data point.
 function find_potential_neighbours(
     ce::AbstractCounterfactualExplanation, data::CounterfactualData, n::Int=1000
 )
-    nobs = size(data.X, 2)
-    data = DataPreprocessing.subsample(data, minimum([nobs, n]))
+    # Get IDs of samples in target class (ground truth):
     ids = findall(data.output_encoder.labels .== ce.target)
     n_candidates = minimum([size(data.y, 2), n])
     candidates = DataPreprocessing.select_factual(data, rand(ids, n_candidates))
@@ -95,5 +94,6 @@ end
 
 Overloads the function for [`CounterfactualExplanation`](@ref) to use the counterfactual data's labels if no data is provided.
 """
-find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000) =
-    find_potential_neighbours(ce, ce.data, n)
+function find_potential_neighbours(ce::CounterfactualExplanation, n::Int=1000)
+    return find_potential_neighbours(ce, ce.data, n)
+end

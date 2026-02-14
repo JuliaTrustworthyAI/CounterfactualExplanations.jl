@@ -12,7 +12,11 @@ using Statistics: mean
 This is the distance measure proposed by Wachter et al. (2017).
 """
 function distance_mad(
-    ce::AbstractCounterfactualExplanation; agg=Statistics.mean, noise=1e-5, kwrgs...
+    cf::AbstractArray,
+    ce::AbstractCounterfactualExplanation;
+    agg=Statistics.mean,
+    noise=1e-5,
+    kwrgs...,
 )
     X = ce.data.X
     mad = []
@@ -26,7 +30,7 @@ function distance_mad(
         _mad = _dict[:mad_features]
         push!(mad, _mad)
     end
-    return distance(ce; agg=agg, weights=1.0 ./ mad[1], kwrgs...)
+    return distance(cf, ce; agg=agg, weights=1.0 ./ mad[1], kwrgs...)
 end
 
 """
@@ -34,8 +38,8 @@ end
 
 Computes the L0 distance of the counterfactual to the original factual.
 """
-function distance_l0(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; p=0, kwrgs...)
+function distance_l0(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(cf, ce; p=0, kwrgs...)
 end
 
 """
@@ -43,8 +47,8 @@ end
 
 Computes the L1 distance of the counterfactual to the original factual.
 """
-function distance_l1(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; p=1, kwrgs...)
+function distance_l1(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(cf, ce; p=1, kwrgs...)
 end
 
 """
@@ -52,8 +56,8 @@ end
 
 Computes the L2 (Euclidean) distance of the counterfactual to the original factual.
 """
-function distance_l2(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; p=2, kwrgs...)
+function distance_l2(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(cf, ce; p=2, kwrgs...)
 end
 
 """
@@ -61,8 +65,8 @@ end
 
 Computes the L-inf distance of the counterfactual to the original factual.
 """
-function distance_linf(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; p=Inf, kwrgs...)
+function distance_linf(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(cf, ce; p=Inf, kwrgs...)
 end
 
 """
@@ -70,8 +74,8 @@ end
 
 Computes the distance of the counterfactual to the original factual using cosine similarity. See also: [`cos_dist`](@ref).
 """
-function distance_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance(ce; cosine=true, kwrgs...)
+function distance_cosine(cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...)
+    return distance(cf, ce; cosine=true, kwrgs...)
 end
 
 """
@@ -83,9 +87,12 @@ end
 Evaluates how diverse the counterfactuals are using a Determinantal Point Process (DDP).
 """
 function ddp_diversity(
-    ce::AbstractCounterfactualExplanation; perturbation_size=1e-3, agg=det
+    cf::AbstractArray,
+    ce::AbstractCounterfactualExplanation;
+    perturbation_size=1e-3,
+    agg=det,
 )
-    X = ce.counterfactual_state
+    X = cf
     xs = eachslice(X; dims=ndims(X))
     K = [1 / (1 + LinearAlgebra.norm(x .- y)) for x in xs, y in xs]
     K += LinearAlgebra.Diagonal(
@@ -113,6 +120,7 @@ Computes the distance of the counterfactual from samples in the target main. If 
 - `Δ::AbstractFloat`: The distance from the counterfactual to the target manifold.
 """
 function distance_from_target(
+    cf::AbstractArray,
     ce::AbstractCounterfactualExplanation;
     K::Int=50,
     choose_random::Bool=false,
@@ -144,7 +152,7 @@ function distance_from_target(
         Δ = []
         ChainRulesCore.ignore_derivatives() do
             δ = map(eachcol(ys)) do y
-                distance(ce; from=y, kwrgs...)
+                distance(cf, ce; from=y, kwrgs...)
             end
             push!(Δ, δ)
         end
@@ -154,7 +162,7 @@ function distance_from_target(
     neighbours = ys[:, ids]
 
     # Compute distance:
-    Δ = distance(ce; from=neighbours, cosine=cosine, kwrgs...) / size(neighbours, 2)
+    Δ = distance(cf, ce; from=neighbours, cosine=cosine, kwrgs...) / size(neighbours, 2)
 
     return Δ
 end
@@ -168,8 +176,10 @@ Compute the distance from a counterfactual to the target manifold using cosine s
 - `ce::AbstractCounterfactualExplanation`: The counterfactual explanation object.
 - `kwrgs...`: Additional keyword arguments for the distance function.
 """
-function distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwrgs...)
-    return distance_from_target(ce; cosine=true, kwrgs...)
+function distance_from_target_cosine(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...
+)
+    return distance_from_target(cf, ce; cosine=true, kwrgs...)
 end
 
 """
@@ -180,8 +190,10 @@ end
 
 Additional penalty for ClaPROARGenerator.
 """
-function model_loss_penalty(ce::AbstractCounterfactualExplanation; agg=Statistics.mean)
-    x_ = CounterfactualExplanations.counterfactual(ce)
+function model_loss_penalty(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; agg=Statistics.mean
+)
+    x_ = cf
     M = ce.M
     model = isa(M.model, LinearAlgebra.Vector) ? M.model : [M.model]
     y_ = ce.target_encoded
@@ -232,6 +244,7 @@ Computes the energy constraint for the counterfactual explanation as in Altmeyer
 - `ℒ::AbstractFloat`: The energy constraint.
 """
 function energy_constraint(
+    cf::AbstractArray,
     ce::AbstractCounterfactualExplanation;
     agg=mean,
     reg_strength::AbstractFloat=1e-3,
@@ -240,10 +253,7 @@ function energy_constraint(
 )
 
     # Setup:
-    ℒ = 0
-    cf = CounterfactualExplanations.decode_state(ce)     # current state
     t = get_target_index(ce.data.y_levels, ce.target)
-    xs = eachslice(cf; dims=ndims(cf))
 
     # Multiplier ϕ for the energy constraint:
     max_steps = CounterfactualExplanations.Convergence.max_iter(ce.convergence)
@@ -251,14 +261,24 @@ function energy_constraint(
     a = b / 10
     ϕ = polynomial_decay(a, b, decay, total_steps(ce) + 1)
 
+    # Reshape to 2D: (features, samples)
+    n_samples = size(cf, ndims(cf))
+    cf_2d = reshape(cf, :, n_samples)
+
+    # Compute energies using a loop (more AD-stable than comprehension)
+    energies = map(1:n_samples) do j
+        x = @view cf_2d[:, j]
+        energy(ce.M, x, t)
+    end
+
     # Generative loss:
-    gen_loss = energy.(ce.M, xs, t) |> agg
+    gen_loss = agg(energies)
 
     if reg_strength == 0.0
         ℒ = ϕ * gen_loss
     else
         # Regularization loss:
-        reg_loss = norm(energy.(ce.M, xs, t))^2 |> agg
+        reg_loss = agg(norm(energies)^2)
 
         # Total loss:
         ℒ = ϕ * (gen_loss + reg_strength * reg_loss)
@@ -274,7 +294,9 @@ end
 
 EnergyDifferential(; K::Int=50, agg::Function=mean) = EnergyDifferential(K, agg)
 
-function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
+function (pen::EnergyDifferential)(
+    cf::AbstractArray, ce::AbstractCounterfactualExplanation; kwrgs...
+)
 
     # If the potential neighbours have not been computed, do so:
     get!(
@@ -291,7 +313,6 @@ function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation)
     end
 
     # Get counterfactual:
-    cf = CounterfactualExplanations.decode_state(ce)     # current state
     xs = eachslice(cf; dims=ndims(cf))
 
     # Compute energy differential:
@@ -318,12 +339,140 @@ Calculates the hinge loss of a counterfactual explanation with `InvalidationRate
 # Returns
 The hinge loss of the counterfactual explanation.
 """
-function hinge_loss(ce::AbstractCounterfactualExplanation)
+function hinge_loss(cf::AbstractArray, ce::AbstractCounterfactualExplanation)
     typeof(ce.M.type) <: Models.AbstractFluxNN || throw(NotImplementedModel(ce.M))
     if !(ce.convergence isa InvalidationRateConvergence)
         @warn "The hinge loss is only defined for `InvalidationRateConvergence`s. Setting convergence to default `InvalidationRateConvergence`." maxlog =
             1
         ce.convergence = InvalidationRateConvergence()
     end
-    return max(0, invalidation_rate(ce) - ce.convergence.invalidation_rate)
+    return max(0, invalidation_rate(cf, ce) - ce.convergence.invalidation_rate)
+end
+
+# Single-argument convenience methods that compute cf from ce
+
+"""
+    distance_mad(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_mad(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_mad(cf, ce; kwargs...)
+end
+
+"""
+    distance_l0(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l0(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l0(cf, ce; kwargs...)
+end
+
+"""
+    distance_l1(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l1(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l1(cf, ce; kwargs...)
+end
+
+"""
+    distance_l2(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_l2(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_l2(cf, ce; kwargs...)
+end
+
+"""
+    distance_linf(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_linf(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_linf(cf, ce; kwargs...)
+end
+
+"""
+    distance_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_cosine(cf, ce; kwargs...)
+end
+
+"""
+    ddp_diversity(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function ddp_diversity(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return ddp_diversity(cf, ce; kwargs...)
+end
+
+"""
+    distance_from_target(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_from_target(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_from_target(cf, ce; kwargs...)
+end
+
+"""
+    distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function distance_from_target_cosine(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return distance_from_target_cosine(cf, ce; kwargs...)
+end
+
+"""
+    model_loss_penalty(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function model_loss_penalty(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return model_loss_penalty(cf, ce; kwargs...)
+end
+
+"""
+    energy_constraint(ce::AbstractCounterfactualExplanation; kwargs...)
+
+Convenience method that computes cf from ce.
+"""
+function energy_constraint(ce::AbstractCounterfactualExplanation; kwargs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return energy_constraint(cf, ce; kwargs...)
+end
+
+"""
+    hinge_loss(ce::AbstractCounterfactualExplanation)
+
+Convenience method that computes cf from ce.
+"""
+function hinge_loss(ce::AbstractCounterfactualExplanation; kwrgs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return hinge_loss(cf, ce)
+end
+
+# Note: EnergyDifferential is a callable struct, so the single-argument method is:
+function (pen::EnergyDifferential)(ce::AbstractCounterfactualExplanation; kwrgs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return pen(cf, ce)
 end

@@ -1,5 +1,6 @@
 using CounterfactualExplanations
 using CounterfactualExplanations: counterfactual
+using Random
 
 include("mmd.jl")
 
@@ -35,6 +36,7 @@ function (metric::AbstractDivergenceMetric)(
     ces::Vector{<:AbstractCounterfactualExplanation},
     data::CounterfactualData,
     n::Int;
+    rng::AbstractRNG=Random.default_rng(),
     kwrgs...,
 )
 
@@ -42,5 +44,5 @@ function (metric::AbstractDivergenceMetric)(
     counterfactuals, neighbours = get_samples_for_metric(ces, data)
 
     # Compute divergence metric:
-    return metric(counterfactuals, neighbours, n; kwrgs...)
+    return metric(counterfactuals, neighbours, n; rng=rng, kwrgs...)
 end

@@ -30,6 +30,7 @@ include("global_utils.jl")
 export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
 export OutputEncoder
 export get_target_index
+export get_global_ad_backend, set_global_ad_backend
 
 # Error messages:
 include("errors.jl")
@@ -47,6 +48,7 @@ include("data_preprocessing/DataPreprocessing.jl")
 using .DataPreprocessing
 export CounterfactualData,
     select_factual, apply_domain_constraints, OutputEncoder, transformable_features
+export mutability_constraints, mutability_constraints!
 
 ### Models 
 # ℳ[𝒟] : x ↦ y
@@ -79,13 +81,15 @@ using .Generators
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export DiCEGenerator
 export ECCoGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export ProbeGenerator
 export REVISEGenerator
-export DiCEGenerator
+export TCRExGenerator
 export WachterGenerator
 export generator_catalogue
 export generate_perturbations
@@ -98,6 +102,7 @@ include("counterfactuals/Counterfactuals.jl")
 export CounterfactualExplanation, FlattenedCE
 export generate_counterfactual
 export total_steps, converged, terminated, path, target_probs
+export num_counterfactuals
 export animate_path
 export flatten, unflatten, FlattenedCE
 export target_encoded

@@ -10,9 +10,9 @@ function generate_perturbations(
 )
     counterfactual_state = deepcopy(ce.counterfactual_state)
     new_counterfactual_state = propose_state(generator, ce)
-    Δcounterfactual_state = new_counterfactual_state - counterfactual_state
-    Δcounterfactual_state = _replace_nans(Δcounterfactual_state)
-    Δcounterfactual_state = convert.(eltype(ce.factual), Δcounterfactual_state)
+    grad_ce_state = new_counterfactual_state - counterfactual_state
+    grad_ce_state = _replace_nans(grad_ce_state)
+    grad_ce_state = convert.(eltype(ce.factual), grad_ce_state)
 
-    return Δcounterfactual_state
+    return grad_ce_state
 end

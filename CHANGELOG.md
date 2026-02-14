@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.4.6] - 2026-02-06
+
+### Removed
+
+- Temporarily removed tests for NeuroTreeModels.jl pending updates to compat.
+- Temporarily removed tests for benchmarking, which seems non-performant (will open a separate issue).
+
+### Added
+
+- Added a new evaluation measure `feature_sensitivity(ce::AbstractCounterfactualExplanation)` that can be used to compute the proposed absolute changes for features.
+- Added an optional `callback::Union{Nothing,Function}` argument to `generate_counterfactual` to allow users to either display or store anything relevant from the full `CounterfactualExplanation` object. This is useful if the user has specified `return_flattened=true` but still needs something specific from `CounterfactualExplanation` that is not returned with `FlattenedCE`.
+
+### Changed 
+
+- Moved from Flux.jl for autodiff to DifferentiationInterface.jl. Not all backends working for basic examples, but considerable speedup for ForwardDiff compared to Zygote. The following backends work for generic generator:
+  - Zygote.jl
+  - ForwardDiff.jl
+  - PolyesterForwardDiff.jl
+  - GTPSA.jl
+  - FiniteDiff.jl
+  - Symbolics.jl
+- Avoid aggregating divergence metrics across runs.
+- Changed the way mutability constraints can be supplied: users can now supply a tuple of pairs of feature indices and there corresponding constraints.
+- Removed a bug in `reconstruct_cat_encoding` that turned the `counterfactual_state` object from a matrix into a vector.
+- Added option to provide additional keyword arguments to `validity_strict(ce::CounterfactualExplanation; kwrgs...)`.
+- Small bug fix for `validity` function.
+- Improved `find_potential_neighbours` method.
+- Added possibility to run `compute_divergence` for a fixed number of samples. 
+
 ## Version [1.4.5] - 2025-01-13
 
 ### Changed

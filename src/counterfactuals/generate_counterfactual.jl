@@ -26,6 +26,7 @@ The core function that is used to run counterfactual search for a given factual 
 - `convergence::Union{AbstractConvergence,Symbol}=:decision_threshold`: Convergence criterion. By default, the convergence is based on the decision threshold. Possible values are `:decision_threshold`, `:max_iter`, `:generator_conditions` or a conrete convergence object (e.g. [`DecisionThresholdConvergence`](@ref)). 
 - `timeout::Union{Nothing,Int}=nothing`: Timeout in seconds.
 - `return_flattened::Bool`: If true, the flattened CE is returned instead of a CE object.
+- `callback::Union{Nothing,Function}`: An optional callback function that takes a [`CounterfactualExplanation`](@ref) as its only positional input.  
 
 # Examples
 
@@ -86,8 +87,14 @@ function generate_counterfactual(
     convergence::Union{AbstractConvergence,Symbol}=:decision_threshold,
     timeout::Union{Nothing,Real}=nothing,
     return_flattened::Bool=false,
+    callback::Union{Nothing,Function}=nothing,
 )
+
+    # Setup
     output(ce::CounterfactualExplanation) = return_flattened ? flatten(ce) : ce
+    if !isnothing(callback)
+        @assert hasmethod(callback, Tuple{CounterfactualExplanation}) "The `callback` function needs to accept a `CounterfactualExplanation` as its first and only positional input."
+    end
 
     # Initialize:
     ce = CounterfactualExplanation(
@@ -125,6 +132,14 @@ function generate_counterfactual(
             end
         end
     end
+
+    # Callback:
+    if !isnothing(callback)
+        callback(ce)
+    end
+
+    # Convergence:
+    ce.search[:converged] = converged(ce)
 
     # Return full or flattened explanation:
     return output(ce)

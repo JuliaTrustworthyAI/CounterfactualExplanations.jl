@@ -1,4 +1,5 @@
 using Flux: Flux, Adam, cpu, gpu
+using Optimisers: Optimisers
 using ProgressMeter: Progress, next!
 using Statistics: mean
 
@@ -82,7 +83,7 @@ function model_loss(generative_model::VAE, λ, x, device)
     # Negative log-likelihood: - log(p(x|z))
     nll_x_z = -generative_model.params.nll(z, x; agg=sum) / len
     # Weight regularization:
-    reg = λ * sum(x -> sum(x .^ 2), Flux.params(generative_model.decoder))
+    reg = λ * sum(x -> sum(x .^ 2), Flux.trainables(generative_model.decoder))
 
     elbo = -nll_x_z + kl_q_p + reg
 
@@ -91,6 +92,12 @@ end
 
 function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
     generative_model = VAE(size(X, 1); kws...)
+    return train!(generative_model, X; kws...)
+end
+
+function train!(
+    generative_model::VAE, X::AbstractArray; n_epochs::Union{Int,Nothing}=nothing, kws...
+)
 
     # load hyperparamters
     args = generative_model.params
@@ -98,9 +105,6 @@ function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
 
     # load data
     loader = get_data(X, args.batch_size)
-
-    # parameters
-    ps = Flux.params(generative_model)
 
     # Verbosity
     if flux_training_params.verbose
@@ -110,17 +114,20 @@ function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
         )
     end
 
+    # Optimiser state:
+    state = Optimisers.setup(args.opt, generative_model)
+
     # training
-    for epoch in 1:(args.epochs)
+    T = ifelse(isnothing(n_epochs), args.epochs, n_epochs)  # if n_epochs unspecified, rely on VAE params
+    for epoch in 1:T
         avg_loss = []
         for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
+            loss, back = Flux.withgradient(generative_model) do m
+                model_loss(m, args.λ, args.device(x), args.device)
             end
 
             avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
+            Flux.update!(state, generative_model, back[1])
         end
 
         avg_loss = mean(avg_loss)
@@ -131,94 +138,7 @@ function _fit(generative_model::Type{VAE}, X::AbstractArray; kws...)
 
     # Set training status to true:
     generative_model.trained = true
-
     return generative_model
-end
-
-function train!(generative_model::VAE, X::AbstractArray; kws...)
-
-    # load hyperparamters
-    args = generative_model.params
-    args.seed > 0 && Random.seed!(args.seed)
-
-    # load data
-    loader = get_data(X, args.batch_size)
-
-    # parameters
-    ps = Flux.params(generative_model)
-
-    # Verbosity
-    if flux_training_params.verbose
-        @info "Begin training VAE"
-        p_epoch = Progress(
-            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
-        )
-    end
-
-    # training
-    for epoch in 1:(args.epochs)
-        avg_loss = []
-        for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
-            end
-
-            avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
-        end
-
-        avg_loss = mean(avg_loss)
-        if flux_training_params.verbose
-            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss)")])
-        end
-    end
-
-    # Set training status to true:
-    return generative_model.trained = true
-end
-
-function retrain!(generative_model::VAE, X::AbstractArray; n_epochs=10)
-
-    # load hyperparameters
-    args = generative_model.params
-    args.seed > 0 && Random.seed!(args.seed)
-
-    # load data
-    loader = get_data(X, args.batch_size)
-
-    # parameters
-    ps = Flux.params(generative_model)
-
-    # Verbosity
-    if flux_training_params.verbose
-        @info "Begin training VAE"
-        p_epoch = Progress(
-            args.epochs; desc="Progress on epochs:", showspeed=true, color=:green
-        )
-    end
-
-    # training
-    train_steps = 0
-    for epoch in 1:n_epochs
-        avg_loss = []
-        for (x,) in loader
-            loss, back = Flux.pullback(ps) do
-                model_loss(generative_model, args.λ, args.device(x), args.device)
-            end
-
-            avg_loss = vcat(avg_loss, loss)
-            grad = back(1.0f0)
-            Flux.Optimise.update!(args.opt, ps, grad)
-
-            train_steps += 1
-        end
-
-        avg_loss = mean(avg_loss)
-        if flux_training_params.verbose
-            next!(p_epoch; showvalues=[(:Loss, "$(avg_loss)")])
-        end
-    end
 end
 
 """

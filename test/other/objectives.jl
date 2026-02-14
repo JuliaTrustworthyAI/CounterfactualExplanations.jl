@@ -19,11 +19,13 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
     for (lname, lfun) in Objectives.losses_catalogue
         @test lfun(ce) isa AbstractFloat
     end
+    @test predictive_entropy(ce) isa AbstractFloat
 end
 
 @testset "Penalties" begin
     for (pname, pfun) in Objectives.penalties_catalogue
-        @test pfun(ce) isa AbstractFloat
+        cf = CounterfactualExplanations.decode_state(ce)
+        @test pfun(cf, ce) isa AbstractFloat
     end
 
     @testset "EnergyDifferential" begin
@@ -38,6 +40,7 @@ end
         ce = generate_counterfactual(x, target, counterfactual_data, M_tree, generator)
 
         # EnergyDifferential:
-        @test_throws NotImplementedModel EnergyDifferential()(ce)
+        cf = CounterfactualExplanations.decode_state(ce)
+        @test_throws NotImplementedModel EnergyDifferential()(cf, ce)
     end
 end

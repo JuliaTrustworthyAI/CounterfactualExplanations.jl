@@ -54,9 +54,11 @@ end
 
 For abstract divergence metrics, returns a vector of NaN values.
 """
-compute_measure(
+function compute_measure(
     ce::CounterfactualExplanation, measure::AbstractDivergenceMetric, agg::Function
-) = [NaN]
+)
+    return [NaN]
+end
 
 """
     evaluate_dict(ce::CounterfactualExplanation, measure::Vector{Function}, agg::Function)
@@ -90,10 +92,37 @@ function to_dataframe(
     store_ce::Bool,
     ce::CounterfactualExplanation,
 )
+    if any(
+        (x -> length(x[1]) > 1 && length(x[1]) != num_counterfactuals(ce)).(
+            computed_measures
+        ),
+    ) && report_each
+        # This conditional is only ever entered for metrics like `feature_sensitivity`, that may produce multiple results per counterfactual (i.e. here one for each specified feature: evaluate(ce; measure=function(x;kwrgs...)  feature_sensitivity(x, [1,2];kwrgs...) end, report_each=true, output_format=:DataFrame) 
+        @assert num_counterfactuals(ce) == 1 "Combining measures that produce output of different lengths with `num_counterfactuals`>1 is not currently implemented."
+        new_measure = []
+        new_vals = []
+        measure_names = []
+        for (i, x) in enumerate(computed_measures)
+            m = fill(measure[i], length(x[1]))
+            mname = if length(x[1]) > 1
+                ["$(measure_name(measure[i]))_outid:$j" for j in 1:length(x[1])]
+            else
+                [measure_name(measure[i])]
+            end
+            push!(new_measure, m...)
+            push!(new_vals, x[1]...)
+            push!(measure_names, mname...)
+        end
+        measure = new_measure
+        computed_measures = [[x] for x in new_vals]
+    else
+        measure_names = measure_name.(measure)
+    end
+
     evaluation = DataFrames.DataFrame(
         Dict(
             m => report_each ? val[1] : val for
-            (m, val) in zip(measure_name.(measure), computed_measures)
+            (m, val) in zip(Symbol.(measure_names), computed_measures)
         ),
     )
     evaluation.num_counterfactual = 1:nrow(evaluation)
@@ -106,6 +135,14 @@ function to_dataframe(
     end
     DataFrames.select!(evaluation, :num_counterfactual, :)
     return evaluation
+end
+
+function get_outid(varname::String)
+    if contains(varname, "outid:")
+        return parse(Int, varname[end])
+    else
+        return 1
+    end
 end
 
 """

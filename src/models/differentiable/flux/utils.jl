@@ -1,3 +1,4 @@
+using Optimisers: Optimisers
 using ProgressMeter: ProgressMeter
 using Statistics: mean
 
@@ -76,7 +77,7 @@ function forward!(
     avg_loss(data) = mean(map(d -> loss_(model(d[1]), d[2]), data))
 
     # Optimizer:
-    opt_ = getfield(Flux.Optimise, opt)()
+    opt_ = getfield(Optimisers, opt)()
 
     # Training:  
     if flux_training_params.verbose
@@ -94,7 +95,7 @@ function forward!(
             gs = Flux.gradient(model) do m
                 loss_(m(input), label)
             end
-            Flux.Optimise.update!(opt_state, model, gs[1])
+            Optimisers.update!(opt_state, model, gs[1])
         end
         if flux_training_params.verbose
             ProgressMeter.next!(p_epoch; showvalues=[(:Loss, "$(avg_loss(data))")])

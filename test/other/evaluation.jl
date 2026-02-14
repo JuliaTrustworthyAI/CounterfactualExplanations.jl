@@ -3,13 +3,15 @@ using CounterfactualExplanations.Evaluation:
     Benchmark,
     evaluate,
     validity,
+    validity_strict,
     distance_measures,
     concatenate_benchmarks,
-    compute_divergence
-using CounterfactualExplanations.Objectives: distance
+    compute_divergence,
+    feature_sensitivity
+using CounterfactualExplanations.Generators
+using CounterfactualExplanations.Objectives
 using Serialization: serialize
 using TaijaData: load_moons, load_circles
-using TaijaParallel: ThreadsParallelizer
 
 # Dataset
 data = TaijaData.load_overlapping()
@@ -48,9 +50,28 @@ generators = Dict(
 )
 
 @testset "Evaluation" begin
+    @test Generators.total_loss(ce) isa AbstractFloat
     @test typeof(evaluate(ce; measure=validity)) <: Vector
+    @test typeof(evaluate(ce; measure=validity_strict)) <: Vector
+    @test typeof(evaluate(ce; measure=feature_sensitivity)) <: Vector
     @test typeof(evaluate(ce; measure=distance)) <: Vector
     @test typeof(evaluate(ce; measure=distance_measures)) <: Vector
+    @test typeof(
+        evaluate(
+            ce;
+            measure=[
+                Objectives.distance_mad,
+                Objectives.distance_cosine,
+                Objectives.distance_from_target,
+                Objectives.distance_from_target_cosine,
+                Objectives.ddp_diversity,
+                Objectives.model_loss_penalty,
+                Objectives.energy_constraint,
+                Objectives.EnergyDifferential(),
+                Objectives.hinge_loss,
+            ],
+        ),
+    ) <: Vector
     @test typeof(evaluate(ce)) <: Vector
     @test typeof(evaluate.(ces)) <: Vector
     @test typeof(evaluate.(ces; report_each=true)) <: Vector
@@ -76,6 +97,19 @@ generators = Dict(
     @testset "Divergence Metrics" begin
         @test isnan(evaluate(ce; measure=MMD())[1][1])
     end
+
+    @testset "Multiple results per CE (e.g. feature sensitivity)" begin
+        df = evaluate(
+            ce;
+            measure=function (x; kwrgs...)
+                feature_sensitivity(x, [1, 2]; kwrgs...)
+            end,
+            report_each=true,
+            output_format=:DataFrame,
+        )
+        @test df isa DataFrame
+        Evaluation.get_outid.(df.variable)
+    end
 end
 
 @testset "Benchmarking" begin
@@ -83,7 +117,7 @@ end
 
     @testset "Parallelization" begin
         @testset "Threads" begin
-            parallelizer = ThreadsParallelizer()
+            parallelizer = nothing
             bmk = benchmark(
                 counterfactual_data;
                 convergence=:generator_conditions,
@@ -189,7 +223,7 @@ end
         mmd_generic = mmd(ces, counterfactual_data, n_individuals)
 
         bmk =
-            benchmark(ces; measure=[validity, MMD()]) |>
+            benchmark(counterfactual_data; n_runs=2, measure=[validity, MMD()]) |>
             bmk -> compute_divergence(
                 bmk, [validity, MMD(; compute_p=nothing)], counterfactual_data
             )

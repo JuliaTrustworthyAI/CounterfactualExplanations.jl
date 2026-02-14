@@ -4,11 +4,76 @@
 A convenience function that returns the mutability constraints. If none were specified, it is assumed that all features are mutable in `:both` directions.
 """
 function mutability_constraints(counterfactual_data::CounterfactualData)
-    return if isnothing(counterfactual_data.mutability)
-        [:both for i in 1:size(counterfactual_data.X)[1]]
-    else
-        counterfactual_data.mutability
+    return mutability_constraints(counterfactual_data, counterfactual_data.mutability)
+end
+
+"""
+    mutability_constraints(counterfactual_data::CounterfactualData, mutability::Nothing)
+
+If nothing is supplied, all features are assumed to be mutable in both directions.
+"""
+function mutability_constraints(
+    counterfactual_data::CounterfactualData, mutability::Nothing
+)
+    return [:both for i in 1:size(counterfactual_data.X)[1]]
+end
+
+"""
+mutability_constraints(counterfactual_data::CounterfactualData, mutability::Vector{Symbol})
+
+If `mutability` is already a vector of symbols, it is returned as is. 
+"""
+function mutability_constraints(
+    counterfactual_data::CounterfactualData, mutability::Vector{Symbol}
+)
+    return mutability
+end
+
+"""
+mutability_constraints(counterfactual_data::CounterfactualData, mutability::Vector{Symbol})
+
+If `mutability` is already a vector of integers, these are assumed to be indices of immutable features. All other features are assumed to be mutable in both directions. This offers a convenient way to quickly specify immutable features.
+"""
+function mutability_constraints(
+    counterfactual_data::CounterfactualData, mutability::Vector{Int}
+)
+    mutability_final = mutability_constraints(counterfactual_data, nothing) # starting point
+    for i in mutability
+        # Set all referenced indices to immutable:
+        mutability_final[i] = :none
     end
+    return mutability_final
+end
+
+"""
+    mutability_constraints(counterfactual_data::CounterfactualData, mutability::Pair{K,V}...) where {K<:Int,V<:Symbol}
+
+If pairs of feature indices (`::Int`) and constraints (`::Symbol`) are supplied, the given constraints are applied to the corresponding features. All other features are assumed to be mutable in both directions.
+"""
+function mutability_constraints(
+    counterfactual_data::CounterfactualData, mutability::Pair{K,V}...
+) where {K<:Int,V<:Symbol}
+    mutability_final = mutability_constraints(counterfactual_data, nothing) # starting point
+    for (k, v) in mutability
+        mutability_final[k] = v
+    end
+    return mutability_final
+end
+
+function mutability_constraints(
+    counterfactual_data::CounterfactualData, mutability::Tuple{Vararg{Pair{Int,Symbol}}}
+)
+    return mutability_constraints(counterfactual_data, mutability...)
+end
+
+"""
+    mutability_constraints!(counterfactual_data::CounterfactualData, mutability)
+
+Applies provided mutability constraints in-place to existing data.
+"""
+function mutability_constraints!(counterfactual_data::CounterfactualData, mutability)
+    counterfactual_data.mutability = mutability_constraints(counterfactual_data, mutability)
+    return counterfactual_data.mutability
 end
 
 """

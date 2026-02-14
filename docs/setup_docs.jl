@@ -20,14 +20,12 @@ setup_docs = quote
     using MLDatasets
     using MLDatasets: convert2image
     using MLJBase
-    using MLJModels: OneHotEncoder
+    using MLJTransforms: OneHotEncoder
     using Plots
     using Random
     using StatsBase
     using Tables
     using TaijaData
-    using TaijaParallel
-    using TaijaParallel: @with_parallelizer
     using TaijaPlotting: animate_path
     using TaijaInteroperability
     using TaijaData

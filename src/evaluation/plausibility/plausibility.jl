@@ -32,7 +32,8 @@ function plausibility(
     end
 
     # Compute the distance from the target:
-    Δ = fun(ce; K=K, kwrgs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    Δ = fun(cf, ce; K=K, kwrgs...)
     return -Δ
 end
 
@@ -73,7 +74,8 @@ function plausibility(
     end
 
     # Compute the distance from the target:
-    Δ = fun(ce; K=K, kwrgs...)
+    cf = CounterfactualExplanations.decode_state(ce)
+    Δ = fun(cf, ce; K=K, kwrgs...)
     return -Δ
 end
 
@@ -99,7 +101,7 @@ Computes the plausibility of a counterfactual explanation based on the cosine si
 function plausibility(
     ce::CounterfactualExplanation, fun::Objectives.EnergyDifferential; kwrgs...
 )
-    Δ = fun(ce)
+    Δ = fun(CounterfactualExplanations.decode_state(ce), ce)
     return -Δ
 end
 

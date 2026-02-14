@@ -32,6 +32,7 @@ export faithfulness
 export plausibility_measures, default_measures, distance_measures, all_measures
 export concatenate_benchmarks
 export compute_divergence
+export feature_sensitivity
 
 "Available plausibility measures."
 const plausibility_measures = [
@@ -49,6 +50,7 @@ const distance_measures = [
     CounterfactualExplanations.Objectives.distance_l1,
     CounterfactualExplanations.Objectives.distance_l2,
     CounterfactualExplanations.Objectives.distance_linf,
+    CounterfactualExplanations.Objectives.distance_cosine,
 ]
 
 "All measures."

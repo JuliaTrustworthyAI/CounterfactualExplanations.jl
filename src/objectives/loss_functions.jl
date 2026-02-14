@@ -1,4 +1,4 @@
-using Statistics: Statistics
+using Flux: Flux
 
 """
 	Flux.Losses.logitbinarycrossentropy(ce::AbstractCounterfactualExplanation)
@@ -23,20 +23,6 @@ Simply extends the `logitcrossentropy` method to work with objects of type `Abst
 """
 function Flux.Losses.logitcrossentropy(ce::AbstractCounterfactualExplanation; kwargs...)
     loss = Flux.Losses.logitcrossentropy(
-        logits(ce.M, CounterfactualExplanations.decode_state(ce)),
-        ce.target_encoded;
-        kwargs...,
-    )
-    return loss
-end
-
-"""
-	Flux.Losses.mse(ce::AbstractCounterfactualExplanation)
-
-Simply extends the `mse` method to work with objects of type `AbstractCounterfactualExplanation`.
-"""
-function Flux.Losses.mse(ce::AbstractCounterfactualExplanation; kwargs...)
-    loss = Flux.Losses.mse(
         logits(ce.M, CounterfactualExplanations.decode_state(ce)),
         ce.target_encoded;
         kwargs...,
