@@ -57,7 +57,7 @@ For abstract divergence metrics, returns a vector of NaN values.
 function compute_measure(
     ce::CounterfactualExplanation, measure::AbstractDivergenceMetric, agg::Function
 )
-    [NaN]
+    return [NaN]
 end
 
 """
@@ -97,6 +97,7 @@ function to_dataframe(
             computed_measures
         ),
     ) && report_each
+        # This conditional is only ever entered for metrics like `feature_sensitivity`, that may produce multiple results per counterfactual (i.e. here one for each specified feature: evaluate(ce; measure=function(x;kwrgs...)  feature_sensitivity(x, [1,2];kwrgs...) end, report_each=true, output_format=:DataFrame) 
         @assert num_counterfactuals(ce) == 1 "Combining measures that produce output of different lengths with `num_counterfactuals`>1 is not currently implemented."
         new_measure = []
         new_vals = []

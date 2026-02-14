@@ -20,7 +20,6 @@ ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
         @test lfun(ce) isa AbstractFloat
     end
     @test predictive_entropy(ce) isa AbstractFloat
-
 end
 
 @testset "Penalties" begin

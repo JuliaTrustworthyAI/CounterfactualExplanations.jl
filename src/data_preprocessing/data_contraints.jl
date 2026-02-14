@@ -63,7 +63,7 @@ end
 function mutability_constraints(
     counterfactual_data::CounterfactualData, mutability::Tuple{Vararg{Pair{Int,Symbol}}}
 )
-    mutability_constraints(counterfactual_data, mutability...)
+    return mutability_constraints(counterfactual_data, mutability...)
 end
 
 """

@@ -97,6 +97,19 @@ generators = Dict(
     @testset "Divergence Metrics" begin
         @test isnan(evaluate(ce; measure=MMD())[1][1])
     end
+
+    @testset "Multiple results per CE (e.g. feature sensitivity)" begin
+        df = evaluate(
+            ce;
+            measure=function (x; kwrgs...)
+                feature_sensitivity(x, [1, 2]; kwrgs...)
+            end,
+            report_each=true,
+            output_format=:DataFrame,
+        )
+        @test df isa DataFrame
+        Evaluation.get_outid.(df.variable)
+    end
 end
 
 @testset "Benchmarking" begin
