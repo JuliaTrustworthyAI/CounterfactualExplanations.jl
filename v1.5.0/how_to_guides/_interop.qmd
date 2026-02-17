@@ -1,0 +1,150 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# How to explain R/Python models
+
+The Julia language offers unique support for programming language interoperability. For example, calling Python and R is made remarkably easy through `PyCall.jl` (or `PythonCall.jl`) and `RCall.jl`. In this tutorial, we will see how `CounterfactualExplanations.jl` can leverage this functionality. 
+
+## `torch` model trained in R
+
+First off, let's load some data:
+
+```{julia}
+counterfactual_data = load_circles()
+X = counterfactual_data.X
+y = vec(float.(counterfactual_data.y))
+```
+
+The code below builds a simple MLP in R:
+
+```{julia}
+using RCall
+R"""
+# Data
+library(torch)
+X <- torch_tensor(t($X))
+y <- torch_tensor($y)
+
+# Model:
+mlp <- nn_module(
+  initialize = function() {
+    self$layer1 <- nn_linear(2, 32)
+    self$layer2 <- nn_linear(32, 1)
+  },
+  forward = function(input) {
+    input <- self$layer1(input)
+    input <- nnf_sigmoid(input)
+    input <- self$layer2(input)
+    input
+  }
+)
+model <- mlp()
+optimizer <- optim_adam(model$parameters, lr = 0.1)
+loss_fun <- nnf_binary_cross_entropy_with_logits
+"""
+```
+
+The following code trains the MLP for the binary prediction task at hand:
+
+```{julia}
+#| output: true
+R"""
+for (epoch in 1:100) {
+
+  model$train()  
+
+  # Compute prediction and loss:
+  output <- model(X)[,1]
+  loss <- loss_fun(output, y)
+
+  # Backpropagation:
+  optimizer$zero_grad()
+  loss$backward()
+  optimizer$step()
+  
+  cat(sprintf("Loss at epoch %d: %7f\n", epoch, loss$item()))
+}
+"""
+```
+
+### Making the model compatible
+
+As always we need to extend the `logits` and `probs` functions to make the model compatible with `CounterfactualExplanations.jl`. As evident from the code below, this is actually quite straightforward: the logits are returned by the `torch` model and copied from R into the Julia environment. Probabilities are then computed in Julia, by passing the logits through the sigmoid function.
+
+```{julia}
+using CounterfactualExplanations.Models
+
+# Step 1)
+struct MyRTorchModel <: Models.AbstractDifferentiableModel
+    model::Any
+    likelihood::Symbol
+end
+
+# Step 2)
+function Models.logits(M::MyRTorchModel, X::AbstractArray)
+  nn = M.model
+  ŷ = SliceMap.slicemap(X, dims=(1,2)) do x
+      _ŷ = rcopy(R"as_array($nn(torch_tensor(t($x))))")
+      _ŷ = isa(_ŷ, AbstractArray) ? _ŷ : [_ŷ]
+      _ŷ = reshape(_ŷ, (1,size(x,2)))
+      return _ŷ
+  end
+  return ŷ
+end
+Models.probs(M::MyRTorchModel, X::AbstractArray)= σ.(logits(M, X))
+M = MyRTorchModel(R"model", :classification_binary)
+```
+
+### Adapting the generator
+
+Next, we need to do a tiny bit of work on the `AbstractGenerator` side. By default, methods underlying the `GenericGenerator` are designed to work with models that have gradient access through `Zygote.jl`, one of Julia's main auto-differentiation packages. Of course, `Zygote.jl` cannot access the gradients of our `torch` model, so we need to adapt the code slightly. Fortunately, it turns out that all we need to do is extend the function that computes the gradient with respect to the loss function for the generic counterfactual search. In particular, we will extend the function by a method that is specific to the `MyRTorchModel` type we defined above. The code below implements this: 
+
+```{julia}
+using CounterfactualExplanations.Generators
+function Generators.∂ℓ(
+  generator::AbstractGradientBasedGenerator, 
+  M::MyRTorchModel, 
+  counterfactual_explanation::CounterfactualExplanation
+) 
+  nn = M.model
+  s′ = counterfactual_explanation.s′
+  target = counterfactual_explanation.target_encoded
+  grad = SliceMap.slicemap(s′, dims=(1,2)) do x
+      R"""
+      x <- torch_tensor(t($x), requires_grad=TRUE)
+      target <- torch_tensor($target)
+      # output <- $nn(x)
+      # obj_loss <- nnf_binary_cross_entropy_with_logits(output,$target)
+      # obj_loss$backward()
+      """
+      _grad = rcopy(R"as_array(x$grad)")
+      return _grad
+  end
+  return grad
+end
+```
+
+### Generating counterfactuals
+
+From here on onwards we use the `CounterfactualExplanations.jl` functionality as always:
+
+```{julia}
+#| output: true
+
+factual_label = 0
+target = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual_label))
+x = select_factual(counterfactual_data, chosen)  
+
+# Counterfactual search:
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+plot(ce)
+```

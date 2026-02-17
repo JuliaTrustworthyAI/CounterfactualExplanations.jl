@@ -1,0 +1,91 @@
+```@meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# Data Catalogue
+
+To allow researchers and practitioners to test and compare counterfactual generators, the TAIJA environment includes the package `TaijaData.jl` which comes with pre-processed synthetic and real-world benchmark datasets from different domains. This page explains how to use `TaijaData.jl` in tandem with `CounterfactualExplanations.jl`.
+
+## Synthetic Data
+
+The following dictionary can be used to inspect the available methods to generate synthetic datasets where the `key` indicates the name of the data and the `value` is the corresponding method:
+
+```{julia}
+#| output: true
+TaijaData.data_catalogue[:synthetic]
+```
+
+The chart below shows the generated data using default parameters:
+
+```{julia}
+#| output: true
+plts = []
+_height = 200
+_n = length(keys(data_catalogue[:synthetic]))
+for (key, fun) in data_catalogue[:synthetic]
+    data = fun()
+    counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+    plt = plot()
+    scatter!(counterfactual_data, title=key)
+    plts = [plts..., plt]
+end
+plot(plts..., size=(_n * _height, _height), layout=(1, _n))
+```
+
+## Real-World Data
+
+As for real-world data, the same dictionary can be used to inspect the available data from different domains. 
+
+```{julia}
+#| output: true
+TaijaData.data_catalogue[:tabular]
+```
+
+```{julia}
+#| output: true
+TaijaData.data_catalogue[:vision]
+```
+
+## Loading Data
+
+To load or generate any of the datasets listed above, you can just use the corresponding method, for example:
+
+```{julia}
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+```
+
+Optionally, you can specify how many samples you want to generate like so:
+
+```{julia}
+n = 100
+data = TaijaData.load_overlapping(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+```
+
+This also applies to real-world datasets, which by default are loaded in their entirety. If `n` is supplied, the dataset will be randomly undersampled:
+
+```{julia}
+data = TaijaData.load_mnist(n)
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+```
+
+The undersampled dataset is automatically balanced:
+
+```{julia}
+#| output: true
+sum(counterfactual_data.y; dims=2)
+```
+
+We can also use a helper function to split the data into train and test sets:
+
+```{julia}
+train_data, test_data = 
+    CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
+```

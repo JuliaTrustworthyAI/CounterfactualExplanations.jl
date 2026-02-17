@@ -1,0 +1,38 @@
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+
+```{julia}
+Random.seed!(42)
+# Counteractual data and model:
+data = TaijaData.load_linearly_separable()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+
+# Search:
+generator = GenericGenerator()
+ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+
+```{julia}
+data_large = TaijaData.load_linearly_separable(100000)
+counterfactual_data_large = DataPreprocessing.CounterfactualData(data_large...)
+```
+
+
+```{julia}
+@time generate_counterfactual(x, target, counterfactual_data, M, generator)
+```
+
+
+```{julia}
+@time generate_counterfactual(x, target, counterfactual_data_large, M, generator)
+```

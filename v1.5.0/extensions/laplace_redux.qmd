@@ -1,0 +1,74 @@
+``` @meta
+CurrentModule = CounterfactualExplanations 
+```
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+# [LaplaceRedux.jl](https://github.com/JuliaTrustworthyAI/LaplaceRedux.jl)
+
+[LaplaceRedux.jl](https://github.com/JuliaTrustworthyAI/LaplaceRedux.jl) is one of Taija's own packages that provides a framework for Effortless Bayesian Deep Learning through Laplace Approximation for Flux.jl neural networks. The methodology was first proposed by @immer2020improving and implemented in Python by @daxberger2021laplace. This is relevant to the work on counterfactual explanations (CE), because research has shown that counterfactual explanations for Bayesian models are typically more plausible, because Bayesian models are able to capture the uncertainty in the data [@schut2021generating].
+
+```{=commonmark}
+!!! tip "Read More"
+    To learn more about Laplace Redux, head over to the [official documentation](https://juliatrustworthyai.github.io/LaplaceRedux.jl/stable/).
+```
+
+## Example
+
+```{julia}
+#| echo: false
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Plots
+using TaijaData
+using TaijaPlotting
+```
+
+The extension will be loaded automatically when loading the `LaplaceRedux` package (assuming the `CounterfactualExplanations` package is also loaded).
+
+```{julia}
+#| output: true
+#| echo: true
+
+using LaplaceRedux
+```
+
+Next, we will fit a neural network with Laplace Approximation to the moons dataset using our standard package API for doing so. By default, the Bayesian prior is optimized through empirical Bayes using the `LaplaceRedux` package.
+
+```{julia}
+#| output: true
+#| echo: true
+
+# Fit model to data:
+data = CounterfactualData(load_moons()...)
+M = fit_model(data, :LaplaceRedux; n_hidden=16)
+```
+
+Finally, we select a factual instance and generate a counterfactual explanation for it using the generic gradient-based CE method.
+
+```{julia}
+#| output: true
+#| echo: true
+
+# Select a factual instance:
+target = 1
+factual = 0
+chosen = rand(findall(predict_label(M, data) .== factual))
+x = select_factual(data, chosen)
+
+# Generate counterfactual explanation:
+η = 0.01
+generator = GenericGenerator(; opt=Descent(η), λ=0.01)
+conv = CounterfactualExplanations.Convergence.DecisionThresholdConvergence(;
+    decision_threshold=0.9, max_iter=100
+)
+ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
+plot(ce, alpha=0.1)
+```
+
+# References

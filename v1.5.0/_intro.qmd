@@ -1,0 +1,418 @@
+# CounterfactualExplanations
+
+*Counterfactual Explanations and Algorithmic Recourse in Julia.*
+
+[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/stable) 
+[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev) 
+[![Build Status](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/actions/workflows/CI.yml?query=branch%3Amain) 
+[![Coverage](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/juliatrustworthyai/CounterfactualExplanations.jl) 
+[![Code Style: Blue](https://img.shields.io/badge/code%20style-blue-4495d1.svg)](https://github.com/invenia/BlueStyle) 
+[![License](https://img.shields.io/github/license/juliatrustworthyai/CounterfactualExplanations.jl)](LICENSE) 
+[![Package Downloads](https://img.shields.io/badge/dynamic/json?url=http%3A%2F%2Fjuliapkgstats.com%2Fapi%2Fv1%2Fmonthly_downloads%2FCounterfactualExplanations&query=total_requests&suffix=%2Fmonth&label=Downloads)](http://juliapkgstats.com/pkg/CounterfactualExplanations) 
+[![Aqua QA](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+
+```{julia}
+#| echo: false
+include("$(pwd())/docs/setup_docs.jl")
+eval(setup_docs)
+```
+
+`CounterfactualExplanations.jl` is a package for generating Counterfactual Explanations (CE) and Algorithmic Recourse (AR) for black-box algorithms. Both CE and AR are related tools for explainable artificial intelligence (XAI). While the package is written purely in Julia, it can be used to explain machine learning algorithms developed and trained in other popular programming languages like Python and R. See below for a short introduction and other resources or dive straight into the [docs](https://juliatrustworthyai.github.io/CounterfactualExplanations.jl/dev).
+
+There is also a corresponding paper, [*Explaining Black-Box Models through Counterfactuals*](https://proceedings.juliacon.org/papers/10.21105/jcon.00130), which has been published in JuliaCon Proceedings. Please consider citing the paper, if you use this package in your work:
+
+[![DOI](https://proceedings.juliacon.org/papers/10.21105/jcon.00130/status.svg)](https://doi.org/10.21105/jcon.00130) [![DOI](https://zenodo.org/badge/440782065.svg)](https://zenodo.org/badge/latestdoi/440782065) 
+
+```
+@article{Altmeyer2023,
+  doi = {10.21105/jcon.00130},
+  url = {https://doi.org/10.21105/jcon.00130},
+  year = {2023},
+  publisher = {The Open Journal},
+  volume = {1},
+  number = {1},
+  pages = {130},
+  author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. S. Liem},
+  title = {Explaining Black-Box Models through Counterfactuals},
+  journal = {Proceedings of the JuliaCon Conferences}
+}
+```
+
+## 🚩 Installation
+
+You can install the stable release from [Julia's General Registry](https://github.com/JuliaRegistries/General) as follows:
+
+``` julia
+using Pkg
+Pkg.add("CounterfactualExplanations")
+```
+
+`CounterfactualExplanations.jl` is under active development. To install the development version of the package you can run the following command:
+
+``` julia
+using Pkg
+Pkg.add(url="https://github.com/juliatrustworthyai/CounterfactualExplanations.jl")
+```
+
+## 🤔 Background and Motivation
+
+Machine learning models like Deep Neural Networks have become so complex, opaque and underspecified in the data that they are generally considered Black Boxes. Nonetheless, such models often play a key role in data-driven decision-making systems. This creates the following problem: human operators in charge of such systems have to rely on them blindly, while those individuals subject to them generally have no way of challenging an undesirable outcome:
+
+> "You cannot appeal to (algorithms). They do not listen. Nor do they bend."
+>
+> --- Cathy O'Neil in [*Weapons of Math Destruction*](https://en.wikipedia.org/wiki/Weapons_of_Math_Destruction), 2016
+
+## 🔮 Enter: Counterfactual Explanations
+
+Counterfactual Explanations can help human stakeholders make sense of the systems they develop, use or endure: they explain how inputs into a system need to change for it to produce different decisions. Explainability benefits internal as well as external quality assurance.
+
+Counterfactual Explanations have a few properties that are desirable in the context of Explainable Artificial Intelligence (XAI). These include:
+
+-   Full fidelity to the black-box model, since no proxy is involved.
+-   No need for (reasonably) interpretable features as opposed to LIME and SHAP.
+-   Clear link to Algorithmic Recourse and Causal Inference.
+-   Less susceptible to adversarial attacks than LIME and SHAP.
+
+### Simple Usage Example
+
+To get started, try out this simple usage example with synthetic data:
+
+```{julia}
+#| output: true
+
+using CounterfactualExplanations
+using CounterfactualExplanations.Models
+using Plots
+using TaijaData
+using TaijaPlotting
+
+# Data and Model:
+data = load_linearly_separable()
+counterfactual_data = CounterfactualData(data...)
+M = fit_model(counterfactual_data, :Linear)
+
+# Choose factual:
+target = 2
+factual = 1
+chosen = findall(predict_label(M, counterfactual_data) .== factual) |>
+  rand
+x = select_factual(counterfactual_data, chosen)
+
+# Generate counterfactuals
+generator = WachterGenerator()
+ce = generate_counterfactual(
+  x,                      # factual
+  target,                 # target
+  counterfactual_data,    # data
+  M,                      # model
+  generator               # counterfactual generator
+)
+plot(ce)
+```
+
+### Example: Give Me Some Credit
+
+```{julia}
+#| echo: false
+
+Random.seed!(2024)
+
+# Data and Model:
+data = TaijaData.load_gmsc(10000)
+counterfactual_data = CounterfactualExplanations.DataPreprocessing.CounterfactualData(data...)
+train_data, test_data = CounterfactualExplanations.DataPreprocessing.train_test_split(counterfactual_data)
+flux_training_params.batchsize = 50
+flux_training_params.verbose = true
+M = fit_model(train_data, :MLP; dropout=true, n_hidden=64, n_layers=4)
+ŷ = predict_label(M, train_data)
+
+# Randomly selected factual:
+target_class = 1
+non_target_class = 0
+n_ce = 10
+x = select_factual(train_data,rand(findall(vec(ŷ).==non_target_class), n_ce))
+CounterfactualExplanations.reset!(flux_training_params)
+
+# Mutability:
+input_names = Symbol.([
+  "unsecured_lines",
+  "age",
+  "times_past_due",
+  "debt_ratio",
+  "income",
+  "number_loans",
+  "times_late",
+  "number_mortgages",
+  "times_past_due_2",
+  "number_dependents",
+])
+_mut = [:both for i in 1:length(input_names)]
+_mut[2] = :increase
+counterfactual_data.mutability = _mut
+x1 = :income   # Amount of given credit
+x2 = :age
+
+# Generator:
+generator = GenericGenerator(
+    opt = Descent(0.1)
+)
+```
+
+Consider the following real-world scenario: a retail bank is using a black-box model trained on their clients' credit history to decide whether they will provide credit to new applicants. To simulate this scenario, we have pre-trained a binary classifier on the publicly available Give Me Some Credit dataset that ships with this package [@kaggle2011give].
+
+```{julia}
+#| echo: false
+#| output: true
+
+Markdown.parse(
+  """
+  The figure below shows counterfactuals for $(n_ce) randomly chosen individuals that would have been denied credit initially. 
+  """
+)
+```
+
+```{julia}
+#| output: true
+#| echo: false
+
+counterfactuals = generate_counterfactual(
+  x, target_class, counterfactual_data, M, generator;
+  initialization = :identity,
+)
+
+# Plotting:
+plt = plot()
+
+map(enumerate(counterfactuals)) do (idx, x)
+
+    x_origin = x.x
+    x_origin = selectdim(x_origin,3,1)
+    x_origin = vcat(x_origin[findall(input_names.==x1)], x_origin[findall(input_names.==x2)])
+
+    _x = CounterfactualExplanations.counterfactual(x)
+    _x = selectdim(_x,3,1)
+    _x = vcat(_x[findall(input_names.==x1)], _x[findall(input_names.==x2)])
+
+    if idx == 1
+        non_target_label = "Loan denied"
+        target_label = "Loan provided"
+    else
+        non_target_label = ""
+        target_label = ""
+    end
+
+    scatter!(
+        plt, 
+        [x_origin[1]],
+        [x_origin[2]],
+        xlabel = x1,
+        ylabel = x2,
+        colour = non_target_class,
+        label = non_target_label,
+        ms = 10
+    )
+
+    # Marker
+    scatter!(
+        plt, 
+        [_x[1]],
+        [_x[2]],
+        colour = target_class,
+        label = target_label,
+        ms = 10
+    )
+
+    # Arrow
+    plot!(
+        plt, 
+        vcat(x_origin[1],_x[1]), 
+        vcat(x_origin[2],_x[2]), 
+        arrow=true, color=:black, linewidth=2, label=""
+    )
+ 
+end
+
+plt = plot(plt, size=(500, 400), legend=:bottomright)
+display(plt)
+```
+
+### Example: MNIST
+
+```{julia}
+#| echo: false
+using CounterfactualExplanations.Models: load_mnist_mlp
+data = TaijaData.load_mnist()
+counterfactual_data = DataPreprocessing.CounterfactualData(data...)
+X, y = counterfactual_data.X, counterfactual_data.y
+input_dim, n_obs = size(counterfactual_data.X)
+M = load_mnist_mlp()
+```
+
+```{julia}
+#| echo: false
+
+Random.seed!(42)
+factual_label = 8
+x = reshape(X[:,rand(findall(predict_label(M, counterfactual_data).==factual_label))],input_dim,1)
+target = 3
+factual = predict_label(M, counterfactual_data, x)[1]
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+Markdown.parse(
+  """
+  The figure below shows a counterfactual generated for an image classifier trained on MNIST: in particular, it demonstrates which pixels need to change in order for the classifier to predict $(target) instead of $(factual). 
+  """
+)
+```
+
+Since `v0.1.9` counterfactual generators are fully composable. Here we have composed a generator that combines ideas from @wachter2017counterfactual and @altmeyer2023endogenous:
+
+```{julia}
+# Compose generator:
+using CounterfactualExplanations.Objectives: distance_mad, distance_from_target
+generator = GradientBasedGenerator()
+@chain generator begin
+    @objective logitcrossentropy + 0.2distance_mad + 0.1distance_from_target
+    @with_optimiser Adam(0.1)                  
+end
+```
+
+```{julia}
+#| echo: false
+#| output: true
+
+conv = 
+  CounterfactualExplanations.Convergence.GeneratorConditionsConvergence(
+    decision_threshold=0.9,
+    max_iter=100,
+  )
+ce = generate_counterfactual(
+  x, target, counterfactual_data, M, generator;
+  convergence=conv
+)
+
+image_size = 300
+p1 = plot(
+    convert2image(MNIST, reshape(x,28,28)),
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="Factual"
+)
+savefig(p1, joinpath(www_path, "mnist_factual.png"))
+target_prob = round(target_probs(ce)[1],digits=2)
+ŷ = CounterfactualExplanations.counterfactual_label(ce)[1]
+p2 = plot(
+    convert2image(MNIST, reshape(CounterfactualExplanations.counterfactual(ce),28,28)),
+    axis=nothing, 
+    size=(image_size, image_size),
+    title="Counterfactual"
+)
+plt = plot(p1,p2;size=(image_size * 2,image_size), layout=(1,2))
+display(plt)
+```
+
+## 🔍 Usage example
+
+Generating counterfactuals will typically look like follows. Below we first fit a simple model to a synthetic dataset with linearly separable features and then draw a random sample:
+
+```{julia}
+# Data and Classifier:
+counterfactual_data = CounterfactualData(load_linearly_separable()...)
+M = fit_model(counterfactual_data, :Linear)
+
+# Select random sample:
+target = 2
+factual = 1
+chosen = rand(findall(predict_label(M, counterfactual_data) .== factual))
+x = select_factual(counterfactual_data, chosen)
+```
+
+To this end, we specify a counterfactual generator of our choice:
+
+```{julia}
+# Counterfactual search:
+generator = DiCEGenerator(λ=[0.1,0.3])
+```
+
+```{julia}
+#| output: true
+#| echo: false
+Markdown.parse(
+  """
+  Here, we have chosen to use the `$(typeof(generator))` to move the individual from its factual label $(factual) to the target label $(target).
+  """
+)
+```
+
+With all of our ingredients specified, we finally generate counterfactuals using a simple API call:
+
+```{julia}
+conv = conv = CounterfactualExplanations.Convergence.GeneratorConditionsConvergence()
+ce = generate_counterfactual(
+  x, target, counterfactual_data, M, generator; 
+  num_counterfactuals=3, convergence=conv,
+)
+```
+
+The plot below shows the resulting counterfactual path:
+
+```{julia}
+#| output: true
+#| echo: false
+
+plot(ce; title="Factual: $(factual) → Target: $(target)")
+```
+
+## ☑️ Implemented Counterfactual Generators
+
+Currently, the following counterfactual generators are implemented:
+
+-   ClaPROAR [@altmeyer2023endogenous]
+-   CLUE [@antoran2020getting]
+-   DiCE [@mothilal2020explaining]
+-   ECCCo [@altmeyer2024faithful]
+-   FeatureTweak [@tolomei2017interpretable]
+-   Generic
+-   GravitationalGenerator [@altmeyer2023endogenous]
+-   Greedy [@schut2021generating]
+-   MINT [@karimi2020algorithmic] (**causal CE**)
+-   PROBE [@pawelczyk2022probabilistically]
+-   REVISE [@joshi2019realistic]
+-   T-CREx [@bewley2024counterfactual] (**global CE**)
+-   Wachter [@wachter2017counterfactual]
+
+## 🎯 Goals and limitations
+
+The goal of this library is to contribute to efforts towards trustworthy machine learning in Julia. The Julia language has an edge when it comes to trustworthiness: it is very transparent. Packages like this one are generally written in pure Julia, which makes it easy for users and developers to understand and contribute to open-source code. Eventually, this project aims to offer a one-stop-shop of counterfactual explanations.
+
+Our ambition is to enhance the package through the following features:
+
+1.  Support for all supervised machine learning models trained in [`MLJ.jl`](https://alan-turing-institute.github.io/MLJ.jl/dev/).
+2.  Support for regression models.
+
+{{< include /docs/src/contribute.qmd >}}
+
+## 🎓 Citation
+
+If you want to use this codebase, please consider citing the corresponding paper:
+
+```         
+@article{Altmeyer2023,
+  doi = {10.21105/jcon.00130},
+  url = {https://doi.org/10.21105/jcon.00130},
+  year = {2023},
+  publisher = {The Open Journal},
+  volume = {1},
+  number = {1},
+  pages = {130},
+  author = {Patrick Altmeyer and Arie van Deursen and Cynthia C. s. Liem},
+  title = {Explaining Black-Box Models through Counterfactuals},
+  journal = {Proceedings of the JuliaCon Conferences}
+}
+```
+
+## 📚 References

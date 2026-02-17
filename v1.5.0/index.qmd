@@ -1,0 +1,15 @@
+---
+engine: julia
+julia: 
+  exeflags: ["--project=docs/"]
+---
+
+```@meta
+CurrentModule = CounterfactualExplanations
+```
+
+![](assets/wide_logo.png)
+
+Documentation for [CounterfactualExplanations.jl](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl).
+
+{{< include _intro.qmd >}}
