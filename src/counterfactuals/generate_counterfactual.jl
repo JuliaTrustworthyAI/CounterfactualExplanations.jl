@@ -35,6 +35,10 @@ The core function that is used to run counterfactual search for a given factual 
 ```jldoctest
 julia> using CounterfactualExplanations
 
+julia> using CounterfactualExplanations.Generators
+
+julia> using CounterfactualExplanations.Models
+
 julia> using TaijaData
        
         # Counteractual data and model:
@@ -47,9 +51,9 @@ julia> target = 2;
 
 julia> factual = 1;
 
-julia> chosen = rand(findall(predict_label(M, counterfactual_data) .== factual));
+julia> chosen = rand(findall(Models.predict_label(M, counterfactual_data) .== factual));
 
-julia> x = select_factual(counterfactual_data, chosen);
+julia> x = CounterfactualExplanations.select_factual(counterfactual_data, chosen);
        
        # Search:
 
@@ -57,7 +61,7 @@ julia> generator = Generators.GenericGenerator();
 
 julia> ce = generate_counterfactual(x, target, counterfactual_data, M, generator);
 
-julia> converged(ce.convergence, ce)
+julia> CounterfactualExplanations.converged(ce.convergence, ce)
 true
 ```
 
@@ -66,14 +70,31 @@ true
 The `generate_counterfactual` method can also be broadcasted over a tuple containing an array. This allows for generating multiple counterfactuals in parallel. 
 
 ```jldoctest
-julia> chosen = rand(findall(predict_label(M, counterfactual_data) .== factual), 5);
+julia> using CounterfactualExplanations
 
-julia> xs = select_factual(counterfactual_data, chosen);
+julia> using CounterfactualExplanations.Generators
+
+julia> using CounterfactualExplanations.Models
+
+julia> using TaijaData
+       
+        # Counteractual data and model:
+
+julia> counterfactual_data = CounterfactualData(load_linearly_separable()...);
+
+julia> M = fit_model(counterfactual_data, :Linear);
+
+julia> target = 2;
+
+julia> factual = 1;
+
+julia> chosen = rand(findall(Models.predict_label(M, counterfactual_data) .== factual), 5);
+
+julia> xs = CounterfactualExplanations.select_factual(counterfactual_data, chosen);
+
+julia> generator = Generators.GenericGenerator();
 
 julia> ces = generate_counterfactual.(xs, target, counterfactual_data, M, generator);
-
-julia> converged(ce.convergence, ce)
-true
 ```
 """
 function generate_counterfactual(

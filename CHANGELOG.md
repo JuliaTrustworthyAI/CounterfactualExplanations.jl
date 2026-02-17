@@ -6,12 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.4.6] - 2026-02-06
+## Version [1.5.0] - 2026-02-14
+
+### Breaking
+
+- Public API (should be) unaffected, but some major changes to internal API to comply with new autodiff routines.
 
 ### Removed
 
 - Temporarily removed tests for NeuroTreeModels.jl pending updates to compat.
-- Temporarily removed tests for benchmarking, which seems non-performant (will open a separate issue).
+- Removed stale dependencies from docs. 
 
 ### Added
 
