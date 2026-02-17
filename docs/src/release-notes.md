@@ -10,6 +10,140 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/releases/tag/v1.1.1).
 
+## Version [1.5.0] - 2026-02-14
+
+### Breaking
+
+- Public API (should be) unaffected, but some major changes to internal API to comply with new autodiff routines.
+
+### Removed
+
+- Temporarily removed tests for NeuroTreeModels.jl pending updates to compat.
+- Removed stale dependencies from docs. 
+
+### Added
+
+- Added a new evaluation measure `feature_sensitivity(ce::AbstractCounterfactualExplanation)` that can be used to compute the proposed absolute changes for features.
+- Added an optional `callback::Union{Nothing,Function}` argument to `generate_counterfactual` to allow users to either display or store anything relevant from the full `CounterfactualExplanation` object. This is useful if the user has specified `return_flattened=true` but still needs something specific from `CounterfactualExplanation` that is not returned with `FlattenedCE`.
+
+### Changed 
+
+- Moved from Flux.jl for autodiff to DifferentiationInterface.jl. Not all backends working for basic examples, but considerable speedup for ForwardDiff compared to Zygote. The following backends work for generic generator:
+  - Zygote.jl
+  - ForwardDiff.jl
+  - PolyesterForwardDiff.jl
+  - GTPSA.jl
+  - FiniteDiff.jl
+  - Symbolics.jl
+- Avoid aggregating divergence metrics across runs.
+- Changed the way mutability constraints can be supplied: users can now supply a tuple of pairs of feature indices and there corresponding constraints.
+- Removed a bug in `reconstruct_cat_encoding` that turned the `counterfactual_state` object from a matrix into a vector.
+- Added option to provide additional keyword arguments to `validity_strict(ce::CounterfactualExplanation; kwrgs...)`.
+- Small bug fix for `validity` function.
+- Improved `find_potential_neighbours` method.
+- Added possibility to run `compute_divergence` for a fixed number of samples. 
+
+## Version [1.4.5] - 2025-01-13
+
+### Changed
+
+- Dispatching `factual` and `counterfactual` over `AbstractCounterfactualExplanation` instead of `CounterfactualExplanation`. [#512](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/512)
+- Added type conversion to `compute_divergence`. [#512](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/512)
+
+## Version [1.4.4] - 2025-01-08
+
+### Added
+
+- Added preliminary support for divergence metrics that can be used to evaluate counterfactuals with respect to target distributions. 
+
+## Version [1.4.3] - 2025-01-02
+
+### Changed
+
+- Small change to `validity` function: validity is now defined simply as the predicted label corresponding to the target label, independent of the predicted probability. [#508](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/508)
+
+## Version [1.4.2] - 2024-12-31
+
+### Changed
+
+- Slight change to `FlattenedCE` and `unflatten` to ensure that basic functionality remains intact. [#505](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/505)
+- Fixed small issue in `benchmark` function.
+
+## Version [1.4.1] - 2024-12-19
+
+### Changed
+
+- Updated dependencies. [#504](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/504)
+
+### Removed
+
+- Removed everything related to GrowingSpheres. [#504](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/504)
+
+## Version [1.4.0] - 2024-12-19
+
+### Added
+
+- Adds new `FlattenedCE` struct and conversion function `flatten(ce::CounterfactualExplanation)::FlattenedCE` for flattening a CounterfactualExplanation object. In the short term, this can be useful for compact storage or transmission of explanations. In the long term, we may consider using the flattened representation as much as possible to optimize performance. [#502](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/502)
+- Also added `unflatten` function to convert a `FlattenedCE` object back to its original `CounterfactualExplanation` form. This is used in benchmarking, where flattened objects are used in the first parallelization (generating counterfactuals) and full objects are used for evaluation. This is a temporary solution until we address the fact that downstream `Evaluation` functions currently expect the full `CounterfactualExplanation` form. [#502](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/502)
+- Added additional aliases for penalties including `distance_cosine`. 
+- Added `concatenate_output::Bool=true` keyword argument to `benchmark` function. This allows users to suppress concatenation of output in benchmarking (`concatenate_output=false`), which can be useful when memory usage is critical.
+- Added a `concatenate_benchmarks(storage_path::String)` function that can be used to concatenate multiple benchmark results into a single file.
+- Added functionality to set global serialization state. This is useful for suppressing serialization on non-root ranks in parallel computations.
+- Added functionality to explicitly specify what transformation of the `CounterfactualExplanation` object should be stored in evaluation data frames.
+
+### Changed
+
+- `Benchmark` objects now have an additional field `counterfactuals` to store a `DataFrame` containing the sample ID column `:sample` and then counterfactuals `:ce`. 
+
+## Version [1.3.6] - 2024-11-08
+
+### Changed 
+
+- Addressed bug in `train_test_split` function. [#497](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/497)
+- Slight changes to the implementation of `ProbeGenerator` (no longer calling a redundant `hinge_loss` function for all other generators). [#492](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/492)
+
+### Added
+
+- Added a warning message to the `ProbeGenerator` pointing to the issues with with current implementation. [#492](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/492)
+- Added links to papers to all docstrings for generators. [#492](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/492)
+
+## Version [1.3.5] - 2024-10-28
+
+### Changed
+
+- Changed fieldnames of core struct (`ce::CounterfactualExplanations`) to more clears and intuitive names. Old names can still be used to access fields (added as aliases). [#488](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/488)
+- Domain constraints that are applicable universally to all features can now be passed as a single tuple to `CounterfactualData`. [#488](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/488)
+- Updated EnergySamplers.jl dependency. [#488](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/488)
+
+## Version [1.3.4] - 2024-10-23
+
+### Changed
+
+- Fixed a bug in the `find_potential_neighbours` method. [#487](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/487)
+
+## Version [1.3.3] - 2024-09-30
+
+### Changed
+
+- Fixed a remaining bug in `NeuroTreeExt` extensions. [#475](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/475)
+
+## Version [1.3.2] - 2024-09-24
+
+### Added 
+
+- Added support for using a random forest as a surrogate model for the T-CREx generator. [#483](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/483)
+
+### Changed
+
+- Improved the T-CREx documentation further by bringing example even closer to the example in the paper. [#483](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/483)
+- Include citation linking to ICML paper in T-CREx documentation and docstrings. [#480](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/480)
+
+## Version [1.3.1] - 2024-09-24
+
+### Changed
+
+- Fixed a remaining bug in `NeuroTreeExt` extensions. [#475](https://github.com/juliatrustworthyai/CounterfactualExplanations.jl/issues/475)
+
 ## Version [1.3.0] - 2024-09-16
 
 ### Changed
