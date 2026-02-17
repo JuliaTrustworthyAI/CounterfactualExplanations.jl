@@ -40,8 +40,9 @@ In @altmeyer2024faithful, we defined two sample-based metrics for plausibility a
 Below we generate a simple synthetic dataset with two output classes, both Gaussian clusters with different centers. We then train a joint energy-based model (JEM) using Taija's [JointEnergyModels.jl](https://github.com/JuliaTrustworthyAI/JointEnergyModels.jl) package to both discriminate between output classes and generate inputs.
 
 ```{julia}
-n_obs = 1000
-X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. => 1.))
+n_obs = 3000
+# X, y = TaijaData.load_blobs(n_obs; cluster_std=0.1, center_box=(-1. => 1.))
+X, y = TaijaData.load_linearly_separable(n_obs)
 data = CounterfactualData(X, y)
 
 n_hidden = 16
