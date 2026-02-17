@@ -26,7 +26,7 @@ setup_docs = quote
     using StatsBase
     using Tables
     using TaijaData
-    using TaijaPlotting: animate_path
+    # using TaijaPlotting: animate_path
     using TaijaData
 
     # Setup:
@@ -35,7 +35,7 @@ setup_docs = quote
     synthetic = TaijaData.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
-    # Counteractual data and model:
+    # Counterfactual data and model:
     counterfactual_data = CounterfactualData(load_linearly_separable()...)
     M = fit_model(counterfactual_data, :Linear)
     target = 2
@@ -45,5 +45,4 @@ setup_docs = quote
 
     # Search:
     generator = Generators.GenericGenerator()
-    ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 end
