@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
+## Version [1.5.1] - 2026-02-18
+
+### Changed
+
+- Using prepared gradient for invalidation rate. 
+
 ## Version [1.5.0] - 2026-02-14
 
 ### Breaking

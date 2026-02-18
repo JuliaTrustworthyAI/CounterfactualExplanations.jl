@@ -50,8 +50,14 @@ function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualEx
         return logits(ce.M, CounterfactualExplanations.decode_state(ce, x))[index_target]
     end
 
+    # Get AD backend:
+    backend = get!(ce.search, :ad_backend, CounterfactualExplanations.choose_ad_backend(ce))
+
+    # Get prepared gradient:
+    prep = get!(ce.search, :prep_inval, DI.prepare_gradient(f, backend, similar(ce_state)))
+
     # Compute gradient:
-    grad = DI.gradient(f, get_global_ad_backend(), ce_state)
+    grad = DI.gradient(f, prep, backend)
     denominator = sqrt(ce.convergence.variance) * norm(grad)
     normalized_gradient = f_loss / denominator
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
