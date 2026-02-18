@@ -57,7 +57,7 @@ function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualEx
     prep = get!(ce.search, :prep_inval, DI.prepare_gradient(f, backend, similar(ce_state)))
 
     # Compute gradient:
-    grad = DI.gradient(f, prep, backend)
+    grad = DI.gradient(f, prep, backend, ce_state)
     denominator = sqrt(ce.convergence.variance) * norm(grad)
     normalized_gradient = f_loss / denominator
     ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
