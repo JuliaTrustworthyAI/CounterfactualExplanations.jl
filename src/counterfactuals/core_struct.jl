@@ -107,7 +107,7 @@ end
 
 Default method for initialization given any input transformer.
 """
-function initialize!(encoder::InputTransformer, ce::AbstractCounterfactualExplanation)
+function initialize!(encoder::Union{Nothing,InputTransformer}, ce::AbstractCounterfactualExplanation)
     return adjust_shape!(ce) |> encode_state! |> initialize_state!
 end
 
