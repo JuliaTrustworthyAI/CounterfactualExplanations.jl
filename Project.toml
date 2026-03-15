@@ -38,6 +38,7 @@ JointEnergyModels = "48c56d24-211d-4463-bbc0-7a701b291131"
 LaplaceRedux = "c52c1a26-f7c5-402b-80be-ba1e638ad478"
 
 [extensions]
+CausalInferenceExt = "CausalInference"
 DecisionTreeExt = "DecisionTree"
 JEMExt = "JointEnergyModels"
 LaplaceReduxExt = "LaplaceRedux"
@@ -45,6 +46,7 @@ LaplaceReduxExt = "LaplaceRedux"
 [compat]
 Aqua = "0.8"
 CategoricalArrays = "0.10, 1"
+CausalInference = "0.19"
 ChainRulesCore = "1.15"
 DataFrames = "1"
 DecisionTree = "0.12.3, 0.12.4"
