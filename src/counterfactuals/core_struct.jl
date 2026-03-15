@@ -1,4 +1,4 @@
-using CausalInference
+using ..DataPreprocessing: InputTransformer
 using ..GenerativeModels: GenerativeModels
 using MultivariateStats: MultivariateStats
 using Optimisers: Optimisers
@@ -103,6 +103,15 @@ function CounterfactualExplanation(
 end
 
 """
+    initialize!(encoder::InputTransformer, ce::AbstractCounterfactualExplanation)
+
+Default method for initialization given any input transformer.
+"""
+function initialize!(encoder::InputTransformer, ce::AbstractCounterfactualExplanation)
+    return adjust_shape!(ce) |> encode_state! |> initialize_state!
+end
+
+"""
     initialize!(ce::CounterfactualExplanation)
 
 Initializes the counterfactual explanation. This method is called by the constructor. It does the following:
@@ -130,11 +139,7 @@ function initialize!(ce::CounterfactualExplanation)
     end
 
     # Initialization:
-    if !isa(ce.data.input_encoder, CausalInference.SCM)
-        adjust_shape!(ce) |> encode_state! |> initialize_state! |> decode_state!
-    else
-        adjust_shape!(ce) |> encode_state! |> initialize_state!
-    end
+    initialize!(ce.data.input_encoder, ce)
 
     ce.search[:path] = [ce.s′]
     ce.search[:times_changed_features] = zeros(size(decode_state(ce)))

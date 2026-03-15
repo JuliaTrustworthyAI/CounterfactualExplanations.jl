@@ -5,7 +5,7 @@ using MultivariateStats: MultivariateStats
 using StatsBase: StatsBase
 using TaijaData: load_mnist
 using Tables
-using CausalInference: CausalInference
+# using CausalInference: CausalInference
 
 @testset "encodings.jl" begin
     @testset "Standardize" begin
@@ -55,7 +55,7 @@ using CausalInference: CausalInference
             x = select_factual(counterfactual_data_scm, chosen)
 
             data_scm = deepcopy(counterfactual_data_scm)
-            data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
+            # data_scm.input_encoder = fit_transformer(data_scm, CausalInference.SCM)
 
             generator = GenericGenerator()
 
