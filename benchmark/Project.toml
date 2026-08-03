@@ -1,0 +1,15 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+CounterfactualExplanations = "2f13d31b-18db-44c1-bc43-ebaf2cff0be0"
+Cthulhu = "f68482b8-f384-11e8-15f7-abe071a5a75f"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+ProfileView = "c46f51b8-102a-5cf2-94d6-0f6b0d054b9b"
+TimerOutputs = "a759f4b9-e2f1-59dc-863e-4aeb61b1ea8f"
+
+[compat]
+BenchmarkTools = "1"
+Cthulhu = "2"
+JET = "0.9"
+ProfileView = "1"
+TimerOutputs = "0.5"
+julia = "1.10"
