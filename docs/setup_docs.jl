@@ -20,16 +20,13 @@ setup_docs = quote
     using MLDatasets
     using MLDatasets: convert2image
     using MLJBase
-    using MLJModels: OneHotEncoder
+    using MLJTransforms: OneHotEncoder
     using Plots
     using Random
     using StatsBase
     using Tables
     using TaijaData
-    using TaijaParallel
-    using TaijaParallel: @with_parallelizer
-    using TaijaPlotting: animate_path
-    using TaijaInteroperability
+    # using TaijaPlotting: animate_path
     using TaijaData
 
     # Setup:
@@ -38,7 +35,7 @@ setup_docs = quote
     synthetic = TaijaData.load_synthetic_data()
     ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
-    # Counteractual data and model:
+    # Counterfactual data and model:
     counterfactual_data = CounterfactualData(load_linearly_separable()...)
     M = fit_model(counterfactual_data, :Linear)
     target = 2
@@ -48,5 +45,4 @@ setup_docs = quote
 
     # Search:
     generator = Generators.GenericGenerator()
-    ce = generate_counterfactual(x, target, counterfactual_data, M, generator)
 end

@@ -6,17 +6,16 @@ An important subroutine that updates the counterfactual explanation. It takes a 
 function update!(ce::CounterfactualExplanation)
 
     # Generate peturbations:
-    Δcounterfactual_state = Generators.generate_perturbations(ce.generator, ce)
-    Δcounterfactual_state = apply_mutability(ce, Δcounterfactual_state)         # mutability constraints
-    counterfactual_state = ce.counterfactual_state + Δcounterfactual_state                        # new proposed state
+    grad_ce_state = Generators.generate_perturbations(ce.generator, ce)
+    grad_ce_state = apply_mutability(ce, grad_ce_state)         # mutability constraints
+    counterfactual_state = ce.counterfactual_state + grad_ce_state                        # new proposed state
 
     # Updates:
     ce.counterfactual_state = counterfactual_state                                                  # update counterfactual
     ce.counterfactual = decode_state(ce)                                    # decoded counterfactual state
     apply_domain_constraints!(ce)                               # apply domain constraints
     _times_changed = reshape(
-        decode_state(ce, Δcounterfactual_state) .!= 0,
-        size(ce.search[:times_changed_features]),
+        decode_state(ce, grad_ce_state) .!= 0, size(ce.search[:times_changed_features])
     )
     ce.search[:times_changed_features] += _times_changed        # update number of times feature has been changed
     ce.search[:iteration_count] += 1                            # update iteration counter   
@@ -27,36 +26,45 @@ end
 """
     apply_mutability(
         ce::CounterfactualExplanation,
-        Δcounterfactual_state::AbstractArray,
+        grad_ce_state::AbstractArray,
     )
 
 A subroutine that applies mutability constraints to the proposed vector of feature perturbations.
 """
-function apply_mutability(
-    ce::CounterfactualExplanation, Δcounterfactual_state::AbstractArray
-)
+function apply_mutability(ce::CounterfactualExplanation, grad_ce_state::AbstractArray)
     if typeof(ce.data.input_encoder) <: GenerativeModels.AbstractGenerativeModel ||
         typeof(ce.data.input_encoder) <: MultivariateStats.AbstractDimensionalityReduction
         if isnothing(ce.search)
             @warn "Mutability constraints not currently implemented for latent space search."
         end
-        return Δcounterfactual_state
+        return grad_ce_state
     end
 
     mutability = ce.search[:mutability]
-    # Helper functions:
-    both(x) = x
-    increase(x) = ifelse(x < 0.0, 0.0, x)
-    decrease(x) = ifelse(x > 0.0, 0.0, x)
-    none(x) = 0.0
-    cases = (both=both, increase=increase, decrease=decrease, none=none)
 
-    # Apply:
-    Δcounterfactual_state = map(
-        (case, s) -> getfield(cases, case)(s), mutability, Δcounterfactual_state
-    )
+    # Create output array with same type as input (critical for type stability)
+    result = similar(grad_ce_state)
 
-    return Δcounterfactual_state
+    # Apply mutability constraints element-wise
+    @inbounds for i in eachindex(mutability, grad_ce_state)
+        case = mutability[i]
+        val = grad_ce_state[i]
+
+        # Use if-else instead of getfield for type stability
+        result[i] = if case === :both
+            val
+        elseif case === :increase
+            val < 0 ? zero(val) : val
+        elseif case === :decrease
+            val > 0 ? zero(val) : val
+        elseif case === :none
+            zero(val)
+        else
+            val  # fallback
+        end
+    end
+
+    return result
 end
 
 """

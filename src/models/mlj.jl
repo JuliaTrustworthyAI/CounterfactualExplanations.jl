@@ -34,9 +34,9 @@ end
 
 Overloads the [`probs`](@ref) method for MLJ models. 
 
-## Note for developers
+## To Do:
 
-Note that currently the underlying MLJ methods (`reformat`, `predict`) are incompatible with Zygote's autodiff. For differentiable MLJ models, the [`probs``](@ref) and [`logits`](@ref) methods need to be overloaded.
+Refactor this to be less convoluted and bring in line with current MLJ API.
 """
 function probs(M::Model, type::MLJModelType, X::AbstractArray)
     if ndims(X) == 1
@@ -45,7 +45,7 @@ function probs(M::Model, type::MLJModelType, X::AbstractArray)
     X = Tables.table(X')
     X = MLJBase.reformat(M.model, X)[1]
     output = MLJBase.predict(M.model, M.fitresult(), X)
-    p = MLJBase.pdf(output, MLJBase.classes(output))'
+    p = MLJBase.pdf(output, MLJBase.levels.(output)[1])'[:, :]
     if M.likelihood == :classification_binary
         p = reshape(p[2, :], 1, size(p, 2))
     end

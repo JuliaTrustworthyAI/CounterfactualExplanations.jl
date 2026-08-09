@@ -81,7 +81,9 @@ function get_data(
     # Counterfactual:
     T = isnothing(n_steps) ? 100 : n_steps
     conv = CounterfactualExplanations.Convergence.MaxIterConvergence(T)
-    ce = generate_counterfactual(factual, target, counterfactual_data, M, generator; convergence=conv)
+    ce = generate_counterfactual(
+        factual, target, counterfactual_data, M, generator; convergence=conv
+    )
 
     return x, y, M, ce, db_points
 end
@@ -175,15 +177,15 @@ function logo_picture(;
 end
 
 function draw_small_logo(
-    filename="docs/src/assets/logo.svg"; 
-    width=500, 
+    filename="docs/src/assets/logo.svg";
+    width=500,
     height=nothing,  # New parameter for custom height
-    bg_color="transparent", 
-    kwrgs...
+    bg_color="transparent",
+    kwrgs...,
 )
     frame_width = width
     frame_height = isnothing(height) ? width : height  # Use width if height not specified
-    
+
     Drawing(frame_width, frame_height, filename)
     if !isnothing(bg_color)
         background(bg_color)
@@ -230,7 +232,7 @@ function draw_wide_logo(
     font_fill=bg_color,
     font_color=Luxor.julia_blue,
     bg_color="transparent",
-    include_logo=true,  
+    include_logo=true,
     heigh_scale=2.4,
     picture_kwargs...,
 )
@@ -241,7 +243,7 @@ function draw_wide_logo(
     fontface(font_family)
     strs = split(_pkg_name)
     text_col_width = Int(round(maximum(map(str -> textextents(str)[3], strs)) * 1.05))
-    
+
     # Adjust width based on whether logo is included
     if include_logo
         width = Int(round(height + text_col_width))
@@ -250,7 +252,7 @@ function draw_wide_logo(
         width = text_col_width
         cw = [text_col_width]
     end
-    
+
     cells = Luxor.Table(height, cw)
     ms = Int(round(height / 10))
     db_stroke_size = Int(round(height / 50))
@@ -316,4 +318,15 @@ draw_wide_logo(; picture_kwargs...)
 # Thesis cover art:
 draw_wide_logo("text.png"; picture_kwargs..., font_size=300, include_logo=false)
 draw_small_logo("logo.png", 2000; picture_kwargs..., seed=123, ms=100)
-draw_small_logo("logo_wide.png"; width=2000, height=350, draw_frame=false, bg_color="transparent", picture_kwargs..., ms=20, ndots=70, seed=280393, db_stroke_size=10)
+draw_small_logo(
+    "logo_wide.png";
+    width=2000,
+    height=350,
+    draw_frame=false,
+    bg_color="transparent",
+    picture_kwargs...,
+    ms=20,
+    ndots=70,
+    seed=280393,
+    db_stroke_size=10,
+)

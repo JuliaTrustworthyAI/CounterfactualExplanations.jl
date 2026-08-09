@@ -52,8 +52,8 @@ function _load_pretrained_models()
     pretrained = Dict(
         :mnist => Dict(
             :models => Dict(
-                :mlp => Models.load_mnist_mlp(),
-                :ensemble => Models.load_mnist_ensemble(),
+                :mlp => Models.load_mnist_model(MLP()),
+                :ensemble => Models.load_mnist_model(DeepEnsemble()),
             ),
             :latent => Dict(
                 :vae_strong => Models.load_mnist_vae(; strong=true),

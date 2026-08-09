@@ -1,4 +1,5 @@
 using CounterfactualExplanations
+using CounterfactualExplanations.Convergence
 using CounterfactualExplanations.Models
 using Flux
 using LaplaceRedux
@@ -17,8 +18,9 @@ using TaijaData
     x = select_factual(data, chosen)
 
     # Search:
-    generator = GenericGenerator(; opt=Descent(0.5))
-    ce = generate_counterfactual(x, target, data, M, generator)
+    generator = GenericGenerator(; opt=Descent(0.5), λ=0.001)
+    conv = MaxIterConvergence(250)
+    ce = generate_counterfactual(x, target, data, M, generator; convergence=conv)
     @test typeof(ce) <: CounterfactualExplanation
     @test CounterfactualExplanations.counterfactual_label(ce) == [target]
 end

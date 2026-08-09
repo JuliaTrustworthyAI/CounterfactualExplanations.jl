@@ -60,7 +60,7 @@ Modules = [
     Base.get_extension(CounterfactualExplanations, :DecisionTreeExt),
     Base.get_extension(CounterfactualExplanations, :JEMExt),
     Base.get_extension(CounterfactualExplanations, :LaplaceReduxExt),
-    Base.get_extension(CounterfactualExplanations, :NeuroTreeExt),
+    # Base.get_extension(CounterfactualExplanations, :NeuroTreeExt),
 ]
 ```
 

@@ -25,11 +25,11 @@ function initialize_state(ce::CounterfactualExplanation)
 
     # Add random perturbation following Slack (2021): https://arxiv.org/abs/2106.02666
     if ce.initialization == :add_perturbation
-        Δcounterfactual_state =
+        grad_ce_state =
             randn(eltype(counterfactual_state), size(counterfactual_state)) *
             convert(eltype(counterfactual_state), 0.1)
-        Δcounterfactual_state = apply_mutability(ce, Δcounterfactual_state)
-        counterfactual_state .+= Δcounterfactual_state
+        grad_ce_state = apply_mutability(ce, grad_ce_state)
+        counterfactual_state .+= grad_ce_state
     end
 
     return counterfactual_state

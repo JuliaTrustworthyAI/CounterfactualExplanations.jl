@@ -10,9 +10,8 @@ using CounterfactualExplanations.Objectives
     end
 
     @testset "Custom arguments" begin
-        generator = Generators.ProbeGenerator(; λ=[0.5, 0.5], loss=:mse)
+        generator = Generators.ProbeGenerator(; λ=[0.5, 0.5])
         @test generator.λ == [0.5, 0.5]
-        @test generator.loss == Flux.Losses.mse
     end
 end
 
@@ -39,8 +38,9 @@ end
                 max_iter=100, invalidation_rate=0.1
             ),
         )
-        loss = Objectives.hinge_loss(linear_counterfactual)
-        rate = Convergence.invalidation_rate(linear_counterfactual)
+        cf = CounterfactualExplanations.decode_state(linear_counterfactual)
+        loss = Objectives.hinge_loss(cf, linear_counterfactual)
+        rate = Convergence.invalidation_rate(cf, linear_counterfactual)
         @test rate <= 0.1
         @test loss <= 0.9
     end

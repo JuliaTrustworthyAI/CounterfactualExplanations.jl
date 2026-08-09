@@ -1,6 +1,6 @@
 using ChainRulesCore: ignore_derivatives
 using Distributions: Distributions
-using Flux: Flux
+import DifferentiationInterface as DI
 using LinearAlgebra: LinearAlgebra
 
 Base.@kwdef struct InvalidationRateConvergence <: AbstractConvergence
@@ -40,19 +40,30 @@ Calculates the invalidation rate of a counterfactual explanation.
 # Returns
 The invalidation rate of the counterfactual explanation.
 """
-function invalidation_rate(ce::AbstractCounterfactualExplanation)
-    z = []
-    ignore_derivatives() do
-        index_target = get_target_index(ce.data.y_levels, ce.target)
-        f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
-        grad = Flux.gradient(
-            () -> logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target],
-            Flux.params(ce.counterfactual_state),
-        )[ce.counterfactual_state]
-        denominator = sqrt(ce.convergence.variance) * norm(grad)
-        normalized_gradient = f_loss / denominator
-        push!(z, normalized_gradient)
+function invalidation_rate(ce_state::AbstractArray, ce::AbstractCounterfactualExplanation)
+    index_target = get_target_index(ce.data.y_levels, ce.target)
+    f_loss = logits(ce.M, CounterfactualExplanations.decode_state(ce))[index_target]
+    y = ce.target_encoded
+
+    # Create closure
+    function f(x)
+        return logits(ce.M, CounterfactualExplanations.decode_state(ce, x))[index_target]
     end
-    ϕ = Distributions.cdf(Distributions.Normal(0, 1), z[1])
+
+    # Compute gradient:
+    grad = DI.gradient(f, get_global_ad_backend(), ce_state)
+    denominator = sqrt(ce.convergence.variance) * norm(grad)
+    normalized_gradient = f_loss / denominator
+    ϕ = Distributions.cdf(Distributions.Normal(0, 1), normalized_gradient)
     return 1 - ϕ
+end
+
+"""
+    invalidation_rate(ce::AbstractCounterfactualExplanation)
+
+Single-argument method for convenience.
+"""
+function invalidation_rate(ce::AbstractCounterfactualExplanation)
+    cf = CounterfactualExplanations.decode_state(ce)
+    return invalidation_rate(cf, ce)
 end

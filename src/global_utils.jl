@@ -1,6 +1,10 @@
-using CategoricalArrays: CategoricalArrays, CategoricalArray, CategoricalVector
+using CategoricalArrays:
+    CategoricalArrays, CategoricalArray, CategoricalVector, CategoricalValue
+import DifferentiationInterface as DI
+using ForwardDiff: ForwardDiff
 using Flux: Flux
 using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels, scitype
+using Zygote: Zygote
 
 # Abstract Base Types:
 """
@@ -8,7 +12,7 @@ using MLJBase: MLJBase, Continuous, Count, Finite, Textual, categorical, levels,
 
 A type union for the allowed types for the `target` variable.
 """
-const RawTargetType = Union{Int,AbstractFloat,String,Symbol}
+const RawTargetType = Union{Int,AbstractFloat,String,Symbol,CategoricalValue}
 
 """
     EncodedTargetType
@@ -157,7 +161,7 @@ end
 
 The default training parameter for `FluxModels` etc.
 """
-const flux_training_params = FluxModelParams()
+global flux_training_params = FluxModelParams()
 
 """
     reset!(flux_training_params::FluxModelParams)
@@ -184,4 +188,30 @@ function polynomial_decay(a::Real, b::Real, decay::Real, t::Int)
         @warn "Decay rate should be in the range (0.5, 1.0]. See Welling et al. (2011) for more information: https://www.stats.ox.ac.uk/~teh/research/compstats/WelTeh2011a.pdf."
     end
     return a * (b + t)^(-decay)
+end
+
+global _ad_backend = DI.AutoZygote()
+
+"""
+    get_global_ad_backend()
+
+Get the currently set automatic differentiation backend.
+
+# Returns
+- The global automatic differentiation backend as an instance of `DI.AutoZygote`.
+"""
+function get_global_ad_backend()
+    return _ad_backend
+end
+
+"""
+    set_global_ad_backend(backend)
+
+Set the global automatic differentiation backend.
+
+# Arguments
+- `backend`: The new backend to set, which must be an instance of `DI.AbstractBackend`.
+"""
+function set_global_ad_backend(backend)
+    return global _ad_backend = backend
 end

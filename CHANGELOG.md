@@ -6,7 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 *Note*: We try to adhere to these practices as of version [v1.1.1].
 
-## Version [1.4.6] - 2025-07-25
+## Version [1.5.0] - 2026-02-14
+
+### Breaking
+
+- Public API (should be) unaffected, but some major changes to internal API to comply with new autodiff routines.
+
+### Removed
+
+- Temporarily removed tests for NeuroTreeModels.jl pending updates to compat.
+- Removed stale dependencies from docs. 
 
 ### Added
 
@@ -15,6 +24,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Changed 
 
+- Moved from Flux.jl for autodiff to DifferentiationInterface.jl. Not all backends working for basic examples, but considerable speedup for ForwardDiff compared to Zygote. The following backends work for generic generator:
+  - Zygote.jl
+  - ForwardDiff.jl
+  - PolyesterForwardDiff.jl
+  - GTPSA.jl
+  - FiniteDiff.jl
+  - Symbolics.jl
 - Avoid aggregating divergence metrics across runs.
 - Changed the way mutability constraints can be supplied: users can now supply a tuple of pairs of feature indices and there corresponding constraints.
 - Removed a bug in `reconstruct_cat_encoding` that turned the `counterfactual_state` object from a matrix into a vector.

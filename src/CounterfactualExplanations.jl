@@ -30,6 +30,7 @@ include("global_utils.jl")
 export RawTargetType, EncodedTargetType, RawOutputArrayType, EncodedOutputArrayType
 export OutputEncoder
 export get_target_index
+export get_global_ad_backend, set_global_ad_backend
 
 # Error messages:
 include("errors.jl")
@@ -80,13 +81,15 @@ using .Generators
 export AbstractGradientBasedGenerator
 export AbstractNonGradientBasedGenerator
 export ClaPROARGenerator
+export DiCEGenerator
 export ECCoGenerator
 export FeatureTweakGenerator
 export GenericGenerator
 export GravitationalGenerator
 export GreedyGenerator
+export ProbeGenerator
 export REVISEGenerator
-export DiCEGenerator
+export TCRExGenerator
 export WachterGenerator
 export generator_catalogue
 export generate_perturbations
