@@ -1,0 +1,37 @@
+═════ 12 possible errors found ═════
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:43
+│ runtime dispatch detected: (%13::Union{Nothing, Dict})[:mutability]::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:49
+│ runtime dispatch detected: CounterfactualExplanations.eachindex(%14::Any, grad_ce_state::Matrix{Float32})::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:49
+│ runtime dispatch detected: iterate(%37::Any)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:50
+│ runtime dispatch detected: (%14::Any)[%43::Any]::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:51
+│ runtime dispatch detected: (grad_ce_state::Matrix{Float32})[%43::Any]::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:57
+│ runtime dispatch detected: (%46::Any CounterfactualExplanations.:< 0)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:57
+│ runtime dispatch detected: CounterfactualExplanations.zero(%46::Any)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:59
+│ runtime dispatch detected: (%46::Any CounterfactualExplanations.:> 0)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:59
+│ runtime dispatch detected: CounterfactualExplanations.zero(%46::Any)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:61
+│ runtime dispatch detected: CounterfactualExplanations.zero(%46::Any)::Any
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:63
+│ runtime dispatch detected: ((%34::Matrix{Float32})[%43::Any] = %76::Any::Any)
+└────────────────────
+┌ apply_mutability(ce::CounterfactualExplanation, grad_ce_state::Matrix{Float32}) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:65
+│ runtime dispatch detected: iterate(%37::Any, %44::Any)::Any
+└────────────────────

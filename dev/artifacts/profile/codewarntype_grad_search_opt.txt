@@ -1,0 +1,21 @@
+MethodInstance for CounterfactualExplanations.Generators.grad_search_opt(::GradientBasedGenerator, ::CounterfactualExplanation)
+  from grad_search_opt(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation) @ CounterfactualExplanations.Generators /home/patalt/code/CounterfactualExplanations.jl/src/generators/gradient_based/loss.jl:120
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.Generators.grad_search_opt)
+  generator::GradientBasedGenerator
+  ce::CounterfactualExplanation
+Locals
+  _grad_pen::ANY
+  _grad_loss::ANY
+Body::ANY
+1 ─ %1 = CounterfactualExplanations.Generators.grad_loss::Core.Const(CounterfactualExplanations.Generators.grad_loss)
+│        (_grad_loss = (%1)(generator, ce))
+│   %3 = CounterfactualExplanations.Generators.grad_pen::Core.Const(CounterfactualExplanations.Generators.grad_pen)
+│        (_grad_pen = (%3)(generator, ce))
+│   %5 = CounterfactualExplanations.Generators.:+::Core.Const(+)
+│   %6 = _grad_loss::ANY
+│   %7 = _grad_pen::ANY
+│   %8 = Base.broadcasted(%5, %6, %7)::ANY
+│   %9 = Base.materialize(%8)::ANY
+└──      return %9
+

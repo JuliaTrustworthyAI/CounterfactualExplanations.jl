@@ -1,0 +1,10 @@
+MethodInstance for CounterfactualExplanations.decode_state(::CounterfactualExplanation)
+  from decode_state(ce::CounterfactualExplanation) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/encodings.jl:205
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.decode_state)
+  ce::CounterfactualExplanation
+Body::MATRIX
+1 ─ %1 = CounterfactualExplanations.nothing::Core.Const(nothing)
+│   %2 = (#self#)(ce, %1)::MATRIX
+└──      return %2
+

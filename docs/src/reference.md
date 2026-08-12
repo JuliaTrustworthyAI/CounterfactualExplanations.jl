@@ -1,5 +1,3 @@
-
-
 ``` @meta
 CurrentModule = CounterfactualExplanations 
 ```

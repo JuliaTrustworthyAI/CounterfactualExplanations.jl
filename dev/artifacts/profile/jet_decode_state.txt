@@ -1,0 +1,1683 @@
+═════ 358 possible errors found ═════
+┌ decode_state(ce::CounterfactualExplanation) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/encodings.jl:210
+│┌ decode_state(ce::CounterfactualExplanation, x::Nothing) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/encodings.jl:210
+││┌ deepcopy(x::AbstractArray) @ Base ./deepcopy.jl:28
+│││┌ isbitstype(t::Type{<:AbstractArray{T, N}} where {T, N}) @ Base ./runtime_internals.jl:836
+││││ runtime dispatch detected: (%3::DataType).flags::Any
+│││└────────────────────
+│││┌ isbitstype(t::Type{<:AbstractArray{T, N}} where {T, N}) @ Base ./runtime_internals.jl:836
+││││ runtime dispatch detected: (%4::Any & 8)::Any
+│││└────────────────────
+│││┌ isbitstype(t::Type{<:AbstractArray{T, N}} where {T, N}) @ Base ./runtime_internals.jl:836
+││││ runtime dispatch detected: (%5::Any == 8)::Any
+│││└────────────────────
+││┌ deepcopy(x::AbstractArray) @ Base ./deepcopy.jl:29
+│││ runtime dispatch detected: Base.deepcopy_internal(x::AbstractArray, %6::IdDict{Any, Any})::Any
+││└────────────────────
+│┌ decode_state(ce::CounterfactualExplanation, x::Nothing) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/encodings.jl:218
+││┌ reconstruct_cat_encoding(counterfactual_data::CounterfactualData, x::AbstractArray) @ CounterfactualExplanations.DataPreprocessing /home/patalt/code/CounterfactualExplanations.jl/src/data_preprocessing/counterfactual_data.jl:239
+│││┌ map(f::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}, A::Vector{…}) @ Base ./abstractarray.jl:3372
+││││┌ collect_similar(cont::Vector{…}, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})) @ Base ./array.jl:732
+│││││┌ _collect(c::Vector{…}, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), ::Base.EltypeUnknown, isz::Base.HasShape{…}) @ Base ./array.jl:779
+││││││┌ promote_typejoin_union(::Type{T}) where T @ Base ./promotion.jl:196
+│││││││┌ promote_typejoin(a::Type{Union{}}, b::Type{Union{}}) @ Base ./promotion.jl:180
+││││││││┌ promote(x::Int64, y::Real) @ Base ./promotion.jl:405
+│││││││││┌ not_sametype(x::T, y::T) where T<:Tuple{Int64, Real} @ Base ./promotion.jl:422
+││││││││││┌ sametype_error(input::Tuple{Int64, Real}) @ Base ./promotion.jl:428
+│││││││││││┌ map(f::Base.var"#sametype_error##0#sametype_error##1", t::Tuple{Int64, Real}) @ Base ./tuple.jl:359
+││││││││││││┌ (::Base.var"#sametype_error##0#sametype_error##1")(x::Int64) @ Base ./promotion.jl:429
+│││││││││││││┌ string(xs::Type{Int64}) @ Base ./strings/io.jl:193
+││││││││││││││┌ print_to_string(xs::Type{Int64}) @ Base ./strings/io.jl:151
+│││││││││││││││┌ print(io::IOBuffer, x::Type{Int64}) @ Base ./strings/io.jl:35
+││││││││││││││││┌ show(io::IOBuffer, x::Type{Int64}) @ Base ./show.jl:968
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:970
+││││││││││││││││││┌ print_without_params(x::Type) @ Base ./show.jl:574
+│││││││││││││││││││ runtime dispatch detected: (%11::DataType).name::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ print_without_params(x::Type) @ Base ./show.jl:574
+│││││││││││││││││││ runtime dispatch detected: (%12::Any).wrapper::Any
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:971
+││││││││││││││││││┌ show_type_name(io::IOBuffer, tn::Core.TypeName) @ Base ./show.jl:1078
+│││││││││││││││││││┌ is_global_function(tn::Core.TypeName, globname::Symbol) @ Base ./show.jl:1042
+││││││││││││││││││││┌ isconcretetype(t::Type) @ Base ./runtime_internals.jl:957
+│││││││││││││││││││││ runtime dispatch detected: (%3::DataType).flags::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ isconcretetype(t::Type) @ Base ./runtime_internals.jl:957
+│││││││││││││││││││││ runtime dispatch detected: (%4::Any & 2)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ isconcretetype(t::Type) @ Base ./runtime_internals.jl:957
+│││││││││││││││││││││ runtime dispatch detected: (%5::Any == 2)::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:973
+││││││││││││││││││┌ show_typealias(io::IOBuffer, x::Type) @ Base ./show.jl:808
+│││││││││││││││││││┌ make_typealias(x::Type) @ Base ./show.jl:618
+││││││││││││││││││││┌ modulesof!(s::Set{Module}, x::Type) @ Base ./show.jl:591
+│││││││││││││││││││││┌ parentmodule(t::DataType) @ Base ./runtime_internals.jl:408
+││││││││││││││││││││││ runtime dispatch detected: (t::DataType).name::Any
+│││││││││││││││││││││└────────────────────
+│││││││││││││││││││││┌ parentmodule(t::DataType) @ Base ./runtime_internals.jl:408
+││││││││││││││││││││││ runtime dispatch detected: (%1::Any).module::Any
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ modulesof!(s::Set{Module}, x::Type) @ Base ./show.jl:591
+│││││││││││││││││││││ runtime dispatch detected: push!(s::Set{Module}, %12::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_typealias(io::IOBuffer, x::Type) @ Base ./show.jl:811
+│││││││││││││││││││┌ show_typealias(io::IOBuffer, name::GlobalRef, x::Type, env::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:758
+││││││││││││││││││││┌ show_typeparams(io::IOContext{IOBuffer}, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:722
+│││││││││││││││││││││┌ show(io::IOContext{IOBuffer}, tv::TypeVar) @ Base ./show.jl:2816
+││││││││││││││││││││││┌ (::Base.var"#show_bound#show##0")(io::IOContext{IOBuffer}, b::Any) @ Base ./show.jl:2808
+│││││││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, b::Any)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOContext{IOBuffer}, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:717
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %273::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOContext{IOBuffer}, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:720
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %345::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOContext{IOBuffer}, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:725
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %201::Any)::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:976
+││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType) @ Base ./show.jl:1127
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1130
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1111
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).name::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1112
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1112
+│││││││││││││││││││││ runtime dispatch detected: length(%5::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1112
+│││││││││││││││││││││ runtime dispatch detected: (%6::Any == 4)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1113
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1113
+│││││││││││││││││││││ runtime dispatch detected: (%10::Any)[1]::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1114
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1114
+│││││││││││││││││││││ runtime dispatch detected: (%15::Any)[4]::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1115
+│││││││││││││││││││││ runtime dispatch detected: (%19::DataType).name::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1115
+│││││││││││││││││││││ runtime dispatch detected: (%23::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1115
+│││││││││││││││││││││ runtime dispatch detected: length(%24::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1115
+│││││││││││││││││││││ runtime dispatch detected: (%25::Any == 2)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1116
+│││││││││││││││││││││ runtime dispatch detected: (%28::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1116
+│││││││││││││││││││││ runtime dispatch detected: Base.indexed_iterate(%29::Any, 1)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1116
+│││││││││││││││││││││ runtime dispatch detected: Base.indexed_iterate(%29::Any, 2, %32::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1118
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1118
+│││││││││││││││││││││ runtime dispatch detected: (%39::Any)[2]::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1118
+│││││││││││││││││││││ runtime dispatch detected: eltype(%38::DataType)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1120
+│││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ maybe_kws_nt(x::DataType) @ Base ./show.jl:1120
+│││││││││││││││││││││ runtime dispatch detected: (%48::Any)[3]::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+││││││││││││││││││││┌ show_typeparams(io::IOBuffer, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:722
+│││││││││││││││││││││┌ show(io::IOBuffer, tv::TypeVar) @ Base ./show.jl:2816
+││││││││││││││││││││││┌ (::Base.var"#show_bound#show##0")(io::IOBuffer, b::Any) @ Base ./show.jl:2808
+│││││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, b::Any)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOBuffer, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:717
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %249::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOBuffer, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:720
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %309::Any)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ show_typeparams(io::IOBuffer, env::Core.SimpleVector, orig::Core.SimpleVector, wheres::Vector{TypeVar}) @ Base ./show.jl:725
+│││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %189::Any)::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1127
+││││││││││││││││││││ runtime dispatch detected: (x::DataType).parameters::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1128
+││││││││││││││││││││ runtime dispatch detected: (x::DataType).name::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1129
+││││││││││││││││││││ runtime dispatch detected: (x::DataType).name::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1190
+││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %225::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1195
+││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %52::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1181
+││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %55::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1183
+││││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %52::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1205
+││││││││││││││││││││ runtime dispatch detected: Base.show_at_namedtuple(io::IOBuffer, %322::Tuple, %321::DataType)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1218
+││││││││││││││││││││ runtime dispatch detected: (x::DataType).name::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+││││││││││││││││││││ runtime dispatch detected: (x::DataType).name::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+││││││││││││││││││││ runtime dispatch detected: (%347::Any).wrapper::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ show_datatype(io::IOBuffer, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+││││││││││││││││││││ runtime dispatch detected: (%357::DataType).parameters::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:979
+││││││││││││││││││┌ show_unionaliases(io::IOBuffer, x::Union) @ Base ./show.jl:912
+│││││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, %67::Any)::Any
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:983
+││││││││││││││││││┌ show_delim_array(io::IOBuffer, itr::Vector{Any}, op::Char, delim::Char, cl::Char, delim_one::Bool) @ Base ./show.jl:1411
+│││││││││││││││││││┌ show_delim_array(io::IOBuffer, itr::Vector{Any}, op::Char, delim::Char, cl::Char, delim_one::Bool, i1::Int64, l::Int64) @ Base ./show.jl:1422
+││││││││││││││││││││ runtime dispatch detected: show(%3::IOContext{IOBuffer}, %51::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:1010
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1190
+│││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %262::Any)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1195
+│││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %64::Any)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1181
+│││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %67::Any)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1183
+│││││││││││││││││││ runtime dispatch detected: show(io::IOContext{IOBuffer}, %64::Any)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1205
+│││││││││││││││││││ runtime dispatch detected: Base.show_at_namedtuple(io::IOContext{IOBuffer}, %433::Tuple, %432::DataType)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1213
+│││││││││││││││││││ runtime dispatch detected: (%501::DataType).parameters::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1213
+│││││││││││││││││││ runtime dispatch detected: (%520::Any)[1]::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1213
+│││││││││││││││││││ runtime dispatch detected: (%524::Any)[2]::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1213
+│││││││││││││││││││ runtime dispatch detected: Base.show_at_namedtuple(io::IOContext{IOBuffer}, %523::Tuple, %527::DataType)::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+│││││││││││││││││││ runtime dispatch detected: (%556::Any).wrapper::Any
+││││││││││││││││││└────────────────────
+││││││││││││││││││┌ show_datatype(io::IOContext{IOBuffer}, x::DataType, wheres::Vector{TypeVar}) @ Base ./show.jl:1219
+│││││││││││││││││││ runtime dispatch detected: (%566::DataType).parameters::Any
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:971
+││││││││││││││││││ runtime dispatch detected: (%12::DataType).name::Any
+│││││││││││││││││└────────────────────
+│││││││││││││││││┌ _show_type(io::IOBuffer, x::Type) @ Base ./show.jl:1012
+││││││││││││││││││ runtime dispatch detected: show(%67::IOContext{IOBuffer}, %68::Any)::Any
+│││││││││││││││││└────────────────────
+││││││││││││┌ (::Base.var"#sametype_error##0#sametype_error##1")(x::Real) @ Base ./promotion.jl:429
+│││││││││││││┌ string(xs::Type{<:Real}) @ Base ./strings/io.jl:193
+││││││││││││││┌ print_to_string(xs::Type) @ Base ./strings/io.jl:151
+│││││││││││││││┌ print(io::IOBuffer, x::Type) @ Base ./strings/io.jl:35
+││││││││││││││││ runtime dispatch detected: show(io::IOBuffer, x::Type)::Any
+│││││││││││││││└────────────────────
+││││││││┌ promote(x::Int64, y::Real) @ Base ./promotion.jl:404
+│││││││││ runtime dispatch detected: Base._promote(x::Int64, y::Real)::Tuple{Any, Any}
+││││││││└────────────────────
+││││││││┌ promote(x::Int64, y::Real) @ Base ./promotion.jl:405
+│││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Int64, Real}, %5::Tuple{Any, Any})::Any
+││││││││└────────────────────
+│││││┌ _collect(c::Vector{…}, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), ::Base.EltypeUnknown, isz::Base.HasShape{…}) @ Base ./array.jl:810
+││││││┌ iterate(::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})) @ Base ./generator.jl:48
+│││││││┌ (::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})(cat_group_index::Vector{…}) @ CounterfactualExplanations.DataPreprocessing /home/patalt/code/CounterfactualExplanations.jl/src/data_preprocessing/counterfactual_data.jl:241
+││││││││┌ broadcasted(::Type{Int64}, ::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:453
+│││││││││┌ map(::Type{Int64}, ::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:470
+││││││││││┌ map!(f::Type{Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:476
+│││││││││││┌ iterate(::Zygote.Params) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:17
+││││││││││││┌ iterate(::Zygote.Params; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+│││││││││││││┌ iterate(b::Zygote.Buffer) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/tools/buffer.jl:83
+││││││││││││││┌ eachindex(::Zygote.Buffer) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:17
+│││││││││││││││┌ eachindex(::Zygote.Buffer; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+││││││││││││││││┌ eachindex(A::SentinelArrays.ChainedVector) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:335
+│││││││││││││││││┌ cleanup!(x::SentinelArrays.ChainedVector) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:42
+││││││││││││││││││┌ cleanup!(arrays::Vector{A} where {T, A<:AbstractVector{T}}, inds::Vector{Int64}) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:46
+│││││││││││││││││││┌ filter(flt::SentinelArrays.var"#cleanup!##0#cleanup!##1"{…} where {…}, itr::UnitRange{…}) @ Base.Iterators ./iterators.jl:532
+││││││││││││││││││││ runtime dispatch detected: Base.Iterators.Filter(flt::SentinelArrays.var"#cleanup!##0#cleanup!##1"{Vector{A}} where {T, A<:AbstractVector{T}}, itr::UnitRange{Int64})::Base.Iterators.Filter{…} where F<:(SentinelArrays.var"#cleanup!##0#cleanup!##1"{…} where {…})
+│││││││││││││││││││└────────────────────
+││││││││││││││││││┌ cleanup!(arrays::Vector{A} where {T, A<:AbstractVector{T}}, inds::Vector{Int64}) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:48
+│││││││││││││││││││┌ iterate(::Base.Iterators.Filter{…} where F<:(SentinelArrays.var"#cleanup!##0#cleanup!##1"{…} where {…})) @ Base.Iterators ./iterators.jl:538
+││││││││││││││││││││┌ (::SentinelArrays.var"#cleanup!##0#cleanup!##1"{Vector{A}} where {T, A<:AbstractVector{T}})(i::Int64) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:46
+│││││││││││││││││││││┌ isassigned(a::Vector{A} where {T, A<:AbstractVector{T}}, i::Int64) @ Base ./array.jl:249
+││││││││││││││││││││││ runtime dispatch detected: isassigned(%14::MemoryRef{T} where {T, T<:AbstractVector{T}})::Bool
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ cleanup!(arrays::Vector{A} where {T, A<:AbstractVector{T}}, inds::Vector{Int64}) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:54
+│││││││││││││││││││┌ resize!(a::Vector{A} where {T, A<:AbstractVector{T}}, nl_::Int64) @ Base ./array.jl:1482
+││││││││││││││││││││┌ _growend!(a::Vector{A} where {T, A<:AbstractVector{T}}, delta::Int64) @ Base ./array.jl:1131
+│││││││││││││││││││││┌ (::Base.var"#_growend!##0#_growend!##1"{…} where {…})() @ Base ./array.jl:1152
+││││││││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{T}, src::MemoryRef{T}, n::Int64) where {T, T<:AbstractVector{T}} @ Base ./genericmemory.jl:125
+│││││││││││││││││││││││┌ aligned_sizeof(T::Type) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││││││┌ datatype_alignment(dt::DataType) @ Base ./runtime_internals.jl:549
+│││││││││││││││││││││││││ runtime dispatch detected: (dt::DataType).layout::Any
+││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{…} where {…}, src::MemoryRef{…} where {…}, n::Int64) @ Base ./genericmemory.jl:137
+│││││││││││││││││││││││┌ unsafe_copyto!(dest::Memory{…} where {…}, doffs::Int64, src::Memory{…} where {…}, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:152
+││││││││││││││││││││││││┌ pointer(x::Memory{T} where {T, T<:AbstractVector{T}}, i::Int64) @ Base ./abstractarray.jl:1258
+│││││││││││││││││││││││││ runtime dispatch detected: Base._memory_offset(x::Memory{T} where {T, T<:AbstractVector{T}}, i::Int64)::Int64
+││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││┌ unsafe_copyto!(dest::Memory{…} where {…}, doffs::Int64, src::Memory{…} where {…}, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+││││││││││││││││││││││││┌ _unsetindex!(A::Memory{T} where {T, T<:AbstractVector{T}}, i::Int64) @ Base ./genericmemory.jl:77
+│││││││││││││││││││││││││┌ _unsetindex!(A::MemoryRef{T} where {T, T<:AbstractVector{T}}) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││││┌ datatype_pointerfree(dt::DataType) @ Base ./runtime_internals.jl:647
+│││││││││││││││││││││││││││┌ datatype_npointers(dt::DataType) @ Base ./runtime_internals.jl:634
+││││││││││││││││││││││││││││ runtime dispatch detected: (dt::DataType).layout::Any
+│││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ resize!(a::Vector{A} where {T, A<:AbstractVector{T}}, nl_::Int64) @ Base ./array.jl:1487
+││││││││││││││││││││┌ _deleteend!(a::Vector{A} where {T, A<:AbstractVector{T}}, delta::Int64) @ Base ./array.jl:1232
+│││││││││││││││││││││┌ _unsetindex!(A::Vector{A} where {T, A<:AbstractVector{T}}, i::Int64) @ Base ./array.jl:218
+││││││││││││││││││││││┌ checkbounds(A::Vector{A} where {T, A<:AbstractVector{T}}, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector{A} where {T, A<:AbstractVector{T}}, I::Tuple{Int64})
+││││││││││││││││││││││└────────────────────
+││││││││││││││││┌ eachindex(A::SentinelArrays.ChainedVector) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:335
+│││││││││││││││││ runtime dispatch detected: SentinelArrays.cleanup!(A::SentinelArrays.ChainedVector)::Any
+││││││││││││││││└────────────────────
+││││││││││││││││┌ eachindex(A::SentinelArrays.ChainedVector) @ SentinelArrays /home/agent/.julia/packages/SentinelArrays/YQPM3/src/chainedvector.jl:336
+│││││││││││││││││ runtime dispatch detected: SentinelArrays.IndexIterator(%2::Vector{A} where {T, A<:AbstractVector{T}})::SentinelArrays.IndexIterator
+││││││││││││││││└────────────────────
+││││││││││││││││┌ eachindex(A::AbstractVector) @ Base ./abstractarray.jl:321
+│││││││││││││││││ runtime dispatch detected: Base.axes1(A::AbstractVector)::Any
+││││││││││││││││└────────────────────
+│││││││││││││││┌ eachindex(::Zygote.Buffer; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+││││││││││││││││ runtime dispatch detected: eachindex(%2::AbstractArray)::Any
+│││││││││││││││└────────────────────
+││││││││││││┌ iterate(::Zygote.Params; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+│││││││││││││ runtime dispatch detected: iterate(%2::Zygote.Buffer)::Union{Nothing, Tuple{Any, Tuple{Any, Vararg{Any}}}}
+││││││││││││└────────────────────
+││││││││││┌ map!(f::Type{Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:477
+│││││││││││┌ iterate(::Base.Generator{Tuple{Zygote.Grads}, F} where F<:Zygote.var"#146#147") @ Base ./generator.jl:48
+││││││││││││┌ (::Zygote.var"#146#147")(gs::Zygote.Grads) @ Zygote ./none:0
+│││││││││││││┌ _getformap(gs::Zygote.Grads, p::Any) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:483
+││││││││││││││┌ getindex(gs::Zygote.Grads, x::Any) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:411
+│││││││││││││││┌ isbits(x::Any) @ Base ./runtime_internals.jl:843
+││││││││││││││││┌ isbitstype(t::DataType) @ Base ./runtime_internals.jl:836
+│││││││││││││││││ runtime dispatch detected: (t::DataType).flags::Any
+││││││││││││││││└────────────────────
+││││││││││││││││┌ isbitstype(t::DataType) @ Base ./runtime_internals.jl:836
+│││││││││││││││││ runtime dispatch detected: (%2::Any & 8)::Any
+││││││││││││││││└────────────────────
+││││││││││││││││┌ isbitstype(t::DataType) @ Base ./runtime_internals.jl:836
+│││││││││││││││││ runtime dispatch detected: (%3::Any == 8)::Any
+││││││││││││││││└────────────────────
+││││││││││││││┌ getindex(gs::Zygote.Grads, x::Any) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:412
+│││││││││││││││┌ _maybe_unthunk(x::ChainRulesCore.AbstractThunk) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:371
+││││││││││││││││┌ unthunk(x::ChainRulesCore.Thunk) @ ChainRulesCore /home/agent/.julia/packages/ChainRulesCore/IZ7FD/src/tangent_types/thunks.jl:212
+│││││││││││││││││ runtime dispatch detected: %1::Any()::Any
+││││││││││││││││└────────────────────
+│││││││││││┌ iterate(::Base.Generator{Tuple{Zygote.Grads}, F} where F<:Zygote.var"#146#147") @ Base ./generator.jl:48
+││││││││││││ runtime dispatch detected: %8::Zygote.var"#146#147"(%4::Zygote.Grads)::Any
+│││││││││││└────────────────────
+││││││││││┌ map!(f::Type{Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:478
+│││││││││││┌ iterate(x::Zygote.Params, args::Tuple{Any, Vararg{Any}}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:17
+││││││││││││┌ iterate(x::Zygote.Params, args::Tuple{Any, Vararg{Any}}; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+│││││││││││││ runtime dispatch detected: iterate(%2::Zygote.Buffer, %3::Tuple{Any, Vararg{Any}})::Union{Nothing, Tuple{Any, Tuple{Any, Vararg{Any}}}}
+││││││││││││└────────────────────
+││││││││││┌ map!(f::Type{Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:477
+│││││││││││ runtime dispatch detected: Base.Generator(%60::Zygote.var"#146#147", gss::Tuple{Zygote.Grads})::Base.Generator{Tuple{Zygote.Grads}, F} where F<:Zygote.var"#146#147"
+││││││││││└────────────────────
+││││││││││┌ map!(f::Type{Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:477
+│││││││││││ runtime dispatch detected: f::Type{Int64}(%69::Any)::Any
+││││││││││└────────────────────
+││││││││┌ broadcasted(f::Type{Int64}, ps::Zygote.Params) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:328
+│││││││││┌ broadcasted(::Type{Int64}, ::Zygote.Buffer) @ Base.Broadcast ./broadcast.jl:1345
+││││││││││┌ broadcastable(x::Zygote.Buffer) @ Base.Broadcast ./broadcast.jl:733
+│││││││││││┌ collect(itr::Zygote.Buffer) @ Base ./array.jl:728
+││││││││││││┌ _collect(cont::UnitRange{Int64}, itr::Zygote.Buffer, ::Base.HasEltype, isz::Base.SizeUnknown) @ Base ./array.jl:738
+│││││││││││││┌ eltype(::Zygote.Buffer) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:17
+││││││││││││││┌ eltype(::Zygote.Buffer; kwargs::@Kwargs{}) @ Zygote /home/agent/.julia/packages/MacroTools/Ar0jT/src/examples/forward.jl:18
+│││││││││││││││ runtime dispatch detected: eltype(%2::AbstractArray)::Any
+││││││││││││││└────────────────────
+│││││││││┌ broadcasted(::Type{Int64}, ::Zygote.Buffer) @ Base.Broadcast ./broadcast.jl:1347
+││││││││││┌ broadcasted(::Nothing, ::Type{Int64}, ::Any) @ Base.Broadcast ./broadcast.jl:1353
+│││││││││││┌ broadcasted(::Base.Broadcast.DefaultArrayStyle{…}, op::Nothing, x::Base.RefValue{…}, r::FillArrays.AbstractFill{…}) where {…} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/fillbroadcast.jl:338
+││││││││││││┌ getindex_value(Z::FillArrays.AbstractZeros{T}) where T @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:326
+│││││││││││││ runtime dispatch detected: FillArrays.zero(%1::Any)::Any
+││││││││││││└────────────────────
+│││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::Nothing, ::Base.RefValue{Type{Int64}}, ::Any) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Nothing, args::Tuple{Base.RefValue{Type{…}}, Any}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Nothing, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││┌ convert(::Type{<:Tuple{Base.RefValue{Type{Int64}}, Any}}, x::Tuple{Base.RefValue{Type{Int64}}, Any}) @ Base ./essentials.jl:614
+│││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{Base.RefValue{…}, Any}, <:Tuple{Base.RefValue{…}, Any}}, ::Val{2}) @ Base ./ntuple.jl:51
+││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{Base.RefValue{Type{…}}, Any}, <:Tuple{Base.RefValue{Type{…}}, Any}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││ runtime dispatch detected: convert(%2::Any, %4::Any)::Any
+││││││││││││││││└────────────────────
+│││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::Nothing, ::Base.RefValue{Type{Int64}}, ::Any) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Nothing, args::Tuple{Base.RefValue{Type{Int64}}, Any})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, Nothing, <:Tuple{Base.RefValue{Type{…}}, Any}}
+│││││││││││└────────────────────
+│││││││││││┌ broadcasted(f::Any, arg1::Nothing, arg2::Base.RefValue, args::Any) @ Base.Broadcast ./broadcast.jl:1352
+││││││││││││┌ map(f::typeof(Base.Broadcast.broadcastable), t::Tuple{Any}) @ Base ./tuple.jl:358
+│││││││││││││ runtime dispatch detected: f::typeof(Base.Broadcast.broadcastable)(%2::Any)::Any
+││││││││││││└────────────────────
+│││││││││││┌ broadcasted(f::Any, arg1::Nothing, arg2::Base.RefValue, args::Any) @ Base.Broadcast ./broadcast.jl:1353
+││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{Nothing}, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::Any, ::Base.RefValue{Nothing}, ::Base.RefValue, ::Any) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.RefValue{Nothing}, Base.RefValue, Any})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted}) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││││┌ convert(::Type{<:Tuple{Base.Broadcast.Broadcasted}}, x::Tuple{Base.Broadcast.Broadcasted}) @ Base ./essentials.jl:614
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{Base.Broadcast.Broadcasted}, <:Tuple{Base.Broadcast.Broadcasted}})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{<:Base.Broadcast.Broadcasted}, %4::Base.Broadcast.Broadcasted)::Base.Broadcast.Broadcasted
+│││││││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where Style<:Union{…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where Style<:Union{…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where Style<:Union{…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where Style<:Union{…}), %4::Base.Broadcast.Broadcasted{Style, Nothing} where Style<:Union{Nothing, Base.Broadcast.BroadcastStyle})::Base.Broadcast.Broadcasted{Style, Nothing} where Style<:Union{Nothing, Base.Broadcast.BroadcastStyle}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{Style, Nothing} where Style<:Union{Nothing, Base.Broadcast.BroadcastStyle}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where Style<:Union{…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{Style, Nothing} where Style<:Union{Nothing, Base.Broadcast.BroadcastStyle}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{Nothing}, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %2::Any, %3::Base.RefValue{Nothing}, %4::Base.RefValue, %5::Any)::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{Nothing}, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %1::Any, %6::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}})::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││││└────────────────────
+││││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::F, ::Base.RefValue{Nothing}, ::Base.RefValue, ::Any) where F @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Any, args::Tuple{Base.RefValue{Nothing}, Base.RefValue, Any})::Base.Broadcast.Broadcasted{var"#s179", Nothing, _A, <:Tuple{…}} where {var"#s179"<:Base.Broadcast.BroadcastStyle, _A}
+││││││││││││└────────────────────
+││││││││││││┌ broadcasted(::Any, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ Base.Broadcast ./broadcast.jl:1352
+│││││││││││││┌ map(f::typeof(Base.Broadcast.broadcastable), t::Tuple{Base.RefValue, Any}) @ Base ./tuple.jl:359
+││││││││││││││ runtime dispatch detected: f::typeof(Base.Broadcast.broadcastable)(%4::Any)::Any
+│││││││││││││└────────────────────
+││││││││││││┌ broadcasted(::Any, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ Base.Broadcast ./broadcast.jl:1353
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::Any, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Any, Base.RefValue, Base.RefValue, Any})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %2::Any, %3::Any, %4::Base.RefValue, %5::Base.RefValue, %6::Any)::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %1::Any, %7::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}})::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::F, ::Any, ::Base.RefValue, ::Base.RefValue, ::Any) where F @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Any, args::Tuple{Any, Base.RefValue, Base.RefValue, Any})::Base.Broadcast.Broadcasted{var"#s179", Nothing, _A, <:Tuple{…}} where {var"#s179"<:Base.Broadcast.BroadcastStyle, _A}
+│││││││││││││└────────────────────
+││││││││││┌ broadcasted(::Base.Broadcast.DefaultArrayStyle{N}, op::Type{Int64}, r::FillArrays.AbstractZeros{T, N}) where {T, N} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/fillbroadcast.jl:153
+│││││││││││┌ Base.Broadcast.Broadcasted(f::Type{Int64}, args::Tuple{FillArrays.AbstractZeros}) @ Base.Broadcast ./broadcast.jl:182
+││││││││││││┌ Base.Broadcast.Broadcasted(f::Type{Int64}, args::Tuple{FillArrays.AbstractZeros}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:182
+│││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.Unknown, f::Type{…}, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││┌ convert(::Type{<:Tuple{FillArrays.AbstractZeros}}, x::Tuple{FillArrays.AbstractZeros}) @ Base ./essentials.jl:614
+│││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{FillArrays.AbstractZeros}, <:Tuple{FillArrays.AbstractZeros}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{FillArrays.AbstractZeros}, <:Tuple{FillArrays.AbstractZeros}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││ runtime dispatch detected: convert(%2::Type{<:FillArrays.AbstractZeros}, %4::FillArrays.AbstractZeros)::Any
+││││││││││││││││└────────────────────
+│││││││││││┌ fzeropreserving(bc::Base.Broadcast.Broadcasted{…} where N) @ LinearAlgebra /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/LinearAlgebra/src/structuredbroadcast.jl:149
+││││││││││││┌ fzero(bc::Base.Broadcast.Broadcasted{Base.Broadcast.DefaultArrayStyle{…}, Nothing, Type{…}, <:Tuple{…}} where N) @ LinearAlgebra /cache/build/builder-amdci5-4/julialang/julia-release-1-dot-12/usr/share/julia/stdlib/v1.12/LinearAlgebra/src/structuredbroadcast.jl:167
+│││││││││││││┌ map(f::typeof(LinearAlgebra.fzero), t::Tuple{FillArrays.AbstractZeros}) @ Base ./tuple.jl:358
+││││││││││││││ runtime dispatch detected: f::typeof(LinearAlgebra.fzero)(%2::FillArrays.AbstractZeros)::Any
+│││││││││││││└────────────────────
+││││││││││┌ broadcasted(::Base.Broadcast.DefaultArrayStyle{N}, op::Type{Int64}, r::FillArrays.AbstractZeros{T, N}) where {T, N} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/fillbroadcast.jl:154
+│││││││││││┌ axes(A::FillArrays.AbstractZeros) @ Base ./abstractarray.jl:98
+││││││││││││ runtime dispatch detected: size(A::FillArrays.AbstractZeros)::Any
+│││││││││││└────────────────────
+│││││││││││┌ axes(A::FillArrays.AbstractZeros) @ Base ./abstractarray.jl:98
+││││││││││││ runtime dispatch detected: map(Base.unchecked_oneto, %1::Any)::Any
+│││││││││││└────────────────────
+│││││││││││┌ (FillArrays.Zeros{T})(n::Integer) where T @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:315
+││││││││││││┌ (::Type{FillArrays.Zeros{_A, 1}} where _A)(sz::Integer) @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:309
+│││││││││││││┌ (::Type{FillArrays.Zeros{_A, 1}} where _A)(sz::Tuple{Integer}) @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:308
+││││││││││││││┌ broadcasted(::typeof(Base.oneto), ::Tuple{Integer}) @ Base.Broadcast ./broadcast.jl:1347
+│││││││││││││││┌ broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{Integer}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{Tuple{Integer}}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{…}, f::typeof(Base.oneto), args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ convert(::Type{<:Tuple{Tuple{Integer}}}, x::Tuple{Tuple{Integer}}) @ Base ./essentials.jl:614
+│││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{Tuple{Integer}}, <:Tuple{Tuple{Integer}}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{Tuple{Integer}}, <:Tuple{Tuple{Integer}}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││┌ convert(::Type{ft} where ft<:Tuple{Integer}, x::Tuple{Integer}) @ Base ./essentials.jl:614
+││││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{ft, <:Tuple{Integer}} where ft<:Tuple{Integer}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{ft, <:Tuple{Integer}} where ft<:Tuple{Integer})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{<:Integer}, %4::Integer)::Integer
+│││││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{Tuple{Integer}}, <:Tuple{Tuple{Integer}}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{<:Tuple{Integer}}, %4::Tuple{Integer})::Tuple{Integer}
+││││││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{Integer}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{Tuple{Integer}})::Base.Broadcast.Broadcasted{Base.Broadcast.Style{Tuple}, Nothing, typeof(Base.oneto), <:Tuple{Tuple{Integer}}}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::Base.Broadcast.Unknown, f::typeof(Base.oneto), args::Tuple{Integer}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.Unknown, f::typeof(Base.oneto), args::Tuple{Tuple{Integer}})::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{Tuple{Integer}}}
+│││││││││││││││└────────────────────
+││││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Style{Tuple}, Nothing, typeof(Base.oneto), <:Tuple{Tuple{…}}}) @ Base.Broadcast ./broadcast.jl:894
+│││││││││││││││┌ copy(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Style{Tuple}, Nothing, typeof(Base.oneto), <:Tuple{Tuple{Integer}}}) @ Base.Broadcast ./broadcast.jl:1124
+││││││││││││││││┌ ntuple(f::Base.Broadcast.var"#copy##0#copy##1"{…} where var"#s179"<:Tuple{…}, ::Val{…}) @ Base ./ntuple.jl:50
+│││││││││││││││││┌ (::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{Tuple{…}})(k::Int64) @ Base.Broadcast ./broadcast.jl:1124
+││││││││││││││││││┌ _broadcast_getindex(bc::Base.Broadcast.Broadcasted{…}, I::Int64) @ Base.Broadcast ./broadcast.jl:672
+│││││││││││││││││││┌ _broadcast_getindex_evalf(f::typeof(Base.oneto), args::Integer) @ Base.Broadcast ./broadcast.jl:699
+││││││││││││││││││││┌ oneto(r::Integer) @ Base ./range.jl:483
+│││││││││││││││││││││┌ Base.OneTo(stop::T) where T<:Integer @ Base ./range.jl:481
+││││││││││││││││││││││┌ (::Type{Base.OneTo{T}} where T<:Integer)(stop::Integer) @ Base ./range.jl:465
+│││││││││││││││││││││││┌ (::Base.var"#throwbool#throwbool##0")(r::Integer) @ Base ./range.jl:464
+││││││││││││││││││││││││┌ string(::String, ::Integer, ::String) @ Base ./strings/io.jl:193
+│││││││││││││││││││││││││┌ print_to_string(::String, ::Integer, ::String) @ Base ./strings/io.jl:151
+││││││││││││││││││││││││││┌ print(io::IOBuffer, n::Unsigned) @ Base ./show.jl:1287
+│││││││││││││││││││││││││││┌ string(n::Unsigned) @ Base ./intfuncs.jl:990
+││││││││││││││││││││││││││││┌ string(n::Unsigned; base::Int64, pad::Int64) @ Base ./intfuncs.jl:994
+│││││││││││││││││││││││││││││┌ bin(x::Unsigned, pad::Int64, neg::Bool) @ Base ./intfuncs.jl:824
+││││││││││││││││││││││││││││││┌ setindex!(A::Memory{UInt8}, v::UInt8, I::Any) @ Base ./abstractarray.jl:1443
+│││││││││││││││││││││││││││││││ runtime dispatch detected: to_indices(A::Memory{UInt8}, I::Tuple{Any})::Any
+││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││┌ string(n::Unsigned; base::Int64, pad::Int64) @ Base ./intfuncs.jl:1000
+│││││││││││││││││││││││││││││┌ dec(x::Unsigned, pad::Int64, neg::Bool) @ Base ./intfuncs.jl:917
+││││││││││││││││││││││││││││││┌ kwcall(::@NamedTuple{pad::Int64}, ::typeof(ndigits), x::Unsigned) @ Base ./intfuncs.jl:809
+│││││││││││││││││││││││││││││││┌ ndigits(x::Unsigned; base::Int64, pad::Int64) @ Base ./intfuncs.jl:809
+││││││││││││││││││││││││││││││││┌ ndigits0z(x::Unsigned, b::Int64) @ Base ./intfuncs.jl:768
+│││││││││││││││││││││││││││││││││┌ ndigits0znb(x::Unsigned, b::Int64) @ Base ./intfuncs.jl:687
+││││││││││││││││││││││││││││││││││┌ !=(x::Unsigned, y::Int64) @ Base ./operators.jl:321
+│││││││││││││││││││││││││││││││││││┌ ==(x::Unsigned, y::Int64) @ Base ./promotion.jl:487
+││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::Int64) @ Base ./promotion.jl:404
+│││││││││││││││││││││││││││││││││││││┌ _promote(x::Unsigned, y::Int64) @ Base ./promotion.jl:378
+││││││││││││││││││││││││││││││││││││││┌ promote_type(::Type{T} where T<:Unsigned, ::Type{Int64}) @ Base ./promotion.jl:322
+│││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{T} where T<:Unsigned, ::Type{Int64}, ::Type{T}, ::Type{Int64}) where T @ Base ./promotion.jl:342
+││││││││││││││││││││││││││││││││││││││││┌ promote_type(::Type, ::Type{Int64}) @ Base ./promotion.jl:322
+│││││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{T}, ::Type{Int64}, ::Type{Union{}}, ::Type{Union{}}) where T @ Base ./promotion.jl:345
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:103
+│││││││││││││││││││││││││││││││││││││││││││┌ supertype(T::DataType) @ Base ./operators.jl:86
+││││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (T::DataType).super::Any
+│││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:56
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%80::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:56
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%83::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:57
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: length(%90::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:58
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: length(%91::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:59
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%92::Any == 0)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:62
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%93::Any == 0)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:68
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%90::Any)[%92::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:70
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%90::Any)[%92::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:78
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%91::Any)[%93::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:80
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%91::Any)[%93::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:92
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: min(%382::Int64, %92::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:92
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%90::Any)[%384::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:92
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: min(%382::Int64, %93::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:92
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%91::Any)[%386::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:101
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%462::DataType).name::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:101
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%466::Any).wrapper::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:102
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).name::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:102
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%462::DataType).name::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:105
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).name::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:106
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:106
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%483::Any)[1]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:107
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%462::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:107
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%485::Any)[1]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:114
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).name::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:114
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%521::Any).wrapper::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:116
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:116
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: length(%523::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:117
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%524::Any == 0)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:121
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (1 : %524::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:121
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: iterate(%545::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:122
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%470::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:122
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%554::Any)[%552::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:122
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%462::DataType).parameters::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:122
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: (%556::Any)[%552::Any]::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ typejoin(a::Any, b::Any) @ Base ./promotion.jl:132
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: iterate(%545::Any, %553::Any)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type, ::Type{Int64}, ::Type{T}, ::Type{S}) where {T, S} @ Base ./promotion.jl:342
+││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: promote_type(%1::Type, %2::Type)::Any
+│││││││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{T} where T<:Unsigned, ::Type{Int64}, ::Type{T}, ::Type{Int64}) where T @ Base ./promotion.jl:342
+││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: promote_type(%1::Type, ::Int64)::Any
+│││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::Int64) @ Base ./promotion.jl:404
+│││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Unsigned, y::Int64)::Tuple{Any, Any}
+││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::Int64) @ Base ./promotion.jl:405
+│││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Unsigned, Int64}, %5::Tuple{Any, Any})::Any
+││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││┌ ndigits0znb(x::Unsigned, b::Int64) @ Base ./intfuncs.jl:688
+││││││││││││││││││││││││││││││││││┌ fld(x::Unsigned, y::Int64) @ Base ./div.jl:349
+│││││││││││││││││││││││││││││││││││┌ div(x::Unsigned, y::Int64, ::RoundingMode{:Down}) @ Base ./div.jl:300
+││││││││││││││││││││││││││││││││││││┌ divrem(x::Unsigned, y::Int64) @ Base ./int.jl:241
+│││││││││││││││││││││││││││││││││││││┌ divrem(x::Unsigned, y::UInt64) @ Base ./div.jl:196
+││││││││││││││││││││││││││││││││││││││┌ divrem(a::Unsigned, b::UInt64, r::RoundingMode{:ToZero}) @ Base ./div.jl:218
+│││││││││││││││││││││││││││││││││││││││┌ div(a::Unsigned, b::UInt64) @ Base ./div.jl:64
+││││││││││││││││││││││││││││││││││││││││┌ div(x::Unsigned, y::UInt64, r::RoundingMode{:ToZero}) @ Base ./div.jl:360
+│││││││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt64) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││││││││┌ _promote(x::Unsigned, y::UInt64) @ Base ./promotion.jl:379
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: convert(%61::Any, x::Unsigned)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││││││││┌ _promote(x::Unsigned, y::UInt64) @ Base ./promotion.jl:379
+│││││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: convert(%61::Any, y::UInt64)::Any
+││││││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││┌ ndigits0z(x::Unsigned, b::Int64) @ Base ./intfuncs.jl:770
+│││││││││││││││││││││││││││││││││┌ ndigits0zpb(x::Unsigned, b::Int64) @ Base ./intfuncs.jl:720
+││││││││││││││││││││││││││││││││││┌ >(x::Unsigned, y::Int64) @ Base ./operators.jl:425
+│││││││││││││││││││││││││││││││││││┌ <(x::Int64, y::Unsigned) @ Base ./promotion.jl:488
+││││││││││││││││││││││││││││││││││││┌ promote(x::Int64, y::Unsigned) @ Base ./promotion.jl:404
+│││││││││││││││││││││││││││││││││││││┌ _promote(x::Int64, y::Unsigned) @ Base ./promotion.jl:378
+││││││││││││││││││││││││││││││││││││││┌ promote_type(::Type{Int64}, ::Type{S} where S<:Unsigned) @ Base ./promotion.jl:322
+│││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{Int64}, ::Type{S} where S<:Unsigned, ::Type{Int64}, ::Type{S}) where S @ Base ./promotion.jl:342
+││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: promote_type(::Int64, %1::Type)::Any
+│││││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││┌ promote(x::Int64, y::Unsigned) @ Base ./promotion.jl:404
+│││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Int64, y::Unsigned)::Tuple{Any, Any}
+││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││││┌ promote(x::Int64, y::Unsigned) @ Base ./promotion.jl:405
+│││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Int64, Unsigned}, %5::Tuple{Any, Any})::Any
+││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││┌ dec(x::Unsigned, pad::Int64, neg::Bool) @ Base ./intfuncs.jl:919
+││││││││││││││││││││││││││││││┌ append_c_digits_fast(olength::Int64, digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:904
+│││││││││││││││││││││││││││││││┌ >(x::Unsigned, y::UInt64) @ Base ./operators.jl:425
+││││││││││││││││││││││││││││││││┌ <(x::UInt64, y::Unsigned) @ Base ./promotion.jl:488
+│││││││││││││││││││││││││││││││││┌ promote(x::UInt64, y::Unsigned) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││┌ _promote(x::UInt64, y::Unsigned) @ Base ./promotion.jl:379
+│││││││││││││││││││││││││││││││││││ runtime dispatch detected: convert(%61::Any, x::UInt64)::Any
+││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││││┌ _promote(x::UInt64, y::Unsigned) @ Base ./promotion.jl:379
+│││││││││││││││││││││││││││││││││││ runtime dispatch detected: convert(%61::Any, y::Unsigned)::Any
+││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││┌ append_c_digits_fast(olength::Int64, digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:906
+│││││││││││││││││││││││││││││││┌ divrem(x::Unsigned, y::UInt32) @ Base ./div.jl:196
+││││││││││││││││││││││││││││││││┌ divrem(a::Unsigned, b::UInt32, r::RoundingMode{:ToZero}) @ Base ./div.jl:218
+│││││││││││││││││││││││││││││││││┌ div(a::Unsigned, b::UInt32) @ Base ./div.jl:64
+││││││││││││││││││││││││││││││││││┌ div(x::Unsigned, y::UInt32, r::RoundingMode{:ToZero}) @ Base ./div.jl:360
+│││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt32) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││┌ _promote(x::Unsigned, y::UInt32) @ Base ./promotion.jl:378
+│││││││││││││││││││││││││││││││││││││┌ promote_type(::Type{T} where T<:Unsigned, ::Type{UInt32}) @ Base ./promotion.jl:322
+││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{T} where T<:Unsigned, ::Type{UInt32}, ::Type{T}, ::Type{UInt32}) where T @ Base ./promotion.jl:342
+│││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: promote_type(%1::Type, ::UInt32)::Any
+││││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt32) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Unsigned, y::UInt32)::Tuple{Any, Any}
+│││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt32) @ Base ./promotion.jl:405
+││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Unsigned, UInt32}, %5::Tuple{Any, Any})::Any
+│││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││┌ append_c_digits_fast(olength::Int64, digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:908
+│││││││││││││││││││││││││││││││┌ append_nine_digits(digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:895
+││││││││││││││││││││││││││││││││┌ append_c_digits(olength::Int64, digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:873
+│││││││││││││││││││││││││││││││││┌ divrem(x::Unsigned, y::UInt8) @ Base ./div.jl:196
+││││││││││││││││││││││││││││││││││┌ divrem(a::Unsigned, b::UInt8, r::RoundingMode{:ToZero}) @ Base ./div.jl:218
+│││││││││││││││││││││││││││││││││││┌ div(a::Unsigned, b::UInt8) @ Base ./div.jl:64
+││││││││││││││││││││││││││││││││││││┌ div(x::Unsigned, y::UInt8, r::RoundingMode{:ToZero}) @ Base ./div.jl:360
+│││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt8) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││││┌ _promote(x::Unsigned, y::UInt8) @ Base ./promotion.jl:378
+│││││││││││││││││││││││││││││││││││││││┌ promote_type(::Type{T} where T<:Unsigned, ::Type{UInt8}) @ Base ./promotion.jl:322
+││││││││││││││││││││││││││││││││││││││││┌ promote_result(::Type{T} where T<:Unsigned, ::Type{UInt8}, ::Type{T}, ::Type{UInt8}) where T @ Base ./promotion.jl:342
+│││││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: promote_type(%1::Type, ::UInt8)::Any
+││││││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt8) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Unsigned, y::UInt8)::Tuple{Any, Any}
+│││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││││┌ promote(x::Unsigned, y::UInt8) @ Base ./promotion.jl:405
+││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Unsigned, UInt8}, %5::Tuple{Any, Any})::Any
+│││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││┌ divrem(x::Any, y::UInt8) @ Base ./div.jl:196
+││││││││││││││││││││││││││││││││││┌ divrem(a::Integer, b::UInt8, r::RoundingMode{:ToZero}) @ Base ./div.jl:218
+│││││││││││││││││││││││││││││││││││┌ div(x::Union{Int128, Int16, Int32, Int64, Int8}, y::UInt8) @ Base ./int.jl:229
+││││││││││││││││││││││││││││││││││││┌ flipsign(x::Union{Int128, Int16, Int32, Int64, Int8}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./int.jl:143
+│││││││││││││││││││││││││││││││││││││┌ promote(x::Union{Int128, Int16, Int32, Int64, Int8}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Union{Int128, Int16, Int32, Int64, Int8}, y::Union{Int128, Int16, Int32, Int64, Int8})::Tuple{Any, Any}
+│││││││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││││││┌ promote(x::Union{Int128, Int16, Int32, Int64, Int8}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./promotion.jl:405
+││││││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Union{Int128, Int16, Int32, Int64, Int8}, Union{Int128, Int16, Int32, Int64, Int8}}, %5::Tuple{Any, Any})::Any
+│││││││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││││││││┌ append_c_digits(olength::Int64, digits::Unsigned, buf::Memory{UInt8}, pos::Int64) @ Base ./intfuncs.jl:881
+│││││││││││││││││││││││││││││││││┌ setindex!(A::Memory{UInt8}, x::Any, i1::Int64) @ Base ./genericmemory.jl:259
+││││││││││││││││││││││││││││││││││ runtime dispatch detected: convert(::UInt8, x::Any)::Any
+│││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││┌ divrem(x::Union{Int128, Int16, Int32, Int64, Int8}, y::UInt32) @ Base ./int.jl:237
+││││││││││││││││││││││││││││││││┌ flipsign(x::Union{Int128, Int32, Int64}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./int.jl:143
+│││││││││││││││││││││││││││││││││┌ promote(x::Union{Int128, Int32, Int64}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./promotion.jl:404
+││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Union{Int128, Int32, Int64}, y::Union{Int128, Int16, Int32, Int64, Int8})::Tuple{Any, Any}
+│││││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││││││┌ promote(x::Union{Int128, Int32, Int64}, y::Union{Int128, Int16, Int32, Int64, Int8}) @ Base ./promotion.jl:405
+││││││││││││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Union{Int128, Int32, Int64}, Union{Int128, Int16, Int32, Int64, Int8}}, %5::Tuple{Any, Any})::Any
+│││││││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││┌ (::Type{Base.OneTo{T}} where T<:Integer)(stop::Integer) @ Base ./range.jl:466
+│││││││││││││││││││││││┌ max(x::Integer, y::Integer) @ Base ./promotion.jl:497
+││││││││││││││││││││││││┌ promote(x::Integer, y::Integer) @ Base ./promotion.jl:404
+│││││││││││││││││││││││││ runtime dispatch detected: Base._promote(x::Integer, y::Integer)::Tuple{Any, Any}
+││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││┌ promote(x::Integer, y::Integer) @ Base ./promotion.jl:405
+│││││││││││││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Integer, Integer}, %5::Tuple{Any, Any})::Any
+││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ _broadcast_getindex_evalf(f::typeof(Base.oneto), args::Integer) @ Base.Broadcast ./broadcast.jl:699
+││││││││││││││││││││ runtime dispatch detected: f::typeof(Base.oneto)(%1::Integer)::Base.OneTo
+│││││││││││││││││││└────────────────────
+││││││││││││││││┌ ntuple(f::Base.Broadcast.var"#copy##0#copy##1"{…} where var"#s179"<:Tuple{…}, ::Val{…}) @ Base ./ntuple.jl:50
+│││││││││││││││││ runtime dispatch detected: f::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{Tuple{…}}(1)::Base.OneTo
+││││││││││││││││└────────────────────
+││││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{Tuple{…}}}) @ Base.Broadcast ./broadcast.jl:894
+│││││││││││││││┌ instantiate(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{Tuple{…}}}) @ Base.Broadcast ./broadcast.jl:318
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted([quote]::Base.Broadcast.Unknown, oneto, %3::Tuple{Tuple{Integer}}, (Base.OneTo(1),))::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Tuple{Base.OneTo{…}}, typeof(Base.oneto), <:Tuple{Tuple{…}}}
+│││││││││││││││└────────────────────
+││││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{Tuple{…}}}) @ Base.Broadcast ./broadcast.jl:894
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.copy(%2::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Tuple{Base.OneTo{…}}, typeof(Base.oneto), <:Tuple{Tuple{…}}})
+││││││││││││││└────────────────────
+││││││││││││││┌ (::Type{FillArrays.Zeros{_A, 1}} where _A)(sz::Tuple{Base.OneTo}) @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:298
+│││││││││││││││┌ convert(::Type{Axes} where Axes<:Tuple{Base.OneTo}, x::Tuple{Base.OneTo}) @ Base ./essentials.jl:614
+││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{Axes, <:Tuple{Base.OneTo}} where Axes<:Tuple{Base.OneTo}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{Axes, <:Tuple{Base.OneTo}} where Axes<:Tuple{Base.OneTo})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││ runtime dispatch detected: convert(%2::Type{<:Base.OneTo}, %4::Base.OneTo)::Base.OneTo
+│││││││││││││││││└────────────────────
+││││││││││││││┌ (::Type{FillArrays.Zeros{_A, 1}} where _A)(sz::Tuple{Base.OneTo}) @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:298
+│││││││││││││││ runtime dispatch detected: convert(%8::Type{Axes} where Axes<:Tuple{Base.OneTo}, sz::Tuple{Base.OneTo})::Tuple{Base.OneTo}
+││││││││││││││└────────────────────
+││││││││││││┌ (::Type{FillArrays.Zeros{_A, 1}} where _A)(sz::Integer) @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:309
+│││││││││││││ runtime dispatch detected: %2::Type{FillArrays.Zeros{_A, 1}} where _A(sz::Tuple{Integer})::FillArrays.Zeros{_A, 1, Axes} where {_A, Axes<:Tuple{Base.OneTo}}
+││││││││││││└────────────────────
+│││││││││││┌ (FillArrays.Zeros{T})(sz::SZ) where {T, N, SZ<:NTuple{N, Any}} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:312
+││││││││││││┌ (FillArrays.Zeros{T, N})(sz::NTuple{N, Integer}) where {T, N} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:308
+│││││││││││││┌ broadcasted(::typeof(Base.oneto), ::NTuple{N, Integer} where N) @ Base.Broadcast ./broadcast.jl:1347
+││││││││││││││┌ broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::NTuple{N, Integer} where N) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{NTuple{…} where N}) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{…}, f::typeof(Base.oneto), args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││┌ convert(::Type{<:Tuple{NTuple{N, Integer} where N}}, x::Tuple{NTuple{N, Integer} where N}) @ Base ./essentials.jl:614
+││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{NTuple{…} where N}, <:Tuple{NTuple{…} where N}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{NTuple{N, Integer} where N}, <:Tuple{NTuple{N, Integer} where N}})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││┌ convert(::Type, x::NTuple{N, Integer} where N) @ Base ./essentials.jl:614
+│││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{T, <:NTuple{N, Integer}} where {T, N}, ::Val{3}) @ Base ./ntuple.jl:52
+││││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{T, <:NTuple{N, Integer}} where {T, N})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││││││ runtime dispatch detected: convert(%2::Any, %4::Integer)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::NTuple{N, Integer} where N) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.Style{Tuple}, f::typeof(Base.oneto), args::Tuple{NTuple{N, Integer} where N})::Base.Broadcast.Broadcasted{Base.Broadcast.Style{Tuple}, Nothing, typeof(Base.oneto), <:Tuple{NTuple{…} where N}}
+││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(style::Base.Broadcast.Unknown, f::typeof(Base.oneto), args::NTuple{N, Integer} where N) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.Unknown, f::typeof(Base.oneto), args::Tuple{NTuple{N, Integer} where N})::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{NTuple{N, Integer} where N}}
+││││││││││││││└────────────────────
+│││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Style{…}, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:894
+││││││││││││││┌ copy(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Style{…}, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:1124
+│││││││││││││││┌ ntuple(f::Base.Broadcast.var"#copy##0#copy##1"{…} where var"#s179"<:Tuple{…}, ::Val{…}) @ Base ./ntuple.jl:51
+││││││││││││││││ runtime dispatch detected: f::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{NTuple{…} where N}(1)::Base.OneTo
+│││││││││││││││└────────────────────
+│││││││││││││││┌ ntuple(f::Base.Broadcast.var"#copy##0#copy##1"{…} where var"#s179"<:Tuple{…}, ::Val{…}) @ Base ./ntuple.jl:51
+││││││││││││││││ runtime dispatch detected: f::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{NTuple{…} where N}(2)::Base.OneTo
+│││││││││││││││└────────────────────
+│││││││││││││││┌ ntuple(f::Base.Broadcast.var"#copy##0#copy##1"{…} where var"#s179"<:Tuple{…}, ::Val{…}) @ Base ./ntuple.jl:50
+││││││││││││││││ runtime dispatch detected: f::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{NTuple{…} where N}(1)::Base.OneTo
+│││││││││││││││└────────────────────
+││││││││││││││┌ copy(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Style{…}, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:1124
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.ntuple(%9::Base.Broadcast.var"#copy##0#copy##1"{Base.Broadcast.Broadcasted{…}} where var"#s179"<:Tuple{NTuple{…} where N}, %11::Val)::Tuple
+││││││││││││││└────────────────────
+│││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:894
+││││││││││││││┌ instantiate(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:318
+│││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted([quote]::Base.Broadcast.Unknown, oneto, %9::Tuple{NTuple{N, Integer} where N}, %8::Tuple{Base.OneTo{Int64}})::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Tuple{…}, typeof(Base.oneto), <:Tuple{…}}
+││││││││││││││└────────────────────
+│││││││││││││┌ materialize(bc::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Nothing, typeof(Base.oneto), <:Tuple{…}}) @ Base.Broadcast ./broadcast.jl:894
+││││││││││││││ runtime dispatch detected: Base.Broadcast.copy(%9::Base.Broadcast.Broadcasted{Base.Broadcast.Unknown, Tuple{…}, typeof(Base.oneto), <:Tuple{…}})
+│││││││││││││└────────────────────
+│││││││││││││┌ (FillArrays.Zeros{T, N})(sz::Axes) where {T, N, Axes<:NTuple{N, AbstractUnitRange}} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:298
+││││││││││││││ runtime dispatch detected: convert(%9::Any, sz::NTuple{N, AbstractUnitRange} where N)::Any
+│││││││││││││└────────────────────
+│││││││││││┌ (FillArrays.Zeros{T})(sz::SZ) where {T, N, SZ<:NTuple{N, Any}} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:312
+││││││││││││ runtime dispatch detected: %3::Type{FillArrays.Zeros{_A, _B}} where {_A, _B}(sz::NTuple{N, Any} where N)::FillArrays.Zeros
+│││││││││││└────────────────────
+││││││││││┌ broadcasted(::Base.Broadcast.DefaultArrayStyle{N}, op::Type{Int64}, r::FillArrays.AbstractZeros{T, N}) where {T, N} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/fillbroadcast.jl:156
+│││││││││││┌ FillArrays.Fill(x::T, sz::NTuple{N, Any}) where {T, N} @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:131
+││││││││││││ runtime dispatch detected: %3::Type{FillArrays.Fill{_A, _B}} where {_A, _B}(x::Any, sz::NTuple{N, Any} where N)::FillArrays.Fill
+│││││││││││└────────────────────
+│││││││││││┌ FillArrays.Fill(x::T, sz::Integer) where T @ FillArrays /home/agent/.julia/packages/FillArrays/zA1cC/src/FillArrays.jl:129
+││││││││││││ runtime dispatch detected: %2::Type{FillArrays.Fill{_A, 1}} where _A(x::Any, sz::Tuple{Integer})::FillArrays.Fill
+│││││││││││└────────────────────
+││││││││││┌ broadcasted(style::Base.Broadcast.BroadcastStyle, f::Type{Int64}, args::Any) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Type{Int64}, args::Tuple{Any})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, Type{Int64}, <:Tuple{Any}}
+││││││││││└────────────────────
+│││││││┌ (::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})(cat_group_index::Vector{…}) @ CounterfactualExplanations.DataPreprocessing /home/patalt/code/CounterfactualExplanations.jl/src/data_preprocessing/counterfactual_data.jl:243
+││││││││┌ broadcasted(f::typeof(==), gs::Zygote.Grads, a::Int64) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:456
+│││││││││┌ map(::Zygote.var"#broadcasted##2#broadcasted##3"{typeof(==), Int64}, ::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:470
+││││││││││┌ map!(f::Zygote.var"#broadcasted##2#broadcasted##3"{typeof(==), Int64}, gsout::Zygote.Grads, gss::Zygote.Grads) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:477
+│││││││││││ runtime dispatch detected: f::Zygote.var"#broadcasted##2#broadcasted##3"{typeof(==), Int64}(%69::Any)::Any
+││││││││││└────────────────────
+││││││││┌ broadcasted(::typeof(==), ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1353
+│││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::typeof(==), ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(==), args::Tuple{Any, Int64}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││┌ Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(==), args::Tuple{Any, Int64}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││┌ convert(::Type{<:Tuple{Any, Int64}}, x::Tuple{Any, Int64}) @ Base ./essentials.jl:614
+│││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{Any, Int64}, <:Tuple{Any, Int64}}, ::Val{2}) @ Base ./ntuple.jl:51
+││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{Any, Int64}, <:Tuple{Any, Int64}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││ runtime dispatch detected: convert(%2::Type{<:Int64}, %4::Int64)::Int64
+││││││││││││││└────────────────────
+│││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::typeof(==), ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(==), args::Tuple{Any, Int64})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, typeof(==), <:Tuple{Any, Int64}}
+│││││││││└────────────────────
+│││││││││┌ broadcasted(f::Any, arg1::typeof(==), arg2::Any, args::Int64) @ Base.Broadcast ./broadcast.jl:1353
+││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{typeof(==)}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::Any, ::Base.RefValue{typeof(==)}, ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.RefValue{typeof(==)}, Any, Int64})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││└────────────────────
+││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││└────────────────────
+│││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{typeof(==)}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %2::Any, %3::Base.RefValue{typeof(==)}, %4::Any, %5::Int64)::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││└────────────────────
+│││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{typeof(==)}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %1::Any, %6::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}})::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││└────────────────────
+││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::F, ::Base.RefValue{typeof(==)}, ::Any, ::Int64) where F @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Any, args::Tuple{Base.RefValue{typeof(==)}, Any, Int64})::Base.Broadcast.Broadcasted{var"#s179", Nothing, _A, <:Tuple{…}} where {var"#s179"<:Base.Broadcast.BroadcastStyle, _A}
+││││││││││└────────────────────
+││││││││││┌ broadcasted(::Any, ::Any, ::Base.RefValue, ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1352
+│││││││││││┌ map(f::typeof(Base.Broadcast.broadcastable), t::Tuple{Any, Int64}) @ Base ./tuple.jl:359
+││││││││││││ runtime dispatch detected: f::typeof(Base.Broadcast.broadcastable)(%2::Any)::Any
+│││││││││││└────────────────────
+││││││││││┌ broadcasted(::Any, ::Any, ::Base.RefValue, ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1353
+│││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::Any, ::Any, ::Base.RefValue, ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Any, Base.RefValue, Any, Int64})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││└────────────────────
+││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+│││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││└────────────────────
+│││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││└────────────────────
+│││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %2::Any, %3::Any, %4::Base.RefValue, %5::Any, %6::Int64)::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││└────────────────────
+│││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Any, ::Base.RefValue, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %1::Any, %7::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}})::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+│││││││││││└────────────────────
+│││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::F, ::Any, ::Base.RefValue, ::Any, ::Int64) where F @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Any, args::Tuple{Any, Base.RefValue, Any, Int64})::Base.Broadcast.Broadcasted{var"#s179", Nothing, _A, <:Tuple{…}} where {var"#s179"<:Base.Broadcast.BroadcastStyle, _A}
+│││││││││││└────────────────────
+││││││┌ iterate(::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})) @ Base ./generator.jl:48
+│││││││ runtime dispatch detected: %37::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}(%32::Vector{Int64})::Any
+││││││└────────────────────
+│││││┌ _collect(c::Vector{…}, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), ::Base.EltypeUnknown, isz::Base.HasShape{…}) @ Base ./array.jl:815
+││││││┌ _similar_for(c::Vector{…}, ::DataType, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), ::Base.HasShape{…}, axs::Tuple{…}) @ Base ./array.jl:664
+│││││││┌ similar(a::Vector{Vector{Int64}}, ::DataType, dims::Tuple{Base.OneTo{Int64}}) @ Base ./abstractarray.jl:830
+││││││││┌ similar(A::Vector{Vector{Int64}}, ::Type{CategoricalArrays.CategoricalValue{T, R}}, dims::Tuple{Int64}) where {T, R} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:675
+│││││││││┌ (::Type{CategoricalArrays.CategoricalArray{_A, 1, _B}} where {_A, _B})(::UndefInitializer, dims::Tuple{Int64}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:158
+││││││││││┌ (::Type{…} where {…})(::UndefInitializer, dims::Tuple{…}; levels::Nothing, ordered::Bool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:165
+│││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, ordered::Bool) where {T, R} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:21
+││││││││││││┌ (::Colon)(a::Real, b::Int64) @ Base ./range.jl:3
+│││││││││││││┌ promote(x::Real, y::Int64) @ Base ./promotion.jl:404
+││││││││││││││ runtime dispatch detected: Base._promote(x::Real, y::Int64)::Tuple{Any, Any}
+│││││││││││││└────────────────────
+│││││││││││││┌ promote(x::Real, y::Int64) @ Base ./promotion.jl:405
+││││││││││││││ runtime dispatch detected: Base.not_sametype(%4::Tuple{Real, Int64}, %5::Tuple{Any, Any})::Any
+│││││││││││││└────────────────────
+│││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, ordered::Bool) where {T, R} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:23
+││││││││││││┌ (::Type{…} where {…})(kv::Base.Generator{…} where I<:(Base.Iterators.Enumerate{…} where I<:(Vector))) @ Base ./dict.jl:91
+│││││││││││││┌ (::Type{Dict{_A, _B}} where {_A, _B})() @ Base ./dict.jl:80
+││││││││││││││┌ convert(::Type{<:Memory}, a::Memory) @ Base ./genericmemory.jl:215
+│││││││││││││││┌ Memory{T}(x::Memory{S}) where {T, S} @ Base ./genericmemory.jl:222
+││││││││││││││││┌ copyto_axcheck!(dest::Memory, src::Memory) @ Base ./abstractarray.jl:1176
+│││││││││││││││││┌ copyto!(dest::Memory, src::Memory) @ Base ./genericmemory.jl:183
+││││││││││││││││││┌ copyto!(dest::Memory, doffs::Int64, src::Memory, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:186
+│││││││││││││││││││┌ unsafe_copyto!(dest::Memory, doffs::Int64, src::Memory, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:152
+││││││││││││││││││││┌ pointer(x::Memory, i::Int64) @ Base ./abstractarray.jl:1258
+│││││││││││││││││││││ runtime dispatch detected: Base._memory_offset(x::Memory, i::Int64)::Int64
+││││││││││││││││││││└────────────────────
+││││││││││││┌ (::Type{…} where {…})(kv::Base.Generator{…} where I<:(Base.Iterators.Enumerate{…} where I<:(Vector))) @ Base ./dict.jl:93
+│││││││││││││┌ iterate(::Base.Generator{I, CategoricalArrays.var"#2#3"} where I<:(Base.Iterators.Enumerate{I} where I<:(Vector))) @ Base ./generator.jl:45
+││││││││││││││┌ iterate(e::Base.Iterators.Enumerate{I} where I<:(Vector)) @ Base.Iterators ./iterators.jl:196
+│││││││││││││││┌ iterate(e::Base.Iterators.Enumerate{I} where I<:(Vector), state::Tuple{Int64}) @ Base.Iterators ./iterators.jl:197
+││││││││││││││││┌ iterate(A::Vector) @ Base ./array.jl:901
+│││││││││││││││││┌ iterate(A::Vector, i::Int64) @ Base ./array.jl:901
+││││││││││││││││││ runtime dispatch detected: (A::Vector)[i::Int64]::Any
+│││││││││││││││││└────────────────────
+│││││││││││││┌ iterate(::Base.Generator{I, CategoricalArrays.var"#2#3"} where I<:(Base.Iterators.Enumerate{I} where I<:(Vector))) @ Base ./generator.jl:48
+││││││││││││││ runtime dispatch detected: #2(%26::Tuple{Int64, Any})::Pair{_A, Int64} where _A
+│││││││││││││└────────────────────
+││││││││││││┌ (::Type{…} where {…})(kv::Base.Generator{…} where I<:(Base.Iterators.Enumerate{…} where I<:(Vector))) @ Base ./dict.jl:95
+│││││││││││││┌ iterate(g::Base.Generator{…} where I<:(Base.Iterators.Enumerate{…} where I<:(Vector)), s::Tuple{…}) @ Base ./generator.jl:48
+││││││││││││││ runtime dispatch detected: #2(%30::Tuple{Int64, Any})::Pair{_A, Int64} where _A
+│││││││││││││└────────────────────
+│││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, ordered::Bool) where {T, R} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:27
+││││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, invindex::Dict{T, R}, ordered::Bool) where {T, R} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:49
+│││││││││││││┌ CategoricalArrays.CategoricalPool{…}(levels::Vector{…}, invindex::Dict{…}, ordered::Bool, hash::Nothing) where {…} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:49
+││││││││││││││┌ convert(::Type{<:Dict{T, R} where {T<:Union{AbstractChar, AbstractString, Number}, R<:Integer}}, x::Dict) @ Base ./abstractdict.jl:578
+│││││││││││││││┌ Dict{K, V}(d::Dict{K, V}) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:83
+││││││││││││││││┌ copy(a::Memory{K} where K<:Union{AbstractChar, AbstractString, Number}) @ Base ./genericmemory.jl:180
+│││││││││││││││││┌ unsafe_copyto!(dest::Memory{…}, doffs::Int64, src::Memory{…}, soffs::Int64, n::Int64) where T<:Union{…} @ Base ./genericmemory.jl:143
+││││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{T}, src::MemoryRef{T}, n::Int64) where T<:Union{AbstractChar, AbstractString, Number} @ Base ./genericmemory.jl:125
+│││││││││││││││││││┌ aligned_sizeof(T::Type{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││ runtime dispatch detected: Base.datatype_alignment(T::Type{T} where T<:Union{AbstractChar, AbstractString, Number})::Int64
+│││││││││││││││││││└────────────────────
+│││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{…} where T<:Union{…}, src::MemoryRef{…} where T<:Union{…}, n::Int64) @ Base ./genericmemory.jl:137
+││││││││││││││││││┌ unsafe_copyto!(dest::Memory{…} where T<:Union{…}, doffs::Int64, src::Memory{…} where T<:Union{…}, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+│││││││││││││││││││┌ _unsetindex!(A::Memory{T} where T<:Union{AbstractChar, AbstractString, Number}, i::Int64) @ Base ./genericmemory.jl:77
+││││││││││││││││││││┌ _unsetindex!(A::MemoryRef{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./genericmemory.jl:88
+│││││││││││││││││││││┌ datatype_pointerfree(dt::Type{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./runtime_internals.jl:647
+││││││││││││││││││││││ runtime dispatch detected: Base.datatype_npointers(dt::Type{T} where T<:Union{AbstractChar, AbstractString, Number})::UInt32
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ _unsetindex!(A::MemoryRef{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./genericmemory.jl:88
+│││││││││││││││││││││ runtime dispatch detected: Base.datatype_pointerfree(%37::Type{T} where T<:Union{AbstractChar, AbstractString, Number})::Bool
+││││││││││││││││││││└────────────────────
+││││││││││││││││┌ copy(a::Memory{V} where V<:Integer) @ Base ./genericmemory.jl:180
+│││││││││││││││││┌ unsafe_copyto!(dest::Memory{T}, doffs::Int64, src::Memory{T}, soffs::Int64, n::Int64) where T<:Integer @ Base ./genericmemory.jl:143
+││││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{T}, src::MemoryRef{T}, n::Int64) where T<:Integer @ Base ./genericmemory.jl:125
+│││││││││││││││││││┌ aligned_sizeof(T::Type{T} where T<:Integer) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││ runtime dispatch detected: Base.datatype_alignment(T::Type{T} where T<:Integer)::Int64
+│││││││││││││││││││└────────────────────
+│││││││││││││││││┌ unsafe_copyto!(dest::MemoryRef{T} where T<:Integer, src::MemoryRef{T} where T<:Integer, n::Int64) @ Base ./genericmemory.jl:137
+││││││││││││││││││┌ unsafe_copyto!(dest::Memory{T} where T<:Integer, doffs::Int64, src::Memory{T} where T<:Integer, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+│││││││││││││││││││┌ _unsetindex!(A::Memory{T} where T<:Integer, i::Int64) @ Base ./genericmemory.jl:77
+││││││││││││││││││││┌ _unsetindex!(A::MemoryRef{T} where T<:Integer) @ Base ./genericmemory.jl:88
+│││││││││││││││││││││┌ datatype_pointerfree(dt::Type{T} where T<:Integer) @ Base ./runtime_internals.jl:647
+││││││││││││││││││││││ runtime dispatch detected: Base.datatype_npointers(dt::Type{T} where T<:Integer)::UInt32
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ _unsetindex!(A::MemoryRef{T} where T<:Integer) @ Base ./genericmemory.jl:88
+│││││││││││││││││││││ runtime dispatch detected: Base.datatype_pointerfree(%37::Type{T} where T<:Integer)::Bool
+││││││││││││││││││││└────────────────────
+│││││││││││││││┌ Dict{K, V}(kv::Dict) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:93
+││││││││││││││││┌ iterate(t::Dict) @ Base ./dict.jl:701
+│││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict, %47::Int64)::Union{Nothing, Tuple{Pair, Int64}}
+││││││││││││││││└────────────────────
+│││││││││││││││┌ Dict{K, V}(kv::Dict) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:94
+││││││││││││││││┌ setindex!(h::Dict{K, V}, v0::Any, key::Union{AbstractChar, AbstractString, Number}) where {K<:Union{…}, V<:Integer} @ Base ./dict.jl:356
+│││││││││││││││││┌ ht_keyindex2_shorthash!(h::Dict{K, V} where {K<:Union{…}, V<:Integer}, key::AbstractString) @ Base ./dict.jl:291
+││││││││││││││││││┌ isequal(a::LazyString, b::LazyString) @ Base ./strings/lazy.jl:96
+│││││││││││││││││││┌ String(l::LazyString) @ Base ./strings/lazy.jl:83
+││││││││││││││││││││┌ sprint(::Base.var"#String##0#String##1"{LazyString}) @ Base ./strings/io.jl:110
+│││││││││││││││││││││┌ sprint(::Base.var"#String##0#String##1"{LazyString}; context::Nothing, sizehint::Int64) @ Base ./strings/io.jl:117
+││││││││││││││││││││││┌ (::Base.var"#String##0#String##1"{LazyString})(io::IOBuffer) @ Base ./strings/lazy.jl:85
+│││││││││││││││││││││││ runtime dispatch detected: print(io::IOBuffer, %17::Any)::Any
+││││││││││││││││││││││└────────────────────
+│││││││││││││││┌ Dict{K, V}(kv::Dict) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:95
+││││││││││││││││┌ iterate(t::Dict, i::Int64) @ Base ./dict.jl:703
+│││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict, %46::Int64)::Union{Nothing, Tuple{Pair, Int64}}
+││││││││││││││││└────────────────────
+││││││││┌ similar(a::Vector{Vector{Int64}}, T::DataType, dims::Tuple{Int64}) @ Base ./array.jl:377
+│││││││││ runtime dispatch detected: %1::Type{Vector{_A}} where _A(undef, dims::Tuple{Int64})::Vector
+││││││││└────────────────────
+│││││┌ _collect(c::Vector{…}, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), ::Base.EltypeUnknown, isz::Base.HasShape{…}) @ Base ./array.jl:820
+││││││┌ collect_to_with_first!(dest::CategoricalArrays.CategoricalVector, v1::Any, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), st::Int64) @ Base ./array.jl:825
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector{T} where T>:Missing, v::Missing, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/missingarray.jl:21
+││││││││┌ checkbounds(A::CategoricalArrays.CategoricalVector{T} where T>:Missing, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││ runtime dispatch detected: Base.throw_boundserror(A::CategoricalArrays.CategoricalVector{T} where T>:Missing, I::Tuple{Int64})
+││││││││└────────────────────
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector{T} where T>:Missing, v::Missing, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/missingarray.jl:22
+││││││││ runtime dispatch detected: ((%18::Vector{R} where R<:Integer)[%19::Int64] = 0::Any)
+│││││││└────────────────────
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector, v::Any, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:502
+││││││││┌ checkbounds(A::CategoricalArrays.CategoricalVector, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││ runtime dispatch detected: Base.throw_boundserror(A::CategoricalArrays.CategoricalVector, I::Tuple{Int64})
+││││││││└────────────────────
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector, v::Any, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:503
+││││││││┌ ⊈(a::CategoricalArrays.CategoricalPool, b::CategoricalArrays.CategoricalPool{V, R} where {R<:Integer, V}) @ Base ./abstractset.jl:467
+│││││││││┌ issubset(a::CategoricalArrays.CategoricalPool, b::CategoricalArrays.CategoricalPool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:230
+││││││││││┌ hash(x::CategoricalArrays.CategoricalPool) @ Base ./hashing.jl:28
+│││││││││││┌ hash(pool::CategoricalArrays.CategoricalPool, h::UInt64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:199
+││││││││││││┌ hashlevels(levs::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:3
+│││││││││││││┌ kwcall(::@NamedTuple{…}, ::typeof(foldl), op::CategoricalArrays.var"#hashlevels##0#hashlevels##1", itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:190
+││││││││││││││┌ foldl(op::CategoricalArrays.var"#hashlevels##0#hashlevels##1", itr::Vector{…} where T<:Union{…}; kw::@Kwargs{…}) @ Base ./reduce.jl:190
+│││││││││││││││┌ kwcall(::@NamedTuple{…}, ::typeof(mapfoldl), f::typeof(identity), op::CategoricalArrays.var"#hashlevels##0#hashlevels##1", itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:167
+││││││││││││││││┌ mapfoldl(f::typeof(identity), op::CategoricalArrays.var"#hashlevels##0#hashlevels##1", itr::Vector{…} where T<:Union{…}; init::UInt64) @ Base ./reduce.jl:167
+│││││││││││││││││┌ mapfoldl_impl(f::typeof(identity), op::CategoricalArrays.var"#hashlevels##0#hashlevels##1", nt::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:36
+││││││││││││││││││┌ foldl_impl(op::Base.BottomRF{…}, nt::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:40
+│││││││││││││││││││┌ _foldl_impl(op::Base.BottomRF{…}, init::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:48
+││││││││││││││││││││┌ iterate(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./array.jl:901
+│││││││││││││││││││││┌ iterate(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, i::Int64) @ Base ./array.jl:901
+││││││││││││││││││││││ runtime dispatch detected: (A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number})[i::Int64]::Union{AbstractChar, AbstractString, Number}
+│││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ _foldl_impl(op::Base.BottomRF{…}, init::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:50
+││││││││││││││││││││┌ (::Base.BottomRF{CategoricalArrays.var"#hashlevels##0#hashlevels##1"})(acc::UInt64, x::AbstractChar) @ Base ./reduce.jl:78
+│││││││││││││││││││││ runtime dispatch detected: #hashlevels##0(acc::UInt64, x::AbstractChar)::UInt64
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ (::Base.BottomRF{CategoricalArrays.var"#hashlevels##0#hashlevels##1"})(acc::UInt64, x::AbstractString) @ Base ./reduce.jl:78
+│││││││││││││││││││││ runtime dispatch detected: #hashlevels##0(acc::UInt64, x::AbstractString)::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ _foldl_impl(op::Base.BottomRF{…}, init::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:54
+││││││││││││││││││││┌ (::Base.BottomRF{CategoricalArrays.var"#hashlevels##0#hashlevels##1"})(acc::Any, x::AbstractChar) @ Base ./reduce.jl:78
+│││││││││││││││││││││ runtime dispatch detected: #hashlevels##0(acc::Any, x::AbstractChar)::UInt64
+││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ (::Base.BottomRF{CategoricalArrays.var"#hashlevels##0#hashlevels##1"})(acc::Any, x::AbstractString) @ Base ./reduce.jl:78
+│││││││││││││││││││││ runtime dispatch detected: #hashlevels##0(acc::Any, x::AbstractString)::Any
+││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ foldl_impl(op::Base.BottomRF{…}, nt::UInt64, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:41
+│││││││││││││││││││┌ reduce_empty_iter(op::Base.BottomRF{…}, itr::Vector{…} where T<:Union{…}) @ Base ./reduce.jl:372
+││││││││││││││││││││┌ reduce_empty_iter(op::Base.BottomRF{…}, itr::Vector{…} where T<:Union{…}, ::Base.HasEltype) @ Base ./reduce.jl:373
+│││││││││││││││││││││ runtime dispatch detected: Base.reduce_empty(op::Base.BottomRF{CategoricalArrays.var"#hashlevels##0#hashlevels##1"}, %3::Any)
+││││││││││││││││││││└────────────────────
+││││││││││┌ isequal(A::Vector{…} where T<:Union{…}, B::Vector{…} where T<:Union{…}) @ Base ./abstractarray.jl:2996
+│││││││││││┌ iterate(z::Base.Iterators.Zip{Is} where Is<:Tuple{Vector{…} where T<:Union{…}, Vector{…} where T<:Union{…}}) @ Base.Iterators ./iterators.jl:415
+││││││││││││┌ _zip_iterate_all(is::Tuple{Vector{…} where T<:Union{…}, Vector{…} where T<:Union{…}}, ss::Tuple{Tuple{}, Tuple{}}) @ Base.Iterators ./iterators.jl:425
+│││││││││││││ runtime dispatch detected: Base.Iterators._zip_iterate_some(is::Tuple{Vector{…} where T<:Union{…}, Vector{…} where T<:Union{…}}, ss::Tuple{Tuple{}, Tuple{}}, (missing, missing), Base.Iterators.missing)::Union{Nothing, Tuple{Tuple{Union{…}, Int64}, Tuple{Union{…}, Int64}}}
+││││││││││││└────────────────────
+││││││││││┌ isequal(A::Vector{…} where T<:Union{…}, B::Vector{…} where T<:Union{…}) @ Base ./abstractarray.jl:3000
+│││││││││││┌ iterate(z::Base.Iterators.Zip{…} where Is<:Tuple{…}, ss::Tuple{…}) @ Base.Iterators ./iterators.jl:416
+││││││││││││┌ _zip_iterate_all(is::Tuple{Vector{…} where T<:Union{…}, Vector{…} where T<:Union{…}}, ss::Tuple{Tuple{…}, Tuple{…}}) @ Base.Iterators ./iterators.jl:425
+│││││││││││││ runtime dispatch detected: Base.Iterators._zip_iterate_some(is::Tuple{Vector{…} where T<:Union{…}, Vector{…} where T<:Union{…}}, ss::Tuple{Tuple{Int64}, Tuple{Int64}}, (missing, missing), Base.Iterators.missing)::Union{Nothing, Tuple{Tuple{Union{…}, Int64}, Tuple{Union{…}, Int64}}}
+││││││││││││└────────────────────
+│││││││││┌ issubset(a::CategoricalArrays.CategoricalPool, b::CategoricalArrays.CategoricalPool{V, R} where {R<:Integer, V}) @ Base ./abstractset.jl:339
+││││││││││┌ Set(itr::CategoricalArrays.CategoricalPool) @ Base ./set.jl:58
+│││││││││││┌ _Set(itr::CategoricalArrays.CategoricalPool, ::Base.HasEltype) @ Base ./set.jl:59
+││││││││││││┌ Set{Any}(itr::CategoricalArrays.CategoricalPool) @ Base ./set.jl:47
+│││││││││││││┌ union!(s::Set{Any}, itr::CategoricalArrays.CategoricalPool) @ Base ./abstractset.jl:104
+││││││││││││││┌ kwcall(::@NamedTuple{shrink::Bool}, ::typeof(sizehint!), s::Set{Any}, newsz::Int64) @ Base ./set.jl:172
+│││││││││││││││┌ sizehint!(s::Set{Any}, newsz::Int64; shrink::Bool) @ Base ./set.jl:172
+││││││││││││││││┌ kwcall(::@NamedTuple{shrink::Bool}, ::typeof(sizehint!), d::Dict{Any, Nothing}, newsz::Int64) @ Base ./dict.jl:193
+│││││││││││││││││┌ sizehint!(d::Dict{Any, Nothing}, newsz::Int64; shrink::Bool) @ Base ./dict.jl:199
+││││││││││││││││││┌ rehash!(h::Dict{Any, Nothing}, newsz::Int64) @ Base ./dict.jl:168
+│││││││││││││││││││ runtime dispatch detected: Base.hashindex(%86::Any, %19::Int64)::Tuple{Int64, UInt8}
+││││││││││││││││││└────────────────────
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector, v::Any, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:504
+││││││││┌ merge_pools!(A::CategoricalArrays.CategoricalVector, B::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:481
+│││││││││┌  @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:485
+││││││││││┌ merge_pools(a::CategoricalArrays.CategoricalPool{V, R} where {R<:Integer, V}, b::CategoricalArrays.CategoricalPool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:191
+│││││││││││┌ mergelevels(::Bool, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:90
+││││││││││││┌ all(f::CategoricalArrays.var"#mergelevels##0#mergelevels##1"{…}, itr::Tuple{…}) @ Base ./anyall.jl:214
+│││││││││││││┌ _all_tuple(f::CategoricalArrays.var"#mergelevels##0#mergelevels##1"{…}, anymissing::Bool, x::Vector{…} where T<:Union{…}, rest::Vector{…} where T<:Union{…}) @ Base ./anyall.jl:227
+││││││││││││││┌ _all_tuple(::CategoricalArrays.var"#mergelevels##0#mergelevels##1"{…}, ::Bool, ::Vector{…} where T<:Union{…}) @ Base ./anyall.jl:218
+│││││││││││││││ runtime dispatch detected: f::CategoricalArrays.var"#mergelevels##0#mergelevels##1"{<:Tuple{…}, Int64}(x::Vector{T} where T<:Union{AbstractChar, AbstractString, Number})::Union{Missing, Bool}
+││││││││││││││└────────────────────
+│││││││││││┌ mergelevels(::Bool, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:96
+││││││││││││┌ union!(::Vector, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ Base ./array.jl:3097
+│││││││││││││┌ (::Type{Set{_A}} where _A)() @ Base ./set.jl:45
+││││││││││││││┌ _Set(dict::Dict{_A, Nothing} where _A) @ Base ./set.jl:42
+│││││││││││││││┌ convert(::Type{<:Dict{_A, Nothing} where _A}, x::Dict{_A, Nothing} where _A) @ Base ./abstractdict.jl:578
+││││││││││││││││┌ Dict{K, Nothing}(kv::Dict{_A, Nothing} where _A) where K @ Base ./dict.jl:93
+│││││││││││││││││┌ iterate(t::Dict{_A, Nothing} where _A) @ Base ./dict.jl:701
+││││││││││││││││││┌ _iterate(t::Dict{_A, Nothing} where _A, i::Int64) @ Base ./dict.jl:699
+│││││││││││││││││││┌ (::Type{Pair{_A, Nothing}} where _A)(a::Any, b::Nothing) @ Base ./Base.jl:12
+││││││││││││││││││││ runtime dispatch detected: convert(%5::Any, a::Any)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││┌ iterate(t::Dict{_A, Nothing} where _A) @ Base ./dict.jl:701
+││││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict{_A, Nothing} where _A, %47::Int64)::Union{Nothing, Tuple{Pair{_A, Nothing} where _A, Int64}}
+│││││││││││││││││└────────────────────
+││││││││││││││││┌ Dict{K, Nothing}(kv::Dict{_A, Nothing} where _A) where K @ Base ./dict.jl:94
+│││││││││││││││││┌ setindex!(h::Dict{K, Nothing}, v0::Nothing, key::Any) where K @ Base ./dict.jl:361
+││││││││││││││││││┌ setindex!(A::Memory{Nothing}, x::Any, i1::Int64) @ Base ./genericmemory.jl:259
+│││││││││││││││││││ runtime dispatch detected: convert(::Nothing, x::Any)::Nothing
+││││││││││││││││││└────────────────────
+││││││││││││││││┌ Dict{K, Nothing}(kv::Dict{_A, Nothing} where _A) where K @ Base ./dict.jl:95
+│││││││││││││││││┌ iterate(t::Dict{_A, Nothing} where _A, i::Int64) @ Base ./dict.jl:703
+││││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict{_A, Nothing} where _A, %46::Int64)::Union{Nothing, Tuple{Pair{_A, Nothing} where _A, Int64}}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ _grow!(pred!::Base.var"#_unique_filter!##0#_unique_filter!##1"{…} where T, v::Vector, itrs::Tuple{…}) @ Base ./array.jl:3090
+││││││││││││││┌ filter!(f::Base.var"#_unique_filter!##0#_unique_filter!##1"{typeof(∉), typeof(push!), Set{T}} where T, a::Vector) @ Base ./array.jl:2982
+│││││││││││││││┌ (::Base.var"#_unique_filter!##0#_unique_filter!##1"{typeof(∉), typeof(push!), Set{T}} where T)(x::Any) @ Base ./array.jl:3078
+││││││││││││││││┌ ∉(x::Any, itr::Set) @ Base ./operators.jl:1397
+│││││││││││││││││┌ in(x::MLJModelInterface.MLJType, itr::Set) @ MLJModelInterface /home/agent/.julia/packages/MLJModelInterface/EmxvJ/src/equality.jl:157
+││││││││││││││││││┌ special_in(x::MLJModelInterface.MLJType, itr::Set) @ MLJModelInterface /home/agent/.julia/packages/MLJModelInterface/EmxvJ/src/equality.jl:150
+│││││││││││││││││││┌ iterate(::Set) @ Base ./set.jl:176
+││││││││││││││││││││┌ iterate(v::Base.KeySet{K, T} where {K, T<:Dict{K, Nothing}}) @ Base ./dict.jl:711
+│││││││││││││││││││││┌ iterate(v::Base.KeySet{K, T} where {K, T<:Dict{K, Nothing}}, i::Int64) @ Base ./dict.jl:715
+││││││││││││││││││││││ runtime dispatch detected: (%56::Memory)[%50::Int64]::Any
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ iterate(v::Base.KeySet{K, T} where {K, T<:Dict{K, Nothing}}) @ Base ./dict.jl:711
+│││││││││││││││││││││ runtime dispatch detected: #self#::typeof(iterate)(v::Base.KeySet{K, T} where {K, T<:Dict{K, Nothing}}, %2::Int64)::Union{Nothing, Tuple{Any, Int64}}
+││││││││││││││││││││└────────────────────
+││││││││││││││┌ filter!(f::Base.var"#_unique_filter!##0#_unique_filter!##1"{typeof(∉), typeof(push!), Set{T}} where T, a::Vector) @ Base ./array.jl:2986
+│││││││││││││││┌ resize!(a::Vector, nl_::Int64) @ Base ./array.jl:1487
+││││││││││││││││┌ _deleteend!(a::Vector, delta::Int64) @ Base ./array.jl:1232
+│││││││││││││││││┌ _unsetindex!(A::Vector, i::Int64) @ Base ./array.jl:218
+││││││││││││││││││┌ checkbounds(A::Vector, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector, I::Tuple{Int64})
+││││││││││││││││││└────────────────────
+│││││││││││││┌ _grow!(pred!::Base.var"#_unique_filter!##0#_unique_filter!##1"{…} where T, v::Vector, itrs::Tuple{…}) @ Base ./array.jl:3092
+││││││││││││││┌ mapfilter(pred::Base.var"#_unique_filter!##0#_unique_filter!##1"{…} where T, f::typeof(push!), itr::Vector{…} where T<:Union{…}, res::Vector) @ Base ./abstractset.jl:632
+│││││││││││││││┌ (::Base.var"#_unique_filter!##0#_unique_filter!##1"{typeof(∉), typeof(push!), Set{T}} where T)(x::AbstractChar) @ Base ./array.jl:3078
+││││││││││││││││┌ ∉(x::AbstractChar, itr::Set) @ Base ./operators.jl:1397
+│││││││││││││││││┌ in(x::AbstractChar, s::Set) @ Base ./set.jl:92
+││││││││││││││││││┌ haskey(h::Dict{T, Nothing} where T, key::AbstractChar) @ Base ./dict.jl:548
+│││││││││││││││││││┌ ht_keyindex(h::Dict{T, Nothing} where T, key::AbstractChar) @ Base ./dict.jl:249
+││││││││││││││││││││┌ isequal(x::AbstractChar, y::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/value.jl:146
+│││││││││││││││││││││┌ unwrap(x::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/value.jl:47
+││││││││││││││││││││││┌ getindex(::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, ::Integer) @ Base ./abstractarray.jl:1345
+│││││││││││││││││││││││┌ to_indices(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, I::Tuple{Integer}) @ Base ./indices.jl:365
+││││││││││││││││││││││││┌ to_indices(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, inds::Tuple{}, I::Tuple{Integer}) @ Base ./indices.jl:368
+│││││││││││││││││││││││││ runtime dispatch detected: Base.to_index(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, %2::Integer)::Int64
+││││││││││││││││││││││││└────────────────────
+│││││││││││┌ mergelevels(::Bool, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:101
+││││││││││││┌ indexin(a::Vector, b::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./array.jl:2809
+│││││││││││││┌ get!(t::Dict{T, Int64} where T<:Union{AbstractChar, AbstractString, Number}, key::AbstractChar, default::Int64) @ Base ./abstractdict.jl:562
+││││││││││││││┌ get!(default::Base.var"#get!##0#get!##1"{…}, h::Dict{…}, key::AbstractChar) where K<:Union{…} @ Base ./dict.jl:468
+│││││││││││││││┌ setindex!(A::Memory{Int64}, x::Any, i1::Int64) @ Base ./genericmemory.jl:259
+││││││││││││││││ runtime dispatch detected: convert(::Int64, x::Any)::Any
+│││││││││││││││└────────────────────
+│││││││││││┌ mergelevels(::Bool, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:117
+││││││││││││┌ permute!(v::Vector, p::Vector{Int64}) @ Base ./combinatorics.jl:215
+│││││││││││││┌ getindex(A::Vector, I::Vector{Int64}) @ Base ./abstractarray.jl:1342
+││││││││││││││┌ _getindex(l::IndexLinear, A::Vector, I::Vector{Int64}) @ Base ./multidimensional.jl:955
+│││││││││││││││┌ checkbounds(A::Vector, I::Vector{Int64}) @ Base ./abstractarray.jl:699
+││││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector, I::Tuple{Vector{Int64}})
+│││││││││││││││└────────────────────
+││││││││││││││┌ _getindex(l::IndexLinear, A::Vector, I::Vector{Int64}) @ Base ./multidimensional.jl:956
+│││││││││││││││┌ _unsafe_getindex(::IndexLinear, A::Vector, I::Vector{Int64}) @ Base ./multidimensional.jl:970
+││││││││││││││││┌ _unsafe_getindex!(dest::GPUArraysCore.AbstractGPUArray, src::Vector, Is::Vector{Int64}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/indexing.jl:163
+│││││││││││││││││┌ vectorized_getindex!(dest::GPUArraysCore.AbstractGPUArray, src::Vector, Is::Vector{Int64}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/indexing.jl:75
+││││││││││││││││││ runtime dispatch detected: GPUArrays.get_backend(dest::GPUArraysCore.AbstractGPUArray)
+│││││││││││││││││└────────────────────
+││││││││││││││┌ _getindex(l::IndexLinear, A::Vector, I::Vector{Int64}) @ Base ./multidimensional.jl:956
+│││││││││││││││ runtime dispatch detected: Base._unsafe_getindex([quote]::IndexLinear, A::Vector, %94::Vector{Int64})::Any
+││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(f::typeof(identity), ps::Zygote.Params) @ Zygote /home/agent/.julia/packages/Zygote/XLIVf/src/compiler/interface.jl:328
+││││││││││││││┌ broadcasted(::typeof(identity), ::Zygote.Buffer) @ Base.Broadcast ./broadcast.jl:1347
+│││││││││││││││┌ broadcasted(::Nothing, ::typeof(identity), ::Any) @ Base.Broadcast ./broadcast.jl:1353
+││││││││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::Nothing, ::Base.RefValue{typeof(identity)}, ::Any) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Nothing, args::Tuple{Base.RefValue{typeof(identity)}, Any})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, Nothing, <:Tuple{Base.RefValue{…}, Any}}
+││││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(identity), args::Any) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(identity), args::Tuple{Any})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, typeof(identity), <:Tuple{Any}}
+│││││││││││││││└────────────────────
+│││││││││││││┌ materialize!(dest::Vector, bc::Base.Broadcast.Broadcasted{<:Any}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││││┌ materialize!(::Style, dest::Vector, bc::Base.Broadcast.Broadcasted) where Style<:GPUArraysCore.AbstractGPUArrayStyle @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:43
+│││││││││││││││ runtime dispatch detected: %2::Type{Base.Broadcast.Broadcasted{Style}} where Style<:GPUArraysCore.AbstractGPUArrayStyle(%3::Any, %4::Tuple, %9::Tuple{Base.OneTo{Int64}})
+││││││││││││││└────────────────────
+│││││││││││││┌ materialize!(dest::Vector, bc::Base.Broadcast.Broadcasted{<:Any}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││││ runtime dispatch detected: Base.Broadcast.combine_styles(dest::Vector, bc::Base.Broadcast.Broadcasted{<:Any})::Any
+│││││││││││││└────────────────────
+│││││││││││││┌ materialize!(dest::Vector, bc::Base.Broadcast.Broadcasted{<:Any}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││││ runtime dispatch detected: Base.Broadcast.materialize!(%1::Any, dest::Vector, bc::Base.Broadcast.Broadcasted{<:Any})::Any
+│││││││││││││└────────────────────
+│││││││││││┌ mergelevels(::Bool, ::Vector{…} where T<:Union{…}, ::Vector{…} where T<:Union{…}) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:122
+││││││││││││┌ collect(itr::Base.Generator{…} where {…}) @ Base ./array.jl:790
+│││││││││││││┌ iterate(::Base.Generator{…} where {…}) @ Base ./generator.jl:48
+││││││││││││││ runtime dispatch detected: %8::CategoricalArrays.var"#mergelevels##2#mergelevels##3"{Vector{T}} where T(%4::Vector{T} where T<:Union{AbstractChar, AbstractString, Number})::Vector{Union{Nothing, Int64}}
+│││││││││││││└────────────────────
+││││││││││││┌ collect(itr::Base.Generator{…} where {…}) @ Base ./array.jl:800
+│││││││││││││┌ collect_to_with_first!(dest::Vector{…}, v1::Vector{…}, itr::Base.Generator{…} where {…}, st::Int64) @ Base ./array.jl:826
+││││││││││││││┌ collect_to!(dest::Vector{…}, itr::Base.Generator{…} where {…}, offs::Int64, st::Int64) @ Base ./array.jl:848
+│││││││││││││││┌ iterate(g::Base.Generator{…} where {…}, s::Int64) @ Base ./generator.jl:48
+││││││││││││││││ runtime dispatch detected: %20::CategoricalArrays.var"#mergelevels##2#mergelevels##3"{Vector{T}} where T(%16::Vector{T} where T<:Union{AbstractChar, AbstractString, Number})::Vector{Union{Nothing, Int64}}
+│││││││││││││││└────────────────────
+│││││││││┌  @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:493
+││││││││││┌ update_refs!(A::CategoricalArrays.CategoricalVector, newlevels::AbstractVector) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:472
+│││││││││││┌ dotview(::Vector{T} where T<:Integer, ::UnitRange{Int64}) @ Base.Broadcast ./broadcast.jl:1250
+││││││││││││┌ maybeview(A::Vector{T} where T<:Integer, args::UnitRange{Int64}) @ Base ./views.jl:149
+│││││││││││││┌ view(A::Vector{T} where T<:Integer, I::UnitRange{Int64}) @ Base ./subarray.jl:214
+││││││││││││││┌ checkbounds(A::Vector{T} where T<:Integer, I::UnitRange{Int64}) @ Base ./abstractarray.jl:699
+│││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector{T} where T<:Integer, I::Tuple{UnitRange{Int64}})
+││││││││││││││└────────────────────
+│││││││││││││┌ view(A::Vector{T} where T<:Integer, I::UnitRange{Int64}) @ Base ./subarray.jl:216
+││││││││││││││┌ unsafe_view(A::Vector{T} where T<:Integer, I::UnitRange{Int64}) @ Base ./subarray.jl:249
+│││││││││││││││┌ SubArray(parent::Vector{T} where T<:Integer, indices::Tuple{UnitRange{Int64}}) @ Base ./subarray.jl:28
+││││││││││││││││┌ SubArray(::IndexLinear, parent::Vector{T} where T<:Integer, indices::Tuple{UnitRange{Int64}}, ::Tuple{Bool}) @ Base ./subarray.jl:38
+│││││││││││││││││┌ (::Type{…} where P<:(Vector{…} where T<:Integer))(parent::Vector{…} where T<:Integer, indices::Tuple{…}, offset1::Int64, stride1::Int64) @ Base ./subarray.jl:22
+││││││││││││││││││ runtime dispatch detected: convert(%1::Type{<:Vector{T} where T<:Integer}, parent::Vector{T} where T<:Integer)::Vector{R} where R<:Integer
+│││││││││││││││││└────────────────────
+│││││││││││││││┌ SubArray(parent::Vector{T} where T<:Integer, indices::Tuple{UnitRange{Int64}}) @ Base ./subarray.jl:28
+││││││││││││││││ runtime dispatch detected: SubArray([quote]::IndexLinear, parent::Vector{T} where T<:Integer, %3::Tuple{UnitRange{Int64}}, (true,))::Union{SubArray{…} where P<:(Vector{…} where T<:Integer), SubArray{…} where {…}}
+│││││││││││││││└────────────────────
+│││││││││││┌ indexin(a::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, b::AbstractVector) @ Base ./array.jl:2808
+││││││││││││┌ iterate(z::Base.Iterators.Zip{Is} where Is<:Tuple{AbstractVector, Any}) @ Base.Iterators ./iterators.jl:415
+│││││││││││││┌ _zip_iterate_all(is::Tuple{AbstractVector, Any}, ss::Tuple{Tuple{}, Tuple{}}) @ Base.Iterators ./iterators.jl:425
+││││││││││││││┌ _zip_iterate_some(is::Tuple{AbstractVector, Any}, ss::Tuple{Tuple{}, Tuple{}}, ds::Tuple{Missing, Any}, f::Missing) @ Base.Iterators ./iterators.jl:435
+│││││││││││││││┌ _zip_iterate_some(is::Tuple{Any}, ss::Tuple{Tuple{}}, ds::Tuple{Missing}, f::Missing) @ Base.Iterators ./iterators.jl:433
+││││││││││││││││ runtime dispatch detected: Base.Iterators.iterate(%2::Any)::Any
+│││││││││││││││└────────────────────
+││││││││││││┌ iterate(z::Base.Iterators.Zip{Is} where Is<:Tuple{AbstractVector, Any}) @ Base.Iterators ./iterators.jl:415
+│││││││││││││ runtime dispatch detected: Base.Iterators._zip_iterate_all(%1::Tuple{AbstractVector, Any}, ((), ()))::Union{Nothing, Tuple{Tuple{Any, Any}, Tuple{Any, Any}}}
+││││││││││││└────────────────────
+│││││││││││┌ indexin(a::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, b::AbstractVector) @ Base ./array.jl:2810
+││││││││││││┌ iterate(z::Base.Iterators.Zip{Is} where Is<:Tuple{AbstractVector, Any}, ss::Tuple{Any, Any}) @ Base.Iterators ./iterators.jl:416
+│││││││││││││┌ _zip_iterate_all(is::Tuple{AbstractVector, Any}, ss::Tuple{Tuple{Any}, Tuple{Any}}) @ Base.Iterators ./iterators.jl:425
+││││││││││││││┌ _zip_iterate_some(is::Tuple{AbstractVector, Any}, ss::Tuple{Tuple{…}, Tuple{…}}, ds::Tuple{Missing, Any}, f::Missing) @ Base.Iterators ./iterators.jl:435
+│││││││││││││││┌ _zip_iterate_some(is::Tuple{Any}, ss::Tuple{Tuple{Any}}, ds::Tuple{Missing}, f::Missing) @ Base.Iterators ./iterators.jl:433
+││││││││││││││││ runtime dispatch detected: Base.Iterators.iterate(%2::Any, %5::Any)::Any
+│││││││││││││││└────────────────────
+││││││││││││┌ iterate(z::Base.Iterators.Zip{Is} where Is<:Tuple{AbstractVector, Any}, ss::Tuple{Any, Any}) @ Base.Iterators ./iterators.jl:416
+│││││││││││││ runtime dispatch detected: Base.Iterators._zip_iterate_all(%1::Tuple{AbstractVector, Any}, %8::Tuple{Tuple{Any}, Tuple{Any}})::Union{Nothing, Tuple{Tuple{Any, Any}, Tuple{Any, Any}}}
+││││││││││││└────────────────────
+│││││││││││┌ broadcasted(::typeof(something), ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1353
+││││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::typeof(something), ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::typeof(something), args::Tuple{Any, Int64})::Base.Broadcast.Broadcasted{<:Base.Broadcast.BroadcastStyle, Nothing, typeof(something), <:Tuple{Any, Int64}}
+││││││││││││└────────────────────
+││││││││││││┌ broadcasted(f::Any, arg1::typeof(something), arg2::Any, args::Int64) @ Base.Broadcast ./broadcast.jl:1353
+│││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{…}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::Any, ::Base.RefValue{typeof(something)}, ::Any, ::Int64) @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.RefValue{typeof(something)}, Any, Int64})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││└────────────────────
+│││││││││││││││┌ broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, c::ComposedFunction, args::Base.Broadcast.Broadcasted{…} where {…}) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}) @ Base.Broadcast ./broadcast.jl:178
+││││││││││││││││││┌ Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{…}, axes::Nothing) @ Base.Broadcast ./broadcast.jl:178
+│││││││││││││││││││┌ convert(::Type{<:Tuple{…}}, x::Tuple{Base.Broadcast.Broadcasted{…} where {…}}) @ Base ./essentials.jl:614
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││ runtime dispatch detected: convert(%2::Type{…} where ft<:(Base.Broadcast.Broadcasted{…} where {…}), %4::Base.Broadcast.Broadcasted{…} where {…})::Base.Broadcast.Broadcasted{…} where {…}
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││ runtime dispatch detected: f::Base.var"#cvt1#convert##0"{<:Tuple{…}, <:Tuple{…}}(1)::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││││││└────────────────────
+││││││││││││││││┌ broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Base.Broadcast.Broadcasted{…} where {…}) @ Base.Broadcast ./broadcast.jl:1355
+│││││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::GPUArraysCore.AbstractGPUArrayStyle, f::Any, args::Tuple{Base.Broadcast.Broadcasted{…} where {…}})::Base.Broadcast.Broadcasted{…} where {…}
+││││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{…}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %2::Any, %3::Base.RefValue{typeof(something)}, %4::Any, %5::Int64)::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+││││││││││││││└────────────────────
+││││││││││││││┌ broadcasted(::GPUArraysCore.AbstractGPUArrayStyle, ::ComposedFunction, ::Base.RefValue{…}, ::Any, ::Int64) @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:9
+│││││││││││││││ runtime dispatch detected: broadcasted(S::GPUArraysCore.AbstractGPUArrayStyle, %1::Any, %6::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}})::Union{Base.Broadcast.Broadcasted{…} where {…}, Base.Broadcast.Broadcasted{…} where {…}}
+││││││││││││││└────────────────────
+│││││││││││││┌ broadcasted(::Base.Broadcast.BroadcastStyle, ::F, ::Base.RefValue{typeof(something)}, ::Any, ::Int64) where F @ Base.Broadcast ./broadcast.jl:1355
+││││││││││││││ runtime dispatch detected: Base.Broadcast.Broadcasted(style::Base.Broadcast.BroadcastStyle, f::Any, args::Tuple{Base.RefValue{typeof(something)}, Any, Int64})::Base.Broadcast.Broadcasted{var"#s179", Nothing, _A, <:Tuple{…}} where {var"#s179"<:Base.Broadcast.BroadcastStyle, _A}
+│││││││││││││└────────────────────
+│││││││││││┌ materialize!(dest::SubArray{…} where P<:(Vector{…} where T<:Integer), bc::Base.Broadcast.Broadcasted{…}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││┌ materialize!(::Style, dest::SubArray{…} where P<:(Vector{…} where T<:Integer), bc::Base.Broadcast.Broadcasted) where Style<:GPUArraysCore.AbstractGPUArrayStyle @ GPUArrays /home/agent/.julia/packages/GPUArrays/usFEA/src/host/broadcast.jl:43
+│││││││││││││ runtime dispatch detected: %2::Type{Base.Broadcast.Broadcasted{Style}} where Style<:GPUArraysCore.AbstractGPUArrayStyle(%3::Any, %4::Tuple, %12::Tuple{Base.OneTo{Int64}})
+││││││││││││└────────────────────
+│││││││││││┌ materialize!(dest::SubArray{…} where P<:(Vector{…} where T<:Integer), bc::Base.Broadcast.Broadcasted{…}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││ runtime dispatch detected: Base.Broadcast.combine_styles(dest::SubArray{Any, 1, P, Tuple{UnitRange{Int64}}, true} where P<:(Vector{T} where T<:Integer), bc::Base.Broadcast.Broadcasted{<:Any})::Any
+│││││││││││└────────────────────
+│││││││││││┌ materialize!(dest::SubArray{…} where P<:(Vector{…} where T<:Integer), bc::Base.Broadcast.Broadcasted{…}) @ Base.Broadcast ./broadcast.jl:902
+││││││││││││ runtime dispatch detected: Base.Broadcast.materialize!(%1::Any, dest::SubArray{Any, 1, P, Tuple{UnitRange{Int64}}, true} where P<:(Vector{T} where T<:Integer), bc::Base.Broadcast.Broadcasted{<:Any})::Any
+│││││││││││└────────────────────
+││││││││││┌ update_refs!(A::CategoricalArrays.CategoricalVector, newlevels::AbstractVector) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:475
+│││││││││││┌ iterate(e::Base.Iterators.Enumerate{I} where I<:(Vector{R} where R<:Integer)) @ Base.Iterators ./iterators.jl:196
+││││││││││││┌ iterate(e::Base.Iterators.Enumerate{I} where I<:(Vector{R} where R<:Integer), state::Tuple{Int64}) @ Base.Iterators ./iterators.jl:197
+│││││││││││││┌ iterate(A::Vector{T} where T<:Integer) @ Base ./array.jl:901
+││││││││││││││┌ iterate(A::Vector{T} where T<:Integer, i::Int64) @ Base ./array.jl:901
+│││││││││││││││ runtime dispatch detected: (A::Vector{T} where T<:Integer)[i::Int64]::Integer
+││││││││││││││└────────────────────
+│││││││││┌  @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:496
+││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, ordered::Bool) where {T, R<:Integer} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:27
+│││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(levels::Vector{T}, invindex::Dict{T, R}, ordered::Bool) where {T, R<:Integer} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:49
+││││││││││││┌ CategoricalArrays.CategoricalPool{…}(levels::Vector{…}, invindex::Dict{…}, ordered::Bool, hash::Nothing) where {…} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:49
+│││││││││││││┌ convert(::Type{<:Dict{T, R} where {T<:Union{…}, R<:Integer}}, x::Dict{T, R} where {T, R<:Integer}) @ Base ./abstractdict.jl:578
+││││││││││││││┌ Dict{K, V}(kv::Dict{T, R} where {T, R<:Integer}) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:93
+│││││││││││││││┌ iterate(t::Dict{T, R} where {T, R<:Integer}) @ Base ./dict.jl:701
+││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict{T, R} where {T, R<:Integer}, %47::Int64)::Union{Nothing, Tuple{Pair{_A, R} where {_A, R<:Integer}, Int64}}
+│││││││││││││││└────────────────────
+││││││││││││││┌ Dict{K, V}(kv::Dict{T, R} where {T, R<:Integer}) where {K<:Union{AbstractChar, AbstractString, Number}, V<:Integer} @ Base ./dict.jl:95
+│││││││││││││││┌ iterate(t::Dict{T, R} where {T, R<:Integer}, i::Int64) @ Base ./dict.jl:703
+││││││││││││││││ runtime dispatch detected: Base._iterate(t::Dict{T, R} where {T, R<:Integer}, %46::Int64)::Union{Nothing, Tuple{Pair{_A, R} where {_A, R<:Integer}, Int64}}
+│││││││││││││││└────────────────────
+││││││││││┌ CategoricalArrays.CategoricalPool{T, R}(invindex::Dict{T, R}, ordered::Bool) where {T, R<:Integer} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/typedefs.jl:35
+│││││││││││┌ setindex!(::Vector, ::Any, ::Integer) @ Base ./multidimensional.jl:745
+││││││││││││┌ to_indices(A::Vector, I::Tuple{Integer}) @ Base ./indices.jl:365
+│││││││││││││┌ to_indices(A::Vector, inds::Tuple{}, I::Tuple{Integer}) @ Base ./indices.jl:368
+││││││││││││││ runtime dispatch detected: Base.to_index(A::Vector, %2::Integer)::Int64
+│││││││││││││└────────────────────
+│││││││┌ setindex!(A::CategoricalArrays.CategoricalVector, v::Any, I::Int64) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/array.jl:506
+││││││││┌ get!(pool::CategoricalArrays.CategoricalPool, level::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:155
+│││││││││┌ merge_pools(a::CategoricalArrays.CategoricalPool, b::CategoricalArrays.CategoricalPool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:181
+││││││││││┌ getindex(::Type{T} where T<:Union{AbstractChar, AbstractString, Number}) @ Base ./array.jl:405
+│││││││││││ runtime dispatch detected: %2::Type{Vector{T}} where T<:Union{AbstractChar, AbstractString, Number}(undef, 0)::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}
+││││││││││└────────────────────
+││││││││┌ get!(pool::CategoricalArrays.CategoricalPool, level::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:156
+│││││││││┌ levels!(pool::CategoricalArrays.CategoricalPool{S, R}, newlevels::AbstractVector) where {S<:Union{…}, R<:Integer} @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:245
+││││││││││┌ levels!(pool::CategoricalArrays.CategoricalPool, newlevels::AbstractVector; checkunique::Bool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:249
+│││││││││││┌ join(iterator::Any, delim::String) @ Base ./strings/io.jl:377
+││││││││││││┌ _join_preserve_annotations(iterator::Any, args::String) @ Base ./strings/io.jl:369
+│││││││││││││┌ read(io::Base.AnnotatedIOBuffer, ::Type{Base.AnnotatedString{String}}) @ Base ./strings/annotated_io.jl:84
+││││││││││││││┌ collect(itr::Base.Generator{Base.Iterators.Filter{Base.var"#read##6#read##7", Vector{…}}, Base.var"#read##4#read##5"}) @ Base ./array.jl:787
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:863
+││││││││││││││││┌ iterate(::Base.Generator{Base.Iterators.Filter{Base.var"#read##6#read##7", Vector{…}}, Base.var"#read##4#read##5"}) @ Base ./generator.jl:48
+│││││││││││││││││┌ (::Base.var"#read##4#read##5")(annot::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}) @ Base ./none:0
+││││││││││││││││││┌ setindex(nt::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}, v::UnitRange{Int64}, idx::Symbol) @ Base ./namedtuple.jl:484
+│││││││││││││││││││┌ merge(a::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}, b::NamedTuple{_A, Tuple{UnitRange{…}}} where _A) @ Base ./namedtuple.jl:338
+││││││││││││││││││││┌ merge_fallback(a::@NamedTuple{…}, b::NamedTuple{…} where _A, an::Tuple{…}, bn::Tuple{…}) @ Base ./namedtuple.jl:292
+│││││││││││││││││││││┌ merge_types(names::Tuple{Vararg{…}}, a::Type{@NamedTuple{…}}, b::Type{NamedTuple{…}} where _A) @ Base ./namedtuple.jl:284
+││││││││││││││││││││││ runtime dispatch detected: Base.sym_in(%30::Symbol, %2::Any)::Bool
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ merge_fallback(a::@NamedTuple{…}, b::NamedTuple{…} where _A, an::Tuple{…}, bn::Tuple{…}) @ Base ./namedtuple.jl:297
+│││││││││││││││││││││ runtime dispatch detected: Base.sym_in(%115::Symbol, bn::Tuple{Vararg{Symbol}})::Bool
+││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ setindex(nt::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}, v::UnitRange{Int64}, idx::Symbol) @ Base ./namedtuple.jl:484
+│││││││││││││││││││ runtime dispatch detected: merge(nt::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}, %3::NamedTuple{_A, Tuple{UnitRange{Int64}}} where _A)::NamedTuple
+││││││││││││││││││└────────────────────
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:865
+││││││││││││││││┌ empty(a::Vector{Any}, ::Type{NamedTuple{names, T}} where {names, T<:Tuple}) @ Base ./abstractarray.jl:886
+│││││││││││││││││┌ similar(a::Vector{Any}, ::Type{NamedTuple{names, T}} where {names, T<:Tuple}, dims::Int64) @ Base ./abstractarray.jl:824
+││││││││││││││││││┌ similar(a::Vector{Any}, T::Type{NamedTuple{names, T}} where {names, T<:Tuple}, dims::Tuple{Int64}) @ Base ./array.jl:377
+│││││││││││││││││││ runtime dispatch detected: %1::Type{Array{NamedTuple{names, T}, 1}} where {names, T<:Tuple}(undef, dims::Tuple{Int64})::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}
+││││││││││││││││││└────────────────────
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:866
+││││││││││││││││┌ push!(a::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}, item::NamedTuple) @ Base ./array.jl:1289
+│││││││││││││││││┌ _push!(a::Array{NamedTuple{names, T}, 1}, item::NamedTuple{names, T}) where {T<:Tuple, names} @ Base ./array.jl:1292
+││││││││││││││││││┌ _growend!(a::Array{NamedTuple{names, T}, 1} where {T<:Tuple, names}, delta::Int64) @ Base ./array.jl:1131
+│││││││││││││││││││┌ (::Base.var"#_growend!##0#_growend!##1"{…} where {…})() @ Base ./array.jl:1152
+││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…}, src::GenericMemoryRef{…}, n::Int64) where {…} @ Base ./genericmemory.jl:125
+│││││││││││││││││││││┌ aligned_sizeof(T::Type{T} where T<:(NamedTuple{names, T} where {T<:Tuple, names})) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││││ runtime dispatch detected: Base.datatype_alignment(T::Type{T} where T<:(NamedTuple{names, T} where {T<:Tuple, names}))::Int64
+│││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…} where {…}, src::GenericMemoryRef{…} where {…}, n::Int64) @ Base ./genericmemory.jl:137
+│││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemory{…} where {…}, doffs::Int64, src::GenericMemory{…} where {…}, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+││││││││││││││││││││││┌ _unsetindex!(A::GenericMemory{:not_atomic, NamedTuple{…}, Core.AddrSpace{…}(0x00)} where {T<:Tuple, names}, i::Int64) @ Base ./genericmemory.jl:77
+│││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, NamedTuple{names, T}, Core.AddrSpace{Core}(0x00)} where {T<:Tuple, names}) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││┌ datatype_pointerfree(dt::Type{T} where T<:(NamedTuple{names, T} where {T<:Tuple, names})) @ Base ./runtime_internals.jl:647
+│││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_npointers(dt::Type{T} where T<:(NamedTuple{names, T} where {T<:Tuple, names}))::UInt32
+││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, NamedTuple{names, T}, Core.AddrSpace{Core}(0x00)} where {T<:Tuple, names}) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_pointerfree(%37::Type{T} where T<:(NamedTuple{names, T} where {T<:Tuple, names}))::Bool
+│││││││││││││││││││││││└────────────────────
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:867
+││││││││││││││││┌ grow_to!(dest::Array{…} where {…}, itr::Base.Generator{…}, st::Int64) @ Base ./array.jl:891
+│││││││││││││││││┌ push_widen(dest::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}, el::NamedTuple) @ Base ./array.jl:875
+││││││││││││││││││┌ union!(s::BitSet, itr::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}) @ Base ./bitset.jl:37
+│││││││││││││││││││┌ iterate(A::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}) @ Base ./array.jl:901
+││││││││││││││││││││┌ iterate(A::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}, i::Int64) @ Base ./array.jl:901
+│││││││││││││││││││││ runtime dispatch detected: (A::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple})[i::Int64]::NamedTuple
+││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ union!(m1::DataStructures.SortedSet, iterable::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/sorted_set.jl:304
+│││││││││││││││││││┌ push!(m::DataStructures.SortedSet, k_::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/sorted_set.jl:147
+││││││││││││││││││││┌ insert!(t::DataStructures.BalancedTree23{K, Nothing} where K, k::Any, d::Nothing, allowdups::Bool) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:361
+│││││││││││││││││││││┌ findkey(t::DataStructures.BalancedTree23{K, Nothing} where K, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:272
+││││││││││││││││││││││┌ cmp2_nonleaf(o::Base.Order.Ordering, treenode::DataStructures.TreeNode, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:157
+│││││││││││││││││││││││ runtime dispatch detected: DataStructures.lt(o::Base.Order.Ordering, k::Any, %1::Any)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││┌ cmp3_nonleaf(o::Base.Order.Ordering, treenode::DataStructures.TreeNode, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:179
+│││││││││││││││││││││││ runtime dispatch detected: DataStructures.lt(o::Base.Order.Ordering, k::Any, %1::Any)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││┌ cmp3_nonleaf(o::Base.Order.Ordering, treenode::DataStructures.TreeNode, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:179
+│││││││││││││││││││││││ runtime dispatch detected: DataStructures.lt(o::Base.Order.Ordering, k::Any, %5::Any)::Any
+││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││┌ findkey(t::DataStructures.BalancedTree23{K, Nothing} where K, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:279
+││││││││││││││││││││││┌ cmp2_leaf(o::Base.Order.Ordering, treenode::DataStructures.TreeNode, k::Any) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:164
+│││││││││││││││││││││││ runtime dispatch detected: DataStructures.lt(o::Base.Order.Ordering, k::Any, %5::Any)::Any
+││││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ insert!(t::DataStructures.BalancedTree23{K, Nothing} where K, k::Any, d::Nothing, allowdups::Bool) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:398
+│││││││││││││││││││││┌ push_or_reuse!(a::Array{DataStructures.KDRec{…}, 1} where K, freelocs::Vector{Int64}, item::DataStructures.KDRec) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:337
+││││││││││││││││││││││┌ push!(a::Array{DataStructures.KDRec{K, Nothing}, 1} where K, item::DataStructures.KDRec) @ Base ./array.jl:1289
+│││││││││││││││││││││││┌ _push!(a::Array{DataStructures.KDRec{K, Nothing}, 1}, item::DataStructures.KDRec{K, Nothing}) where K @ Base ./array.jl:1292
+││││││││││││││││││││││││┌ _growend!(a::Array{DataStructures.KDRec{K, Nothing}, 1} where K, delta::Int64) @ Base ./array.jl:1131
+│││││││││││││││││││││││││┌ (::Base.var"#_growend!##0#_growend!##1"{…} where {…})() @ Base ./array.jl:1152
+││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…}, src::GenericMemoryRef{…}, n::Int64) where K @ Base ./genericmemory.jl:125
+│││││││││││││││││││││││││││┌ aligned_sizeof(T::Type{T} where T<:(DataStructures.KDRec{K, Nothing} where K)) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_alignment(T::Type{T} where T<:(DataStructures.KDRec{K, Nothing} where K))::Int64
+│││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…} where K, src::GenericMemoryRef{…} where K, n::Int64) @ Base ./genericmemory.jl:137
+│││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemory{…} where K, doffs::Int64, src::GenericMemory{…} where K, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemory{:not_atomic, DataStructures.KDRec{…}, Core.AddrSpace{…}(0x00)} where K, i::Int64) @ Base ./genericmemory.jl:77
+│││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, DataStructures.KDRec{K, Nothing}, Core.AddrSpace{Core}(0x00)} where K) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││││││││┌ datatype_pointerfree(dt::Type{T} where T<:(DataStructures.KDRec{K, Nothing} where K)) @ Base ./runtime_internals.jl:647
+│││││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_npointers(dt::Type{T} where T<:(DataStructures.KDRec{K, Nothing} where K))::UInt32
+││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, DataStructures.KDRec{K, Nothing}, Core.AddrSpace{Core}(0x00)} where K) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_pointerfree(%37::Type{T} where T<:(DataStructures.KDRec{K, Nothing} where K))::Bool
+│││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││┌ insert!(t::DataStructures.BalancedTree23{K, Nothing} where K, k::Any, d::Nothing, allowdups::Bool) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:482
+│││││││││││││││││││││┌ push_or_reuse!(a::Array{DataStructures.TreeNode{K}, 1} where K, freelocs::Vector{Int64}, item::DataStructures.TreeNode) @ DataStructures /home/agent/.julia/packages/DataStructures/IwRP2/src/balanced_tree.jl:337
+││││││││││││││││││││││┌ push!(a::Array{DataStructures.TreeNode{K}, 1} where K, item::DataStructures.TreeNode) @ Base ./array.jl:1289
+│││││││││││││││││││││││┌ _push!(a::Array{DataStructures.TreeNode{K}, 1}, item::DataStructures.TreeNode{K}) where K @ Base ./array.jl:1292
+││││││││││││││││││││││││┌ _growend!(a::Array{DataStructures.TreeNode{K}, 1} where K, delta::Int64) @ Base ./array.jl:1131
+│││││││││││││││││││││││││┌ (::Base.var"#_growend!##0#_growend!##1"{…} where {…})() @ Base ./array.jl:1152
+││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…}, src::GenericMemoryRef{…}, n::Int64) where K @ Base ./genericmemory.jl:125
+│││││││││││││││││││││││││││┌ aligned_sizeof(T::Type{T} where T<:DataStructures.TreeNode) @ Base ./runtime_internals.jl:575
+││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_alignment(T::Type{T} where T<:DataStructures.TreeNode)::Int64
+│││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemoryRef{…} where K, src::GenericMemoryRef{…} where K, n::Int64) @ Base ./genericmemory.jl:137
+│││││││││││││││││││││││││││┌ unsafe_copyto!(dest::GenericMemory{…} where K, doffs::Int64, src::GenericMemory{…} where K, soffs::Int64, n::Int64) @ Base ./genericmemory.jl:160
+││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemory{:not_atomic, DataStructures.TreeNode{K}, Core.AddrSpace{Core}(0x00)} where K, i::Int64) @ Base ./genericmemory.jl:77
+│││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, DataStructures.TreeNode{K}, Core.AddrSpace{Core}(0x00)} where K) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││││││││┌ datatype_pointerfree(dt::Type{T} where T<:DataStructures.TreeNode) @ Base ./runtime_internals.jl:647
+│││││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_npointers(dt::Type{T} where T<:DataStructures.TreeNode)::UInt32
+││││││││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││││││┌ _unsetindex!(A::GenericMemoryRef{:not_atomic, DataStructures.TreeNode{K}, Core.AddrSpace{Core}(0x00)} where K) @ Base ./genericmemory.jl:88
+││││││││││││││││││││││││││││││ runtime dispatch detected: Base.datatype_pointerfree(%37::Type{T} where T<:DataStructures.TreeNode)::Bool
+│││││││││││││││││││││││││││││└────────────────────
+││││││││││││││││││┌ union!(s::AbstractSet, itr::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}) @ Base ./abstractset.jl:104
+│││││││││││││││││││┌ kwcall(::@NamedTuple{shrink::Bool}, ::typeof(sizehint!), s::Set, newsz::Any) @ Base ./set.jl:172
+││││││││││││││││││││┌ sizehint!(s::Set, newsz::Any; shrink::Bool) @ Base ./set.jl:172
+│││││││││││││││││││││┌ kwcall(::@NamedTuple{shrink::Bool}, ::typeof(sizehint!), d::Dict{T, Nothing} where T, newsz::Any) @ Base ./dict.jl:193
+││││││││││││││││││││││┌ sizehint!(d::Dict{T, Nothing} where T, newsz::Any; shrink::Bool) @ Base ./dict.jl:199
+│││││││││││││││││││││││┌ rehash!(h::Dict{T, Nothing} where T, newsz::Any) @ Base ./dict.jl:177
+││││││││││││││││││││││││┌ setindex!(A::Memory{Nothing}, v::Nothing, I::Any) @ Base ./abstractarray.jl:1443
+│││││││││││││││││││││││││ runtime dispatch detected: to_indices(A::Memory{Nothing}, I::Tuple{Any})::Any
+││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ kwcall(::@NamedTuple{shrink::Bool}, ::typeof(sizehint!), s::BitSet, n::Integer) @ Base ./bitset.jl:58
+││││││││││││││││││││┌ sizehint!(s::BitSet, n::Integer; first::Bool, shrink::Bool) @ Base ./bitset.jl:59
+│││││││││││││││││││││┌ kwcall(::@NamedTuple{first::Bool, shrink::Bool}, ::typeof(sizehint!), a::Vector{UInt64}, sz::Integer) @ Base ./array.jl:1528
+││││││││││││││││││││││┌ sizehint!(a::Vector{UInt64}, sz::Integer; first::Bool, shrink::Bool) @ Base ./array.jl:1549
+│││││││││││││││││││││││┌ _growbeg!(a::Vector{UInt64}, delta::Integer) @ Base ./array.jl:1084
+││││││││││││││││││││││││┌ (::Base.var"#_growbeg!##0#_growbeg!##1"{Vector{…}, _A, _B, Int64, Int64, Memory{…}, MemoryRef{…}} where {_A, _B})() @ Base ./array.jl:1092
+│││││││││││││││││││││││││┌ +(::Int64, ::Any, ::Int64) @ Base ./operators.jl:642
+││││││││││││││││││││││││││ runtime dispatch detected: (a::Int64 + b::Any)::Any
+│││││││││││││││││││││││││└────────────────────
+│││││││││││││││││││││││││┌ +(::Int64, ::Any, ::Int64) @ Base ./operators.jl:642
+││││││││││││││││││││││││││ runtime dispatch detected: (%1::Any + c::Int64)::Any
+│││││││││││││││││││││││││└────────────────────
+││││││││││││││││┌ grow_to!(dest::Array{…} where {…}, itr::Base.Generator{…}, st::Int64) @ Base ./array.jl:892
+│││││││││││││││││┌ grow_to!(dest::AbstractDict{…}, itr::Base.Generator{…}, st::Int64) where {…} @ Base ./abstractdict.jl:631
+││││││││││││││││││┌ grow_to!(dest::Any, itr::Base.Generator, st::Int64) @ Base ./array.jl:885
+│││││││││││││││││││┌ iterate(g::Base.Generator, s::Int64) @ Base ./generator.jl:45
+││││││││││││││││││││ runtime dispatch detected: iterate(%1::Any, %2::Int64)::Any
+│││││││││││││││││││└────────────────────
+│││││││││││││││││││┌ iterate(g::Base.Generator, s::Int64) @ Base ./generator.jl:48
+││││││││││││││││││││ runtime dispatch detected: %9::Any(%11::Any)::Any
+│││││││││││││││││││└────────────────────
+││││││││││││││││││┌ grow_to!(dest::Any, itr::Base.Generator, st::Int64) @ Base ./array.jl:892
+│││││││││││││││││││┌ grow_to!(dest::AbstractDict{K, V}, itr::Base.Generator, st::Any) where {K, V} @ Base ./abstractdict.jl:614
+││││││││││││││││││││┌ iterate(g::Base.Generator, s::Any) @ Base ./generator.jl:45
+│││││││││││││││││││││ runtime dispatch detected: iterate(%1::Any, %2::Any)::Any
+││││││││││││││││││││└────────────────────
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:866
+││││││││││││││││ runtime dispatch detected: push!(%103::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}, %89::NamedTuple)::Any
+│││││││││││││││└────────────────────
+│││││││││││││││┌ grow_to!(dest::Vector{Any}, itr::Base.Generator{Base.Iterators.Filter{…}, Base.var"#read##4#read##5"}) @ Base ./array.jl:867
+││││││││││││││││ runtime dispatch detected: Base.grow_to!(%103::Array{NamedTuple{names, T}, 1} where {names, T<:Tuple}, itr::Base.Generator{Base.Iterators.Filter{Base.var"#read##6#read##7", Vector{@NamedTuple{…}}}, Base.var"#read##4#read##5"}, %39::Int64)::Any
+│││││││││││││││└────────────────────
+│││││││││││││┌ read(io::Base.AnnotatedIOBuffer, ::Type{Base.AnnotatedString{String}}) @ Base ./strings/annotated_io.jl:86
+││││││││││││││┌ Base.AnnotatedString(s::String, annots::Any) @ Base ./strings/annotated.jl:107
+│││││││││││││││┌ collect(::Type{@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}}, itr::Any) @ Base ./array.jl:641
+││││││││││││││││┌ _collect(::Type{@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}}, itr::Any, isz::Base.SizeUnknown) @ Base ./array.jl:648
+│││││││││││││││││┌ push!(a::Vector{@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}}, item::Any) @ Base ./array.jl:1288
+││││││││││││││││││┌ convert(::Type{@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}}, t::Tuple) @ Base ./namedtuple.jl:180
+│││││││││││││││││││┌ @NamedTuple{region::UnitRange{Int64}, label::Symbol, value}(args::Tuple) @ Base ./namedtuple.jl:121
+││││││││││││││││││││┌ Tuple{UnitRange{Int64}, Symbol, Any}(x::Tuple) @ Base ./tuple.jl:449
+│││││││││││││││││││││┌ convert(::Type{Tuple{UnitRange{Int64}, Symbol, Any}}, x::Tuple) @ Base ./essentials.jl:614
+││││││││││││││││││││││┌ ntuple(f::Base.var"#cvt1#convert##0"{Tuple{UnitRange{Int64}, Symbol, Any}, <:Tuple}, ::Val{1}) @ Base ./ntuple.jl:50
+│││││││││││││││││││││││┌ (::Base.var"#cvt1#convert##0"{Tuple{UnitRange{Int64}, Symbol, Any}, <:Tuple})(n::Int64) @ Base ./essentials.jl:612
+││││││││││││││││││││││││ runtime dispatch detected: convert(::UnitRange{Int64}, %2::Any)::Any
+│││││││││││││││││││││││└────────────────────
+│││││││││││││││││┌ push!(a::Vector{@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}}, item::Any) @ Base ./array.jl:1288
+││││││││││││││││││ runtime dispatch detected: convert(::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}, item::Any)::@NamedTuple{region::UnitRange{Int64}, label::Symbol, value}
+│││││││││││││││││└────────────────────
+│││││││││││││┌ read(io::Base.AnnotatedIOBuffer, ::Type{Base.AnnotatedString{String}}) @ Base ./strings/annotated_io.jl:81
+││││││││││││││ captured variable `start` detected
+│││││││││││││└────────────────────
+│││││││││││││┌ read(io::Base.AnnotatedIOBuffer, ::Type{Base.AnnotatedString{String}}) @ Base ./strings/annotated_io.jl:86
+││││││││││││││ runtime dispatch detected: Base.AnnotatedString(%90::String, %81::Any)::Base.AnnotatedString{String}
+│││││││││││││└────────────────────
+││││││││││┌ levels!(pool::CategoricalArrays.CategoricalPool, newlevels::AbstractVector; checkunique::Bool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:262
+│││││││││││┌ resize!(a::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, nl_::Integer) @ Base ./array.jl:1487
+││││││││││││┌ _deleteend!(a::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, delta::Int64) @ Base ./array.jl:1232
+│││││││││││││┌ _unsetindex!(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, i::Int64) @ Base ./array.jl:218
+││││││││││││││┌ checkbounds(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector{T} where T<:Union{AbstractChar, AbstractString, Number}, I::Tuple{Int64})
+││││││││││││││└────────────────────
+││││││││││┌ levels!(pool::CategoricalArrays.CategoricalPool, newlevels::AbstractVector; checkunique::Bool) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:263
+│││││││││││┌ resize!(a::Vector{R} where R<:Integer, nl_::Integer) @ Base ./array.jl:1487
+││││││││││││┌ _deleteend!(a::Vector{R} where R<:Integer, delta::Int64) @ Base ./array.jl:1232
+│││││││││││││┌ _unsetindex!(A::Vector{R} where R<:Integer, i::Int64) @ Base ./array.jl:218
+││││││││││││││┌ checkbounds(A::Vector{R} where R<:Integer, I::Int64) @ Base ./abstractarray.jl:699
+│││││││││││││││ runtime dispatch detected: Base.throw_boundserror(A::Vector{R} where R<:Integer, I::Tuple{Int64})
+││││││││││││││└────────────────────
+││││││││┌ get!(pool::CategoricalArrays.CategoricalPool, level::CategoricalArrays.CategoricalValue) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:159
+│││││││││┌ get!(pool::CategoricalArrays.CategoricalPool, level::AbstractChar) @ CategoricalArrays /home/agent/.julia/packages/CategoricalArrays/pvykx/src/pool.jl:144
+││││││││││ runtime dispatch detected: CategoricalArrays.get!(%4::CategoricalArrays.var"#9#10"{CategoricalArrays.CategoricalPool{…}, <:AbstractChar} where {T<:Union{…}, R<:Integer}, %5::Dict{T, R} where {T<:Union{AbstractChar, AbstractString, Number}, R<:Integer}, level::AbstractChar)::Any
+│││││││││└────────────────────
+││││││┌ collect_to_with_first!(dest::CategoricalArrays.CategoricalVector, v1::Any, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), st::Int64) @ Base ./array.jl:826
+│││││││┌ collect_to!(dest::CategoricalArrays.CategoricalVector, itr::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), offs::Int64, st::Int64) @ Base ./array.jl:848
+││││││││┌ iterate(g::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}), s::Int64) @ Base ./generator.jl:48
+│││││││││ runtime dispatch detected: %37::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}(%33::Vector{Int64})::Any
+││││││││└────────────────────
+│││┌ map(f::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}, A::Vector{…}) @ Base ./abstractarray.jl:3372
+││││ runtime dispatch detected: Base.Generator(f::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}, A::Vector{Vector{Int64}})::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…})
+│││└────────────────────
+│││┌ map(f::CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}, A::Vector{…}) @ Base ./abstractarray.jl:3372
+││││ runtime dispatch detected: Base.collect_similar(A::Vector{Vector{Int64}}, %1::Base.Generator{…} where F<:(CounterfactualExplanations.DataPreprocessing.var"#reconstruct_cat_encoding##0#reconstruct_cat_encoding##1"{…} where {…}))::Any
+│││└────────────────────
+│┌ decode_state(ce::CounterfactualExplanation, x::Nothing) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/encodings.jl:215
+││ runtime dispatch detected: CounterfactualExplanations.decode_array(%4::CounterfactualData, %5::Union{…}, %3::AbstractArray)::Any
+│└────────────────────

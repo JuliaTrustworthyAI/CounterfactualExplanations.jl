@@ -1,0 +1,37 @@
+MethodInstance for generate_perturbations(::GradientBasedGenerator, ::CounterfactualExplanation)
+  from generate_perturbations(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation) @ CounterfactualExplanations.Generators /home/patalt/code/CounterfactualExplanations.jl/src/generators/gradient_based/generate_perturbations.jl:6
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.Generators.generate_perturbations)
+  generator::GradientBasedGenerator
+  ce::CounterfactualExplanation
+Locals
+  grad_ce_state::ANY
+  new_counterfactual_state::ANY
+  counterfactual_state::ABSTRACTARRAY
+Body::ANY
+1 ─ %1  = CounterfactualExplanations.Generators.deepcopy::Core.Const(deepcopy)
+│   %2  = Base.getproperty(ce, :counterfactual_state)::ABSTRACTARRAY
+│         (counterfactual_state = (%1)(%2))
+│   %4  = CounterfactualExplanations.Generators.propose_state::Core.Const(CounterfactualExplanations.Generators.propose_state)
+│         (new_counterfactual_state = (%4)(generator, ce))
+│   %6  = CounterfactualExplanations.Generators.:-::Core.Const(-)
+│   %7  = new_counterfactual_state::ANY
+│   %8  = counterfactual_state::ABSTRACTARRAY
+│         (grad_ce_state = (%6)(%7, %8))
+│   %10 = CounterfactualExplanations.Generators._replace_nans::Core.Const(CounterfactualExplanations.Generators._replace_nans)
+│   %11 = grad_ce_state::ANY
+│         (grad_ce_state = (%10)(%11))
+│   %13 = CounterfactualExplanations.Generators.convert::Core.Const(convert)
+│   %14 = CounterfactualExplanations.Generators.eltype::Core.Const(eltype)
+│   %15 = Base.getproperty(ce, :factual)::ABSTRACTARRAY
+│   %16 = (%14)(%15)::ANY
+│   %17 = grad_ce_state::ABSTRACTARRAY
+│   %18 = Base.broadcasted(%13, %16, %17)::ANY
+│         (grad_ce_state = Base.materialize(%18))
+│   %20 = CounterfactualExplanations.Generators.:*::Core.Const(*)
+│   %21 = grad_ce_state::ANY
+│   %22 = Base.getproperty(ce, :num_counterfactuals)::Int64
+│         (grad_ce_state = (%20)(%21, %22))
+│   %24 = grad_ce_state::ANY
+└──       return %24
+

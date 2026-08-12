@@ -1,0 +1,247 @@
+MethodInstance for CounterfactualExplanations.apply_mutability(::CounterfactualExplanation, ::Matrix{Float32})
+  from apply_mutability(ce::CounterfactualExplanation, grad_ce_state::AbstractArray) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:34
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.apply_mutability)
+  ce::CounterfactualExplanation
+  grad_ce_state::Matrix{Float32}
+Locals
+  @_4::ANY
+  val@_5::Nothing
+  result::Matrix{Float32}
+  mutability::ANY
+  kwargs::@NamedTuple{}
+  msg::String
+  line::Int64
+  file::String
+  id::Symbol
+  logger::UNION{NOTHING, BASE.CORELOGGING.ABSTRACTLOGGER}
+  _module::Module
+  group::Symbol
+  std_level::Base.CoreLogging.LogLevel
+  level::Base.CoreLogging.LogLevel
+  i::ANY
+  val@_19::ANY
+  case::ANY
+  @_21::ANY
+  @_22::ANY
+  @_23::ANY
+  @_24::ANY
+  @_25::ANY
+  @_26::ANY
+Body::Matrix{Float32}
+1 ──        Core.NewvarNode(:(@_4))
+│           Core.NewvarNode(:(val@_5))
+│           Core.NewvarNode(:(result))
+│           Core.NewvarNode(:(mutability))
+│    %5   = CounterfactualExplanations.:<:::Core.Const(<:)
+│    %6   = CounterfactualExplanations.typeof::Core.Const(typeof)
+│    %7   = Base.getproperty(ce, :data)::CounterfactualData
+│    %8   = Base.getproperty(%7, :input_encoder)::UNION{NOTHING, CAUSALINFERENCE.SCM, COUNTERFACTUALEXPLANATIONS.GENERATIVEMODELS.ABSTRACTGENERATIVEMODEL, MULTIVARIATESTATS.ABSTRACTDIMENSIONALITYREDUCTION, STATSBASE.ABSTRACTDATATRANSFORM}
+│    %9   = (%6)(%8)::UNION{TYPE{CAUSALINFERENCE.SCM}, TYPE{NOTHING}, TYPE{<:COUNTERFACTUALEXPLANATIONS.GENERATIVEMODELS.ABSTRACTGENERATIVEMODEL}, TYPE{<:MULTIVARIATESTATS.ABSTRACTDIMENSIONALITYREDUCTION}, TYPE{<:STATSBASE.ABSTRACTDATATRANSFORM}}
+│    %10  = CounterfactualExplanations.GenerativeModels::Core.Const(CounterfactualExplanations.GenerativeModels)
+│    %11  = Base.getproperty(%10, :AbstractGenerativeModel)::Core.Const(CounterfactualExplanations.GenerativeModels.AbstractGenerativeModel)
+│    %12  = (%5)(%9, %11)::Bool
+└───        goto #3 if not %12
+2 ──        goto #4
+3 ── %15  = CounterfactualExplanations.:<:::Core.Const(<:)
+│    %16  = CounterfactualExplanations.typeof::Core.Const(typeof)
+│    %17  = Base.getproperty(ce, :data)::CounterfactualData
+│    %18  = Base.getproperty(%17, :input_encoder)::UNION{NOTHING, CAUSALINFERENCE.SCM, COUNTERFACTUALEXPLANATIONS.GENERATIVEMODELS.ABSTRACTGENERATIVEMODEL, MULTIVARIATESTATS.ABSTRACTDIMENSIONALITYREDUCTION, STATSBASE.ABSTRACTDATATRANSFORM}
+│    %19  = (%16)(%18)::UNION{TYPE{CAUSALINFERENCE.SCM}, TYPE{NOTHING}, TYPE{<:COUNTERFACTUALEXPLANATIONS.GENERATIVEMODELS.ABSTRACTGENERATIVEMODEL}, TYPE{<:MULTIVARIATESTATS.ABSTRACTDIMENSIONALITYREDUCTION}, TYPE{<:STATSBASE.ABSTRACTDATATRANSFORM}}
+│    %20  = CounterfactualExplanations.MultivariateStats::Core.Const(MultivariateStats)
+│    %21  = Base.getproperty(%20, :AbstractDimensionalityReduction)::Core.Const(MultivariateStats.AbstractDimensionalityReduction)
+│    %22  = (%15)(%19, %21)::Bool
+└───        goto #22 if not %22
+4 ┄─ %24  = CounterfactualExplanations.isnothing::Core.Const(isnothing)
+│    %25  = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│    %26  = (%24)(%25)::Bool
+└───        goto #21 if not %26
+5 ──        Core.NewvarNode(:(kwargs))
+│           Core.NewvarNode(:(msg))
+│           Core.NewvarNode(:(line))
+│           Core.NewvarNode(:(file))
+│           Core.NewvarNode(:(id))
+│           Core.NewvarNode(:(logger))
+│           Core.NewvarNode(:(_module))
+│           Core.NewvarNode(:(group))
+│           (level = Base.CoreLogging.Warn)
+│    %37  = level::Core.Const(Warn)
+│           (std_level = %37)
+│    %39  = Base.CoreLogging.:>=::Core.Const(>=)
+│    %40  = std_level::Core.Const(Warn)
+│    %41  = Base.getproperty(%40, :level)::Core.Const(1000)
+│    %42  = Base.getindex(Base.Threads.Atomic{Int32}(-1000))::Int32
+│    %43  = (%39)(%41, %42)::Bool
+└───        goto #20 if not %43
+6 ──        (group = :search)
+│           (_module = CounterfactualExplanations)
+│    %47  = std_level::Core.Const(Warn)
+│    %48  = group::Core.Const(:search)
+│    %49  = _module::Core.Const(CounterfactualExplanations)
+│           (logger = (Base.CoreLogging.current_logger_for_env)(%47, %48, %49))
+│    %51  = Base.CoreLogging.:!::Core.Const(!)
+│    %52  = Base.CoreLogging.:(===)::Core.Const(===)
+│    %53  = logger::UNION{NOTHING, BASE.CORELOGGING.ABSTRACTLOGGER}
+│    %54  = Base.CoreLogging.nothing::Core.Const(nothing)
+│    %55  = (%52)(%53, %54)::Bool
+│    %56  = (%51)(%55)::Bool
+└───        goto #20 if not %56
+7 ──        (id = :CounterfactualExplanations_ef8f8fd6)
+│    %59  = Base.CoreLogging.invokelatest::Core.Const(invokelatest)
+│    %60  = logger::BASE.CORELOGGING.ABSTRACTLOGGER
+│    %61  = level::Core.Const(Warn)
+│    %62  = _module::Core.Const(CounterfactualExplanations)
+│    %63  = group::Core.Const(:search)
+│    %64  = id::Core.Const(:CounterfactualExplanations_ef8f8fd6)
+│    %65  = (%59)(Base.CoreLogging.shouldlog, %60, %61, %62, %63, %64)::ANY
+└───        goto #20 if not %65
+8 ──        (file = "/home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl")
+│    %68  = Base.CoreLogging.isa::Core.Const(isa)
+│    %69  = file::Core.Const("/home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl")
+│    %70  = Base.CoreLogging.String::Core.Const(String)
+│    %71  = (%68)(%69, %70)::Core.Const(true)
+└───        goto #10 if not %71
+9 ── %73  = Base.CoreLogging.Base::Core.Const(Base)
+│    %74  = Base.getproperty(%73, :fixup_stdlib_path)::Core.Const(Base.fixup_stdlib_path)
+│    %75  = file::Core.Const("/home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl")
+└───        (file = (%74)(%75))
+10 ┄        (line = 38)
+│           (msg = "Mutability constraints not currently implemented for latent space search.")
+│           (kwargs = Core.NamedTuple())
+└───        goto #20 if not true
+11 ─ %81  = $(Expr(:isdefined, :(msg)))::Core.Const(true)
+└───        goto #13 if not %81
+12 ─        goto #14
+13 ─        Core.Const(:(Base.throw))
+│           Core.Const(:(Base.AssertionError))
+│           Core.Const(:((%85)("Assertion to tell the compiler about the definedness of this variable")))
+└───        Core.Const(:((%84)(%86)))
+14 ┄ %88  = $(Expr(:isdefined, :(kwargs)))::Core.Const(true)
+└───        goto #16 if not %88
+15 ─        goto #17
+16 ─        Core.Const(:(Base.throw))
+│           Core.Const(:(Base.AssertionError))
+│           Core.Const(:((%92)("Assertion to tell the compiler about the definedness of this variable")))
+└───        Core.Const(:((%91)(%93)))
+17 ┄ %95  = Base.CoreLogging.handle_message_nothrow::Core.Const(Base.CoreLogging.handle_message_nothrow)
+│    %96  = Base.NamedTuple()::Core.Const(NamedTuple())
+│    %97  = kwargs::Core.Const(NamedTuple())
+│    %98  = Base.merge(%96, %97)::Core.Const(NamedTuple())
+│    %99  = Base.isempty(%98)::Core.Const(true)
+└───        goto #19 if not %99
+18 ─ %101 = logger::BASE.CORELOGGING.ABSTRACTLOGGER
+│    %102 = level::Core.Const(Warn)
+│    %103 = msg::Core.Const("Mutability constraints not currently implemented for latent space search.")
+│    %104 = _module::Core.Const(CounterfactualExplanations)
+│    %105 = group::Core.Const(:search)
+│    %106 = id::Core.Const(:CounterfactualExplanations_ef8f8fd6)
+│    %107 = file::String
+│    %108 = line::Core.Const(38)
+│           (%95)(%101, %102, %103, %104, %105, %106, %107, %108)
+└───        goto #20
+19 ─        Core.Const(:(logger))
+│           Core.Const(:(level))
+│           Core.Const(:(msg))
+│           Core.Const(:(_module))
+│           Core.Const(:(group))
+│           Core.Const(:(id))
+│           Core.Const(:(file))
+│           Core.Const(:(line))
+└───        Core.Const(:(Core.kwcall(%98, %95, %111, %112, %113, %114, %115, %116, %117, %118)))
+20 ┄        Base.CoreLogging.nothing
+21 ┄ %121 = grad_ce_state::Matrix{Float32}
+└───        return %121
+22 ─ %123 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│           (mutability = Base.getindex(%123, :mutability))
+│    %125 = CounterfactualExplanations.similar::Core.Const(similar)
+│           (result = (%125)(grad_ce_state))
+│           nothing
+│    %128 = CounterfactualExplanations.eachindex::Core.Const(eachindex)
+│    %129 = mutability::ANY
+│    %130 = (%128)(%129, grad_ce_state)::ANY
+│           (@_4 = Base.iterate(%130))
+│    %132 = @_4::ANY
+│    %133 = (%132 === nothing)::Bool
+│    %134 = Base.not_int(%133)::Bool
+└───        goto #43 if not %134
+23 ┄ %136 = @_4::ANY
+│           (i = Core.getfield(%136, 1))
+│    %138 = Core.getfield(%136, 2)::ANY
+│    %139 = mutability::ANY
+│    %140 = i::ANY
+│           (case = Base.getindex(%139, %140))
+│    %142 = i::ANY
+│           (val@_19 = Base.getindex(grad_ce_state, %142))
+│    %144 = CounterfactualExplanations.:(===)::Core.Const(===)
+│    %145 = case::ANY
+│    %146 = (%144)(%145, :both)::Bool
+└───        goto #25 if not %146
+24 ─ %148 = val@_19::ANY
+│           (@_21 = %148)
+└───        goto #41
+25 ─ %151 = CounterfactualExplanations.:(===)::Core.Const(===)
+│    %152 = case::ANY
+│    %153 = (%151)(%152, :increase)::Bool
+└───        goto #30 if not %153
+26 ─ %155 = CounterfactualExplanations.:<::Core.Const(<)
+│    %156 = val@_19::ANY
+│    %157 = (%155)(%156, 0)::ANY
+└───        goto #28 if not %157
+27 ─ %159 = CounterfactualExplanations.zero::Core.Const(zero)
+│    %160 = val@_19::ANY
+│           (@_23 = (%159)(%160))
+└───        goto #29
+28 ─ %163 = val@_19::ANY
+└───        (@_23 = %163)
+29 ┄ %165 = @_23::ANY
+│           (@_22 = %165)
+└───        goto #40
+30 ─ %168 = CounterfactualExplanations.:(===)::Core.Const(===)
+│    %169 = case::ANY
+│    %170 = (%168)(%169, :decrease)::Bool
+└───        goto #35 if not %170
+31 ─ %172 = CounterfactualExplanations.:>::Core.Const(>)
+│    %173 = val@_19::ANY
+│    %174 = (%172)(%173, 0)::ANY
+└───        goto #33 if not %174
+32 ─ %176 = CounterfactualExplanations.zero::Core.Const(zero)
+│    %177 = val@_19::ANY
+│           (@_25 = (%176)(%177))
+└───        goto #34
+33 ─ %180 = val@_19::ANY
+└───        (@_25 = %180)
+34 ┄ %182 = @_25::ANY
+│           (@_24 = %182)
+└───        goto #39
+35 ─ %185 = CounterfactualExplanations.:(===)::Core.Const(===)
+│    %186 = case::ANY
+│    %187 = (%185)(%186, :none)::Bool
+└───        goto #37 if not %187
+36 ─ %189 = CounterfactualExplanations.zero::Core.Const(zero)
+│    %190 = val@_19::ANY
+│           (@_26 = (%189)(%190))
+└───        goto #38
+37 ─ %193 = val@_19::ANY
+└───        (@_26 = %193)
+38 ┄ %195 = @_26::ANY
+└───        (@_24 = %195)
+39 ┄ %197 = @_24::ANY
+└───        (@_22 = %197)
+40 ┄ %199 = @_22::ANY
+└───        (@_21 = %199)
+41 ┄ %201 = @_21::ANY
+│    %202 = result::Matrix{Float32}
+│    %203 = i::ANY
+│           Base.setindex!(%202, %201, %203)
+│           (@_4 = Base.iterate(%130, %138))
+│    %206 = @_4::ANY
+│    %207 = (%206 === nothing)::Bool
+│    %208 = Base.not_int(%207)::Bool
+└───        goto #43 if not %208
+42 ─        goto #23
+43 ┄        (val@_5 = nothing)
+│           nothing
+│           val@_5
+│    %214 = result::Matrix{Float32}
+└───        return %214
+

@@ -1,0 +1,57 @@
+MethodInstance for CounterfactualExplanations.Generators.grad_pen(::GradientBasedGenerator, ::CounterfactualExplanation)
+  from grad_pen(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation) @ CounterfactualExplanations.Generators /home/patalt/code/CounterfactualExplanations.jl/src/generators/gradient_based/loss.jl:85
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.Generators.grad_pen)
+  generator::GradientBasedGenerator
+  ce::CounterfactualExplanation
+Locals
+  g::ANY
+  prep::ANY
+  backend::ANY
+  ce_state::ABSTRACTARRAY
+  @_8::ANY
+Body::ANY
+1 ─       (ce_state = Base.getproperty(ce, :counterfactual_state))
+│   %2  = CounterfactualExplanations.Generators.get!::Core.Const(get!)
+│   %3  = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %4  = CounterfactualExplanations.Generators.CounterfactualExplanations::Core.Const(CounterfactualExplanations)
+│   %5  = Base.getproperty(%4, :choose_ad_backend)::Core.Const(CounterfactualExplanations.Objectives.choose_ad_backend)
+│   %6  = (%5)(ce)::ANY
+│         (backend = (%2)(%3, :ad_backend, %6))
+│   %8  = CounterfactualExplanations.Generators.get!::Core.Const(get!)
+│   %9  = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %10 = CounterfactualExplanations.Generators.DI::Core.Const(DifferentiationInterface)
+│   %11 = Base.getproperty(%10, :prepare_gradient)::Core.Const(DifferentiationInterface.prepare_gradient)
+│   %12 = CounterfactualExplanations.Generators.pen_wrt_state::Core.Const(CounterfactualExplanations.Generators.pen_wrt_state)
+│   %13 = backend::ANY
+│   %14 = CounterfactualExplanations.Generators.similar::Core.Const(similar)
+│   %15 = ce_state::ABSTRACTARRAY
+│   %16 = (%14)(%15)::ANY
+│   %17 = CounterfactualExplanations.Generators.DI::Core.Const(DifferentiationInterface)
+│   %18 = Base.getproperty(%17, :Constant)::Core.Const(DifferentiationInterface.Constant)
+│   %19 = (%18)(ce)::DifferentiationInterface.Constant{CounterfactualExplanation}
+│   %20 = (%11)(%12, %13, %16, %19)::UNION{DIFFERENTIATIONINTERFACE.NOGRADIENTPREP{<:TUPLE{TYPEOF(COUNTERFACTUALEXPLANATIONS.GENERATORS.PEN_WRT_STATE), ADTYPES.AUTOZYGOTE, ANY, TUPLE{DIFFERENTIATIONINTERFACE.CONSTANT{COUNTERFACTUALEXPLANATION}}}}, DIFFERENTIATIONINTERFACE.PULLBACKGRADIENTPREP{SIG} WHERE SIG<:TUPLE{TYPEOF(COUNTERFACTUALEXPLANATIONS.GENERATORS.PEN_WRT_STATE), ADTYPES.ABSTRACTADTYPE, ANY, TUPLE{DIFFERENTIATIONINTERFACE.CONSTANT{COUNTERFACTUALEXPLANATION}}}, DIFFERENTIATIONINTERFACEFORWARDDIFFEXT.FORWARDDIFFGRADIENTPREP{VAR"#S179", C, TUPLE{NOTHING}} WHERE {VAR"#S179"<:TUPLE{TYPEOF(COUNTERFACTUALEXPLANATIONS.GENERATORS.PEN_WRT_STATE), ADTYPES.AUTOFORWARDDIFF, ABSTRACTARRAY, TUPLE{DIFFERENTIATIONINTERFACE.CONSTANT{COUNTERFACTUALEXPLANATION}}}, C<:FORWARDDIFF.GRADIENTCONFIG}}
+│         (prep = (%8)(%9, :prep_pen, %20))
+│   %22 = CounterfactualExplanations.Generators.DI::Core.Const(DifferentiationInterface)
+│   %23 = Base.getproperty(%22, :gradient)::Core.Const(DifferentiationInterface.gradient)
+│   %24 = CounterfactualExplanations.Generators.pen_wrt_state::Core.Const(CounterfactualExplanations.Generators.pen_wrt_state)
+│   %25 = prep::ANY
+│   %26 = backend::ANY
+│   %27 = ce_state::ABSTRACTARRAY
+│   %28 = CounterfactualExplanations.Generators.DI::Core.Const(DifferentiationInterface)
+│   %29 = Base.getproperty(%28, :Constant)::Core.Const(DifferentiationInterface.Constant)
+│   %30 = (%29)(ce)::DifferentiationInterface.Constant{CounterfactualExplanation}
+│         (g = (%23)(%24, %25, %26, %27, %30))
+│   %32 = CounterfactualExplanations.Generators.isnothing::Core.Const(isnothing)
+│   %33 = g::ANY
+│   %34 = (%32)(%33)::Bool
+└──       goto #3 if not %34
+2 ─       (@_8 = 0.0)
+└──       goto #4
+3 ─ %38 = g::ANY
+└──       (@_8 = %38)
+4 ┄ %40 = @_8::ANY
+│         (g = %40)
+│   %42 = g::ANY
+└──       return %42
+

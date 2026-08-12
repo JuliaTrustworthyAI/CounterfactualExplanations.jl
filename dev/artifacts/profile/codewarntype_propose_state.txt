@@ -1,0 +1,15 @@
+MethodInstance for CounterfactualExplanations.Generators.propose_state(::GradientBasedGenerator, ::CounterfactualExplanation)
+  from propose_state(generator::AbstractGradientBasedGenerator, ce::AbstractCounterfactualExplanation) @ CounterfactualExplanations.Generators /home/patalt/code/CounterfactualExplanations.jl/src/generators/gradient_based/generate_perturbations.jl:19
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.Generators.propose_state)
+  generator::GradientBasedGenerator
+  ce::CounterfactualExplanation
+Body::ANY
+1 ─ %1 = CounterfactualExplanations.Generators.propose_state::Core.Const(CounterfactualExplanations.Generators.propose_state)
+│   %2 = CounterfactualExplanations.Generators.Models::Core.Const(CounterfactualExplanations.Models)
+│   %3 = Base.getproperty(%2, :Differentiability)::Core.Const(CounterfactualExplanations.Models.Differentiability)
+│   %4 = Base.getproperty(ce, :M)::ABSTRACTMODEL
+│   %5 = (%3)(%4)::ANY
+│   %6 = (%1)(%5, generator, ce)::ANY
+└──      return %6
+

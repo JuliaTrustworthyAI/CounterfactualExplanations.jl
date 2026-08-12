@@ -1,0 +1,64 @@
+MethodInstance for CounterfactualExplanations.update!(::CounterfactualExplanation)
+  from update!(ce::CounterfactualExplanation) @ CounterfactualExplanations /home/patalt/code/CounterfactualExplanations.jl/src/counterfactuals/search.jl:6
+Arguments
+  #self#::Core.Const(CounterfactualExplanations.update!)
+  ce::CounterfactualExplanation
+Locals
+  _times_changed::ANY
+  counterfactual_state::ANY
+  grad_ce_state::ANY
+Body::ANY
+1 ─ %1  = CounterfactualExplanations.Generators::Core.Const(CounterfactualExplanations.Generators)
+│   %2  = Base.getproperty(%1, :generate_perturbations)::Core.Const(CounterfactualExplanations.Generators.generate_perturbations)
+│   %3  = Base.getproperty(ce, :generator)::ABSTRACTGENERATOR
+│         (grad_ce_state = (%2)(%3, ce))
+│   %5  = CounterfactualExplanations.apply_mutability::Core.Const(CounterfactualExplanations.apply_mutability)
+│   %6  = grad_ce_state::ANY
+│         (grad_ce_state = (%5)(ce, %6))
+│   %8  = CounterfactualExplanations.:+::Core.Const(+)
+│   %9  = Base.getproperty(ce, :counterfactual_state)::ABSTRACTARRAY
+│   %10 = grad_ce_state::ANY
+│         (counterfactual_state = (%8)(%9, %10))
+│   %12 = counterfactual_state::ANY
+│         Base.setproperty!(ce, :counterfactual_state, %12)
+│   %14 = CounterfactualExplanations.decode_state::Core.Const(CounterfactualExplanations.decode_state)
+│   %15 = (%14)(ce)::MATRIX
+│         Base.setproperty!(ce, :counterfactual, %15)
+│   %17 = CounterfactualExplanations.apply_domain_constraints!::Core.Const(CounterfactualExplanations.apply_domain_constraints!)
+│         (%17)(ce)
+│   %19 = CounterfactualExplanations.reshape::Core.Const(reshape)
+│   %20 = CounterfactualExplanations.:!=::Core.Const(!=)
+│   %21 = CounterfactualExplanations.decode_state::Core.Const(CounterfactualExplanations.decode_state)
+│   %22 = grad_ce_state::ANY
+│   %23 = (%21)(ce, %22)::MATRIX
+│   %24 = Base.broadcasted(%20, %23, 0)::BASE.BROADCAST.BROADCASTED{BASE.BROADCAST.DEFAULTARRAYSTYLE{2}, NOTHING, TYPEOF(!=), <:TUPLE{MATRIX, INT64}}
+│   %25 = Base.materialize(%24)::ANY
+│   %26 = CounterfactualExplanations.size::Core.Const(size)
+│   %27 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %28 = Base.getindex(%27, :times_changed_features)::ANY
+│   %29 = (%26)(%28)::ANY
+│         (_times_changed = (%19)(%25, %29))
+│   %31 = CounterfactualExplanations.:+::Core.Const(+)
+│   %32 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %33 = Base.getindex(%32, :times_changed_features)::ANY
+│   %34 = _times_changed::ANY
+│   %35 = (%31)(%33, %34)::ANY
+│   %36 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│         Base.setindex!(%36, %35, :times_changed_features)
+│   %38 = CounterfactualExplanations.:+::Core.Const(+)
+│   %39 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %40 = Base.getindex(%39, :iteration_count)::ANY
+│   %41 = (%38)(%40, 1)::ANY
+│   %42 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│         Base.setindex!(%42, %41, :iteration_count)
+│   %44 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│   %45 = Base.getindex(%44, :path)::ANY
+│   %46 = Base.getproperty(ce, :counterfactual_state)::ABSTRACTARRAY
+│   %47 = Core.tuple(%46)::TUPLE{ABSTRACTARRAY}
+│   %48 = Core._apply_iterate(Base.iterate, Base.vect, %45, %47)::ANY
+│   %49 = Base.getproperty(ce, :search)::UNION{NOTHING, DICT}
+│         Base.setindex!(%49, %48, :path)
+│   %51 = CounterfactualExplanations.terminated::Core.Const(CounterfactualExplanations.terminated)
+│   %52 = (%51)(ce)::ANY
+└──       return %52
+
